@@ -20,7 +20,6 @@ package org.apache.directory.server.core.schema;
 
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.naming.NamingException;
@@ -129,11 +128,9 @@ public class DefaultSchemaService implements SchemaService
         ServerAttribute attr = new DefaultServerAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.COMPARATORS_AT ) );
 
-        Iterator<LdapComparator<?>> list = getSchemaManager().getComparatorRegistry().iterator();
-        
-        while ( list.hasNext() )
+        for ( LdapComparator<?> comparator : getSchemaManager().getComparatorRegistry() )
         {
-            attr.add( SchemaUtils.render( list.next() ) );
+            attr.add( SchemaUtils.render( comparator ) );
         }
 
         return attr;
@@ -145,13 +142,11 @@ public class DefaultSchemaService implements SchemaService
         ServerAttribute attr = new DefaultServerAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.NORMALIZERS_AT ) );
 
-        Iterator<Normalizer> list = getSchemaManager().getNormalizerRegistry().iterator();
-
-        while ( list.hasNext() )
+        for ( Normalizer normalizer : getSchemaManager().getNormalizerRegistry() )
         {
-            attr.add( SchemaUtils.render( list.next() ) );
+            attr.add( SchemaUtils.render( normalizer ) );
         }
-        
+
         return attr;
     }
 
@@ -161,11 +156,9 @@ public class DefaultSchemaService implements SchemaService
         ServerAttribute attr = new DefaultServerAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.SYNTAX_CHECKERS_AT ) );
 
-        Iterator<SyntaxChecker> list = getSchemaManager().getSyntaxCheckerRegistry().iterator();
-
-        while ( list.hasNext() )
+        for ( SyntaxChecker syntaxChecker : getSchemaManager().getSyntaxCheckerRegistry() )
         {
-            attr.add( SchemaUtils.render( list.next() ) );
+            attr.add( SchemaUtils.render( syntaxChecker ) );
         }
         
         return attr;
@@ -177,14 +170,11 @@ public class DefaultSchemaService implements SchemaService
         ServerAttribute attr = new DefaultServerAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASSES_AT ) );
 
-        Iterator<ObjectClass> list = getSchemaManager().getObjectClassRegistry().iterator();
-
-        while ( list.hasNext() )
+        for ( ObjectClass objectClass : getSchemaManager().getObjectClassRegistry() )
         {
-            ObjectClass oc = list.next();
-            attr.add( SchemaUtils.render( oc ).toString() );
+            attr.add( SchemaUtils.render( objectClass ).toString() );
         }
-        
+
         return attr;
     }
 
@@ -194,12 +184,9 @@ public class DefaultSchemaService implements SchemaService
         ServerAttribute attr = new DefaultServerAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.ATTRIBUTE_TYPES_AT ) );
 
-        Iterator<AttributeType> list = getSchemaManager().getAttributeTypeRegistry().iterator();
-
-        while ( list.hasNext() )
+        for ( AttributeType attributeType : getSchemaManager().getAttributeTypeRegistry() )
         {
-            AttributeType at = list.next();
-            attr.add( SchemaUtils.render( at ).toString() );
+            attr.add( SchemaUtils.render( attributeType ).toString() );
         }
 
         return attr;
@@ -211,12 +198,9 @@ public class DefaultSchemaService implements SchemaService
         ServerAttribute attr = new DefaultServerAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.MATCHING_RULES_AT ) );
 
-        Iterator<MatchingRule> list = getSchemaManager().getMatchingRuleRegistry().iterator();
-
-        while ( list.hasNext() )
+        for ( MatchingRule matchingRule : getSchemaManager().getMatchingRuleRegistry() )
         {
-            MatchingRule mr = list.next();
-            attr.add( SchemaUtils.render( mr ).toString() );
+            attr.add( SchemaUtils.render( matchingRule ).toString() );
         }
 
         return attr;
@@ -228,12 +212,9 @@ public class DefaultSchemaService implements SchemaService
         ServerAttribute attr = new DefaultServerAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.MATCHING_RULE_USE_AT ) );
 
-        Iterator<MatchingRuleUse> list = getSchemaManager().getMatchingRuleUseRegistry().iterator();
-
-        while ( list.hasNext() )
+        for ( MatchingRuleUse matchingRuleUse : getSchemaManager().getMatchingRuleUseRegistry() )
         {
-            MatchingRuleUse mru = list.next();
-            attr.add( SchemaUtils.render( mru ).toString() );
+            attr.add( SchemaUtils.render( matchingRuleUse ).toString() );
         }
 
         return attr;
@@ -245,11 +226,8 @@ public class DefaultSchemaService implements SchemaService
         ServerAttribute attr = new DefaultServerAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.LDAP_SYNTAXES_AT ) );
 
-        Iterator<LdapSyntax> list = getSchemaManager().getLdapSyntaxRegistry().iterator();
-
-        while ( list.hasNext() )
+        for ( LdapSyntax syntax : getSchemaManager().getLdapSyntaxRegistry() )
         {
-            LdapSyntax syntax = list.next();
             attr.add( SchemaUtils.render( syntax ).toString() );
         }
 
@@ -262,12 +240,9 @@ public class DefaultSchemaService implements SchemaService
         ServerAttribute attr = new DefaultServerAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.DIT_CONTENT_RULES_AT ) );
 
-        Iterator<DITContentRule> list = getSchemaManager().getDITContentRuleRegistry().iterator();
-
-        while ( list.hasNext() )
+        for ( DITContentRule ditContentRule : getSchemaManager().getDITContentRuleRegistry() )
         {
-            DITContentRule dcr = list.next();
-            attr.add( SchemaUtils.render( dcr ).toString() );
+            attr.add( SchemaUtils.render( ditContentRule ).toString() );
         }
         
         return attr;
@@ -279,12 +254,9 @@ public class DefaultSchemaService implements SchemaService
         ServerAttribute attr = new DefaultServerAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.DIT_STRUCTURE_RULES_AT ) );
 
-        Iterator<DITStructureRule> list = getSchemaManager().getDITStructureRuleRegistry().iterator();
-
-        while ( list.hasNext() )
+        for ( DITStructureRule ditStructureRule : getSchemaManager().getDITStructureRuleRegistry() )
         {
-            DITStructureRule dsr = list.next();
-            attr.add( SchemaUtils.render( dsr ).toString() );
+            attr.add( SchemaUtils.render( ditStructureRule ).toString() );
         }
         
         return attr;
@@ -296,12 +268,9 @@ public class DefaultSchemaService implements SchemaService
         ServerAttribute attr = new DefaultServerAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.NAME_FORMS_AT ) );
 
-        Iterator<NameForm> list = getSchemaManager().getNameFormRegistry().iterator();
-
-        while ( list.hasNext() )
+        for ( NameForm nameForm : getSchemaManager().getNameFormRegistry() )
         {
-            NameForm nf = list.next();
-            attr.add( SchemaUtils.render( nf ).toString() );
+            attr.add( SchemaUtils.render( nameForm ).toString() );
         }
         
         return attr;
