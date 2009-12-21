@@ -47,6 +47,7 @@ import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.registries.NormalizerRegistry;
 
 
 /**
@@ -142,7 +143,9 @@ public class DefaultSchemaService implements SchemaService
         ServerAttribute attr = new DefaultServerAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.NORMALIZERS_AT ) );
 
-        for ( Normalizer normalizer : getSchemaManager().getNormalizerRegistry() )
+        NormalizerRegistry nr = getSchemaManager().getNormalizerRegistry();
+        
+        for ( Normalizer normalizer : nr )
         {
             attr.add( SchemaUtils.render( normalizer ) );
         }

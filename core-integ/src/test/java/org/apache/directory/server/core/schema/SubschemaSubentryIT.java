@@ -568,9 +568,11 @@ public class SubschemaSubentryIT
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "normalizers" );
         NormalizerDescription normalizerDescription = null; 
-        for ( int ii = 0; ii < attrTypes.size(); ii++ )
+        
+        for ( int i = 0; i < attrTypes.size(); i++ )
         {
-            String desc = ( String ) attrTypes.get( ii );
+            String desc = ( String ) attrTypes.get( i );
+            
             if ( desc.indexOf( oid ) != -1 )
             {
                 normalizerDescription = normalizerDescriptionSchemaParser.parseNormalizerDescription( desc );
@@ -1129,11 +1131,11 @@ public class SubschemaSubentryIT
         // -------------------------------------------------------------------
         // check next to see if it is present in the schema partition
         // -------------------------------------------------------------------
-
         //noinspection UnusedAssignment
         attrs = null;
 
         LdapContext schemaRoot = getSchemaContext( service );
+        
         if ( isPresent )
         {
             attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
