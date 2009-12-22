@@ -22,17 +22,7 @@ package org.apache.directory.server.core.suites;
 import org.apache.directory.server.core.integ.CiSuite;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.core.schema.MetaAttributeTypeHandlerIT;
-import org.apache.directory.server.core.schema.MetaComparatorHandlerIT;
-import org.apache.directory.server.core.schema.MetaMatchingRuleHandlerIT;
-import org.apache.directory.server.core.schema.MetaNormalizerHandlerIT;
-import org.apache.directory.server.core.schema.MetaObjectClassHandlerIT;
-import org.apache.directory.server.core.schema.MetaSchemaHandlerIT;
-import org.apache.directory.server.core.schema.MetaSyntaxCheckerHandlerIT;
-import org.apache.directory.server.core.schema.MetaSyntaxHandlerIT;
-import org.apache.directory.server.core.schema.ObjectClassCreateIT;
-import org.apache.directory.server.core.schema.SchemaPersistenceIT;
-import org.apache.directory.server.core.schema.SchemaServiceIT;
+import org.apache.directory.server.core.schema.SubschemaSubentryIT;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -45,20 +35,9 @@ import org.junit.runners.Suite;
  */
 @RunWith ( CiSuite.class )
 @Suite.SuiteClasses ( {
-        MetaAttributeTypeHandlerIT.class,
-        MetaComparatorHandlerIT.class,
-        MetaMatchingRuleHandlerIT.class,
-        MetaNormalizerHandlerIT.class,
-        MetaObjectClassHandlerIT.class,
-        MetaSchemaHandlerIT.class,
-        MetaSyntaxCheckerHandlerIT.class,
-        MetaSyntaxHandlerIT.class,
-        ObjectClassCreateIT.class,
-        SchemaPersistenceIT.class,
-        //SubschemaSubentryIT.class,
-        SchemaServiceIT.class
+        SubschemaSubentryIT.class
         } )
 @CleanupLevel ( Level.SUITE )
-public class SchemaISuite
+public class SubSchemaSubentryISuite
 {
 }
