@@ -35,6 +35,7 @@ import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
@@ -86,7 +87,7 @@ public class PartitionSchemaLoaderTest
         }
 
         File schemaRepository = new File( workingDirectory, "schema" );
-        SchemaLdifExtractor extractor = new SchemaLdifExtractor( workingDirectory );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( workingDirectory );
         extractor.extractOrCopy();
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
         schemaManager = new DefaultSchemaManager( loader );

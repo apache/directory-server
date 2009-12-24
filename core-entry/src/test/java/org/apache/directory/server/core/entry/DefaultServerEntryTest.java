@@ -53,6 +53,7 @@ import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -105,7 +106,7 @@ public class DefaultServerEntryTest
         }
 
         File schemaRepository = new File( workingDirectory, "schema" );
-        SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy( true );
         loader = new LdifSchemaLoader( schemaRepository );
 

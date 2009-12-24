@@ -61,6 +61,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
@@ -118,7 +119,7 @@ public class MixedCaseITest
             ldifPartition.setWorkingDirectory( workingDirectory + "/schema" );
 
             // Extract the schema on disk (a brand new one) and load the registries
-            SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
+            SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
 
             schemaPartition.setWrappedPartition( ldifPartition );
 

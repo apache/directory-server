@@ -30,6 +30,7 @@ import jdbm.RecordManager;
 import jdbm.recman.BaseRecordManager;
 
 import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.DefaultSchemaManager;
@@ -70,8 +71,8 @@ public class JdbmMasterTableTest
         }
 
         File schemaRepository = new File( workingDirectory, "schema" );
-        SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
-        extractor.extractOrCopy();
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+        extractor.extractOrCopy( true );
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
 
         schemaManager = new DefaultSchemaManager( loader );

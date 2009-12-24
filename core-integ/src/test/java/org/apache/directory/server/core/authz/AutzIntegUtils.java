@@ -54,6 +54,7 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
@@ -106,7 +107,7 @@ public class AutzIntegUtils
 
             // Extract the schema on disk (a brand new one) and load the registries
             File schemaRepository = new File( workingDirectory, "schema" );
-            SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
+            SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
             extractor.extractOrCopy();
 
             schemaPartition.setWrappedPartition( ldifPartition );
@@ -184,7 +185,7 @@ public class AutzIntegUtils
 
             // Extract the schema on disk (a brand new one) and load the registries
             File schemaRepository = new File( workingDirectory, "schema" );
-            SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
+            SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
 
             schemaPartition.setWrappedPartition( ldifPartition );
 
