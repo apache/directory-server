@@ -51,4 +51,12 @@ public class TestClassC extends AbstractTestUnit
         assertFalse( service.getAdminSession().exists( new LdapDN( "cn=testClassB,ou=system" ) ) );
     }
     
+    
+    @Test
+    @ApplyLdifFiles( "test-entry.ldif" )
+    public void testWithApplyLdifFiles() throws Exception
+    {
+        assertTrue( service.getAdminSession().exists( new LdapDN( "cn=testPerson1,ou=system" ) ) );
+        assertTrue( service.getAdminSession().exists( new LdapDN( "cn=testPerson2,ou=system" ) ) );
+    }
 }

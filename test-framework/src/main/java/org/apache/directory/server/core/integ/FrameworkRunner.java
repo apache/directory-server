@@ -19,7 +19,10 @@
 package org.apache.directory.server.core.integ;
 
 
+import java.io.File;
 import java.lang.reflect.Field;
+import java.net.URI;
+import java.net.URL;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -163,15 +166,15 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
         }
 
         // Get the applyLdifs for each level
-        ApplyLdifs suiteLdifs = null;
+        Description suiteDescription = null;
         
         if ( suite != null )
         {
-            suiteLdifs = suite.getSuiteLdifs();
+            suiteDescription = suite.getDescription();
         }
         
-        ApplyLdifs classLdifs = getDescription().getAnnotation( ApplyLdifs.class );
-        ApplyLdifs methodLdifs = method.getAnnotation( ApplyLdifs.class );
+        Description classDescription = getDescription();
+        Description methodDescription = describeChild( method );
 
         // Ok, ready to run the test
         try
@@ -190,9 +193,9 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 methodDS = service;
 
                 // Apply all the LDIFs
-                applyLdifs( suiteLdifs, service );
-                applyLdifs( classLdifs, service );
-                applyLdifs( methodLdifs, service );
+                applyLdifs( suiteDescription, service );
+                applyLdifs( classDescription, service );
+                applyLdifs( methodDescription, service );
             }
             else if ( classDSBuilder != null )
             {
@@ -206,7 +209,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
                     // Only apply the method LDIF, the class and suite(if present) LDIFs have
                     // already been applied
-                    applyLdifs( methodLdifs, service );
+                    applyLdifs( methodDescription, service );
                 }
                 else
                 {
@@ -215,13 +218,13 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                     service = classService;
 
                     // Apply all the LDIFs
-                    applyLdifs( suiteLdifs, service );
-                    applyLdifs( classLdifs, service );
+                    applyLdifs( suiteDescription, service );
+                    applyLdifs( classDescription, service );
 
                     // get the current revision, we need it to revert the modifications
                     revision = service.getChangeLog().getCurrentRevision();
                  
-                    applyLdifs( methodLdifs, service );
+                    applyLdifs( methodDescription, service );
                 }
             }
             else if ( ( suite != null ) && ( suite.getSuiteDSBuilder() != null ) )
@@ -238,11 +241,11 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                     // LDIFs haven't been applied yet
                     if ( !classStarted )
                     {
-                        applyLdifs( classLdifs, service );
+                        applyLdifs( classDescription, service );
                     }
 
                     // And also apply the method's LDIFs
-                    applyLdifs( methodLdifs, service );
+                    applyLdifs( methodDescription, service );
                 }
                 else if ( suite.getSuiteDSBuilder() != null ) 
                 {
@@ -252,14 +255,14 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
                     // apply the suite LDIFs first, these will never be reverted
                     // during the running time of a test suite
-                    applyLdifs( suiteLdifs, service );
+                    applyLdifs( suiteDescription, service );
 
                     // get the current revision, we need it to revert the modifications
                     revision = service.getChangeLog().getCurrentRevision();
 
                     // Apply all the other LDIFs
-                    applyLdifs( classLdifs, service );
-                    applyLdifs( methodLdifs, service );
+                    applyLdifs( classDescription, service );
+                    applyLdifs( methodDescription, service );
                 }
             }
             else if ( ( suite != null ) && ( suite.getSuiteService() == null ) )
@@ -272,15 +275,15 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 // same as in above else-if condition 
                 // apply the suite LDIFs first, these will never be reverted
                 // during the running time of a test suite
-                applyLdifs( suiteLdifs, service );
+                applyLdifs( suiteDescription, service );
 
                 suite.setSuiteService( service );
                 // get the current revision, we need it to revert the modifications
                 revision = service.getChangeLog().getCurrentRevision();
 
                 // Apply all the other LDIFs
-                applyLdifs( classLdifs, service );
-                applyLdifs( methodLdifs, service );
+                applyLdifs( classDescription, service );
+                applyLdifs( methodDescription, service );
             }
             // FIXME the below else if is kind of supication as
             // the above else if ( classDSBuilder != null ) condition
@@ -294,12 +297,12 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 
                 // apply only class LDIFs, no need to apply suite LDIFs casue if this block is executing
                 // means there is no suite associated with the class
-                applyLdifs( classLdifs, service );
+                applyLdifs( classDescription, service );
 
                 // get the current revision, we need it to revert the modifications
                 revision = service.getChangeLog().getCurrentRevision();
 
-                applyLdifs( methodLdifs, service );
+                applyLdifs( methodDescription, service );
             }
             else if ( classService != null )
             {
@@ -307,7 +310,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 // get the current revision, we need it to revert the modifications
                 revision = service.getChangeLog().getCurrentRevision();
 
-                applyLdifs( methodLdifs, service );
+                applyLdifs( methodDescription, service );
             }
 
             // At this point, we know which service to use.
@@ -360,8 +363,22 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
     /**
      * Apply the LDIF entries to the given service
      */
-    private void applyLdifs( ApplyLdifs applyLdifs, DirectoryService service ) throws Exception
+    private void applyLdifs( Description desc, DirectoryService service ) throws Exception
     {
+        if( desc == null )
+        {
+            return;
+        }
+        
+        ApplyLdifFiles applyLdifFiles = desc.getAnnotation( ApplyLdifFiles.class );
+
+        if( applyLdifFiles != null )
+        {
+            injectLdifFiles( service, applyLdifFiles.value() );
+        }
+        
+        ApplyLdifs applyLdifs = desc.getAnnotation( ApplyLdifs.class ); 
+        
         if ( ( applyLdifs != null ) && ( applyLdifs.value() != null ) )
         {
             String[] ldifs = applyLdifs.value();
@@ -373,7 +390,41 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
         }
     }
 
+    /**
+     * injects the LDIF entries present in a LDIF file
+     * 
+     * @param service the DirectoryService 
+     * @param ldifFiles the array of LDIF file names (only )
+     * @throws Exception
+     */
+    public void injectLdifFiles( DirectoryService service, String[] ldifFiles ) throws Exception
+    {
+        if ( ldifFiles != null && ldifFiles.length > 0 )
+        {
+            for ( String ldifFile : ldifFiles )
+            {
+                try
+                {
+                    Class<?> klaz = getTestClass().getJavaClass();
 
+                    LdifReader ldifReader = new LdifReader( klaz.getClassLoader().getResourceAsStream( ldifFile ) ); 
+    
+                    for ( LdifEntry entry : ldifReader )
+                    {
+                        injectEntry( entry, service );
+                    }
+                    
+                    ldifReader.close();
+                }
+                catch ( Exception e )
+                {
+                    LOG.error( "Cannot inject the following entry : {}. Error : {}.", ldifFile, e.getMessage() );
+                }
+            }
+        }
+    }
+    
+    
     /**
      * Inject an ldif String into the server. DN must be relative to the
      * root.
@@ -382,30 +433,42 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
      * @param ldif the ldif containing entries to add to the server.
      * @throws NamingException if there is a problem adding the entries from the LDIF
      */
-    public static void injectEntries( DirectoryService service, String ldif ) throws Exception
+    public void injectEntries( DirectoryService service, String ldif ) throws Exception
     {
         LdifReader reader = new LdifReader();
         List<LdifEntry> entries = reader.parseLdif( ldif );
 
         for ( LdifEntry entry : entries )
         {
-            if ( entry.isChangeAdd() )
-            {
-                service.getAdminSession().add( new DefaultServerEntry( service.getSchemaManager(), entry.getEntry() ) );
-            }
-            else if ( entry.isChangeModify() )
-            {
-                service.getAdminSession().modify( entry.getDn(), entry.getModificationItems() );
-            }
-            else
-            {
-                String message = "Unsupported changetype found in LDIF: " + entry.getChangeType();
-                throw new NamingException( message );
-            }
+            injectEntry( entry, service );
         }
 
         // And close the reader
         reader.close();
     }
 
+    
+    /**
+     * injects an LDIF entry in the given DirectoryService
+     * 
+     * @param entry the LdifEntry to be injected
+     * @param service the DirectoryService
+     * @throws Exception
+     */
+    private void injectEntry( LdifEntry entry, DirectoryService service ) throws Exception
+    {
+        if ( entry.isChangeAdd() )
+        {
+            service.getAdminSession().add( new DefaultServerEntry( service.getSchemaManager(), entry.getEntry() ) );
+        }
+        else if ( entry.isChangeModify() )
+        {
+            service.getAdminSession().modify( entry.getDn(), entry.getModificationItems() );
+        }
+        else
+        {
+            String message = "Unsupported changetype found in LDIF: " + entry.getChangeType();
+            throw new NamingException( message );
+        }
+    }
 }
