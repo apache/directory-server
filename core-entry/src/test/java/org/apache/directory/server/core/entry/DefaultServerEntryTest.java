@@ -106,7 +106,7 @@ public class DefaultServerEntryTest
 
         File schemaRepository = new File( workingDirectory, "schema" );
         SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
-        extractor.extractOrCopy();
+        extractor.extractOrCopy( true );
         loader = new LdifSchemaLoader( schemaRepository );
 
         schemaManager = new DefaultSchemaManager( loader );
