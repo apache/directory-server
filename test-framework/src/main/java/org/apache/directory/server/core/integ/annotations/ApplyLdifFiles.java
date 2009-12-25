@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.integ;
+package org.apache.directory.server.core.integ.annotations;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -27,9 +27,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 
+
+
 /**
- * A annotation used to specify an sequence of LDIF's to be applied to
- * the instance for integration testing.
+ * A annotation used to specify an array of ldif files to load and apply
+ * on the instance used for integration testing.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -38,7 +40,7 @@ import java.lang.annotation.Target;
 @Inherited
 @Retention ( RetentionPolicy.RUNTIME )
 @Target ( { ElementType.METHOD, ElementType.TYPE } )
-public @interface ApplyLdifs
+public @interface ApplyLdifFiles
 {
      String[] value();
 }

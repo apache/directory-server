@@ -20,6 +20,8 @@ package org.apache.directory.server.core.integ;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.annotations.DSBuilder;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.Suite;

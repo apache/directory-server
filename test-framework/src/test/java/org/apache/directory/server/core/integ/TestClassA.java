@@ -22,6 +22,8 @@ package org.apache.directory.server.core.integ;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.annotations.DSBuilder;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.Test;
 import org.junit.runner.RunWith;

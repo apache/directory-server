@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.directory.server.core.integ;
+package org.apache.directory.server.core.integ.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
