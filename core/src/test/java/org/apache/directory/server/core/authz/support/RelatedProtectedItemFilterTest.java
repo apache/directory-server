@@ -51,9 +51,9 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.loader.ldif.JarLdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
-import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

@@ -57,10 +57,10 @@ import org.apache.directory.shared.ldap.schema.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.loader.ldif.JarLdifSchemaLoader;
+import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
-import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
-import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 
 
 /**
