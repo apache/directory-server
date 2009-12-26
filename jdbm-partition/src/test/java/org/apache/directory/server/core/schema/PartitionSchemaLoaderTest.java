@@ -39,8 +39,8 @@ import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchema
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
-import org.apache.directory.shared.schema.DefaultSchemaManager;
-import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
+import org.apache.directory.shared.ldap.schema.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;

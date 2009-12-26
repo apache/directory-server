@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.schema.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.schema.DefaultSchemaManager;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

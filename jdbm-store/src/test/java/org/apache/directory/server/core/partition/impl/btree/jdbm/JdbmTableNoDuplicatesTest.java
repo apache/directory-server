@@ -38,8 +38,8 @@ import org.apache.directory.shared.ldap.schema.comparators.SerializableComparato
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
-import org.apache.directory.shared.schema.DefaultSchemaManager;
-import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
+import org.apache.directory.shared.ldap.schema.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
