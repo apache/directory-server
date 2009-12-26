@@ -119,7 +119,7 @@
 
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-schema-loader</artifactId>
+      <artifactId>shared-ldap-schema-manager</artifactId>
       <version>${org.apache.directory.shared.version}</version>
     </dependency>
   </dependencies>
