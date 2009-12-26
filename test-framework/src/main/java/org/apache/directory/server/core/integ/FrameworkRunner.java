@@ -19,10 +19,7 @@
 package org.apache.directory.server.core.integ;
 
 
-import java.io.File;
 import java.lang.reflect.Field;
-import java.net.URI;
-import java.net.URL;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
