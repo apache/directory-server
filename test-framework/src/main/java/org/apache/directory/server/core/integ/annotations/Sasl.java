@@ -26,12 +26,18 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.apache.directory.server.ldap.handlers.bind.SimpleMechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
+
 
 /**
- * A annotation used to define a LdapServer configuration. Many elements can be configured :
+ * A annotation used to define the SASL configuration. Many elements can be configured :
  * <ul>
- * <li> The server ID (or name)</li>
- * <li> The max time limit</li>
+ * <li> The host</li>
+ * <li> The principal</li>
  * <li> the max size limit</li>
  * <li> Should it allow anonymous access</li>
  * <li> The keyStore file</li>
@@ -44,23 +50,27 @@ import java.lang.annotation.Target;
 @Inherited
 @Retention ( RetentionPolicy.RUNTIME )
 @Target ( { ElementType.METHOD, ElementType.TYPE } )
-public @interface LdapServer
+public @interface Sasl
 {
-    /** The instance name */
-    String name();
+    /** The SASL host, default to localhost */
+    String host() default "localhost";
     
-    /** The maximum size limit.*/
-    int maxSizeLimit() default 1000;
+    /** The principal */
+    String principal();
     
-    /** The maximum time limit. */
-    int maxTimeLimit() default 1000;
+    /** The SASL QOP list */
+    String[] qop() default { "auth", "auth-int", "auth-conf" };
     
-    /** Tells if anonymous access are allowed or not. */
-    boolean allowAnonymousAccess() default false;
+    /** The SASL realms */
+    String[] realms() default {};
     
-    /** The external keyStore file to use, default to the empty string */
-    String keyStore() default "";
-    
-    /** The certificate password in base64, default to the empty string */
-    String certificatePassword() default "";
+    /** The mechanism handlers.*/
+    Class<?>[] mechanismHandler() default 
+        { 
+            SimpleMechanismHandler.class,
+            CramMd5MechanismHandler.class,
+            DigestMd5MechanismHandler.class,
+            GssapiMechanismHandler.class,
+            NtlmMechanismHandler.class
+        };
 }
