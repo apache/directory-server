@@ -48,6 +48,11 @@
       <version>${pom.version}</version>
     </dependency>  
 
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-protocol-shared</artifactId>
+      <version>${pom.version}</version>
+    </dependency>  
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>

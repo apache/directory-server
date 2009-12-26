@@ -102,6 +102,9 @@ public abstract class AbstractServerTest
     protected DirectoryService directoryService;
     protected NioSocketAcceptor socketAcceptor;
     protected LdapServer ldapServer;
+    
+    protected static String workingDir;
+
 
 
     /**
@@ -250,6 +253,8 @@ public abstract class AbstractServerTest
 
         start++;
         directoryService = new DefaultDirectoryService();
+        directoryService.setWorkingDirectory( new File( workingDir ) );
+
         directoryService.setShutdownHookEnabled( false );
         port = AvailablePortFinder.getNextAvailable( 1024 );
         ldapServer = new LdapServer();

@@ -20,6 +20,9 @@
 package org.apache.directory.server.kerberos.kdc;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.security.PrivilegedAction;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -58,9 +61,8 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * An {@link AbstractServerTest} testing SASL GSSAPI authentication
@@ -76,6 +78,13 @@ public class SaslGssapiBindITest extends AbstractServerTest
 {
     private DirContext ctx;
 
+    @BeforeClass
+    public static final void init()
+    {
+        String path = SaslGssapiBindITest.class.getResource( "" ).getPath();
+        int targetPos = path.indexOf( "target" );
+        workingDir = path.substring( 0, targetPos + 6 ) + "/server-work/schema";
+    }
 
     /**
      * Creates a new instance of SaslGssapiBindTest and sets JAAS system properties.

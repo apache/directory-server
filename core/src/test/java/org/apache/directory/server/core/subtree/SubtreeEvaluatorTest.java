@@ -41,8 +41,8 @@ import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponent
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationModifier;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
-import org.apache.directory.shared.ldap.schema.DefaultSchemaManager;
-import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
+import org.apache.directory.shared.schema.DefaultSchemaManager;
+import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

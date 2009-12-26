@@ -83,7 +83,7 @@ import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescriptionS
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.DateUtils;
-import org.apache.directory.shared.ldap.schema.loader.ldif.SchemaEntityFactory;
+import org.apache.directory.shared.schema.loader.ldif.SchemaEntityFactory;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
