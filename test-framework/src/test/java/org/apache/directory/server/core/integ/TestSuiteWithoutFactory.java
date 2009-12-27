@@ -18,7 +18,7 @@
  */
 package org.apache.directory.server.core.integ;
 
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 

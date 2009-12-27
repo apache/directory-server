@@ -16,23 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.directory.server.core.integ;
+package org.apache.directory.server.core.annotations;
 
-import org.apache.directory.server.core.annotations.ApplyLdifs;
-import org.apache.directory.server.core.annotations.DSBuilder;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@RunWith( FrameworkSuite.class )
-@Suite.SuiteClasses({ TestClassA.class, TestClassB.class, TestClassC.class })
-@DSBuilder(factory = FrameworkDirectoryServiceFactory.class, name = "SuiteDS")
-@ApplyLdifs(
-    {
-        "dn: cn=testSuite,ou=system\n" + 
-        "objectClass: person\n" + 
-        "cn: testSuite\n" + 
-        "sn: sn_testSuite\n" 
-    })
-public class TestSuite
+@Retention(RetentionPolicy.RUNTIME)
+@Target( {ElementType.METHOD, ElementType.TYPE } )
+public @interface DSBuilder
 {
+    /** The Factory to use to create a DirectoryService */
+    Class<?> factory();
+    
+    /** The DS name */
+    String name();
 }

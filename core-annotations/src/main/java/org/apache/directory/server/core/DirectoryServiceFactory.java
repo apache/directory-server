@@ -16,20 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.directory.server.core.integ.annotations;
+package org.apache.directory.server.core;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.apache.directory.server.core.DirectoryService;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target( {ElementType.METHOD, ElementType.TYPE } )
-public @interface DSBuilder
+
+/**
+ * A factory used to generate differently configured DirectoryService objects.
+ * Since the DirectoryService itself is what is configured then a factory for
+ * these objects acts as a configurator.  Tests can provide different factory
+ * methods to be used.
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
+public interface DirectoryServiceFactory
 {
-    /** The Factory to use to create a DirectoryService */
-    Class<?> factory();
-    
-    /** The DS name */
-    String name();
+
+    void init( String name ) throws Exception;
+
+
+    DirectoryService getDirectoryService() throws Exception;
 }

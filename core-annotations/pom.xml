@@ -6,7 +6,6 @@
     <artifactId>apacheds-parent</artifactId>
     <version>1.5.6-SNAPSHOT</version>
   </parent>
-  <groupId>org.apache.directory.server.core.integ</groupId>
   <artifactId>apacheds-core-annotations</artifactId>
   <packaging>jar</packaging>
   <version>1.5.6-SNAPSHOT</version>
