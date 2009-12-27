@@ -24,8 +24,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith( FrameworkSuite.class )
-@Suite.SuiteClasses({ TestClassA.class, TestClassB.class, TestClassC.class })
-@DSBuilder(factory = FrameworkDirectoryServiceFactory.class, name = "SuiteDS")
+@Suite.SuiteClasses( { TestClassA.class, TestClassB.class, TestClassC.class } )
+@DSBuilder( name = "SuiteDS" )
 @ApplyLdifs(
     {
         "dn: cn=testSuite,ou=system\n" + 

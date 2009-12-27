@@ -39,7 +39,7 @@ public class TestClassB extends AbstractTestUnit
 {
 
     @Test
-    @DSBuilder( factory=FrameworkDirectoryServiceFactory.class, name="test" )
+    @DSBuilder( name="testDS" )
     public void testWithFactoryAnnotation() throws Exception
     {
         if ( isRunInSuite )

@@ -23,13 +23,21 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.apache.directory.server.core.DefaultDirectoryServiceFactory;
+
+/**
+ * An anntation for the DirectoryService builder
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target( {ElementType.METHOD, ElementType.TYPE } )
 public @interface DSBuilder
 {
     /** The Factory to use to create a DirectoryService */
-    Class<?> factory();
+    Class<?> factory() default DefaultDirectoryServiceFactory.class;
     
     /** The DS name */
-    String name();
+    String name() default "defaultDS";
 }

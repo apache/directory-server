@@ -44,10 +44,13 @@ import java.lang.annotation.Target;
 @Inherited
 @Retention ( RetentionPolicy.RUNTIME )
 @Target ( { ElementType.METHOD, ElementType.TYPE } )
-public @interface LdapServer
+public @interface LdapServerBuilder
 {
     /** The instance name */
     String name();
+    
+    /** The LdapServer factory */
+    Class<?> factory() default DefaultLdapServerFactory.class;
     
     /** The maximum size limit.*/
     int maxSizeLimit() default 1000;

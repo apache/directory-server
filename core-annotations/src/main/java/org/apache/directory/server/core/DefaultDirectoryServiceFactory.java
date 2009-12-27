@@ -16,14 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.directory.server.core.integ;
+package org.apache.directory.server.core;
 
 
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.builder.DirectoryServiceBuilder;
 
 
-public class FrameworkDirectoryServiceFactory implements DirectoryServiceFactory
+/**
+ * A Default factory for DirectoryService
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
+public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
 {
     private DirectoryService service;
 
@@ -31,7 +36,7 @@ public class FrameworkDirectoryServiceFactory implements DirectoryServiceFactory
      * The default factory returns stock instances of a directory
      * service with smart defaults
      */
-    public static final DirectoryServiceFactory DEFAULT = new FrameworkDirectoryServiceFactory();
+    public static final DirectoryServiceFactory DEFAULT = new DefaultDirectoryServiceFactory();
 
     public void init( String name ) throws Exception
     {

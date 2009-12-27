@@ -18,7 +18,7 @@
  */
 package org.apache.directory.server.core.integ;
 
-import org.apache.directory.server.annotations.LdapServer;
+import org.apache.directory.server.annotations.LdapServerBuilder;
 import org.apache.directory.server.annotations.Transport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.DSBuilder;
@@ -27,9 +27,9 @@ import org.junit.runners.Suite;
 
 @RunWith( FrameworkSuite.class )
 @Suite.SuiteClasses( { TestClassA.class, TestClassB.class, TestClassC.class } )
-@DSBuilder( factory = FrameworkDirectoryServiceFactory.class, name = "SuiteDS" )
+@DSBuilder( name = "SuiteDS" )
 @Transport( protocol="LDAP" )
-@LdapServer( name="test" )
+@LdapServerBuilder( name="test" )
 @ApplyLdifs(
     {
         "dn: cn=testSuite,ou=system\n" + 

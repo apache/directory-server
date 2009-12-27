@@ -30,7 +30,7 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(FrameworkRunner.class)
-@DSBuilder( factory=FrameworkDirectoryServiceFactory.class, name="Class" )
+@DSBuilder( name="ClassDS" )
 @ApplyLdifs(
     {
         "dn: cn=testClassA,ou=system\n" + 
@@ -41,7 +41,7 @@ import org.junit.runner.RunWith;
 public class TestClassA extends AbstractTestUnit
 {
     @Test
-    @DSBuilder( factory=FrameworkDirectoryServiceFactory.class, name="test" )
+    @DSBuilder( name="testDS" )
     @ApplyLdifs(
         {
             "dn: cn=testMethodA,ou=system\n" + 

@@ -28,6 +28,8 @@ import javax.naming.NamingException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.DirectoryServiceFactory;
+import org.apache.directory.server.core.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.DSBuilder;
@@ -268,7 +270,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             else if ( ( suite != null ) && ( suite.getSuiteService() == null ) )
             {
                 // Use the default DS
-                DirectoryServiceFactory dsf = FrameworkDirectoryServiceFactory.DEFAULT;
+                DirectoryServiceFactory dsf = DefaultDirectoryServiceFactory.DEFAULT;
                 dsf.init( "default" + UUID.randomUUID().toString() );
                 service = dsf.getDirectoryService();
                 
@@ -290,7 +292,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             else if ( classService == null ) // finally just create a default DS for class alone
             {
                 // Use the default DS
-                DirectoryServiceFactory dsf = FrameworkDirectoryServiceFactory.DEFAULT;
+                DirectoryServiceFactory dsf = DefaultDirectoryServiceFactory.DEFAULT;
                 dsf.init( "class-" + UUID.randomUUID().toString() );
                 classService = dsf.getDirectoryService();
                 service = classService;
