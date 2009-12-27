@@ -38,10 +38,9 @@ import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
  * <ul>
  * <li> The host</li>
  * <li> The principal</li>
- * <li> the max size limit</li>
- * <li> Should it allow anonymous access</li>
- * <li> The keyStore file</li>
- * <li> The certificate password</li>
+ * <li> The SASL Qop</li>
+ * <li> The SASL Realms</li>
+ * <li> The SASL mechanisms</li>
  * </ul>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
