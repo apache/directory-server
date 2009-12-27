@@ -348,6 +348,7 @@
     <module>core</module>
     <module>core-api</module>
     <module>core-builder</module>
+    <module>core-annotations</module>
     <module>core-mock</module>
     <module>core-jndi</module>
     <module>core-constants</module>
