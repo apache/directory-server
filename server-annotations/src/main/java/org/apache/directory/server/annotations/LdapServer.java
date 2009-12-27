@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.integ.annotations;
+package org.apache.directory.server.annotations;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -28,9 +28,15 @@ import java.lang.annotation.Target;
 
 
 /**
- * A annotation used to specify an sequence of LDIF's to be applied to
- * the instance for integration testing.
- *
+ * A annotation used to define a LdapServer configuration. Many elements can be configured :
+ * <ul>
+ * <li> The server ID (or name)</li>
+ * <li> The max time limit</li>
+ * <li> the max size limit</li>
+ * <li> Should it allow anonymous access</li>
+ * <li> The keyStore file</li>
+ * <li> The certificate password</li>
+ * </ul>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -38,27 +44,23 @@ import java.lang.annotation.Target;
 @Inherited
 @Retention ( RetentionPolicy.RUNTIME )
 @Target ( { ElementType.METHOD, ElementType.TYPE } )
-public @interface Transport
+public @interface LdapServer
 {
-    /** The name for this protocol*/
-    String protocol();
+    /** The instance name */
+    String name();
     
-    /** The transport type (TCP or UDP) Default to TCP */
-    TransportType type() default TransportType.TCP;
+    /** The maximum size limit.*/
+    int maxSizeLimit() default 1000;
     
-    /** The port to use, default to a bad value so that we know 
-     * we have to pick one random available port */
-    int port() default -1;
+    /** The maximum time limit. */
+    int maxTimeLimit() default 1000;
     
-    /** The InetAddress for this transport. Default to localhost */
-    String address() default "localhost";
+    /** Tells if anonymous access are allowed or not. */
+    boolean allowAnonymousAccess() default false;
     
-    /** The backlog. Default to 50 */
-    int backlog() default 50;
+    /** The external keyStore file to use, default to the empty string */
+    String keyStore() default "";
     
-    /** A flag to tell if the transport is SSL based. Default to false */
-    boolean ssl() default false;
-    
-    /** The number of threads to use. Default to 3*/
-    int nbThreads() default 3;
+    /** The certificate password in base64, default to the empty string */
+    String certificatePassword() default "";
 }

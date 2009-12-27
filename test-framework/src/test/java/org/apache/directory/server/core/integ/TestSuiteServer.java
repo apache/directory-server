@@ -18,10 +18,10 @@
  */
 package org.apache.directory.server.core.integ;
 
+import org.apache.directory.server.annotations.LdapServer;
+import org.apache.directory.server.annotations.Transport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.DSBuilder;
-import org.apache.directory.server.core.integ.annotations.LdapServer;
-import org.apache.directory.server.core.integ.annotations.Transport;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 

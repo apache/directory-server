@@ -32,13 +32,13 @@
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-protocol-ldap</artifactId>
+      <artifactId>apacheds-core-annotations</artifactId>
       <version>${pom.version}</version>
     </dependency>  
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-core-annotations</artifactId>
+      <artifactId>apacheds-server-annotations</artifactId>
       <version>${pom.version}</version>
     </dependency>  
 

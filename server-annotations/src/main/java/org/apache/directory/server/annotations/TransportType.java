@@ -18,7 +18,7 @@
  *
  */
 
-package org.apache.directory.server.core.integ.annotations;
+package org.apache.directory.server.annotations;
 
 /**
  * The two different type of Transport

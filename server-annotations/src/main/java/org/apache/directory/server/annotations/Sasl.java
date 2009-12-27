@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.integ.annotations;
+package org.apache.directory.server.annotations;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
