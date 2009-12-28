@@ -28,15 +28,14 @@ import static org.junit.Assert.fail;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -47,12 +46,9 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith(CiRunner.class)
-public class AddIT
+@RunWith(FrameworkRunner.class)
+public class AddIT extends AbstractTestUnit
 {
-    public static DirectoryService service;
-
-
     //    /**
     //     * Test that attribute name case is preserved after adding an entry
     //     * in the case the user added them.  This is to test DIRSERVER-832.
@@ -110,13 +106,10 @@ public class AddIT
     {
         LdapContext sysRoot = getSystemContext( service );
 
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "ObjectClass", "top" );
-        Attribute cn = new BasicAttribute( "cn", "kevin Spacey" );
-        Attribute dc = new BasicAttribute( "dc", "ke" );
-        attrs.put( oc );
-        attrs.put( cn );
-        attrs.put( dc );
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "ObjectClass: top",
+            "cn: kevin Spacey",
+            "dc: ke" );
 
         String base = "uid=kevin";
 
@@ -143,20 +136,16 @@ public class AddIT
     {
         LdapContext sysRoot = getSystemContext( service );
 
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "ObjectClass", "top" );
-        oc.add( "person" );
-        Attribute cn = new BasicAttribute( "cn", "kevin Spacey" );
-        Attribute sn = new BasicAttribute( "sn", "ke" );
-        Attribute telephone = new BasicAttribute( "telephoneNumber", "0123456abc" );
-        attrs.put( oc );
-        attrs.put( cn );
-        attrs.put( sn );
-        attrs.put( telephone );
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "cn: kevin Spacey",
+            "sn: ke",
+            "telephoneNumber: 0123456abc");
 
         String base = "sn=kevin";
 
-        //create subcontext
+        // create subcontext
         try
         {
             sysRoot.createSubcontext( base, attrs );
@@ -175,14 +164,14 @@ public class AddIT
     @Test
     public void testAddAttributeWithEscapedPlusCharacter() throws Exception
     {
-        Attributes attributes = new BasicAttributes( false );
-        attributes.put( "objectClass", "top" );
-        attributes.put( "objectClass", "inetorgperson" );
-        attributes.put( "cn", "John\\+Doe" );
-        attributes.put( "sn", "\\+Name\\+" );
+        Attributes entry = AttributeUtils.createAttributes( 
+            "ObjectClass: top",
+            "ObjectClass: inetorgperson",
+            "cn: John\\+Doe",
+            "sn: \\+Name\\+" );
         
         LdapContext sysRoot = getSystemContext( service );
-        DirContext dc = sysRoot.createSubcontext( "cn=John\\+Doe", attributes );
+        DirContext dc = sysRoot.createSubcontext( "cn=John\\+Doe", entry );
         
         ServerLdapContext sc = ( ServerLdapContext ) dc;
         

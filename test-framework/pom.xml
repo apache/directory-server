@@ -6,12 +6,14 @@
     <artifactId>apacheds-parent</artifactId>
     <version>1.5.6-SNAPSHOT</version>
   </parent>
-  <groupId>org.apache.directory.server.core.integ</groupId>
   <artifactId>apacheds-test-framework</artifactId>
+  <name>ApacheDS test framework</name>
   <packaging>jar</packaging>
-  <version>1.5.6-SNAPSHOT</version>
-  <name>apacheds-test-framework</name>
-  <description>test framework for integration tests without depending on the InheritableSettings</description>
+  
+  <description>
+    test framework for integration tests without depending on the InheritableSettings
+  </description>
+  
   <dependencies>
     <dependency>
       <groupId>junit</groupId>

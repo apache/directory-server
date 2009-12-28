@@ -19,12 +19,8 @@
 package org.apache.directory.server.core.suites;
 
 
-import org.apache.directory.server.core.authn.SimpleAuthenticationIT;
 import org.apache.directory.server.core.changelog.DefaultChangeLogIT;
-import org.apache.directory.server.core.collective.CollectiveAttributeServiceIT;
 import org.apache.directory.server.core.configuration.PartitionConfigurationIT;
-import org.apache.directory.server.core.event.EventServiceIT;
-import org.apache.directory.server.core.exception.ExceptionServiceIT;
 import org.apache.directory.server.core.integ.CiSuite;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.SetupMode;
@@ -67,10 +63,10 @@ import org.junit.runners.Suite;
  */
 @RunWith ( CiSuite.class )
 @Suite.SuiteClasses ( {
-        SimpleAuthenticationIT.class,
-        CollectiveAttributeServiceIT.class,
-        ExceptionServiceIT.class,
-        EventServiceIT.class,
+        //SimpleAuthenticationIT.class,
+        //CollectiveAttributeServiceIT.class,
+        //ExceptionServiceIT.class,
+        //EventServiceIT.class,
         AddIT.class,
         CreateContextIT.class,
         DestroyContextIT.class,

@@ -39,14 +39,15 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -57,12 +58,9 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-public class ExceptionServiceIT
+@RunWith ( FrameworkRunner.class )
+public class ExceptionServiceIT extends AbstractTestUnit
 {
-    public static DirectoryService service;
-
-
     private DirContext createSubContext( String type, String value ) throws Exception
     {
         return createSubContext( getSystemContext( service ), type, value );
@@ -71,17 +69,14 @@ public class ExceptionServiceIT
 
     private DirContext createSubContext( DirContext ctx, String type, String value ) throws NamingException
     {
-        Attributes attrs = new BasicAttributes( type, value, true );
-        Attribute attr = new BasicAttribute( "ObjectClass" );
-        attr.add( "top"  );
-        attr.add( "person" );
-        attr.add( "OrganizationalPerson" );
-        attrs.put( attr );
+        Attributes subentry = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: person",
+            "objectClass: OrganizationalPerson",
+            "sn", value,
+            "cn", value );
 
-        attrs.put( "sn", value );
-        attrs.put( "cn", value );
-
-        return ctx.createSubcontext( type + "=" + value, attrs );
+        return ctx.createSubcontext( type + "=" + value, subentry );
     }
 
 
