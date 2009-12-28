@@ -26,12 +26,9 @@ import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.SetupMode;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.core.integ.annotations.Mode;
-import org.apache.directory.server.core.jndi.AddIT;
-import org.apache.directory.server.core.jndi.CreateContextIT;
 import org.apache.directory.server.core.jndi.DIRSERVER169IT;
 import org.apache.directory.server.core.jndi.DIRSERVER783IT;
 import org.apache.directory.server.core.jndi.DIRSERVER791IT;
-import org.apache.directory.server.core.jndi.DestroyContextIT;
 import org.apache.directory.server.core.jndi.ExtensibleObjectIT;
 import org.apache.directory.server.core.jndi.ListIT;
 import org.apache.directory.server.core.jndi.ModifyContextIT;
@@ -67,9 +64,9 @@ import org.junit.runners.Suite;
         //CollectiveAttributeServiceIT.class,
         //ExceptionServiceIT.class,
         //EventServiceIT.class,
-        AddIT.class,
-        CreateContextIT.class,
-        DestroyContextIT.class,
+        //AddIT.class,
+        //CreateContextIT.class,
+        //DestroyContextIT.class,
         PartitionConfigurationIT.class,
         DIRSERVER169IT.class,
         DIRSERVER759IT.class,

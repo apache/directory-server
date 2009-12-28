@@ -25,6 +25,8 @@ import org.apache.directory.server.core.event.EventServiceIT;
 import org.apache.directory.server.core.exception.ExceptionServiceIT;
 import org.apache.directory.server.core.integ.FrameworkSuite;
 import org.apache.directory.server.core.jndi.AddIT;
+import org.apache.directory.server.core.jndi.CreateContextIT;
+import org.apache.directory.server.core.jndi.DestroyContextIT;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -41,9 +43,9 @@ import org.junit.runners.Suite;
         CollectiveAttributeServiceIT.class,
         ExceptionServiceIT.class,
         EventServiceIT.class,
-        AddIT.class/*,
+        AddIT.class,
         CreateContextIT.class,
-        DestroyContextIT.class,
+        DestroyContextIT.class/*,
         PartitionConfigurationIT.class,
         DIRSERVER169IT.class,
         DIRSERVER759IT.class,
