@@ -20,18 +20,20 @@
 
 package org.apache.directory.server.core.factory;
 
+import static org.junit.Assert.assertTrue;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.DirectoryService;
 import org.junit.Test;
 
 
 /**
- * TODO DirectoryServiceBuilderTest.
+ * Test the creation of a DS using a factory.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DirectoryServiceBuilderTest
+public class DirectoryServiceFactoryTest
 {
     @Test
     public void testCreateDS() throws Exception
@@ -40,6 +42,8 @@ public class DirectoryServiceBuilderTest
         factory.build( "Test" );
         
         DirectoryService service = factory.getDirectoryService();
+        
+        assertTrue( service.isStarted() );
         
         service.shutdown();
         FileUtils.deleteDirectory( service.getWorkingDirectory() );

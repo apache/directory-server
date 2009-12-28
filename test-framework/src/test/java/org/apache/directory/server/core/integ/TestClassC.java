@@ -23,19 +23,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
-import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith( FrameworkRunner.class )
-@ApplyLdifs(
-    {
-        "dn: cn=testClassC,ou=system\n" + 
-        "objectClass: person\n" + 
-        "cn: testClassC\n" + 
-        "sn: sn_testClassC\n"
-    })
 public class TestClassC extends AbstractTestUnit
 {
     @Test
@@ -46,7 +38,7 @@ public class TestClassC extends AbstractTestUnit
             assertTrue( service.getAdminSession().exists( new LdapDN( "cn=testSuite,ou=system" ) ) );
         }
 
-        assertTrue( service.getAdminSession().exists( new LdapDN( "cn=testClassC,ou=system" ) ) );
+        assertFalse( service.getAdminSession().exists( new LdapDN( "cn=testClassC,ou=system" ) ) );
         
         // the below DN will be injected in TestClassB when ran as suite, but that DN
         // shouldn't be present in the suite level DS cause of revert operation

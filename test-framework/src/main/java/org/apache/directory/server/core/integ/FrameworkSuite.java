@@ -19,16 +19,19 @@
 package org.apache.directory.server.core.integ;
 
 
+import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.annotations.LdapServerBuilder;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
-import org.apache.directory.server.core.annotations.DSBuilder;
+import org.apache.directory.server.core.factory.DSBuilderAnnotationProcessor;
 import org.apache.directory.server.ldap.LdapServer;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.Suite;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -40,15 +43,15 @@ import org.junit.runners.model.RunnerBuilder;
  */
 public class FrameworkSuite extends Suite
 {
-    /** The DSBuilder for this suite, if any */
-    private DSBuilder suiteDSBuilder;
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( FrameworkSuite.class );
+
+    /** The suite DS, if any */
+    private DirectoryService directoryService;
     
     /** The LdapServerBuilder for this class, if any */
     private LdapServerBuilder suiteLdapServerBuilder;
 
-    /** The DirectoryService for this suite, if any */
-    private DirectoryService suiteService;
-    
     /** The LdapServer for this class, if any */
     private LdapServer suiteLdapServer;
 
@@ -64,6 +67,49 @@ public class FrameworkSuite extends Suite
         super( clazz, builder );
     }
 
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void run( final RunNotifier notifier )
+    {
+        suiteLdifs = getDescription().getAnnotation( ApplyLdifs.class );
+        suiteLdapServerBuilder = getDescription().getAnnotation( LdapServerBuilder.class );
+
+        // Initialize and start the DS before running any test, if we have a DS annotation
+        directoryService = DSBuilderAnnotationProcessor.getDirectoryService( getDescription() );
+        
+        // and inject LDIFs if needed
+        if ( directoryService != null )
+        {
+            try
+            {
+                DSBuilderAnnotationProcessor.applyLdifs( getDescription(), directoryService );
+            }
+            catch ( Exception e )
+            {
+                return;
+            }
+        }
+        
+        super.run( notifier );
+        
+        // last, stop the DS if we have one
+        if ( directoryService != null )
+        {
+            try
+            {
+                LOG.debug( "Shuting down DS for {}", directoryService.getInstanceId() );
+                directoryService.shutdown();
+                FileUtils.deleteDirectory( directoryService.getWorkingDirectory() );
+            }
+            catch ( Exception e )
+            {
+                // Do nothing
+            }
+        }
+    }
 
     /**
      * {@inheritDoc}
@@ -71,10 +117,6 @@ public class FrameworkSuite extends Suite
     @Override
     protected void runChild( Runner runner, RunNotifier notifier )
     {
-        suiteDSBuilder = getDescription().getAnnotation( DSBuilder.class );
-        suiteLdifs = getDescription().getAnnotation( ApplyLdifs.class );
-        suiteLdapServerBuilder = getDescription().getAnnotation( LdapServerBuilder.class );
-
         // Store the suite into the class we will run
         ( ( FrameworkRunner ) runner ).setSuite( this );
         
@@ -84,38 +126,29 @@ public class FrameworkSuite extends Suite
 
 
     /**
-     * @return the suiteDSBuilder
-     */
-    public DSBuilder getSuiteDSBuilder()
-    {
-        return suiteDSBuilder;
-    }
-
-
-    /**
-     * @return the suiteService
-     */
-    public DirectoryService getSuiteService()
-    {
-        return suiteService;
-    }
-    
-    
-    /**
-     * @param suiteService the suiteService to set
-     */
-    public void setSuiteService( DirectoryService suiteService )
-    {
-        this.suiteService = suiteService;
-    }
-    
-    
-    /**
      * @return the suiteLdifs
      */
     public ApplyLdifs getSuiteLdifs()
     {
         return suiteLdifs;
+    }
+
+
+    /**
+     * @return the DirectoryService instance
+     */
+    public DirectoryService getDirectoryService()
+    {
+        return directoryService;
+    }
+
+
+    /**
+     * @param directoryService the directoryService to set
+     */
+    public void setDirectoryService( DirectoryService directoryService )
+    {
+        this.directoryService = directoryService;
     }
 
 

@@ -20,24 +20,17 @@ package org.apache.directory.server.core.integ;
 
 
 import java.lang.reflect.Field;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.naming.NamingException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.DefaultLdapServerFactory;
 import org.apache.directory.server.annotations.LdapServerBuilder;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.annotations.ApplyLdifFiles;
-import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.DSBuilder;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.factory.DSBuilderAnnotationProcessor;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.factory.DirectoryServiceFactory;
-import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.junit.Ignore;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
@@ -69,14 +62,11 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
     /** The suite this class depend on, if any */
     private FrameworkSuite suite;
 
-    /** The DSBuilder for this class, if any */
-    private DSBuilder classDSBuilder;
-    
     /** The LdapServerBuilder for this class, if any */
     private LdapServerBuilder classLdapServerBuilder;
 
     /** The DirectoryService for this class, if any */
-    private DirectoryService classService;
+    private DirectoryService classDS;
 
     /** A flag set to true when the class has been started */
     private boolean classStarted = false;
@@ -112,42 +102,101 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
     @Override
     public void run( final RunNotifier notifier )
     {
-        // Get the class DSBuilder, if any
-        classDSBuilder = getDescription().getAnnotation( DSBuilder.class );
-        
+        // Before running any test, check to see if we must create a class DS
         // Get the LdapServerBuilder, if any
         classLdapServerBuilder = getDescription().getAnnotation( LdapServerBuilder.class );
 
         try
         {
+            classDS = DSBuilderAnnotationProcessor.getDirectoryService( getDescription() );
+            long revision = 0L;
+            DirectoryService directoryService = null;
+
+            
+            if ( classDS != null )
+            {
+                // We have a class DS defined, update it
+                directoryService = classDS;
+                
+                // Get the applyLdifs for each level and apply them
+                if ( suite != null )
+                {
+                    DSBuilderAnnotationProcessor.applyLdifs( suite.getDescription(), classDS );
+                }
+                
+                DSBuilderAnnotationProcessor.applyLdifs( getDescription(), classDS );
+            }
+            else
+            {
+                // No class DS. Do we have a Suite ?
+                if ( suite != null ) 
+                {
+                    // yes. Do we have a suite DS ?
+                    directoryService = suite.getDirectoryService();
+
+                    if ( directoryService != null )
+                    {
+                        // yes : apply the class LDIFs only, and tag for reversion
+                        revision = directoryService.getChangeLog().getCurrentRevision();
+                        LOG.debug( "Create revision {}", revision );
+
+                        // apply the class LDIFs
+                        DSBuilderAnnotationProcessor.applyLdifs( getDescription(), directoryService );
+                    }
+                    else
+                    {
+                        // No : define a default DS for the suite then
+                        DirectoryServiceFactory dsf = DefaultDirectoryServiceFactory.DEFAULT;
+                        dsf.init( "default" + UUID.randomUUID().toString() );
+                        directoryService = dsf.getDirectoryService();
+                        
+                        // Stores it into the suite
+                        suite.setDirectoryService( directoryService );
+                        
+                        // Apply the suite LDIF first
+                        DSBuilderAnnotationProcessor.applyLdifs( suite.getDescription(), directoryService );
+                        
+                        // Then tag for reversion and apply the class LDIFs
+                        revision = directoryService.getChangeLog().getCurrentRevision();
+                        LOG.debug( "Create revision {}", revision );
+                        
+                        DSBuilderAnnotationProcessor.applyLdifs( getDescription(), directoryService );
+                    }
+                }
+                else
+                {
+                    // No : define a default class DS then
+                    DirectoryServiceFactory dsf = DefaultDirectoryServiceFactory.DEFAULT;
+                    dsf.init( "default" + UUID.randomUUID().toString() );
+                    directoryService = dsf.getDirectoryService();
+                    
+                    // Stores the defaultDS in the classDS
+                    classDS = directoryService;
+
+                    // Apply the class LDIFs
+                    DSBuilderAnnotationProcessor.applyLdifs( getDescription(), directoryService );
+                }
+            }
+
             super.run( notifier );
             
             // cleanup classService if it is not the same as suite service or
             // it is not null (this second case happens in the absence of a suite)
-            if( suite != null ) 
+            if ( classDS != null )
             {
-                if ( ( classService != null ) && ( classService != suite.getSuiteService() ) )
-                {
-                    classService.shutdown();
-                    FileUtils.deleteDirectory( classService.getWorkingDirectory() );
-                }
-                else if ( testCount.get() == suite.testCount() )
-                {
-                    suite.getSuiteService().shutdown();
-                    FileUtils.deleteDirectory( suite.getSuiteService().getWorkingDirectory() );
-                    testCount.set( 0 );
-                }
+                LOG.debug( "Shuting down DS for {}", classDS.getInstanceId() );
+                classDS.shutdown();
+                FileUtils.deleteDirectory( classDS.getWorkingDirectory() );
             }
-            else if ( classService != null )
+            else
             {
-                classService.shutdown();
-                FileUtils.deleteDirectory( classService.getWorkingDirectory() );
-            }
-            
-            
-            if ( suite == null )
-            {
-                testCount.set( 0 );
+                // Revert the ldifs
+                if ( revision < directoryService.getChangeLog().getCurrentRevision() )
+                {
+                    LOG.debug( "Revert revision {}", revision );
+                    // We use a class or suite DS, just revert the current test's modifications
+                    directoryService.revert( revision );
+                }
             }
         }
         catch ( Exception e )
@@ -189,153 +238,60 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
         // Ok, ready to run the test
         try
         {
-            DirectoryService service = null;
-            DirectoryService methodDS = null;
+            DirectoryService directoryService = null;
+            
+            // Set the revision to 0, we will revert only if it's set to another value
             long revision = 0L;
 
-            // First check if this method has a dedicated DSBuilder
-            DSBuilder methodDSBuilder = method.getAnnotation( DSBuilder.class );
+            // Check if this method has a dedicated DSBuilder
+            DirectoryService methodDS = DSBuilderAnnotationProcessor.getDirectoryService( methodDescription );
 
-            if ( methodDSBuilder != null )
+            if ( methodDS != null )
             {
-                // yes : instantiate the factory for this method then
-                service = getDirectoryServer( methodDSBuilder );
-                methodDS = service;
-
                 // Apply all the LDIFs
-                applyLdifs( suiteDescription, service );
-                applyLdifs( classDescription, service );
-                applyLdifs( methodDescription, service );
+                DSBuilderAnnotationProcessor.applyLdifs( suiteDescription, methodDS );
+                DSBuilderAnnotationProcessor.applyLdifs( classDescription, methodDS );
+                DSBuilderAnnotationProcessor.applyLdifs( methodDescription, methodDS );
+                
+                directoryService = methodDS;
             }
-            else if ( classDSBuilder != null )
+            else if ( classDS != null )
             {
-                // Use the class DS. We now have to see if it's started
-                if ( classService != null )
-                {
-                    service = classService;
-
-                    // get the current revision, we need it to revert the modifications
-                    revision = service.getChangeLog().getCurrentRevision();
-
-                    // Only apply the method LDIF, the class and suite(if present) LDIFs have
-                    // already been applied
-                    applyLdifs( methodDescription, service );
-                }
-                else
-                {
-                    // let's instantiate this class DS
-                    classService = getDirectoryServer( classDSBuilder );
-                    service = classService;
-
-                    // Apply all the LDIFs
-                    applyLdifs( suiteDescription, service );
-                    applyLdifs( classDescription, service );
-
-                    // get the current revision, we need it to revert the modifications
-                    revision = service.getChangeLog().getCurrentRevision();
-                 
-                    applyLdifs( methodDescription, service );
-                }
+                directoryService = classDS;
+                
+                // apply the method LDIFs, and tag for reversion
+                revision = directoryService.getChangeLog().getCurrentRevision();
+                LOG.debug( "Create revision {}", revision );
+                
+                DSBuilderAnnotationProcessor.applyLdifs( methodDescription, directoryService );
             }
             else if ( suite != null )
             {
-                if ( suite.getSuiteDSBuilder() != null )
-                {
-                    // Use the suite DS. We now have to see if it's started
-                    if ( suite.getSuiteService() != null )
-                    {
-                        service = suite.getSuiteService();
-    
-                        // get the current revision, we need it to revert the modifications
-                        revision = service.getChangeLog().getCurrentRevision();
-    
-                        // Apply the method and class LDIFs, if the class
-                        // LDIFs haven't been applied yet
-                        if ( !classStarted )
-                        {
-                            applyLdifs( classDescription, service );
-                        }
-    
-                        // And also apply the method's LDIFs
-                        applyLdifs( methodDescription, service );
-                    }
-                    else
-                    {
-                        // Create the suite DS
-                        service = getDirectoryServer( suite.getSuiteDSBuilder() );
-                        
-                        suite.setSuiteService( service );
-    
-                        // apply the suite LDIFs first, these will never be reverted
-                        // during the running time of a test suite
-                        applyLdifs( suiteDescription, service );
-    
-                        // get the current revision, we need it to revert the modifications
-                        revision = service.getChangeLog().getCurrentRevision();
-    
-                        // Apply all the other LDIFs
-                        applyLdifs( classDescription, service );
-                        applyLdifs( methodDescription, service );
-                    }
-                }
-                else
-                {
-                    // Use the default DS
-                    DirectoryServiceFactory dsf = DefaultDirectoryServiceFactory.DEFAULT;
-                    dsf.init( "default" + UUID.randomUUID().toString() );
-                    service = dsf.getDirectoryService();
-                    
-                    // same as in above else-if condition 
-                    // apply the suite LDIFs first, these will never be reverted
-                    // during the running time of a test suite
-                    applyLdifs( suiteDescription, service );
-
-                    suite.setSuiteService( service );
-                    // get the current revision, we need it to revert the modifications
-                    revision = service.getChangeLog().getCurrentRevision();
-
-                    // Apply all the other LDIFs
-                    applyLdifs( classDescription, service );
-                    applyLdifs( methodDescription, service );
-                }
-            }
-            else 
-            {
-                // Use the default DS
-                DirectoryServiceFactory dsf = DefaultDirectoryServiceFactory.DEFAULT;
-                dsf.init( "default" + UUID.randomUUID().toString() );
-                service = dsf.getDirectoryService();
+                directoryService = suite.getDirectoryService();
                 
-                // same as in above else-if condition 
-                // apply the suite LDIFs first, these will never be reverted
-                // during the running time of a test suite
-                applyLdifs( suiteDescription, service );
-
-                suite.setSuiteService( service );
-                // get the current revision, we need it to revert the modifications
-                revision = service.getChangeLog().getCurrentRevision();
-
-                // Apply all the other LDIFs
-                applyLdifs( classDescription, service );
-                applyLdifs( methodDescription, service );
+                // apply the method LDIFs, and tag for reversion
+                revision = directoryService.getChangeLog().getCurrentRevision();
+                LOG.debug( "Create revision {}", revision );
+                
+                DSBuilderAnnotationProcessor.applyLdifs( methodDescription, directoryService );
             }
 
             // At this point, we know which service to use.
             // Inject it into the class
             Field field = getTestClass().getJavaClass().getField( DIRECTORY_SERVICE_FIELD_NAME );
-            field.set( getTestClass().getJavaClass(), service );
+            field.set( getTestClass().getJavaClass(), directoryService );
             
             // if we run this class in a suite, tell it to the test
             field = getTestClass().getJavaClass().getField( IS_RUN_IN_SUITE_FIELD_NAME );
             field.set( getTestClass().getJavaClass(), suite != null );
 
             // Last not least, see if we have to start a server
-            if ( suite.getSuiteLdapServerBuilder() != null )
+            if ( ( suite != null ) && ( suite.getSuiteLdapServerBuilder() != null ) )
             {
                 LdapServerBuilder ldapServerBuilder = suite.getSuiteLdapServerBuilder();
                 
                 DefaultLdapServerFactory ldapServerFactory = (DefaultLdapServerFactory)ldapServerBuilder.factory().newInstance();
-                ldapServerFactory.setDirectoryService( service );
+                ldapServerFactory.setDirectoryService( directoryService );
             }
 
             super.runChild( method, notifier );
@@ -343,13 +299,14 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             // Cleanup the methodDS if it has been created
             if ( methodDS != null )
             {
+                LOG.debug( "Shuting down DS for {}", methodDS.getInstanceId() );
                 methodDS.shutdown();
                 FileUtils.deleteDirectory( methodDS.getWorkingDirectory() );
             }
-            else if( revision < service.getChangeLog().getCurrentRevision() )
+            else if ( revision < directoryService.getChangeLog().getCurrentRevision() )
             {
                 // We use a class or suite DS, just revert the current test's modifications
-                service.revert( revision );
+                directoryService.revert( revision );
             }
         }
         catch ( Exception e )
@@ -372,118 +329,5 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
     public FrameworkSuite getSuite()
     {
         return suite;
-    }
-
-
-    /**
-     * Apply the LDIF entries to the given service
-     */
-    private void applyLdifs( Description desc, DirectoryService service ) throws Exception
-    {
-        if( desc == null )
-        {
-            return;
-        }
-        
-        ApplyLdifFiles applyLdifFiles = desc.getAnnotation( ApplyLdifFiles.class );
-
-        if( applyLdifFiles != null )
-        {
-            injectLdifFiles( service, applyLdifFiles.value() );
-        }
-        
-        ApplyLdifs applyLdifs = desc.getAnnotation( ApplyLdifs.class ); 
-        
-        if ( ( applyLdifs != null ) && ( applyLdifs.value() != null ) )
-        {
-            String[] ldifs = applyLdifs.value();
-
-            for ( String s : ldifs )
-            {
-                injectEntries( service, s );
-            }
-        }
-    }
-
-    /**
-     * injects the LDIF entries present in a LDIF file
-     * 
-     * @param service the DirectoryService 
-     * @param ldifFiles the array of LDIF file names (only )
-     * @throws Exception
-     */
-    public void injectLdifFiles( DirectoryService service, String[] ldifFiles ) throws Exception
-    {
-        if ( ldifFiles != null && ldifFiles.length > 0 )
-        {
-            for ( String ldifFile : ldifFiles )
-            {
-                try
-                {
-                    Class<?> klaz = getTestClass().getJavaClass();
-
-                    LdifReader ldifReader = new LdifReader( klaz.getClassLoader().getResourceAsStream( ldifFile ) ); 
-    
-                    for ( LdifEntry entry : ldifReader )
-                    {
-                        injectEntry( entry, service );
-                    }
-                    
-                    ldifReader.close();
-                }
-                catch ( Exception e )
-                {
-                    LOG.error( "Cannot inject the following entry : {}. Error : {}.", ldifFile, e.getMessage() );
-                }
-            }
-        }
-    }
-    
-    
-    /**
-     * Inject an ldif String into the server. DN must be relative to the
-     * root.
-     *
-     * @param service the directory service to use 
-     * @param ldif the ldif containing entries to add to the server.
-     * @throws NamingException if there is a problem adding the entries from the LDIF
-     */
-    public void injectEntries( DirectoryService service, String ldif ) throws Exception
-    {
-        LdifReader reader = new LdifReader();
-        List<LdifEntry> entries = reader.parseLdif( ldif );
-
-        for ( LdifEntry entry : entries )
-        {
-            injectEntry( entry, service );
-        }
-
-        // And close the reader
-        reader.close();
-    }
-
-    
-    /**
-     * injects an LDIF entry in the given DirectoryService
-     * 
-     * @param entry the LdifEntry to be injected
-     * @param service the DirectoryService
-     * @throws Exception
-     */
-    private void injectEntry( LdifEntry entry, DirectoryService service ) throws Exception
-    {
-        if ( entry.isChangeAdd() )
-        {
-            service.getAdminSession().add( new DefaultServerEntry( service.getSchemaManager(), entry.getEntry() ) );
-        }
-        else if ( entry.isChangeModify() )
-        {
-            service.getAdminSession().modify( entry.getDn(), entry.getModificationItems() );
-        }
-        else
-        {
-            String message = "Unsupported changetype found in LDIF: " + entry.getChangeType();
-            throw new NamingException( message );
-        }
     }
 }
