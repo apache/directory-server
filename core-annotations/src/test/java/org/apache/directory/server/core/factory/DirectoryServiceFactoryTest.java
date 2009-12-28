@@ -39,7 +39,7 @@ public class DirectoryServiceFactoryTest
     public void testCreateDS() throws Exception
     {
         DefaultDirectoryServiceFactory factory = new DefaultDirectoryServiceFactory();
-        factory.build( "Test" );
+        factory.init( "test" );
         
         DirectoryService service = factory.getDirectoryService();
         
