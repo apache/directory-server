@@ -347,7 +347,6 @@
     <module>xdbm-tools</module>
     <module>core</module>
     <module>core-api</module>
-    <module>core-builder</module>
     <module>core-annotations</module>
     <module>server-annotations</module>
     <module>core-mock</module>
