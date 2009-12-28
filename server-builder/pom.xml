@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+  
+  http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.server</groupId>
+    <artifactId>apacheds-parent</artifactId>
+    <version>1.5.6-SNAPSHOT</version>
+  </parent>
+  <artifactId>apacheds-server-builder</artifactId>
+  <name>ApacheDS Server Builder</name>
+  <packaging>jar</packaging>
+
+  <description>
+     A component that builds a LdapServer instance.
+  </description>
+
+  <dependencies>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-xdbm-search</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-core-api</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-core-builder</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-schema</artifactId>
+      <version>${org.apache.directory.shared.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-schema-manager</artifactId>
+      <version>${org.apache.directory.shared.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-xdbm-tools</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-core-entry</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-core-constants</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-utils</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-ldif-partition</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-jdbm-store</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-jdbm-partition</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-xdbm-base</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <version>${org.apache.directory.shared.version}</version>
+      <artifactId>shared-cursor</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>bouncycastle</groupId>
+      <artifactId>bcprov-jdk15</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration> 
+          <systemProperties>
+            <property>
+              <name>workingDirectory</name>
+              <value>${basedir}/target/server-work</value>
+            </property>
+          </systemProperties>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <excludes>
+          <exclude>**/*.gif</exclude>
+        </excludes>
+      </resource>
+    </resources>
+  </build>
+</project>
+
