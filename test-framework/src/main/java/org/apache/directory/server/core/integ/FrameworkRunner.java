@@ -27,13 +27,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.naming.NamingException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.DefaultLdapServerFactory;
+import org.apache.directory.server.annotations.LdapServerBuilder;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.DirectoryServiceFactory;
-import org.apache.directory.server.core.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.DSBuilder;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
+import org.apache.directory.server.core.factory.DirectoryServiceFactory;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.junit.Ignore;
@@ -69,6 +71,9 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
     /** The DSBuilder for this class, if any */
     private DSBuilder classDSBuilder;
+    
+    /** The LdapServerBuilder for this class, if any */
+    private LdapServerBuilder classLdapServerBuilder;
 
     /** The DirectoryService for this class, if any */
     private DirectoryService classService;
@@ -109,6 +114,9 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
     {
         // Get the class DSBuilder, if any
         classDSBuilder = getDescription().getAnnotation( DSBuilder.class );
+        
+        // Get the LdapServerBuilder, if any
+        classLdapServerBuilder = getDescription().getAnnotation( LdapServerBuilder.class );
 
         try
         {
@@ -229,36 +237,60 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                     applyLdifs( methodDescription, service );
                 }
             }
-            else if ( ( suite != null ) && ( suite.getSuiteDSBuilder() != null ) )
+            else if ( suite != null )
             {
-                // Use the suite DS. We now have to see if it's started
-                if ( suite.getSuiteService() != null )
+                if ( suite.getSuiteDSBuilder() != null )
                 {
-                    service = suite.getSuiteService();
-
-                    // get the current revision, we need it to revert the modifications
-                    revision = service.getChangeLog().getCurrentRevision();
-
-                    // Apply the method and class LDIFs, if the class
-                    // LDIFs haven't been applied yet
-                    if ( !classStarted )
+                    // Use the suite DS. We now have to see if it's started
+                    if ( suite.getSuiteService() != null )
                     {
-                        applyLdifs( classDescription, service );
+                        service = suite.getSuiteService();
+    
+                        // get the current revision, we need it to revert the modifications
+                        revision = service.getChangeLog().getCurrentRevision();
+    
+                        // Apply the method and class LDIFs, if the class
+                        // LDIFs haven't been applied yet
+                        if ( !classStarted )
+                        {
+                            applyLdifs( classDescription, service );
+                        }
+    
+                        // And also apply the method's LDIFs
+                        applyLdifs( methodDescription, service );
                     }
-
-                    // And also apply the method's LDIFs
-                    applyLdifs( methodDescription, service );
+                    else
+                    {
+                        // Create the suite DS
+                        service = getDirectoryServer( suite.getSuiteDSBuilder() );
+                        
+                        suite.setSuiteService( service );
+    
+                        // apply the suite LDIFs first, these will never be reverted
+                        // during the running time of a test suite
+                        applyLdifs( suiteDescription, service );
+    
+                        // get the current revision, we need it to revert the modifications
+                        revision = service.getChangeLog().getCurrentRevision();
+    
+                        // Apply all the other LDIFs
+                        applyLdifs( classDescription, service );
+                        applyLdifs( methodDescription, service );
+                    }
                 }
-                else if ( suite.getSuiteDSBuilder() != null ) 
+                else
                 {
-                    service = getDirectoryServer( suite.getSuiteDSBuilder() );
+                    // Use the default DS
+                    DirectoryServiceFactory dsf = DefaultDirectoryServiceFactory.DEFAULT;
+                    dsf.init( "default" + UUID.randomUUID().toString() );
+                    service = dsf.getDirectoryService();
                     
-                    suite.setSuiteService( service );
-
+                    // same as in above else-if condition 
                     // apply the suite LDIFs first, these will never be reverted
                     // during the running time of a test suite
                     applyLdifs( suiteDescription, service );
 
+                    suite.setSuiteService( service );
                     // get the current revision, we need it to revert the modifications
                     revision = service.getChangeLog().getCurrentRevision();
 
@@ -267,7 +299,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                     applyLdifs( methodDescription, service );
                 }
             }
-            else if ( ( suite != null ) && ( suite.getSuiteService() == null ) )
+            else 
             {
                 // Use the default DS
                 DirectoryServiceFactory dsf = DefaultDirectoryServiceFactory.DEFAULT;
@@ -287,33 +319,6 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 applyLdifs( classDescription, service );
                 applyLdifs( methodDescription, service );
             }
-            // FIXME the below else if is kind of supication as
-            // the above else if ( classDSBuilder != null ) condition
-            else if ( classService == null ) // finally just create a default DS for class alone
-            {
-                // Use the default DS
-                DirectoryServiceFactory dsf = DefaultDirectoryServiceFactory.DEFAULT;
-                dsf.init( "class-" + UUID.randomUUID().toString() );
-                classService = dsf.getDirectoryService();
-                service = classService;
-                
-                // apply only class LDIFs, no need to apply suite LDIFs casue if this block is executing
-                // means there is no suite associated with the class
-                applyLdifs( classDescription, service );
-
-                // get the current revision, we need it to revert the modifications
-                revision = service.getChangeLog().getCurrentRevision();
-
-                applyLdifs( methodDescription, service );
-            }
-            else if ( classService != null )
-            {
-                service = classService;
-                // get the current revision, we need it to revert the modifications
-                revision = service.getChangeLog().getCurrentRevision();
-
-                applyLdifs( methodDescription, service );
-            }
 
             // At this point, we know which service to use.
             // Inject it into the class
@@ -324,6 +329,14 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             field = getTestClass().getJavaClass().getField( IS_RUN_IN_SUITE_FIELD_NAME );
             field.set( getTestClass().getJavaClass(), suite != null );
 
+            // Last not least, see if we have to start a server
+            if ( suite.getSuiteLdapServerBuilder() != null )
+            {
+                LdapServerBuilder ldapServerBuilder = suite.getSuiteLdapServerBuilder();
+                
+                DefaultLdapServerFactory ldapServerFactory = (DefaultLdapServerFactory)ldapServerBuilder.factory().newInstance();
+                ldapServerFactory.setDirectoryService( service );
+            }
 
             super.runChild( method, notifier );
 

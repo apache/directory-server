@@ -17,21 +17,20 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.annotations;
+package org.apache.directory.server;
 
 import org.apache.directory.server.ldap.LdapServer;
 
-public class DefaultLdapServerFactory
+/**
+ * 
+ * TODO LdapServerFactory.
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
+public interface LdapServerFactory
 {
-    private LdapServer ldapServer;
+    void init();
     
-    void init()
-    {
-        
-    }
-    
-    LdapServer getLdapServer()
-    {
-        return ldapServer;
-    }
+    LdapServer getLdapServer();
 }

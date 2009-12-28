@@ -19,9 +19,11 @@
 package org.apache.directory.server.core.integ;
 
 
+import org.apache.directory.server.annotations.LdapServerBuilder;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.DSBuilder;
+import org.apache.directory.server.ldap.LdapServer;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.Suite;
@@ -41,8 +43,15 @@ public class FrameworkSuite extends Suite
     /** The DSBuilder for this suite, if any */
     private DSBuilder suiteDSBuilder;
     
+    /** The LdapServerBuilder for this class, if any */
+    private LdapServerBuilder suiteLdapServerBuilder;
+
     /** The DirectoryService for this suite, if any */
     private DirectoryService suiteService;
+    
+    /** The LdapServer for this class, if any */
+    private LdapServer suiteLdapServer;
+
     
     /** The LDIFs entries for this suite */
     private ApplyLdifs suiteLdifs;
@@ -64,6 +73,7 @@ public class FrameworkSuite extends Suite
     {
         suiteDSBuilder = getDescription().getAnnotation( DSBuilder.class );
         suiteLdifs = getDescription().getAnnotation( ApplyLdifs.class );
+        suiteLdapServerBuilder = getDescription().getAnnotation( LdapServerBuilder.class );
 
         // Store the suite into the class we will run
         ( ( FrameworkRunner ) runner ).setSuite( this );
@@ -106,5 +116,23 @@ public class FrameworkSuite extends Suite
     public ApplyLdifs getSuiteLdifs()
     {
         return suiteLdifs;
+    }
+
+
+    /**
+     * @return the suiteLdapServerBuilder
+     */
+    public LdapServerBuilder getSuiteLdapServerBuilder()
+    {
+        return suiteLdapServerBuilder;
+    }
+
+
+    /**
+     * @return the suiteLdapServer
+     */
+    public LdapServer getSuiteLdapServer()
+    {
+        return suiteLdapServer;
     }
 }

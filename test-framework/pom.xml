@@ -71,11 +71,5 @@
       <artifactId>apacheds-avl-partition</artifactId>
       <version>${pom.version}</version>
     </dependency>  
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-core-builder</artifactId>
-      <version>${pom.version}</version>
-    </dependency>  
   </dependencies>
 </project>

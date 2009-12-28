@@ -26,6 +26,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.apache.directory.server.DefaultLdapServerFactory;
+
 
 /**
  * A annotation used to define a LdapServer configuration. Many elements can be configured :

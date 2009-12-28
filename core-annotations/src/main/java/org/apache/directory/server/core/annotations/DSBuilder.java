@@ -23,7 +23,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.apache.directory.server.core.DefaultDirectoryServiceFactory;
+import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 
 /**
  * An anntation for the DirectoryService builder
