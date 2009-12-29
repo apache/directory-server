@@ -20,7 +20,7 @@ package org.apache.directory.server.core.integ;
 
 
 import org.apache.commons.io.FileUtils;
-import org.apache.directory.server.annotations.LdapServerBuilder;
+import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.factory.DSBuilderAnnotationProcessor;
@@ -54,7 +54,7 @@ public class FrameworkSuite extends Suite
     private DirectoryService directoryService;
     
     /** The LdapServerBuilder for this class, if any */
-    private LdapServerBuilder ldapServerBuilder;
+    private CreateLdapServer ldapServerBuilder;
 
     /** The LdapServer for this class, if any */
     private LdapServer ldapServer;
@@ -162,7 +162,7 @@ public class FrameworkSuite extends Suite
     
     private void startLdapServer( Description description )
     {
-        ldapServerBuilder = description.getAnnotation( LdapServerBuilder.class );
+        ldapServerBuilder = description.getAnnotation( CreateLdapServer.class );
 
         if ( ldapServerBuilder != null )
         {
@@ -263,7 +263,7 @@ public class FrameworkSuite extends Suite
     /**
      * @return the suiteLdapServerBuilder
      */
-    public LdapServerBuilder getSuiteLdapServerBuilder()
+    public CreateLdapServer getSuiteLdapServerBuilder()
     {
         return ldapServerBuilder;
     }

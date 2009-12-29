@@ -24,7 +24,7 @@ import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.DefaultLdapServerFactory;
-import org.apache.directory.server.annotations.LdapServerBuilder;
+import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.factory.DSBuilderAnnotationProcessor;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
@@ -61,7 +61,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
     private FrameworkSuite suite;
 
     /** The LdapServerBuilder for this class, if any */
-    private LdapServerBuilder classLdapServerBuilder;
+    private CreateLdapServer classLdapServerBuilder;
 
     /** The DirectoryService for this class, if any */
     private DirectoryService classDS;
@@ -84,7 +84,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
     {
         // Before running any test, check to see if we must create a class DS
         // Get the LdapServerBuilder, if any
-        classLdapServerBuilder = getDescription().getAnnotation( LdapServerBuilder.class );
+        classLdapServerBuilder = getDescription().getAnnotation( CreateLdapServer.class );
 
         try
         {
@@ -267,7 +267,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             // Last not least, see if we have to start a server
             if ( ( suite != null ) && ( suite.getSuiteLdapServerBuilder() != null ) )
             {
-                LdapServerBuilder ldapServerBuilder = suite.getSuiteLdapServerBuilder();
+                CreateLdapServer ldapServerBuilder = suite.getSuiteLdapServerBuilder();
                 
                 DefaultLdapServerFactory ldapServerFactory = (DefaultLdapServerFactory)ldapServerBuilder.factory().newInstance();
                 ldapServerFactory.setDirectoryService( directoryService );

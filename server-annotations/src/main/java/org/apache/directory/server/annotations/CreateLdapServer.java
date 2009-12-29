@@ -46,7 +46,7 @@ import org.apache.directory.server.DefaultLdapServerFactory;
 @Inherited
 @Retention ( RetentionPolicy.RUNTIME )
 @Target ( { ElementType.METHOD, ElementType.TYPE } )
-public @interface LdapServerBuilder
+public @interface CreateLdapServer
 {
     /** The instance name */
     String name();
