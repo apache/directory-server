@@ -49,7 +49,7 @@ import org.apache.directory.server.DefaultLdapServerFactory;
 public @interface CreateLdapServer
 {
     /** The instance name */
-    String name();
+    String name() default "DefaultLdapServer";
     
     /** The transports to use, default to LDAP */
     CreateTransport[] transports() default {};
