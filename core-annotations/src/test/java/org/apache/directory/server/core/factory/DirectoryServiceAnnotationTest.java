@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.annotations.DSBuilder;
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.junit.Test;
 
 
@@ -34,7 +34,7 @@ import org.junit.Test;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-@DSBuilder( name="test" )
+@CreateDS( name="test" )
 public class DirectoryServiceAnnotationTest
 {
     @Test

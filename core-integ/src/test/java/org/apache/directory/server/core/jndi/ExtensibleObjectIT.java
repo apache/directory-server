@@ -32,7 +32,7 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.annotations.DSBuilder;
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.integ.AbstractTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
@@ -47,7 +47,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
-@DSBuilder( factory=DefaultDirectoryServiceFactory.class, name="ExtensibleObjectIT-class" )
+@CreateDS( factory=DefaultDirectoryServiceFactory.class, name="ExtensibleObjectIT-class" )
 public class ExtensibleObjectIT extends AbstractTestUnit
 {
 

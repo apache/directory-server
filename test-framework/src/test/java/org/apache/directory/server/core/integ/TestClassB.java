@@ -22,7 +22,7 @@ package org.apache.directory.server.core.integ;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.server.core.annotations.ApplyLdifs;
-import org.apache.directory.server.core.annotations.DSBuilder;
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +39,7 @@ public class TestClassB extends AbstractTestUnit
 {
 
     @Test
-    @DSBuilder( name="testDS" )
+    @CreateDS( name="testDS" )
     public void testWithFactoryAnnotation() throws Exception
     {
         if ( isRunInSuite )

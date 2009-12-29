@@ -39,7 +39,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.annotations.DSBuilder;
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.integ.AbstractTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
@@ -56,7 +56,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
-@DSBuilder( factory=DefaultDirectoryServiceFactory.class, name="SubentryServiceObjectClassChangeHandlingIT-class" )
+@CreateDS( factory=DefaultDirectoryServiceFactory.class, name="SubentryServiceObjectClassChangeHandlingIT-class" )
 public class SubentryServiceObjectClassChangeHandlingIT extends AbstractTestUnit 
 {
 

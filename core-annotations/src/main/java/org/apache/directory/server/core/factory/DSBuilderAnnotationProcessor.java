@@ -8,7 +8,7 @@ import javax.naming.NamingException;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
-import org.apache.directory.server.core.annotations.DSBuilder;
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
@@ -25,7 +25,7 @@ public class DSBuilderAnnotationProcessor
     {
         try
         {
-            DSBuilder dsBuilder = description.getAnnotation( DSBuilder.class );
+            CreateDS dsBuilder = description.getAnnotation( CreateDS.class );
             
             if ( dsBuilder != null )
             {
@@ -58,7 +58,7 @@ public class DSBuilderAnnotationProcessor
     {
         try
         {
-            DSBuilder dsBuilder = clazz.getAnnotation( DSBuilder.class );
+            CreateDS dsBuilder = clazz.getAnnotation( CreateDS.class );
             
             if ( dsBuilder != null )
             {

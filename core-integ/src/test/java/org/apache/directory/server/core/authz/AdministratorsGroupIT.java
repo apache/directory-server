@@ -32,7 +32,7 @@ import javax.naming.NamingException;
 import javax.naming.NoPermissionException;
 import javax.naming.directory.DirContext;
 
-import org.apache.directory.server.core.annotations.DSBuilder;
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Before;
@@ -82,7 +82,7 @@ public class AdministratorsGroupIT extends AbstractTestUnit
      * @throws Exception on failures
      */
     @Test
-    @DSBuilder ( enableAccessControl=true, name="testNonAdminReadAccessToGroups-method" )
+    @CreateDS ( enableAccessControl=true, name="testNonAdminReadAccessToGroups-method" )
     public void testNonAdminReadAccessToGroups() throws Exception
     {
         // this is required cause the new service is at method level
@@ -118,7 +118,7 @@ public class AdministratorsGroupIT extends AbstractTestUnit
      * @throws Exception on failure
      */
     @Test
-    @DSBuilder ( name="testNonAdminReadAccessToGroups-method" )
+    @CreateDS ( name="testNonAdminReadAccessToGroups-method" )
     public void testDefaultNonAdminReadAccessToGroups() throws Exception
     {
         // this is required cause the new service is at method level

@@ -40,7 +40,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.annotations.DSBuilder;
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -55,7 +55,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
-@DSBuilder( name="BadSubentryServiceIT-class" )
+@CreateDS( name="BadSubentryServiceIT-class" )
 public class BadSubentryServiceIT extends AbstractTestUnit
 {
 

@@ -31,7 +31,7 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.annotations.DSBuilder;
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.integ.AbstractTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
@@ -48,7 +48,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$ $Date$
  */
 @RunWith ( FrameworkRunner.class )
-@DSBuilder( factory=DefaultDirectoryServiceFactory.class, name="LdapClassLoaderIT-class" )
+@CreateDS( factory=DefaultDirectoryServiceFactory.class, name="LdapClassLoaderIT-class" )
 public class LdapClassLoaderIT extends AbstractTestUnit
 {
     private static final String HELLOWORLD_CLASS_BASE64 = "yv66vgAAADEAHQoABgAPCQAQABEIABIKABMAFAcAFQcAFgEABjxpbml0PgEAAygpV"

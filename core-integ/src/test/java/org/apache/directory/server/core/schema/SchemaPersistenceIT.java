@@ -43,7 +43,7 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.server.core.annotations.DSBuilder;
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -61,7 +61,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith(FrameworkRunner.class)
-@DSBuilder( name="SchemaPersistenceIT-class" )
+@CreateDS( name="SchemaPersistenceIT-class" )
 public class SchemaPersistenceIT extends AbstractTestUnit
 {
     private static final String SUBSCHEMA_SUBENTRY = "subschemaSubentry";

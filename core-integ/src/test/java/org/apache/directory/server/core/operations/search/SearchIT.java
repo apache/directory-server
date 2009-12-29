@@ -46,7 +46,7 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.annotations.ApplyLdifs;
-import org.apache.directory.server.core.annotations.DSBuilder;
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
@@ -67,7 +67,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
-@DSBuilder( name="SearchDS" )
+@CreateDS( name="SearchDS" )
 @ApplyLdifs(
     {
         "dn: m-oid=2.2.0, ou=attributeTypes, cn=apachemeta, ou=schema\n" +

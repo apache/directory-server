@@ -37,7 +37,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.annotations.DSBuilder;
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.integ.AbstractTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * @version $Rev$, $Date$
  */
 @RunWith ( FrameworkRunner.class )
-@DSBuilder( factory=DefaultDirectoryServiceFactory.class, name="DefaultChangeLogIT-class" )
+@CreateDS( factory=DefaultDirectoryServiceFactory.class, name="DefaultChangeLogIT-class" )
 public class DefaultChangeLogIT extends AbstractTestUnit
 {
     public static final Logger LOG = LoggerFactory.getLogger( DefaultChangeLogIT.class );

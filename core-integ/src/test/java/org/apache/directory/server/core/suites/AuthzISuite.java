@@ -19,7 +19,7 @@
 package org.apache.directory.server.core.suites;
 
 
-import org.apache.directory.server.core.annotations.DSBuilder;
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.authz.AddAuthorizationIT;
 import org.apache.directory.server.core.authz.AdministratorsGroupIT;
 import org.apache.directory.server.core.authz.AuthorizationServiceAsAdminIT;
@@ -43,7 +43,7 @@ import org.junit.runners.Suite;
  * @version $Rev$, $Date$
  */
 @RunWith ( FrameworkSuite.class )
-@DSBuilder( enableAccessControl=true, name="AuthzISuite" )
+@CreateDS( enableAccessControl=true, name="AuthzISuite" )
 @Suite.SuiteClasses ( {
         AddAuthorizationIT.class,
         AuthorizationServiceAsAdminIT.class,

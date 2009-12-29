@@ -37,7 +37,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.annotations.DSBuilder;
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.integ.AbstractTestUnit;
@@ -60,7 +60,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
-@DSBuilder( factory=DefaultDirectoryServiceFactory.class, name="ModifyContextIT-class" )
+@CreateDS( factory=DefaultDirectoryServiceFactory.class, name="ModifyContextIT-class" )
 public class ModifyContextIT extends AbstractTestUnit
 {
 

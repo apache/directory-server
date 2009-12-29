@@ -19,7 +19,7 @@
 package org.apache.directory.server.core.suites;
 
 
-import org.apache.directory.server.core.annotations.DSBuilder;
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.FrameworkSuite;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
@@ -45,7 +45,7 @@ import org.junit.runners.Suite;
  * @version $Rev$, $Date$
  */
 @RunWith ( FrameworkSuite.class )
-@DSBuilder( name="SchemaISuite" )
+@CreateDS( name="SchemaISuite" )
 @Suite.SuiteClasses ( {
         MetaAttributeTypeHandlerIT.class,
         MetaComparatorHandlerIT.class,

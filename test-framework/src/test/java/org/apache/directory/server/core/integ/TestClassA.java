@@ -23,14 +23,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.server.core.annotations.ApplyLdifs;
-import org.apache.directory.server.core.annotations.DSBuilder;
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
 @RunWith(FrameworkRunner.class)
-@DSBuilder( name="ClassDS" )
+@CreateDS( name="ClassDS" )
 @ApplyLdifs(
     {
         "dn: cn=testClassA,ou=system\n" + 
@@ -41,7 +41,7 @@ import org.junit.runner.RunWith;
 public class TestClassA extends AbstractTestUnit
 {
     @Test
-    @DSBuilder( name="testDS" )
+    @CreateDS( name="testDS" )
     @ApplyLdifs(
         {
             "dn: cn=testMethodA,ou=system\n" + 
