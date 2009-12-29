@@ -444,7 +444,7 @@ public class KdcServer extends DirectoryBackedService
         // TODO - for now ignoring this catalog crap
         store = new DirectoryPrincipalStore( getDirectoryService(), new LdapDN(this.getSearchBaseDn())  );
         
-        if ( ( transports == null ) || ( transports.length == 0 ) )
+        if ( ( transports == null ) || ( transports.size() == 0 ) )
         {
             // Default to UDP with port 88
             // We have to create a DatagramAcceptor

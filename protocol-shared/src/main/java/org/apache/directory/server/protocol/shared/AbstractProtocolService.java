@@ -19,6 +19,9 @@
 package org.apache.directory.server.protocol.shared;
 
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.mina.transport.socket.DatagramAcceptor;
@@ -48,7 +51,7 @@ public abstract class AbstractProtocolService implements ProtocolService
     private String serviceName;
     
     /** The service transports. We may have more than one */
-    protected Transport[] transports;
+    protected Set<Transport> transports = new HashSet<Transport>();
     
     /** directory service core where protocol data is backed */
     private DirectoryService directoryService;
@@ -142,7 +145,7 @@ public abstract class AbstractProtocolService implements ProtocolService
      */
     public Transport[] getTransports()
     {
-        return transports;
+        return transports.toArray( new Transport[]{} );
     }
 
 
@@ -152,17 +155,31 @@ public abstract class AbstractProtocolService implements ProtocolService
      */
     public void setTransports( Transport... transports )
     {
-        if ( transports != null ) 
+        for ( Transport transport : transports ) 
         {
-            this.transports = new Transport[ transports.length ];
-            System.arraycopy( transports, 0, this.transports, 0, transports.length );
+            this.transports.add( transport );
             
-            for ( Transport transport:transports )
+            if ( transport.getAcceptor() == null )
             {
-                if ( transport.getAcceptor() == null )
-                {
-                    transport.init();
-                }
+                transport.init();
+            }
+        }
+    }
+    
+    
+    /**
+     * Add underlying transports
+     * @param transport The transports
+     */
+    public void addTransports( Transport... transports )
+    {
+        for ( Transport transport : transports )
+        {
+            this.transports.add( transport );
+            
+            if ( transport.getAcceptor() == null )
+            {
+                transport.init();
             }
         }
     }

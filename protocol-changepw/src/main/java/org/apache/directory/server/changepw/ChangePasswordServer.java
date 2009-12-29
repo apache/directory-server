@@ -273,7 +273,7 @@ public class ChangePasswordServer extends DirectoryBackedService
     {
         PrincipalStore store = new DirectoryPrincipalStore( getDirectoryService(), new LdapDN(this.getSearchBaseDn())  );
         
-        if ( ( transports == null ) || ( transports.length == 0 ) )
+        if ( ( transports == null ) || ( transports.size() == 0 ) )
         {
             // Default to UDP with port 464
             // We have to create a DatagramAcceptor
