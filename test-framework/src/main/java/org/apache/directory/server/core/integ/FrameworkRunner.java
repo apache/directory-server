@@ -158,6 +158,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 }
             }
 
+            // Now run the class
             super.run( notifier );
             
             // cleanup classService if it is not the same as suite service or

@@ -21,9 +21,14 @@ package org.apache.directory.server.core.integ;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.annotations.LdapServerBuilder;
+import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.factory.DSBuilderAnnotationProcessor;
 import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.protocol.shared.transport.TcpTransport;
+import org.apache.directory.server.protocol.shared.transport.Transport;
+import org.apache.mina.util.AvailablePortFinder;
+import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.Suite;
@@ -49,10 +54,10 @@ public class FrameworkSuite extends Suite
     private DirectoryService directoryService;
     
     /** The LdapServerBuilder for this class, if any */
-    private LdapServerBuilder suiteLdapServerBuilder;
+    private LdapServerBuilder ldapServerBuilder;
 
     /** The LdapServer for this class, if any */
-    private LdapServer suiteLdapServer;
+    private LdapServer ldapServer;
 
     /**
      * Creates a new instance of FrameworkSuite.
@@ -63,19 +68,20 @@ public class FrameworkSuite extends Suite
     }
     
     
-    private void startSuiteDS()
+    /**
+     * Start and initialize the DS
+     */
+    private void startDS( Description description )
     {
-        suiteLdapServerBuilder = getDescription().getAnnotation( LdapServerBuilder.class );
-
         // Initialize and start the DS before running any test, if we have a DS annotation
-        directoryService = DSBuilderAnnotationProcessor.getDirectoryService( getDescription() );
+        directoryService = DSBuilderAnnotationProcessor.getDirectoryService( description );
         
         // and inject LDIFs if needed
         if ( directoryService != null )
         {
             try
             {
-                DSBuilderAnnotationProcessor.applyLdifs( getDescription(), directoryService );
+                DSBuilderAnnotationProcessor.applyLdifs( description, directoryService );
             }
             catch ( Exception e )
             {
@@ -85,7 +91,10 @@ public class FrameworkSuite extends Suite
     }
     
     
-    private void stopSuiteDS()
+    /**
+     * Stop and clean the DS
+     */
+    private void stopDS()
     {
         if ( directoryService != null )
         {
@@ -101,7 +110,93 @@ public class FrameworkSuite extends Suite
             }
         }
     }
+    
+    
+    private void createTransports( LdapServer ldapServer, CreateTransport[] transportBuilders )
+    {
+        if ( transportBuilders.length != 0 )
+        {
+            int createdPort = 1024;
+            
+            for ( CreateTransport transportBuilder : transportBuilders )
+            {
+                String protocol = transportBuilder.protocol();
+                int port = transportBuilder.port();
+                int nbThreads = transportBuilder.nbThreads();
+                int backlog = transportBuilder.backlog();
+                String address = transportBuilder.address();
+                
+                if ( port == -1 )
+                {
+                    port = AvailablePortFinder.getNextAvailable( createdPort );
+                    createdPort = port + 1;
+                }
+                
+                if ( protocol.equalsIgnoreCase( "LDAP" ) )
+                {
+                    Transport ldap = new TcpTransport( address, port, nbThreads, backlog );
+                    ldapServer.addTransports( ldap );
+                }
+                else if ( protocol.equalsIgnoreCase( "LDAPS" ) )
+                {
+                    Transport ldaps = new TcpTransport( address, port, nbThreads, backlog );
+                    ldaps.setEnableSSL( true );
+                    ldapServer.addTransports( ldaps );
+                }
+            }
+        }
+        else
+        {
+            // Create default LDAP and LDAPS transports
+            int port = AvailablePortFinder.getNextAvailable( 1024 );
+            Transport ldap = new TcpTransport( port );
+            ldapServer.addTransports( ldap );
+            
+            port = AvailablePortFinder.getNextAvailable( port );
+            Transport ldaps = new TcpTransport( port );
+            ldaps.setEnableSSL( true );
+            ldapServer.addTransports( ldaps );
+        }
+    }
+    
+    
+    private void startLdapServer( Description description )
+    {
+        ldapServerBuilder = description.getAnnotation( LdapServerBuilder.class );
 
+        if ( ldapServerBuilder != null )
+        {
+            LdapServer ldapServer = new LdapServer();
+            
+            ldapServer.setServiceName( ldapServerBuilder.name() );
+            
+            // Read the transports
+            createTransports( ldapServer, ldapServerBuilder.transports() );
+            
+            // Associate the DS to this LdapServer
+            ldapServer.setDirectoryService( directoryService );
+            
+            // Launch the server
+            try
+            {
+                ldapServer.start();
+            }
+            catch ( Exception e )
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    
+    private void stopLdapServer()
+    {
+        if ( ( ldapServer != null ) && ( ldapServer.isStarted() ) )
+        {
+            ldapServer.stop();
+        }
+    }
+    
     
     /**
      * {@inheritDoc}
@@ -110,13 +205,19 @@ public class FrameworkSuite extends Suite
     public void run( final RunNotifier notifier )
     {
         // Create and initialize the Suite DS
-        startSuiteDS();
+        startDS( getDescription() );
+        
+        // create and initialize the suite LdapServer
+        startLdapServer( getDescription() );
         
         // Run the suite
         super.run( notifier );
         
+        // Stop the LdapServer
+        stopLdapServer();
+        
         // last, stop the DS if we have one
-        stopSuiteDS();
+        stopDS();
     }
 
     /**
@@ -164,7 +265,7 @@ public class FrameworkSuite extends Suite
      */
     public LdapServerBuilder getSuiteLdapServerBuilder()
     {
-        return suiteLdapServerBuilder;
+        return ldapServerBuilder;
     }
 
 
@@ -173,6 +274,6 @@ public class FrameworkSuite extends Suite
      */
     public LdapServer getSuiteLdapServer()
     {
-        return suiteLdapServer;
+        return ldapServer;
     }
 }

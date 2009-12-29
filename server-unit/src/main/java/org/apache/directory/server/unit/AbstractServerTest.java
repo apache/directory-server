@@ -39,7 +39,7 @@ import junit.framework.AssertionFailedError;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.annotations.LdapServerBuilder;
-import org.apache.directory.server.annotations.Transport;
+import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultDirectoryService;
@@ -81,7 +81,7 @@ import org.slf4j.LoggerFactory;
  * @version $Rev$
  */
 @LdapServerBuilder( name="test" )
-@Transport( protocol="LDAP")
+@CreateTransport( protocol="LDAP")
 @DSBuilder( factory = DefaultDirectoryServiceFactory.class, name="DSTest" )
 public abstract class AbstractServerTest
 {

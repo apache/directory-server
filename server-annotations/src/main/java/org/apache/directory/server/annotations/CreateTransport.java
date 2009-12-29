@@ -26,19 +26,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.apache.directory.server.DefaultLdapServerFactory;
-
 
 /**
- * A annotation used to define a LdapServer configuration. Many elements can be configured :
- * <ul>
- * <li> The server ID (or name)</li>
- * <li> The max time limit</li>
- * <li> the max size limit</li>
- * <li> Should it allow anonymous access</li>
- * <li> The keyStore file</li>
- * <li> The certificate password</li>
- * </ul>
+ * A annotation used to specify an sequence of LDIF's to be applied to
+ * the instance for integration testing.
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -46,29 +38,27 @@ import org.apache.directory.server.DefaultLdapServerFactory;
 @Inherited
 @Retention ( RetentionPolicy.RUNTIME )
 @Target ( { ElementType.METHOD, ElementType.TYPE } )
-public @interface LdapServerBuilder
+public @interface CreateTransport
 {
-    /** The instance name */
-    String name();
+    /** The name for this protocol*/
+    String protocol();
     
-    /** The transports to use, default to LDAP */
-    CreateTransport[] transports() default {};
+    /** The transport type (TCP or UDP) Default to TCP */
+    TransportType type() default TransportType.TCP;
     
-    /** The LdapServer factory */
-    Class<?> factory() default DefaultLdapServerFactory.class;
+    /** The port to use, default to a bad value so that we know 
+     * we have to pick one random available port */
+    int port() default -1;
     
-    /** The maximum size limit.*/
-    int maxSizeLimit() default 1000;
+    /** The InetAddress for this transport. Default to localhost */
+    String address() default "localhost";
     
-    /** The maximum time limit. */
-    int maxTimeLimit() default 1000;
+    /** The backlog. Default to 50 */
+    int backlog() default 50;
     
-    /** Tells if anonymous access are allowed or not. */
-    boolean allowAnonymousAccess() default false;
+    /** A flag to tell if the transport is SSL based. Default to false */
+    boolean ssl() default false;
     
-    /** The external keyStore file to use, default to the empty string */
-    String keyStore() default "";
-    
-    /** The certificate password in base64, default to the empty string */
-    String certificatePassword() default "";
+    /** The number of threads to use. Default to 3*/
+    int nbThreads() default 3;
 }
