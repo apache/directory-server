@@ -26,7 +26,7 @@ import static org.junit.Assert.fail;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -42,7 +42,7 @@ import org.junit.runner.RunWith;
  * @version $Rev: 494176 $
  */
 @RunWith ( FrameworkRunner.class )
-public class GeneralAuthorizationIT extends AbstractTestUnit 
+public class GeneralAuthorizationIT extends AbstractLdapTestUnit 
 {
 
     @Before

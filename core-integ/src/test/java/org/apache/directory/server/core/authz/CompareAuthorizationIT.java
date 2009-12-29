@@ -35,7 +35,7 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.core.annotations.CreateDS;
-import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
@@ -52,7 +52,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
-public class CompareAuthorizationIT extends AbstractTestUnit
+public class CompareAuthorizationIT extends AbstractLdapTestUnit
 {
 
     @Before

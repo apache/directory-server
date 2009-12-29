@@ -26,7 +26,7 @@ import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAs
 import static org.junit.Assert.fail;
 import junit.framework.Assert;
 
-import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -42,7 +42,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
-public class AuthzAuthnIT extends AbstractTestUnit
+public class AuthzAuthnIT extends AbstractLdapTestUnit
 {
 
     @Before

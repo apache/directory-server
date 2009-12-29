@@ -28,7 +28,7 @@ import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.junit.Test;
@@ -63,7 +63,7 @@ import org.junit.runner.RunWith;
     "objectclass: organizationalUnit\n" +
     "ou: subtest\n"
 })
-public class DestroyContextIT extends AbstractTestUnit
+public class DestroyContextIT extends AbstractLdapTestUnit
 {
     /**
      * Tests the creation and subsequent read of a new JNDI context under the

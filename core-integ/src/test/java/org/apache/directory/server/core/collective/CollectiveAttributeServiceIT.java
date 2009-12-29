@@ -41,7 +41,7 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Test;
@@ -55,7 +55,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
-public class CollectiveAttributeServiceIT extends AbstractTestUnit
+public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 {
     private Attributes getTestEntry( String cn ) throws NamingException
     {

@@ -28,7 +28,7 @@ import org.apache.directory.server.core.DirectoryService;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class AbstractTestUnit
+public abstract class AbstractLdapTestUnit
 {
     /** The used DirectoryService instance */
     public static DirectoryService service;

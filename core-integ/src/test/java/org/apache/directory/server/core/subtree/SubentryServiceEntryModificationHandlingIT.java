@@ -41,7 +41,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
-import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.junit.Test;
@@ -59,7 +59,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith ( FrameworkRunner.class )
 @CreateDS( factory=DefaultDirectoryServiceFactory.class, name="SubentryServiceEntryModificationHandlingIT-class" )
-public class SubentryServiceEntryModificationHandlingIT extends AbstractTestUnit
+public class SubentryServiceEntryModificationHandlingIT extends AbstractLdapTestUnit
 {
 
     public Attributes getTestEntry( String cn )

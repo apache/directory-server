@@ -40,7 +40,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
-import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.Level;
@@ -61,7 +61,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith ( FrameworkRunner.class )
 @CreateDS( factory=DefaultDirectoryServiceFactory.class, name="ModifyContextIT-class" )
-public class ModifyContextIT extends AbstractTestUnit
+public class ModifyContextIT extends AbstractLdapTestUnit
 {
 
     /**

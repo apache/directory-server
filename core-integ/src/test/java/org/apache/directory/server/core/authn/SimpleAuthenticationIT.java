@@ -34,7 +34,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -52,7 +52,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith( FrameworkRunner.class )
-public class SimpleAuthenticationIT extends AbstractTestUnit
+public class SimpleAuthenticationIT extends AbstractLdapTestUnit
 {
     /**
      * Checks all attributes of the admin account entry minus the userPassword

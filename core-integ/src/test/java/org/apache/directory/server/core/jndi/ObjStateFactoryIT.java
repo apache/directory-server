@@ -41,7 +41,7 @@ import javax.naming.spi.DirObjectFactory;
 import javax.naming.spi.DirStateFactory;
 
 import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
@@ -57,7 +57,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
-public class ObjStateFactoryIT extends AbstractTestUnit
+public class ObjStateFactoryIT extends AbstractLdapTestUnit
 {
 
     @Test

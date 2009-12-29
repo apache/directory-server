@@ -44,7 +44,7 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
@@ -63,7 +63,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
-public class OperationalAttributeServiceIT extends AbstractTestUnit
+public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 {
     private static final String BINARY_KEY = "java.naming.ldap.attributes.binary";
     private static final String RDN_KATE_BUSH = "cn=Kate Bush";

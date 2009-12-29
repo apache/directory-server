@@ -57,7 +57,7 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
@@ -98,7 +98,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
-public class SubschemaSubentryIT extends AbstractTestUnit 
+public class SubschemaSubentryIT extends AbstractLdapTestUnit 
 {
     private static final String GLOBAL_SUBSCHEMA_DN = "cn=schema";
     private static final String SUBSCHEMA_SUBENTRY = "subschemaSubentry";

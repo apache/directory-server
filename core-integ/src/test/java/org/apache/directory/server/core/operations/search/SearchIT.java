@@ -47,7 +47,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
-import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
@@ -147,7 +147,7 @@ import org.junit.runner.RunWith;
         "manager: cn=Heather Nova, ou=system\n"
     }
 )
-public class SearchIT extends AbstractTestUnit
+public class SearchIT extends AbstractLdapTestUnit
 {
     private static final String RDN = "cn=Heather Nova";
     private static final String FILTER = "(objectclass=*)";

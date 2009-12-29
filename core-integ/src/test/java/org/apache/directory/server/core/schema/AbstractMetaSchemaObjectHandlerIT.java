@@ -22,7 +22,7 @@ package org.apache.directory.server.core.schema;
 import java.io.File;
 import java.util.Enumeration;
 
-import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -34,7 +34,7 @@ import org.junit.Before;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class AbstractMetaSchemaObjectHandlerIT extends AbstractTestUnit
+public abstract class AbstractMetaSchemaObjectHandlerIT extends AbstractLdapTestUnit
 {
     protected static String workingDir;
 

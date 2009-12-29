@@ -41,7 +41,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
@@ -59,7 +59,7 @@ import org.junit.runner.RunWith;
 @RunWith ( FrameworkRunner.class )
 @Ignore ( "Reverts are failing to delete marked entries. Fixing this " +
         "problem in testEntryAdd() will fix it all over." )
-public class SubentryServiceForTriggersIT extends AbstractTestUnit
+public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
 {
 
     public Attributes getTestEntry( String cn )

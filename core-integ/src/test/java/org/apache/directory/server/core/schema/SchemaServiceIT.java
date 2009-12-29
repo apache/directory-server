@@ -45,7 +45,7 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
@@ -83,7 +83,7 @@ import org.junit.runner.RunWith;
     "sn: sn_person2\n" }
     )
 @RunWith(FrameworkRunner.class)
-public class SchemaServiceIT extends AbstractTestUnit
+public class SchemaServiceIT extends AbstractLdapTestUnit
 {
 
     /**
