@@ -44,7 +44,7 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.annotations.DSBuilder;
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
@@ -82,7 +82,7 @@ import org.slf4j.LoggerFactory;
  */
 @LdapServerBuilder( name="test" )
 @CreateTransport( protocol="LDAP")
-@DSBuilder( factory = DefaultDirectoryServiceFactory.class, name="DSTest" )
+@CreateDS( factory = DefaultDirectoryServiceFactory.class, name="DSTest" )
 public abstract class AbstractServerTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( AbstractServerTest.class );
