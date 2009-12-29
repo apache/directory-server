@@ -126,10 +126,18 @@ public class FrameworkSuite extends Suite
     protected void runChild( Runner runner, RunNotifier notifier )
     {
         // Store the suite into the class we will run
-        ( ( FrameworkRunner ) runner ).setSuite( this );
-        
-        // Now, call the class containing the tests
-        super.runChild( runner, notifier );
+        if( runner instanceof FrameworkRunner )
+        {
+            ( ( FrameworkRunner ) runner ).setSuite( this );
+            
+            // Now, call the class containing the tests
+            super.runChild( runner, notifier );
+        }
+        else
+        {
+            // there is something called org.junit.internal.builders.IgnoredClassRunner
+            super.runChild( runner, notifier );
+        }
     }
 
 
