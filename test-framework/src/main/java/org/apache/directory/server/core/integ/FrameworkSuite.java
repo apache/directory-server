@@ -22,7 +22,6 @@ package org.apache.directory.server.core.integ;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.annotations.LdapServerBuilder;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.factory.DSBuilderAnnotationProcessor;
 import org.apache.directory.server.ldap.LdapServer;
 import org.junit.runner.Runner;
@@ -55,10 +54,6 @@ public class FrameworkSuite extends Suite
     /** The LdapServer for this class, if any */
     private LdapServer suiteLdapServer;
 
-    
-    /** The LDIFs entries for this suite */
-    private ApplyLdifs suiteLdifs;
-
     /**
      * Creates a new instance of FrameworkSuite.
      */
@@ -66,15 +61,10 @@ public class FrameworkSuite extends Suite
     {
         super( clazz, builder );
     }
-
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void run( final RunNotifier notifier )
+    
+    private void startSuiteDS()
     {
-        suiteLdifs = getDescription().getAnnotation( ApplyLdifs.class );
         suiteLdapServerBuilder = getDescription().getAnnotation( LdapServerBuilder.class );
 
         // Initialize and start the DS before running any test, if we have a DS annotation
@@ -92,10 +82,11 @@ public class FrameworkSuite extends Suite
                 return;
             }
         }
-        
-        super.run( notifier );
-        
-        // last, stop the DS if we have one
+    }
+    
+    
+    private void stopSuiteDS()
+    {
         if ( directoryService != null )
         {
             try
@@ -111,6 +102,23 @@ public class FrameworkSuite extends Suite
         }
     }
 
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void run( final RunNotifier notifier )
+    {
+        // Create and initialize the Suite DS
+        startSuiteDS();
+        
+        // Run the suite
+        super.run( notifier );
+        
+        // last, stop the DS if we have one
+        stopSuiteDS();
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -122,15 +130,6 @@ public class FrameworkSuite extends Suite
         
         // Now, call the class containing the tests
         super.runChild( runner, notifier );
-    }
-
-
-    /**
-     * @return the suiteLdifs
-     */
-    public ApplyLdifs getSuiteLdifs()
-    {
-        return suiteLdifs;
     }
 
 

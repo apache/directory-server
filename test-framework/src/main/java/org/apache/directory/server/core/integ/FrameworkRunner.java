@@ -21,13 +21,11 @@ package org.apache.directory.server.core.integ;
 
 import java.lang.reflect.Field;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.DefaultLdapServerFactory;
 import org.apache.directory.server.annotations.LdapServerBuilder;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.annotations.DSBuilder;
 import org.apache.directory.server.core.factory.DSBuilderAnnotationProcessor;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.factory.DirectoryServiceFactory;
@@ -68,12 +66,6 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
     /** The DirectoryService for this class, if any */
     private DirectoryService classDS;
 
-    /** A flag set to true when the class has been started */
-    private boolean classStarted = false;
-
-    /** Is it usefull ? */
-    private static AtomicInteger testCount = new AtomicInteger();
-
 
     /**
      * Creates a new instance of FrameworkRunner.
@@ -83,19 +75,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
         super( clazz );
     }
 
-
-    /**
-     * Instantiate the DirectoryService we found in an annotation
-     */
-    private DirectoryService getDirectoryServer( DSBuilder factory ) throws Exception
-    {
-        DirectoryServiceFactory dsf = ( DirectoryServiceFactory ) factory.factory().newInstance();
-        dsf.init( factory.name() );
-        
-        return dsf.getDirectoryService();
-    }
-
-
+    
     /**
      * {@inheritDoc}
      */
@@ -214,8 +194,6 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
     @Override
     protected void runChild( FrameworkMethod method, RunNotifier notifier )
     {
-        testCount.incrementAndGet();
-
         // Don't run the test if the @Ignored annotation is used
         if ( method.getAnnotation( Ignore.class ) != null )
         {
@@ -294,6 +272,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 ldapServerFactory.setDirectoryService( directoryService );
             }
 
+            // Run the test
             super.runChild( method, notifier );
 
             // Cleanup the methodDS if it has been created
@@ -315,17 +294,23 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             LOG.error( "", e );
             e.printStackTrace();
         }
-
-        classStarted = true;
     }
 
 
+    /**
+     * Set the Suite reference into this class
+     *
+     * @param suite The suite this classd is contained into
+     */
     public void setSuite( FrameworkSuite suite )
     {
         this.suite = suite;
     }
 
 
+    /**
+     * @return The Suite this class is contained nto, if any
+     */
     public FrameworkSuite getSuite()
     {
         return suite;
