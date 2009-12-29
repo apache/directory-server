@@ -164,6 +164,15 @@ public abstract class BTreePartition implements Partition
     }
 
 
+    public void addIndexedAttributes( Index<?,ServerEntry>... indexes )
+    {
+        for ( Index<?,ServerEntry> index : indexes )
+        {
+            indexedAttributes.add( index );
+        }
+    }
+
+
     public Set<Index<?,ServerEntry>> getIndexedAttributes()
     {
         return indexedAttributes;
