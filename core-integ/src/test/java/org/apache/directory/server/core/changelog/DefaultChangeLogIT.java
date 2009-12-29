@@ -19,21 +19,16 @@
 package org.apache.directory.server.core.changelog;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.apache.directory.server.core.integ.state.TestServiceContext.shutdown;
 import static org.apache.directory.server.core.integ.state.TestServiceContext.startup;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -43,7 +38,16 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
-import java.util.Arrays;
+
+import org.apache.directory.server.core.annotations.DSBuilder;
+import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
+import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -54,15 +58,12 @@ import java.util.Arrays;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-@RunWith ( CiRunner.class )
-public class DefaultChangeLogIT
+@RunWith ( FrameworkRunner.class )
+@DSBuilder( factory=DefaultDirectoryServiceFactory.class, name="DefaultChangeLogIT-class" )
+public class DefaultChangeLogIT extends AbstractTestUnit
 {
     public static final Logger LOG = LoggerFactory.getLogger( DefaultChangeLogIT.class );
 
-    public static DirectoryService service;
-
-
-//    service.setShutdownHookEnabled( false );
 
     @Test
     public void testManyTagsPersistenceAcrossRestarts() throws Exception, InterruptedException

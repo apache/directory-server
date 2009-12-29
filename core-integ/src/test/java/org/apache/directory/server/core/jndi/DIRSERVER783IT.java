@@ -20,13 +20,11 @@
 package org.apache.directory.server.core.jndi;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.junit.Test;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
-import org.junit.runner.RunWith;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Hashtable;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -41,7 +39,11 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import java.util.Hashtable;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Tries to demonstrate DIRSERVER-783 ("Adding another value to an attribute
@@ -49,11 +51,9 @@ import java.util.Hashtable;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( CiRunner.class )
-public class DIRSERVER783IT
+@RunWith ( FrameworkRunner.class )
+public class DIRSERVER783IT extends AbstractTestUnit
 {
-    public static DirectoryService service;
-
 
     /**
      * Try to add entry with required attribute missing.

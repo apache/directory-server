@@ -21,24 +21,24 @@
 package org.apache.directory.server.core.trigger;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.injectEntries;
-import org.apache.directory.shared.ldap.sp.JavaStoredProcUtils;
-import org.apache.directory.shared.ldap.trigger.TriggerUtils;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapContext;
+
+import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.sp.JavaStoredProcUtils;
+import org.apache.directory.shared.ldap.trigger.TriggerUtils;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -47,12 +47,10 @@ import javax.naming.ldap.LdapContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$
  */
-@RunWith ( CiRunner.class )
+@RunWith ( FrameworkRunner.class )
 @Ignore
-public class TriggerInterceptorIT
+public class TriggerInterceptorIT extends AbstractTestUnit
 {
-    public static DirectoryService service;
-
     LdapContext spCtx;
 
 

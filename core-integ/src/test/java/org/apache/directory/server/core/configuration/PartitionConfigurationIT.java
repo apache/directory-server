@@ -32,7 +32,8 @@ import junit.framework.Assert;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
@@ -49,11 +50,9 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-public class PartitionConfigurationIT
+@RunWith ( FrameworkRunner.class )
+public class PartitionConfigurationIT extends AbstractTestUnit
 {
-    public static DirectoryService service;
-
 
     @Test
     public void testAddAndRemove() throws Exception

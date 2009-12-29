@@ -32,10 +32,10 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.core.annotations.DSBuilder;
+import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
+import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -46,12 +46,10 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-@CleanupLevel( Level.CLASS )
-public class ExtensibleObjectIT
+@RunWith ( FrameworkRunner.class )
+@DSBuilder( factory=DefaultDirectoryServiceFactory.class, name="ExtensibleObjectIT-class" )
+public class ExtensibleObjectIT extends AbstractTestUnit
 {
-    public static DirectoryService service;
-
 
     @Test
     public void testExtensibleObjectModify() throws Exception

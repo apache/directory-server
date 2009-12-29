@@ -45,9 +45,9 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
 import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
@@ -66,7 +66,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
+@RunWith ( FrameworkRunner.class )
 @ApplyLdifs(
     {
         "dn: m-oid=2.2.0, ou=attributeTypes, cn=apachemeta, ou=schema\n" +
@@ -146,12 +146,11 @@ import org.junit.runner.RunWith;
         "manager: cn=Heather Nova, ou=system\n"
     }
 )
-public class SearchIT
+public class SearchIT extends AbstractTestUnit
 {
     private static final String RDN = "cn=Heather Nova";
     private static final String FILTER = "(objectclass=*)";
 
-    public static DirectoryService service;
     public static LdapContext sysRoot;
 
     @BeforeClass

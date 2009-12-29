@@ -20,19 +20,22 @@
 package org.apache.directory.server.core.jndi;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
-import java.util.ArrayList;
+
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -42,11 +45,9 @@ import java.util.ArrayList;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-public class RFC2713IT
+@RunWith ( FrameworkRunner.class )
+public class RFC2713IT extends AbstractTestUnit
 {
-    public static DirectoryService service;
-    
 
     @Test
     @SuppressWarnings("unchecked")

@@ -20,15 +20,12 @@
 package org.apache.directory.server.core.jndi;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.util.Hashtable;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -37,7 +34,12 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
-import java.util.Hashtable;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -46,11 +48,9 @@ import java.util.Hashtable;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-public class RootDSEIT
+@RunWith ( FrameworkRunner.class )
+public class RootDSEIT extends AbstractTestUnit
 {
-    public static DirectoryService service;
-
 
     /**
      * Creates an initial context using the empty string for the provider URL.

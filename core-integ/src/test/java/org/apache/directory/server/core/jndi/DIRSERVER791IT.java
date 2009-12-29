@@ -42,7 +42,8 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SchemaViolationException;
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -52,11 +53,9 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(CiRunner.class)
-public class DIRSERVER791IT
+@RunWith(FrameworkRunner.class)
+public class DIRSERVER791IT extends AbstractTestUnit
 {
-    public static DirectoryService service;
-
 
     /**
      * Returns the attributes as depicted as test data in DIRSERVER-791

@@ -21,24 +21,24 @@
 package org.apache.directory.server.core.sp;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
-import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.shared.ldap.util.Base64;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapContext;
+
+import org.apache.directory.server.core.annotations.DSBuilder;
+import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
+import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.jndi.ServerLdapContext;
+import org.apache.directory.shared.ldap.util.Base64;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -47,9 +47,9 @@ import javax.naming.ldap.LdapContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$ $Date$
  */
-@RunWith ( CiRunner.class )
-@CleanupLevel(Level.CLASS)
-public class LdapClassLoaderIT
+@RunWith ( FrameworkRunner.class )
+@DSBuilder( factory=DefaultDirectoryServiceFactory.class, name="LdapClassLoaderIT-class" )
+public class LdapClassLoaderIT extends AbstractTestUnit
 {
     private static final String HELLOWORLD_CLASS_BASE64 = "yv66vgAAADEAHQoABgAPCQAQABEIABIKABMAFAcAFQcAFgEABjxpbml0PgEAAygpV"
         + "gEABENvZGUBAA9MaW5lTnVtYmVyVGFibGUBAARtYWluAQAWKFtMamF2YS9sYW5nL1N0cmluZzsp"
@@ -61,9 +61,6 @@ public class LdapClassLoaderIT
         + "JsgACEgO2AASxAAAAAQAKAAAACgACAAAABQAIAAYAAQANAAAAAgAO";
 
     private static final byte[] HELLOWORLD_CLASS_BYTES = Base64.decode( HELLOWORLD_CLASS_BASE64.toCharArray() );
-
-
-    public static DirectoryService service;
 
 
     @Test

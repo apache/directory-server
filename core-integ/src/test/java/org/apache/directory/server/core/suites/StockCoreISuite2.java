@@ -20,13 +20,37 @@ package org.apache.directory.server.core.suites;
 
 
 import org.apache.directory.server.core.authn.SimpleAuthenticationIT;
+import org.apache.directory.server.core.changelog.DefaultChangeLogIT;
 import org.apache.directory.server.core.collective.CollectiveAttributeServiceIT;
+import org.apache.directory.server.core.configuration.PartitionConfigurationIT;
 import org.apache.directory.server.core.event.EventServiceIT;
 import org.apache.directory.server.core.exception.ExceptionServiceIT;
 import org.apache.directory.server.core.integ.FrameworkSuite;
 import org.apache.directory.server.core.jndi.AddIT;
 import org.apache.directory.server.core.jndi.CreateContextIT;
+import org.apache.directory.server.core.jndi.DIRSERVER169IT;
+import org.apache.directory.server.core.jndi.DIRSERVER783IT;
+import org.apache.directory.server.core.jndi.DIRSERVER791IT;
 import org.apache.directory.server.core.jndi.DestroyContextIT;
+import org.apache.directory.server.core.jndi.ExtensibleObjectIT;
+import org.apache.directory.server.core.jndi.ListIT;
+import org.apache.directory.server.core.jndi.ModifyContextIT;
+import org.apache.directory.server.core.jndi.ObjStateFactoryIT;
+import org.apache.directory.server.core.jndi.RFC2713IT;
+import org.apache.directory.server.core.jndi.RootDSEIT;
+import org.apache.directory.server.core.jndi.UniqueMemberIT;
+import org.apache.directory.server.core.normalization.NormalizationServiceIT;
+import org.apache.directory.server.core.operational.OperationalAttributeServiceIT;
+import org.apache.directory.server.core.operations.search.DIRSERVER759IT;
+import org.apache.directory.server.core.operations.search.SearchIT;
+import org.apache.directory.server.core.prefs.PreferencesIT;
+import org.apache.directory.server.core.sp.LdapClassLoaderIT;
+import org.apache.directory.server.core.subtree.BadSubentryServiceIT;
+import org.apache.directory.server.core.subtree.SubentryServiceEntryModificationHandlingIT;
+import org.apache.directory.server.core.subtree.SubentryServiceIT;
+import org.apache.directory.server.core.subtree.SubentryServiceObjectClassChangeHandlingIT;
+import org.apache.directory.server.core.trigger.SubentryServiceForTriggersIT;
+import org.apache.directory.server.core.trigger.TriggerInterceptorIT;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -45,7 +69,7 @@ import org.junit.runners.Suite;
         EventServiceIT.class,
         AddIT.class,
         CreateContextIT.class,
-        DestroyContextIT.class/*,
+        DestroyContextIT.class,
         PartitionConfigurationIT.class,
         DIRSERVER169IT.class,
         DIRSERVER759IT.class,
@@ -69,7 +93,7 @@ import org.junit.runners.Suite;
         SubentryServiceIT.class,
         LdapClassLoaderIT.class,
         NormalizationServiceIT.class,
-        DefaultChangeLogIT.class*/
+        DefaultChangeLogIT.class
         } )
 public class StockCoreISuite2
 {
