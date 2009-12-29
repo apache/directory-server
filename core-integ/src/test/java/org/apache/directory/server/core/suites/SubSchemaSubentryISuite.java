@@ -19,9 +19,7 @@
 package org.apache.directory.server.core.suites;
 
 
-import org.apache.directory.server.core.integ.CiSuite;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.core.integ.FrameworkSuite;
 import org.apache.directory.server.core.schema.SubschemaSubentryIT;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -33,11 +31,10 @@ import org.junit.runners.Suite;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-@RunWith ( CiSuite.class )
+@RunWith ( FrameworkSuite.class )
 @Suite.SuiteClasses ( {
         SubschemaSubentryIT.class
         } )
-@CleanupLevel ( Level.SUITE )
 public class SubSchemaSubentryISuite
 {
 }
