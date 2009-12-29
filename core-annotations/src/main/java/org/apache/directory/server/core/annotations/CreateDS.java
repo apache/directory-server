@@ -46,4 +46,7 @@ public @interface CreateDS
     
     /** flag to enable/disable anonymous access, default is false */
     boolean allowAnonAccess() default false;
+    
+    /** The list of partitions to create */
+    CreatePartition[] partitions() default {};
 }

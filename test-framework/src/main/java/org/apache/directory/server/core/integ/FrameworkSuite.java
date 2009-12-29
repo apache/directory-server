@@ -23,6 +23,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.factory.DSBuilderAnnotationProcessor;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
@@ -158,7 +159,18 @@ public class FrameworkSuite extends Suite
             ldapServer.addTransports( ldaps );
         }
     }
+
     
+    private void addPartitions( Description description )
+    {
+        CreatePartition createPartition = description.getAnnotation( CreatePartition.class );
+        
+        if ( createPartition != null )
+        {
+            
+        }
+    }
+
     
     private void startLdapServer( Description description )
     {
@@ -206,6 +218,9 @@ public class FrameworkSuite extends Suite
     {
         // Create and initialize the Suite DS
         startDS( getDescription() );
+        
+        // Add the partitions to this DS
+        addPartitions( getDescription() );
         
         // create and initialize the suite LdapServer
         startLdapServer( getDescription() );

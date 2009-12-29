@@ -30,39 +30,39 @@ import org.junit.runners.Suite;
 
 @RunWith( FrameworkSuite.class )
 @Suite.SuiteClasses( { TestClassA.class, TestClassB.class, TestClassC.class } )
-@CreateDS( name = "SuiteDS" )
-@CreatePartition
-    (
-        name = "example",
-        suffix = "dc=example,dc=com",
-        contextEntry = @ContextEntry
-            ( 
+@CreateDS( 
+    name = "SuiteDS",
+    partitions =
+    {
+        @CreatePartition(
+            name = "example",
+            suffix = "dc=example,dc=com",
+            contextEntry = @ContextEntry( 
                 entryLdif =
                     "dn: dc=example,dc=com\n" +
                     "dc: example\n" +
                     "objectClass: top\n" +
-                    "objectClass: domain\n\n"
-            ),
-        indexes = 
+                    "objectClass: domain\n\n" ),
+            indexes = 
             {
                 @CreateIndex( attribute = "objectClass" ),
                 @CreateIndex( attribute = "dc" ),
                 @CreateIndex( attribute = "ou" ),
-            }
-    )
+            } )
+    } )
 @CreateLdapServer ( 
     transports = 
-        {
-            @CreateTransport( protocol = "LDAP" ), 
-            @CreateTransport( protocol = "LDAPS" ) 
-        })
+    {
+        @CreateTransport( protocol = "LDAP" ), 
+        @CreateTransport( protocol = "LDAPS" ) 
+    })
 @ApplyLdifs(
     {
         "dn: cn=testSuite,ou=system\n" + 
         "objectClass: person\n" + 
         "cn: testSuite\n" + 
         "sn: sn_testSuite\n" 
-    })
+    } )
 public class TestSuiteServer
 {
 }
