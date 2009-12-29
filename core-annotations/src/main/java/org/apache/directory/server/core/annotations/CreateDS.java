@@ -33,7 +33,7 @@ import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target( {ElementType.METHOD, ElementType.TYPE } )
-public @interface DSBuilder
+public @interface CreateDS
 {
     /** The Factory to use to create a DirectoryService */
     Class<?> factory() default DefaultDirectoryServiceFactory.class;
