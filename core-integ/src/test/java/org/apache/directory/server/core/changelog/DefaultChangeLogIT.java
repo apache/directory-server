@@ -20,8 +20,6 @@ package org.apache.directory.server.core.changelog;
 
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import static org.apache.directory.server.core.integ.state.TestServiceContext.shutdown;
-import static org.apache.directory.server.core.integ.state.TestServiceContext.startup;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -93,8 +91,8 @@ public class DefaultChangeLogIT extends AbstractTestUnit
         assertEquals( revision + 2, service.getChangeLog().getCurrentRevision() );
         assertEquals( revision + 2, t1.getRevision() );
 
-        shutdown();
-        startup();
+        service.shutdown();
+        service.startup();
 
         assertEquals( revision + 2, service.getChangeLog().getCurrentRevision() );
         assertEquals( t1, service.getChangeLog().getLatest() );
@@ -121,8 +119,8 @@ public class DefaultChangeLogIT extends AbstractTestUnit
         assertEquals( t1, service.getChangeLog().getLatest() );
 
         // no sync this time but should happen automatically
-        shutdown();
-        startup();
+        service.shutdown();
+        service.startup();
         assertEquals( revision + 7, service.getChangeLog().getCurrentRevision() );
         assertEquals( t1, service.getChangeLog().getLatest() );
         assertEquals( revision + 2, t1.getRevision() );
@@ -152,8 +150,8 @@ public class DefaultChangeLogIT extends AbstractTestUnit
         sysRoot.createSubcontext( "ou=test", attrs );
         assertEquals( revision + 1, service.getChangeLog().getCurrentRevision() );
 
-        shutdown();
-        startup();
+        service.shutdown();
+        service.startup();
 
         assertEquals( revision + 1, service.getChangeLog().getCurrentRevision() );
         assertEquals( t0, service.getChangeLog().getLatest() );
