@@ -116,7 +116,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
     /** whether or not this index has been initialized */
     protected boolean initialized;
     
-    /** a customm working directory path when specified in configuration */
+    /** a custom working directory path when specified in configuration */
     protected File wkDirPath;
 
 
