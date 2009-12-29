@@ -61,6 +61,21 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
      */
     public static final DirectoryServiceFactory DEFAULT = new DefaultDirectoryServiceFactory();
 
+    /* default access */ DefaultDirectoryServiceFactory()
+    {
+        try
+        {
+            // creating the instance here so that
+            // we we can set some properties like accesscontrol, anon access
+            // before starting up the service
+            directoryService = new DefaultDirectoryService();
+        }
+        catch( Exception e )
+        {
+            throw new RuntimeException( e );
+        }
+    }
+    
     
     public void init( String name ) throws Exception
     {
@@ -69,7 +84,6 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
             return;
         }
 
-        directoryService = new DefaultDirectoryService();
         build( name );
     }
     

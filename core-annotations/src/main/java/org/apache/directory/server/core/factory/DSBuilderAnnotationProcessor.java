@@ -32,9 +32,12 @@ public class DSBuilderAnnotationProcessor
                 LOG.debug( "Starting DS {}...", dsBuilder.name() );
                 Class<?> factory = dsBuilder.factory();
                 DirectoryServiceFactory dsf = ( DirectoryServiceFactory ) factory.newInstance();
-                dsf.init( dsBuilder.name() );
                 
                 DirectoryService service = dsf.getDirectoryService();
+                service.setAccessControlEnabled( dsBuilder.enableAccessControl() );
+                service.setAllowAnonymousAccess( dsBuilder.allowAnonAccess() );
+                
+                dsf.init( dsBuilder.name() );
                 
                 return service;
             }

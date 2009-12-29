@@ -40,4 +40,10 @@ public @interface DSBuilder
     
     /** The DS name */
     String name() default "defaultDS";
+    
+    /** flag to enable/disable access control, default is false */
+    boolean enableAccessControl() default false;
+    
+    /** flag to enable/disable anonymous access, default is false */
+    boolean allowAnonAccess() default false;
 }
