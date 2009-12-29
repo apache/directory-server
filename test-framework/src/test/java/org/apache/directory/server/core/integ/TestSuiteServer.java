@@ -21,15 +21,36 @@ package org.apache.directory.server.core.integ;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.annotations.CreateIndex;
+import org.apache.directory.server.core.annotations.CreatePartition;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith( FrameworkSuite.class )
 @Suite.SuiteClasses( { TestClassA.class, TestClassB.class, TestClassC.class } )
 @CreateDS( name = "SuiteDS" )
-@CreateLdapServer( 
-    name = "test",
+@CreatePartition
+    (
+        name = "example",
+        suffix = "dc=example,dc=com",
+        contextEntry = @ContextEntry
+            ( 
+                entryLdif =
+                    "dn: dc=example,dc=com\n" +
+                    "dc: example\n" +
+                    "objectClass: top\n" +
+                    "objectClass: domain\n\n"
+            ),
+        indexes = 
+            {
+                @CreateIndex( attribute = "objectClass" ),
+                @CreateIndex( attribute = "dc" ),
+                @CreateIndex( attribute = "ou" ),
+            }
+    )
+@CreateLdapServer ( 
     transports = 
         {
             @CreateTransport( protocol = "LDAP" ), 

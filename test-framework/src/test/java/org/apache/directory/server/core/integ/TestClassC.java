@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith( FrameworkRunner.class )
-public class TestClassC extends AbstractTestUnit
+public class TestClassC extends AbstractLdapTestUnit
 {
     @Test
     public void testWithoutMethodOrClassLevelFactory() throws Exception
