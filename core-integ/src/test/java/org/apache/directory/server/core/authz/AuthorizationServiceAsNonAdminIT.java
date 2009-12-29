@@ -32,11 +32,10 @@ import java.util.List;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.annotations.Factory;
+import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -63,12 +62,9 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-@Factory ( AutzIntegUtils.ServiceFactory.class )
-public class AuthorizationServiceAsNonAdminIT 
+@RunWith ( FrameworkRunner.class )
+public class AuthorizationServiceAsNonAdminIT extends AbstractTestUnit 
 {
-    public static DirectoryService service;
-
 
     /**
      * Makes sure a non-admin user cannot delete the admin account.

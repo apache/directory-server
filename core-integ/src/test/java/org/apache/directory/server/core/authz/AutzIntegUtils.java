@@ -21,13 +21,8 @@ package org.apache.directory.server.core.authz;
 
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import static org.junit.Assert.fail;
 
-import java.io.File;
-import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.List;
-import java.util.Set;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
@@ -40,27 +35,10 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.integ.DirectoryServiceFactory;
-import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.core.partition.ldif.LdifPartition;
-import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
-import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.loader.ldif.JarLdifSchemaLoader;
-import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
-import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
-import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
-import org.apache.directory.shared.ldap.util.ExceptionUtils;
 
 
 /**
@@ -73,164 +51,6 @@ import org.apache.directory.shared.ldap.util.ExceptionUtils;
 public class AutzIntegUtils
 {
     public static DirectoryService service;
-
-    public static class ServiceFactory implements DirectoryServiceFactory
-    {
-        public DirectoryService newInstance() throws Exception
-        {
-            String workingDirectory = System.getProperty( "workingDirectory" );
-
-            if ( workingDirectory == null )
-            {
-                String path = DirectoryServiceFactory.class.getResource( "" ).getPath();
-                int targetPos = path.indexOf( "target" );
-                workingDirectory = path.substring( 0, targetPos + 6 ) + "/server-work";
-            }
-
-            service = new DefaultDirectoryService();
-            service.setWorkingDirectory( new File( workingDirectory ) );
-
-            return service;
-        }
-
-
-        public void init() throws Exception
-        {
-            SchemaPartition schemaPartition = service.getSchemaService().getSchemaPartition();
-
-            // Init the LdifPartition
-            LdifPartition ldifPartition = new LdifPartition();
-
-            String workingDirectory = service.getWorkingDirectory().getPath();
-
-            ldifPartition.setWorkingDirectory( workingDirectory + "/schema" );
-
-            // Extract the schema on disk (a brand new one) and load the registries
-            File schemaRepository = new File( workingDirectory, "schema" );
-            SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
-            extractor.extractOrCopy();
-
-            schemaPartition.setWrappedPartition( ldifPartition );
-
-            SchemaLoader loader = new LdifSchemaLoader( schemaRepository );
-
-            SchemaManager schemaManager = new DefaultSchemaManager( loader );
-            service.setSchemaManager( schemaManager );
-
-            schemaManager.loadAllEnabled();
-
-            List<Throwable> errors = schemaManager.getErrors();
-
-            if ( errors.size() != 0 )
-            {
-                fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
-            }
-
-            schemaPartition.setSchemaManager( schemaManager );
-
-            service.getChangeLog().setEnabled( true );
-
-            // change the working directory to something that is unique
-            // on the system and somewhere either under target directory
-            // or somewhere in a temp area of the machine.
-
-            // Inject the System Partition
-            Partition systemPartition = new JdbmPartition();
-            systemPartition.setId( "system" );
-            ( ( JdbmPartition ) systemPartition ).setCacheSize( 500 );
-            systemPartition.setSuffix( ServerDNConstants.SYSTEM_DN );
-            systemPartition.setSchemaManager( schemaManager );
-            ( ( JdbmPartition ) systemPartition ).setPartitionDir( new File( workingDirectory, "system" ) );
-
-            // Add objectClass attribute for the system partition
-            Set<Index<?, ServerEntry>> indexedAttrs = new HashSet<Index<?, ServerEntry>>();
-            indexedAttrs.add( new JdbmIndex<Object, ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
-            ( ( JdbmPartition ) systemPartition ).setIndexedAttributes( indexedAttrs );
-
-            service.setSystemPartition( systemPartition );
-            service.setAccessControlEnabled( true );
-        }
-    }
-
-    public static class DefaultServiceFactory implements DirectoryServiceFactory
-    {
-        public DirectoryService newInstance() throws Exception
-        {
-            String workingDirectory = System.getProperty( "workingDirectory" );
-
-            if ( workingDirectory == null )
-            {
-                String path = DirectoryServiceFactory.class.getResource( "" ).getPath();
-                int targetPos = path.indexOf( "target" );
-                workingDirectory = path.substring( 0, targetPos + 6 ) + "/server-work";
-            }
-
-            DirectoryService service = new DefaultDirectoryService();
-            service.setWorkingDirectory( new File( workingDirectory ) );
-
-            return service;
-        }
-
-
-        public void init() throws Exception
-        {
-            SchemaPartition schemaPartition = service.getSchemaService().getSchemaPartition();
-
-            // Init the LdifPartition
-            LdifPartition ldifPartition = new LdifPartition();
-
-            String workingDirectory = service.getWorkingDirectory().getPath();
-
-            ldifPartition.setWorkingDirectory( workingDirectory + "/schema" );
-
-            // Extract the schema on disk (a brand new one) and load the registries
-            File schemaRepository = new File( workingDirectory, "schema" );
-            SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
-
-            schemaPartition.setWrappedPartition( ldifPartition );
-
-            JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
-            SchemaManager schemaManager = new DefaultSchemaManager( loader );
-            service.setSchemaManager( schemaManager );
-
-            schemaManager.loadAllEnabled();
-
-            List<Throwable> errors = schemaManager.getErrors();
-
-            if ( errors.size() != 0 )
-            {
-                fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
-            }
-
-            schemaPartition.setSchemaManager( schemaManager );
-
-            extractor.extractOrCopy();
-
-            service.getChangeLog().setEnabled( true );
-
-            // change the working directory to something that is unique
-            // on the system and somewhere either under target directory
-            // or somewhere in a temp area of the machine.
-
-            // Inject the System Partition
-            Partition systemPartition = new JdbmPartition();
-            systemPartition.setId( "system" );
-            ( ( JdbmPartition ) systemPartition ).setCacheSize( 500 );
-            systemPartition.setSuffix( ServerDNConstants.SYSTEM_DN );
-            systemPartition.setSchemaManager( schemaManager );
-            ( ( JdbmPartition ) systemPartition ).setPartitionDir( new File( workingDirectory, "system" ) );
-
-            // Add objectClass attribute for the system partition
-            Set<Index<?, ServerEntry>> indexedAttrs = new HashSet<Index<?, ServerEntry>>();
-            indexedAttrs.add( new JdbmIndex<Object, ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
-            ( ( JdbmPartition ) systemPartition ).setIndexedAttributes( indexedAttrs );
-
-            service.setSystemPartition( systemPartition );
-            service.setAccessControlEnabled( false );
-            AutzIntegUtils.service = service;
-        }
-    }
-
 
     // -----------------------------------------------------------------------
     // Utility methods used by subclasses

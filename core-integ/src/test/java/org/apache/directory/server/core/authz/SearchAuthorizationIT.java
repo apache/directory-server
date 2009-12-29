@@ -51,12 +51,12 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.annotations.Factory;
+import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -68,13 +68,17 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-@Factory ( AutzIntegUtils.ServiceFactory.class )
-public class SearchAuthorizationIT
+@RunWith ( FrameworkRunner.class )
+public class SearchAuthorizationIT extends AbstractTestUnit
 {
-    public static DirectoryService service;
 
-
+    @Before
+    public void setService()
+    {
+       AutzIntegUtils.service = service;
+    }
+    
+    
     /**
      * The search results of tests are added to this map via put (<String, SearchResult>)
      * the map is also cleared before each search test.  This allows further inspections

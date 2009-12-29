@@ -19,6 +19,7 @@
 package org.apache.directory.server.core.suites;
 
 
+import org.apache.directory.server.core.annotations.DSBuilder;
 import org.apache.directory.server.core.authz.AddAuthorizationIT;
 import org.apache.directory.server.core.authz.AdministratorsGroupIT;
 import org.apache.directory.server.core.authz.AuthorizationServiceAsAdminIT;
@@ -30,9 +31,7 @@ import org.apache.directory.server.core.authz.GeneralAuthorizationIT;
 import org.apache.directory.server.core.authz.ModifyAuthorizationIT;
 import org.apache.directory.server.core.authz.MoveRenameAuthorizationIT;
 import org.apache.directory.server.core.authz.SearchAuthorizationIT;
-import org.apache.directory.server.core.integ.CiSuite;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.core.integ.FrameworkSuite;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -43,7 +42,8 @@ import org.junit.runners.Suite;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-@RunWith ( CiSuite.class )
+@RunWith ( FrameworkSuite.class )
+@DSBuilder( enableAccessControl=true, name="AuthzISuite" )
 @Suite.SuiteClasses ( {
         AddAuthorizationIT.class,
         AuthorizationServiceAsAdminIT.class,
@@ -59,7 +59,6 @@ import org.junit.runners.Suite;
                                         // the default factory service running instead of
                                         // one with 
         } )
-@CleanupLevel ( Level.SUITE )
 public class AuthzISuite
 {
 }

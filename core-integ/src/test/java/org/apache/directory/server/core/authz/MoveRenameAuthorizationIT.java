@@ -19,14 +19,16 @@
  */
 package org.apache.directory.server.core.authz;
 
-import org.apache.directory.shared.ldap.name.LdapDN;
-
-
-import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.annotations.Factory;
-import org.apache.directory.server.core.DirectoryService;
-import org.junit.runner.RunWith;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.addUserToGroup;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.deleteAccessControlSubentry;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.deleteUser;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAs;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAsAdmin;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.removeUserFromGroup;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -34,18 +36,14 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.junit.Before;
 import org.junit.Test;
-
-import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.deleteUser;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAs;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAsAdmin;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.addUserToGroup;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.deleteAccessControlSubentry;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.removeUserFromGroup;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -54,13 +52,17 @@ import static org.apache.directory.server.core.authz.AutzIntegUtils.removeUserFr
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-@Factory ( AutzIntegUtils.ServiceFactory.class )
-public class MoveRenameAuthorizationIT
+@RunWith ( FrameworkRunner.class )
+public class MoveRenameAuthorizationIT extends AbstractTestUnit
 {
-    public static DirectoryService service;
 
-
+    @Before
+    public void setService()
+    {
+       AutzIntegUtils.service = service;
+    }
+    
+    
     /**
      * Checks if a simple entry (organizationalUnit) can be renamed at an RDN relative
      * to ou=system by a specific non-admin user.  If a permission exception
