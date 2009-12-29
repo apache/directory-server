@@ -95,6 +95,6 @@ import org.junit.runners.Suite;
         NormalizationServiceIT.class,
         DefaultChangeLogIT.class
         } )
-public class StockCoreISuite2
+public class StockCoreISuite
 {
 }
