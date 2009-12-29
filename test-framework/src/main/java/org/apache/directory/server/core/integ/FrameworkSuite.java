@@ -24,7 +24,7 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.annotations.CreatePartition;
-import org.apache.directory.server.core.factory.DSBuilderAnnotationProcessor;
+import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
@@ -75,14 +75,14 @@ public class FrameworkSuite extends Suite
     private void startDS( Description description )
     {
         // Initialize and start the DS before running any test, if we have a DS annotation
-        directoryService = DSBuilderAnnotationProcessor.getDirectoryService( description );
+        directoryService = DSAnnotationProcessor.getDirectoryService( description );
         
         // and inject LDIFs if needed
         if ( directoryService != null )
         {
             try
             {
-                DSBuilderAnnotationProcessor.applyLdifs( description, directoryService );
+                DSAnnotationProcessor.applyLdifs( description, directoryService );
             }
             catch ( Exception e )
             {

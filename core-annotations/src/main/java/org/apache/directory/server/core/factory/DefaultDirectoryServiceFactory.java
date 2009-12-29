@@ -196,7 +196,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         File workingDirectory = new File( workingDirectoryPath );
         FileUtils.deleteDirectory( workingDirectory );
         
-        // Init the sevice now
+        // Init the service now
         initSchema();
         initChangeLog();
         initSystemPartition();

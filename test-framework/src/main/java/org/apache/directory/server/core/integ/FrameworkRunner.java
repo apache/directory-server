@@ -26,7 +26,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.DefaultLdapServerFactory;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.factory.DSBuilderAnnotationProcessor;
+import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.factory.DirectoryServiceFactory;
 import org.junit.Ignore;
@@ -88,7 +88,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
         try
         {
-            classDS = DSBuilderAnnotationProcessor.getDirectoryService( getDescription() );
+            classDS = DSAnnotationProcessor.getDirectoryService( getDescription() );
             long revision = 0L;
             DirectoryService directoryService = null;
 
@@ -101,10 +101,10 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 // Get the applyLdifs for each level and apply them
                 if ( suite != null )
                 {
-                    DSBuilderAnnotationProcessor.applyLdifs( suite.getDescription(), classDS );
+                    DSAnnotationProcessor.applyLdifs( suite.getDescription(), classDS );
                 }
                 
-                DSBuilderAnnotationProcessor.applyLdifs( getDescription(), classDS );
+                DSAnnotationProcessor.applyLdifs( getDescription(), classDS );
             }
             else
             {
@@ -121,7 +121,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                         LOG.debug( "Create revision {}", revision );
 
                         // apply the class LDIFs
-                        DSBuilderAnnotationProcessor.applyLdifs( getDescription(), directoryService );
+                        DSAnnotationProcessor.applyLdifs( getDescription(), directoryService );
                     }
                     else
                     {
@@ -134,13 +134,13 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                         suite.setDirectoryService( directoryService );
                         
                         // Apply the suite LDIF first
-                        DSBuilderAnnotationProcessor.applyLdifs( suite.getDescription(), directoryService );
+                        DSAnnotationProcessor.applyLdifs( suite.getDescription(), directoryService );
                         
                         // Then tag for reversion and apply the class LDIFs
                         revision = directoryService.getChangeLog().getCurrentRevision();
                         LOG.debug( "Create revision {}", revision );
                         
-                        DSBuilderAnnotationProcessor.applyLdifs( getDescription(), directoryService );
+                        DSAnnotationProcessor.applyLdifs( getDescription(), directoryService );
                     }
                 }
                 else
@@ -154,7 +154,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                     classDS = directoryService;
 
                     // Apply the class LDIFs
-                    DSBuilderAnnotationProcessor.applyLdifs( getDescription(), directoryService );
+                    DSAnnotationProcessor.applyLdifs( getDescription(), directoryService );
                 }
             }
 
@@ -223,14 +223,14 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             long revision = 0L;
 
             // Check if this method has a dedicated DSBuilder
-            DirectoryService methodDS = DSBuilderAnnotationProcessor.getDirectoryService( methodDescription );
+            DirectoryService methodDS = DSAnnotationProcessor.getDirectoryService( methodDescription );
 
             if ( methodDS != null )
             {
                 // Apply all the LDIFs
-                DSBuilderAnnotationProcessor.applyLdifs( suiteDescription, methodDS );
-                DSBuilderAnnotationProcessor.applyLdifs( classDescription, methodDS );
-                DSBuilderAnnotationProcessor.applyLdifs( methodDescription, methodDS );
+                DSAnnotationProcessor.applyLdifs( suiteDescription, methodDS );
+                DSAnnotationProcessor.applyLdifs( classDescription, methodDS );
+                DSAnnotationProcessor.applyLdifs( methodDescription, methodDS );
                 
                 directoryService = methodDS;
             }
@@ -242,7 +242,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 revision = directoryService.getChangeLog().getCurrentRevision();
                 LOG.debug( "Create revision {}", revision );
                 
-                DSBuilderAnnotationProcessor.applyLdifs( methodDescription, directoryService );
+                DSAnnotationProcessor.applyLdifs( methodDescription, directoryService );
             }
             else if ( suite != null )
             {
@@ -252,7 +252,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 revision = directoryService.getChangeLog().getCurrentRevision();
                 LOG.debug( "Create revision {}", revision );
                 
-                DSBuilderAnnotationProcessor.applyLdifs( methodDescription, directoryService );
+                DSAnnotationProcessor.applyLdifs( methodDescription, directoryService );
             }
 
             // At this point, we know which service to use.

@@ -20,11 +20,15 @@
 
 package org.apache.directory.server.core.factory;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.annotations.CreateIndex;
+import org.apache.directory.server.core.annotations.CreatePartition;
 import org.junit.Test;
 
 
@@ -34,17 +38,67 @@ import org.junit.Test;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-@CreateDS( name="test" )
+@CreateDS( name = "classDS" )
 public class DirectoryServiceAnnotationTest
 {
     @Test
     public void testCreateDS() throws Exception
     {
-        DirectoryService service = DSBuilderAnnotationProcessor.getClassDirectoryService( this.getClass() );
+        DirectoryService service = DSAnnotationProcessor.getDirectoryService();
         
         assertTrue( service.isStarted() );
+        assertEquals( "classDS", service.getInstanceId() );
         
         service.shutdown();
         FileUtils.deleteDirectory( service.getWorkingDirectory() );
+    }
+
+
+    @Test
+    @CreateDS( name = "methodDS" )
+    public void testCreateMethodDS() throws Exception
+    {
+        DirectoryService service = DSAnnotationProcessor.getDirectoryService();
+        
+        assertTrue( service.isStarted() );
+        assertEquals( "methodDS", service.getInstanceId() );
+        
+        service.shutdown();
+        FileUtils.deleteDirectory( service.getWorkingDirectory() );
+    }
+    
+    
+    @Test
+    @CreateDS( 
+        name = "MethodDSWithPartition",
+        partitions =
+        {
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=example,dc=com",
+                contextEntry = @ContextEntry( 
+                    entryLdif =
+                        "dn: dc=example,dc=com\n" +
+                        "dc: example\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n" ),
+                indexes = 
+                {
+                    @CreateIndex( attribute = "objectClass" ),
+                    @CreateIndex( attribute = "dc" ),
+                    @CreateIndex( attribute = "ou" ),
+                } )
+        } )
+    public void testCreateMethodDSWithPartition() throws Exception
+    {
+        /*
+        DirectoryService service = DSAnnotationProcessor.getDirectoryService();
+        
+        assertTrue( service.isStarted() );
+        assertEquals( "methodDS", service.getInstanceId() );
+        
+        service.shutdown();
+        FileUtils.deleteDirectory( service.getWorkingDirectory() );
+        */
     }
 }
