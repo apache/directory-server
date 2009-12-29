@@ -46,6 +46,7 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.annotations.DSBuilder;
 import org.apache.directory.server.core.integ.AbstractTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
@@ -54,7 +55,6 @@ import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,6 +67,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
+@DSBuilder( name="SearchDS" )
 @ApplyLdifs(
     {
         "dn: m-oid=2.2.0, ou=attributeTypes, cn=apachemeta, ou=schema\n" +
@@ -153,12 +154,6 @@ public class SearchIT extends AbstractTestUnit
 
     public static LdapContext sysRoot;
 
-    @BeforeClass
-    public static void setup() throws Exception
-    {
-    }
-    
-    
     /**
      * @param sysRoot the system root to add entries to
      * @throws NamingException on errors
