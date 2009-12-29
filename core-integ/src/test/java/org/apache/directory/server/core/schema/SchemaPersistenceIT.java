@@ -43,8 +43,9 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.annotations.DSBuilder;
+import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
@@ -59,13 +60,12 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith(CiRunner.class)
-public class SchemaPersistenceIT
+@RunWith(FrameworkRunner.class)
+@DSBuilder( name="SchemaPersistenceIT-class" )
+public class SchemaPersistenceIT extends AbstractTestUnit
 {
     private static final String SUBSCHEMA_SUBENTRY = "subschemaSubentry";
     private static final AttributeTypeDescriptionSchemaParser ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER = new AttributeTypeDescriptionSchemaParser();
-
-    public static DirectoryService service;
 
 
     /**

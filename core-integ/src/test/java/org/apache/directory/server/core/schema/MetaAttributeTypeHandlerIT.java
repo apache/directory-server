@@ -36,17 +36,13 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -60,8 +56,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-@CleanupLevel( Level.CLASS )
+@RunWith ( FrameworkRunner.class )
 public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerIT
 {
     private static final String DESCRIPTION0 = "A test attributeType";
@@ -70,9 +65,6 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
     private static final String OID = "1.3.6.1.4.1.18060.0.4.0.2.100000";
     private static final String NEW_OID = "1.3.6.1.4.1.18060.0.4.0.2.100001";
     private static final String DEPENDEE_OID = "1.3.6.1.4.1.18060.0.4.0.2.100002";
-
-    public static DirectoryService service;
-    public static SchemaManager schemaManager;
 
     // ----------------------------------------------------------------------
     // Test all core methods with normal operational pathways

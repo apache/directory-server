@@ -44,6 +44,7 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
@@ -67,8 +68,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-@CleanupLevel( Level.CLASS )
+@RunWith(FrameworkRunner.class)
 public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandlerIT
 {
     private static final String DESCRIPTION0 = "A test normalizer";
@@ -82,8 +82,6 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandlerIT
 
     private static final String SUBSCHEMA_SUBENTRY = "subschemaSubentry";
 
-
-    public static DirectoryService service;
     public static SchemaManager schemaManager;
 
 

@@ -22,10 +22,11 @@ package org.apache.directory.server.core.schema;
 import java.io.File;
 import java.util.Enumeration;
 
+import org.apache.directory.server.core.integ.AbstractTestUnit;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.StringTools;
-import org.junit.BeforeClass;
+import org.junit.Before;
 
 /**
  * A common class for all the MetaXXXHandler test classes
@@ -33,16 +34,14 @@ import org.junit.BeforeClass;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class AbstractMetaSchemaObjectHandlerIT
+public abstract class AbstractMetaSchemaObjectHandlerIT extends AbstractTestUnit
 {
     protected static String workingDir;
 
-    @BeforeClass
-    public static final void init()
+    @Before
+    public final void init()
     {
-        String path = AbstractMetaSchemaObjectHandlerIT.class.getResource( "" ).getPath();
-        int targetPos = path.indexOf( "target" );
-        workingDir = path.substring( 0, targetPos + 6 ) + "/server-work/schema";
+        workingDir = service.getWorkingDirectory().getAbsolutePath();
     }
     
     
@@ -55,7 +54,7 @@ public abstract class AbstractMetaSchemaObjectHandlerIT
     {
         StringBuilder sb = new StringBuilder();
         
-        sb.append( workingDir ).append( '/' ).append( "ou=schema" );
+        sb.append( workingDir ).append( '/' ).append( service.getSchemaService().getSchemaPartition().getId() ).append( '/' ).append( "ou=schema" );
         
         Enumeration<Rdn> rdns = dn.getAllRdn();
         
@@ -79,10 +78,12 @@ public abstract class AbstractMetaSchemaObjectHandlerIT
      */
     protected boolean isOnDisk( LdapDN dn )
     {
-        String schemaObjectFileName = StringTools.toLowerCase( getSchemaPath( dn ) );
+        // donot change the value of getSchemaPath to lowercase
+        // on Linux this gives a wrong path
+        String schemaObjectFileName = getSchemaPath( dn );
 
         File file = new File( schemaObjectFileName );
-        
+     
         return file.exists();
     }
     

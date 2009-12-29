@@ -40,6 +40,7 @@ import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -65,15 +66,12 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-@CleanupLevel( Level.CLASS )
+@RunWith(FrameworkRunner.class)
 public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandlerIT
 {
     private static final String OID = "1.3.6.1.4.1.18060.0.4.0.1.100000";
     private static final String NEW_OID = "1.3.6.1.4.1.18060.0.4.0.1.100001";
 
-
-    public static DirectoryService service;
     public static SchemaManager schemaManager;
 
 

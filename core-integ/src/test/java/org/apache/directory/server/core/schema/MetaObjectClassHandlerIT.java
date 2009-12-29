@@ -37,6 +37,7 @@ import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
@@ -58,8 +59,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-@CleanupLevel( Level.CLASS )
+@RunWith(FrameworkRunner.class)
 public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandlerIT
 {
     private static final String NAME = "testObjectClass";
@@ -74,9 +74,6 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     private static final String DEPENDEE_OID = "1.3.6.1.4.1.18060.0.4.0.3.100002";
 
 
-    public static DirectoryService service;
-
-    
     private static ObjectClassRegistry getObjectClassRegistry()
     {
         return service.getSchemaManager().getObjectClassRegistry();

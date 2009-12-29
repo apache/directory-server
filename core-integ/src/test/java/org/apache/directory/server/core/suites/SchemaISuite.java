@@ -19,7 +19,8 @@
 package org.apache.directory.server.core.suites;
 
 
-import org.apache.directory.server.core.integ.CiSuite;
+import org.apache.directory.server.core.annotations.DSBuilder;
+import org.apache.directory.server.core.integ.FrameworkSuite;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.core.schema.MetaAttributeTypeHandlerIT;
@@ -43,7 +44,8 @@ import org.junit.runners.Suite;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-@RunWith ( CiSuite.class )
+@RunWith ( FrameworkSuite.class )
+@DSBuilder( name="SchemaISuite" )
 @Suite.SuiteClasses ( {
         MetaAttributeTypeHandlerIT.class,
         MetaComparatorHandlerIT.class,
@@ -58,7 +60,6 @@ import org.junit.runners.Suite;
         //SubschemaSubentryIT.class,
         SchemaServiceIT.class
         } )
-@CleanupLevel ( Level.SUITE )
 public class SchemaISuite
 {
 }

@@ -42,14 +42,16 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.annotations.DSBuilder;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.AbstractTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -80,12 +82,9 @@ import org.junit.runner.RunWith;
     "cn: person2\n" +
     "sn: sn_person2\n" }
     )
-@RunWith ( CiRunner.class )
-public class SchemaServiceIT
+@RunWith(FrameworkRunner.class)
+public class SchemaServiceIT extends AbstractTestUnit
 {
-    /** The Directory service */
-    public static DirectoryService service;
-
 
     /**
      * For <a href="https://issues.apache.org/jira/browse/DIRSERVER-925">DIRSERVER-925</a>.
