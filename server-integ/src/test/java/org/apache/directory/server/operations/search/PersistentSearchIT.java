@@ -20,6 +20,12 @@
 package org.apache.directory.server.operations.search;
 
 
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
@@ -40,29 +46,19 @@ import javax.naming.ldap.Control;
 import javax.naming.ldap.HasControls;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.event.RegistrationEntry;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.integ.SiRunner;
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControlCodec;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControlDecoder;
 import org.apache.directory.shared.ldap.message.control.PersistentSearchControl;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -71,19 +67,18 @@ import static org.junit.Assert.assertTrue;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.SUITE )
+@RunWith ( FrameworkRunner.class ) 
 @ApplyLdifs( {
     // Entry # 2
-    "dn: cn=Tori Amos,ou=system\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "cn: Tori Amos\n" +
-    "description: an American singer-songwriter\n" +
-    "sn: Amos\n\n"
+    "dn: cn=Tori Amos,ou=system",
+    "objectClass: person",
+    "objectClass: top",
+    "cn: Tori Amos",
+    "description: an American singer-songwriter",
+    "sn: Amos"
     }
 )
-public class PersistentSearchIT
+public class PersistentSearchIT extends AbstractLdapTestUnit
 {
     private static final Logger LOG = LoggerFactory.getLogger( PersistentSearchIT.class );
     
@@ -91,8 +86,6 @@ public class PersistentSearchIT
     private static final String PERSON_DESCRIPTION = "an American singer-songwriter";
     private static final String RDN = "cn=Tori Amos";
 
-    public static LdapServer ldapServer;
-    
 
     /**
      * Creation of required attributes of a person entry.

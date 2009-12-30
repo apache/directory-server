@@ -29,8 +29,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.UUID;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -59,30 +58,28 @@ import netscape.ldap.LDAPResponse;
 import netscape.ldap.LDAPResponseListener;
 import netscape.ldap.LDAPSearchConstraints;
 
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
-import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.annotations.ContextEntry;
+import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.annotations.CreateIndex;
+import org.apache.directory.server.core.annotations.CreatePartition;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.integ.LdapServerFactory;
-import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
-import org.apache.directory.server.protocol.shared.transport.TcpTransport;
-import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.csn.Csn;
+import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
-import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -95,58 +92,86 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 674593 $
  */
-@RunWith ( FrameworkRunner.class ) 
-@Factory ( AddIT.Factory.class )
+@RunWith ( FrameworkRunner.class )
+@CreateDS( allowAnonAccess=true, name="AddIT-class",
+    partitions =
+        {
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=example,dc=com",
+                contextEntry = @ContextEntry( 
+                    entryLdif =
+                        "dn: dc=example,dc=com\n" +
+                        "dc: example\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n" ),
+                indexes = 
+                {
+                    @CreateIndex( attribute = "objectClass" ),
+                    @CreateIndex( attribute = "dc" ),
+                    @CreateIndex( attribute = "ou" )
+                } ),
+                
+            @CreatePartition(
+                name = "directory",
+                suffix = "dc=directory,dc=apache,dc=org",
+                contextEntry = @ContextEntry( 
+                    entryLdif =
+                        "dn: dc=directory,dc=apache,dc=org\n"+
+                        "dc: directory\n"+
+                        "objectClass: top\n"+
+                        "objectClass: domain\n\n" ),
+                indexes = 
+                {
+                    @CreateIndex( attribute = "objectClass" ),
+                    @CreateIndex( attribute = "dc" ),
+                    @CreateIndex( attribute = "ou" )
+                } )    
+        })
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" )
+    })
+    
 @ApplyLdifs( {
     // Entry # 0
-    "dn: cn=The Person,ou=system\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "cn: The Person\n" +
-    "description: this is a person\n" +
-    "sn: Person\n\n" + 
+    "dn: cn=The Person,ou=system",
+    "objectClass: person",
+    "objectClass: top",
+    "cn: The Person",
+    "description: this is a person",
+    "sn: Person", 
     
     // Entry # 1
-    "dn: uid=akarasulu,ou=users,ou=system\n" +
-    "objectClass: uidObject\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "uid: akarasulu\n" +
-    "cn: Alex Karasulu\n" +
-    "sn: karasulu\n\n" + 
+    "dn: uid=akarasulu,ou=users,ou=system",
+    "objectClass: uidObject",
+    "objectClass: person",
+    "objectClass: top",
+    "uid: akarasulu",
+    "cn: Alex Karasulu",
+    "sn: karasulu", 
     
     // Entry # 2
-    "dn: ou=Computers,uid=akarasulu,ou=users,ou=system\n" +
-    "objectClass: organizationalUnit\n" +
-    "objectClass: top\n" +
-    "ou: computers\n" +
-    "description: Computers for Alex\n" +
-    "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system\n\n" + 
+    "dn: ou=Computers,uid=akarasulu,ou=users,ou=system",
+    "objectClass: organizationalUnit",
+    "objectClass: top",
+    "ou: computers",
+    "description: Computers for Alex",
+    "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system", 
     
     // Entry # 3
-    "dn: uid=akarasuluref,ou=users,ou=system\n" +
-    "objectClass: uidObject\n" +
-    "objectClass: referral\n" +
-    "objectClass: top\n" +
-    "uid: akarasuluref\n" +
-    "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system\n" + 
-    "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system\n" +
-    "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system\n\n" +
-    
-    // Entry example.com
-    "dn: dc=example,dc=com\n" +
-    "dc: example\n" +
-    "objectClass: top\n" +
-    "objectClass: domain\n\n" +
-    
-    // Entry directory.apache.org
-    "dn: dc=directory,dc=apache,dc=org\n" +
-    "dc: directory\n" +
-    "objectClass: top\n" +
-    "objectClass: domain\n\n"
+    "dn: uid=akarasuluref,ou=users,ou=system",
+    "objectClass: uidObject",
+    "objectClass: referral",
+    "objectClass: top",
+    "uid: akarasuluref",
+    "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system", 
+    "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system",
+    "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system"
     }
 )
-public class AddIT
+public class AddIT extends AbstractLdapTestUnit
 {
     private static final Logger LOG = LoggerFactory.getLogger( AddIT.class );
     private static final String RDN = "cn=The Person";
@@ -154,63 +179,6 @@ public class AddIT
     private static final String BASE = "ou=system";
     private static final String BASE_EXAMPLE_COM = "dc=example,dc=com";
     private static final String BASE_DIRECTORY_APACHE_ORG = "dc=directory,dc=apache,dc=org";
-
-
-    public static LdapServer ldapServer;
-
-    
-    /**
-     * The factory
-     *
-     */
-    public static class Factory implements LdapServerFactory
-    {
-        public LdapServer newInstance() throws Exception
-        {
-            DirectoryService service = new DefaultDirectoryService();
-            IntegrationUtils.doDelete( service.getWorkingDirectory() );
-            service.getChangeLog().setEnabled( true );
-            service.setAllowAnonymousAccess( true );
-            service.setShutdownHookEnabled( false );
-
-            JdbmPartition example = new JdbmPartition();
-            example.setCacheSize( 500 );
-            example.setSuffix( BASE_EXAMPLE_COM );
-            example.setId( "example" );
-            Set<Index<?, ServerEntry>> indexedAttrs = new HashSet<Index<?, ServerEntry>>();
-            indexedAttrs.add( new JdbmIndex<String, ServerEntry>( "ou" ) );
-            indexedAttrs.add( new JdbmIndex<String, ServerEntry>( "dc" ) );
-            indexedAttrs.add( new JdbmIndex<String, ServerEntry>( "objectClass" ) );
-            example.setIndexedAttributes( indexedAttrs );
-
-            service.addPartition( example );
-
-            JdbmPartition directory = new JdbmPartition();
-            directory.setCacheSize( 500 );
-            directory.setSuffix( BASE_DIRECTORY_APACHE_ORG );
-            directory.setId( "directory" );
-            Set<Index<?, ServerEntry>> indexedAttrs2 = new HashSet<Index<?, ServerEntry>>();
-            indexedAttrs2.add( new JdbmIndex<String, ServerEntry>( "ou" ) );
-            indexedAttrs2.add( new JdbmIndex<String, ServerEntry>( "dc" ) );
-            indexedAttrs2.add( new JdbmIndex<String, ServerEntry>( "objectClass" ) );
-            directory.setIndexedAttributes( indexedAttrs2 );
-            
-            service.addPartition( directory );
-            
-            // change the working directory to something that is unique
-            // on the system and somewhere either under target directory
-            // or somewhere in a temp area of the machine.
-
-            LdapServer ldapServer = new LdapServer();
-            ldapServer.setDirectoryService( service );
-            int port = AvailablePortFinder.getNextAvailable( 1024 );
-            ldapServer.setTransports( new TcpTransport( port ) );
-            ldapServer.setAllowAnonymousAccess( true );
-            ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
-
-            return ldapServer;
-        }
-    }
 
     
     /**
@@ -1240,6 +1208,51 @@ public class AddIT
         assertTrue( userPasswordAttribute.contains( StringTools.getBytesUtf8( "test" ) ) );
         assertTrue( userPasswordAttribute.contains( StringTools.getBytesUtf8( "ABC" ) ) );
         assertFalse( res.hasMore() );
+    }
+    
+    
+    @Test
+    public void testAddEntryUUIDAndCSNAttributes() throws Exception
+    {
+        LDAPConnection con = getWiredConnection( ldapServer );
+        LDAPAttributeSet attrs = new LDAPAttributeSet();
+        LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
+            { "top", "person" } );
+        attrs.add( ocls );
+        attrs.add( new LDAPAttribute( "sn", "Bush" ) );
+        attrs.add( new LDAPAttribute( "cn", "Kate Bush" ) );
+
+        String descr = "a British singer-songwriter with an expressive four-octave voice";
+        attrs.add( new LDAPAttribute( "description", descr ) );
+
+        UUID uuid = UUID.randomUUID();
+        attrs.add( new LDAPAttribute( SchemaConstants.ENTRY_UUID_AT, SchemaUtils.uuidToBytes( uuid ) ) );
+
+        CsnFactory csnFac = new CsnFactory( 0 );
+        Csn csn = csnFac.newInstance();
+        attrs.add( new LDAPAttribute( SchemaConstants.ENTRY_CSN_AT, csn.toString() ) );
+        
+        String dn = "cn=Kate Bush," + BASE;
+        LDAPEntry kate = new LDAPEntry( dn, attrs );
+
+        con.add( kate );
+
+        // Analyze entry and description attribute
+        LDAPEntry addedEntry = con.read( dn );
+        assertNotNull( addedEntry );
+        //FIXME the LDAPConnection is not able to read the ENTRY_UUID_AT
+        LDAPAttribute attr = addedEntry.getAttribute( SchemaConstants.ENTRY_UUID_AT );
+        assertNotNull( attr );
+        System.out.println( attr.getByteValueArray()[0] );
+        assertEquals( uuid, UUID.nameUUIDFromBytes( attr.getByteValueArray()[0] ) );
+
+        attr = addedEntry.getAttribute( SchemaConstants.ENTRY_CSN_AT );
+        assertNotNull( attr );
+        assertEquals( csn.toString(), new String( attr.getStringValueArray()[0] ) );
+        
+        // Remove entry
+        con.delete( dn );
+        con.disconnect();
     }
 
     

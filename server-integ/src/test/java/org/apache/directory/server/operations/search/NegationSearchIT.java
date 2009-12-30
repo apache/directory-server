@@ -20,29 +20,24 @@
 package org.apache.directory.server.operations.search;
 
 
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.naming.NamingEnumeration;
+import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.core.integ.annotations.Factory;
-import org.apache.directory.server.integ.SiRunner;
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.naming.directory.DirContext;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 
 /**
@@ -54,62 +49,58 @@ import static org.junit.Assert.assertFalse;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 519077 $
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.SUITE )
-@Factory ( IndexedNegationSearchIT.Factory.class )
+@RunWith ( FrameworkRunner.class ) 
 @ApplyLdifs( {
-    "dn: ou=actors,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: organizationalUnit\n" +
-    "ou: actors\n\n" +
+    "dn: ou=actors,ou=system",
+    "objectClass: top",
+    "objectClass: organizationalUnit",
+    "ou: actors",
 
-    "dn: uid=jblack,ou=actors,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: uidObject\n" +
-    "uid: jblack\n" +
-    "ou: comedy\n" +
-    "ou: adventure\n" +
-    "cn: Jack Black\n" +
-    "sn: Black\n\n" +
+    "dn: uid=jblack,ou=actors,ou=system",
+    "objectClass: top",
+    "objectClass: person",
+    "objectClass: organizationalPerson",
+    "objectClass: uidObject",
+    "uid: jblack",
+    "ou: comedy",
+    "ou: adventure",
+    "cn: Jack Black",
+    "sn: Black",
 
-    "dn: uid=bpitt,ou=actors,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: uidObject\n" +
-    "uid: bpitt\n" +
-    "ou: drama\n" +
-    "ou: adventure\n" +
-    "cn: Brad Pitt\n" +
-    "sn: Pitt\n\n" +
+    "dn: uid=bpitt,ou=actors,ou=system",
+    "objectClass: top",
+    "objectClass: person",
+    "objectClass: organizationalPerson",
+    "objectClass: uidObject",
+    "uid: bpitt",
+    "ou: drama",
+    "ou: adventure",
+    "cn: Brad Pitt",
+    "sn: Pitt",
 
-    "dn: uid=gcloony,ou=actors,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: uidObject\n" +
-    "uid: gcloony\n" +
-    "ou: drama\n" +
-    "cn: Goerge Cloony\n" +
-    "sn: Cloony\n\n" +
+    "dn: uid=gcloony,ou=actors,ou=system",
+    "objectClass: top",
+    "objectClass: person",
+    "objectClass: organizationalPerson",
+    "objectClass: uidObject",
+    "uid: gcloony",
+    "ou: drama",
+    "cn: Goerge Cloony",
+    "sn: Cloony",
 
-    "dn: uid=jnewbie,ou=actors,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: uidObject\n" +
-    "uid: jnewbie\n" +
-    "cn: Joe Newbie\n" +
-    "sn: Newbie\n\n" 
+    "dn: uid=jnewbie,ou=actors,ou=system",
+    "objectClass: top",
+    "objectClass: person",
+    "objectClass: organizationalPerson",
+    "objectClass: uidObject",
+    "uid: jnewbie",
+    "cn: Joe Newbie",
+    "sn: Newbie" 
 
     }
 )
-public class NegationSearchIT 
+public class NegationSearchIT extends AbstractLdapTestUnit 
 {
-    public static LdapServer ldapServer;
-
     
     /**
      * Tests to make sure a negated search for actors without ou

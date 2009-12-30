@@ -20,6 +20,11 @@
 package org.apache.directory.server.ssl;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -54,12 +59,10 @@ import javax.net.ssl.SSLSession;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
-import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.After;
 import org.junit.Before;
@@ -67,12 +70,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 
 /**
@@ -86,9 +83,8 @@ import static org.junit.Assert.fail;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 639006 $
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.SUITE )
-public class StartTlsIT
+@RunWith ( FrameworkRunner.class ) 
+public class StartTlsIT extends AbstractLdapTestUnit
 {
     private static final Logger LOG = LoggerFactory.getLogger( StartTlsIT.class );
     private static final String[] CERT_IDS = new String[] { "userCertificate" };
@@ -97,7 +93,6 @@ public class StartTlsIT
     private File ksFile;
 
     
-    public static LdapServer ldapServer;
     boolean oldConfidentialityRequiredValue;
     
     

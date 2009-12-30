@@ -43,10 +43,10 @@ import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.ManageReferralControl;
 
+import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.junit.Before;
@@ -60,64 +60,62 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 545029 $
  */
-@RunWith ( SiRunner.class )
+@RunWith ( FrameworkRunner.class )
 @ApplyLdifs( {
     // Add new ref for ou=RemoteUsers
-    "dn: ou=RemoteUsers,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: referral\n" +
-    "objectClass: extensibleObject\n" +
-    "ou: RemoteUsers\n" +
-    "ref: ldap://fermi:10389/ou=users,ou=system\n" +
-    "ref: ldap://hertz:10389/ou=users,dc=example,dc=com\n" +
-    "ref: ldap://maxwell:10389/ou=users,ou=system\n\n" +
+    "dn: ou=RemoteUsers,ou=system",
+    "objectClass: top",
+    "objectClass: referral",
+    "objectClass: extensibleObject",
+    "ou: RemoteUsers",
+    "ref: ldap://fermi:10389/ou=users,ou=system",
+    "ref: ldap://hertz:10389/ou=users,dc=example,dc=com",
+    "ref: ldap://maxwell:10389/ou=users,ou=system",
     
-    "dn: c=France,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: country\n" +
-    "c: France\n\n" +
+    "dn: c=France,ou=system",
+    "objectClass: top",
+    "objectClass: country",
+    "c: France",
     
-    "dn: c=USA,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: country\n" +
-    "c: USA\n\n" +
+    "dn: c=USA,ou=system",
+    "objectClass: top",
+    "objectClass: country",
+    "c: USA",
     
-    "dn: l=Paris,c=france,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: locality\n" +
-    "l: Paris\n\n" +
+    "dn: l=Paris,c=france,ou=system",
+    "objectClass: top",
+    "objectClass: locality",
+    "l: Paris",
     
-    "dn: l=Jacksonville,c=usa,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: locality\n" +
-    "l: Jacksonville\n\n" +
+    "dn: l=Jacksonville,c=usa,ou=system",
+    "objectClass: top",
+    "objectClass: locality",
+    "l: Jacksonville",
     
-    "dn: cn=emmanuel lecharny,l=paris,c=france,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "objectClass: residentialPerson\n" +
-    "cn: emmanuel lecharny\n" +
-    "sn: elecharny\n" +
-    "l: Paris\n\n" +
+    "dn: cn=emmanuel lecharny,l=paris,c=france,ou=system",
+    "objectClass: top",
+    "objectClass: person",
+    "objectClass: residentialPerson",
+    "cn: emmanuel lecharny",
+    "sn: elecharny",
+    "l: Paris",
     
-    "dn: cn=alex karasulu,l=jacksonville,c=usa,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "objectClass: residentialPerson\n" +
-    "cn: alex karasulu\n" +
-    "sn: karasulu\n" +
-    "l: Jacksonville\n\n" +
+    "dn: cn=alex karasulu,l=jacksonville,c=usa,ou=system",
+    "objectClass: top",
+    "objectClass: person",
+    "objectClass: residentialPerson",
+    "cn: alex karasulu",
+    "sn: karasulu",
+    "l: Jacksonville",
     
-    "dn: ou=Countries,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: organizationalUnit\n" +
-    "ou: Countries\n\n"
+    "dn: ou=Countries,ou=system",
+    "objectClass: top",
+    "objectClass: organizationalUnit",
+    "ou: Countries"
     }
 )
-public class ReferralSearchIT
+public class ReferralSearchIT extends AbstractLdapTestUnit
 {
-    public static LdapServer ldapServer;
-
     
     @Before
     public void setupReferrals() throws Exception

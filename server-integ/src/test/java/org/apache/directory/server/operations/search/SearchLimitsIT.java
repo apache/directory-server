@@ -20,28 +20,13 @@
 package org.apache.directory.server.operations.search;
 
 
-import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.server.core.filtering.EntryFilter;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.core.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.interceptor.Interceptor;
-import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
-import org.apache.directory.server.integ.SiRunner;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import org.apache.directory.server.ldap.LdapServer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.SizeLimitExceededException;
@@ -50,8 +35,22 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import java.util.HashSet;
-import java.util.Set;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.filtering.EntryFilter;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.interceptor.BaseInterceptor;
+import org.apache.directory.server.core.interceptor.Interceptor;
+import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
+import org.apache.directory.server.ldap.LdapServer;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -61,65 +60,62 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.SUITE )
+@RunWith ( FrameworkRunner.class ) 
 @ApplyLdifs( {
-    "dn: ou=actors,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: organizationalUnit\n" +
-    "ou: actors\n\n" +
+    "dn: ou=actors,ou=system",
+    "objectClass: top",
+    "objectClass: organizationalUnit",
+    "ou: actors",
 
-    "dn: uid=jblack,ou=actors,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: uidObject\n" +
-    "uid: jblack\n" +
-    "ou: comedy\n" +
-    "ou: adventure\n" +
-    "cn: Jack Black\n" +
-    "userPassword: secret\n" +
-    "sn: Black\n\n" +
+    "dn: uid=jblack,ou=actors,ou=system",
+    "objectClass: top",
+    "objectClass: person",
+    "objectClass: organizationalPerson",
+    "objectClass: uidObject",
+    "uid: jblack",
+    "ou: comedy",
+    "ou: adventure",
+    "cn: Jack Black",
+    "userPassword: secret",
+    "sn: Black",
 
-    "dn: uid=bpitt,ou=actors,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: uidObject\n" +
-    "uid: bpitt\n" +
-    "ou: drama\n" +
-    "ou: adventure\n" +
-    "userPassword: secret\n" +
-    "cn: Brad Pitt\n" +
-    "sn: Pitt\n\n" +
+    "dn: uid=bpitt,ou=actors,ou=system",
+    "objectClass: top",
+    "objectClass: person",
+    "objectClass: organizationalPerson",
+    "objectClass: uidObject",
+    "uid: bpitt",
+    "ou: drama",
+    "ou: adventure",
+    "userPassword: secret",
+    "cn: Brad Pitt",
+    "sn: Pitt",
 
-    "dn: uid=gcloony,ou=actors,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: uidObject\n" +
-    "uid: gcloony\n" +
-    "ou: drama\n" +
-    "userPassword: secret\n" +
-    "cn: Goerge Cloony\n" +
-    "sn: Cloony\n\n" +
+    "dn: uid=gcloony,ou=actors,ou=system",
+    "objectClass: top",
+    "objectClass: person",
+    "objectClass: organizationalPerson",
+    "objectClass: uidObject",
+    "uid: gcloony",
+    "ou: drama",
+    "userPassword: secret",
+    "cn: Goerge Cloony",
+    "sn: Cloony",
 
-    "dn: uid=jnewbie,ou=actors,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: uidObject\n" +
-    "uid: jnewbie\n" +
-    "userPassword: secret\n" +
-    "cn: Joe Newbie\n" +
-    "sn: Newbie\n\n" 
+    "dn: uid=jnewbie,ou=actors,ou=system",
+    "objectClass: top",
+    "objectClass: person",
+    "objectClass: organizationalPerson",
+    "objectClass: uidObject",
+    "uid: jnewbie",
+    "userPassword: secret",
+    "cn: Joe Newbie",
+    "sn: Newbie" 
     }
 )
-public class SearchLimitsIT 
+public class SearchLimitsIT extends AbstractLdapTestUnit 
 {
-    public static LdapServer ldapServer;
 
-    
     /**
      * An {@link Interceptor} that fakes a specified amount of delay to each 
      * search iteration so we can make sure search time limits are adhered to.

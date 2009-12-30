@@ -20,6 +20,13 @@
 package org.apache.directory.server.operations.search;
 
 
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
@@ -27,21 +34,11 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -51,124 +48,120 @@ import static org.junit.Assert.assertNotNull;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 569048 $
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.SUITE )
+@RunWith ( FrameworkRunner.class ) 
 @ApplyLdifs( {
     
     // Bogus AD schema (not real)
     
-    "dn: cn=active-directory, ou=schema\n" +
-    "objectclass: metaSchema\n" +
-    "objectclass: top\n" +
-    "cn: active-directory\n" +
-    "m-dependencies: core\n\n" +
+    "dn: cn=active-directory, ou=schema",
+    "objectclass: metaSchema",
+    "objectclass: top",
+    "cn: active-directory",
+    "m-dependencies: core",
     
-    "dn: ou=attributeTypes, cn=active-directory, ou=schema\n" +
-    "objectclass: organizationalUnit\n" +
-    "objectclass: top\n" +
-    "ou: attributeTypes\n\n" +
+    "dn: ou=attributeTypes, cn=active-directory, ou=schema",
+    "objectclass: organizationalUnit",
+    "objectclass: top",
+    "ou: attributeTypes",
     
-    "dn: m-oid=1.1, ou=attributeTypes, cn=active-directory, ou=schema\n" +
-    "objectclass: metaAttributeType\n" +
-    "objectclass: metaTop\n" +
-    "objectclass: top\n" +
-    "m-oid: 1.1\n" +
-    "m-name: sAMAccountName\n" +
-    "m-syntax: 1.3.6.1.4.1.1466.115.121.1.15\n\n" +
+    "dn: m-oid=1.1, ou=attributeTypes, cn=active-directory, ou=schema",
+    "objectclass: metaAttributeType",
+    "objectclass: metaTop",
+    "objectclass: top",
+    "m-oid: 1.1",
+    "m-name: sAMAccountName",
+    "m-syntax: 1.3.6.1.4.1.1466.115.121.1.15",
     
-    "dn: m-oid=1.2, ou=attributeTypes, cn=active-directory, ou=schema\n" +
-    "objectclass: metaAttributeType\n" +
-    "objectclass: metaTop\n" +
-    "objectclass: top\n" +
-    "m-oid: 1.2\n" +
-    "m-name: pwdLastSet\n" +
-    "m-equality: integerMatch\n" +
-    "m-ordering: integerMatch\n" +
-    "m-syntax: 1.3.6.1.4.1.1466.115.121.1.27\n\n" +
+    "dn: m-oid=1.2, ou=attributeTypes, cn=active-directory, ou=schema",
+    "objectclass: metaAttributeType",
+    "objectclass: metaTop",
+    "objectclass: top",
+    "m-oid: 1.2",
+    "m-name: pwdLastSet",
+    "m-equality: integerMatch",
+    "m-ordering: integerMatch",
+    "m-syntax: 1.3.6.1.4.1.1466.115.121.1.27",
 
-    "dn: m-oid=1.4, ou=attributeTypes, cn=active-directory, ou=schema\n" +
-    "objectclass: metaAttributeType\n" +
-    "objectclass: metaTop\n" +
-    "objectclass: top\n" +
-    "m-oid: 1.4\n" +
-    "m-name: useraccountcontrol\n" +
-    "m-syntax: 1.3.6.1.4.1.1466.115.121.1.27\n\n" +
+    "dn: m-oid=1.4, ou=attributeTypes, cn=active-directory, ou=schema",
+    "objectclass: metaAttributeType",
+    "objectclass: metaTop",
+    "objectclass: top",
+    "m-oid: 1.4",
+    "m-name: useraccountcontrol",
+    "m-syntax: 1.3.6.1.4.1.1466.115.121.1.27",
 
-    "dn: m-oid=1.5, ou=attributeTypes, cn=active-directory, ou=schema\n" +
-    "objectclass: metaAttributeType\n" +
-    "objectclass: metaTop\n" +
-    "objectclass: top\n" +
-    "m-oid: 1.5\n" +
-    "m-name: SourceAD\n" +
-    "m-syntax: 1.3.6.1.4.1.1466.115.121.1.15\n" +
-    "m-length: 0\n\n" +
+    "dn: m-oid=1.5, ou=attributeTypes, cn=active-directory, ou=schema",
+    "objectclass: metaAttributeType",
+    "objectclass: metaTop",
+    "objectclass: top",
+    "m-oid: 1.5",
+    "m-name: SourceAD",
+    "m-syntax: 1.3.6.1.4.1.1466.115.121.1.15",
+    "m-length: 0",
 
-    "dn: ou=comparators, cn=active-directory, ou=schema\n" +
-    "objectclass: organizationalUnit\n" +
-    "objectclass: top\n" +
-    "ou: comparators\n\n" +
+    "dn: ou=comparators, cn=active-directory, ou=schema",
+    "objectclass: organizationalUnit",
+    "objectclass: top",
+    "ou: comparators",
 
-    "dn: ou=ditContentRules, cn=active-directory, ou=schema\n" +
-    "objectclass: organizationalUnit\n" +
-    "objectclass: top\n" +
-    "ou: ditContentRules\n\n" +
+    "dn: ou=ditContentRules, cn=active-directory, ou=schema",
+    "objectclass: organizationalUnit",
+    "objectclass: top",
+    "ou: ditContentRules",
 
-    "dn: ou=ditStructureRules, cn=active-directory, ou=schema\n" +
-    "objectclass: organizationalUnit\n" +
-    "objectclass: top\n" +
-    "ou: ditStructureRules\n\n" +
+    "dn: ou=ditStructureRules, cn=active-directory, ou=schema",
+    "objectclass: organizationalUnit",
+    "objectclass: top",
+    "ou: ditStructureRules",
 
-    "dn: ou=matchingRules, cn=active-directory, ou=schema\n" +
-    "objectclass: organizationalUnit\n" +
-    "objectclass: top\n" +
-    "ou: matchingRules\n\n" +
+    "dn: ou=matchingRules, cn=active-directory, ou=schema",
+    "objectclass: organizationalUnit",
+    "objectclass: top",
+    "ou: matchingRules",
     
-    "dn: ou=nameForms, cn=active-directory, ou=schema\n" +
-    "objectclass: organizationalUnit\n" +
-    "objectclass: top\n" +
-    "ou: nameForms\n\n" +
+    "dn: ou=nameForms, cn=active-directory, ou=schema",
+    "objectclass: organizationalUnit",
+    "objectclass: top",
+    "ou: nameForms",
 
-    "dn: ou=normalizers, cn=active-directory, ou=schema\n" +
-    "objectclass: organizationalUnit\n" +
-    "objectclass: top\n" +
-    "ou: normalizers\n\n" +
+    "dn: ou=normalizers, cn=active-directory, ou=schema",
+    "objectclass: organizationalUnit",
+    "objectclass: top",
+    "ou: normalizers",
 
-    "dn: ou=objectClasses, cn=active-directory, ou=schema\n" +
-    "objectclass: organizationalUnit\n" +
-    "objectclass: top\n" +
-    "ou: objectClasses\n\n" +
+    "dn: ou=objectClasses, cn=active-directory, ou=schema",
+    "objectclass: organizationalUnit",
+    "objectclass: top",
+    "ou: objectClasses",
 
-    "dn: m-oid=1.3, ou=objectClasses, cn=active-directory, ou=schema\n" +
-    "objectclass: metaObjectClass\n" +
-    "objectclass: metaTop\n" +
-    "objectclass: top\n" +
-    "m-oid: 1.3\n" +
-    "m-name: personActiveDirectory\n" +
-    "m-supObjectClass: person\n" +
-    "m-must: pwdLastSet\n" +
-    "m-must: sAMAccountName\n" +
-    "m-must: useraccountcontrol\n" +
-    "m-must: SourceAD\n\n" +
+    "dn: m-oid=1.3, ou=objectClasses, cn=active-directory, ou=schema",
+    "objectclass: metaObjectClass",
+    "objectclass: metaTop",
+    "objectclass: top",
+    "m-oid: 1.3",
+    "m-name: personActiveDirectory",
+    "m-supObjectClass: person",
+    "m-must: pwdLastSet",
+    "m-must: sAMAccountName",
+    "m-must: useraccountcontrol",
+    "m-must: SourceAD",
 
-    "dn: ou=syntaxCheckers, cn=active-directory, ou=schema\n" +
-    "objectclass: organizationalUnit\n" +
-    "objectclass: top\n" +
-    "ou: syntaxCheckers\n\n" +
+    "dn: ou=syntaxCheckers, cn=active-directory, ou=schema",
+    "objectclass: organizationalUnit",
+    "objectclass: top",
+    "ou: syntaxCheckers",
 
-    "dn: ou=syntaxes, cn=active-directory, ou=schema\n" +
-    "objectclass: organizationalUnit\n" +
-    "objectclass: top\n" +
-    "ou: syntaxes\n\n"
+    "dn: ou=syntaxes, cn=active-directory, ou=schema",
+    "objectclass: organizationalUnit",
+    "objectclass: top",
+    "ou: syntaxes"
     }
 )
-public class SchemaSearchIT 
+public class SchemaSearchIT extends AbstractLdapTestUnit 
 {
     private static final String DN = "cn=schema";
     private static final String FILTER = "(objectclass=subschema)";
 
-    
-    public static LdapServer ldapServer;
-    
 
     protected void checkForAttributes( Attributes attrs, String[] attrNames )
     {

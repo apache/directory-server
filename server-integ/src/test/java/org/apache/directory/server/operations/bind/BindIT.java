@@ -20,6 +20,10 @@
 package org.apache.directory.server.operations.bind;
 
 
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import javax.naming.AuthenticationException;
 
 import netscape.ldap.LDAPConnection;
@@ -27,17 +31,11 @@ import netscape.ldap.LDAPConstraints;
 import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPException;
 
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 
 /**
@@ -46,41 +44,38 @@ import static org.junit.Assert.fail;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.CLASS )
+@RunWith ( FrameworkRunner.class ) 
 @ApplyLdifs( {
     // Entry # 1
-    "dn: uid=akarasulu,ou=users,ou=system\n" +
-    "objectClass: uidObject\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "uid: akarasulu\n" +
-    "cn: Alex Karasulu\n" +
-    "sn: karasulu\n\n" + 
+    "dn: uid=akarasulu,ou=users,ou=system",
+    "objectClass: uidObject",
+    "objectClass: person",
+    "objectClass: top",
+    "uid: akarasulu",
+    "cn: Alex Karasulu",
+    "sn: karasulu", 
     // Entry # 2
-    "dn: ou=Computers,uid=akarasulu,ou=users,ou=system\n" +
-    "objectClass: organizationalUnit\n" +
-    "objectClass: top\n" +
-    "ou: computers\n" +
-    "description: Computers for Alex\n" +
-    "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system\n\n" + 
+    "dn: ou=Computers,uid=akarasulu,ou=users,ou=system",
+    "objectClass: organizationalUnit",
+    "objectClass: top",
+    "ou: computers",
+    "description: Computers for Alex",
+    "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system", 
     // Entry # 3
-    "dn: uid=akarasuluref,ou=users,ou=system\n" +
-    "objectClass: extensibleObject\n" +
-    "objectClass: uidObject\n" +
-    "objectClass: referral\n" +
-    "objectClass: top\n" +
-    "uid: akarasuluref\n" +
-    "userPassword: secret\n" +
-    "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system\n" + 
-    "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system\n" +
-    "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system\n\n"
+    "dn: uid=akarasuluref,ou=users,ou=system",
+    "objectClass: extensibleObject",
+    "objectClass: uidObject",
+    "objectClass: referral",
+    "objectClass: top",
+    "uid: akarasuluref",
+    "userPassword: secret",
+    "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system", 
+    "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system",
+    "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system"
     }
 )
-public class BindIT
+public class BindIT extends AbstractLdapTestUnit
 {
-    public static LdapServer ldapServer;
-    
 
     /**
      * Test with bindDn which is not even found under any namingContext of the

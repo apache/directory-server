@@ -54,11 +54,10 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPMessage;
 import netscape.ldap.LDAPSearchListener;
 
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
-import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.control.SubentriesControl;
@@ -75,107 +74,106 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 682556 $
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.CLASS )
+@RunWith ( FrameworkRunner.class ) 
 @ApplyLdifs( {
     
     // Entry # 0
-    "dn: cn=Kate Bush,ou=system\n" +
-    "objectClass: person\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: inetOrgPerson\n" +
-    "objectClass: strongAuthenticationUser\n" +
-    "objectClass: top\n" +
-    "userCertificate:: NFZOXw==\n" +
-    "cn: Kate Bush\n" +
-    "description: this is a person\n" +
-    "sn: Bush\n" +
-    "jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAX\n" +
-    " Q3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw\n" +
-    " 5Mzg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2\n" +
-    " NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABA\n" +
-    " wEiAAIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/E\n" +
-    " ABUBAQEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8\n" +
-    " AigC14//Z\n\n" +
+    "dn: cn=Kate Bush,ou=system",
+    "objectClass: person",
+    "objectClass: organizationalPerson",
+    "objectClass: inetOrgPerson",
+    "objectClass: strongAuthenticationUser",
+    "objectClass: top",
+    "userCertificate:: NFZOXw==",
+    "cn: Kate Bush",
+    "description: this is a person",
+    "sn: Bush",
+    "jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAX",
+    " Q3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw",
+    " 5Mzg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2",
+    " NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABA",
+    " wEiAAIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/E",
+    " ABUBAQEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8",
+    " AigC14//Z",
     
     // Entry # 2
-    "dn: cn=Tori Amos,ou=system\n" +
-    "objectClass: person\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: inetOrgPerson\n" +
-    "objectClass: strongAuthenticationUser\n" +
-    "objectClass: top\n" +
-    "userCertificate:: NFZOXw==\n" +
-    "cn: Tori Amos\n" +
-    "description: an American singer-songwriter\n" +
-    "sn: Amos\n" +
-    "jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAX\n" +
-    " Q3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw\n" +
-    " 5Mzg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2\n" +
-    " NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABA\n" +
-    " wEiAAIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/E\n" +
-    " ABUBAQEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8\n" +
-    " AigC14//Z\n\n" + 
+    "dn: cn=Tori Amos,ou=system",
+    "objectClass: person",
+    "objectClass: organizationalPerson",
+    "objectClass: inetOrgPerson",
+    "objectClass: strongAuthenticationUser",
+    "objectClass: top",
+    "userCertificate:: NFZOXw==",
+    "cn: Tori Amos",
+    "description: an American singer-songwriter",
+    "sn: Amos",
+    "jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAX",
+    " Q3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw",
+    " 5Mzg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2",
+    " NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABA",
+    " wEiAAIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/E",
+    " ABUBAQEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8",
+    " AigC14//Z", 
 
     // Entry # 3
-    "dn: cn=Rolling-Stones,ou=system\n" +
-    "objectClass: person\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: inetOrgPerson\n" +
-    "objectClass: strongAuthenticationUser\n" +
-    "objectClass: top\n" +
-    "userCertificate:: NFZOXw==\n" +
-    "cn: Rolling-Stones\n" +
-    "description: an English singer-songwriter\n" +
-    "sn: Jagger\n" +
-    "jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAX\n" +
-    " Q3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw\n" +
-    " 5Mzg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2\n" +
-    " NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABA\n" +
-    " wEiAAIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/E\n" +
-    " ABUBAQEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8\n" +
-    " AigC14//Z\n\n" + 
+    "dn: cn=Rolling-Stones,ou=system",
+    "objectClass: person",
+    "objectClass: organizationalPerson",
+    "objectClass: inetOrgPerson",
+    "objectClass: strongAuthenticationUser",
+    "objectClass: top",
+    "userCertificate:: NFZOXw==",
+    "cn: Rolling-Stones",
+    "description: an English singer-songwriter",
+    "sn: Jagger",
+    "jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAX",
+    " Q3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw",
+    " 5Mzg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2",
+    " NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABA",
+    " wEiAAIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/E",
+    " ABUBAQEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8",
+    " AigC14//Z", 
 
     // Entry # 4
-    "dn: cn=Heather Nova,ou=system\n" +
-    "objectClass: person\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: inetOrgPerson\n" +
-    "objectClass: strongAuthenticationUser\n" +
-    "objectClass: top\n" +
-    "userCertificate:: NFZOXw==\n" +
-    "cn: Heather Nova\n" +
-    "sn: Nova\n" +
-    "jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAX\n" +
-    " Q3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw\n" +
-    " 5Mzg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2\n" +
-    " NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABA\n" +
-    " wEiAAIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/E\n" +
-    " ABUBAQEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8\n" +
-    " AigC14//Z\n\n" +
+    "dn: cn=Heather Nova,ou=system",
+    "objectClass: person",
+    "objectClass: organizationalPerson",
+    "objectClass: inetOrgPerson",
+    "objectClass: strongAuthenticationUser",
+    "objectClass: top",
+    "userCertificate:: NFZOXw==",
+    "cn: Heather Nova",
+    "sn: Nova",
+    "jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAX",
+    " Q3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw",
+    " 5Mzg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2",
+    " NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABA",
+    " wEiAAIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/E",
+    " ABUBAQEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8",
+    " AigC14//Z",
     
     // Entry #5
-    "dn: cn=Janis Joplin,ou=system\n" +
-    "objectClass: person\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: inetOrgPerson\n" +
-    "objectClass: top\n" +
-    "objectClass: strongAuthenticationUser\n" +
-    "cn: Janis Joplin\n" +
-    "sn: Joplin\n" +
-    "userCertificate:: \n\n" +
+    "dn: cn=Janis Joplin,ou=system",
+    "objectClass: person",
+    "objectClass: organizationalPerson",
+    "objectClass: inetOrgPerson",
+    "objectClass: top",
+    "objectClass: strongAuthenticationUser",
+    "cn: Janis Joplin",
+    "sn: Joplin",
+    "userCertificate:: ",
     
     // Entry #6
-    "dn: cn=Kim Wilde,ou=system\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "cn: Kim Wilde\n" +
-    "sn: Wilde\n" +
-    "description: an American singer-songwriter+sexy blond\n\n"
+    "dn: cn=Kim Wilde,ou=system",
+    "objectClass: person",
+    "objectClass: top",
+    "cn: Kim Wilde",
+    "sn: Wilde",
+    "description: an American singer-songwriter+sexy blond"
     
     }
 )
-public class SearchIT 
+public class SearchIT extends AbstractLdapTestUnit 
 {
     private static final String BASE = "ou=system";
     

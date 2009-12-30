@@ -60,29 +60,29 @@ import org.slf4j.LoggerFactory;
 @RunWith ( FrameworkRunner.class ) 
 @ApplyLdifs( {
     // Entry # 1
-    "dn: uid=akarasulu,ou=users,ou=system\n" +
-    "objectClass: uidObject\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "uid: akarasulu\n" +
-    "cn: Alex Karasulu\n" +
-    "sn: karasulu\n\n" + 
+    "dn: uid=akarasulu,ou=users,ou=system",
+    "objectClass: uidObject",
+    "objectClass: person",
+    "objectClass: top",
+    "uid: akarasulu",
+    "cn: Alex Karasulu",
+    "sn: karasulu", 
     // Entry # 2
-    "dn: ou=Computers,uid=akarasulu,ou=users,ou=system\n" +
-    "objectClass: organizationalUnit\n" +
-    "objectClass: top\n" +
-    "ou: computers\n" +
-    "description: Computers for Alex\n" +
-    "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system\n\n" + 
+    "dn: ou=Computers,uid=akarasulu,ou=users,ou=system",
+    "objectClass: organizationalUnit",
+    "objectClass: top",
+    "ou: computers",
+    "description: Computers for Alex",
+    "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system", 
     // Entry # 3
-    "dn: uid=akarasuluref,ou=users,ou=system\n" +
-    "objectClass: uidObject\n" +
-    "objectClass: referral\n" +
-    "objectClass: top\n" +
-    "uid: akarasuluref\n" +
-    "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system\n" + 
-    "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system\n" +
-    "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system\n\n"
+    "dn: uid=akarasuluref,ou=users,ou=system",
+    "objectClass: uidObject",
+    "objectClass: referral",
+    "objectClass: top",
+    "uid: akarasuluref",
+    "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system", 
+    "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system",
+    "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system"
     }
 )
 public class CompareIT extends AbstractLdapTestUnit

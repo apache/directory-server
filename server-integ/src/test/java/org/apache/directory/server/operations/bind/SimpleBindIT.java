@@ -20,6 +20,10 @@
 package org.apache.directory.server.operations.bind;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.Hashtable;
 
 import javax.naming.AuthenticationException;
@@ -38,26 +42,15 @@ import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPSearchResult;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPUrl;
 
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.integ.SiRunner;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.LdapServer;
-
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
 
 
 /**
@@ -66,22 +59,21 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredC
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.CLASS )
+@RunWith ( FrameworkRunner.class ) 
 @ApplyLdifs( {
     // Entry # 1
-    "dn: uid=hnelson,ou=users,ou=system\n" +
-    "objectClass: inetOrgPerson\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "userPassword: secret\n" +
-    "uid: hnelson\n" +
-    "cn: Horatio Nelson\n" +
-    "sn: Nelson\n\n"
+    "dn: uid=hnelson,ou=users,ou=system",
+    "objectClass: inetOrgPerson",
+    "objectClass: organizationalPerson",
+    "objectClass: person",
+    "objectClass: top",
+    "userPassword: secret",
+    "uid: hnelson",
+    "cn: Horatio Nelson",
+    "sn: Nelson"
     }
 )
-public class SimpleBindIT
+public class SimpleBindIT extends AbstractLdapTestUnit
 {
     private static final String BASE = "ou=users,ou=system";
 

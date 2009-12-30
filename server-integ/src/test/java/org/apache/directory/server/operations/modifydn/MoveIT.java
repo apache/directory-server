@@ -20,23 +20,21 @@
 package org.apache.directory.server.operations.modifydn;
 
 
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -46,31 +44,28 @@ import static org.junit.Assert.assertTrue;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 679049 $
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.SUITE )
+@RunWith ( FrameworkRunner.class ) 
 @ApplyLdifs( {
     // Entry # 1
-    "dn: uid=akarasulu,ou=users,ou=system\n" +
-    "objectClass: uidObject\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "uid: akarasulu\n" +
-    "cn: Alex Karasulu\n" +
-    "sn: karasulu\n\n" + 
+    "dn: uid=akarasulu,ou=users,ou=system",
+    "objectClass: uidObject",
+    "objectClass: person",
+    "objectClass: top",
+    "uid: akarasulu",
+    "cn: Alex Karasulu",
+    "sn: karasulu", 
     // Entry # 2
-    "dn: ou=NewSuperior,ou=system\n" +
-    "objectClass: organizationalUnit\n" +
-    "objectClass: top\n" +
-    "ou: NewSuperior\n\n"
+    "dn: ou=NewSuperior,ou=system",
+    "objectClass: organizationalUnit",
+    "objectClass: top",
+    "ou: NewSuperior"
     }
 )
-public class MoveIT 
+public class MoveIT extends AbstractLdapTestUnit 
 {
     private static final String DN = "uid=akarasulu,ou=users,ou=system";
     private static final String NEW_DN = "uid=akarasulu,ou=NewSuperior,ou=system";
     private static final String NEW_DN2 = "uid=elecharny,ou=NewSuperior,ou=system";
-    
-    public static LdapServer ldapServer;
     
 
     @Test

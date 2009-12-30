@@ -65,22 +65,22 @@ import org.junit.runner.RunWith;
 @RunWith ( FrameworkRunner.class ) 
 @ApplyLdifs( {
     // Entry # 1
-    "dn: cn=Tori Amos,ou=system\n" +
-    "objectClass: inetOrgPerson\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "description: an American singer-songwriter\n" +
-    "cn: Tori Amos\n" +
-    "sn: Amos\n\n" + 
+    "dn: cn=Tori Amos,ou=system",
+    "objectClass: inetOrgPerson",
+    "objectClass: organizationalPerson",
+    "objectClass: person",
+    "objectClass: top",
+    "description: an American singer-songwriter",
+    "cn: Tori Amos",
+    "sn: Amos", 
     // Entry # 2
-    "dn: cn=Debbie Harry,ou=system\n" +
-    "objectClass: inetOrgPerson\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "cn: Debbie Harry\n" +
-    "sn: Harry\n\n" 
+    "dn: cn=Debbie Harry,ou=system",
+    "objectClass: inetOrgPerson",
+    "objectClass: organizationalPerson",
+    "objectClass: person",
+    "objectClass: top",
+    "cn: Debbie Harry",
+    "sn: Harry" 
     }
 )
 public class ModifyAddIT  extends AbstractLdapTestUnit

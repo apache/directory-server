@@ -47,19 +47,19 @@ import org.junit.runner.RunWith;
 @RunWith ( FrameworkRunner.class ) 
 @ApplyLdifs( {
     // Entry # 1
-    "dn: cn=Tori Amos,ou=system\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "telephoneNumber: 1234567890\n" +
-    "userPassword: Secret1!\n" +
-    "cn: Tori Amos\n" +
-    "sn: Amos\n\n" + 
+    "dn: cn=Tori Amos,ou=system",
+    "objectClass: person",
+    "objectClass: top",
+    "telephoneNumber: 1234567890",
+    "userPassword: Secret1!",
+    "cn: Tori Amos",
+    "sn: Amos", 
     // Entry # 2
-    "dn: cn=Artists,ou=system\n" +
-    "objectClass: groupOfNames\n" +
-    "objectClass: top\n" +
-    "cn: Artists\n" +
-    "member: cn=Tori Amos,ou=system\n\n"
+    "dn: cn=Artists,ou=system",
+    "objectClass: groupOfNames",
+    "objectClass: top",
+    "cn: Artists",
+    "member: cn=Tori Amos,ou=system"
     }
 )
 public class MatchingRuleCompareIT extends AbstractLdapTestUnit

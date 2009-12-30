@@ -60,11 +60,11 @@ import org.junit.runner.RunWith;
 @RunWith ( FrameworkRunner.class ) 
 @ApplyLdifs( {
     // Entry # 1
-    "dn: cn=Kate Bush,ou=system\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "cn: Kate Bush\n" +
-    "sn: Bush\n\n" 
+    "dn: cn=Kate Bush,ou=system",
+    "objectClass: person",
+    "objectClass: top",
+    "cn: Kate Bush",
+    "sn: Bush" 
     }
 )
 public class IllegalModificationIT extends AbstractLdapTestUnit

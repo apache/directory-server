@@ -20,6 +20,12 @@
 package org.apache.directory.server.operations.modify;
 
 
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -35,20 +41,19 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.integ.LdapServerFactory;
-import org.apache.directory.server.integ.SiRunner;
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.SimpleMechanismHandler;
@@ -65,10 +70,6 @@ import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -77,33 +78,36 @@ import static org.junit.Assert.assertEquals;
  * Demonstrates DIRSERVER-646 ("Replacing an unknown attribute with
  * no values (deletion) causes an error").
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.SUITE )
-@Factory ( ModifyReplaceIT.Factory.class )
+@RunWith ( FrameworkRunner.class ) 
+@CreateDS( name="ModifyReplaceIT-class" )
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" ), 
+        @CreateTransport( protocol = "LDAPS" ) 
+    })
 @ApplyLdifs( {
     // Entry # 1
-    "dn: cn=Kate Bush,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "sn: Bush\n" +
-    "cn: Kate Bush\n\n" +
+    "dn: cn=Kate Bush,ou=system",
+    "objectClass: top",
+    "objectClass: person",
+    "sn: Bush",
+    "cn: Kate Bush",
 
     // Entry # 2
-    "dn: cn=Kim Wilde,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "objectClass: organizationalPerson \n" +
-    "objectClass: inetOrgPerson \n" +
-    "sn: Wilde\n" +
-    "cn: Kim Wilde\n\n" 
+    "dn: cn=Kim Wilde,ou=system",
+    "objectClass: top",
+    "objectClass: person",
+    "objectClass: organizationalPerson ",
+    "objectClass: inetOrgPerson ",
+    "sn: Wilde",
+    "cn: Kim Wilde" 
     }
 )
-public class ModifyReplaceIT 
+public class ModifyReplaceIT extends AbstractLdapTestUnit 
 {
     private static final String BASE = "ou=system";
 
-    public static LdapServer ldapServer;
-    
     
     public static class Factory implements LdapServerFactory
     {
