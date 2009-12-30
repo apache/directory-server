@@ -64,40 +64,40 @@ import org.junit.runner.RunWith;
 @RunWith ( CiRunner.class )
 @ApplyLdifs( {
     // Root
-    "dn: c=WW,ou=system\n" +
-    "objectClass: country\n" +
-    "objectClass: top\n" +
-    "c: WW\n\n" +
+    "dn: c=WW,ou=system",
+    "objectClass: country",
+    "objectClass: top",
+    "c: WW",
     
     // Sub-root
-    "dn: o=MNN,c=WW,ou=system\n" +
-    "objectClass: organization\n" +
-    "objectClass: top\n" +
-    "o: MNN\n\n" +
+    "dn: o=MNN,c=WW,ou=system",
+    "objectClass: organization",
+    "objectClass: top",
+    "o: MNN",
     
     // Referral #1
-    "dn: ou=Roles,o=MNN,c=WW,ou=system\n" +
-    "objectClass: extensibleObject\n" +
-    "objectClass: referral\n" +
-    "objectClass: top\n" +
-    "ou: Roles\n" +
-    "ref: ldap://hostd/ou=Roles,dc=apache,dc=org\n\n" +
+    "dn: ou=Roles,o=MNN,c=WW,ou=system",
+    "objectClass: extensibleObject",
+    "objectClass: referral",
+    "objectClass: top",
+    "ou: Roles",
+    "ref: ldap://hostd/ou=Roles,dc=apache,dc=org",
     
     // Referral #2
-    "dn: ou=People,o=MNN,c=WW,ou=system\n" +
-    "objectClass: extensibleObject\n" +
-    "objectClass: referral\n" +
-    "objectClass: top\n" +
-    "ou: People\n" +
-    "ref: ldap://hostb/OU=People,DC=example,DC=com\n" +
-    "ref: ldap://hostc/OU=People,O=MNN,C=WW\n\n" +
+    "dn: ou=People,o=MNN,c=WW,ou=system",
+    "objectClass: extensibleObject",
+    "objectClass: referral",
+    "objectClass: top",
+    "ou: People",
+    "ref: ldap://hostb/OU=People,DC=example,DC=com",
+    "ref: ldap://hostc/OU=People,O=MNN,C=WW",
     
     // Entry # 1
-    "dn: cn=Alex Karasulu,o=MNN,c=WW,ou=system\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "cn: Alex Karasulu\n" +
-    "sn: akarasulu\n\n"
+    "dn: cn=Alex Karasulu,o=MNN,c=WW,ou=system",
+    "objectClass: person",
+    "objectClass: top",
+    "cn: Alex Karasulu",
+    "sn: akarasulu"
     }
 )
 public class AddReferralIT

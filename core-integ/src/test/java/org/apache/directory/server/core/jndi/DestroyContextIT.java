@@ -43,25 +43,25 @@ import org.junit.runner.RunWith;
  */
 @RunWith ( FrameworkRunner.class )
 @ApplyLdifs({
-    "dn: ou=testing00,ou=system\n" +
-    "objectclass: top\n" +
-    "objectclass: organizationalUnit\n" +
-    "ou: testing00\n" +
-    "\n" +
-    "dn: ou=testing01,ou=system\n" +
-    "objectclass: top\n" +
-    "objectclass: organizationalUnit\n" +
-    "ou: testing01\n" +
-    "\n" +
-    "dn: ou=testing02,ou=system\n" +
-    "objectclass: top\n" +
-    "objectclass: organizationalUnit\n" +
-    "ou: testing02\n" +
-    "\n" +
-    "dn: ou=subtest,ou=testing01,ou=system\n" +
-    "objectclass: top\n" +
-    "objectclass: organizationalUnit\n" +
-    "ou: subtest\n"
+    "dn: ou=testing00,ou=system",
+    "objectclass: top",
+    "objectclass: organizationalUnit",
+    "ou: testing00",
+    "",
+    "dn: ou=testing01,ou=system",
+    "objectclass: top",
+    "objectclass: organizationalUnit",
+    "ou: testing01",
+    "",
+    "dn: ou=testing02,ou=system",
+    "objectclass: top",
+    "objectclass: organizationalUnit",
+    "ou: testing02",
+    "",
+    "dn: ou=subtest,ou=testing01,ou=system",
+    "objectclass: top",
+    "objectclass: organizationalUnit",
+    "ou: subtest"
 })
 public class DestroyContextIT extends AbstractLdapTestUnit
 {

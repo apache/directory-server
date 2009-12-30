@@ -45,10 +45,10 @@ import org.junit.runner.RunWith;
 @CleanupLevel ( Level.CLASS )
 @ApplyLdifs( {
     // Entry # 1
-    "dn: cn=test,ou=system\n" +
-    "objectClass: person\n" +
-    "cn: test\n" +
-    "sn: sn_test\n" 
+    "dn: cn=test,ou=system",
+    "objectClass: person",
+    "cn: test",
+    "sn: sn_test" 
 })
 public class LookupIT
 {

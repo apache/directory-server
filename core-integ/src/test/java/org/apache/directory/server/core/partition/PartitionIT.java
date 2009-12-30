@@ -71,9 +71,9 @@ import org.slf4j.LoggerFactory;
 @RunWith(CiRunner.class)
 @Factory(PartitionIT.Factory.class)
 @ApplyLdifs(
-    { "dn: dc=foo,dc=com\n" + "objectClass: top\n" + "objectClass: domain\n" + "dc: foo\n\n" +
+    { "dn: dc=foo,dc=com", "objectClass: top", "objectClass: domain", "dc: foo",
 
-    "dn: dc=bar,dc=com\n" + "objectClass: top\n" + "objectClass: domain\n" + "dc: bar\n\n" })
+    "dn: dc=bar,dc=com", "objectClass: top", "objectClass: domain", "dc: bar" })
 public final class PartitionIT
 {
     private static final Logger LOG = LoggerFactory.getLogger( PartitionIT.class );
