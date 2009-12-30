@@ -181,7 +181,6 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         ( ( JdbmPartition ) partition ).setPartitionDir( 
             new File( directoryService.getWorkingDirectory(), name ) );
         directoryService.addPartition( partition );
-
     }
 
     

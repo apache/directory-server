@@ -23,12 +23,16 @@ package org.apache.directory.server.core.factory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
+import org.apache.directory.server.core.partition.Partition;
 import org.junit.Test;
 
 
@@ -91,14 +95,35 @@ public class DirectoryServiceAnnotationTest
         } )
     public void testCreateMethodDSWithPartition() throws Exception
     {
-        /*
         DirectoryService service = DSAnnotationProcessor.getDirectoryService();
         
         assertTrue( service.isStarted() );
-        assertEquals( "methodDS", service.getInstanceId() );
+        assertEquals( "MethodDSWithPartition", service.getInstanceId() );
+        
+        Set<String> expectedNames = new HashSet<String>();
+        
+        expectedNames.add( "example" );
+        expectedNames.add( "schema" );
+        
+        assertEquals( 2, service.getPartitions().size() );
+        
+        for ( Partition partition : service.getPartitions() )
+        {
+            assertTrue( expectedNames.contains( partition.getId() ) );
+            
+            if ( "example".equalsIgnoreCase( partition.getId() ) )
+            {
+                assertTrue( partition.isInitialized() );
+                assertEquals( "dc=example,dc=com", partition.getSuffixDn().getUpName() );
+            }
+            else if ( "schema".equalsIgnoreCase( partition.getId() ) )
+            {
+                assertTrue( partition.isInitialized() );
+                assertEquals( "ou=schema", partition.getSuffixDn().getUpName() );
+            }
+        }
         
         service.shutdown();
         FileUtils.deleteDirectory( service.getWorkingDirectory() );
-        */
     }
 }

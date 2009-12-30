@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.factory;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -32,6 +33,7 @@ import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.xdbm.Index;
@@ -151,10 +153,13 @@ public class DSAnnotationProcessor
             for ( CreatePartition createPartition : dsBuilder.partitions() )
             {
                 // Create the partition
-                JdbmPartition partition = new JdbmPartition();
+                Partition partition = new JdbmPartition();
                 partition.setId( createPartition.name() );
                 partition.setSuffix( createPartition.suffix() );
-                partition.setCacheSize( createPartition.cacheSize() );
+                partition.setSchemaManager( service.getSchemaManager() );
+                ( ( JdbmPartition ) partition ).setCacheSize( createPartition.cacheSize() );
+                ( ( JdbmPartition ) partition ).setPartitionDir( 
+                    new File( service.getWorkingDirectory(), createPartition.name() ) );
                 
                 // Process the indexes if any
                 CreateIndex[] indexes = createPartition.indexes();
@@ -164,8 +169,10 @@ public class DSAnnotationProcessor
                     Index<String, ServerEntry> index = new JdbmIndex<String, ServerEntry>( createIndex.attribute() );
                     index.setCacheSize( createIndex.cacheSize() );
                     
-                    partition.addIndexedAttributes( index );
+                    ( ( JdbmPartition ) partition ).addIndexedAttributes( index );
                 }
+                
+                partition.setSchemaManager( service.getSchemaManager() );
                 
                 // Inject the partition into the DirectoryService
                 service.addPartition( partition );
