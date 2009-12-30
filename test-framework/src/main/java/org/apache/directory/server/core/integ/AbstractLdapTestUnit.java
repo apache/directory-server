@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.integ;
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.ldap.LdapServer;
 
 
 /**
@@ -32,6 +33,10 @@ public abstract class AbstractLdapTestUnit
 {
     /** The used DirectoryService instance */
     public static DirectoryService service;
+
+    /** The used LdapServer instance */
+    public static LdapServer ldapServer;
+
     
     /** A flag set if the test is run in a suite */
     public static boolean isRunInSuite;

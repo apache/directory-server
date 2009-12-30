@@ -28,7 +28,6 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.factory.DirectoryServiceFactory;
-import org.apache.directory.server.factory.DefaultLdapServerFactory;
 import org.junit.Ignore;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
@@ -53,6 +52,9 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
     /** The 'service' field in the run tests */
     private static final String DIRECTORY_SERVICE_FIELD_NAME = "service";
+    
+    /** The 'ldapServer' field in the run tests */
+    private static final String LDAP_SERVER_FIELD_NAME = "ldapServer";
     
     /** The filed used to tell the test that it is run in a suite */
     private static final String IS_RUN_IN_SUITE_FIELD_NAME = "isRunInSuite";
@@ -263,14 +265,20 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             // if we run this class in a suite, tell it to the test
             field = getTestClass().getJavaClass().getField( IS_RUN_IN_SUITE_FIELD_NAME );
             field.set( getTestClass().getJavaClass(), suite != null );
-
+            
             // Last not least, see if we have to start a server
-            if ( ( suite != null ) && ( suite.getSuiteLdapServerBuilder() != null ) )
+            if ( suite != null )
             {
-                CreateLdapServer ldapServerBuilder = suite.getSuiteLdapServerBuilder();
+                // If we have a LdapServer instance, feed the associated field too
+                field = getTestClass().getJavaClass().getField( LDAP_SERVER_FIELD_NAME );
+                field.set( getTestClass().getJavaClass(), suite.getLdapServer() );
+                
+                /*
+                CreateLdapServer ldapServerBuilder = suite.getLdapServerBuilder();
                 
                 DefaultLdapServerFactory ldapServerFactory = (DefaultLdapServerFactory)ldapServerBuilder.factory().newInstance();
                 ldapServerFactory.setDirectoryService( directoryService );
+                */
             }
 
             // Run the test

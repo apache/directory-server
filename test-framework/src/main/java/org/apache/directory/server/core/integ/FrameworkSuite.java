@@ -211,7 +211,7 @@ public class FrameworkSuite extends Suite
     /**
      * @return the suiteLdapServerBuilder
      */
-    public CreateLdapServer getSuiteLdapServerBuilder()
+    public CreateLdapServer getLdapServerBuilder()
     {
         return ldapServerBuilder;
     }
@@ -220,7 +220,7 @@ public class FrameworkSuite extends Suite
     /**
      * @return the suiteLdapServer
      */
-    public LdapServer getSuiteLdapServer()
+    public LdapServer getLdapServer()
     {
         return ldapServer;
     }
