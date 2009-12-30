@@ -54,89 +54,12 @@ public class DSAnnotationProcessor
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( DSAnnotationProcessor.class );
 
-    /**
-     * Create a DirectoryService from a Unit test annotation
-     *
-     * @param description The annotations containing the info from which we will create the DS
-     * @return A valid DS
-     */
-    public static DirectoryService getDirectoryService( Description description )
-    {
-        try
-        {
-            CreateDS dsBuilder = description.getAnnotation( CreateDS.class );
-            
-            if ( dsBuilder != null )
-            {
-                LOG.debug( "Starting DS {}...", dsBuilder.name() );
-                Class<?> factory = dsBuilder.factory();
-                DirectoryServiceFactory dsf = ( DirectoryServiceFactory ) factory.newInstance();
-                
-                DirectoryService service = dsf.getDirectoryService();
-                service.setAccessControlEnabled( dsBuilder.enableAccessControl() );
-                service.setAllowAnonymousAccess( dsBuilder.allowAnonAccess() );
-                
-                dsf.init( dsBuilder.name() );
-                
-                return service;
-            }
-            else
-            {
-                LOG.debug( "No {} DS.", description.getDisplayName() );
-                return null;
-            }
-        }
-        catch ( Exception e )
-        {
-            return null;
-        }
-    }
-    
     
     /**
-     * Create a DirectoryService from an annotation. The @CreateDS annotation must
-     * be associated with either the method or the encapsulating class. We will first
-     * try to get the annotation from the method, and if there is none, then we try
-     * at the class level. 
-     *
-     * @return A valid DS
+     * Create the DirectoryService
      */
-    public static DirectoryService getDirectoryService() throws Exception
+    private static DirectoryService createDS( CreateDS dsBuilder )
     {
-        CreateDS dsBuilder = null;
-        
-        // Get the caller by inspecting the stackTrace
-        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        
-        // Get the enclosing class
-        Class<?> classCaller = Class.forName( stackTrace[2].getClassName() );
-        
-        // Get the current method
-        String methodCaller = stackTrace[2].getMethodName();
-        
-        // Check if we have any annotation associated with the method
-        Method[] methods = classCaller.getMethods();
-        
-        for ( Method method : methods )
-        {
-            if ( methodCaller.equals( method.getName() ) )
-            {
-                dsBuilder = method.getAnnotation( CreateDS.class );
-                
-                if ( dsBuilder != null )
-                {
-                    break;
-                }
-            }
-        }
-
-        // No : look at the class level
-        if ( dsBuilder == null )
-        {
-            dsBuilder = classCaller.getAnnotation( CreateDS.class );
-        }
-        
-        // Ok, we have found a CreateDS annotation. Process it now.
         try
         {
             LOG.debug( "Starting DS {}...", dsBuilder.name() );
@@ -196,32 +119,24 @@ public class DSAnnotationProcessor
     
     
     /**
-     * Create a DirectoryService using the class annotation
-     * TODO getClassDirectoryService.
+     * Create a DirectoryService from a Unit test annotation
      *
-     * @param clazz
-     * @return
+     * @param description The annotations containing the info from which we will create the DS
+     * @return A valid DS
      */
-    public static DirectoryService getClassDirectoryService( Class<?> clazz )
+    public static DirectoryService getDirectoryService( Description description )
     {
         try
         {
-            CreateDS dsBuilder = clazz.getAnnotation( CreateDS.class );
+            CreateDS dsBuilder = description.getAnnotation( CreateDS.class );
             
             if ( dsBuilder != null )
             {
-                LOG.debug( "Starting the {} DS...", clazz.getName() );
-                Class<?> factory = dsBuilder.factory();
-                DirectoryServiceFactory dsf = ( DirectoryServiceFactory ) factory.newInstance();
-                dsf.init( dsBuilder.name() );
-                
-                DirectoryService service = dsf.getDirectoryService();
-                
-                return service;
+                return createDS( dsBuilder );
             }
             else
             {
-                LOG.debug( "No {} DS.", clazz.getName() );
+                LOG.debug( "No {} DS.", description.getDisplayName() );
                 return null;
             }
         }
@@ -229,6 +144,54 @@ public class DSAnnotationProcessor
         {
             return null;
         }
+    }
+    
+    
+    /**
+     * Create a DirectoryService from an annotation. The @CreateDS annotation must
+     * be associated with either the method or the encapsulating class. We will first
+     * try to get the annotation from the method, and if there is none, then we try
+     * at the class level. 
+     *
+     * @return A valid DS
+     */
+    public static DirectoryService getDirectoryService() throws Exception
+    {
+        CreateDS dsBuilder = null;
+        
+        // Get the caller by inspecting the stackTrace
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        
+        // Get the enclosing class
+        Class<?> classCaller = Class.forName( stackTrace[2].getClassName() );
+        
+        // Get the current method
+        String methodCaller = stackTrace[2].getMethodName();
+        
+        // Check if we have any annotation associated with the method
+        Method[] methods = classCaller.getMethods();
+        
+        for ( Method method : methods )
+        {
+            if ( methodCaller.equals( method.getName() ) )
+            {
+                dsBuilder = method.getAnnotation( CreateDS.class );
+                
+                if ( dsBuilder != null )
+                {
+                    break;
+                }
+            }
+        }
+
+        // No : look at the class level
+        if ( dsBuilder == null )
+        {
+            dsBuilder = classCaller.getAnnotation( CreateDS.class );
+        }
+        
+        // Ok, we have found a CreateDS annotation. Process it now.
+        return createDS( dsBuilder );
     }
 
     
@@ -344,5 +307,4 @@ public class DSAnnotationProcessor
             }
         }
     }
-
 }
