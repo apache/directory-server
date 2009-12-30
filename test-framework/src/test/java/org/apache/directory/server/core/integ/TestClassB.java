@@ -30,10 +30,10 @@ import org.junit.runner.RunWith;
 @RunWith( FrameworkRunner.class )
 @ApplyLdifs(
     {
-        "dn: cn=testClassB,ou=system\n" + 
-        "objectClass: person\n" + 
-        "cn: testClassB\n" + 
-        "sn: sn_testClassB\n"
+        "dn: cn=testClassB,ou=system", 
+        "objectClass: person", 
+        "cn: testClassB", 
+        "sn: sn_testClassB"
     })
 public class TestClassB extends AbstractLdapTestUnit
 {

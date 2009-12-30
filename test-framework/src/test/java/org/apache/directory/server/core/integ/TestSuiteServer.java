@@ -58,10 +58,10 @@ import org.junit.runners.Suite;
     })
 @ApplyLdifs(
     {
-        "dn: cn=testSuite,ou=system\n" + 
-        "objectClass: person\n" + 
-        "cn: testSuite\n" + 
-        "sn: sn_testSuite\n" 
+        "dn: cn=testSuite,ou=system",
+        "objectClass: person",
+        "cn: testSuite",
+        "sn: sn_testSuite" 
     } )
 public class TestSuiteServer
 {

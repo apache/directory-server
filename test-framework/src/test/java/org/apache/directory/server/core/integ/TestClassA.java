@@ -33,10 +33,16 @@ import org.junit.runner.RunWith;
 @CreateDS( name="ClassDS" )
 @ApplyLdifs(
     {
-        "dn: cn=testClassA,ou=system\n" + 
-        "objectClass: person\n" + 
-        "cn: testClassA\n" + 
-        "sn: sn_testClassA\n"
+        "dn: cn=testClassA,ou=system", 
+        "objectClass: person", 
+        "cn: testClassA", 
+        "sn: sn_testClassA",
+        
+        "dn: cn=testClassA2,ou=system", 
+        "objectClass: person", 
+        "cn: testClassA2", 
+        "sn: sn_testClassA2"
+        
     })
 public class TestClassA extends AbstractLdapTestUnit
 {
@@ -44,10 +50,10 @@ public class TestClassA extends AbstractLdapTestUnit
     @CreateDS( name="testDS" )
     @ApplyLdifs(
         {
-            "dn: cn=testMethodA,ou=system\n" + 
-            "objectClass: person\n" + 
-            "cn: testMethodA\n" + 
-            "sn: sn_testMethodA\n" 
+            "dn: cn=testMethodA,ou=system", 
+            "objectClass: person",
+            "cn: testMethodA", 
+            "sn: sn_testMethodA" 
         })
     public void testWithFactoryAnnotation() throws Exception
     {
@@ -64,10 +70,10 @@ public class TestClassA extends AbstractLdapTestUnit
     @Test
     @ApplyLdifs(
         {
-            "dn: cn=testMethodWithApplyLdif,ou=system\n" + 
-            "objectClass: person\n" + 
-            "cn: testMethodWithApplyLdif\n" + 
-            "sn: sn_testMethodWithApplyLdif\n" 
+            "dn: cn=testMethodWithApplyLdif,ou=system", 
+            "objectClass: person", 
+            "cn: testMethodWithApplyLdif", 
+            "sn: sn_testMethodWithApplyLdif" 
         })
     public void testWithoutFactoryAnnotation() throws Exception
     {
@@ -77,6 +83,7 @@ public class TestClassA extends AbstractLdapTestUnit
         }
 
         assertTrue( service.getAdminSession().exists( new LdapDN( "cn=testClassA,ou=system" ) ) );
+        assertTrue( service.getAdminSession().exists( new LdapDN( "cn=testClassA2,ou=system" ) ) );
         assertFalse( service.getAdminSession().exists( new LdapDN( "cn=testMethodA,ou=system" ) ) );
         assertTrue( service.getAdminSession().exists( new LdapDN( "cn=testMethodWithApplyLdif,ou=system" ) ) );
     }
