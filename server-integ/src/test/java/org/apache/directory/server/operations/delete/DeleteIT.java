@@ -38,11 +38,9 @@ import netscape.ldap.LDAPResponse;
 import netscape.ldap.LDAPResponseListener;
 import netscape.ldap.LDAPSearchConstraints;
 
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,8 +54,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.SUITE )
+@RunWith ( FrameworkRunner.class ) 
 @ApplyLdifs( {
     // Entry # 1
     "dn: uid=akarasulu,ou=users,ou=system\n" +
@@ -87,12 +84,9 @@ import org.slf4j.LoggerFactory;
     "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system\n\n" 
     }
 )
-public class DeleteIT
+public class DeleteIT extends AbstractLdapTestUnit
 {
     private static final Logger LOG = LoggerFactory.getLogger( DeleteIT.class );
-    
-    public static LdapServer ldapServer;
-    
 
     /**
      * Tests normal delete operation on normal non-referral entries without 

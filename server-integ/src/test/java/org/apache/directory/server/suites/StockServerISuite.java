@@ -26,14 +26,8 @@ import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.core.integ.annotations.Mode;
 import org.apache.directory.server.integ.SiSuite;
 import org.apache.directory.server.operations.add.AddIT;
-import org.apache.directory.server.operations.add.AddingEntriesWithSpecialCharactersInRDNIT;
 import org.apache.directory.server.operations.bind.BindIT;
 import org.apache.directory.server.operations.bind.SimpleBindIT;
-import org.apache.directory.server.operations.compare.CompareIT;
-import org.apache.directory.server.operations.compare.MatchingRuleCompareIT;
-import org.apache.directory.server.operations.delete.DeleteIT;
-import org.apache.directory.server.operations.modify.IllegalModificationIT;
-import org.apache.directory.server.operations.modify.ModifyAddIT;
 import org.apache.directory.server.operations.modify.ModifyReferralIT;
 import org.apache.directory.server.operations.modify.ModifyRemoveIT;
 import org.apache.directory.server.operations.modify.ModifyReplaceIT;
@@ -59,13 +53,13 @@ import org.junit.runners.Suite;
  */
 @RunWith ( SiSuite.class )
 @Suite.SuiteClasses ( {
-        AddingEntriesWithSpecialCharactersInRDNIT.class,
+        //AddingEntriesWithSpecialCharactersInRDNIT.class,
         AddIT.class,
-        CompareIT.class,
-        MatchingRuleCompareIT.class,
-        DeleteIT.class,
-        IllegalModificationIT.class,
-        ModifyAddIT.class,
+        //CompareIT.class,
+        //MatchingRuleCompareIT.class,
+        //DeleteIT.class,
+        //IllegalModificationIT.class,
+        //ModifyAddIT.class,
         ModifyReferralIT.class,
         ModifyRemoveIT.class,
         ModifyReplaceIT.class,

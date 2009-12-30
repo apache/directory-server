@@ -20,23 +20,20 @@
 package org.apache.directory.server.operations.modify;
 
 
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.integ.SiRunner;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
-
-import org.apache.directory.server.ldap.LdapServer;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import static org.junit.Assert.fail;
 import static org.junit.Assert.assertEquals;
-
+import static org.junit.Assert.fail;
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
+
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /** 
@@ -60,8 +57,7 @@ import netscape.ldap.LDAPModification;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: $
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.SUITE )
+@RunWith ( FrameworkRunner.class ) 
 @ApplyLdifs( {
     // Entry # 1
     "dn: cn=Kate Bush,ou=system\n" +
@@ -71,12 +67,9 @@ import netscape.ldap.LDAPModification;
     "sn: Bush\n\n" 
     }
 )
-public class IllegalModificationIT 
+public class IllegalModificationIT extends AbstractLdapTestUnit
 {
     private static final String DN = "cn=Kate Bush,ou=system";
-
-    public static LdapServer ldapServer;
-    
 
     @Test
     public void testIllegalModification() throws Exception

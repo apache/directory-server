@@ -20,22 +20,20 @@
 package org.apache.directory.server.operations.compare;
 
 
+import static org.junit.Assert.assertEquals;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
-import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -46,8 +44,7 @@ import static org.junit.Assert.assertEquals;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.SUITE )
+@RunWith ( FrameworkRunner.class ) 
 @ApplyLdifs( {
     // Entry # 1
     "dn: cn=Tori Amos,ou=system\n" +
@@ -65,10 +62,8 @@ import static org.junit.Assert.assertEquals;
     "member: cn=Tori Amos,ou=system\n\n"
     }
 )
-public class MatchingRuleCompareIT
+public class MatchingRuleCompareIT extends AbstractLdapTestUnit
 {
-    public static LdapServer ldapServer;
-
     public static final String PERSON_CN = "Tori Amos";
     public static final String PERSON_SN = "Amos";
     public static final String PERSON_RDN = "cn=" + PERSON_CN;
