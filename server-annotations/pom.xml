@@ -43,6 +43,12 @@
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-core-annotations</artifactId>
+      <version>${pom.version}</version>
+    </dependency>  
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-ldif-partition</artifactId>
       <version>${pom.version}</version>
     </dependency>  

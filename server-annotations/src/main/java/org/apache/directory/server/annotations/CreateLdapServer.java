@@ -26,7 +26,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.apache.directory.server.DefaultLdapServerFactory;
+import org.apache.directory.server.factory.DefaultLdapServerFactory;
 
 
 /**

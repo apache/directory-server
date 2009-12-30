@@ -23,12 +23,12 @@ import java.lang.reflect.Field;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.directory.server.DefaultLdapServerFactory;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.factory.DirectoryServiceFactory;
+import org.apache.directory.server.factory.DefaultLdapServerFactory;
 import org.junit.Ignore;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
