@@ -21,14 +21,11 @@ package org.apache.directory.server.core.integ;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.annotations.CreateLdapServer;
-import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
+import org.apache.directory.server.factory.ServerAnnotationProcessor;
 import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.server.protocol.shared.transport.TcpTransport;
-import org.apache.directory.server.protocol.shared.transport.Transport;
-import org.apache.mina.util.AvailablePortFinder;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
@@ -113,54 +110,6 @@ public class FrameworkSuite extends Suite
     }
     
     
-    private void createTransports( LdapServer ldapServer, CreateTransport[] transportBuilders )
-    {
-        if ( transportBuilders.length != 0 )
-        {
-            int createdPort = 1024;
-            
-            for ( CreateTransport transportBuilder : transportBuilders )
-            {
-                String protocol = transportBuilder.protocol();
-                int port = transportBuilder.port();
-                int nbThreads = transportBuilder.nbThreads();
-                int backlog = transportBuilder.backlog();
-                String address = transportBuilder.address();
-                
-                if ( port == -1 )
-                {
-                    port = AvailablePortFinder.getNextAvailable( createdPort );
-                    createdPort = port + 1;
-                }
-                
-                if ( protocol.equalsIgnoreCase( "LDAP" ) )
-                {
-                    Transport ldap = new TcpTransport( address, port, nbThreads, backlog );
-                    ldapServer.addTransports( ldap );
-                }
-                else if ( protocol.equalsIgnoreCase( "LDAPS" ) )
-                {
-                    Transport ldaps = new TcpTransport( address, port, nbThreads, backlog );
-                    ldaps.setEnableSSL( true );
-                    ldapServer.addTransports( ldaps );
-                }
-            }
-        }
-        else
-        {
-            // Create default LDAP and LDAPS transports
-            int port = AvailablePortFinder.getNextAvailable( 1024 );
-            Transport ldap = new TcpTransport( port );
-            ldapServer.addTransports( ldap );
-            
-            port = AvailablePortFinder.getNextAvailable( port );
-            Transport ldaps = new TcpTransport( port );
-            ldaps.setEnableSSL( true );
-            ldapServer.addTransports( ldaps );
-        }
-    }
-
-    
     private void addPartitions( Description description )
     {
         CreatePartition createPartition = description.getAnnotation( CreatePartition.class );
@@ -174,29 +123,13 @@ public class FrameworkSuite extends Suite
     
     private void startLdapServer( Description description )
     {
-        ldapServerBuilder = description.getAnnotation( CreateLdapServer.class );
-
-        if ( ldapServerBuilder != null )
+        try
         {
-            LdapServer ldapServer = new LdapServer();
-            
-            ldapServer.setServiceName( ldapServerBuilder.name() );
-            
-            // Read the transports
-            createTransports( ldapServer, ldapServerBuilder.transports() );
-            
-            // Associate the DS to this LdapServer
-            ldapServer.setDirectoryService( directoryService );
-            
-            // Launch the server
-            try
-            {
-                ldapServer.start();
-            }
-            catch ( Exception e )
-            {
-                e.printStackTrace();
-            }
+            ldapServer = ServerAnnotationProcessor.getLdapServer( description, directoryService );
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
         }
     }
     
