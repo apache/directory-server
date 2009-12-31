@@ -20,14 +20,18 @@
 package org.apache.directory.server.operations.bind;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.NoPermissionException;
 import javax.naming.OperationNotSupportedException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -39,23 +43,19 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 
-import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPUrl;
 
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.core.integ.annotations.Factory;
-import org.apache.directory.server.integ.LdapServerFactory;
-import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.core.annotations.ContextEntry;
+import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.annotations.CreateIndex;
+import org.apache.directory.server.core.annotations.CreatePartition;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.SimpleMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
@@ -63,23 +63,14 @@ import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5Mechani
 import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
-import org.apache.directory.server.protocol.shared.transport.TcpTransport;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.InternalControl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
-import org.apache.mina.util.AvailablePortFinder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -88,83 +79,59 @@ import static org.junit.Assert.assertNotNull;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 682556 $
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.CLASS )
-@Factory ( MiscBindIT.Factory.class )
-@ApplyLdifs( {
-    // Entry #0
-    "dn: dc=aPache,dc=org\n" +
-    "dc: aPache\n" +
-    "objectClass: top\n" +
-    "objectClass: domain\n\n"
-    }
-)
-public class MiscBindIT
-{
-    public static LdapServer ldapServer;
-
-    
-    public static class Factory implements LdapServerFactory
-    {
-        public LdapServer newInstance() throws Exception
+@RunWith ( FrameworkRunner.class ) 
+@CreateDS( allowAnonAccess=true, name="SaslBindIT-class",
+    partitions =
         {
-            DirectoryService service = new DefaultDirectoryService();
-            IntegrationUtils.doDelete( service.getWorkingDirectory() );
-            service.getChangeLog().setEnabled( true );
-            service.setAllowAnonymousAccess( true );
-            service.setShutdownHookEnabled( false );
-
-            JdbmPartition apache = new JdbmPartition();
-
-            // @TODO need to make this configurable for the system partition
-            apache.setCacheSize( 500 );
-            apache.setSuffix( "dc=aPache,dc=org" );
-            apache.setId( "apache" );
-            service.addPartition( apache );
-
-            // change the working directory to something that is unique
-            // on the system and somewhere either under target directory
-            // or somewhere in a temp area of the machine.
-
-            LdapServer ldapServer = new LdapServer();
-            ldapServer.setDirectoryService( service );
-            int port = AvailablePortFinder.getNextAvailable( 1024 );
-            ldapServer.setTransports( new TcpTransport( port ) );
-            ldapServer.setAllowAnonymousAccess( true );
-            ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
-
-            // Setup SASL Mechanisms
-            
-            Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String,MechanismHandler>();
-            mechanismHandlerMap.put( SupportedSaslMechanisms.PLAIN, new SimpleMechanismHandler() );
-
-            CramMd5MechanismHandler cramMd5MechanismHandler = new CramMd5MechanismHandler();
-            mechanismHandlerMap.put( SupportedSaslMechanisms.CRAM_MD5, cramMd5MechanismHandler );
-
-            DigestMd5MechanismHandler digestMd5MechanismHandler = new DigestMd5MechanismHandler();
-            mechanismHandlerMap.put( SupportedSaslMechanisms.DIGEST_MD5, digestMd5MechanismHandler );
-
-            GssapiMechanismHandler gssapiMechanismHandler = new GssapiMechanismHandler();
-            mechanismHandlerMap.put( SupportedSaslMechanisms.GSSAPI, gssapiMechanismHandler );
-
-            NtlmMechanismHandler ntlmMechanismHandler = new NtlmMechanismHandler();
-            mechanismHandlerMap.put( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
-            mechanismHandlerMap.put( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
-
-            ldapServer.setSaslMechanismHandlers( mechanismHandlerMap );
-
-            return ldapServer;
-        }
-    }
-    
-    
-    
-    private boolean oldAnnonymousAccess;
-    
-    
-    @Before
-    public void recordAnnonymous() throws NamingException
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=aPache,dc=org",
+                contextEntry = @ContextEntry( 
+                    entryLdif =
+                        "dn: dc=aPache,dc=org\n" +
+                        "dc: aPache\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n" ),
+                indexes = 
+                {
+                    @CreateIndex( attribute = "objectClass" ),
+                    @CreateIndex( attribute = "dc" ),
+                    @CreateIndex( attribute = "ou" )
+                } )
+        })
+@CreateLdapServer ( 
+    transports = 
     {
+        @CreateTransport( protocol = "LDAP" )
+    })
+public class MiscBindIT extends AbstractLdapTestUnit
+{
+    private boolean oldAnnonymousAccess;
+
+    @Before
+    public void init() throws Exception
+    {
+        ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
+
+        // Setup SASL Mechanisms
+        
+        Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String,MechanismHandler>();
+        mechanismHandlerMap.put( SupportedSaslMechanisms.PLAIN, new SimpleMechanismHandler() );
+
+        CramMd5MechanismHandler cramMd5MechanismHandler = new CramMd5MechanismHandler();
+        mechanismHandlerMap.put( SupportedSaslMechanisms.CRAM_MD5, cramMd5MechanismHandler );
+
+        DigestMd5MechanismHandler digestMd5MechanismHandler = new DigestMd5MechanismHandler();
+        mechanismHandlerMap.put( SupportedSaslMechanisms.DIGEST_MD5, digestMd5MechanismHandler );
+
+        GssapiMechanismHandler gssapiMechanismHandler = new GssapiMechanismHandler();
+        mechanismHandlerMap.put( SupportedSaslMechanisms.GSSAPI, gssapiMechanismHandler );
+
+        NtlmMechanismHandler ntlmMechanismHandler = new NtlmMechanismHandler();
+        mechanismHandlerMap.put( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
+        mechanismHandlerMap.put( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
+
+        ldapServer.setSaslMechanismHandlers( mechanismHandlerMap );
         oldAnnonymousAccess = ldapServer.getDirectoryService().isAllowAnonymousAccess();
     }
     
