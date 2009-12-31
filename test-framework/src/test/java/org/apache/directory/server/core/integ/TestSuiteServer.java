@@ -47,7 +47,7 @@ import org.junit.runners.Suite;
             {
                 @CreateIndex( attribute = "objectClass" ),
                 @CreateIndex( attribute = "dc" ),
-                @CreateIndex( attribute = "ou" ),
+                @CreateIndex( attribute = "ou" )
             } )
     } )
 @CreateLdapServer ( 
