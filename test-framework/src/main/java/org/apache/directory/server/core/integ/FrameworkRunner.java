@@ -364,14 +364,17 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             // Run the test
             super.runChild( method, notifier );
 
+            boolean stopped = false;
             // Cleanup the methodDS if it has been created
             if ( methodDS != null )
             {
                 LOG.debug( "Shuting down DS for {}", methodDS.getInstanceId() );
                 methodDS.shutdown();
                 FileUtils.deleteDirectory( methodDS.getWorkingDirectory() );
+                stopped = true;
             }
-            else if ( revision < directoryService.getChangeLog().getCurrentRevision() )
+            
+            if ( ( !stopped ) && ( revision < directoryService.getChangeLog().getCurrentRevision() ) )
             {
                 // We use a class or suite DS, just revert the current test's modifications
                 directoryService.revert( revision );
