@@ -125,7 +125,7 @@ public class FrameworkSuite extends Suite
     {
         try
         {
-            ldapServer = ServerAnnotationProcessor.getLdapServer( description, directoryService );
+            ldapServer = ServerAnnotationProcessor.getLdapServer( description, directoryService, 1024 );
         }
         catch ( Exception e )
         {

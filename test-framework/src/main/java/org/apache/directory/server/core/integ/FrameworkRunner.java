@@ -30,6 +30,7 @@ import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.factory.DirectoryServiceFactory;
 import org.apache.directory.server.factory.ServerAnnotationProcessor;
 import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.junit.Ignore;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
@@ -111,8 +112,22 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 LOG.debug( "Create revision {}", revision );
 
                 DSAnnotationProcessor.applyLdifs( getDescription(), classDS );
+                int minPort = 0;
                 
-                classLdapServer = ServerAnnotationProcessor.getLdapServer( getDescription(), classDS );
+                if ( suite != null )
+                {
+                    LdapServer suiteServer = suite.getLdapServer();
+                    
+                    for ( Transport transport : suiteServer.getTransports() )
+                    {
+                        if ( minPort <= transport.getPort() )
+                        {
+                            minPort = transport.getPort();
+                        }
+                    }
+                }
+                
+                classLdapServer = ServerAnnotationProcessor.getLdapServer( getDescription(), classDS, minPort + 1 );
             }
             else if( suite != null && suite.getLdapServer() != null )
             {
