@@ -90,7 +90,7 @@ public class DirectoryServiceAnnotationTest
                 {
                     @CreateIndex( attribute = "objectClass" ),
                     @CreateIndex( attribute = "dc" ),
-                    @CreateIndex( attribute = "ou" ),
+                    @CreateIndex( attribute = "ou" )
                 } )
         } )
     public void testCreateMethodDSWithPartition() throws Exception
