@@ -149,7 +149,7 @@ public class TcpTransport extends AbstractTransport
         }
         else
         {
-            socketAddress = new InetSocketAddress( address, port );
+             socketAddress = new InetSocketAddress( address, port );
         }
         
         acceptor.setDefaultLocalAddress( socketAddress );

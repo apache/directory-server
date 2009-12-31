@@ -38,11 +38,11 @@ import org.junit.runner.Description;
  */
 public class ServerAnnotationProcessor
 {
-    private static void createTransports( LdapServer ldapServer, CreateTransport[] transportBuilders )
+    private static void createTransports( LdapServer ldapServer, CreateTransport[] transportBuilders, int startPort )
     {
         if ( transportBuilders.length != 0 )
         {
-            int createdPort = 1024;
+            int createdPort = startPort;
             
             for ( CreateTransport transportBuilder : transportBuilders )
             {
@@ -86,7 +86,7 @@ public class ServerAnnotationProcessor
     }
     
     
-    private static LdapServer createLdapServer( CreateLdapServer createLdapServer, DirectoryService directoryService )
+    private static LdapServer createLdapServer( CreateLdapServer createLdapServer, DirectoryService directoryService, int startPort )
     {
         if ( createLdapServer != null )
         {
@@ -95,7 +95,7 @@ public class ServerAnnotationProcessor
             ldapServer.setServiceName( createLdapServer.name() );
             
             // Read the transports
-            createTransports( ldapServer, createLdapServer.transports() );
+            createTransports( ldapServer, createLdapServer.transports(), startPort );
             
             // Associate the DS to this LdapServer
             ldapServer.setDirectoryService( directoryService );
@@ -119,7 +119,7 @@ public class ServerAnnotationProcessor
     }
 
     
-    public static LdapServer getLdapServer( DirectoryService directoryService ) throws Exception
+    public static LdapServer getLdapServer( DirectoryService directoryService, int startPort ) throws Exception
     {
         CreateLdapServer createLdapServer = null;
         
@@ -155,15 +155,15 @@ public class ServerAnnotationProcessor
         }
         
         // Ok, we have found a CreateLdapServer annotation. Process it now.
-        return createLdapServer( createLdapServer, directoryService );
+        return createLdapServer( createLdapServer, directoryService, startPort );
     }
 
 
-    public static LdapServer getLdapServer( Description description, DirectoryService directoryService ) throws Exception
+    public static LdapServer getLdapServer( Description description, DirectoryService directoryService, int startPort ) throws Exception
     {
         CreateLdapServer createLdapServer = description.getAnnotation( CreateLdapServer.class );
 
         // Ok, we have found a CreateLdapServer annotation. Process it now.
-        return createLdapServer( createLdapServer, directoryService );
+        return createLdapServer( createLdapServer, directoryService, startPort );
     }
 }
