@@ -31,7 +31,10 @@ import netscape.ldap.LDAPConstraints;
 import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPException;
 
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Test;
@@ -74,6 +77,12 @@ import org.junit.runner.RunWith;
     "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system"
     }
 )
+@CreateDS( allowAnonAccess=true, name="BindIT-class")
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" )
+    })
 public class BindIT extends AbstractLdapTestUnit
 {
 
