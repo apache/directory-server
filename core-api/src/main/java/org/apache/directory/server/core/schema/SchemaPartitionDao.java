@@ -18,28 +18,28 @@ import org.apache.directory.shared.ldap.schema.registries.Schema;
 public interface SchemaPartitionDao
 {
 
-    public abstract Map<String, Schema> getSchemas() throws Exception;
+    Map<String, Schema> getSchemas() throws Exception;
 
 
-    public abstract Set<String> getSchemaNames() throws Exception;
+    Set<String> getSchemaNames() throws Exception;
 
 
-    public abstract Schema getSchema( String schemaName ) throws Exception;
+    Schema getSchema( String schemaName ) throws Exception;
 
 
-    public abstract boolean hasMatchingRule( String oid ) throws Exception;
+    boolean hasMatchingRule( String oid ) throws Exception;
 
 
-    public abstract boolean hasAttributeType( String oid ) throws Exception;
+    boolean hasAttributeType( String oid ) throws Exception;
 
 
-    public abstract boolean hasObjectClass( String oid ) throws Exception;
+    boolean hasObjectClass( String oid ) throws Exception;
 
 
-    public abstract boolean hasSyntax( String oid ) throws Exception;
+    boolean hasSyntax( String oid ) throws Exception;
 
 
-    public abstract boolean hasSyntaxChecker( String oid ) throws Exception;
+    boolean hasSyntaxChecker( String oid ) throws Exception;
 
 
     /**
@@ -56,10 +56,10 @@ public interface SchemaPartitionDao
      * @throws NamingException if more than one entity has the name, or if there 
      * are underlying data access problems
      */
-    public abstract String findSchema( String entityName ) throws Exception;
+    String findSchema( String entityName ) throws Exception;
 
 
-    public abstract LdapDN findDn( String entityName ) throws Exception;
+    LdapDN findDn( String entityName ) throws Exception;
 
 
     /**
@@ -76,7 +76,7 @@ public interface SchemaPartitionDao
      * @throws NamingException if more than one entity has the name, or if there 
      * are underlying data access problems
      */
-    public abstract ServerEntry find( String entityName ) throws Exception;
+    ServerEntry find( String entityName ) throws Exception;
 
 
     /**
@@ -109,7 +109,7 @@ public interface SchemaPartitionDao
      * @param schemaName the name of the schema to enable
      * @throws NamingException if there is a problem updating the schema entry
      */
-    public abstract void enableSchema( String schemaName ) throws Exception;
+    void enableSchema( String schemaName ) throws Exception;
 
 
     /**
@@ -120,16 +120,16 @@ public interface SchemaPartitionDao
      * @return the set of matchingRules and attributeTypes depending on a syntax
      * @throws NamingException if the dao fails to perform search operations
      */
-    public abstract Set<ServerEntry> listSyntaxDependents( String numericOid ) throws Exception;
+    Set<ServerEntry> listSyntaxDependents( String numericOid ) throws Exception;
 
 
-    public abstract Set<ServerEntry> listMatchingRuleDependents( MatchingRule mr ) throws Exception;
+    Set<ServerEntry> listMatchingRuleDependents( MatchingRule mr ) throws Exception;
 
 
-    public abstract EntryFilteringCursor listAllNames() throws Exception;
+    EntryFilteringCursor listAllNames() throws Exception;
 
 
-    public abstract Set<ServerEntry> listAttributeTypeDependents( AttributeType at ) throws Exception;
+    Set<ServerEntry> listAttributeTypeDependents( AttributeType at ) throws Exception;
 
 
     /**
@@ -139,7 +139,7 @@ public interface SchemaPartitionDao
      * @return a set of SearchResults over the schemas whose m-dependency attribute contains schemaName
      * @throws NamingException if there is a problem while searching the schema partition
      */
-    public abstract Set<ServerEntry> listSchemaDependents( String schemaName ) throws Exception;
+    Set<ServerEntry> listSchemaDependents( String schemaName ) throws Exception;
 
 
     /**
@@ -149,9 +149,8 @@ public interface SchemaPartitionDao
      * @return a set of SearchResults over the schemas whose m-dependency attribute contains schemaName
      * @throws NamingException if there is a problem while searching the schema partition
      */
-    public abstract Set<ServerEntry> listEnabledSchemaDependents( String schemaName ) throws Exception;
+    Set<ServerEntry> listEnabledSchemaDependents( String schemaName ) throws Exception;
 
 
-    public abstract Set<ServerEntry> listObjectClassDependents( ObjectClass oc ) throws Exception;
-
+    Set<ServerEntry> listObjectClassDependents( ObjectClass oc ) throws Exception;
 }
