@@ -45,10 +45,12 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPUrl;
 
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.server.ldap.LdapServer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -73,14 +75,16 @@ import org.junit.runner.RunWith;
     "sn: Nelson"
     }
 )
+@CreateDS( allowAnonAccess=true, name="SimpleBindIT-class")
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" )
+    })
 public class SimpleBindIT extends AbstractLdapTestUnit
 {
     private static final String BASE = "ou=users,ou=system";
 
-    
-    public static LdapServer ldapServer;
-
-    
     /**
      * Convenience method for creating a person.
      */
