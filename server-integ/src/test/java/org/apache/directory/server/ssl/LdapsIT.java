@@ -20,16 +20,32 @@
 package org.apache.directory.server.ssl;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.security.cert.X509Certificate;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.ModificationItem;
+
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.integ.LdapServerFactory;
-import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.SimpleMechanismHandler;
@@ -44,22 +60,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.ModificationItem;
-
-import java.security.cert.X509Certificate;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
 
 
 /**
@@ -69,15 +69,12 @@ import java.util.Map;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 642496 $
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.CLASS )
+@RunWith ( FrameworkRunner.class ) 
 @Factory ( LdapsIT.Factory.class )
-public class LdapsIT
+public class LdapsIT extends AbstractLdapTestUnit
 {
     private static final String RDN = "cn=The Person";
 
-    
-    public static LdapServer ldapServer;
 
     
     public static class Factory implements LdapServerFactory

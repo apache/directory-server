@@ -20,21 +20,32 @@
 package org.apache.directory.server.operations.search;
 
 
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.core.integ.annotations.Factory;
-import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.integ.LdapServerFactory;
-import org.apache.directory.server.integ.SiRunner;
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.SimpleMechanismHandler;
@@ -45,25 +56,12 @@ import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
+import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 
 /**
@@ -73,85 +71,81 @@ import static org.junit.Assert.assertFalse;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.CLASS )
+@RunWith ( FrameworkRunner.class ) 
 @Factory ( IndexedNegationSearchIT.Factory.class )
 @ApplyLdifs( {
-    "dn: ou=test,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: organizationalUnit\n" +
-    "ou: test\n\n" +
+    "dn: ou=test,ou=system", 
+    "objectClass: top", 
+    "objectClass: organizationalUnit", 
+    "ou: test", 
 
-    "dn: uid=test1,ou=test,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: account\n" +
-    "uid: test1\n" +
-    "ou: test1\n\n" +
+    "dn: uid=test1,ou=test,ou=system", 
+    "objectClass: top", 
+    "objectClass: account", 
+    "uid: test1", 
+    "ou: test1", 
 
-    "dn: uid=test2,ou=test,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: account\n" +
-    "uid: test2\n" +
-    "ou: test2\n\n" +
+    "dn: uid=test2,ou=test,ou=system", 
+    "objectClass: top", 
+    "objectClass: account", 
+    "uid: test2", 
+    "ou: test2", 
 
-    "dn: uid=testNoOU,ou=test,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: account\n" +
-    "uid: testNoOU\n\n" +
+    "dn: uid=testNoOU,ou=test,ou=system", 
+    "objectClass: top", 
+    "objectClass: account", 
+    "uid: testNoOU", 
     
-    "dn: ou=actors,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: organizationalUnit\n" +
-    "ou: actors\n\n" +
+    "dn: ou=actors,ou=system", 
+    "objectClass: top", 
+    "objectClass: organizationalUnit", 
+    "ou: actors\n", 
 
-    "dn: uid=jblack,ou=actors,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: uidObject\n" +
-    "uid: jblack\n" +
-    "ou: comedy\n" +
-    "ou: adventure\n" +
-    "cn: Jack Black\n" +
-    "sn: Black\n\n" +
+    "dn: uid=jblack,ou=actors,ou=system", 
+    "objectClass: top", 
+    "objectClass: person", 
+    "objectClass: organizationalPerson", 
+    "objectClass: uidObject", 
+    "uid: jblack", 
+    "ou: comedy", 
+    "ou: adventure", 
+    "cn: Jack Black", 
+    "sn: Black", 
 
-    "dn: uid=bpitt,ou=actors,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: uidObject\n" +
-    "uid: bpitt\n" +
-    "ou: drama\n" +
-    "ou: adventure\n" +
-    "cn: Brad Pitt\n" +
-    "sn: Pitt\n\n" +
+    "dn: uid=bpitt,ou=actors,ou=system", 
+    "objectClass: top", 
+    "objectClass: person", 
+    "objectClass: organizationalPerson", 
+    "objectClass: uidObject", 
+    "uid: bpitt", 
+    "ou: drama", 
+    "ou: adventure", 
+    "cn: Brad Pitt", 
+    "sn: Pitt", 
 
-    "dn: uid=gcloony,ou=actors,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: uidObject\n" +
-    "uid: gcloony\n" +
-    "ou: drama\n" +
-    "cn: Goerge Cloony\n" +
-    "sn: Cloony\n\n" +
+    "dn: uid=gcloony,ou=actors,ou=system", 
+    "objectClass: top", 
+    "objectClass: person", 
+    "objectClass: organizationalPerson", 
+    "objectClass: uidObject", 
+    "uid: gcloony", 
+    "ou: drama", 
+    "cn: Goerge Cloony", 
+    "sn: Cloony", 
 
-    "dn: uid=jnewbie,ou=actors,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: uidObject\n" +
-    "uid: jnewbie\n" +
-    "cn: Joe Newbie\n" +
-    "sn: Newbie\n\n" 
+    "dn: uid=jnewbie,ou=actors,ou=system", 
+    "objectClass: top", 
+    "objectClass: person", 
+    "objectClass: organizationalPerson", 
+    "objectClass: uidObject", 
+    "uid: jnewbie", 
+    "cn: Joe Newbie", 
+    "sn: Newbie" 
 
     }
 )
-public class IndexedNegationSearchIT 
+public class IndexedNegationSearchIT extends AbstractLdapTestUnit
 {
-    public static LdapServer ldapServer;
-
-    
     public static class Factory implements LdapServerFactory
     {
         public LdapServer newInstance() throws Exception
