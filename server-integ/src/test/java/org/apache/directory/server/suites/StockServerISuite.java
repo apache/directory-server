@@ -110,6 +110,6 @@ import org.junit.runners.Suite;
         @CreateTransport( protocol = "LDAP" ), 
         @CreateTransport( protocol = "LDAPS" ) 
     })
-public class StockServerISuite2
+public class StockServerISuite
 {
 }
