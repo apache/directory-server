@@ -20,11 +20,13 @@
 package org.apache.directory.server.operations.bind;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.Set;
 
 import javax.naming.AuthenticationNotSupportedException;
 import javax.naming.Context;
@@ -36,20 +38,15 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
 import org.apache.commons.net.SocketClient;
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.core.integ.annotations.Factory;
-import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.integ.LdapServerFactory;
-import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.annotations.ContextEntry;
+import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.annotations.CreateIndex;
+import org.apache.directory.server.core.annotations.CreatePartition;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
@@ -58,8 +55,6 @@ import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmProvider;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
-import org.apache.directory.server.protocol.shared.transport.TcpTransport;
-import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.message.InternalBindResponse;
@@ -70,16 +65,11 @@ import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -88,108 +78,84 @@ import static org.junit.Assert.assertEquals;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.CLASS )
-@Factory ( SaslBindIT.Factory.class )
+@RunWith ( FrameworkRunner.class ) 
 @ApplyLdifs( {
-    // Entry #0
-    "dn: dc=example,dc=com\n" +
-    "dc: example\n" +
-    "objectClass: top\n" +
-    "objectClass: domain\n\n" +
-    
     // Entry # 1
-    "dn: ou=users,dc=example,dc=com\n" +
-    "objectClass: organizationalUnit\n" +
-    "objectClass: top\n" +
-    "ou: users\n\n" + 
+    "dn: ou=users,dc=example,dc=com", 
+    "objectClass: organizationalUnit", 
+    "objectClass: top", 
+    "ou: users\n",  
     // Entry # 2
-    "dn: uid=hnelson,ou=users,dc=example,dc=com\n" +
-    "objectClass: inetOrgPerson\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "uid: hnelson\n" +
-    "userPassword: secret\n" +
-    "cn: Horatio Nelson\n" +
-    "sn: Nelson\n\n" 
+    "dn: uid=hnelson,ou=users,dc=example,dc=com", 
+    "objectClass: inetOrgPerson", 
+    "objectClass: organizationalPerson", 
+    "objectClass: person", 
+    "objectClass: top", 
+    "uid: hnelson", 
+    "userPassword: secret", 
+    "cn: Horatio Nelson", 
+    "sn: Nelson" 
     }
 )
-public class SaslBindIT
+@CreateDS( allowAnonAccess=true, name="SaslBindIT-class",
+    partitions =
+        {
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=example,dc=com",
+                contextEntry = @ContextEntry( 
+                    entryLdif =
+                        "dn: dc=example,dc=com\n" +
+                        "dc: example\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n" ),
+                indexes = 
+                {
+                    @CreateIndex( attribute = "objectClass" ),
+                    @CreateIndex( attribute = "dc" ),
+                    @CreateIndex( attribute = "ou" )
+                } )
+        })
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" )
+    })
+public class SaslBindIT extends AbstractLdapTestUnit
 {
-    public static LdapServer ldapServer;
     public BogusNtlmProvider provider = new BogusNtlmProvider();
 
      
-     public static class Factory implements LdapServerFactory
-     {
-         public LdapServer newInstance() throws Exception
-         {
-             DirectoryService service = new DefaultDirectoryService();
-             IntegrationUtils.doDelete( service.getWorkingDirectory() );
-             service.getChangeLog().setEnabled( true );
-             service.setAllowAnonymousAccess( false );
-             service.setShutdownHookEnabled( false );
+    @Before
+    public void setupNewNtlmProvider() throws Exception
+    {
+        ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
 
-             Set<Partition> partitions = new HashSet<Partition>();
-             JdbmPartition partition = new JdbmPartition();
-             partition.setId( "example" );
-             partition.setSuffix( "dc=example,dc=com" );
+        // Setup SASL Mechanisms
+        Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String,MechanismHandler>();
+        mechanismHandlerMap.put( SupportedSaslMechanisms.PLAIN, new PlainMechanismHandler() );
 
-             Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
-             indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "ou" ) );
-             indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "dc" ) );
-             indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "objectClass" ) );
-             partition.setIndexedAttributes( indexedAttrs );
+        CramMd5MechanismHandler cramMd5MechanismHandler = new CramMd5MechanismHandler();
+        mechanismHandlerMap.put( SupportedSaslMechanisms.CRAM_MD5, cramMd5MechanismHandler );
 
-             partitions.add( partition );
-             service.setPartitions( partitions );
+        DigestMd5MechanismHandler digestMd5MechanismHandler = new DigestMd5MechanismHandler();
+        mechanismHandlerMap.put( SupportedSaslMechanisms.DIGEST_MD5, digestMd5MechanismHandler );
 
-             // change the working directory to something that is unique
-             // on the system and somewhere either under target directory
-             // or somewhere in a temp area of the machine.
+        GssapiMechanismHandler gssapiMechanismHandler = new GssapiMechanismHandler();
+        mechanismHandlerMap.put( SupportedSaslMechanisms.GSSAPI, gssapiMechanismHandler );
 
-             LdapServer ldapServer = new LdapServer();
-             int port = AvailablePortFinder.getNextAvailable( 1024 );
-             ldapServer.setTransports( new TcpTransport( port ) );
-             ldapServer.setDirectoryService( service );
-             ldapServer.setAllowAnonymousAccess( false );
-             ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
+        NtlmMechanismHandler ntlmMechanismHandler = new NtlmMechanismHandler();
+        mechanismHandlerMap.put( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
+        mechanismHandlerMap.put( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
 
-             // Setup SASL Mechanisms
-             
-             Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String,MechanismHandler>();
-             mechanismHandlerMap.put( SupportedSaslMechanisms.PLAIN, new PlainMechanismHandler() );
+        ldapServer.setSaslMechanismHandlers( mechanismHandlerMap );
+        ldapServer.setSaslHost( "localhost" );
 
-             CramMd5MechanismHandler cramMd5MechanismHandler = new CramMd5MechanismHandler();
-             mechanismHandlerMap.put( SupportedSaslMechanisms.CRAM_MD5, cramMd5MechanismHandler );
-
-             DigestMd5MechanismHandler digestMd5MechanismHandler = new DigestMd5MechanismHandler();
-             mechanismHandlerMap.put( SupportedSaslMechanisms.DIGEST_MD5, digestMd5MechanismHandler );
-
-             GssapiMechanismHandler gssapiMechanismHandler = new GssapiMechanismHandler();
-             mechanismHandlerMap.put( SupportedSaslMechanisms.GSSAPI, gssapiMechanismHandler );
-
-             NtlmMechanismHandler ntlmMechanismHandler = new NtlmMechanismHandler();
-             mechanismHandlerMap.put( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
-             mechanismHandlerMap.put( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
-
-             ldapServer.setSaslMechanismHandlers( mechanismHandlerMap );
-             ldapServer.setSaslHost( "localhost" );
-             
-             return ldapServer;
-         }
-     }
-     
-     
-     @Before
-     public void setupNewNtlmProvider()
-     {
-         provider = new BogusNtlmProvider();
-         NtlmMechanismHandler handler = ( NtlmMechanismHandler ) 
-             ldapServer.getSaslMechanismHandlers().get( SupportedSaslMechanisms.NTLM );
-         handler.setNtlmProvider( provider );
-     }
+        provider = new BogusNtlmProvider();
+        NtlmMechanismHandler handler = ( NtlmMechanismHandler ) 
+            ldapServer.getSaslMechanismHandlers().get( SupportedSaslMechanisms.NTLM );
+        handler.setNtlmProvider( provider );
+    }
      
 
      /**
