@@ -27,11 +27,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.File;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -42,32 +37,14 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.DirectoryServiceFactory;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.core.integ.annotations.Factory;
-import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.core.partition.ldif.LdifPartition;
-import org.apache.directory.server.core.schema.SchemaPartition;
-import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.server.core.annotations.ContextEntry;
+import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.annotations.CreateIndex;
+import org.apache.directory.server.core.annotations.CreatePartition;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.loader.ldif.JarLdifSchemaLoader;
-import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
-import org.apache.directory.shared.ldap.util.ExceptionUtils;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -78,117 +55,32 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith(CiRunner.class)
-@CleanupLevel(Level.CLASS)
-@Factory(MixedCaseITest.MyFactory.class)
-public class MixedCaseITest
+@RunWith(FrameworkRunner.class)
+@CreateDS(name = "MixedCaseITest-class",
+    partitions =
+        {
+            @CreatePartition(
+                name = "apache",
+                suffix = "dc=Apache,dc=Org",
+                contextEntry = @ContextEntry( 
+                    entryLdif =
+                        "dn: dc=Apache,dc=Org\n" +
+                        "dc: Apache\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n" ),
+                indexes = 
+                {
+                    @CreateIndex( attribute = "objectClass" ),
+                    @CreateIndex( attribute = "ou" ),
+                    @CreateIndex( attribute = "uid" )
+                } )
+        } )
+public class MixedCaseITest extends AbstractLdapTestUnit
 {
-    public static DirectoryService service;
 
     private static final String SUFFIX_DN = "dc=Apache,dc=Org";
 
-    public static class MyFactory implements DirectoryServiceFactory
-    {
-        public DirectoryService newInstance() throws Exception
-        {
-            String workingDirectory = System.getProperty( "workingDirectory" );
-
-            if ( workingDirectory == null )
-            {
-                String path = DirectoryServiceFactory.class.getResource( "" ).getPath();
-                int targetPos = path.indexOf( "target" );
-                workingDirectory = path.substring( 0, targetPos + 6 ) + "/server-work";
-            }
-
-            service = new DefaultDirectoryService();
-            service.setWorkingDirectory( new File( workingDirectory ) );
-
-            return service;
-        }
-
-
-        public void init() throws Exception
-        {
-            SchemaPartition schemaPartition = service.getSchemaService().getSchemaPartition();
-
-            // Init the LdifPartition
-            LdifPartition ldifPartition = new LdifPartition();
-
-            String workingDirectory = service.getWorkingDirectory().getPath();
-
-            ldifPartition.setWorkingDirectory( workingDirectory + "/schema" );
-
-            // Extract the schema on disk (a brand new one) and load the registries
-            SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
-
-            schemaPartition.setWrappedPartition( ldifPartition );
-
-            JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
-
-            SchemaManager schemaManager = new DefaultSchemaManager( loader );
-            service.setSchemaManager( schemaManager );
-
-            schemaManager.loadAllEnabled();
-
-            List<Throwable> errors = schemaManager.getErrors();
-
-            if ( errors.size() != 0 )
-            {
-                fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
-            }
-
-            schemaPartition.setSchemaManager( schemaManager );
-
-            extractor.extractOrCopy();
-
-            service.getChangeLog().setEnabled( true );
-
-            // change the working directory to something that is unique
-            // on the system and somewhere either under target directory
-            // or somewhere in a temp area of the machine.
-
-            // Inject the System Partition
-            Partition systemPartition = new JdbmPartition();
-            systemPartition.setId( "system" );
-            ( ( JdbmPartition ) systemPartition ).setCacheSize( 500 );
-            systemPartition.setSuffix( ServerDNConstants.SYSTEM_DN );
-            systemPartition.setSchemaManager( schemaManager );
-            ( ( JdbmPartition ) systemPartition ).setPartitionDir( new File( workingDirectory, "system" ) );
-
-            // Add objectClass attribute for the system partition
-            Set<Index<?, ServerEntry>> indexedAttrs = new HashSet<Index<?, ServerEntry>>();
-            indexedAttrs.add( new JdbmIndex<Object, ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
-            ( ( JdbmPartition ) systemPartition ).setIndexedAttributes( indexedAttrs );
-
-            service.setSystemPartition( systemPartition );
-
-            JdbmPartition partition = new JdbmPartition();
-            partition.setId( "apache" );
-            partition.setSuffix( SUFFIX_DN );
-            partition.setPartitionDir( new File( workingDirectory, "apache" ) );
-
-            HashSet<Index<?, ServerEntry>> indexedAttributes = new HashSet<Index<?, ServerEntry>>();
-            indexedAttributes.add( new JdbmIndex<String, ServerEntry>( "objectClass" ) );
-            indexedAttributes.add( new JdbmIndex<String, ServerEntry>( "ou" ) );
-            indexedAttributes.add( new JdbmIndex<String, ServerEntry>( "uid" ) );
-            partition.setIndexedAttributes( indexedAttributes );
-
-            service.addPartition( partition );
-        }
-    }
-
-
-    @Before
-    public void setUp() throws Exception
-    {
-        LdapDN dn = new LdapDN( "dc=Apache,dc=Org" );
-        ServerEntry entry = service.newEntry( dn );
-        entry.add( "objectClass", "top", "domain", "extensibleObject" );
-        entry.add( "dc", "Apache" );
-        service.getAdminSession().add( entry );
-    }
-
-
+    
     @Test
     public void testSearch() throws Exception
     {

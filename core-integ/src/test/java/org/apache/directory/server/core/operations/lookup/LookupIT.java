@@ -23,12 +23,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.Test;
@@ -41,8 +39,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-@CleanupLevel ( Level.CLASS )
+@RunWith ( FrameworkRunner.class )
 @ApplyLdifs( {
     // Entry # 1
     "dn: cn=test,ou=system",
@@ -50,11 +47,8 @@ import org.junit.runner.RunWith;
     "cn: test",
     "sn: sn_test" 
 })
-public class LookupIT
+public class LookupIT extends AbstractLdapTestUnit
 {
-    /** The directory service */
-    public static DirectoryService service;
-
 
     /**
      * Test a lookup( DN, "*") operation

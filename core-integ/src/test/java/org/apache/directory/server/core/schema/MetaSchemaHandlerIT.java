@@ -35,12 +35,8 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;

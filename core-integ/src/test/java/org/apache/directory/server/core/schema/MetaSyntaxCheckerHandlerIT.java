@@ -38,11 +38,7 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;

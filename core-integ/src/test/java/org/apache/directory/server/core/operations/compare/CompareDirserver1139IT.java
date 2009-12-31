@@ -35,10 +35,8 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Before;
@@ -52,11 +50,9 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-@CleanupLevel ( Level.CLASS )
-public class CompareDirserver1139IT
+@RunWith ( FrameworkRunner.class )
+public class CompareDirserver1139IT extends AbstractLdapTestUnit
 {
-    public static DirectoryService service;
     
     /**
      * Activate the NIS and KRB5KDC schemas

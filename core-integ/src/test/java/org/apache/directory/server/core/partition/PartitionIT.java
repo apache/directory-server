@@ -25,37 +25,19 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.DirectoryServiceFactory;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.Factory;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.core.partition.ldif.LdifPartition;
-import org.apache.directory.server.core.schema.SchemaPartition;
-import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.loader.ldif.JarLdifSchemaLoader;
-import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
-import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.directory.server.core.annotations.ContextEntry;
+import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.annotations.CreateIndex;
+import org.apache.directory.server.core.annotations.CreatePartition;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -68,115 +50,50 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith(CiRunner.class)
-@Factory(PartitionIT.Factory.class)
-@ApplyLdifs(
-    { "dn: dc=foo,dc=com", "objectClass: top", "objectClass: domain", "dc: foo",
-
-    "dn: dc=bar,dc=com", "objectClass: top", "objectClass: domain", "dc: bar" })
-public final class PartitionIT
+@RunWith(FrameworkRunner.class)
+/*
+ * Creates a DirectoryService configured with two separate dc=com based 
+ * domains to test multiple partitions.
+ */
+@CreateDS( name = "PartitionIT-class",
+    partitions =
+    {
+        @CreatePartition(
+            name = "foo",
+            suffix = "dc=foo,dc=com",
+            contextEntry = @ContextEntry( 
+                entryLdif =
+                    "dn: dc=foo,dc=com\n" +
+                    "dc: foo\n" +
+                    "objectClass: top\n" +
+                    "objectClass: domain\n\n" ),
+            indexes = 
+            {
+                @CreateIndex( attribute = "objectClass" ),
+                @CreateIndex( attribute = "dc" ),
+                @CreateIndex( attribute = "ou" )
+            } ),
+            @CreatePartition(
+                name = "bar",
+                suffix = "dc=bar,dc=com",
+                contextEntry = @ContextEntry( 
+                    entryLdif =
+                        "dn: dc=bar,dc=com\n" +
+                        "dc: bar\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n" ),
+                indexes = 
+                {
+                    @CreateIndex( attribute = "objectClass" ),
+                    @CreateIndex( attribute = "dc" ),
+                    @CreateIndex( attribute = "ou" )
+                } )
+    } )
+public final class PartitionIT extends AbstractLdapTestUnit
 {
     private static final Logger LOG = LoggerFactory.getLogger( PartitionIT.class );
-    public static DirectoryService service;
 
-    /**
-     * Creates a DirectoryService configured with two separate dc=com based 
-     * domains to test multiple partitions.
-     */
-    public static class Factory implements DirectoryServiceFactory
-    {
-        public DirectoryService newInstance() throws Exception
-        {
-            String workingDirectory = System.getProperty( "workingDirectory" );
-
-            if ( workingDirectory == null )
-            {
-                String path = DirectoryServiceFactory.class.getResource( "" ).getPath();
-                int targetPos = path.indexOf( "target" );
-                workingDirectory = path.substring( 0, targetPos + 6 ) + "/server-work";
-            }
-
-            service = new DefaultDirectoryService();
-            service.setWorkingDirectory( new File( workingDirectory ) );
-
-            return service;
-        }
-
-
-        public void init() throws Exception
-        {
-            SchemaPartition schemaPartition = service.getSchemaService().getSchemaPartition();
-
-            // Init the LdifPartition
-            LdifPartition ldifPartition = new LdifPartition();
-
-            String workingDirectory = service.getWorkingDirectory().getPath();
-
-            ldifPartition.setWorkingDirectory( workingDirectory + "/schema" );
-
-            // Extract the schema on disk (a brand new one) and load the registries
-            File schemaRepository = new File( workingDirectory, "schema" );
-            SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
-
-            schemaPartition.setWrappedPartition( ldifPartition );
-
-            JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
-
-            SchemaManager schemaManager = new DefaultSchemaManager( loader );
-            service.setSchemaManager( schemaManager );
-
-            schemaManager.loadAllEnabled();
-
-            List<Throwable> errors = schemaManager.getErrors();
-
-            if ( errors.size() != 0 )
-            {
-                fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
-            }
-
-            schemaPartition.setSchemaManager( schemaManager );
-
-            extractor.extractOrCopy();
-
-            service.getChangeLog().setEnabled( true );
-
-            // change the working directory to something that is unique
-            // on the system and somewhere either under target directory
-            // or somewhere in a temp area of the machine.
-
-            // Inject the System Partition
-            Partition systemPartition = new JdbmPartition();
-            systemPartition.setId( "system" );
-            ( ( JdbmPartition ) systemPartition ).setCacheSize( 500 );
-            systemPartition.setSuffix( ServerDNConstants.SYSTEM_DN );
-            systemPartition.setSchemaManager( schemaManager );
-            ( ( JdbmPartition ) systemPartition ).setPartitionDir( new File( workingDirectory, "system" ) );
-
-            // Add objectClass attribute for the system partition
-            Set<Index<?, ServerEntry>> indexedAttrs = new HashSet<Index<?, ServerEntry>>();
-            indexedAttrs.add( new JdbmIndex<Object, ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
-            ( ( JdbmPartition ) systemPartition ).setIndexedAttributes( indexedAttrs );
-
-            service.setSystemPartition( systemPartition );
-            schemaPartition.setSchemaManager( schemaManager );
-
-            Partition foo = new JdbmPartition();
-            foo.setId( "foo" );
-            foo.setSuffix( "dc=foo,dc=com" );
-            foo.setSchemaManager( schemaManager );
-            ( ( JdbmPartition ) foo ).setPartitionDir( new File( workingDirectory, "foo" ) );
-            service.addPartition( foo );
-
-            Partition bar = new JdbmPartition();
-            bar.setId( "bar" );
-            bar.setSuffix( "dc=bar,dc=com" );
-            bar.setSchemaManager( schemaManager );
-            ( ( JdbmPartition ) bar ).setPartitionDir( new File( workingDirectory, "bar" ) );
-            service.addPartition( bar );
-        }
-    }
-
-
+    
     /**
      * Test case to weed out issue in DIRSERVER-1118.
      *

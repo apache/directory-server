@@ -37,9 +37,9 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.NoSuchAttributeException;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
@@ -55,7 +55,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 770988 $
  */
-@RunWith ( CiRunner.class )
+@RunWith ( FrameworkRunner.class )
 @ApplyLdifs(
     {
         "dn: m-oid=2.2.0, ou=attributeTypes, cn=apachemeta, ou=schema",
@@ -136,12 +136,10 @@ import org.junit.runner.RunWith;
         "manager: cn=Heather Nova, ou=system"
     }
 )
-public class ModifyAddIT
+public class ModifyAddIT extends AbstractLdapTestUnit
 {
     private static final String PERSON_DESCRIPTION = "an American singer-songwriter";
     private static final String RDN_HEATHER_NOVA = "cn=Heather Nova";
-
-    public static DirectoryService service;
 
     
     /**
