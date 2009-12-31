@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
@@ -197,11 +198,45 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // Add the UUID and the entryCSN. The UUID is stored as a byte[] representation of 
         // its String value
         // @TODO : If we are using replication, those four OAs may be already present.
-        // We have to deal with this as soon as we have the replication working again.
+        // We have to deal with this as soon as we have the replication working again
+        
+        // Check that we don't have an entryUUID AT in the incoming entry, as it's a NO-USER-MODIFICATION AT
+        // Of course, we will allow if for replication (see above @TODO)
+        boolean isAdmin = opContext.getSession().getAuthenticatedPrincipal().getName().equals( 
+            ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+        
+        if ( entry.containsAttribute( SchemaConstants.ENTRY_UUID_AT ) )
+        {
+            if ( !isAdmin )
+            {
+                // Wrong !
+                String message = "The " + SchemaConstants.ENTRY_UUID_AT + " operational attribute cannot be modified by a user";
+                LOG.error( message );
+                throw new LdapSchemaViolationException( message, ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
+            }
+        }
+        else
+        {
+            entry.put( SchemaConstants.ENTRY_UUID_AT, SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
+        }
+            
+        if ( entry.containsAttribute( SchemaConstants.ENTRY_CSN_AT ) )
+        {
+            if ( !isAdmin )
+            {
+                // Wrong !
+                String message = "The " + SchemaConstants.ENTRY_CSN_AT + " operational attribute cannot be modified by a user";
+                LOG.error( message );
+                throw new LdapSchemaViolationException( message, ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
+            }
+        }
+        else
+        {
+            entry.put( SchemaConstants.ENTRY_CSN_AT, service.getCSN().toString() );
+        }
+        
         entry.put( SchemaConstants.CREATORS_NAME_AT, principal );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-        entry.put( SchemaConstants.ENTRY_UUID_AT, SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
-        entry.put( SchemaConstants.ENTRY_CSN_AT, service.getCSN().toString() );
         
         nextInterceptor.add( opContext );
     }

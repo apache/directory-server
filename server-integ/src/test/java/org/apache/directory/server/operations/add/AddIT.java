@@ -1208,6 +1208,24 @@ public class AddIT extends AbstractLdapTestUnit
     }
     
     
+    private UUID getUUIDFromBytes( byte[] data ) 
+    {
+        long msb = 0;
+        long lsb = 0;
+        for (int i=0; i<8; i++)
+        {
+            msb = (msb << 8) | (data[i] & 0xff);
+        }
+        
+        for (int i=8; i<16; i++)
+        {
+            lsb = (lsb << 8) | (data[i] & 0xff);
+        }
+        
+        return new UUID( msb, lsb );
+    }
+
+    
     @Test
     public void testAddEntryUUIDAndCSNAttributes() throws Exception
     {
@@ -1235,13 +1253,13 @@ public class AddIT extends AbstractLdapTestUnit
         con.add( kate );
 
         // Analyze entry and description attribute
-        LDAPEntry addedEntry = con.read( dn );
+        LDAPEntry addedEntry = con.read( dn, new String[]{ "*", "+"} );
         assertNotNull( addedEntry );
-        //FIXME the LDAPConnection is not able to read the ENTRY_UUID_AT
+
         LDAPAttribute attr = addedEntry.getAttribute( SchemaConstants.ENTRY_UUID_AT );
         assertNotNull( attr );
-        System.out.println( attr.getByteValueArray()[0] );
-        assertEquals( uuid, UUID.nameUUIDFromBytes( attr.getByteValueArray()[0] ) );
+        
+        assertEquals( uuid, getUUIDFromBytes( attr.getByteValueArray()[0] ) );
 
         attr = addedEntry.getAttribute( SchemaConstants.ENTRY_CSN_AT );
         assertNotNull( attr );
