@@ -79,6 +79,7 @@ import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -133,7 +134,6 @@ import org.slf4j.LoggerFactory;
     {
         @CreateTransport( protocol = "LDAP" )
     })
-    
 @ApplyLdifs( {
     // Entry # 0
     "dn: cn=The Person,ou=system",
@@ -166,7 +166,7 @@ import org.slf4j.LoggerFactory;
     "objectClass: referral",
     "objectClass: top",
     "uid: akarasuluref",
-    "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system", 
+    "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system",
     "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system",
     "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system"
     }
@@ -179,7 +179,6 @@ public class AddIT extends AbstractLdapTestUnit
     private static final String BASE = "ou=system";
     private static final String BASE_EXAMPLE_COM = "dc=example,dc=com";
     private static final String BASE_DIRECTORY_APACHE_ORG = "dc=directory,dc=apache,dc=org";
-
     
     /**
      * This is the original defect as in JIRA DIREVE-216.
@@ -192,11 +191,9 @@ public class AddIT extends AbstractLdapTestUnit
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // modify object classes, add two more
-        Attributes attributes = new BasicAttributes( true );
-        Attribute ocls = new BasicAttribute( "objectClass" );
-        ocls.add( "organizationalPerson" );
-        ocls.add( "inetOrgPerson" );
-        attributes.put( ocls );
+        Attributes attributes = AttributeUtils.createAttributes( 
+            "objectClass: organizationalPerson",
+            "objectClass: inetOrgPerson" );
 
         DirContext person = ( DirContext ) ctx.lookup( RDN );
         person.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, attributes );
