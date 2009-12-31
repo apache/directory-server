@@ -300,10 +300,37 @@ public class DSAnnotationProcessor
         {
             String[] ldifs = applyLdifs.value();
 
-            for ( String s : ldifs )
+            String DN_START = "dn:";
+            
+            StringBuilder sb = new StringBuilder();
+
+            for ( int i=0; i< ldifs.length; )
             {
-                LOG.debug( "Applying {} to {}", ldifs, desc.getDisplayName() );
-                injectEntries( service, s );
+                String s = ldifs[i++].trim();
+                if( s.startsWith( DN_START ) )
+                {
+                    sb.append( s ).append( '\n' );
+
+                    // read the rest of lines till we encounter DN again
+                    while( i < ldifs.length )
+                    {
+                        s = ldifs[i++];
+                        if( !s.startsWith( DN_START ) )
+                        {
+                            sb.append( s ).append( '\n' );
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    
+                    LOG.debug( "Applying {} to {}", sb, desc.getDisplayName() );
+                    injectEntries( service, sb.toString() );
+                    sb.setLength( 0 );
+                    
+                    i--; // step up a line
+                }
             }
         }
     }
