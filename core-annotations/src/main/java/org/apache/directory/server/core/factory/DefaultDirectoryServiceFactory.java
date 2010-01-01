@@ -97,9 +97,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
 
         if ( workingDirectory == null )
         {
-            String path = DefaultDirectoryServiceFactory.class.getResource( "" ).getPath();
-            int targetPos = path.indexOf( "target" );
-            workingDirectory = path.substring( 0, targetPos + 6 ) + "/server-work-" + name;
+            workingDirectory = System.getProperty( "java.io.tmpdir" ) + "/server-work-" + name;
         }
         
         directoryService.setWorkingDirectory( new File( workingDirectory ) );
