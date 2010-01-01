@@ -472,6 +472,7 @@ public class LdifPartition extends BTreePartition
             {
                 LOG.debug( "parsing ldif file {}", entry.getName() );
                 List<LdifEntry> ldifEntries = ldifReader.parseLdifFile( entry.getAbsolutePath() );
+                ldifReader.close();
                 
                 if ( ( ldifEntries != null ) && !ldifEntries.isEmpty() )
                 {
@@ -496,7 +497,6 @@ public class LdifPartition extends BTreePartition
                 }
             }
             
-            ldifReader.close();
         }
         else
         {
