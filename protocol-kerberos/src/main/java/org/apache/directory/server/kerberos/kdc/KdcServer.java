@@ -162,8 +162,6 @@ public class KdcServer extends DirectoryBackedService
         super.setServiceName( DEFAULT_NAME );
         super.setServiceId( DEFAULT_PID );
         super.setSearchBaseDn( ServerDNConstants.USER_EXAMPLE_COM_DN );
-        setTransports( new TcpTransport( DEFAULT_IP_PORT ), new UdpTransport( DEFAULT_IP_PORT ) );
-        
 
         prepareEncryptionTypes();
     }
