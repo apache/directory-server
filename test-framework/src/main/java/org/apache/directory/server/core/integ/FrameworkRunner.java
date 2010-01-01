@@ -95,53 +95,8 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             classDS = DSAnnotationProcessor.getDirectoryService( getDescription() );
             long revision = 0L;
             DirectoryService directoryService = null;
-
             
-            // check first if it is a LdapServerBuilder
-            // then use the DS in LdapServer alone
-            if( classLdapServerBuilder != null )
-            {
-                if( classDS == null )
-                {
-                    throw new IllegalStateException( "missing CreateDS annotation on class " + getDescription().getClassName() );
-                }
-
-                directoryService = classDS;
-                // Then tag for reversion and apply the class LDIFs
-                revision = directoryService.getChangeLog().getCurrentRevision();
-                LOG.debug( "Create revision {}", revision );
-
-                DSAnnotationProcessor.applyLdifs( getDescription(), classDS );
-                int minPort = 0;
-                
-                if ( suite != null )
-                {
-                    LdapServer suiteServer = suite.getLdapServer();
-                    
-                    for ( Transport transport : suiteServer.getTransports() )
-                    {
-                        if ( minPort <= transport.getPort() )
-                        {
-                            minPort = transport.getPort();
-                        }
-                    }
-                }
-                
-                classLdapServer = ServerAnnotationProcessor.getLdapServer( getDescription(), classDS, minPort + 1 );
-            }
-            else if( suite != null && suite.getLdapServer() != null )
-            {
-                classLdapServer = suite.getLdapServer();
-                classDS = classLdapServer.getDirectoryService();
-                
-                directoryService = classDS;
-                // Then tag for reversion and apply the class LDIFs
-                revision = directoryService.getChangeLog().getCurrentRevision();
-                LOG.debug( "Create revision {}", revision );
-
-                DSAnnotationProcessor.applyLdifs( getDescription(), classDS );
-            }
-            else if ( classDS != null )
+            if ( classDS != null )
             {
                 // We have a class DS defined, update it
                 directoryService = classDS;
@@ -206,41 +161,60 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 }
             }
 
+            // check if it has a LdapServerBuilder
+            // then use the DS created above
+            if( classLdapServerBuilder != null )
+            {
+                int minPort = 0;
+                
+                if ( suite != null )
+                {
+                    LdapServer suiteServer = suite.getLdapServer();
+                    
+                    for ( Transport transport : suiteServer.getTransports() )
+                    {
+                        if ( minPort <= transport.getPort() )
+                        {
+                            minPort = transport.getPort();
+                        }
+                    }
+                }
+                
+                classLdapServer = ServerAnnotationProcessor.getLdapServer( getDescription(), directoryService, minPort + 1 );
+            }
+            else if( suite != null && suite.getLdapServer() != null )
+            {
+                classLdapServer = suite.getLdapServer();
+                directoryService = classLdapServer.getDirectoryService();
+                // no need to inject the LDIF data that would have been done above
+                // if ApplyLdifs is present
+            }
+
             // Now run the class
             super.run( notifier );
 
-            boolean stopped = false;
-            
             if( classLdapServer != null )
             {
                 if( suite == null || suite.getLdapServer() != classLdapServer )
                 {
                     classLdapServer.stop();
-                    LOG.debug( "Shuting down DS for {}", classDS.getInstanceId() );
-                    classDS.shutdown();
-                    FileUtils.deleteDirectory( classDS.getWorkingDirectory() );
-                    stopped = true;
                 }
             }
+            
             // cleanup classService if it is not the same as suite service or
             // it is not null (this second case happens in the absence of a suite)
-            else if ( classDS != null )
+            if ( classDS != null )
             {
                 LOG.debug( "Shuting down DS for {}", classDS.getInstanceId() );
                 classDS.shutdown();
                 FileUtils.deleteDirectory( classDS.getWorkingDirectory() );
-                stopped = true;
             }
-            
-            if( !stopped )
+            else if ( revision < directoryService.getChangeLog().getCurrentRevision() )
             {
                 // Revert the ldifs
-                if ( revision < directoryService.getChangeLog().getCurrentRevision() )
-                {
-                    LOG.debug( "Revert revision {}", revision );
-                    // We use a class or suite DS, just revert the current test's modifications
-                    directoryService.revert( revision );
-                }
+                LOG.debug( "Revert revision {}", revision );
+                // We use a class or suite DS, just revert the current test's modifications
+                directoryService.revert( revision );
             }
         }
         catch ( Exception e )
@@ -288,9 +262,11 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             // Check if this method has a dedicated DSBuilder
             DirectoryService methodDS = DSAnnotationProcessor.getDirectoryService( methodDescription );
 
+            // we don't support method level LdapServer so
+            // we check for the presence of Class level LdapServer first 
             if( classLdapServer != null )
             {
-                directoryService = classDS;
+                directoryService = classLdapServer.getDirectoryService();
                 
                 revision = directoryService.getChangeLog().getCurrentRevision();
                 LOG.debug( "Create revision {}", revision );
@@ -340,41 +316,24 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             if( classLdapServer != null )
             {
                 field = getTestClass().getJavaClass().getField( DIRECTORY_SERVICE_FIELD_NAME );
-                field.set( getTestClass().getJavaClass(), classDS );
+                field.set( getTestClass().getJavaClass(), classLdapServer.getDirectoryService() );
                 
                 field = getTestClass().getJavaClass().getField( LDAP_SERVER_FIELD_NAME );
                 field.set( getTestClass().getJavaClass(), classLdapServer );
             }
-//            // Last not least, see if we have to start a server
-//            else if ( suite != null )
-//            {
-//                // If we have a LdapServer instance, feed the associated field too
-//                field = getTestClass().getJavaClass().getField( LDAP_SERVER_FIELD_NAME );
-//                field.set( getTestClass().getJavaClass(), suite.getLdapServer() );
-//                
-//                /*
-//                CreateLdapServer ldapServerBuilder = suite.getLdapServerBuilder();
-//                
-//                DefaultLdapServerFactory ldapServerFactory = (DefaultLdapServerFactory)ldapServerBuilder.factory().newInstance();
-//                ldapServerFactory.setDirectoryService( directoryService );
-//                */
-//            }
             
 
             // Run the test
             super.runChild( method, notifier );
 
-            boolean stopped = false;
             // Cleanup the methodDS if it has been created
             if ( methodDS != null )
             {
                 LOG.debug( "Shuting down DS for {}", methodDS.getInstanceId() );
                 methodDS.shutdown();
                 FileUtils.deleteDirectory( methodDS.getWorkingDirectory() );
-                stopped = true;
             }
-            
-            if ( ( !stopped ) && ( revision < directoryService.getChangeLog().getCurrentRevision() ) )
+            else if ( ( revision < directoryService.getChangeLog().getCurrentRevision() ) )
             {
                 // We use a class or suite DS, just revert the current test's modifications
                 directoryService.revert( revision );
