@@ -20,12 +20,10 @@
 
 package org.apache.directory.server.factory;
 
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateTransport;
-import org.apache.directory.server.annotations.TransportType;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
@@ -33,7 +31,7 @@ import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.junit.Test;
 
 /**
- * TODO CreateKdcServerAnnotationTest.
+ * Test the Kerberos Server annotation processing
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -44,9 +42,10 @@ import org.junit.Test;
                  maxTicketLifetime = 1000,
                  maxRenewableLifetime = 2000,
                  transports = 
-                     { @CreateTransport(protocol = "TCP"),
-                       @CreateTransport(protocol = "UDP")
-                     })
+                 { 
+                     @CreateTransport(protocol = "TCP"),
+                     @CreateTransport(protocol = "UDP")
+                 })
 public class CreateKdcServerAnnotationTest
 {
     @Test
@@ -65,5 +64,7 @@ public class CreateKdcServerAnnotationTest
         assertEquals( "krbtgt/apache.org@apache.org", server.getServicePrincipal().getName() );
         assertEquals( 1000, server.getMaximumTicketLifetime() );
         assertEquals( 2000, server.getMaximumRenewableLifetime() );
+        
+        server.stop();
     }
 }
