@@ -37,6 +37,8 @@ import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.PagedResultsResponseControl;
 
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
@@ -108,6 +110,11 @@ import org.junit.runner.RunWith;
  * @version $Rev: 545029 $
  */
 @RunWith ( FrameworkRunner.class )
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" )
+    })
 @ApplyLdifs( {
     // Add 10 new entries
     "dn: dc=users,ou=system", 

@@ -46,6 +46,8 @@ import javax.naming.ldap.Control;
 import javax.naming.ldap.HasControls;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.event.RegistrationEntry;
@@ -68,6 +70,11 @@ import org.slf4j.LoggerFactory;
  * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class ) 
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" )
+    })
 @ApplyLdifs( {
     // Entry # 2
     "dn: cn=Tori Amos,ou=system",

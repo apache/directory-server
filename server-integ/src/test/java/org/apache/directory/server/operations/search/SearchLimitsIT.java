@@ -35,6 +35,8 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilter;
@@ -61,6 +63,11 @@ import org.junit.runner.RunWith;
  * @version $Rev$, $Date$
  */
 @RunWith ( FrameworkRunner.class ) 
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" )
+    })
 @ApplyLdifs( {
     "dn: ou=actors,ou=system",
     "objectClass: top",

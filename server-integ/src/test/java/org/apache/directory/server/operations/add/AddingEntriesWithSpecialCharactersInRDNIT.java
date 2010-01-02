@@ -32,6 +32,8 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
@@ -48,6 +50,11 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith( FrameworkRunner.class )
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" )
+    })
 public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestUnit
 {
     private Attributes getPersonAttributes( String sn, String cn ) throws NamingException

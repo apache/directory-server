@@ -29,6 +29,8 @@ import javax.naming.ldap.ExtendedRequest;
 import javax.naming.ldap.ExtendedResponse;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Test;
@@ -42,6 +44,11 @@ import org.junit.runner.RunWith;
  * @version $Rev: 545029 $
  */
 @RunWith ( FrameworkRunner.class ) 
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" )
+    })
 public class ExtendedIT extends AbstractLdapTestUnit
 {
     /**

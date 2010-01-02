@@ -43,6 +43,8 @@ import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.ManageReferralControl;
 
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -61,6 +63,11 @@ import org.junit.runner.RunWith;
  * @version $Rev: 545029 $
  */
 @RunWith ( FrameworkRunner.class )
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" )
+    })
 @ApplyLdifs( {
     // Add new ref for ou=RemoteUsers
     "dn: ou=RemoteUsers,ou=system",
