@@ -40,6 +40,8 @@ import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPResponse;
 import netscape.ldap.LDAPResponseListener;
 
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
@@ -73,6 +75,12 @@ import org.slf4j.LoggerFactory;
  * @version $Rev: $
  */
 @RunWith ( FrameworkRunner.class ) 
+//@CreateDS( name="ModifyReferralIT-class", enableChangeLog=false )
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" )
+    })
 @ApplyLdifs( {
     // Entry # 1
     "dn: uid=akarasulu,ou=users,ou=system",

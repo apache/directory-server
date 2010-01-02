@@ -29,6 +29,8 @@ import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
@@ -58,6 +60,12 @@ import org.junit.runner.RunWith;
  * @version $Rev: $
  */
 @RunWith ( FrameworkRunner.class ) 
+//@CreateDS( name="IllegalModificationIT-class", enableChangeLog=false )
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" )
+    })
 @ApplyLdifs( {
     // Entry # 1
     "dn: cn=Kate Bush,ou=system",

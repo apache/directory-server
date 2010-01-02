@@ -48,7 +48,6 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
-import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
@@ -86,7 +85,7 @@ import org.junit.runner.RunWith;
     "sn: Harry" 
     }
 )
-@CreateDS( allowAnonAccess=true, name="BindIT-class")
+//@CreateDS( allowAnonAccess=true, name="BindIT-class")
 @CreateLdapServer ( 
     transports = 
     {

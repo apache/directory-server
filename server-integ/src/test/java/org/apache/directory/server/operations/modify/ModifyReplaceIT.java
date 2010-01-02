@@ -46,7 +46,6 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
-import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
@@ -79,7 +78,7 @@ import org.junit.runner.RunWith;
  * no values (deletion) causes an error").
  */
 @RunWith ( FrameworkRunner.class ) 
-@CreateDS( name="ModifyReplaceIT-class" )
+//@CreateDS( name="ModifyReplaceIT-class" )
 @CreateLdapServer ( 
     transports = 
     {
