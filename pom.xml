@@ -360,8 +360,7 @@
     <module>protocol-shared</module>
     <module>protocol-ntp</module>
     <module>protocol-ldap</module>
-    <!-- To add when the tests will be fixed -->
-    <!--module>protocol-kerberos</module-->
+    <module>protocol-kerberos</module>
     <module>kerberos-test</module>
     <module>protocol-dhcp</module>
     <module>protocol-dns</module>
