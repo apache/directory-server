@@ -42,6 +42,7 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
@@ -57,7 +58,7 @@ import org.junit.runner.RunWith;
  * @version $Rev: 679049 $
  */
 @RunWith ( FrameworkRunner.class )
-@CreateDS( name="ModifyRdnIT-class" )
+@CreateDS( name="ModifyRdnIT-class", enableChangeLog=false )
 @CreateLdapServer ( 
     transports = 
     {
@@ -67,7 +68,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 {
     private static final String BASE = "ou=system";
 
-    
+
     /**
      * Create attributes for a person entry.
      */
@@ -611,7 +612,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     public void testModifyMultiValuedRdnVariant2() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
-        
+
         Attributes attributes = createPerson( "cn" );
         String oldRdn = getRdn( attributes, "cn" );
         String newRdn = getRdn( attributes, "cn", "sn" );
