@@ -73,5 +73,14 @@ public @interface CreateLdapServer
     String certificatePassword() default "";
     
     /** name of the classes implementing extended operations */
-    Class<?>[] extendedOpHandlers() default {};  
+    Class<?>[] extendedOpHandlers() default {};
+    
+    /** supported set of SASL mechanisms */
+    SaslMechanism[] saslMechanisms() default {};
+    
+    /** NTLM provider class, default value is a invalid class */
+    Class<?> ntlmProvider() default Object.class;
+    
+    /** The name of this host, validated during SASL negotiation. */
+    String saslHost() default "ldap.example.com";
 }

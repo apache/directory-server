@@ -20,17 +20,29 @@ package org.apache.directory.server.factory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.annotations.SaslMechanism;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmProvider;
+import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
+import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
+import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.runner.Description;
 
@@ -109,6 +121,8 @@ public class ServerAnnotationProcessor
             // Associate the DS to this LdapServer
             ldapServer.setDirectoryService( directoryService );
 
+            ldapServer.setSaslHost( createLdapServer.saslHost() );
+            
             for( Class<?> extOpClass : createLdapServer.extendedOpHandlers() )
             {
                 try
@@ -122,6 +136,36 @@ public class ServerAnnotationProcessor
                 }
             }
             
+            for( SaslMechanism saslMech : createLdapServer.saslMechanisms() )
+            {
+                try
+                {
+                    MechanismHandler handler = ( MechanismHandler ) saslMech.implClass().newInstance();
+                    ldapServer.addSaslMechanismHandler( saslMech.name(), handler );
+                }
+                catch( Exception e )
+                {
+                    throw new RuntimeException( "Failed to add the SASL mechanism with the name " + saslMech.name() + " and implementation class " + saslMech.implClass().getName(), e );
+                }
+            }
+            
+            NtlmMechanismHandler ntlmHandler = ( NtlmMechanismHandler ) ldapServer.getSaslMechanismHandlers().get( SupportedSaslMechanisms.NTLM );
+            if( ntlmHandler != null )
+            {
+                Class<?> ntlmProviderClass = createLdapServer.ntlmProvider();
+                if( ntlmProviderClass != null )
+                {
+                    try
+                    {
+                        ntlmHandler.setNtlmProvider( ( NtlmProvider ) ntlmProviderClass.newInstance() );
+                    }
+                    catch( Exception e )
+                    {
+                        throw new RuntimeException( "Failed to add NTLM provider", e );
+                    }
+                }
+            }
+        
             // Launch the server
             try
             {
