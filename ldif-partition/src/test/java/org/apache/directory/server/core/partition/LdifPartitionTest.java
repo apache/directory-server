@@ -102,7 +102,7 @@ public class LdifPartitionTest
 
         File schemaRepository = new File( workingDirectory, "schema" );
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
-        extractor.extractOrCopy();
+        extractor.extractOrCopy( true );
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
         schemaManager = new DefaultSchemaManager( loader );
 

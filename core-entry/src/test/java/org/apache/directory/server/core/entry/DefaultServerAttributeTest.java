@@ -119,7 +119,7 @@ public class DefaultServerAttributeTest
         FileUtils.deleteDirectory( schemaRepository );
     	
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
-        extractor.extractOrCopy();
+        extractor.extractOrCopy( true );
     	loader = new LdifSchemaLoader( schemaRepository );
         SchemaManager schemaManager = new DefaultSchemaManager( loader );
 
