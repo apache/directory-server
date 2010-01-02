@@ -361,7 +361,7 @@
     <module>protocol-ntp</module>
     <module>protocol-ldap</module>
     <module>protocol-kerberos</module>
-    <module>kerberos-test</module>
+    <!--module>kerberos-test</module-->
     <module>protocol-dhcp</module>
     <module>protocol-dns</module>
     <module>protocol-changepw</module>
