@@ -25,6 +25,7 @@ import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.factory.DirectoryServiceFactory;
@@ -120,8 +121,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                     if ( directoryService != null )
                     {
                         // yes : apply the class LDIFs only, and tag for reversion
-                        revision = directoryService.getChangeLog().getCurrentRevision();
-                        LOG.debug( "Create revision {}", revision );
+                        revision = getCurrentRevision( directoryService );
 
                         // apply the class LDIFs
                         DSAnnotationProcessor.applyLdifs( getDescription(), directoryService );
@@ -130,8 +130,12 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                     {
                         // No : define a default DS for the suite then
                         DirectoryServiceFactory dsf = DefaultDirectoryServiceFactory.DEFAULT;
-                        dsf.init( "default" + UUID.randomUUID().toString() );
+                        
                         directoryService = dsf.getDirectoryService();
+                        // enable CL explicitly cause we are not using DSAnnotationProcessor
+                        directoryService.getChangeLog().setEnabled( true );
+
+                        dsf.init( "default" + UUID.randomUUID().toString() );
                         
                         // Stores it into the suite
                         suite.setDirectoryService( directoryService );
@@ -140,8 +144,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                         DSAnnotationProcessor.applyLdifs( suite.getDescription(), directoryService );
                         
                         // Then tag for reversion and apply the class LDIFs
-                        revision = directoryService.getChangeLog().getCurrentRevision();
-                        LOG.debug( "Create revision {}", revision );
+                        revision = getCurrentRevision( directoryService );
                         
                         DSAnnotationProcessor.applyLdifs( getDescription(), directoryService );
                     }
@@ -150,8 +153,12 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 {
                     // No : define a default class DS then
                     DirectoryServiceFactory dsf = DefaultDirectoryServiceFactory.DEFAULT;
-                    dsf.init( "default" + UUID.randomUUID().toString() );
+                    
                     directoryService = dsf.getDirectoryService();
+                    // enable CL explicitly cause we are not using DSAnnotationProcessor
+                    directoryService.getChangeLog().setEnabled( true );
+
+                    dsf.init( "default" + UUID.randomUUID().toString() );
                     
                     // Stores the defaultDS in the classDS
                     classDS = directoryService;
@@ -209,12 +216,11 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 classDS.shutdown();
                 FileUtils.deleteDirectory( classDS.getWorkingDirectory() );
             }
-            else if ( revision < directoryService.getChangeLog().getCurrentRevision() )
+            else
             {
                 // Revert the ldifs
-                LOG.debug( "Revert revision {}", revision );
                 // We use a class or suite DS, just revert the current test's modifications
-                directoryService.revert( revision );
+                revert( directoryService, revision );
             }
         }
         catch ( Exception e )
@@ -268,8 +274,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             {
                 directoryService = classLdapServer.getDirectoryService();
                 
-                revision = directoryService.getChangeLog().getCurrentRevision();
-                LOG.debug( "Create revision {}", revision );
+                revision = getCurrentRevision( directoryService );
                 
                 DSAnnotationProcessor.applyLdifs( methodDescription, directoryService );
             }
@@ -287,8 +292,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 directoryService = classDS;
                 
                 // apply the method LDIFs, and tag for reversion
-                revision = directoryService.getChangeLog().getCurrentRevision();
-                LOG.debug( "Create revision {}", revision );
+                revision = getCurrentRevision( directoryService );
                 
                 DSAnnotationProcessor.applyLdifs( methodDescription, directoryService );
             }
@@ -297,8 +301,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 directoryService = suite.getDirectoryService();
                 
                 // apply the method LDIFs, and tag for reversion
-                revision = directoryService.getChangeLog().getCurrentRevision();
-                LOG.debug( "Create revision {}", revision );
+                revision = getCurrentRevision( directoryService );
                 
                 DSAnnotationProcessor.applyLdifs( methodDescription, directoryService );
             }
@@ -333,10 +336,10 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 methodDS.shutdown();
                 FileUtils.deleteDirectory( methodDS.getWorkingDirectory() );
             }
-            else if ( ( revision < directoryService.getChangeLog().getCurrentRevision() ) )
+            else
             {
                 // We use a class or suite DS, just revert the current test's modifications
-                directoryService.revert( revision );
+                revert( directoryService, revision );
             }
         }
         catch ( Exception e )
@@ -365,5 +368,35 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
     public FrameworkSuite getSuite()
     {
         return suite;
+    }
+    
+    
+    private long getCurrentRevision( DirectoryService dirService ) throws Exception
+    {
+        if( ( dirService != null ) && ( dirService.getChangeLog().isEnabled() ) )
+        {
+            long revision = dirService.getChangeLog().getCurrentRevision(); 
+            LOG.debug( "Create revision {}", revision );
+
+            return revision;
+        }
+        
+        return 0;
+    }
+    
+    
+    private void revert( DirectoryService dirService, long revision ) throws Exception
+    {
+        if ( dirService == null )
+        {
+            return;
+        }
+
+        ChangeLog cl = dirService.getChangeLog();
+        if ( cl.isEnabled() && ( revision < cl.getCurrentRevision() ) )
+        {
+            LOG.debug( "Revert revision {}", revision );
+            dirService.revert( revision );
+        }
     }
 }

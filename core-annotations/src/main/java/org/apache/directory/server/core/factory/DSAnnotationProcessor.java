@@ -69,6 +69,7 @@ public class DSAnnotationProcessor
             DirectoryService service = dsf.getDirectoryService();
             service.setAccessControlEnabled( dsBuilder.enableAccessControl() );
             service.setAllowAnonymousAccess( dsBuilder.allowAnonAccess() );
+            service.getChangeLog().setEnabled( dsBuilder.enableChangeLog() );
             
             dsf.init( dsBuilder.name() );
             

@@ -47,6 +47,9 @@ public @interface CreateDS
     /** flag to enable/disable anonymous access, default is false */
     boolean allowAnonAccess() default false;
     
+    /** flag to enable/disable changelog */
+    boolean enableChangeLog() default true;
+    
     /** The list of partitions to create */
     CreatePartition[] partitions() default {};
 }

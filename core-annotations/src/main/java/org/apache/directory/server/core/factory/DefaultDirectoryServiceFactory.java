@@ -140,12 +140,6 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
     }
     
     
-    private void initChangeLog()
-    {
-        directoryService.getChangeLog().setEnabled( true );
-    }
-    
-    
     private void initSystemPartition() throws Exception
     {
         // change the working directory to something that is unique
@@ -195,7 +189,6 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         
         // Init the service now
         initSchema();
-        initChangeLog();
         initSystemPartition();
         
         directoryService.startup();
