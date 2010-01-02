@@ -820,7 +820,7 @@ public class MaxImmSubFilterTest
             return false;
         }
         
-        public void setPassordHidden( boolean passwordHidden )
+        public void setPasswordHidden( boolean passwordHidden )
         {
         }
 

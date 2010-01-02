@@ -641,7 +641,7 @@ public class InterceptorChainTest
         }
         
         
-        public void setPassordHidden( boolean passwordHidden )
+        public void setPasswordHidden( boolean passwordHidden )
         {
         }
 

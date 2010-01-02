@@ -399,7 +399,7 @@ public class MockDirectoryService implements DirectoryService
         return false;
     }
     
-    public void setPassordHidden( boolean passwordHidden )
+    public void setPasswordHidden( boolean passwordHidden )
     {
     }
 

@@ -288,7 +288,7 @@ public interface DirectoryService extends ServerEntryFactory
      *
      * @param passwordHidden true to enable hide the userPassword attribute, false otherwise
      */
-    void setPassordHidden( boolean passwordHidden );
+    void setPasswordHidden( boolean passwordHidden );
 
 
     /**

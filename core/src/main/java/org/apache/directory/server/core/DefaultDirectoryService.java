@@ -1598,7 +1598,7 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * {@inheritDoc}
      */
-    public void setPassordHidden( boolean passwordHidden )
+    public void setPasswordHidden( boolean passwordHidden )
     {
         this.passwordHidden = passwordHidden;
     }
