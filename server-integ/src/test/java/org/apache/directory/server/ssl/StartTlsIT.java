@@ -56,6 +56,8 @@ import javax.naming.ldap.StartTlsResponse;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -63,6 +65,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
+import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.After;
 import org.junit.Before;
@@ -84,6 +87,14 @@ import org.slf4j.LoggerFactory;
  * @version $Rev: 639006 $
  */
 @RunWith ( FrameworkRunner.class ) 
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" ),
+        @CreateTransport( protocol = "LDAPS" )
+    },
+    extendedOpHandlers={ StartTlsHandler.class }
+    )
 public class StartTlsIT extends AbstractLdapTestUnit
 {
     private static final Logger LOG = LoggerFactory.getLogger( StartTlsIT.class );
@@ -115,7 +126,6 @@ public class StartTlsIT extends AbstractLdapTestUnit
         }
         
         ksFile = File.createTempFile( "testStore", "ks" );
-        
         CoreSession session = ldapServer.getDirectoryService().getAdminSession();
         ClonedServerEntry entry = session.lookup( new LdapDN( "uid=admin,ou=system" ), CERT_IDS );
         byte[] userCertificate = entry.get( CERT_IDS[0] ).getBytes();
