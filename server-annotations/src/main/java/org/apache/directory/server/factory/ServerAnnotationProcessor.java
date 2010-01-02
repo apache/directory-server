@@ -153,7 +153,8 @@ public class ServerAnnotationProcessor
             if( ntlmHandler != null )
             {
                 Class<?> ntlmProviderClass = createLdapServer.ntlmProvider();
-                if( ntlmProviderClass != null )
+                // default value is a invalid Object.class
+                if( ( ntlmProviderClass != null ) && ( ntlmProviderClass != Object.class ) )
                 {
                     try
                     {
