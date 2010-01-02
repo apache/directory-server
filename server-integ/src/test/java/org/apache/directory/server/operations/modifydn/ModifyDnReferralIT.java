@@ -41,7 +41,6 @@ import netscape.ldap.LDAPSearchConstraints;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
-import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -58,7 +57,6 @@ import org.slf4j.LoggerFactory;
  * @version $Rev$, $Date$
  */
 @RunWith ( FrameworkRunner.class ) 
-@CreateDS( name="ModifyDnReferralIT-class", enableChangeLog=false )
 @CreateLdapServer ( 
     transports = 
     {
