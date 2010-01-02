@@ -1,0 +1,97 @@
+// ------------------------------------------------------------------
+// Transitive dependencies of this project determined from the
+// maven pom organized by organization.
+// ------------------------------------------------------------------
+
+Apache Directory Server
+
+
+From: 'an unknown organization'
+  - AntLR Parser Generator (http://www.antlr.org/) antlr:antlr:jar:2.7.7
+    License: BSD License  (http://www.antlr.org/license.html)
+  - Legion of the Bouncy Castle Java Cryptography APIs (http://www.bouncycastle.org/java.html) bouncycastle:bcprov-jdk15:jar:140
+    License: Bouncy Castle License  (http://www.bouncycastle.org/licence.html)
+
+From: 'Apache MINA Project' (http://mina.apache.org/)
+  - Apache MINA Core (http://mina.apache.org/mina-core) org.apache.mina:mina-core:bundle:2.0.0-RC1
+    License: Apache 2.0 License  (http://www.apache.org/licenses/LICENSE-2.0)
+
+From: 'QOS.ch' (http://www.qos.ch)
+  - SLF4J API Module (http://www.slf4j.org) org.slf4j:slf4j-api:jar:1.5.6
+
+
+From: 'The Apache Software Foundation' (http://www.apache.org/)
+  - Commons Collections (http://commons.apache.org/collections/) commons-collections:commons-collections:jar:3.2.1
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Commons IO (http://commons.apache.org/io/) commons-io:commons-io:jar:1.4
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Commons Lang (http://commons.apache.org/lang/) commons-lang:commons-lang:jar:2.4
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Commons Pool (http://commons.apache.org/pool/) commons-pool:commons-pool:jar:1.5.2
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - ApacheDS Avl Partition (http://directory.apache.org/apacheds/1.5/apacheds-avl-partition) org.apache.directory.server:apacheds-avl-partition:jar:1.5.6-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - ApacheDS Core (http://directory.apache.org/apacheds/1.5/apacheds-core) org.apache.directory.server:apacheds-core:jar:1.5.6-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - apacheds-core-annotations (http://directory.apache.org/apacheds/1.5/apacheds-core-annotations) org.apache.directory.server:apacheds-core-annotations:jar:1.5.6-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - ApacheDS Core API (http://directory.apache.org/apacheds/1.5/apacheds-core-api) org.apache.directory.server:apacheds-core-api:jar:1.5.6-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - ApacheDS Core AVL (http://directory.apache.org/apacheds/1.5/apacheds-core-avl) org.apache.directory.server:apacheds-core-avl:jar:1.5.6-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - ApacheDS Core Constants (http://directory.apache.org/apacheds/1.5/apacheds-core-constants) org.apache.directory.server:apacheds-core-constants:jar:1.5.6-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - ApacheDS Core Entry (http://directory.apache.org/apacheds/1.5/apacheds-core-entry) org.apache.directory.server:apacheds-core-entry:jar:1.5.6-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - ApacheDS Core JNDI (http://directory.apache.org/apacheds/1.5/apacheds-core-jndi) org.apache.directory.server:apacheds-core-jndi:jar:1.5.6-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - ApacheDS Core Mock (http://directory.apache.org/apacheds/1.5/apacheds-core-mock) org.apache.directory.server:apacheds-core-mock:jar:1.5.6-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - ApacheDS JDBM implementation (http://directory.apache.org/apacheds/1.5/apacheds-jdbm) org.apache.directory.server:apacheds-jdbm:jar:1.5.6-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - ApacheDS JDBM Store (http://directory.apache.org/apacheds/1.5/apacheds-jdbm-store) org.apache.directory.server:apacheds-jdbm-store:jar:1.5.6-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - ApacheDS Protocol Kerberos Shared (http://directory.apache.org/apacheds/1.5/apacheds-kerberos-shared) org.apache.directory.server:apacheds-kerberos-shared:jar:1.5.6-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - ApacheDS LDIF Partition (http://directory.apache.org/apacheds/1.5/apacheds-ldif-partition) org.apache.directory.server:apacheds-ldif-partition:jar:1.5.6-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - ApacheDS Protocol Kerberos (http://directory.apache.org/apacheds/1.5/apacheds-protocol-kerberos) org.apache.directory.server:apacheds-protocol-kerberos:jar:1.5.6-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - ApacheDS Protocol Ldap (http://directory.apache.org/apacheds/1.5/apacheds-protocol-ldap) org.apache.directory.server:apacheds-protocol-ldap:jar:1.5.6-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - ApacheDS Protocol Shared (http://directory.apache.org/apacheds/1.5/apacheds-protocol-shared) org.apache.directory.server:apacheds-protocol-shared:jar:1.5.6-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - apacheds-server-annotations (http://directory.apache.org/apacheds/1.5/apacheds-server-annotations) org.apache.directory.server:apacheds-server-annotations:jar:1.5.6-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - ApacheDS test framework (http://directory.apache.org/apacheds/1.5/apacheds-test-framework) org.apache.directory.server:apacheds-test-framework:jar:1.5.6-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - ApacheDS Utils (http://directory.apache.org/apacheds/1.5/apacheds-utils) org.apache.directory.server:apacheds-utils:jar:1.5.6-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - ApacheDS XDBM Base (http://directory.apache.org/apacheds/1.5/apacheds-xdbm-base) org.apache.directory.server:apacheds-xdbm-base:jar:1.5.6-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - ApacheDS Generalized (X) DBM Search Engine (http://directory.apache.org/apacheds/1.5/apacheds-xdbm-search) org.apache.directory.server:apacheds-xdbm-search:jar:1.5.6-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - ApacheDS Generalized (X) DBM Tools (http://directory.apache.org/apacheds/1.5/apacheds-xdbm-tools) org.apache.directory.server:apacheds-xdbm-tools:jar:1.5.6-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Apache Directory Shared ASN.1 (http://www.apache.org/project/shared-parent/shared-asn1) org.apache.directory.shared:shared-asn1:jar:0.9.18-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Apache Directory Shared ASN.1 Codec (http://www.apache.org/project/shared-parent/shared-asn1-codec) org.apache.directory.shared:shared-asn1-codec:jar:0.9.18-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Apache Directory Shared Cursor (http://www.apache.org/project/shared-parent/shared-cursor) org.apache.directory.shared:shared-cursor:jar:0.9.18-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Apache Directory Shared Ldap (http://www.apache.org/project/shared-parent/shared-ldap) org.apache.directory.shared:shared-ldap:jar:0.9.18-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Apache Directory Shared LDAP Client API (http://www.apache.org/project/shared-parent/shared-ldap-client-api) org.apache.directory.shared:shared-ldap-client-api:jar:0.9.18-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Apache Directory Shared Ldap Constants (http://www.apache.org/project/shared-parent/shared-ldap-constants) org.apache.directory.shared:shared-ldap-constants:jar:0.9.18-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Apache Directory Shared LDAP Schema (http://www.apache.org/project/shared-parent/shared-ldap-schema) org.apache.directory.shared:shared-ldap-schema:jar:0.9.18-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Apache Directory Shared LDAP Schema Loader (http://www.apache.org/project/shared-parent/shared-ldap-schema-loader) org.apache.directory.shared:shared-ldap-schema-loader:jar:0.9.18-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Apache Directory Shared LDAP Schema Manager (http://www.apache.org/project/shared-parent/shared-ldap-schema-manager) org.apache.directory.shared:shared-ldap-schema-manager:jar:0.9.18-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+
+
+
