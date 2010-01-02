@@ -26,6 +26,7 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
+import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
@@ -107,6 +108,19 @@ public class ServerAnnotationProcessor
             
             // Associate the DS to this LdapServer
             ldapServer.setDirectoryService( directoryService );
+
+            for( Class<?> extOpClass : createLdapServer.extendedOpHandlers() )
+            {
+                try
+                {
+                    ExtendedOperationHandler extOpHandler = ( ExtendedOperationHandler ) extOpClass.newInstance();
+                    ldapServer.addExtendedOperationHandler( extOpHandler );
+                }
+                catch( Exception e )
+                {
+                    throw new RuntimeException( "Failed to add the extended operation of type " + extOpClass.getName(), e );
+                }
+            }
             
             // Launch the server
             try

@@ -71,4 +71,7 @@ public @interface CreateLdapServer
     
     /** The certificate password in base64, default to the empty string */
     String certificatePassword() default "";
+    
+    /** name of the classes implementing extended operations */
+    Class<?>[] extendedOpHandlers() default {};  
 }
