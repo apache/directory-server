@@ -33,6 +33,7 @@ import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
@@ -70,6 +71,14 @@ public class DSAnnotationProcessor
             service.setAccessControlEnabled( dsBuilder.enableAccessControl() );
             service.setAllowAnonymousAccess( dsBuilder.allowAnonAccess() );
             service.getChangeLog().setEnabled( dsBuilder.enableChangeLog() );
+            
+            List<Interceptor> interceptorList = service.getInterceptors();
+            for( Class<?> interceptorClass : dsBuilder.additionalInterceptors() )
+            {
+                interceptorList.add( ( Interceptor ) interceptorClass.newInstance() );
+            }
+            
+            service.setInterceptors( interceptorList );
             
             dsf.init( dsBuilder.name() );
             

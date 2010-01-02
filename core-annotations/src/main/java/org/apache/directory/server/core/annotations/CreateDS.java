@@ -52,4 +52,7 @@ public @interface CreateDS
     
     /** The list of partitions to create */
     CreatePartition[] partitions() default {};
+    
+    /** additional interceptors */
+    Class<?>[] additionalInterceptors() default {};
 }
