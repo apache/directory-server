@@ -24,9 +24,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.HashMap;
+import java.lang.reflect.Field;
 import java.util.Hashtable;
-import java.util.Map;
 
 import javax.naming.AuthenticationNotSupportedException;
 import javax.naming.Context;
@@ -40,6 +39,7 @@ import javax.naming.directory.InitialDirContext;
 import org.apache.commons.net.SocketClient;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.annotations.SaslMechanism;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
@@ -47,12 +47,10 @@ import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmProvider;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
@@ -64,7 +62,6 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
-import org.apache.mina.core.session.IoSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -120,44 +117,27 @@ import org.slf4j.LoggerFactory;
     transports = 
     {
         @CreateTransport( protocol = "LDAP" )
-    })
+    },
+    saslHost="localhost",
+    saslMechanisms = 
+    {
+        @SaslMechanism( name=SupportedSaslMechanisms.PLAIN, implClass=PlainMechanismHandler.class ),
+        @SaslMechanism( name=SupportedSaslMechanisms.CRAM_MD5, implClass=CramMd5MechanismHandler.class),
+        @SaslMechanism( name=SupportedSaslMechanisms.DIGEST_MD5, implClass=DigestMd5MechanismHandler.class),
+        @SaslMechanism( name=SupportedSaslMechanisms.GSSAPI, implClass=GssapiMechanismHandler.class),
+        @SaslMechanism( name=SupportedSaslMechanisms.NTLM, implClass=NtlmMechanismHandler.class),
+        @SaslMechanism( name=SupportedSaslMechanisms.GSS_SPNEGO, implClass=NtlmMechanismHandler.class)
+    },
+    extendedOpHandlers = 
+    {
+        StoredProcedureExtendedOperationHandler.class
+    },
+    ntlmProvider=BogusNtlmProvider.class
+    )
 public class SaslBindIT extends AbstractLdapTestUnit
 {
-    public BogusNtlmProvider provider = new BogusNtlmProvider();
 
-     
-    @Before
-    public void setupNewNtlmProvider() throws Exception
-    {
-        ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
-
-        // Setup SASL Mechanisms
-        Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String,MechanismHandler>();
-        mechanismHandlerMap.put( SupportedSaslMechanisms.PLAIN, new PlainMechanismHandler() );
-
-        CramMd5MechanismHandler cramMd5MechanismHandler = new CramMd5MechanismHandler();
-        mechanismHandlerMap.put( SupportedSaslMechanisms.CRAM_MD5, cramMd5MechanismHandler );
-
-        DigestMd5MechanismHandler digestMd5MechanismHandler = new DigestMd5MechanismHandler();
-        mechanismHandlerMap.put( SupportedSaslMechanisms.DIGEST_MD5, digestMd5MechanismHandler );
-
-        GssapiMechanismHandler gssapiMechanismHandler = new GssapiMechanismHandler();
-        mechanismHandlerMap.put( SupportedSaslMechanisms.GSSAPI, gssapiMechanismHandler );
-
-        NtlmMechanismHandler ntlmMechanismHandler = new NtlmMechanismHandler();
-        mechanismHandlerMap.put( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
-        mechanismHandlerMap.put( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
-
-        ldapServer.setSaslMechanismHandlers( mechanismHandlerMap );
-        ldapServer.setSaslHost( "localhost" );
-
-        provider = new BogusNtlmProvider();
-        NtlmMechanismHandler handler = ( NtlmMechanismHandler ) 
-            ldapServer.getSaslMechanismHandlers().get( SupportedSaslMechanisms.NTLM );
-        handler.setNtlmProvider( provider );
-    }
-     
-
+    
      /**
       * Tests to make sure the server properly returns the supportedSASLMechanisms.
       */
@@ -178,6 +158,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
                  + ldapServer.getPort(), new String[]
                  { "supportedSASLMechanisms" } );
 
+//             Thread.sleep( 10 * 60 * 1000 );
              NamingEnumeration<? extends Attribute> answer = attrs.getAll();
              Attribute result = answer.next();
              assertEquals( 6, result.size() );
@@ -188,8 +169,9 @@ public class SaslBindIT extends AbstractLdapTestUnit
              assertTrue( result.contains( SupportedSaslMechanisms.PLAIN ) );
              assertTrue( result.contains( SupportedSaslMechanisms.GSS_SPNEGO ) );
          }
-         catch ( NamingException e )
+         catch ( Exception e )
          {
+             e.printStackTrace();
              fail( "Should not have caught exception." );
          }
      }
@@ -445,6 +427,8 @@ public class SaslBindIT extends AbstractLdapTestUnit
      @Test
      public void testNtlmBind() throws Exception
      {
+         BogusNtlmProvider provider = getNtlmProviderUsingReflection();
+         
          NtlmSaslBindClient client = new NtlmSaslBindClient( SupportedSaslMechanisms.NTLM );
          InternalBindResponse type2response = client.bindType1( "type1_test".getBytes() );
          assertEquals( 1, type2response.getMessageId() );
@@ -465,6 +449,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
      @Test
      public void testGssSpnegoBind() throws Exception
      {
+         BogusNtlmProvider provider = getNtlmProviderUsingReflection();
          NtlmSaslBindClient client = new NtlmSaslBindClient( SupportedSaslMechanisms.GSS_SPNEGO );
          InternalBindResponse type2response = client.bindType1( "type1_test".getBytes() );
          assertEquals( 1, type2response.getMessageId() );
@@ -476,43 +461,6 @@ public class SaslBindIT extends AbstractLdapTestUnit
          assertEquals( 2, finalResponse.getMessageId() );
          assertEquals( ResultCodeEnum.SUCCESS, finalResponse.getLdapResult().getResultCode() );
          assertTrue( ArrayUtils.isEquals( "type3_test".getBytes(), provider.getType3Response() ) );
-     }
-
-     
-     /**
-      * A fake implementation of the NtlmProvider. We can't use a real one because
-      * its license is not ASL 2.0 compatible.
-      */
-     class BogusNtlmProvider implements NtlmProvider
-     {
-         private byte[] type1response;
-         private byte[] type3response;
-         
-         
-         public boolean authenticate( IoSession session, byte[] type3response ) throws Exception
-         {
-             this.type3response = type3response;
-             return true;
-         }
-
-
-         public byte[] generateChallenge( IoSession session, byte[] type1reponse ) throws Exception
-         {
-             this.type1response = type1reponse;
-             return "challenge".getBytes();
-         }
-         
-         
-         public byte[] getType1Response()
-         {
-             return type1response;
-         }
-         
-         
-         public byte[] getType3Response()
-         {
-             return type3response;
-         }
      }
 
 
@@ -617,4 +565,27 @@ public class SaslBindIT extends AbstractLdapTestUnit
              return ( InternalBindResponse ) decoder.decode( null, _input_ );
          }
      }
+     
+     
+     private BogusNtlmProvider getNtlmProviderUsingReflection()
+     {
+         BogusNtlmProvider provider = null;
+         try
+         {
+             NtlmMechanismHandler ntlmHandler = ( NtlmMechanismHandler ) ldapServer.getSaslMechanismHandlers().get( SupportedSaslMechanisms.NTLM );
+             
+             // there is no getter for 'provider' field hence this hack
+             Field field = ntlmHandler.getClass().getDeclaredField( "provider" );
+             field.setAccessible( true );
+             provider = ( BogusNtlmProvider ) field.get( ntlmHandler );
+         }
+         catch( Exception e )
+         {
+             e.printStackTrace();
+         }
+         
+         return provider;
+     }
+
 }
+
