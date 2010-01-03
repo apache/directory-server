@@ -1144,7 +1144,7 @@ public class SchemaInterceptor extends BaseInterceptor
             // Substitute the RDN and check if the new entry is correct
             tmpEntry.setDn( opContext.getNewDn() );
 
-            check( oldDn, tmpEntry );
+            check( opContext.getNewDn(), tmpEntry );
 
             // Check that no operational attributes are removed
             for ( AttributeTypeAndValue atav : oldRDN )
@@ -1356,6 +1356,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // - all the MUST are present
         // - all the attribute are in MUST and MAY, except fo the extensibleObeject OC
         // is present
+        // - We haven't removed a part of the RDN
         check( dn, tempEntry );
     }
 
@@ -1409,7 +1410,9 @@ public class SchemaInterceptor extends BaseInterceptor
             return;
         }
 
-        checkModifyEntry( dn, opContext.getEntry(), opContext.getModItems() );
+        ServerEntry entry = opContext.getEntry();
+        List<Modification> modifications = opContext.getModItems();
+        checkModifyEntry( dn, entry, modifications );
         
         next.modify( opContext );
     }
@@ -1602,6 +1605,8 @@ public class SchemaInterceptor extends BaseInterceptor
 
         // Now check the syntaxes
         assertSyntaxes( entry );
+        
+        assertRdn ( dn, entry );
     }
 
 
@@ -1930,6 +1935,20 @@ public class SchemaInterceptor extends BaseInterceptor
 
                     throw new LdapInvalidAttributeValueException( message, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 }
+            }
+        }
+    }
+    
+    
+    private void assertRdn( LdapDN dn, ServerEntry entry ) throws Exception
+    {
+        for ( AttributeTypeAndValue atav : dn.getRdn() )
+        {
+            if ( !entry.containsAttribute( atav.getNormType() ) )
+            {
+                String message = "Entry " + dn + " does not have the " + atav.getUpType() + " attributeType, which is part of the RDN";
+                LOG.error( message );
+                throw new LdapSchemaViolationException( message, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
             }
         }
     }

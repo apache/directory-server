@@ -45,6 +45,7 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -1029,14 +1030,12 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
-        Attributes attributes = new BasicAttributes( true );
-        Attribute attribute = new BasicAttribute( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "person" );
-        attributes.put( attribute );
-        attributes.put( "cn", "Tori Amos" );
-        attributes.put( "sn", "Amos" );
-        attributes.put( "description", "Tori Amos is a person." );
+        Attributes attributes = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: person",
+            "cn: Tori Amos",
+            "sn: Amos",
+            "description: Tori Amos is a person." );
 
         String rdn = getRdn( attributes, rdnTypes );
 
