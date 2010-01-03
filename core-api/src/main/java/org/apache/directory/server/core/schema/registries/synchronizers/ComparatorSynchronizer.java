@@ -238,7 +238,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
                     + "matchingRules using that comparator have been deleted.", ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
-        String oid = ( String ) newRdn.getValue();
+        String oid = ( String ) newRdn.getNormValue();
         checkOidIsUniqueForComparator( oid );
 
         String schemaName = getSchemaName( entry.getDn() );
@@ -247,7 +247,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         {
             // Inject the new OID in the entry
             ServerEntry targetEntry = ( ServerEntry ) entry.clone();
-            String newOid = ( String ) newRdn.getValue();
+            String newOid = ( String ) newRdn.getNormValue();
             checkOidIsUnique( newOid );
             targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
 
@@ -279,7 +279,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
                     + "matchingRules using that comparator have been deleted.", ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
-        String oid = ( String ) newRdn.getValue();
+        String oid = ( String ) newRdn.getNormValue();
         checkOidIsUniqueForComparator( oid );
 
         String newSchemaName = getSchemaName( newParentName );
@@ -392,7 +392,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
                 ResultCodeEnum.NAMING_VIOLATION );
         }
 
-        if ( !( ( String ) rdn.getValue() ).equalsIgnoreCase( SchemaConstants.COMPARATORS_AT ) )
+        if ( !( ( String ) rdn.getNormValue() ).equalsIgnoreCase( SchemaConstants.COMPARATORS_AT ) )
         {
             throw new LdapInvalidNameException(
                 "The parent entry of a comparator should have a relative name of ou=comparators.",

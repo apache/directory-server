@@ -270,7 +270,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         }
 
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
-        String newOid = ( String ) newRdn.getValue();
+        String newOid = ( String ) newRdn.getNormValue();
         checkOidIsUnique( newOid );
 
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
@@ -312,7 +312,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         }
 
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
-        String newOid = ( String ) newRn.getValue();
+        String newOid = ( String ) newRn.getNormValue();
         checkOidIsUnique( newOid );
 
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
@@ -400,7 +400,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
                 ResultCodeEnum.NAMING_VIOLATION );
         }
 
-        if ( !( ( String ) rdn.getValue() ).equalsIgnoreCase( "syntaxes" ) )
+        if ( !( ( String ) rdn.getNormValue() ).equalsIgnoreCase( "syntaxes" ) )
         {
             throw new LdapInvalidNameException(
                 "The parent entry of a syntax should have a relative name of ou=syntaxes.",

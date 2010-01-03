@@ -500,7 +500,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
     private String getSchemaName( LdapDN schema )
     {
-        return ( String ) schema.getRdn().getValue();
+        return ( String ) schema.getRdn().getNormValue();
     }
 
     

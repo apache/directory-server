@@ -203,7 +203,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         String schemaName = getSchemaName( entry.getDn() );
         MatchingRule oldMr = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(), schemaName );
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
-        String newOid = ( String ) newRdn.getValue();
+        String newOid = ( String ) newRdn.getNormValue();
         checkOidIsUnique( newOid );
 
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
@@ -232,7 +232,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         MatchingRule oldMr = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(),
             oldSchemaName );
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
-        String newOid = ( String ) newRdn.getValue();
+        String newOid = ( String ) newRdn.getNormValue();
         checkOidIsUnique( newOid );
 
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
@@ -306,7 +306,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
                 ResultCodeEnum.NAMING_VIOLATION );
         }
 
-        if ( !( ( String ) rdn.getValue() ).equalsIgnoreCase( SchemaConstants.MATCHING_RULES_AT ) )
+        if ( !( ( String ) rdn.getNormValue() ).equalsIgnoreCase( SchemaConstants.MATCHING_RULES_AT ) )
         {
             throw new LdapInvalidNameException(
                 "The parent entry of a syntax should have a relative name of ou=matchingRules.",

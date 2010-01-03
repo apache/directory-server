@@ -1743,7 +1743,7 @@ public class SchemaInterceptor extends BaseInterceptor
         }
         
         Rdn rdn = dn.getRdn( 1 );
-        return ( String ) rdn.getValue();
+        return ( String ) rdn.getNormValue();
     }
 
 
@@ -1944,7 +1944,9 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         for ( AttributeTypeAndValue atav : dn.getRdn() )
         {
-            if ( !entry.containsAttribute( atav.getNormType() ) )
+            EntryAttribute attribute = entry.get( atav.getNormType() );
+            
+            if ( ( attribute == null ) || ( !attribute.contains( atav.getNormValue() ) ) )
             {
                 String message = "Entry " + dn + " does not have the " + atav.getUpType() + " attributeType, which is part of the RDN";
                 LOG.error( message );

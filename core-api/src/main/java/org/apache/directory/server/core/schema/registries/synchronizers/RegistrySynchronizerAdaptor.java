@@ -191,7 +191,7 @@ public class RegistrySynchronizerAdaptor
                 throw new LdapInvalidNameException( msg, ResultCodeEnum.NAMING_VIOLATION );
             }
             
-            String ouValue = ( String ) opContext.getDn().getRdn().getValue();
+            String ouValue = ( String ) opContext.getDn().getRdn().getNormValue();
             ouValue = ouValue.trim().toLowerCase();
             
             if ( ! VALID_OU_VALUES.contains( ouValue ) )
@@ -246,7 +246,7 @@ public class RegistrySynchronizerAdaptor
                     " can be deleted.", ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
             
-            String ouValue = ( String ) opContext.getDn().getRdn().getValue();
+            String ouValue = ( String ) opContext.getDn().getRdn().getNormValue();
             ouValue = ouValue.trim().toLowerCase();
             
             if ( ! VALID_OU_VALUES.contains( ouValue ) )

@@ -485,7 +485,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
                 + "' expected to be CN oid of " + CN_OID + " but was " + rdn.getNormType() );
         }
 
-        return ( String ) rdn.getValue();
+        return ( String ) rdn.getNormValue();
     }
 
 

@@ -212,7 +212,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
                     + "matchingRules using that normalizer have been deleted.", ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
-        String newOid = ( String ) newRdn.getValue();
+        String newOid = ( String ) newRdn.getNormValue();
         checkOidIsUniqueForNormalizer( newOid );
 
         if ( isSchemaEnabled( schemaName ) )
@@ -250,7 +250,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
                     + "matchingRules using that normalizer have been deleted.", ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
-        String oid = ( String ) newRdn.getValue();
+        String oid = ( String ) newRdn.getNormValue();
         checkOidIsUniqueForNormalizer( oid );
         Normalizer normalizer = factory.getNormalizer( schemaManager, entry, schemaManager.getRegistries(),
             newSchemaName );
@@ -336,7 +336,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
                 ResultCodeEnum.NAMING_VIOLATION );
         }
 
-        if ( !( ( String ) rdn.getValue() ).equalsIgnoreCase( SchemaConstants.NORMALIZERS_AT ) )
+        if ( !( ( String ) rdn.getNormValue() ).equalsIgnoreCase( SchemaConstants.NORMALIZERS_AT ) )
         {
             throw new LdapInvalidNameException(
                 "The parent entry of a normalizer should have a relative name of ou=normalizers.",

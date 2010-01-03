@@ -33,8 +33,6 @@ import javax.naming.NamingException;
 import javax.naming.NoPermissionException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SchemaViolationException;
 import javax.naming.directory.SearchControls;
@@ -72,16 +70,14 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     /**
      * Create attributes for a person entry.
      */
-    private Attributes getPersonAttributes( String sn, String cn )
+    private Attributes getPersonAttributes( String sn, String cn ) throws Exception
     {
-        Attributes attributes = new BasicAttributes( true );
-        Attribute attribute = new BasicAttribute( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "person" );
-        attributes.put( attribute );
-        attributes.put( "cn", cn );
-        attributes.put( "sn", sn );
-        attributes.put( "description", cn + " is a person." );
+        Attributes attributes = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: person",
+            "cn", cn,
+            "sn", sn,
+            "description", cn + " is a person." );
 
         return attributes;
     }
@@ -90,15 +86,13 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     /**
      * Create attributes for a organizational unit entry.
      */
-    private Attributes getOrganizationalUnitAttributes( String ou )
+    private Attributes getOrganizationalUnitAttributes( String ou ) throws Exception
     {
-        Attributes attributes = new BasicAttributes( true );
-        Attribute attribute = new BasicAttribute( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "organizationalUnit" );
-        attributes.put( attribute );
-        attributes.put( "ou", ou );
-        attributes.put( "description", ou + " is an organizational unit." );
+        Attributes attributes = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: organizationalUnit",
+            "ou", ou,
+            "description", ou + " is an organizational unit." );
 
         return attributes;
     }
@@ -470,7 +464,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         String cnVal = "Tori Amos";
         String snVal = "Amos";
         String oldRdn = "cn=" + cnVal;
-        Attributes attributes = this.getPersonAttributes( snVal, cnVal );
+        Attributes attributes = getPersonAttributes( snVal, cnVal );
         ctx.createSubcontext( oldRdn, attributes );
 
         // modify Rdn from cn=Tori Amos to cn=<a Umlaut>\+

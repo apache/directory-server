@@ -236,7 +236,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         }
 
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
-        String newOid = ( String ) newRdn.getValue();
+        String newOid = ( String ) newRdn.getNormValue();
 
         if ( schemaManager.getSyntaxCheckerRegistry().contains( newOid ) )
         {
@@ -273,7 +273,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
 
-        String newOid = ( String ) newRdn.getValue();
+        String newOid = ( String ) newRdn.getNormValue();
 
         if ( schemaManager.getSyntaxCheckerRegistry().contains( newOid ) )
         {
@@ -375,7 +375,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
                 ResultCodeEnum.NAMING_VIOLATION );
         }
 
-        if ( !( ( String ) rdn.getValue() ).equalsIgnoreCase( SchemaConstants.SYNTAX_CHECKERS_AT ) )
+        if ( !( ( String ) rdn.getNormValue() ).equalsIgnoreCase( SchemaConstants.SYNTAX_CHECKERS_AT ) )
         {
             throw new LdapInvalidNameException(
                 "The parent entry of a normalizer should have a relative name of ou=syntaxCheckers.",

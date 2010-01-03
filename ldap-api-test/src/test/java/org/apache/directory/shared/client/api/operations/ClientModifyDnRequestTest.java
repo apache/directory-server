@@ -106,7 +106,7 @@ public class ClientModifyDnRequestTest
         assertNotNull( entry );
         
         Rdn oldRdn = oldDn.getRdn();
-        assertTrue( entry.contains( oldRdn.getUpType(), ( String ) oldRdn.getValue() ) );
+        assertTrue( entry.contains( oldRdn.getUpType(), ( String ) oldRdn.getNormValue() ) );
     }
     
     

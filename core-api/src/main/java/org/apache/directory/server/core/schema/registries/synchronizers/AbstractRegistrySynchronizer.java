@@ -156,7 +156,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         }
         
         Rdn rdn = dn.getRdn( 1 );
-        return ( String ) rdn.getValue();
+        return ( String ) rdn.getNormValue();
     }
 
 
@@ -212,7 +212,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
                 ResultCodeEnum.NAMING_VIOLATION );
         }
         
-        if ( ! ( ( String ) rdn.getValue() ).equalsIgnoreCase( OBJECT_TYPE_TO_PATH.get( objectType ) ) )
+        if ( ! ( ( String ) rdn.getNormValue() ).equalsIgnoreCase( OBJECT_TYPE_TO_PATH.get( objectType ) ) )
         {
             throw new LdapInvalidNameException( 
                 "The parent entry of a " + objectType + " should have a relative name of ou=" + 
@@ -352,7 +352,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         {
             LdapDN dn = result.getDn();
             dn.normalize( schemaManager.getNormalizerMapping() );
-            oids.add( ( String ) dn.getRdn().getValue() );
+            oids.add( ( String ) dn.getRdn().getNormValue() );
         }
         
         return oids;

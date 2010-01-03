@@ -807,7 +807,7 @@ public abstract class ServerContext implements EventContext
 
         if ( rdn.size() == 1 )
         {
-            serverEntry.put( rdn.getUpType(), ( String ) rdn.getValue() );
+            serverEntry.put( rdn.getUpType(), ( String ) rdn.getNormValue() );
         }
         else
         {

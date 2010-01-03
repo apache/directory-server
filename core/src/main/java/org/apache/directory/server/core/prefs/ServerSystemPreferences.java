@@ -226,7 +226,7 @@ public class ServerSystemPreferences extends AbstractPreferences
             while ( list.next() )
             {
                 ClonedServerEntry entry = list.get();
-                children.add( ( String ) entry.getDn().getRdn().getValue() );
+                children.add( ( String ) entry.getDn().getRdn().getNormValue() );
             }
         }
         catch ( Exception e )

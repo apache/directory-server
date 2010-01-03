@@ -212,7 +212,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         //        }
 
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
-        String newOid = ( String ) newRdn.getValue();
+        String newOid = ( String ) newRdn.getNormValue();
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
 
         // Inject the new DN
@@ -265,7 +265,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
 
         String newSchemaName = getSchemaName( newParentName );
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
-        String newOid = ( String ) newRdn.getValue();
+        String newOid = ( String ) newRdn.getNormValue();
         checkOidIsUnique( newOid );
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
         ObjectClass oc = factory.getObjectClass( schemaManager, targetEntry, schemaManager.getRegistries(),
@@ -349,7 +349,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
                 ResultCodeEnum.NAMING_VIOLATION );
         }
 
-        if ( !( ( String ) rdn.getValue() ).equalsIgnoreCase( SchemaConstants.OBJECT_CLASSES_AT ) )
+        if ( !( ( String ) rdn.getNormValue() ).equalsIgnoreCase( SchemaConstants.OBJECT_CLASSES_AT ) )
         {
             throw new LdapInvalidNameException(
                 "The parent entry of a attributeType should have a relative name of ou=objectClasses.",
