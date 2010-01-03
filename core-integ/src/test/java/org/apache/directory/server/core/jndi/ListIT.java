@@ -59,7 +59,7 @@ public class ListIT extends AbstractLdapTestUnit
         service.getAdminSession().add( 
             new DefaultServerEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
 
-        LdapContext sysRoot = getContext( akarasulu.getDn().getUpName(), service, "ou=system" );
+        LdapContext sysRoot = getContext( akarasulu.getDn().getName(), service, "ou=system" );
         HashSet<String> set = new HashSet<String>();
         NamingEnumeration<NameClassPair> list = sysRoot.list( "" );
 
@@ -82,7 +82,7 @@ public class ListIT extends AbstractLdapTestUnit
         service.getAdminSession().add( 
             new DefaultServerEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
 
-        LdapContext sysRoot = getContext( akarasulu.getDn().getUpName(), service, "ou=system" );
+        LdapContext sysRoot = getContext( akarasulu.getDn().getName(), service, "ou=system" );
         HashSet<String> set = new HashSet<String>();
         NamingEnumeration<NameClassPair> list = sysRoot.list( "ou=users" );
 

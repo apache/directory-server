@@ -122,12 +122,12 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         {
             if ( schemaManager.add( matchingRule ) )
             {
-                LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
+                LOG.debug( "Added {} into the enabled schema {}", dn.getName(), schemaName );
             }
             else
             {
                 // We have some error : reject the addition and get out
-                String msg = "Cannot add the MatchingRule " + entry.getDn().getUpName() + " into the registries, "
+                String msg = "Cannot add the MatchingRule " + entry.getDn().getName() + " into the registries, "
                     + "the resulting registries would be inconsistent :" + 
                     StringTools.listToString( schemaManager.getErrors() );
                 LOG.info( msg );
@@ -163,7 +163,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         {
             // The schema is disabled, nothing to do.
             LOG.debug( "The MatchingRule {} cannot be removed from the disabled schema {}.", 
-                dn.getUpName(), schemaName );
+                dn.getName(), schemaName );
             
             return;
         }
@@ -181,7 +181,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
             {
                 // We have some error : reject the deletion and get out
                 // The schema is disabled. We still have to update the backend
-                String msg = "Cannot delete the MatchingRule " + entry.getDn().getUpName() + " into the registries, "
+                String msg = "Cannot delete the MatchingRule " + entry.getDn().getName() + " into the registries, "
                     + "the resulting registries would be inconsistent :" + 
                     StringTools.listToString( schemaManager.getErrors() );
                 LOG.info( msg );

@@ -200,7 +200,7 @@ public class LdapSSLConnectionTest
         LdapConnection connection = new LdapConnection( config );
 
         LdapDN dn = new LdapDN( "uid=admin,ou=system" );
-        connection.bind( dn.getUpName(), "secret" );
+        connection.bind( dn.getName(), "secret" );
         
         List<String> controlList = connection.getSupportedConrols();
         assertNotNull( controlList );

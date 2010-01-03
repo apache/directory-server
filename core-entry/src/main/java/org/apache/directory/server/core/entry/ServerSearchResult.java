@@ -131,7 +131,7 @@ public class ServerSearchResult
      */
     public String toString()
     {
-        String name = (dn == null ? "null" : ( dn == LdapDN.EMPTY_LDAPDN ? "\"\"" : dn.getUpName() ) );
+        String name = (dn == null ? "null" : ( dn == LdapDN.EMPTY_LDAPDN ? "\"\"" : dn.getName() ) );
         return "ServerSearchResult : " + name + "\n" + serverEntry;
     }
 }

@@ -121,7 +121,7 @@ public class MoveOperationContext extends AbstractChangeOperationContext
      */
     public String toString()
     {
-        return "ReplaceContext for old DN '" + getDn().getUpName() + "'" +
+        return "ReplaceContext for old DN '" + getDn().getName() + "'" +
         ", parent '" + parent + "'";
     }
 }

@@ -517,7 +517,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 LdapDN creatorsName = new LdapDN( attr.getString() );
                 
                 attr.clear();
-                attr.add( denormalizeTypes( creatorsName ).getUpName() );
+                attr.add( denormalizeTypes( creatorsName ).getName() );
             }
             
             attr = entry.get( SchemaConstants.MODIFIERS_NAME_AT );
@@ -527,7 +527,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 LdapDN modifiersName = new LdapDN( attr.getString() );
 
                 attr.clear();
-                attr.add( denormalizeTypes( modifiersName ).getUpName() );
+                attr.add( denormalizeTypes( modifiersName ).getName() );
             }
 
             attr = entry.get( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT );
@@ -537,7 +537,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 LdapDN modifiersName = new LdapDN( attr.getString() );
 
                 attr.clear();
-                attr.add( denormalizeTypes( modifiersName ).getUpName() );
+                attr.add( denormalizeTypes( modifiersName ).getName() );
             }
         }
     }

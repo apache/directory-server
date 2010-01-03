@@ -196,7 +196,7 @@ public class RenameOperationContext extends AbstractChangeOperationContext
      */
     public String toString()
     {
-        return "RenameContext for old DN '" + getDn().getUpName() + "'" +
+        return "RenameContext for old DN '" + getDn().getName() + "'" +
         ", new RDN '" + newRdn + "'" +
         ( delOldDn ? ", delete old Dn" : "" ) ; 
     }

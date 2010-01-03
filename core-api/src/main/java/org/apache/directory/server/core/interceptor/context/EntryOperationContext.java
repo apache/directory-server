@@ -67,6 +67,6 @@ public class EntryOperationContext extends AbstractOperationContext
      */
     public String toString()
     {
-        return "EntryContext for DN '" + getDn().getUpName() + "'";
+        return "EntryContext for DN '" + getDn().getName() + "'";
     }
 }

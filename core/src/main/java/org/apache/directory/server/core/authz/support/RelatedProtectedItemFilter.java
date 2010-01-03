@@ -270,7 +270,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                         
                         if ( ( attr != null ) && 
                              ( ( attr.contains( userName.toNormName() ) || 
-                               ( attr.contains( userName.getUpName() ) ) ) ) )
+                               ( attr.contains( userName.getName() ) ) ) ) )
                         {
                             return true;
                         }

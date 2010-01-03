@@ -1058,7 +1058,7 @@ public class JdbmStore<E> implements Store<E>
         if ( !normalizedAliasTargetDn.startsWith( normSuffix ) )
         {
             String msg = "[36] aliasDereferencingProblem - "
-                + " the alias points to an entry outside of the " + upSuffix.getUpName()
+                + " the alias points to an entry outside of the " + upSuffix.getName()
                 + " namingContext to an object whose existence cannot be determined.";
             ResultCodeEnum rc = ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
             LdapNamingException e = new LdapNamingException( msg, rc );
@@ -1079,7 +1079,7 @@ public class JdbmStore<E> implements Store<E>
         {
             // Complain about target not existing
             String msg = "[33] aliasProblem - "
-                + "the alias '" + aliasDn.getUpName() + "' when dereferenced would not name a known object."
+                + "the alias '" + aliasDn.getName() + "' when dereferenced would not name a known object."
                 + "The aliased ObjectName '" + aliasTarget + "' must be set to a valid existing entry.";
             ResultCodeEnum rc = ResultCodeEnum.ALIAS_PROBLEM;
             LdapNamingException e = new LdapNamingException( msg, rc );
@@ -1198,7 +1198,7 @@ public class JdbmStore<E> implements Store<E>
 
         if ( objectClass == null )
         {
-            String msg = "Entry " + entryDn.getUpName() + " contains no objectClass attribute: " + entry;
+            String msg = "Entry " + entryDn.getName() + " contains no objectClass attribute: " + entry;
             ResultCodeEnum rc = ResultCodeEnum.OBJECT_CLASS_VIOLATION;
             NamingException e = new LdapSchemaViolationException( msg, rc );
             e.setResolvedName( entryDn );
@@ -1226,7 +1226,7 @@ public class JdbmStore<E> implements Store<E>
         }
 
         ndnIdx.add( entryDn.toNormName(), id );
-        updnIdx.add( entryDn.getUpName(), id );
+        updnIdx.add( entryDn.getName(), id );
         oneLevelIdx.add( parentId, id );
 
         // Update the EntryCsn index
@@ -1234,7 +1234,7 @@ public class JdbmStore<E> implements Store<E>
 
         if ( entryCsn == null )
         {
-            String msg = "Entry " + entryDn.getUpName() + " contains no entryCsn attribute: " + entry;
+            String msg = "Entry " + entryDn.getName() + " contains no entryCsn attribute: " + entry;
             throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
         
@@ -1245,7 +1245,7 @@ public class JdbmStore<E> implements Store<E>
 
         if ( entryUuid == null )
         {
-            String msg = "Entry " + entryDn.getUpName() + " contains no entryUuid attribute: " + entry;
+            String msg = "Entry " + entryDn.getName() + " contains no entryUuid attribute: " + entry;
             throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
         
@@ -1924,7 +1924,7 @@ public class JdbmStore<E> implements Store<E>
         
         // update user provided DN index
         updnIdx.drop( id );
-        updnIdx.add( updn.getUpName(), id );
+        updnIdx.add( updn.getName(), id );
 
         /* 
          * Read Alias Index Tuples

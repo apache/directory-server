@@ -124,11 +124,11 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         {
             if ( schemaManager.add( normalizer ) )
             {
-                LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
+                LOG.debug( "Added {} into the enabled schema {}", dn.getName(), schemaName );
             }
             else
             {
-                String msg = "Cannot delete the Normalizer " + entry.getDn().getUpName() + " into the registries, "
+                String msg = "Cannot delete the Normalizer " + entry.getDn().getName() + " into the registries, "
                     + "the resulting registries would be inconsistent :" + StringTools.listToString( errors );
                 LOG.info( msg );
             throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
@@ -141,13 +141,13 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
 
             if ( !errors.isEmpty() )
             {
-                String msg = "Cannot add the Normalizer " + entry.getDn().getUpName() + " into the registries, "
+                String msg = "Cannot add the Normalizer " + entry.getDn().getName() + " into the registries, "
                     + "we have got some errors :" + StringTools.listToString( errors );
 
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
-            LOG.debug( "The normalizer {} cannot be added in schema {}", dn.getUpName(), schemaName );
+            LOG.debug( "The normalizer {} cannot be added in schema {}", dn.getName(), schemaName );
         }
     }
 
@@ -174,7 +174,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         {
             if ( schemaManager.getRegistries().isReferenced( normalizer ) )
             {
-                String msg = "Cannot delete " + entry.getDn().getUpName() + ", as there are some "
+                String msg = "Cannot delete " + entry.getDn().getName() + ", as there are some "
                     + " dependant SchemaObjects :\n" + getReferenced( normalizer );
                 LOG.warn( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );

@@ -126,12 +126,12 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         {
             if ( schemaManager.add( comparator ) )
             {
-                LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
+                LOG.debug( "Added {} into the enabled schema {}", dn.getName(), schemaName );
             }
             else
             {
                 // We have some error : reject the addition and get out
-                String msg = "Cannot add the Comparator " + entry.getDn().getUpName() + " into the registries, "
+                String msg = "Cannot add the Comparator " + entry.getDn().getName() + " into the registries, "
                     + "the resulting registries would be inconsistent :" + 
                     StringTools.listToString( schemaManager.getErrors() );
                 LOG.info( msg );
@@ -140,7 +140,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         }
         else
         {
-            LOG.debug( "The Comparator {} cannot be added in the disabled schema {}", dn.getUpName(), schemaName );
+            LOG.debug( "The Comparator {} cannot be added in the disabled schema {}", dn.getName(), schemaName );
         }
     }
 
@@ -166,7 +166,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         if ( schema.isDisabled() )
         {
             // The schema is disabled, nothing to do.
-            LOG.debug( "The Comparator {} cannot be deleted from the disabled schema {}", dn.getUpName(), schemaName );
+            LOG.debug( "The Comparator {} cannot be deleted from the disabled schema {}", dn.getName(), schemaName );
             
             return;
         }
@@ -194,7 +194,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // Ok, definitively an error
-                String msg = "Cannot delete the Comparator " + entry.getDn().getUpName() + " as it "
+                String msg = "Cannot delete the Comparator " + entry.getDn().getName() + " as it "
                     + "does not exist in any schema";
                 LOG.info( msg );
                 throw new LdapSchemaViolationException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
@@ -207,11 +207,11 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         {
             if ( schemaManager.delete( comparator ) )
             {
-                LOG.debug( "Deleted {} from the enabled schema {}", dn.getUpName(), schemaName );
+                LOG.debug( "Deleted {} from the enabled schema {}", dn.getName(), schemaName );
             }
             else
             {
-                String msg = "Cannot delete the Comparator " + entry.getDn().getUpName() + " into the registries, "
+                String msg = "Cannot delete the Comparator " + entry.getDn().getName() + " into the registries, "
                     + "the resulting registries would be inconsistent :" + StringTools.listToString( errors );
                 LOG.info( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
@@ -219,7 +219,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         }
         else
         {
-            LOG.debug( "The Comparator {} cannot be deleted from the disabled schema {}", dn.getUpName(), schemaName );
+            LOG.debug( "The Comparator {} cannot be deleted from the disabled schema {}", dn.getName(), schemaName );
         }
     }
 

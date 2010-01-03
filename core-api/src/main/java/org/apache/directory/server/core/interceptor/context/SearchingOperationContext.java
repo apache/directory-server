@@ -217,7 +217,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
      */
     public String toString()
     {
-        return "ListOperationContext with DN '" + getDn().getUpName() + "'";
+        return "ListOperationContext with DN '" + getDn().getName() + "'";
     }
 
     

@@ -615,7 +615,7 @@ public class ServerEntryUtils
                 ServerSearchResult rec = result.next();
                 
                 SearchResult searchResult = new SearchResult( 
-                        rec.getDn().getUpName(), 
+                        rec.getDn().getName(), 
                         rec.getObject(), 
                         toBasicAttributes( rec.getServerEntry() ), 
                         rec.isRelative() );
@@ -643,7 +643,7 @@ public class ServerEntryUtils
                     ServerSearchResult rec = result.next();
     
                     SearchResult searchResult = new SearchResult( 
-                            rec.getDn().getUpName(), 
+                            rec.getDn().getName(), 
                             rec.getObject(), 
                             toBasicAttributes( rec.getServerEntry() ), 
                             rec.isRelative() );

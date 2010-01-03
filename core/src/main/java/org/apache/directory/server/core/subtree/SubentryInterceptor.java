@@ -449,7 +449,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
             catch ( Exception e )
             {
-                String msg = "Failed while parsing subtreeSpecification for " + name.getUpName();
+                String msg = "Failed while parsing subtreeSpecification for " + name.getName();
                 LOG.warn( msg );
                 throw new LdapInvalidAttributeValueException( msg, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
             }

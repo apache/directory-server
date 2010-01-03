@@ -653,7 +653,7 @@ public abstract class ServerContext implements EventContext
      */
     public String getNameInNamespace() throws NamingException
     {
-        return dn.getUpName();
+        return dn.getName();
     }
 
 

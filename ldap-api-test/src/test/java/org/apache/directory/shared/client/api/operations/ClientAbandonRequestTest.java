@@ -80,7 +80,7 @@ public class ClientAbandonRequestTest
         connection = new LdapConnection( "localhost", ldapServer.getPort() );
         LdapDN bindDn = new LdapDN( "uid=admin,ou=system" );
         connection.setTimeOut( 0L );
-        connection.bind( bindDn.getUpName(), "secret" );
+        connection.bind( bindDn.getName(), "secret" );
 
         session = ldapServer.getDirectoryService().getSession();
     }

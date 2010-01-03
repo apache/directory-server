@@ -66,6 +66,6 @@ public class GetMatchedNameOperationContext extends AbstractOperationContext
      */
     public String toString()
     {
-        return "GetMatchedNameContext with DN '" + getDn().getUpName() + "'";
+        return "GetMatchedNameContext with DN '" + getDn().getName() + "'";
     }
 }

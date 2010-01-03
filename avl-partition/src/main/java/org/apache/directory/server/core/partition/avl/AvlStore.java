@@ -190,7 +190,7 @@ public class AvlStore<E> implements Store<E>
 
         if ( objectClass == null )
         {
-            String msg = "Entry " + normName.getUpName() + " contains no objectClass attribute: " + entry;
+            String msg = "Entry " + normName.getName() + " contains no objectClass attribute: " + entry;
             throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
 
@@ -214,7 +214,7 @@ public class AvlStore<E> implements Store<E>
         }
 
         ndnIdx.add( normName.toNormName(), id );
-        updnIdx.add( normName.getUpName(), id );
+        updnIdx.add( normName.getName(), id );
         oneLevelIdx.add( parentId, id );
 
         // Update the EntryCsn index
@@ -222,7 +222,7 @@ public class AvlStore<E> implements Store<E>
 
         if ( entryCsn == null )
         {
-            String msg = "Entry " + normName.getUpName() + " contains no entryCsn attribute: " + entry;
+            String msg = "Entry " + normName.getName() + " contains no entryCsn attribute: " + entry;
             throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
         
@@ -233,7 +233,7 @@ public class AvlStore<E> implements Store<E>
 
         if ( entryUuid == null )
         {
-            String msg = "Entry " + normName.getUpName() + " contains no entryUuid attribute: " + entry;
+            String msg = "Entry " + normName.getName() + " contains no entryUuid attribute: " + entry;
             throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
         
@@ -552,7 +552,7 @@ public class AvlStore<E> implements Store<E>
         
         try
         {
-            return new LdapDN( suffixDn.getUpName() );
+            return new LdapDN( suffixDn.getName() );
         }
         catch ( InvalidNameException e )
         {
@@ -571,7 +571,7 @@ public class AvlStore<E> implements Store<E>
             return null;
         }
         
-        return suffixDn.getUpName();
+        return suffixDn.getName();
     }
 
 
@@ -892,7 +892,7 @@ public class AvlStore<E> implements Store<E>
 
         // update user provided DN index
         updnIdx.drop( id );
-        updnIdx.add( updn.getUpName(), id );
+        updnIdx.add( updn.getName(), id );
 
         /* 
          * Read Alias Index Tuples
@@ -1801,7 +1801,7 @@ public class AvlStore<E> implements Store<E>
         {
             // Complain specifically about aliases to outside naming contexts
             throw new Exception( "[36] aliasDereferencingProblem -" + " the alias points to an entry outside of the "
-                + suffixDn.getUpName() + " namingContext to an object whose existance cannot be" + " determined." );
+                + suffixDn.getName() + " namingContext to an object whose existance cannot be" + " determined." );
         }
 
         // L O O K U P   T A R G E T   I D

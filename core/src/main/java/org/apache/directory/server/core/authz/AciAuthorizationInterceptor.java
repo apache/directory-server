@@ -247,10 +247,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         if ( isTheAdministrator( dn ) )
         {
-            String msg = "User '" + principalDn.getUpName();
+            String msg = "User '" + principalDn.getName();
             msg += "' does not have permission to move or rename the admin";
             msg += " account.  No one not even the admin can del, move or";
-            msg += " rename " + dn.getUpName() + "!";
+            msg += " rename " + dn.getName() + "!";
             LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }

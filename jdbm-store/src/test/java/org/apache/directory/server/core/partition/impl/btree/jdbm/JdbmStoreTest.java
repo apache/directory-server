@@ -345,7 +345,7 @@ public class JdbmStoreTest
         assertEquals( 11, store.count() );
         assertEquals( "o=Good Times Co.", store.getEntryUpdn( dn.toNormName() ) );
         assertEquals( dn.toNormName(), store.getEntryDn( 1L ) );
-        assertEquals( dn.getUpName(), store.getEntryUpdn( 1L ) );
+        assertEquals( dn.getName(), store.getEntryUpdn( 1L ) );
 
         // note that the suffix entry returns 0 for it's parent which does not exist
         assertEquals( 0L, ( long ) store.getParentId( dn.toNormName() ) );

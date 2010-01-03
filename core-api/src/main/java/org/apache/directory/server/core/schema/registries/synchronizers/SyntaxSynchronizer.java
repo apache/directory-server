@@ -124,12 +124,12 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         {
             if ( schemaManager.add( syntax ) )
             {
-                LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
+                LOG.debug( "Added {} into the enabled schema {}", dn.getName(), schemaName );
             }
             else
             {
                 // We have some error : reject the addition and get out
-                String msg = "Cannot add the Syntax " + entry.getDn().getUpName() + " into the registries, "
+                String msg = "Cannot add the Syntax " + entry.getDn().getName() + " into the registries, "
                     + "the resulting registries would be inconsistent :" + 
                     StringTools.listToString( schemaManager.getErrors() );
                 LOG.info( msg );
@@ -138,7 +138,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         }
         else
         {
-            LOG.debug( "The Syntax {} cannot be added in the disabled schema {}", dn.getUpName(), schemaName );
+            LOG.debug( "The Syntax {} cannot be added in the disabled schema {}", dn.getName(), schemaName );
         }
     }
 
@@ -218,7 +218,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         {
             // The schema is disabled, nothing to do.
             LOG.debug( "The Syntax {} cannot be removed from the disabled schema {}.", 
-                dn.getUpName(), schemaName );
+                dn.getName(), schemaName );
             
             return;
         }
@@ -237,7 +237,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // We have some error : reject the deletion and get out
-                String msg = "Cannot delete the Syntax " + entry.getDn().getUpName() + " into the registries, "
+                String msg = "Cannot delete the Syntax " + entry.getDn().getName() + " into the registries, "
                     + "the resulting registries would be inconsistent :" + StringTools.listToString( errors );
                 LOG.info( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );

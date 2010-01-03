@@ -204,7 +204,7 @@ public class BindOperationContext implements OperationContext
      */
     public String toString()
     {
-        return "BindContext for DN '" + getDn().getUpName() + "', credentials <" +
+        return "BindContext for DN '" + getDn().getName() + "', credentials <" +
             ( credentials != null ? StringTools.dumpBytes( credentials ) : "" ) + ">" +
             ( saslMechanism != null ? ", saslMechanism : <" + saslMechanism + ">" : "" ) +
             ( saslAuthId != null ? ", saslAuthId <" + saslAuthId + ">" : "" );

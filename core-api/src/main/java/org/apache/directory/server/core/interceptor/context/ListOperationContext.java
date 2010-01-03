@@ -98,6 +98,6 @@ public class ListOperationContext extends SearchingOperationContext
      */
     public String toString()
     {
-        return "List with DN '" + getDn().getUpName() + "'";
+        return "List with DN '" + getDn().getName() + "'";
     }
 }

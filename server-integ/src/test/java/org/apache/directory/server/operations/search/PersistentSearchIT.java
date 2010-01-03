@@ -289,7 +289,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         assertNotNull( listener.result );
         assertEquals( "cn=Jack Black", listener.result.getName() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.MODDN );
-        assertEquals( ( RDN + ",ou=system" ), listener.result.control.getPreviousDn().getUpName() );
+        assertEquals( ( RDN + ",ou=system" ), listener.result.control.getPreviousDn().getName() );
         tearDownListener();
     }
 

@@ -67,6 +67,6 @@ public class ListSuffixOperationContext extends AbstractOperationContext
      */
     public String toString()
     {
-        return "ListSuffixOperationContext with DN '" + getDn().getUpName() + "'";
+        return "ListSuffixOperationContext with DN '" + getDn().getName() + "'";
     }
 }

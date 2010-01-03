@@ -98,7 +98,7 @@ public class AvlPartition extends BTreePartition
 
         // initialize the store
         store.setName( getId() );
-        store.setSuffixDn( suffix.getUpName() );
+        store.setSuffixDn( suffix.getName() );
 
         Set<Index<?, ServerEntry>> userIndices = new HashSet<Index<?, ServerEntry>>();
 
@@ -491,7 +491,7 @@ public class AvlPartition extends BTreePartition
     
     public String getSuffix()
     {
-        return suffix.getUpName();
+        return suffix.getName();
     }
 
 

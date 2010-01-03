@@ -2494,7 +2494,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         if ( dn.isNormalized() )
         {
             sb.append( "[n]: " );
-            sb.append( dn.getUpName() );
+            sb.append( dn.getName() );
         }
         else
         {

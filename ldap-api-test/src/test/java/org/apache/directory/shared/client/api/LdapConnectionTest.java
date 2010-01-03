@@ -93,7 +93,7 @@ public class LdapConnectionTest
         LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
 
         LdapDN dn = new LdapDN( "uid=admin,ou=system" );
-        connection.bind( dn.getUpName(), "secret" );
+        connection.bind( dn.getName(), "secret" );
         
         List<String> controlList = connection.getSupportedConrols();
         assertNotNull( controlList );

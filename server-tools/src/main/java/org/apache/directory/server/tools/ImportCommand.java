@@ -219,7 +219,7 @@ public class ImportCommand extends ToolCommand
     {
         AddRequestCodec addRequest = new AddRequestCodec();
 
-        String dn = ldifEntry.getDn().getUpName();
+        String dn = ldifEntry.getDn().getName();
 
         if ( isDebugEnabled() )
         {
@@ -292,7 +292,7 @@ public class ImportCommand extends ToolCommand
     {
         DelRequestCodec delRequest = new DelRequestCodec();
 
-        String dn = entry.getDn().getUpName();
+        String dn = entry.getDn().getName();
 
         if ( isDebugEnabled() )
         {
@@ -351,7 +351,7 @@ public class ImportCommand extends ToolCommand
     {
         ModifyDNRequestCodec modifyDNRequest = new ModifyDNRequestCodec();
 
-        String dn = entry.getDn().getUpName();
+        String dn = entry.getDn().getName();
 
         if ( isDebugEnabled() )
         {
@@ -415,7 +415,7 @@ public class ImportCommand extends ToolCommand
     {
         ModifyRequestCodec modifyRequest = new ModifyRequestCodec();
 
-        String dn = entry.getDn().getUpName();
+        String dn = entry.getDn().getName();
 
         if ( isDebugEnabled() )
         {

@@ -1392,7 +1392,7 @@ public class DefaultDirectoryService implements DirectoryService
             {
                 LdifEntry ldifEntry = testEntry.clone();
                 Entry entry = ldifEntry.getEntry();
-                String dn = ldifEntry.getDn().getUpName();
+                String dn = ldifEntry.getDn().getName();
 
                 try
                 {
@@ -1458,7 +1458,7 @@ public class DefaultDirectoryService implements DirectoryService
             
             if( changeLog.isExposed() && changeLog.isTagSearchSupported() )
             {
-                String clSuffix = ( ( TaggableSearchableChangeLogStore ) changeLog.getChangeLogStore() ).getPartition().getSuffixDn().getUpName();
+                String clSuffix = ( ( TaggableSearchableChangeLogStore ) changeLog.getChangeLogStore() ).getPartition().getSuffixDn().getName();
                 partitionNexus.getRootDSE( null ).getOriginalEntry().add( SchemaConstants.CHANGELOG_CONTEXT_AT, clSuffix );
             }
         }

@@ -321,7 +321,7 @@ public class NullPartition extends AbstractPartition
 
     public String getSuffix()
     {
-        return suffix.getUpName();
+        return suffix.getName();
     }
 
 

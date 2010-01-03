@@ -175,7 +175,7 @@ public class CompareOperationContext extends AbstractOperationContext
      */
     public String toString()
     {
-        return "CompareContext for DN '" + getDn().getUpName() + "'" + 
+        return "CompareContext for DN '" + getDn().getName() + "'" + 
             ( ( oid != null ) ? ", oid : <" + oid + ">" : "" ) +
             ( ( value != null ) ? ", value :'" +
                     ( ( !value.isBinary() ) ?

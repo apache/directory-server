@@ -134,7 +134,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
         if ( ( entry.get( SchemaConstants.USER_PASSWORD_AT ) != null ) && 
             ( entry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ) != null ) )
         {
-            log.debug( "Adding the entry '{}' for DN '{}'.", entry, normName.getUpName() );
+            log.debug( "Adding the entry '{}' for DN '{}'.", entry, normName.getName() );
 
             ServerBinaryValue userPassword = (ServerBinaryValue)entry.get( SchemaConstants.USER_PASSWORD_AT ).get();
             String strUserPassword = userPassword.getString();
@@ -162,7 +162,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             entry.put( getKeyAttribute( addContext.getSession().getDirectoryService().getSchemaManager(), keys ) );
 
             log.debug( "Adding modified entry '{}' for DN '{}'.", entry, normName
-                .getUpName() );
+                .getName() );
         }
 
         next.add( addContext );
@@ -312,7 +312,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
         else
         {
             subContext.isPrincipal( true );
-            log.debug( "DN {} is a Kerberos principal.  Will attempt key derivation.", principalDn.getUpName() );
+            log.debug( "DN {} is a Kerberos principal.  Will attempt key derivation.", principalDn.getName() );
         }
 
         if ( subContext.getPrincipalName() == null )

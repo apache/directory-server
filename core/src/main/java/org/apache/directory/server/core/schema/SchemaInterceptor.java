@@ -1776,7 +1776,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 if ( !allowed.contains( attrOid ) )
                 {
                     throw new LdapSchemaViolationException( "Attribute " + attribute.getUpId()
-                        + " not declared in objectClasses of entry " + dn.getUpName(),
+                        + " not declared in objectClasses of entry " + dn.getName(),
                         ResultCodeEnum.OBJECT_CLASS_VIOLATION );
                 }
             }
@@ -1823,7 +1823,7 @@ public class SchemaInterceptor extends BaseInterceptor
         if ( must.size() != 0 )
         {
             throw new LdapSchemaViolationException( "Required attributes " + must + " not found within entry "
-                + dn.getUpName(), ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+                + dn.getName(), ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
     }
 

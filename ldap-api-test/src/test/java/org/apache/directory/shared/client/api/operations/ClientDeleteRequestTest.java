@@ -105,7 +105,7 @@ public class ClientDeleteRequestTest
         connection = new LdapConnection( "localhost", ldapServer.getPort() );
 
         LdapDN bindDn = new LdapDN( "uid=admin,ou=system" );
-        connection.bind( bindDn.getUpName(), "secret" );
+        connection.bind( bindDn.getName(), "secret" );
         
         session = ldapServer.getDirectoryService().getAdminSession();
     }
@@ -124,7 +124,7 @@ public class ClientDeleteRequestTest
         
         assertTrue( session.exists( dn ) );
         
-        DeleteResponse response = connection.delete( dn.getUpName() );
+        DeleteResponse response = connection.delete( dn.getName() );
         assertNotNull( response );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         
@@ -138,7 +138,7 @@ public class ClientDeleteRequestTest
         LdapDN dn = new LdapDN( "cn=child1,cn=parent,ou=system" ); // has children
         assertTrue( session.exists( dn ) );
  
-        DeleteResponse response = connection.delete( dn.getUpName() );
+        DeleteResponse response = connection.delete( dn.getName() );
         assertNotNull( response );
         assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF, response.getLdapResult().getResultCode() );
         

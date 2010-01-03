@@ -115,7 +115,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         LdapDN parentDn = ( ( ServerSystemPreferences ) parent() ).dn;
         try
         {
-            dn = new LdapDN( "prefNodeName=" + name + "," + parentDn.getUpName() );
+            dn = new LdapDN( "prefNodeName=" + name + "," + parentDn.getName() );
             dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
             
             if ( ! directoryService.getAdminSession().exists( dn ) )

@@ -157,7 +157,7 @@ public class GroupCache
                 }
                 else
                 {
-                    LOG.warn( "Found group '{}' without any member or uniqueMember attributes", groupDn.getUpName() );
+                    LOG.warn( "Found group '{}' without any member or uniqueMember attributes", groupDn.getName() );
                 }
             }
 
@@ -296,7 +296,7 @@ public class GroupCache
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents after adding '{}' :\n {}", name.getUpName(), groups );
+            LOG.debug( "group cache contents after adding '{}' :\n {}", name.getName(), groups );
         }
     }
 
@@ -321,7 +321,7 @@ public class GroupCache
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents after deleting '{}' :\n {}", name.getUpName(), groups );
+            LOG.debug( "group cache contents after deleting '{}' :\n {}", name.getName(), groups );
         }
     }
 
@@ -414,7 +414,7 @@ public class GroupCache
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getUpName(), groups );
+            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getName(), groups );
         }
     }
 
@@ -446,7 +446,7 @@ public class GroupCache
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getUpName(), groups );
+            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getName(), groups );
         }
     }
 
@@ -543,7 +543,7 @@ public class GroupCache
 
             if ( IS_DEBUG )
             {
-                LOG.debug( "group cache contents after renaming '{}' :\n{}", oldName.getUpName(), groups );
+                LOG.debug( "group cache contents after renaming '{}' :\n{}", oldName.getName(), groups );
             }
 
             return true;

@@ -94,7 +94,7 @@ public class GetPrincipal implements DirectoryServiceOperation
     {
         PrincipalStoreEntryModifier modifier = new PrincipalStoreEntryModifier();
 
-        modifier.setDistinguishedName( entry.getDn().getUpName() );
+        modifier.setDistinguishedName( entry.getDn().getName() );
 
         String principal = entry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ).getString();
         modifier.setPrincipal( new KerberosPrincipal( principal ) );

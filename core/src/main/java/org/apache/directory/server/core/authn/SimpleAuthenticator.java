@@ -329,7 +329,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             else
             {
                 // Bad password ...
-                String message = "Password not correct for user '" + opContext.getDn().getUpName() + "'";
+                String message = "Password not correct for user '" + opContext.getDn().getName() + "'";
                 LOG.info( message );
                 throw new LdapAuthenticationException( message );
             }
@@ -337,7 +337,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         else
         {
             // Bad password ...
-            String message = "Password not correct for user '" + opContext.getDn().getUpName() + "'";
+            String message = "Password not correct for user '" + opContext.getDn().getName() + "'";
             LOG.info( message );
             throw new LdapAuthenticationException( message );
         }
@@ -605,7 +605,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             if ( userEntry == null )
             {
                 LdapDN dn = opContext.getDn();
-                String upDn = ( dn == null ? "" : dn.getUpName() );
+                String upDn = ( dn == null ? "" : dn.getName() );
 
                 throw new LdapAuthenticationException( "Failed to lookup user for authentication: " + upDn );
             }

@@ -70,7 +70,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
-            return new LdapDN( oldDN.getUpName() );
+            return new LdapDN( oldDN.getName() );
         }
     };
 
@@ -106,7 +106,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
-            return new LdapDN( newSuperiorDN.getUpName() );
+            return new LdapDN( newSuperiorDN.getName() );
         }
     };
     
@@ -118,7 +118,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
-            return new LdapDN( oldRDN.getUpName() );
+            return new LdapDN( oldRDN.getName() );
         }
     };
     
@@ -130,7 +130,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
-            return new LdapDN( oldSuperiorDN.getUpName() );
+            return new LdapDN( oldSuperiorDN.getName() );
         }
     };
     
@@ -142,7 +142,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
-            return new LdapDN( newDN.getUpName() );
+            return new LdapDN( newDN.getName() );
         }
     };
     

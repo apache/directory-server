@@ -163,7 +163,7 @@ public class LdifPartition extends BTreePartition
     {
         // Initialize the AvlPartition
         wrappedPartition.setId( id );
-        wrappedPartition.setSuffix( suffix.getUpName() );
+        wrappedPartition.setSuffix( suffix.getName() );
         wrappedPartition.setSchemaManager( schemaManager );
         wrappedPartition.initialize();
         

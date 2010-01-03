@@ -166,7 +166,7 @@ public class PartitionFrame extends JFrame
         content.add( mainPnl, java.awt.BorderLayout.NORTH );
         getContentPane().add( content, BorderLayout.CENTER );
         // set title
-        setTitle( "Partition: " + this.partition.getSuffixDn().getUpName() );
+        setTitle( "Partition: " + this.partition.getSuffixDn().getName() );
         // add status bar
         getContentPane().add( statusBar, BorderLayout.SOUTH );
         // add menu bar
@@ -374,7 +374,7 @@ public class PartitionFrame extends JFrame
         try
         {
             TreePath path = tree.getSelectionModel().getSelectionPath();
-            String parentDn = partition.getSuffixDn().getUpName();
+            String parentDn = partition.getSuffixDn().getName();
 
             if ( null != path )
             {
@@ -419,7 +419,7 @@ public class PartitionFrame extends JFrame
 
         if ( null == path )
         {
-            return partition.getSuffixDn().getUpName();
+            return partition.getSuffixDn().getName();
         }
 
         Object last = path.getLastPathComponent();
@@ -438,7 +438,7 @@ public class PartitionFrame extends JFrame
         }
         else
         {
-            base = partition.getSuffixDn().getUpName();
+            base = partition.getSuffixDn().getName();
         }
 
         return base;
@@ -463,7 +463,7 @@ public class PartitionFrame extends JFrame
 
             for ( LdifEntry entry:new LdifReader( in ) )
             {
-                String updn = entry.getDn().getUpName();
+                String updn = entry.getDn().getName();
                 
                 LdapDN ndn = new LdapDN( StringTools.deepTrimToLower( updn ) );
 
@@ -570,7 +570,7 @@ public class PartitionFrame extends JFrame
         }
         else
         {
-            dialog.setBase( partition.getSuffixDn().getUpName() );
+            dialog.setBase( partition.getSuffixDn().getName() );
         }
 
         dialog.addActionListener( new ActionListener()
@@ -885,7 +885,7 @@ public class PartitionFrame extends JFrame
         nodes = new HashMap<Long, EntryNode>();
 
         ServerEntry suffix = partition.lookup( partition.getEntryId( partition.getSuffixDn().toNormName() ) );
-        Long id = partition.getEntryId( partition.getSuffixDn().getUpName() );
+        Long id = partition.getEntryId( partition.getSuffixDn().getName() );
         root = new EntryNode( id, null, partition, suffix, nodes );
 
         /*

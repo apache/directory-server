@@ -77,7 +77,7 @@ public class ClientModifyDnRequestTest
         connection = new LdapConnection( "localhost", ldapServer.getPort() );
 
         LdapDN bindDn = new LdapDN( "uid=admin,ou=system" );
-        connection.bind( bindDn.getUpName(), "secret" );
+        connection.bind( bindDn.getName(), "secret" );
         
         session = ldapServer.getDirectoryService().getAdminSession();
     }

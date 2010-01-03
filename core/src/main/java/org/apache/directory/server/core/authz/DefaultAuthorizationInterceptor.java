@@ -198,7 +198,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
         if ( isTheAdministrator( name ) )
         {
-            String msg = "User " + principalDn.getUpName();
+            String msg = "User " + principalDn.getName();
             msg += " does not have permission to delete the admin account.";
             msg += " No one not even the admin can delete this account!";
             LOG.error( msg );
@@ -211,18 +211,18 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             {
                 if ( name.startsWith( USER_BASE_DN ) )
                 {
-                    String msg = "User " + principalDn.getUpName();
+                    String msg = "User " + principalDn.getName();
                     msg += " does not have permission to delete the user account: ";
-                    msg += name.getUpName() + ". Only the admin can delete user accounts.";
+                    msg += name.getName() + ". Only the admin can delete user accounts.";
                     LOG.error( msg );
                     throw new LdapNoPermissionException( msg );
                 }
         
                 if ( name.startsWith( GROUP_BASE_DN ) )
                 {
-                    String msg = "User " + principalDn.getUpName();
+                    String msg = "User " + principalDn.getName();
                     msg += " does not have permission to delete the group entry: ";
-                    msg += name.getUpName() + ". Only the admin can delete groups.";
+                    msg += name.getName() + ". Only the admin can delete groups.";
                     LOG.error( msg );
                     throw new LdapNoPermissionException( msg );
                 }
@@ -300,7 +300,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             
             if ( dn.getNormName().equals( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED ) )
             {
-                String msg = "User " + principalDn.getUpName();
+                String msg = "User " + principalDn.getName();
                 msg += " does not have permission to modify the account of the";
                 msg += " admin user.";
                 LOG.error( msg );
@@ -311,9 +311,9 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
                 {
                 if ( dn.startsWith( USER_BASE_DN ) )
                 {
-                    String msg = "User " + principalDn.getUpName();
+                    String msg = "User " + principalDn.getName();
                     msg += " does not have permission to modify the account of the";
-                    msg += " user " + dn.getUpName() + ".\nEven the owner of an account cannot";
+                    msg += " user " + dn.getName() + ".\nEven the owner of an account cannot";
                     msg += " modify it.\nUser accounts can only be modified by the";
                     msg += " administrator.";
                     LOG.error( msg );
@@ -322,9 +322,9 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     
                 if ( dn.startsWith( GROUP_BASE_DN ) )
                 {
-                    String msg = "User " + principalDn.getUpName();
+                    String msg = "User " + principalDn.getName();
                     msg += " does not have permission to modify the group entry ";
-                    msg += dn.getUpName() + ".\nGroups can only be modified by the admin.";
+                    msg += dn.getName() + ".\nGroups can only be modified by the admin.";
                     LOG.error( msg );
                     throw new LdapNoPermissionException( msg );
                 }
@@ -396,19 +396,19 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         
         if ( isTheAdministrator( dn ) )
         {
-            String msg = "User '" + principalDn.getUpName();
+            String msg = "User '" + principalDn.getName();
             msg += "' does not have permission to move or rename the admin";
             msg += " account.  No one not even the admin can move or";
-            msg += " rename " + dn.getUpName() + "!";
+            msg += " rename " + dn.getName() + "!";
             LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
 
         if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN ) && !isAnAdministrator( principalDn ) )
         {
-            String msg = "User '" + principalDn.getUpName();
+            String msg = "User '" + principalDn.getName();
             msg += "' does not have permission to move or rename the user";
-            msg += " account: " + dn.getUpName() + ". Only the admin can move or";
+            msg += " account: " + dn.getName() + ". Only the admin can move or";
             msg += " rename user accounts.";
             LOG.error( msg );
             throw new LdapNoPermissionException( msg );
@@ -416,9 +416,9 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
         if ( dn.size() > 2 && dn.startsWith( GROUP_BASE_DN ) && !isAnAdministrator( principalDn ) )
         {
-            String msg = "User " + principalDn.getUpName();
+            String msg = "User " + principalDn.getName();
             msg += " does not have permission to move or rename the group entry ";
-            msg += dn.getUpName() + ".\nGroups can only be moved or renamed by the admin.";
+            msg += dn.getName() + ".\nGroups can only be moved or renamed by the admin.";
             throw new LdapNoPermissionException( msg );
         }
     }
@@ -452,8 +452,8 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
                         return;
                     }
     
-                    String msg = "Access to user account '" + normalizedDn.getUpName() + "' not permitted";
-                    msg += " for user '" + principalDn.getUpName() + "'.  Only the admin can";
+                    String msg = "Access to user account '" + normalizedDn.getName() + "' not permitted";
+                    msg += " for user '" + principalDn.getName() + "'.  Only the admin can";
                     msg += " access user account information";
                     LOG.error( msg );
                     throw new LdapNoPermissionException( msg );
@@ -467,8 +467,8 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
                         return;
                     }
     
-                    String msg = "Access to group '" + normalizedDn.getUpName() + "' not permitted";
-                    msg += " for user '" + principalDn.getUpName() + "'.  Only the admin can";
+                    String msg = "Access to group '" + normalizedDn.getName() + "' not permitted";
+                    msg += " for user '" + principalDn.getName() + "'.  Only the admin can";
                     msg += " access group information";
                     LOG.error( msg );
                     throw new LdapNoPermissionException( msg );
@@ -484,7 +484,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
                 }
 
                 String msg = "Access to admin account not permitted for user '";
-                msg += principalDn.getUpName() + "'.  Only the admin can";
+                msg += principalDn.getName() + "'.  Only the admin can";
                 msg += " access admin account information";
                 LOG.error( msg );
                 throw new LdapNoPermissionException( msg );

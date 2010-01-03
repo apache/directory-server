@@ -272,7 +272,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         }
         catch ( PartialResultException pre )
         {
-            assertEquals( "cn=alex karasulu,ou=apache", ((LdapDN)pre.getRemainingName()).getUpName() );
+            assertEquals( "cn=alex karasulu,ou=apache", ((LdapDN)pre.getRemainingName()).getName() );
             assertEquals( LdapDN.EMPTY_LDAPDN, pre.getResolvedName() );
         }
     }
@@ -308,8 +308,8 @@ public class ReferralIT extends AbstractLdapTestUnit
         }
         catch ( LdapReferralException lre )
         {
-            assertEquals( "cn=alex karasulu,ou=apache", ((LdapDN)lre.getRemainingName()).getUpName() );
-            assertEquals( "ou=users,ou=system", ((LdapDN)lre.getResolvedName()).getUpName() );
+            assertEquals( "cn=alex karasulu,ou=apache", ((LdapDN)lre.getRemainingName()).getName() );
+            assertEquals( "ou=users,ou=system", ((LdapDN)lre.getResolvedName()).getName() );
         }
     }
 
@@ -343,7 +343,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         }
         catch ( PartialResultException pre )
         {
-            assertEquals( "cn=alex karasulu,ou=apache", ((LdapDN)pre.getRemainingName()).getUpName() );
+            assertEquals( "cn=alex karasulu,ou=apache", ((LdapDN)pre.getRemainingName()).getName() );
             assertEquals( LdapDN.EMPTY_LDAPDN, pre.getResolvedName() );
         }
     }

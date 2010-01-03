@@ -64,6 +64,6 @@ public class UnbindOperationContext extends AbstractOperationContext
      */
     public String toString()
     {
-        return "UnbindContext for DN '" + getDn().getUpName() + "'";
+        return "UnbindContext for DN '" + getDn().getName() + "'";
     }
 }

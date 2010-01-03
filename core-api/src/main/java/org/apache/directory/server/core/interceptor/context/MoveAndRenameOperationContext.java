@@ -118,7 +118,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
     {
         if ( newDn == null )
         {
-            newDn = new LdapDN( getParent().getUpName() );
+            newDn = new LdapDN( getParent().getName() );
             newDn.add( getNewRdn().getUpName() );
             newDn.normalize( session.getDirectoryService()
                 .getSchemaManager().getNormalizerMapping() );
@@ -133,7 +133,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
      */
     public String toString()
     {
-        return "ReplaceContext for old DN '" + getDn().getUpName() + "'" +
+        return "ReplaceContext for old DN '" + getDn().getName() + "'" +
         ", parent '" + parent + "'";
     }
 }

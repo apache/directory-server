@@ -94,7 +94,7 @@ public class DeleteOperationContext extends AbstractChangeOperationContext
      */
     public String toString()
     {
-        return "DeleteContext for DN '" + getDn().getUpName() + "'";
+        return "DeleteContext for DN '" + getDn().getName() + "'";
     }
 
 

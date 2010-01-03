@@ -220,7 +220,7 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
                 LOG.error( "Bad URL ({}) for ref in {}.  Reference will be ignored.", ref, referralAncestor );
             }
             
-            LdapDN urlDn = new LdapDN( ldapUrl.getDn().getUpName() );
+            LdapDN urlDn = new LdapDN( ldapUrl.getDn().getName() );
             urlDn.normalize( session.getCoreSession().getDirectoryService().getSchemaManager()
                 .getNormalizerMapping() ); 
             
@@ -251,7 +251,7 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
 
             // TODO - fix this by access unormalized RDN values
             // seems we have to do this because get returns normalized rdns
-            LdapDN reqUnnormalizedDn = new LdapDN( reqTargetDn.getUpName() );
+            LdapDN reqUnnormalizedDn = new LdapDN( reqTargetDn.getName() );
             for ( int jj = 0; jj < diff; jj++ )
             {
                 extra.add( reqUnnormalizedDn.get( referralAncestor.getDn().size() + jj ) );
@@ -270,7 +270,7 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
             }
 
             buf.append( "/" );
-            buf.append( LdapURL.urlEncode( urlDn.getUpName(), false ) );
+            buf.append( LdapURL.urlEncode( urlDn.getName(), false ) );
             referral.addLdapUrl( buf.toString() );
         }
         
@@ -320,7 +320,7 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
             }
             
             // Normalize the DN to check for same dn
-            LdapDN urlDn = new LdapDN( ldapUrl.getDn().getUpName() );
+            LdapDN urlDn = new LdapDN( ldapUrl.getDn().getName() );
             urlDn.normalize( session.getCoreSession().getDirectoryService().getSchemaManager()
                 .getNormalizerMapping() ); 
             
@@ -343,7 +343,7 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
 
             // TODO - fix this by access unormalized RDN values
             // seems we have to do this because get returns normalized rdns
-            LdapDN reqUnnormalizedDn = new LdapDN( req.getBase().getUpName() );
+            LdapDN reqUnnormalizedDn = new LdapDN( req.getBase().getName() );
             for ( int jj = 0; jj < diff; jj++ )
             {
                 extra.add( reqUnnormalizedDn.get( referralAncestor.getDn().size() + jj ) );

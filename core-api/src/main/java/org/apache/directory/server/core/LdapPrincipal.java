@@ -147,7 +147,7 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
      */
     public String toString()
     {
-        return "['" + name.getUpName() + "', '" + StringTools.utf8ToString( userPassword ) +"']'";
+        return "['" + name.getName() + "', '" + StringTools.utf8ToString( userPassword ) +"']'";
     }
 
 

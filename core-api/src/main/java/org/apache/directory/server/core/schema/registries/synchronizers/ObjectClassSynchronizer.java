@@ -118,12 +118,12 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         {
             if ( schemaManager.add( objectClass ) )
             {
-                LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
+                LOG.debug( "Added {} into the enabled schema {}", dn.getName(), schemaName );
             }
             else
             {
                 // We have some error : reject the addition and get out
-                String msg = "Cannot add the ObjectClass " + entry.getDn().getUpName() + " into the registries, "
+                String msg = "Cannot add the ObjectClass " + entry.getDn().getName() + " into the registries, "
                     + "the resulting registries would be inconsistent :" + 
                     StringTools.listToString( schemaManager.getErrors() );
                 LOG.info( msg );
@@ -160,7 +160,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         {
             // The schema is disabled, nothing to do.
             LOG.debug( "The ObjectClass {} cannot be removed from the disabled schema {}.", 
-                dn.getUpName(), schemaName );
+                dn.getName(), schemaName );
             
             return;
         }
@@ -177,7 +177,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // We have some error : reject the deletion and get out
-                String msg = "Cannot delete the ObjectClass " + entry.getDn().getUpName() + " from the registries, "
+                String msg = "Cannot delete the ObjectClass " + entry.getDn().getName() + " from the registries, "
                     + "the resulting registries would be inconsistent :" + 
                     StringTools.listToString( schemaManager.getErrors() );
                 LOG.info( msg );
@@ -228,7 +228,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
             // Check that the entry has no descendant
             if ( schemaManager.getObjectClassRegistry().hasDescendants( oldOc.getOid() ) )
             {
-                String msg = "Cannot rename " + entry.getDn().getUpName() + " to " + newDn
+                String msg = "Cannot rename " + entry.getDn().getName() + " to " + newDn
                     + " as the later has descendants' ObjectClasses";
 
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );

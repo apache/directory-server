@@ -55,7 +55,7 @@ public class PreferencesUtilsTest
 
         LdapDN dn = ( LdapDN ) PreferencesUtils.toSysDn( test );
 
-        assertEquals( expectedDN, dn.getUpName() );
+        assertEquals( expectedDN, dn.getName() );
 
         // simple test without trailing '/'
 
@@ -63,7 +63,7 @@ public class PreferencesUtilsTest
 
         dn = ( LdapDN ) PreferencesUtils.toSysDn( test );
 
-        assertEquals( expectedDN, dn.getUpName() );
+        assertEquals( expectedDN, dn.getName() );
 
         // basis condition tests
 
@@ -71,7 +71,7 @@ public class PreferencesUtilsTest
 
         dn = ( LdapDN ) PreferencesUtils.toSysDn( test );
 
-        assertEquals( ServerDNConstants.SYSPREFROOT_SYSTEM_DN, dn.getUpName() );
+        assertEquals( ServerDNConstants.SYSPREFROOT_SYSTEM_DN, dn.getName() );
 
         // endpoint tests
 
@@ -79,7 +79,7 @@ public class PreferencesUtilsTest
 
         dn = ( LdapDN ) PreferencesUtils.toSysDn( test );
 
-        assertEquals( ServerDNConstants.SYSPREFROOT_SYSTEM_DN, dn.getUpName() );
+        assertEquals( ServerDNConstants.SYSPREFROOT_SYSTEM_DN, dn.getName() );
 
     }
 }

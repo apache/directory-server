@@ -65,6 +65,6 @@ public class GetRootDSEOperationContext extends AbstractOperationContext
      */
     public String toString()
     {
-        return "GetRootDSEContext with DN '" + getDn().getUpName() + "'";
+        return "GetRootDSEContext with DN '" + getDn().getName() + "'";
     }
 }

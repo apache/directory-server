@@ -188,7 +188,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
         if ( !parentDn.equals( ouSchemaDN ) )
         {
-            throw new LdapInvalidNameException( "The parent dn of a schema should be " + ouSchemaDN.getUpName() + " and not: "
+            throw new LdapInvalidNameException( "The parent dn of a schema should be " + ouSchemaDN.getName() + " and not: "
                 + parentDn.toNormName(), ResultCodeEnum.NAMING_VIOLATION );
         }
 

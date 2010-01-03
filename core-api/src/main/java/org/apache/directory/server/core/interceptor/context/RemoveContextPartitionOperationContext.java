@@ -68,6 +68,6 @@ public class RemoveContextPartitionOperationContext extends AbstractOperationCon
      */
     public String toString()
     {
-        return "RemoveContextPartitionOperationContext for DN '" + getDn().getUpName() + "'";
+        return "RemoveContextPartitionOperationContext for DN '" + getDn().getName() + "'";
     }
 }

@@ -63,7 +63,7 @@ public class ClientCompareRequestTest
     {
         connection = new LdapConnection( "localhost", ldapServer.getPort() );
         LdapDN bindDn = new LdapDN( "uid=admin,ou=system" );
-        connection.bind( bindDn.getUpName(), "secret" );
+        connection.bind( bindDn.getName(), "secret" );
         
         session = ldapServer.getDirectoryService().getSession();
     }
@@ -78,7 +78,7 @@ public class ClientCompareRequestTest
         assertNotNull( response );
         assertTrue( response.isTrue() );
         
-        response = connection.compare( dn.getUpName(), SchemaConstants.USER_PASSWORD_AT, "secret".getBytes() );
+        response = connection.compare( dn.getName(), SchemaConstants.USER_PASSWORD_AT, "secret".getBytes() );
         assertNotNull( response );
         assertTrue( response.isTrue() );
     }

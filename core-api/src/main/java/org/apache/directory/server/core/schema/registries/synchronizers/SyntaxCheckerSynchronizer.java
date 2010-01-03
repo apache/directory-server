@@ -124,11 +124,11 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         {
             if ( schemaManager.add( syntaxChecker ) )
             {
-                LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
+                LOG.debug( "Added {} into the enabled schema {}", dn.getName(), schemaName );
             }
             else
             {
-                String msg = "Cannot delete the SyntaxChecker " + entry.getDn().getUpName() + " into the registries, "
+                String msg = "Cannot delete the SyntaxChecker " + entry.getDn().getName() + " into the registries, "
                     + "the resulting registries would be inconsistent :" + 
                     StringTools.listToString( schemaManager.getErrors() );
                 LOG.info( msg );
@@ -137,7 +137,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         }
         else
         {
-            LOG.debug( "The SyntaxChecker {} cannot be added in the disabled schema {}", dn.getUpName(), schemaName );
+            LOG.debug( "The SyntaxChecker {} cannot be added in the disabled schema {}", dn.getName(), schemaName );
         }
     }
 
@@ -163,7 +163,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         if ( schema.isDisabled() )
         {
             // The schema is disabled, nothing to do.
-            LOG.debug( "The SyntaxChecker {} cannot be deleted from the disabled schema {}", dn.getUpName(), schemaName );
+            LOG.debug( "The SyntaxChecker {} cannot be deleted from the disabled schema {}", dn.getName(), schemaName );
             
             return;
         }
@@ -191,7 +191,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // Ok, definitively an error
-                String msg = "Cannot delete the SyntaxChecker " + entry.getDn().getUpName() + " as it "
+                String msg = "Cannot delete the SyntaxChecker " + entry.getDn().getName() + " as it "
                     + "does not exist in any schema";
                 LOG.info( msg );
                 throw new LdapSchemaViolationException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
@@ -202,11 +202,11 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         {
             if ( schemaManager.delete( syntaxChecker ) )
             {
-                LOG.debug( "Deleted {} from the enabled schema {}", dn.getUpName(), schemaName );
+                LOG.debug( "Deleted {} from the enabled schema {}", dn.getName(), schemaName );
             }
             else
             {
-                String msg = "Cannot delete the syntaxChecker " + entry.getDn().getUpName() + " into the registries, "
+                String msg = "Cannot delete the syntaxChecker " + entry.getDn().getName() + " into the registries, "
                     + "the resulting registries would be inconsistent :" + 
                     StringTools.listToString( schemaManager.getErrors() );
                 LOG.info( msg );
@@ -215,7 +215,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         }
         else
         {
-            LOG.debug( "The syntaxChecker {} cannot be deleted from the disabled schema {}", dn.getUpName(), schemaName );
+            LOG.debug( "The syntaxChecker {} cannot be deleted from the disabled schema {}", dn.getName(), schemaName );
         }
     }
 

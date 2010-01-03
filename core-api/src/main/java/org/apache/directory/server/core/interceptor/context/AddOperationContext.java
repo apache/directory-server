@@ -122,6 +122,6 @@ public class AddOperationContext extends AbstractChangeOperationContext
      */
     public String toString()
     {
-        return "AddContext for DN '" + getDn().getUpName() + "'" + ", added entry: " + entry;
+        return "AddContext for DN '" + getDn().getName() + "'" + ", added entry: " + entry;
     }
 }

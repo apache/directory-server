@@ -330,7 +330,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
             system.add( addOperationContext );
         }
         
-        String key = system.getSuffixDn().getUpName();
+        String key = system.getSuffixDn().getName();
         
         if ( partitions.containsKey( key ) )
         {
@@ -347,12 +347,12 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
             {
                 namingContexts = new DefaultServerAttribute( 
                     schemaManager.lookupAttributeTypeRegistry( SchemaConstants.NAMING_CONTEXTS_AT ), 
-                    system.getSuffixDn().getUpName() );
+                    system.getSuffixDn().getName() );
                 rootDSE.put( namingContexts );
             }
             else
             {
-                namingContexts.add( system.getSuffixDn().getUpName() );
+                namingContexts.add( system.getSuffixDn().getName() );
             }
         }
 
@@ -899,12 +899,12 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
             if ( namingContexts == null )
             {
                 namingContexts = new DefaultServerAttribute( 
-                    schemaManager.lookupAttributeTypeRegistry( SchemaConstants.NAMING_CONTEXTS_AT ), partitionSuffix.getUpName() );
+                    schemaManager.lookupAttributeTypeRegistry( SchemaConstants.NAMING_CONTEXTS_AT ), partitionSuffix.getName() );
                 rootDSE.put( namingContexts );
             }
             else
             {
-                namingContexts.add( partitionSuffix.getUpName() );
+                namingContexts.add( partitionSuffix.getName() );
             }
         }
     }
@@ -928,7 +928,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
             throw new NameNotFoundException( msg );
         }
         
-        String partitionSuffix = partition.getSuffixDn().getUpName();
+        String partitionSuffix = partition.getSuffixDn().getName();
 
         // Retrieve the namingContexts from the RootDSE : the partition
         // suffix must be present in those namingContexts
@@ -1082,10 +1082,10 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         
         if ( namingContexts != null )
         {
-            namingContexts.remove( partition.getSuffixDn().getUpName() );
+            namingContexts.remove( partition.getSuffixDn().getName() );
         }
         
-        partitions.remove( partition.getSuffixDn().getUpName() );
+        partitions.remove( partition.getSuffixDn().getName() );
     }
 
 

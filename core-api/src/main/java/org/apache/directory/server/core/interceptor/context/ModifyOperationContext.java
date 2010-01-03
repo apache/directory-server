@@ -173,7 +173,7 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     {
         StringBuilder sb = new StringBuilder();
         
-        sb.append("ModifyContext for DN '").append( getDn().getUpName() ).append( "', modifications :\n" );
+        sb.append("ModifyContext for DN '").append( getDn().getName() ).append( "', modifications :\n" );
         
         if ( modItems != null )
         {

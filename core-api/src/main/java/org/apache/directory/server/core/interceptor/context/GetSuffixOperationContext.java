@@ -66,6 +66,6 @@ public class GetSuffixOperationContext extends AbstractOperationContext
      */
     public String toString()
     {
-        return "GetSuffixOperationContext with DN '" + getDn().getUpName() + "'";
+        return "GetSuffixOperationContext with DN '" + getDn().getName() + "'";
     }
 }

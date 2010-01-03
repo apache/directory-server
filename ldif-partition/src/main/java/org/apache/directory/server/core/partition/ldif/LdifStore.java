@@ -97,7 +97,7 @@ public class LdifStore<E> implements Store<E>
      */
     public void loadConfig() throws Exception
     {
-        String upsuffixDir = wrappedStore.getUpSuffix().getUpName().toLowerCase();
+        String upsuffixDir = wrappedStore.getUpSuffix().getName().toLowerCase();
         File dir = new File( workingDirectory, upsuffixDir );
         
         if( ! dir.exists() )
@@ -198,7 +198,7 @@ public class LdifStore<E> implements Store<E>
         ServerEntry entry = lookup( id );
         LOG.warn( "deleting the entry with id {} and dn {}", id, entry.getDn() );
 
-        LOG.warn( "having the parent id {}", getParentId( entry.getDn().getUpName() ) );
+        LOG.warn( "having the parent id {}", getParentId( entry.getDn().getName() ) );
         wrappedStore.delete( id );
         
         if( entry != null )

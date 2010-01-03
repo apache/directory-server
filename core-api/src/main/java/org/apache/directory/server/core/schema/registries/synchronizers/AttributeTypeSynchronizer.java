@@ -91,12 +91,12 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         {
             if ( schemaManager.add( attributeType ) )
             {
-                LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
+                LOG.debug( "Added {} into the enabled schema {}", dn.getName(), schemaName );
             }
             else
             {
                 // We have some error : reject the addition and get out
-                String msg = "Cannot add the AttributeType " + entry.getDn().getUpName() + " into the registries, "
+                String msg = "Cannot add the AttributeType " + entry.getDn().getName() + " into the registries, "
                     + "the resulting registries would be inconsistent :" + 
                     StringTools.listToString( schemaManager.getErrors() );
                 LOG.info( msg );
@@ -161,7 +161,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         {
             // The schema is disabled, nothing to do.
             LOG.debug( "The AttributeType {} cannot be removed from the disabled schema {}.", 
-                dn.getUpName(), schemaName );
+                dn.getName(), schemaName );
             
             return;
         }
@@ -178,7 +178,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // We have some error : reject the deletion and get out
-                String msg = "Cannot delete the AttributeType " + entry.getDn().getUpName() + " from the registries, "
+                String msg = "Cannot delete the AttributeType " + entry.getDn().getName() + " from the registries, "
                     + "the resulting registries would be inconsistent :" + 
                     StringTools.listToString( schemaManager.getErrors() );
                 LOG.info( msg );
@@ -221,7 +221,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             // Check that the entry has no descendant
             if ( schemaManager.getAttributeTypeRegistry().hasDescendants( oldAt.getOid() ) )
             {
-                String msg = "Cannot rename " + entry.getDn().getUpName() + " to " + newDn
+                String msg = "Cannot rename " + entry.getDn().getName() + " to " + newDn
                     + " as the later has descendants' AttributeTypes";
 
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );

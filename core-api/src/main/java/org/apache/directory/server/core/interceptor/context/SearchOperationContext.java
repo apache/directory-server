@@ -160,7 +160,7 @@ public class SearchOperationContext extends SearchingOperationContext
      */
     public String toString()
     {
-        return "SearchContext for DN '" + getDn().getUpName() + "', filter :'"
+        return "SearchContext for DN '" + getDn().getName() + "', filter :'"
         + filter + "'"; 
     }
 
