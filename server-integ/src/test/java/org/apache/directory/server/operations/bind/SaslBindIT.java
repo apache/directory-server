@@ -62,7 +62,6 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -449,7 +448,14 @@ public class SaslBindIT extends AbstractLdapTestUnit
      @Test
      public void testGssSpnegoBind() throws Exception
      {
-         BogusNtlmProvider provider = getNtlmProviderUsingReflection();
+         BogusNtlmProvider provider = new BogusNtlmProvider();
+
+         // the provider configured in @CreateLdapServer only sets for the NTLM mechanism
+         // but we use the same NtlmMechanismHandler class for GSS_SPNEGO too but this is a separate
+         // instance, so we need to set the provider in the NtlmMechanismHandler instance of GSS_SPNEGO mechanism
+         NtlmMechanismHandler ntlmHandler = ( NtlmMechanismHandler ) ldapServer.getSaslMechanismHandlers().get( SupportedSaslMechanisms.GSS_SPNEGO );
+         ntlmHandler.setNtlmProvider( provider );
+
          NtlmSaslBindClient client = new NtlmSaslBindClient( SupportedSaslMechanisms.GSS_SPNEGO );
          InternalBindResponse type2response = client.bindType1( "type1_test".getBytes() );
          assertEquals( 1, type2response.getMessageId() );
