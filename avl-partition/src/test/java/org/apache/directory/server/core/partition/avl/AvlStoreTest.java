@@ -737,6 +737,33 @@ public class AvlStoreTest
     
     
     @Test
+    public void testRenameEscaped() throws Exception
+    {
+        LdapDN dn = new LdapDN( "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
+        dn.normalize( schemaManager.getNormalizerMapping() );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        entry.add( "objectClass", "top", "person", "organizationalPerson" );
+        entry.add( "ou", "Engineering" );
+        entry.add( "cn",  "Private Ryan");
+        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
+        entry.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
+        
+        store.add( entry );
+        
+        Rdn rdn = new Rdn("sn=Ja\\+es");
+        
+        store.rename( dn, rdn, true );
+        
+        LdapDN dn2 = new LdapDN( "sn=Ja\\+es,ou=Engineering,o=Good Times Co." );
+        dn2.normalize( schemaManager.getNormalizerMapping() );
+        Long id = store.getEntryId( dn2.getNormName() );
+        assertNotNull( id );
+        ServerEntry entry2 = store.lookup( id );
+        assertEquals("Ja+es", entry2.get( "sn" ).getString());
+    }
+    
+    
+    @Test
     public void testMove() throws Exception
     {
         LdapDN childDn = new LdapDN( "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
