@@ -87,7 +87,7 @@ import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.CascadeControl;
-import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
+import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -1125,13 +1125,13 @@ public class SchemaInterceptor extends BaseInterceptor
             // Delete the old RDN means we remove some attributes and values.
             // We must make sure that after this operation all must attributes
             // are still present in the entry.
-            for ( AttributeTypeAndValue atav : oldRDN )
+            for ( AVA atav : oldRDN )
             {
                 AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
                 tmpEntry.remove( type, atav.getUpValue() );
             }
             
-            for ( AttributeTypeAndValue atav : newRdn )
+            for ( AVA atav : newRdn )
             {
                 AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
 
@@ -1147,7 +1147,7 @@ public class SchemaInterceptor extends BaseInterceptor
             check( opContext.getNewDn(), tmpEntry );
 
             // Check that no operational attributes are removed
-            for ( AttributeTypeAndValue atav : oldRDN )
+            for ( AVA atav : oldRDN )
             {
                 AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
 
@@ -1942,7 +1942,7 @@ public class SchemaInterceptor extends BaseInterceptor
     
     private void assertRdn( LdapDN dn, ServerEntry entry ) throws Exception
     {
-        for ( AttributeTypeAndValue atav : dn.getRdn() )
+        for ( AVA atav : dn.getRdn() )
         {
             EntryAttribute attribute = entry.get( atav.getNormType() );
             

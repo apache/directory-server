@@ -56,7 +56,7 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
+import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -574,9 +574,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             // below we only process multi-valued rdns
             StringBuffer buf = new StringBuffer();
         
-            for ( Iterator<AttributeTypeAndValue> atavs = rdn.iterator(); atavs.hasNext(); /**/ )
+            for ( Iterator<AVA> atavs = rdn.iterator(); atavs.hasNext(); /**/ )
             {
-                AttributeTypeAndValue atav = atavs.next();
+                AVA atav = atavs.next();
                 String type = schemaManager.lookupAttributeTypeRegistry( rdn.getNormType() ).getName();
                 buf.append( type ).append( '=' ).append( atav.getNormValue() );
                 

@@ -47,7 +47,7 @@ import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
+import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -356,7 +356,7 @@ public class NormalizationInterceptor extends BaseInterceptor
         Rdn rdn = dn.getRdn();
 
         // Loop on all the AVAs
-        for ( AttributeTypeAndValue ava : rdn )
+        for ( AVA ava : rdn )
         {
             String value = ava.getNormValue().getString();
             String upValue = ava.getUpValue().getString();

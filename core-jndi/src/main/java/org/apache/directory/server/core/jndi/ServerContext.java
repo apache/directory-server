@@ -84,7 +84,7 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
+import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
@@ -811,7 +811,7 @@ public abstract class ServerContext implements EventContext
         }
         else
         {
-            for ( AttributeTypeAndValue atav : rdn )
+            for ( AVA atav : rdn )
             {
                 serverEntry.put( atav.getUpType(), atav.getNormValue().getString() );
             }

@@ -67,7 +67,7 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
+import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
@@ -511,9 +511,9 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         }
         else
         {
-            for ( Iterator<AttributeTypeAndValue> ii = rdn.iterator(); ii.hasNext(); /**/)
+            for ( Iterator<AVA> ii = rdn.iterator(); ii.hasNext(); /**/)
             {
-                AttributeTypeAndValue atav = ii.next();
+                AVA atav = ii.next();
 
                 // Add the Rdn attribute
                 boolean doRdnPut = attributes.get( atav.getNormType() ) == null;

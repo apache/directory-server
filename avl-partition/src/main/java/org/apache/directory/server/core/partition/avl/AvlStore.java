@@ -53,7 +53,7 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
+import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -1375,7 +1375,7 @@ public class AvlStore<E> implements Store<E>
          * new Rdn attribute within this entry.
          */
 
-        for ( AttributeTypeAndValue newAtav : newRdn )
+        for ( AVA newAtav : newRdn )
         {
             String newNormType = newAtav.getNormType();
             String newNormValue = newAtav.getNormValue().getString();
@@ -1431,12 +1431,12 @@ public class AvlStore<E> implements Store<E>
         if ( deleteOldRdn )
         {
             Rdn oldRdn = updn.getRdn();
-            for ( AttributeTypeAndValue oldAtav : oldRdn )
+            for ( AVA oldAtav : oldRdn )
             {
                 // check if the new ATAV is part of the old Rdn
                 // if that is the case we do not remove the ATAV
                 boolean mustRemove = true;
-                for ( AttributeTypeAndValue newAtav : newRdn )
+                for ( AVA newAtav : newRdn )
                 {
                     if ( oldAtav.equals( newAtav ) )
                     {
