@@ -189,14 +189,17 @@ public class EventInterceptor extends BaseInterceptor
 
     public void modify( NextInterceptor next, final ModifyOperationContext opContext ) throws Exception
     {
-        ClonedServerEntry oriEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
-        List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), oriEntry );
+        List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), opContext.getEntry() );
         next.modify( opContext );
 
         if ( selecting.isEmpty() )
         {
             return;
         }
+
+        // Get the modifed entry
+        ClonedServerEntry alteredEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
+        opContext.setAlteredEntry( alteredEntry );
 
         for ( final RegistrationEntry registration : selecting )
         {
@@ -210,8 +213,7 @@ public class EventInterceptor extends BaseInterceptor
 
     public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
     {
-        ServerEntry oriEntry = opContext.getEntry().getOriginalEntry();
-        List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), oriEntry );
+        List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), opContext.getEntry() );
         next.rename( opContext );
 
         if ( selecting.isEmpty() )
@@ -219,7 +221,9 @@ public class EventInterceptor extends BaseInterceptor
             return;
         }
 
-        //opContext.setAlteredEntry( opContext.lookup( opContext.getNewDn(), ByPassConstants.LOOKUP_BYPASS ) );
+        // Get the modifed entry
+        ClonedServerEntry alteredEntry = opContext.lookup( opContext.getNewDn(), ByPassConstants.LOOKUP_BYPASS );
+        opContext.setAlteredEntry( alteredEntry );
         
         for ( final RegistrationEntry registration : selecting )
         {
@@ -262,9 +266,10 @@ public class EventInterceptor extends BaseInterceptor
 
     public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
     {
-        ClonedServerEntry oriEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
-        List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), oriEntry );
+        List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), opContext.getEntry() );
         next.move( opContext );
+
+        ClonedServerEntry alteredEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
 
         if ( selecting.isEmpty() )
         {

@@ -31,9 +31,8 @@ import java.util.EventObject;
 import java.util.List;
 
 import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attribute;
+import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchResult;
@@ -57,6 +56,8 @@ import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControlCodec;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControlDecoder;
 import org.apache.directory.shared.ldap.message.control.PersistentSearchControl;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -97,15 +98,13 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
     /**
      * Creation of required attributes of a person entry.
      */
-    protected Attributes getPersonAttributes( String sn, String cn )
+    private Attributes getPersonAttributes( String sn, String cn ) throws NamingException
     {
-        Attributes attributes = new BasicAttributes( true );
-        Attribute attribute = new BasicAttribute( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "person" );
-        attributes.put( attribute );
-        attributes.put( "cn", cn );
-        attributes.put( "sn", sn );
+        Attributes attributes = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: person",
+            "cn", cn,
+            "sn", sn );
 
         return attributes;
     }
@@ -117,13 +116,13 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
     Thread t;
     
 
-    public void setUpListenerReturnECs() throws Exception
+    private void setUpListenerReturnECs() throws Exception
     {
         setUpListener( true, new PersistentSearchControl(), false );
     }
     
     
-    public void setUpListener( boolean returnECs, PersistentSearchControl control, boolean ignoreEmptyRegistryCheck ) 
+    private void setUpListener( boolean returnECs, PersistentSearchControl control, boolean ignoreEmptyRegistryCheck ) 
         throws Exception
     {
         ctx = ( EventDirContext ) getWiredContext( ldapServer).lookup( BASE );
@@ -145,12 +144,13 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         {
             Thread.sleep( 100 );
         }
+        
         // Now we wait until the listener is registered (timing dependent crap)
         Thread.sleep( 250 );
     }
     
     
-    public void setUpListener() throws Exception
+    private void setUpListener() throws Exception
     {
         ctx = ( EventDirContext ) getWiredContext( ldapServer).lookup( BASE );
         eventService = ldapServer.getDirectoryService().getEventService();
@@ -166,11 +166,13 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         {
             Thread.sleep( 100 );
         }
+        
         // Now we wait until the listener is registered (timing dependent crap)
         Thread.sleep( 250 );
     }
     
     
+    @After
     public void tearDownListener() throws Exception
     {
         listener.close();
@@ -186,6 +188,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
     private void waitForThreadToDie( Thread t ) throws Exception
     {
         long start = System.currentTimeMillis();
+        
         while ( t.isAlive() )
         {
             Thread.sleep( 200 );
@@ -209,7 +212,6 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         waitForThreadToDie( t );
         assertNotNull( listener.result );
         assertEquals( RDN, listener.result.getName() );
-        tearDownListener();
     }
 
 
@@ -224,7 +226,6 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         waitForThreadToDie( t );
         assertNotNull( listener.result );
         assertEquals( "cn=Jack Black", listener.result.getName() );
-        tearDownListener();
     }
 
 
@@ -239,7 +240,6 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         waitForThreadToDie( t );
         assertNotNull( listener.result );
         assertEquals( RDN, listener.result.getName() );
-        tearDownListener();
     }
 
 
@@ -254,7 +254,6 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         waitForThreadToDie( t );
         assertNotNull( listener.result );
         assertEquals( "cn=Jack Black", listener.result.getName() );
-        tearDownListener();
     }
 
 
@@ -272,7 +271,6 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         assertNotNull( listener.result );
         assertEquals( RDN, listener.result.getName() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.MODIFY );
-        tearDownListener();
     }
 
 
@@ -290,7 +288,6 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         assertEquals( "cn=Jack Black", listener.result.getName() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.MODDN );
         assertEquals( ( RDN + ",ou=system" ), listener.result.control.getPreviousDn().getName() );
-        tearDownListener();
     }
 
 
@@ -307,7 +304,6 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         assertNotNull( listener.result );
         assertEquals( RDN, listener.result.getName() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.DELETE );
-        tearDownListener();
     }
 
 
@@ -324,7 +320,6 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         assertNotNull( listener.result );
         assertEquals( "cn=Jack Black", listener.result.getName() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.ADD );
-        tearDownListener();
     }
 
 
@@ -361,8 +356,6 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         assertNotNull( listener.result );
         assertEquals( RDN, listener.result.getName() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.MODIFY );
-        
-        tearDownListener();
     }
 
 
@@ -595,6 +588,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
                     LOG.debug( "PSearchListener search request got an item." );
                     Control[] controls = null;
                     SearchResult sresult = list.next();
+                    
                     if ( sresult instanceof HasControls )
                     {
                         controls = ( ( HasControls ) sresult ).getControls();
@@ -611,9 +605,11 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
                             }
                         }
                     }
+                    
                     result = new PSearchNotification( sresult, ecControl );
                     break;
                 }
+                
                 LOG.debug( "PSearchListener broke out of while loop." );
             }
             catch ( Exception e )
