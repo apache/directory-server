@@ -45,6 +45,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.AVA;
@@ -358,8 +359,8 @@ public class NormalizationInterceptor extends BaseInterceptor
         // Loop on all the AVAs
         for ( AVA ava : rdn )
         {
-            String value = ava.getNormValue().getString();
-            String upValue = ava.getUpValue().getString();
+            Value<?> value = ava.getNormValue();
+            Value<?> upValue = ava.getUpValue();
             String upId = ava.getUpType();
 
             // Check that the entry contains this AVA
@@ -373,7 +374,7 @@ public class NormalizationInterceptor extends BaseInterceptor
                 // 1) The attribute does not exist
                 if ( !entry.containsAttribute( upId ) )
                 {
-                    addUnescapedUpValue( entry, upId, upValue );
+                    entry.add( upId, upValue );
                 }
                 // 2) The attribute exists
                 else
@@ -384,39 +385,16 @@ public class NormalizationInterceptor extends BaseInterceptor
                     if ( at.isSingleValued() )
                     {
                         entry.removeAttributes( upId );
-                        addUnescapedUpValue( entry, upId, upValue );
+                        entry.add( upId, upValue );
                     }
                     // 2.2 the attribute is multi-valued : add the missing value
                     else
                     {
-                        addUnescapedUpValue( entry, upId, upValue );
+                        entry.add( upId, upValue );
                     }
                 }
             }
         }
     }
 
-
-    /**
-     * Adds the user provided value to the given entry.
-     * If the user provided value is string value it is unescaped first. 
-     * If the user provided value is a hex string the value is added as byte[].
-     *
-     * @param entry the entry
-     * @param upId the user provided attribute type to add
-     * @param upValue the user provided value to add
-     */
-    private void addUnescapedUpValue( ServerEntry entry, String upId, String upValue ) throws Exception
-    {
-        Object unescapedUpValue = Rdn.unescapeValue( upValue );
-
-        if ( unescapedUpValue instanceof String )
-        {
-            entry.add( upId, ( String ) unescapedUpValue );
-        }
-        else
-        {
-            entry.add( upId, ( byte[] ) unescapedUpValue );
-        }
-    }
 }
