@@ -167,12 +167,6 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     /** Global registries */
     private SchemaManager schemaManager;
     
-    /** ObjectClass registry */
-    //private ObjectClassRegistry ocRegistry;
-    
-    /** whether or not this interceptor is activated */
-    private boolean enabled;
-    
     /** the system wide subschemaSubentryDn */
     private String subschemaSubentryDn;
 
@@ -222,7 +216,6 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         aciParser = new ACIItemParser( new ConcreteNameComponentNormalizer( schemaManager ), schemaManager.getNormalizerMapping() );
         engine = new ACDFEngine( schemaManager.getGlobalOidRegistry(), schemaManager );
         chain = directoryService.getInterceptorChain();
-        enabled = directoryService.isAccessControlEnabled();
 
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = 
@@ -440,7 +433,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapDN name = addContext.getDn();
 
         // bypass authz code if we are disabled
-        if ( !enabled )
+        if ( !addContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             next.add( addContext );
             return;
@@ -512,7 +505,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapDN principalDn = principal.getJndiName();
 
         // bypass authz code if we are disabled
-        if ( ! enabled )
+        if ( ! deleteContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             next.delete( deleteContext );
             return;
@@ -557,7 +550,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapDN principalDn = principal.getJndiName();
 
         // bypass authz code if we are disabled
-        if ( !enabled )
+        if ( !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             next.modify( opContext );
             return;
@@ -671,7 +664,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     public boolean hasEntry( NextInterceptor next, EntryOperationContext entryContext ) throws Exception
     {
         LdapDN name = entryContext.getDn();
-        if ( ! enabled )
+        
+        if ( ! entryContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             return name.size() == 0 || next.hasEntry( entryContext );
         }
@@ -780,7 +774,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             principalDn.normalize( schemaManager.getNormalizerMapping() );
         }
         
-        if ( isPrincipalAnAdministrator( principalDn ) || !enabled )
+        if ( isPrincipalAnAdministrator( principalDn ) || !lookupContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             return next.lookup( lookupContext );
         }
@@ -809,7 +803,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapDN newName = renameContext.getNewDn();
 
         // bypass authz code if we are disabled
-        if ( !enabled )
+        if ( !renameContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             next.rename( renameContext );
             return;
@@ -859,7 +853,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         newName.add( moveAndRenameContext.getNewRdn().getUpName() );
 
         // bypass authz code if we are disabled
-        if ( !enabled )
+        if ( !moveAndRenameContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             next.moveAndRename( moveAndRenameContext );
             return;
@@ -938,7 +932,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapDN principalDn = principal.getJndiName();
 
         // bypass authz code if we are disabled
-        if ( !enabled )
+        if ( !moveContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             next.move( moveContext );
             return;
@@ -1007,7 +1001,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapPrincipal user = opContext.getSession().getEffectivePrincipal();
         EntryFilteringCursor cursor = next.list( opContext );
         
-        if ( isPrincipalAnAdministrator( user.getJndiName() ) || !enabled )
+        if ( isPrincipalAnAdministrator( user.getJndiName() ) || !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             return cursor;
         }
@@ -1028,7 +1022,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         SearchControls searchCtls = opContext.getSearchControls();
         boolean isRootDSELookup = opContext.getDn().size() == 0 && searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
 
-        if ( isPrincipalAnAdministrator( principalDn ) || !enabled || isRootDSELookup || isSubschemaSubentryLookup )
+        if ( isPrincipalAnAdministrator( principalDn ) || !opContext.getSession().getDirectoryService().isAccessControlEnabled() || isRootDSELookup || isSubschemaSubentryLookup )
         {
             return cursor;
         }
@@ -1055,7 +1049,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapPrincipal principal = opContext.getSession().getEffectivePrincipal();
         LdapDN principalDn = principal.getJndiName();
 
-        if ( isPrincipalAnAdministrator( principalDn ) || !enabled )
+        if ( isPrincipalAnAdministrator( principalDn ) || !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             return next.compare( opContext );
         }
@@ -1083,7 +1077,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapPrincipal principal = opContext.getSession().getEffectivePrincipal();
         LdapDN principalDn = principal.getJndiName();
         
-        if ( isPrincipalAnAdministrator( principalDn ) || !enabled )
+        if ( isPrincipalAnAdministrator( principalDn ) || !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             return next.getMatchedName( opContext );
         }

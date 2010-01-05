@@ -92,11 +92,6 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
      */
     private static LdapDN ADMIN_GROUP_DN;
 
-    /**
-     * the name parser used by this service
-     */
-    private boolean enabled = true;
-    
     private Set<String> administrators = new HashSet<String>(2);
     
     private PartitionNexus nexus;
@@ -119,9 +114,6 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         nexus = directoryService.getPartitionNexus();
         SchemaManager schemaManager = directoryService.getSchemaManager();
 
-        // disable this static module if basic access control mechanisms are enabled
-        enabled = ! directoryService.isAccessControlEnabled();
-        
         USER_BASE_DN = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
         USER_BASE_DN.normalize( schemaManager.getNormalizerMapping() );
         
@@ -174,7 +166,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     {
         LdapDN name = opContext.getDn();
         
-        if ( !enabled )
+        if ( opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             nextInterceptor.delete( opContext );
             return;
@@ -259,7 +251,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     public void modify( NextInterceptor nextInterceptor, ModifyOperationContext opContext )
         throws Exception
     {
-        if ( enabled )
+        if ( !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             LdapDN dn = opContext.getDn();
             
@@ -345,7 +337,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     public void rename( NextInterceptor nextInterceptor, RenameOperationContext opContext )
         throws Exception
     {
-        if ( enabled )
+        if ( !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             protectDnAlterations( opContext.getDn() );
         }
@@ -356,7 +348,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
     public void move( NextInterceptor nextInterceptor, MoveOperationContext opContext ) throws Exception
     {
-        if ( enabled )
+        if ( !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             protectDnAlterations( opContext.getDn() );
         }
@@ -367,7 +359,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
     public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext opContext ) throws Exception
     {
-        if ( enabled )
+        if ( !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             protectDnAlterations( opContext.getDn() );
         }
@@ -428,7 +420,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     {
         ClonedServerEntry serverEntry = nextInterceptor.lookup( opContext );
         
-        if ( !enabled || ( serverEntry == null ) )
+        if ( opContext.getSession().getDirectoryService().isAccessControlEnabled() || ( serverEntry == null ) )
         {
             return serverEntry;
         }
@@ -497,7 +489,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     {
         EntryFilteringCursor cursor = nextInterceptor.search( opContext );
 
-        if ( !enabled )
+        if ( opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             return cursor;
         }
@@ -516,7 +508,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     {
         EntryFilteringCursor cursor = nextInterceptor.list( opContext );
         
-        if ( !enabled )
+        if ( opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             return cursor;
         }
