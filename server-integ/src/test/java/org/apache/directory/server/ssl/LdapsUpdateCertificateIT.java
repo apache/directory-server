@@ -20,21 +20,25 @@
 package org.apache.directory.server.ssl;
 
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.security.cert.X509Certificate;
 import java.util.Hashtable;
 
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
 import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
@@ -43,7 +47,7 @@ import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandle
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.operations.bind.BogusNtlmProvider;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -56,7 +60,7 @@ import org.junit.runner.RunWith;
  * @version $Rev: 642496 $
  */
 @RunWith ( FrameworkRunner.class ) 
-@CreateDS( allowAnonAccess=true, name="LdapsIT-class")
+@CreateDS( allowAnonAccess=true, name="LdapsUpdateCertificateIT-class")
 @CreateLdapServer ( 
     transports = 
     {
@@ -79,15 +83,12 @@ import org.junit.runner.RunWith;
     },
     ntlmProvider=BogusNtlmProvider.class
     )
-public class LdapsIT extends AbstractLdapTestUnit
+public class LdapsUpdateCertificateIT extends AbstractLdapTestUnit
 {
-    private static final String RDN = "cn=The Person";
-    
-    
     /**
-     * Create a secure connection on ou=system.
+     * Create an entry for a person.
      */
-    private DirContext getSecureConnectionSystem() throws Exception
+    public DirContext getSecureConnection() throws Exception
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
@@ -101,23 +102,54 @@ public class LdapsIT extends AbstractLdapTestUnit
 
 
     /**
-     * Just a little test to check if the connection is made successfully.
-     * 
-     * @throws NamingException cannot create person
+     * Test for DIRSERVER-1373.
      */
     @Test
-    public void testLdaps() throws Exception
+    public void testUpdateCertificate() throws Exception
     {
-        // Create a person
-        Attributes attributes = AttributeUtils.createAttributes( 
-            "objectClass: top",
-            "objectClass: person",
-            "cn: The Person",
-            "sn: Person",
-            "description: this is a person" );
-        DirContext ctx = getSecureConnectionSystem();
-        DirContext person = ctx.createSubcontext( RDN, attributes );
+        // create a secure connection
+        Hashtable<String, String> env = new Hashtable<String, String>();
+        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
+        env.put( "java.naming.provider.url", "ldaps://localhost:" + ldapServer.getPortSSL() );
+        env.put( "java.naming.ldap.factory.socket", SSLSocketFactory.class.getName() );
+        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
+        env.put( "java.naming.security.credentials", "secret" );
+        env.put( "java.naming.security.authentication", "simple" );
+        InitialDirContext ctx = new InitialDirContext( env );
 
-        assertNotNull( person );
+        // create a new certificate
+        String newIssuerDN = "cn=new_issuer_dn";
+        String newSubjectDN = "cn=new_subject_dn";
+        ServerEntry entry = ldapServer.getDirectoryService().getAdminSession().lookup(
+            new LdapDN( "uid=admin,ou=system" ) );
+        TlsKeyGenerator.addKeyPair( entry, newIssuerDN, newSubjectDN, "RSA" );
+
+        // now update the certificate (over the wire)
+        ModificationItem[] mods = new ModificationItem[3];
+        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
+            TlsKeyGenerator.PRIVATE_KEY_AT, entry.get( TlsKeyGenerator.PRIVATE_KEY_AT ).getBytes() ) );
+        mods[1] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
+            TlsKeyGenerator.PUBLIC_KEY_AT, entry.get( TlsKeyGenerator.PUBLIC_KEY_AT ).getBytes() ) );
+        mods[2] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
+            TlsKeyGenerator.USER_CERTIFICATE_AT, entry.get( TlsKeyGenerator.USER_CERTIFICATE_AT ).getBytes() ) );
+        ctx.modifyAttributes( "uid=admin,ou=system", mods );
+        ctx.close();
+
+        ldapServer.reloadSslContext();
+        
+        // create a secure connection
+        ctx = new InitialDirContext( env );
+
+        // check the received certificate, it must contain the updated server certificate
+        X509Certificate[] lastReceivedServerCertificates = BogusTrustManagerFactory.lastReceivedServerCertificates;
+        assertNotNull( lastReceivedServerCertificates );
+        assertEquals( 1, lastReceivedServerCertificates.length );
+        String issuerDN = lastReceivedServerCertificates[0].getIssuerDN().getName();
+        String subjectDN = lastReceivedServerCertificates[0].getSubjectDN().getName();
+        // converting the values to lowercase is required cause the certificate is
+        // having attribute names in capital letters e.c the above newIssuerDN will be present as CN=new_issuer_dn
+        assertEquals( "Expected the new certificate with the new issuer", newIssuerDN.toLowerCase(), issuerDN.toLowerCase() );
+        assertEquals( "Expected the new certificate with the new subject", newSubjectDN.toLowerCase(), subjectDN.toLowerCase() );
     }
+
 }

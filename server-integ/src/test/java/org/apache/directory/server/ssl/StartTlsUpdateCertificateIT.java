@@ -29,14 +29,12 @@ import java.io.FileOutputStream;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
-import java.util.ArrayList;
+import java.security.cert.X509Certificate;
 import java.util.Hashtable;
-import java.util.List;
 
-import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.StartTlsRequest;
@@ -49,8 +47,10 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.After;
@@ -73,7 +73,7 @@ import org.slf4j.LoggerFactory;
  * @version $Rev: 639006 $
  */
 @RunWith ( FrameworkRunner.class ) 
-@CreateDS( allowAnonAccess=true, name="StartTlsIT-class")
+@CreateDS( allowAnonAccess=true, name="StartTlsUpdateCertificateIT-class")
 @CreateLdapServer ( 
     transports = 
     {
@@ -82,12 +82,10 @@ import org.slf4j.LoggerFactory;
     },
     extendedOpHandlers={ StartTlsHandler.class }
     )
-public class StartTlsIT extends AbstractLdapTestUnit
+public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
 {
-    private static final Logger LOG = LoggerFactory.getLogger( StartTlsIT.class );
+    private static final Logger LOG = LoggerFactory.getLogger( StartTlsUpdateCertificateIT.class );
     private static final String[] CERT_IDS = new String[] { "userCertificate" };
-    private static final int CONNECT_ITERATIONS = 10;
-    private static final boolean VERBOSE = false;
     private File ksFile;
 
     
@@ -147,98 +145,67 @@ public class StartTlsIT extends AbstractLdapTestUnit
     }
     
 
-    private void search( int ii, LdapContext securedContext ) throws Exception
-    {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        
-        if ( VERBOSE )
-        {
-            System.out.println( "Searching on " + ii + "-th iteration:" );
-        }
-        
-        List<String> results = new ArrayList<String>();
-        NamingEnumeration<SearchResult> ne = securedContext.search( "ou=system", "(objectClass=*)", controls );
-        while ( ne.hasMore() )
-        {
-            String dn = ne.next().getNameInNamespace();
-            results.add( dn );
-            
-            if ( VERBOSE )
-            {
-                System.out.println( "\tSearch Result = " + dn );
-            }
-        }
-        ne.close();
-        
-        assertEquals( "ou=system", results.get( 0 ) );
-        assertEquals( "uid=admin,ou=system", results.get( 1 ) );
-        assertEquals( "ou=users,ou=system", results.get( 2 ) );
-        assertEquals( "ou=groups,ou=system", results.get( 3 ) );
-        assertEquals( "cn=Administrators,ou=groups,ou=system", results.get( 4 ) );
-        assertEquals( "ou=configuration,ou=system", results.get( 5 ) );
-        assertEquals( "ou=partitions,ou=configuration,ou=system", results.get( 6 ) );
-        assertEquals( "ou=services,ou=configuration,ou=system", results.get( 7 ) );
-        assertEquals( "ou=interceptors,ou=configuration,ou=system", results.get( 8 ) );
-        assertEquals( "prefNodeName=sysPrefRoot,ou=system", results.get( 9 ) );
-    }
-    
-    
     /**
-     * Tests StartTLS by creating a JNDI connection using the generated key 
-     * store with the installed self signed certificate.  It then searches 
-     * the server and verifies the presence of the expected entries and closes
-     * the connection.  This process repeats for a number of iterations.  
-     * Modify the CONNECT_ITERATIONS constant to change the number of 
-     * iterations.  Modify the VERBOSE constant to print out information while
-     * performing searches.
+     * Test for DIRSERVER-1373.
      */
     @Test
-    public void testStartTls() throws Exception
+    public void testUpdateCertificate() throws Exception
     {
-        for ( int ii = 0; ii < CONNECT_ITERATIONS; ii++ )
-        {
-            if ( VERBOSE )
+        // create a secure connection
+        Hashtable<String, String> env = new Hashtable<String, String>();
+        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
+        env.put( "java.naming.provider.url", "ldap://localhost:" + ldapServer.getPort() );
+        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
+        env.put( "java.naming.security.credentials", "secret" );
+        env.put( "java.naming.security.authentication", "simple" );
+        LdapContext ctx = new InitialLdapContext( env, null );
+        StartTlsResponse tls = ( StartTlsResponse ) ctx.extendedOperation( new StartTlsRequest() );
+        tls.setHostnameVerifier( new HostnameVerifier() {
+            public boolean verify( String hostname, SSLSession session )
             {
-                System.out.println( "Performing " + ii + "-th iteration to connect via StartTLS." );
-            }
+                return true;
+            } 
+        } );
+        tls.negotiate( BogusSSLContextFactory.getInstance( false ).getSocketFactory() );
 
-            System.setProperty ( "javax.net.ssl.trustStore", ksFile.getAbsolutePath() );
-            System.setProperty ( "javax.net.ssl.keyStore", ksFile.getAbsolutePath() );
-            System.setProperty ( "javax.net.ssl.keyStorePassword", "changeit" );
-            LOG.debug( "testStartTls() test starting ... " );
-            
-            // Set up environment for creating initial context
-            Hashtable<String, Object> env = new Hashtable<String,Object>();
-            env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-            env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-            env.put( "java.naming.security.credentials", "secret" );
-            env.put( "java.naming.security.authentication", "simple" );
-            
-            // Must use the name of the server that is found in its certificate?
-            env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
-    
-            // Create initial context
-            LOG.debug( "About to get initial context" );
-            LdapContext ctx = new InitialLdapContext( env, null );
-    
-            // Start TLS
-            LOG.debug( "About send startTls extended operation" );
-            StartTlsResponse tls = ( StartTlsResponse ) ctx.extendedOperation( new StartTlsRequest() );
-            LOG.debug( "Extended operation issued" );
-            tls.setHostnameVerifier( new HostnameVerifier() {
-                public boolean verify( String hostname, SSLSession session )
-                {
-                    return true;
-                } 
-            } );
-            LOG.debug( "TLS negotion about to begin" );
-            tls.negotiate();
+        // create a new certificate
+        String newIssuerDN = "cn=new_issuer_dn";
+        String newSubjectDN = "cn=new_subject_dn";
+        ServerEntry entry = ldapServer.getDirectoryService().getAdminSession().lookup(
+            new LdapDN( "uid=admin,ou=system" ) );
+        TlsKeyGenerator.addKeyPair( entry, newIssuerDN, newSubjectDN, "RSA" );
 
-            search( ii, ctx );
-            
-            tls.close();
-            ctx.close();
-        }
+        // now update the certificate (over the wire)
+        ModificationItem[] mods = new ModificationItem[3];
+        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
+            TlsKeyGenerator.PRIVATE_KEY_AT, entry.get( TlsKeyGenerator.PRIVATE_KEY_AT ).getBytes() ) );
+        mods[1] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
+            TlsKeyGenerator.PUBLIC_KEY_AT, entry.get( TlsKeyGenerator.PUBLIC_KEY_AT ).getBytes() ) );
+        mods[2] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
+            TlsKeyGenerator.USER_CERTIFICATE_AT, entry.get( TlsKeyGenerator.USER_CERTIFICATE_AT ).getBytes() ) );
+        ctx.modifyAttributes( "uid=admin,ou=system", mods );
+        ctx.close();
+
+        ldapServer.reloadSslContext();
+        
+        // create a new secure connection
+        ctx = new InitialLdapContext( env, null );
+        tls = ( StartTlsResponse ) ctx.extendedOperation( new StartTlsRequest() );
+        tls.setHostnameVerifier( new HostnameVerifier() {
+            public boolean verify( String hostname, SSLSession session )
+            {
+                return true;
+            } 
+        } );
+        tls.negotiate( BogusSSLContextFactory.getInstance( false ).getSocketFactory() );
+
+        // check the received certificate, it must contain the updated server certificate
+        X509Certificate[] lastReceivedServerCertificates = BogusTrustManagerFactory.lastReceivedServerCertificates;
+        assertNotNull( lastReceivedServerCertificates );
+        assertEquals( 1, lastReceivedServerCertificates.length );
+        String issuerDN = lastReceivedServerCertificates[0].getIssuerDN().getName();
+        String subjectDN = lastReceivedServerCertificates[0].getSubjectDN().getName();
+        assertEquals( "Expected the new certificate with the new issuer", newIssuerDN.toLowerCase(), issuerDN.toLowerCase() );
+        assertEquals( "Expected the new certificate with the new subject", newSubjectDN.toLowerCase(), subjectDN.toLowerCase() );
     }
 }
