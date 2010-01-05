@@ -361,7 +361,6 @@
     <module>protocol-ntp</module>
     <module>protocol-ldap</module>
     <module>protocol-kerberos</module>
-    <!--module>kerberos-test</module-->
     <module>protocol-dhcp</module>
     <module>protocol-dns</module>
     <module>protocol-changepw</module>
@@ -381,6 +380,7 @@
     <module>kerberos-shared</module>
     <!--module>kerberos-unit</module-->
     <module>interceptor-kerberos</module>
+    <module>kerberos-test</module>
     <!--module>syncrepl</module-->
     <module>server-replication</module>
     <module>xbean-spring</module>

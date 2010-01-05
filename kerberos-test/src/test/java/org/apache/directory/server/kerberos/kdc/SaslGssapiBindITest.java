@@ -24,10 +24,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.security.PrivilegedAction;
-import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.List;
-import java.util.Set;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -38,31 +35,42 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.ModificationItem;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
 import javax.security.auth.Subject;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
+import org.apache.directory.server.annotations.CreateKdcServer;
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.annotations.SaslMechanism;
+import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.annotations.ContextEntry;
+import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.annotations.CreateIndex;
+import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.interceptor.Interceptor;
-import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.jndi.CoreContextFactory;
+import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
 import org.apache.directory.server.kerberos.shared.jaas.CallbackHandlerBean;
 import org.apache.directory.server.kerberos.shared.jaas.Krb5LoginConfiguration;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
-import org.apache.directory.server.protocol.shared.transport.TcpTransport;
-import org.apache.directory.server.protocol.shared.transport.UdpTransport;
-import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * An {@link AbstractServerTest} testing SASL GSSAPI authentication
@@ -74,25 +82,71 @@ import org.junit.Test;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-@Ignore( "temporarily ignored till the schema branch is copied over to trunk" )
+@RunWith( FrameworkRunner.class )
+@CreateDS( name="SaslGssapiBindITest-class",
+    partitions =
+        {
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=example,dc=com",
+                contextEntry = @ContextEntry( 
+                    entryLdif =
+                        "dn: dc=example,dc=com\n" +
+                        "dc: example\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n" ),
+                indexes = 
+                {
+                    @CreateIndex( attribute = "objectClass" ),
+                    @CreateIndex( attribute = "dc" ),
+                    @CreateIndex( attribute = "ou" )
+                } )
+        },
+        additionalInterceptors =
+        {
+                KeyDerivationInterceptor.class
+        })
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" )
+    },
+    saslHost="localhost",
+    saslPrincipal="ldap/localhost@EXAMPLE.COM",
+        saslMechanisms = 
+            {
+                @SaslMechanism( name=SupportedSaslMechanisms.PLAIN, implClass=PlainMechanismHandler.class ),
+                @SaslMechanism( name=SupportedSaslMechanisms.CRAM_MD5, implClass=CramMd5MechanismHandler.class),
+                @SaslMechanism( name=SupportedSaslMechanisms.DIGEST_MD5, implClass=DigestMd5MechanismHandler.class),
+                @SaslMechanism( name=SupportedSaslMechanisms.GSSAPI, implClass=GssapiMechanismHandler.class),
+                @SaslMechanism( name=SupportedSaslMechanisms.NTLM, implClass=NtlmMechanismHandler.class),
+                @SaslMechanism( name=SupportedSaslMechanisms.GSS_SPNEGO, implClass=NtlmMechanismHandler.class)
+            })
+@CreateKdcServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "UDP", port = 6088 ),
+        @CreateTransport( protocol = "TCP", port = 6088 )
+    })
 public class SaslGssapiBindITest extends AbstractLdapTestUnit
 {
     private DirContext ctx;
 
-    @BeforeClass
-    public static final void init()
-    {
-        String path = SaslGssapiBindITest.class.getResource( "" ).getPath();
-        int targetPos = path.indexOf( "target" );
-        workingDir = path.substring( 0, targetPos + 6 ) + "/server-work/schema";
-    }
+    /** the context root for the schema */
+    protected LdapContext schemaRoot;
+
+    /** the context root for the system partition */
+    protected LdapContext sysRoot;
+
+    /** the context root for the rootDSE */
+    protected CoreSession rootDSE;
 
     /**
      * Creates a new instance of SaslGssapiBindTest and sets JAAS system properties.
      */
     public SaslGssapiBindITest()
     {
-        String krbConfPath = getClass().getResource( "krb5.conf" ).getFile();
+        String krbConfPath = getClass().getClassLoader().getResource( "krb5.conf" ).getFile();
         System.setProperty( "java.security.krb5.conf", krbConfPath );
         System.setProperty( "sun.security.krb5.debug", "false" );
     }
@@ -105,17 +159,6 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
     @Before
     public void setUp() throws Exception
     {
-        super.setUp();
-
-        ldapServer.setSaslHost( "localhost" );
-        ldapServer.setSaslPrincipal( "ldap/localhost@EXAMPLE.COM" );
-
-        KdcServer kdcConfig = new KdcServer();
-        kdcConfig.setDirectoryService( directoryService );
-        kdcConfig.setTransports( new TcpTransport( 6088 ), new UdpTransport( 6088 ) );
-        kdcConfig.setEnabled( true );
-        kdcConfig.setSearchBaseDn( "ou=users,dc=example,dc=com" );
-        kdcConfig.start();
         Attributes attrs;
 
         setContexts( "uid=admin,ou=system", "secret" );
@@ -141,15 +184,9 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
             schemaRoot.modifyAttributes( "cn=Krb5kdc", mods );
         }
 
-        LdapDN contextDn = new LdapDN( "dc=example,dc=com" );
-        ServerEntry entry = ldapServer.getDirectoryService().newEntry( contextDn );
-        entry.add( "objectClass", "top", "domain", "extensibleObject" );
-        entry.add( "dc", "example" );
-        ldapServer.getDirectoryService().getAdminSession().add( entry );
-
         // Get a context, create the ou=users subcontext, then create the 3 principals.
         Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, directoryService );
+        env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
         env.put( Context.PROVIDER_URL, "dc=example,dc=com" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
@@ -169,31 +206,6 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
 
         attrs = getPrincipalAttributes( "Service", "LDAP Service", "ldap", "randall", "ldap/localhost@EXAMPLE.COM" );
         users.createSubcontext( "uid=ldap", attrs );
-    }
-
-
-    protected void configureDirectoryService() throws NamingException
-    {
-        directoryService.setAllowAnonymousAccess( false );
-        Set<Partition> partitions = new HashSet<Partition>();
-
-        // Add partition 'example'
-        JdbmPartition partition = new JdbmPartition();
-        partition.setId( "example" );
-        partition.setSuffix( "dc=example,dc=com" );
-
-        Set<Index<?, ServerEntry>> indexedAttrs = new HashSet<Index<?, ServerEntry>>();
-        indexedAttrs.add( new JdbmIndex<String, ServerEntry>( "ou" ) );
-        indexedAttrs.add( new JdbmIndex<String, ServerEntry>( "dc" ) );
-        indexedAttrs.add( new JdbmIndex<String, ServerEntry>( "objectClass" ) );
-        partition.setIndexedAttributes( indexedAttrs );
-
-        partitions.add( partition );
-        directoryService.setPartitions( partitions );
-
-        List<Interceptor> list = directoryService.getInterceptors();
-        list.add( new KeyDerivationInterceptor() );
-        directoryService.setInterceptors( list );
     }
 
 
@@ -281,7 +293,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
                     // Create the initial context
                     Hashtable<String, String> env = new Hashtable<String, String>();
                     env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-                    env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+                    env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
 
                     // Request the use of the "GSSAPI" SASL mechanism
                     // Authenticate by using already established Kerberos credentials
@@ -324,7 +336,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
 
     }
 
-
+    
     /**
      * Tear down.
      */
@@ -333,6 +345,49 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
     {
         ctx.close();
         ctx = null;
-        super.tearDown();
     }
+    
+
+    // copied the below two methods from AbstractServerTest
+    /**
+     * Sets the contexts for this base class.  Values of user and password used to
+     * set the respective JNDI properties.  These values can be overriden by the
+     * overrides properties.
+     *
+     * @param user the username for authenticating as this user
+     * @param passwd the password of the user
+     * @throws NamingException if there is a failure of any kind
+     */
+    protected void setContexts( String user, String passwd ) throws Exception
+    {
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
+        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( Context.SECURITY_PRINCIPAL, user );
+        env.put( Context.SECURITY_CREDENTIALS, passwd );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
+        setContexts( env );
+    }
+
+    
+    /**
+     * Sets the contexts of this class taking into account the extras and overrides
+     * properties.  
+     *
+     * @param env an environment to use while setting up the system root.
+     * @throws NamingException if there is a failure of any kind
+     */
+    protected void setContexts( Hashtable<String, Object> env ) throws Exception
+    {
+        Hashtable<String, Object> envFinal = new Hashtable<String, Object>( env );
+        envFinal.put( Context.PROVIDER_URL, ServerDNConstants.SYSTEM_DN );
+        sysRoot = new InitialLdapContext( envFinal, null );
+
+        envFinal.put( Context.PROVIDER_URL, "" );
+        rootDSE = service.getAdminSession();
+
+        envFinal.put( Context.PROVIDER_URL, SchemaConstants.OU_SCHEMA );
+        schemaRoot = new InitialLdapContext( envFinal, null );
+    }
+    
 }
