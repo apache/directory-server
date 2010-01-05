@@ -21,8 +21,6 @@ package org.apache.directory.server.core.suites;
 
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.FrameworkSuite;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.core.schema.MetaAttributeTypeHandlerIT;
 import org.apache.directory.server.core.schema.MetaComparatorHandlerIT;
 import org.apache.directory.server.core.schema.MetaMatchingRuleHandlerIT;
