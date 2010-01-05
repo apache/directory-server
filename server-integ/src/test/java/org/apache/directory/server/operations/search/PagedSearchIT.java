@@ -39,9 +39,9 @@ import javax.naming.ldap.PagedResultsResponseControl;
 
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.message.control.PagedSearchControl;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -88,8 +88,8 @@ import org.junit.runner.RunWith;
  * |test   | SL | RL | PL | Nb of responses     | nb | X |<br>
  * +-------+----+----+----+---------------------+----+---+<br>
  * |test18 | 0  | 0  | 3  | 4 ( 3 + 3 + 3 + 1 ) | 10 |   |<br>
- * |test19  | 0  | 0  | 5  | 2 ( 5 + 5 )         | 10 |   |<br>
- * |test20  | 3  | 0  | 5  | 1 ( 3 )             | 3  | Y |<br>
+ * |test19 | 0  | 0  | 5  | 2 ( 5 + 5 )         | 10 |   |<br>
+ * |test20 | 3  | 0  | 5  | 1 ( 3 )             | 3  | Y |<br>
  * |test21 | 0  | 3  | 5  | 1 ( 3 )             | 3  | Y |<br>
  * |test22 | 5  | 0  | 3  | 2 ( 3 + 2 )         | 5  | Y |<br>
  * |test23 | 0  | 9  | 5  | 2 ( 5 + 4 )         | 9  | Y |<br>
