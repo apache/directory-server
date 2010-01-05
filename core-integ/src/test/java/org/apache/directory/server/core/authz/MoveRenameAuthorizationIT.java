@@ -36,7 +36,6 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
@@ -60,6 +59,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
     public void setService()
     {
        AutzIntegUtils.service = service;
+       service.setAccessControlEnabled( true );
     }
     
     
