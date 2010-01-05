@@ -65,7 +65,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith(FrameworkRunner.class)
-public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandlerIT
+public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
 {
     private static final String DESCRIPTION0 = "A test normalizer";
     private static final String DESCRIPTION1 = "An alternate description";

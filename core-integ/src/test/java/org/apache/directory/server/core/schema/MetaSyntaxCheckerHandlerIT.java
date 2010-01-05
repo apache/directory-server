@@ -62,7 +62,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith(FrameworkRunner.class)
-public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandlerIT
+public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
 {
     private static final String OID = "1.3.6.1.4.1.18060.0.4.0.0.100000";
     private static final String NEW_OID = "1.3.6.1.4.1.18060.0.4.0.0.100001";

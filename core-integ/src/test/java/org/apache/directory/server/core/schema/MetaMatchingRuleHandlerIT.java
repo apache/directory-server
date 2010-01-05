@@ -58,7 +58,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith(FrameworkRunner.class)
-public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandlerIT
+public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
 {
     private static final String DESCRIPTION0 = "A test matchingRule";
     private static final String DESCRIPTION1 = "An alternate description";

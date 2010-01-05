@@ -71,7 +71,6 @@ import org.apache.directory.server.core.operations.search.DIRSERVER759IT;
 import org.apache.directory.server.core.operations.search.SearchIT;
 import org.apache.directory.server.core.partition.PartitionIT;
 import org.apache.directory.server.core.prefs.PreferencesIT;
-import org.apache.directory.server.core.schema.AbstractMetaSchemaObjectHandlerIT;
 import org.apache.directory.server.core.schema.MetaAttributeTypeHandlerIT;
 import org.apache.directory.server.core.schema.MetaComparatorHandlerIT;
 import org.apache.directory.server.core.schema.MetaMatchingRuleHandlerIT;
@@ -180,7 +179,6 @@ import org.junit.runners.Suite;
         MetaObjectClassHandlerIT.class,
         
         ObjectClassCreateIT.class,
-        AbstractMetaSchemaObjectHandlerIT.class,
 
         SchemaServiceIT.class,
         

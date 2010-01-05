@@ -56,7 +56,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith(FrameworkRunner.class)
-public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandlerIT
+public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 {
     private static final String NAME = "testObjectClass";
     private static final String NEW_NAME = "alternateName";

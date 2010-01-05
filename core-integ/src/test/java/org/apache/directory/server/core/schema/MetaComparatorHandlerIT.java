@@ -63,7 +63,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith(FrameworkRunner.class)
-public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandlerIT
+public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 {
     private static final String OID = "1.3.6.1.4.1.18060.0.4.0.1.100000";
     private static final String NEW_OID = "1.3.6.1.4.1.18060.0.4.0.1.100001";

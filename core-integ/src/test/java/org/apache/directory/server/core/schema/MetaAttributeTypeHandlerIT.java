@@ -57,7 +57,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
-public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerIT
+public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
 {
     private static final String DESCRIPTION0 = "A test attributeType";
     private static final String DESCRIPTION1 = "An alternate description";

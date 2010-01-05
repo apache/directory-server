@@ -34,7 +34,7 @@ import org.junit.Before;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class AbstractMetaSchemaObjectHandlerIT extends AbstractLdapTestUnit
+public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUnit
 {
     protected static String workingDir;
 

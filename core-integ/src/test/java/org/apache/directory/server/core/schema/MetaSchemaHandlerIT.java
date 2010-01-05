@@ -96,7 +96,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith(FrameworkRunner.class)
-public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
+public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
 {
     /** a test attribute in the test schema: uidNumber in nis schema */
     private static final String UID_NUMBER_ATTR = "uidnumber";
