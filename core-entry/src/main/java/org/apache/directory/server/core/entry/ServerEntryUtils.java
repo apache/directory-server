@@ -40,6 +40,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -458,25 +459,21 @@ public class ServerEntryUtils
                 // DIRSERVER-646 Fix: Replacing an unknown attribute with no values 
                 // (deletion) causes an error
                 // -------------------------------------------------------------------
-                
-                // TODO - after removing JNDI we need to make the server handle 
-                // this in the codec
-                
                 if ( ! schemaManager.getAttributeTypeRegistry().contains( id ) 
                      && modification.getAttribute().size() == 0 
                      && modification.getOperation() == ModificationOperation.REPLACE_ATTRIBUTE )
                 {
-                    continue;
+                    // The attributeType does not exist in the schema.
+                    // It's an error
+                    String message = "The AttributeType '" + id + "' does not exist in the schema";
+                    throw new LdapInvalidAttributeIdentifierException( message );
                 }
-
-                // -------------------------------------------------------------------
-                // END DIRSERVER-646 Fix
-                // -------------------------------------------------------------------
-                
-                
-                // TODO : handle options
-                AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( id );
-                modificationsList.add( toServerModification( modification, attributeType ) );
+                else
+                {
+                    // TODO : handle options
+                    AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( id );
+                    modificationsList.add( toServerModification( modification, attributeType ) );
+                }
             }
         
             return modificationsList;

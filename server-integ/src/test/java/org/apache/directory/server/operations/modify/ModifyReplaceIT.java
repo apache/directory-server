@@ -25,6 +25,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
@@ -32,6 +33,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -81,7 +83,6 @@ import org.junit.runner.RunWith;
 public class ModifyReplaceIT extends AbstractLdapTestUnit 
 {
     private static final String BASE = "ou=system";
-
     
     /**
      * Create a person entry and try to remove a not present attribute
@@ -166,7 +167,15 @@ public class ModifyReplaceIT extends AbstractLdapTestUnit
         Attribute attr = new BasicAttribute( "numberOfOctaves" );
         ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
 
-        sysRoot.modifyAttributes( rdn, new ModificationItem[] { item } );
+        try
+        {
+            sysRoot.modifyAttributes( rdn, new ModificationItem[] { item } );
+            fail();
+        }
+        catch ( InvalidAttributeIdentifierException iaie )
+        {
+            assertTrue( true );
+        }
 
         SearchControls sctls = new SearchControls();
         sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -200,7 +209,15 @@ public class ModifyReplaceIT extends AbstractLdapTestUnit
         Attribute attr2 = new BasicAttribute( "description", "blah blah blah" );
         ModificationItem item2 = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr2 );
 
-        sysRoot.modifyAttributes(rdn, new ModificationItem[] { item, item2 });
+        try
+        {
+            sysRoot.modifyAttributes(rdn, new ModificationItem[] { item, item2 });
+            fail();
+        }
+        catch ( InvalidAttributeIdentifierException iaie )
+        {
+            assertTrue( true );
+        }
 
         SearchControls sctls = new SearchControls();
         sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
