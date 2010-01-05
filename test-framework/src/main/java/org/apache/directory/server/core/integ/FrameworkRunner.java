@@ -30,6 +30,7 @@ import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.factory.DirectoryServiceFactory;
 import org.apache.directory.server.factory.ServerAnnotationProcessor;
+import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.junit.Ignore;
@@ -60,6 +61,9 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
     /** The 'ldapServer' field in the run tests */
     private static final String LDAP_SERVER_FIELD_NAME = "ldapServer";
     
+    /** The 'kdcServer' field in the run tests */
+    private static final String KDC_SERVER_FIELD_NAME = "kdcServer";
+
     /** The filed used to tell the test that it is run in a suite */
     private static final String IS_RUN_IN_SUITE_FIELD_NAME = "isRunInSuite";
 
@@ -72,6 +76,10 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
     /** The LdapServer for this class, if any */
     private LdapServer classLdapServer;
 
+    /** The KdcServer for this class, if any */
+    private KdcServer classKdcServer;
+    
+    
     /**
      * Creates a new instance of FrameworkRunner.
      */
@@ -197,6 +205,15 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 // if ApplyLdifs is present
             }
 
+            if( classKdcServer == null )
+            {
+                classKdcServer = ServerAnnotationProcessor.getKdcServer( getDescription(), directoryService, 0 );
+            }
+            else if( suite != null )
+            {
+                // TODO add suite level KdcServer support
+            }
+            
             // Now run the class
             super.run( notifier );
 
@@ -206,6 +223,11 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 {
                     classLdapServer.stop();
                 }
+            }
+            
+            if( classKdcServer != null )
+            {
+                classKdcServer.stop();
             }
             
             // cleanup classService if it is not the same as suite service or
@@ -278,6 +300,14 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 
                 DSAnnotationProcessor.applyLdifs( methodDescription, directoryService );
             }
+            else if( classKdcServer != null )
+            {
+                directoryService = classKdcServer.getDirectoryService();
+                
+                revision = getCurrentRevision( directoryService );
+                
+                DSAnnotationProcessor.applyLdifs( methodDescription, directoryService );
+            }
             else if ( methodDS != null )
             {
                 // Apply all the LDIFs
@@ -309,22 +339,27 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             
             // At this point, we know which service to use.
             // Inject it into the class
-            Field field = getTestClass().getJavaClass().getField( DIRECTORY_SERVICE_FIELD_NAME );
-            field.set( getTestClass().getJavaClass(), directoryService );
+            Field dirServiceField = getTestClass().getJavaClass().getField( DIRECTORY_SERVICE_FIELD_NAME );
+            dirServiceField.set( getTestClass().getJavaClass(), directoryService );
             
             // if we run this class in a suite, tell it to the test
-            field = getTestClass().getJavaClass().getField( IS_RUN_IN_SUITE_FIELD_NAME );
-            field.set( getTestClass().getJavaClass(), suite != null );
+            Field runInSuiteField = getTestClass().getJavaClass().getField( IS_RUN_IN_SUITE_FIELD_NAME );
+            runInSuiteField.set( getTestClass().getJavaClass(), suite != null );
             
+            Field ldapServerField = getTestClass().getJavaClass().getField( LDAP_SERVER_FIELD_NAME );
+
             if( classLdapServer != null )
             {
-                field = getTestClass().getJavaClass().getField( DIRECTORY_SERVICE_FIELD_NAME );
-                field.set( getTestClass().getJavaClass(), classLdapServer.getDirectoryService() );
-                
-                field = getTestClass().getJavaClass().getField( LDAP_SERVER_FIELD_NAME );
-                field.set( getTestClass().getJavaClass(), classLdapServer );
+                dirServiceField.set( getTestClass().getJavaClass(), classLdapServer.getDirectoryService() );
+                ldapServerField.set( getTestClass().getJavaClass(), classLdapServer );
             }
-            
+            else if( classKdcServer != null )
+            {
+                dirServiceField.set( getTestClass().getJavaClass(), classKdcServer.getDirectoryService() );
+                
+                Field kdcServerField = getTestClass().getJavaClass().getField( KDC_SERVER_FIELD_NAME );
+                kdcServerField.set( getTestClass().getJavaClass(), classKdcServer );
+            }
 
             // Run the test
             super.runChild( method, notifier );

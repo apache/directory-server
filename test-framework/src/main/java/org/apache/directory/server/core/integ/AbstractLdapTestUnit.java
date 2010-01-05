@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.integ;
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.ldap.LdapServer;
 
 
@@ -37,6 +38,8 @@ public abstract class AbstractLdapTestUnit
     /** The used LdapServer instance */
     public static LdapServer ldapServer;
 
+    /** The used KdcServer instance */
+    public static KdcServer kdcServer;
     
     /** A flag set if the test is run in a suite */
     public static boolean isRunInSuite;
