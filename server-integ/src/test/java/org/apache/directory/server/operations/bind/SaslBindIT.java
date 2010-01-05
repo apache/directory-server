@@ -170,7 +170,6 @@ public class SaslBindIT extends AbstractLdapTestUnit
          }
          catch ( Exception e )
          {
-             e.printStackTrace();
              fail( "Should not have caught exception." );
          }
      }

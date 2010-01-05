@@ -1714,7 +1714,6 @@ public class SearchIT extends AbstractLdapTestUnit
         }
         catch ( LDAPException e )
         {
-            e.printStackTrace();
             fail( "Should not have caught exception." );
         }
         finally
