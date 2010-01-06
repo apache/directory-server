@@ -27,7 +27,7 @@
     <version>0.9.18-SNAPSHOT</version>
   </parent>
   <artifactId>shared-asn1</artifactId>
-  <name>Apache Directory ASN.1 Shared</name>
+  <name>Apache Directory Shared ASN.1</name>
   <packaging>jar</packaging>  
 </project>
 
