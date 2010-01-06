@@ -1,0 +1,20 @@
+dn: m-oid=2.16.840.1.113719.1.203.4.4,ou=attributeTypes,cn=dhcp,ou=schema
+createtimestamp: 20090818022730Z
+m-singlevalue: FALSE
+entryuuid:: pYhLHgYZRXGVMYvT+fAPqA==
+m-obsolete: FALSE
+m-description: The starting & ending IP Addresses in the range (inclusive), sepa
+ rated by a hyphen; if the range only contains one address, then just the addres
+ s can be specified with no hyphen.  Each range is defined as a separate value.
+m-usage: USER_APPLICATIONS
+creatorsname: uid=admin,ou=system
+m-collective: FALSE
+m-oid: 2.16.840.1.113719.1.203.4.4
+entrycsn: 20090818052730.117000Z#000000#000#000000
+m-nousermodification: FALSE
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.26
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+m-name: dhcpRange
+m-equality: caseIgnoreIA5Match

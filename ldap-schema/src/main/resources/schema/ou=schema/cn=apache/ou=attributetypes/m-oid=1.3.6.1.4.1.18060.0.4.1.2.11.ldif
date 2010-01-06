@@ -1,0 +1,18 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.1.2.11,ou=attributeTypes,cn=apache,ou=schema
+createtimestamp: 20090818022729Z
+m-singlevalue: FALSE
+entryuuid:: 5ip09mEMRgOmAUwlmy5IBw==
+m-obsolete: FALSE
+m-description: Used to track a subentry associated with access control areas
+m-usage: DIRECTORY_OPERATION
+creatorsname: uid=admin,ou=system
+m-collective: FALSE
+m-oid: 1.3.6.1.4.1.18060.0.4.1.2.11
+entrycsn: 20090818052729.367000Z#000000#000#000000
+m-nousermodification: TRUE
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.12
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+m-name: accessControlSubentries
+m-equality: distinguishedNameMatch

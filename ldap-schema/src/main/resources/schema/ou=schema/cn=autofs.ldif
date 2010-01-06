@@ -1,0 +1,12 @@
+dn: cn=autofs,ou=schema
+createtimestamp: 20090818022725Z
+entryuuid:: BY2ebIx/QUW5hh0qdUc0zQ==
+cn: autofs
+entrycsn: 20090818052725.454000Z#000000#000#000000
+m-disabled: TRUE
+objectclass: metaSchema
+objectclass: top
+m-dependencies: system
+m-dependencies: core
+m-dependencies: cosine
+creatorsname: uid=admin,ou=system

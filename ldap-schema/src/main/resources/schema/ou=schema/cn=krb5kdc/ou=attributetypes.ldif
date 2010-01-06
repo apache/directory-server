@@ -1,0 +1,6 @@
+dn: ou=attributeTypes,cn=krb5kdc,ou=schema
+ou: attributetypes
+entryuuid:: RuQzn57aTom3NOjnbWrSSA==
+entrycsn: 20090818052726.242000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

@@ -1,0 +1,11 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.0.1.0,ou=normalizers,cn=apachemeta,ou=schema
+createtimestamp: 20090818022727Z
+entryuuid:: ePfeI5+qSYiYIgxqiY6mqw==
+m-oid: 1.3.6.1.4.1.18060.0.4.0.1.0
+entrycsn: 20090818052727.772000Z#000000#000#000000
+m-fqcn: org.apache.directory.shared.ldap.schema.normalizers.NameOrNumericIdNorma
+ lizer
+objectclass: metaNormalizer
+objectclass: metaTop
+objectclass: top
+creatorsname: uid=admin,ou=system

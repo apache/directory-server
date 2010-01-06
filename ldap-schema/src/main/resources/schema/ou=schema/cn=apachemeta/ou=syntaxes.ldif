@@ -1,0 +1,6 @@
+dn: ou=syntaxes,cn=apachemeta,ou=schema
+ou: syntaxes
+entryuuid:: uMkDaKkOSseMGTpLdmgGbg==
+entrycsn: 20090818052726.434000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

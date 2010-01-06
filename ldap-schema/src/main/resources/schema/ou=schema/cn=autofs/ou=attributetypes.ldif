@@ -1,0 +1,6 @@
+dn: ou=attributeTypes,cn=autofs,ou=schema
+ou: attributetypes
+entryuuid:: e3aboQ/qSQSxoYAF19+rJA==
+entrycsn: 20090818052725.482000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

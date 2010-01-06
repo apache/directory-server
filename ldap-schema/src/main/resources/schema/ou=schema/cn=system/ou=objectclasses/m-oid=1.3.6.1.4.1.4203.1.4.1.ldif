@@ -1,0 +1,16 @@
+dn: m-oid=1.3.6.1.4.1.4203.1.4.1,ou=objectClasses,cn=system,ou=schema
+createtimestamp: 20090818022732Z
+entryuuid:: cgmEup6lSdeRzCnuW1p9ZA==
+m-oid: 1.3.6.1.4.1.4203.1.4.1
+m-obsolete: FALSE
+entrycsn: 20090818052732.883000Z#000000#000#000000
+m-supobjectclass: top
+m-description: OpenLDAP Root DSE object
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-name: OpenLDAProotDSE
+m-name: LDAProotDSE
+m-typeobjectclass: STRUCTURAL
+creatorsname: uid=admin,ou=system
+m-may: cn

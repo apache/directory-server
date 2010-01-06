@@ -1,0 +1,12 @@
+dn: m-oid=2.5.13.28,ou=matchingRules,cn=system,ou=schema
+createtimestamp: 20090818022728Z
+entryuuid:: F52x6nP2QI27/u1kWBumXw==
+m-oid: 2.5.13.28
+m-obsolete: FALSE
+entrycsn: 20090818052728.525000Z#000000#000#000000
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.24
+objectclass: metaMatchingRule
+objectclass: metaTop
+objectclass: top
+m-name: generalizedTimeOrderingMatch
+creatorsname: uid=admin,ou=system

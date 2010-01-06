@@ -1,0 +1,19 @@
+dn: m-oid=2.16.840.1.113719.1.203.4.5,ou=attributeTypes,cn=dhcp,ou=schema
+createtimestamp: 20090818022732Z
+m-singlevalue: FALSE
+entryuuid:: pMUwFwtWTe6iP8/5+SWz7Q==
+m-obsolete: FALSE
+m-description: This attribute contains the permit lists associated with a pool. 
+ Each permit list is defined as a separate value.
+m-usage: USER_APPLICATIONS
+creatorsname: uid=admin,ou=system
+m-collective: FALSE
+m-oid: 2.16.840.1.113719.1.203.4.5
+entrycsn: 20090818052732.088000Z#000000#000#000000
+m-nousermodification: FALSE
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.26
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+m-name: dhcpPermitList
+m-equality: caseIgnoreIA5Match

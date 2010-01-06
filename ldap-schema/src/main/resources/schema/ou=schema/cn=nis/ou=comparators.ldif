@@ -1,0 +1,6 @@
+dn: ou=comparators,cn=nis,ou=schema
+ou: comparators
+entryuuid:: pmWG5bMySMecbeOK7V8BYQ==
+entrycsn: 20090818052726.066000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

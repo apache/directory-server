@@ -1,0 +1,14 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.1.5.5,ou=objectClasses,cn=apache,ou=schema
+m-must: javaByteCode
+createtimestamp: 20090818022732Z
+entryuuid:: mJiDohk+RXiuAxQKSs8ZIA==
+m-oid: 1.3.6.1.4.1.18060.0.4.1.5.5
+m-obsolete: FALSE
+entrycsn: 20090818052732.923000Z#000000#000#000000
+m-supobjectclass: storedProcUnit
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-name: javaStoredProcUnit
+m-typeobjectclass: STRUCTURAL
+creatorsname: uid=admin,ou=system

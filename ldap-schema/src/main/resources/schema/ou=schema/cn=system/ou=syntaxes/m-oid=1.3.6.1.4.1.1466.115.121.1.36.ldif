@@ -1,0 +1,12 @@
+dn: m-oid=1.3.6.1.4.1.1466.115.121.1.36,ou=syntaxes,cn=system,ou=schema
+createtimestamp: 20090818022727Z
+entryuuid:: pQ6UPnLFROSLmvv5rujplA==
+m-oid: 1.3.6.1.4.1.1466.115.121.1.36
+x-humanreadable: TRUE
+m-obsolete: FALSE
+entrycsn: 20090818052727.141000Z#000000#000#000000
+objectclass: metaSyntax
+objectclass: metaTop
+objectclass: top
+m-description: Numeric String
+creatorsname: uid=admin,ou=system

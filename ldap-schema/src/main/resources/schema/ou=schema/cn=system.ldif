@@ -1,0 +1,8 @@
+dn: cn=system,ou=schema
+createtimestamp: 20090818022725Z
+entryuuid:: 7lR/sB9pRwWGgdS2+CMRTg==
+cn: system
+entrycsn: 20090818052725.987000Z#000000#000#000000
+objectclass: metaSchema
+objectclass: top
+creatorsname: uid=admin,ou=system

@@ -1,0 +1,6 @@
+dn: ou=nameForms,cn=corba,ou=schema
+ou: nameforms
+entryuuid:: 01iUeL07R3q4OtNGU5wDiw==
+entrycsn: 20090818052725.963000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

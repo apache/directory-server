@@ -1,0 +1,6 @@
+dn: ou=nameForms,cn=system,ou=schema
+ou: nameforms
+entryuuid:: umdteF90SoqXMLzX94w2eA==
+entrycsn: 20090818052726.024000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

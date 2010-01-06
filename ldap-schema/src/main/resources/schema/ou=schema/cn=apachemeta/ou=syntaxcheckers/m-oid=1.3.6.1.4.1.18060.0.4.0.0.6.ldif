@@ -1,0 +1,11 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.0.0.6,ou=syntaxCheckers,cn=apachemeta,ou=schema
+createtimestamp: 20090818022726Z
+entryuuid:: 6BsLtaFGRIm423K87DpWNQ==
+m-oid: 1.3.6.1.4.1.18060.0.4.0.0.6
+entrycsn: 20090818052726.634000Z#000000#000#000000
+m-fqcn: org.apache.directory.shared.ldap.schema.syntaxCheckers.ObjectNameSyntaxC
+ hecker
+objectclass: metaSyntaxChecker
+objectclass: metaTop
+objectclass: top
+creatorsname: uid=admin,ou=system

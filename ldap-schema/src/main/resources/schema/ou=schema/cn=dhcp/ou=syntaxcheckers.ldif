@@ -1,0 +1,6 @@
+dn: ou=syntaxCheckers,cn=dhcp,ou=schema
+ou: syntaxcheckers
+entryuuid:: k0WOEOQQRl2CnpAwg1gN7Q==
+entrycsn: 20090818052726.328000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

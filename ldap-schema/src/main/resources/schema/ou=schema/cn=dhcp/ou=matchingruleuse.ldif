@@ -1,0 +1,6 @@
+dn: ou=matchingRuleUse,cn=dhcp,ou=schema
+ou: matchingruleuse
+entryuuid:: nIQGtnSRSgWvYCfO+mstQg==
+entrycsn: 20090818052726.350000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

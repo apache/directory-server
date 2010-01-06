@@ -1,0 +1,20 @@
+dn: m-oid=1.3.6.1.4.1.7165.2.2.5,ou=objectClasses,cn=samba,ou=schema
+createtimestamp: 20090818022732Z
+m-must: sambaDomainName
+m-must: sambaSID
+entryuuid:: vVu1a/dXShWskL84LZOnbg==
+m-obsolete: FALSE
+m-description: Samba Domain Information
+creatorsname: uid=admin,ou=system
+m-may: sambaNextRid
+m-may: sambaNextGroupRid
+m-may: sambaNextUserRid
+m-may: sambaAlgorithmicRidBase
+m-oid: 1.3.6.1.4.1.7165.2.2.5
+entrycsn: 20090818052732.478000Z#000000#000#000000
+m-supobjectclass: top
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-name: sambaDomain
+m-typeobjectclass: STRUCTURAL

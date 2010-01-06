@@ -1,0 +1,13 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.0.1.4,ou=matchingRules,cn=apachemeta,ou=schema
+createtimestamp: 20090818022728Z
+entryuuid:: mQYcbp1CT9iIJMKSxFyGZw==
+m-oid: 1.3.6.1.4.1.18060.0.4.0.1.4
+m-obsolete: FALSE
+entrycsn: 20090818052728.444000Z#000000#000#000000
+m-description: Rule identifier of this DIT structure rule
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.26
+objectclass: metaMatchingRule
+objectclass: metaTop
+objectclass: top
+m-name: ruleIdMatch
+creatorsname: uid=admin,ou=system

@@ -1,0 +1,29 @@
+dn: m-oid=2.16.840.1.113719.1.203.6.11, ou=objectClasses, cn=dhcp, ou=schema
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-oid: 2.16.840.1.113719.1.203.6.11
+m-name: dhcpLog
+m-description: This is the object that holds past information about the IP addre
+ ss. The cn is the time/date stamp when the address was assigned or released, th
+ e address state at the time, if the address was assigned or released.
+m-supObjectClass: top
+m-must: cn
+m-may: dhcpAddressState
+m-may: dhcpExpirationTime
+m-may: dhcpStartTimeOfState
+m-may: dhcpLastTransactionTime
+m-may: dhcpBootpFlag
+m-may: dhcpDomainName
+m-may: dhcpDnsStatus
+m-may: dhcpRequestedHostName
+m-may: dhcpAssignedHostName
+m-may: dhcpReservedForClient
+m-may: dhcpAssignedToClient
+m-may: dhcpRelayAgentInfo
+m-may: dhcpHWAddress
+m-may: dhcpErrorLog
+createtimestamp: 20090818022732Z
+entryuuid:: aEHur3T+QP6wIfTCG7nxUA==
+entrycsn: 20090818052732.821000Z#000000#000#000000
+creatorsname: uid=admin,ou=system

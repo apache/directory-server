@@ -1,0 +1,6 @@
+dn: ou=syntaxes,cn=cosine,ou=schema
+ou: syntaxes
+entryuuid:: bK0c8LBXSheF+jYGiwFwLA==
+entrycsn: 20090818052725.536000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

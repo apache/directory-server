@@ -1,0 +1,19 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.2.2.12,ou=attributeTypes,cn=apachedns,ou=schema
+createtimestamp: 20090818022731Z
+m-singlevalue: TRUE
+entryuuid:: bG4QsvM4SkKg41Qz6DU+9w==
+m-obsolete: FALSE
+m-description: The unsigned 32 bit minimum TTL field that should be exported wit
+ h any RR from this zone.
+m-usage: USER_APPLICATIONS
+creatorsname: uid=admin,ou=system
+m-collective: FALSE
+m-oid: 1.3.6.1.4.1.18060.0.4.2.2.12
+entrycsn: 20090818052731.199000Z#000000#000#000000
+m-nousermodification: FALSE
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.27
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+m-name: apacheDnsSoaMinimum
+m-equality: integerMatch

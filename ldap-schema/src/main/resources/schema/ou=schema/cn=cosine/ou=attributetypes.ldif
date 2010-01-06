@@ -1,0 +1,6 @@
+dn: ou=attributeTypes,cn=cosine,ou=schema
+ou: attributetypes
+entryuuid:: uwTs8q+tT3SZ82aZUeeaCA==
+entrycsn: 20090818052725.552000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

@@ -1,0 +1,16 @@
+dn: m-oid=0.9.2342.19200300.100.4.7, ou=objectClasses, cn=cosine, ou=schema
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-oid: 0.9.2342.19200300.100.4.7
+m-name: room
+m-supObjectClass: top
+m-must: cn
+m-may: roomNumber
+m-may: description
+m-may: seeAlso
+m-may: telephoneNumber
+createtimestamp: 20090818022732Z
+entryuuid:: 0APXlRYDQ6K0Zt72sR0w7w==
+entrycsn: 20090818052732.821000Z#000000#000#000000
+creatorsname: uid=admin,ou=system

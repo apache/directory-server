@@ -1,0 +1,11 @@
+dn: cn=corba,ou=schema
+createtimestamp: 20090818022725Z
+entryuuid:: cC38fR2TQaGGL/IkN2w0YQ==
+cn: corba
+entrycsn: 20090818052725.903000Z#000000#000#000000
+m-disabled: TRUE
+objectclass: metaSchema
+objectclass: top
+m-dependencies: system
+m-dependencies: core
+creatorsname: uid=admin,ou=system

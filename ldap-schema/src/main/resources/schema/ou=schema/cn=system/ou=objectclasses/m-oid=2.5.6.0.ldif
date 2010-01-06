@@ -1,0 +1,14 @@
+dn: m-oid=2.5.6.0,ou=objectClasses,cn=system,ou=schema
+m-must: objectClass
+createtimestamp: 20090818022732Z
+entryuuid:: VKyv36PzQbaXVq74wDngdg==
+m-oid: 2.5.6.0
+m-obsolete: FALSE
+entrycsn: 20090818052732.596000Z#000000#000#000000
+m-description: top of the superclass chain
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-name: top
+m-typeobjectclass: ABSTRACT
+creatorsname: uid=admin,ou=system

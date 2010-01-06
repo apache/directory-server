@@ -1,0 +1,6 @@
+dn: ou=attributeTypes,cn=java,ou=schema
+ou: attributetypes
+entryuuid:: oDykMwKYSH6SwEnN0PDKow==
+entrycsn: 20090818052726.407000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

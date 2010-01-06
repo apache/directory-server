@@ -1,0 +1,6 @@
+dn: ou=attributeTypes,cn=corba,ou=schema
+ou: attributetypes
+entryuuid:: n6HZsIuKS0+SZve7ds23yQ==
+entrycsn: 20090818052725.951000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

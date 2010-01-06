@@ -1,0 +1,12 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.1.3.6, ou=objectClasses, cn=apache, ou=schema
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-oid: 1.3.6.1.4.1.18060.0.4.1.3.6
+m-name: windowsFile
+m-supObjectClass: top
+m-must: windowsFilePath
+createtimestamp: 20090818022732Z
+entryuuid:: rOPWbeOsRYyvvkabdY5sAA==
+entrycsn: 20090818052732.498000Z#000000#000#000000
+creatorsname: uid=admin,ou=system

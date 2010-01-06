@@ -1,0 +1,6 @@
+dn: ou=syntaxes,cn=corba,ou=schema
+ou: syntaxes
+entryuuid:: mHb5/Kj3TJ+DKpK8jxDzcg==
+entrycsn: 20090818052725.939000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

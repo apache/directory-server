@@ -1,0 +1,6 @@
+dn: ou=ditStructureRules,cn=samba,ou=schema
+ou: ditstructurerules
+entryuuid:: OB3+f2tQR+es1EX2bQulpg==
+entrycsn: 20090818052726.483000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

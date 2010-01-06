@@ -1,0 +1,6 @@
+dn: ou=normalizers,cn=cosine,ou=schema
+ou: normalizers
+entryuuid:: KEhlAYQwTkWRecBbGEHQqg==
+entrycsn: 20090818052725.524000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

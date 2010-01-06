@@ -1,0 +1,6 @@
+dn: ou=syntaxCheckers,cn=corba,ou=schema
+ou: syntaxcheckers
+entryuuid:: ZWDRbYZtRWus1to43qHdAw==
+entrycsn: 20090818052725.928000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

@@ -1,0 +1,23 @@
+dn: m-oid=1.3.6.1.1.1.2.0,ou=objectClasses,cn=nis,ou=schema
+createtimestamp: 20090818022732Z
+m-must: cn
+m-must: uid
+m-must: uidNumber
+m-must: gidNumber
+m-must: homeDirectory
+entryuuid:: xf8v4GwlQtuLzeKT9jx9KQ==
+m-obsolete: FALSE
+m-description: Abstraction of an account with POSIX attributes
+creatorsname: uid=admin,ou=system
+m-may: userPassword
+m-may: loginShell
+m-may: gecos
+m-may: description
+m-oid: 1.3.6.1.1.1.2.0
+entrycsn: 20090818052732.525000Z#000000#000#000000
+m-supobjectclass: top
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-name: posixAccount
+m-typeobjectclass: AUXILIARY

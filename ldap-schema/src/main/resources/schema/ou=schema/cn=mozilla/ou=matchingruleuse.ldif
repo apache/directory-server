@@ -1,0 +1,6 @@
+dn: ou=matchingRuleUse,cn=mozilla,ou=schema
+ou: matchingruleuse
+entryuuid:: m50/eAU8Tw+n/WgRn9wprg==
+entrycsn: 20090818052725.449000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

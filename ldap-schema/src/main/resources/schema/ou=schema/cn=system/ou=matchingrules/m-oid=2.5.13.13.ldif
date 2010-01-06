@@ -1,0 +1,12 @@
+dn: m-oid=2.5.13.13,ou=matchingRules,cn=system,ou=schema
+createtimestamp: 20090818022728Z
+entryuuid:: 81Uhyw0MRHmkrwN7GGDidQ==
+m-oid: 2.5.13.13
+m-obsolete: FALSE
+entrycsn: 20090818052728.470000Z#000000#000#000000
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.7
+objectclass: metaMatchingRule
+objectclass: metaTop
+objectclass: top
+m-name: booleanMatch
+creatorsname: uid=admin,ou=system

@@ -1,0 +1,25 @@
+dn: m-oid=2.16.840.1.113719.1.203.4.22,ou=attributeTypes,cn=dhcp,ou=schema
+createtimestamp: 20090818022729Z
+m-singlevalue: TRUE
+entryuuid:: zthifitlRB+9BjDyWzD9bw==
+m-obsolete: FALSE
+m-description: This stores information about the current binding-status of an ad
+ dress.  For dynamic addresses managed by DHCP, the values should be restricted 
+ to the following: "FREE", "ACTIVE", "EXPIRED", "RELEASED", "RESET", "ABANDONED"
+ , "BACKUP".  For other addresses, it SHOULD be one of the following: "UNKNOWN",
+  "RESERVED" (an address that is managed by DHCP that is reserved for a specific
+  client), "RESERVED-ACTIVE" (same as reserved, but address is currently in use)
+ , "ASSIGNED" (assigned manually or by some other mechanism), "UNASSIGNED", "NOT
+ ASSIGNABLE".
+m-usage: USER_APPLICATIONS
+creatorsname: uid=admin,ou=system
+m-collective: FALSE
+m-oid: 2.16.840.1.113719.1.203.4.22
+entrycsn: 20090818052729.216000Z#000000#000#000000
+m-nousermodification: FALSE
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.26
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+m-name: dhcpAddressState
+m-equality: caseIgnoreIA5Match

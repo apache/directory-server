@@ -1,0 +1,6 @@
+dn: ou=objectClasses,cn=apachedns,ou=schema
+ou: objectclasses
+entryuuid:: rS4NOCZpTQ+1hA/kjzjKWA==
+entrycsn: 20090818052725.378000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

@@ -1,0 +1,18 @@
+dn: m-oid=1.3.6.1.4.1.42.2.27.4.1.6,ou=attributeTypes,cn=java,ou=schema
+createtimestamp: 20090818022728Z
+m-singlevalue: TRUE
+entryuuid:: mrk57JdySZyL3IpBFBXtfg==
+m-obsolete: FALSE
+m-description: Fully qualified name of distinguished Java class or interface
+m-usage: USER_APPLICATIONS
+creatorsname: uid=admin,ou=system
+m-collective: FALSE
+m-oid: 1.3.6.1.4.1.42.2.27.4.1.6
+entrycsn: 20090818052728.926000Z#000000#000#000000
+m-nousermodification: FALSE
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.15
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+m-name: javaClassName
+m-equality: caseExactMatch

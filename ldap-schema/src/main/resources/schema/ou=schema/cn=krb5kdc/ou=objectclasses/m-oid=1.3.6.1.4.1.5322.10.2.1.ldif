@@ -1,0 +1,16 @@
+dn: m-oid=1.3.6.1.4.1.5322.10.2.1,ou=objectClasses,cn=krb5kdc,ou=schema
+m-must: krb5PrincipalName
+createtimestamp: 20090818022732Z
+entryuuid:: swHq6ZpIT5u/MIkrRZbHhQ==
+m-oid: 1.3.6.1.4.1.5322.10.2.1
+m-obsolete: FALSE
+entrycsn: 20090818052732.748000Z#000000#000#000000
+m-supobjectclass: top
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-name: krb5Principal
+m-typeobjectclass: AUXILIARY
+creatorsname: uid=admin,ou=system
+m-may: cn
+m-may: krb5PrincipalRealm

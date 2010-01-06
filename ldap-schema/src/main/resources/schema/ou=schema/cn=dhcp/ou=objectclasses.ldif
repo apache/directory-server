@@ -1,0 +1,6 @@
+dn: ou=objectClasses,cn=dhcp,ou=schema
+ou: objectclasses
+entryuuid:: ULqvHLjbRVGl2G2SxxqFdg==
+entrycsn: 20090818052726.339000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

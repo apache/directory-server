@@ -1,0 +1,6 @@
+dn: ou=ditStructureRules,cn=java,ou=schema
+ou: ditstructurerules
+entryuuid:: OEpe+lS7T4mN+2pvzs9qYg==
+entrycsn: 20090818052726.415000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

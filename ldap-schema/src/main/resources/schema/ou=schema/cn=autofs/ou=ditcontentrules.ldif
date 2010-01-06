@@ -1,0 +1,6 @@
+dn: ou=ditContentRules,cn=autofs,ou=schema
+ou: ditcontentrules
+entryuuid:: vI4J0rsZTTa6M5bWp/u/3w==
+entrycsn: 20090818052725.503000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

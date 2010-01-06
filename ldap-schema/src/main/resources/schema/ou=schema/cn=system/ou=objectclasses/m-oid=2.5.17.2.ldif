@@ -1,0 +1,12 @@
+dn: m-oid=2.5.17.2,ou=objectClasses,cn=system,ou=schema
+createtimestamp: 20090818022732Z
+entryuuid:: tI7Jc/VHR6qpM8NsXav04g==
+m-oid: 2.5.17.2
+m-obsolete: FALSE
+entrycsn: 20090818052732.690000Z#000000#000#000000
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-name: collectiveAttributeSubentry
+m-typeobjectclass: AUXILIARY
+creatorsname: uid=admin,ou=system

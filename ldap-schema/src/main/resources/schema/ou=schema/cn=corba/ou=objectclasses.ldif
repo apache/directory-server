@@ -1,0 +1,6 @@
+dn: ou=objectClasses,cn=corba,ou=schema
+ou: objectclasses
+entryuuid:: LZ1fiwc5SPGq+UHSjoUeSg==
+entrycsn: 20090818052725.958000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

@@ -1,0 +1,15 @@
+dn: m-oid=0.9.2342.19200300.100.4.20,ou=objectClasses,cn=cosine,ou=schema
+createtimestamp: 20090818022732Z
+entryuuid:: XWXCvU3UQtyTpVw5dfdo6Q==
+m-oid: 0.9.2342.19200300.100.4.20
+m-obsolete: FALSE
+entrycsn: 20090818052732.921000Z#000000#000#000000
+m-supobjectclass: organization
+m-supobjectclass: organizationalUnit
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-name: pilotOrganization
+m-typeobjectclass: STRUCTURAL
+creatorsname: uid=admin,ou=system
+m-may: buildingName

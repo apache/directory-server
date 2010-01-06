@@ -1,0 +1,17 @@
+dn: m-oid=2.5.6.19,ou=objectClasses,cn=core,ou=schema
+createtimestamp: 20090818022732Z
+m-must: cn
+entryuuid:: UFIbtxARR3ikEAqxLjTDaQ==
+m-obsolete: FALSE
+creatorsname: uid=admin,ou=system
+m-may: certificateRevocationList
+m-may: authorityRevocationList
+m-may: deltaRevocationList
+m-oid: 2.5.6.19
+entrycsn: 20090818052732.681000Z#000000#000#000000
+m-supobjectclass: top
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-name: cRLDistributionPoint
+m-typeobjectclass: STRUCTURAL

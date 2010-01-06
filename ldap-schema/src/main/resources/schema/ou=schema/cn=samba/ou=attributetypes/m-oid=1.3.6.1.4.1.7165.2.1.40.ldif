@@ -1,0 +1,18 @@
+dn: m-oid=1.3.6.1.4.1.7165.2.1.40,ou=attributeTypes,cn=samba,ou=schema
+createtimestamp: 20090818022731Z
+m-singlevalue: TRUE
+entryuuid:: EV8g7W2ZQRGEZcz7ah3kNg==
+m-obsolete: FALSE
+m-description: Base at which the samba RID generation algorithm should operate
+m-usage: USER_APPLICATIONS
+creatorsname: uid=admin,ou=system
+m-collective: FALSE
+m-oid: 1.3.6.1.4.1.7165.2.1.40
+entrycsn: 20090818052731.125000Z#000000#000#000000
+m-nousermodification: FALSE
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.27
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+m-name: sambaAlgorithmicRidBase
+m-equality: integerMatch

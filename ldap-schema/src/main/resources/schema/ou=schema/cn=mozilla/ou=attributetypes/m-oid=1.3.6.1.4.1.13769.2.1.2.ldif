@@ -1,0 +1,17 @@
+dn: m-oid=1.3.6.1.4.1.13769.2.1.2,ou=attributeTypes,cn=mozilla,ou=schema
+createtimestamp: 20090818022730Z
+m-singlevalue: TRUE
+entryuuid:: XAHBdoS2Rhu7nMTjZjZGWA==
+m-obsolete: FALSE
+m-usage: USER_APPLICATIONS
+creatorsname: uid=admin,ou=system
+m-collective: FALSE
+m-oid: 1.3.6.1.4.1.13769.2.1.2
+entrycsn: 20090818052730.298000Z#000000#000#000000
+m-nousermodification: FALSE
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.7
+m-name: xmozillausehtmlmail
+m-name: mozillaUseHtmlMail

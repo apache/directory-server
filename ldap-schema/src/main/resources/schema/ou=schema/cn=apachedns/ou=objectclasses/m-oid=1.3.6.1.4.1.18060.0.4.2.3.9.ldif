@@ -1,0 +1,16 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.2.3.9, ou=objectClasses, cn=apachedns, ou=schema
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-oid: 1.3.6.1.4.1.18060.0.4.2.3.9
+m-name: apacheDnsServiceRecord
+m-description: A service SRV record
+m-supObjectClass: apacheDnsAbstractRecord
+m-must: apacheDnsServicePriority
+m-must: apacheDnsServiceWeight
+m-must: apacheDnsServicePort
+m-must: apacheDnsDomainName
+createtimestamp: 20090818022732Z
+entryuuid:: LHllNlnAQ2yjVA40o1nICQ==
+entrycsn: 20090818052732.821000Z#000000#000#000000
+creatorsname: uid=admin,ou=system

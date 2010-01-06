@@ -1,0 +1,37 @@
+dn: m-oid=2.16.840.1.113730.3.2.2, ou=objectClasses, cn=inetorgperson, ou=schema
+entryuuid:: 4r9qZ5A4RTyqxL7hgJBQMg==
+m-oid: 2.16.840.1.113730.3.2.2
+entrycsn: 20090818052731.979000Z#000000#000#000000
+m-supobjectclass: organizationalPerson
+m-description: RFC2798: Internet Organizational Person
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-name: inetOrgPerson
+m-may: audio
+m-may: businessCategory
+m-may: carLicense
+m-may: departmentNumber
+m-may: displayName
+m-may: employeeNumber
+m-may: employeeType
+m-may: givenName
+m-may: homePhone
+m-may: homePostalAddress
+m-may: initials
+m-may: jpegPhoto
+m-may: labeledURI
+m-may: mail
+m-may: manager
+m-may: mobile
+m-may: o
+m-may: pager
+m-may: photo
+m-may: roomNumber
+m-may: secretary
+m-may: uid
+m-may: userCertificate
+m-may: x500UniqueIdentifier
+m-may: preferredLanguage
+m-may: userSMIMECertificate
+m-may: userPKCS12

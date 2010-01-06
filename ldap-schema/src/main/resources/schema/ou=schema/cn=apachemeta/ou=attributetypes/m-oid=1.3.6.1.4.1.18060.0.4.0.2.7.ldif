@@ -1,0 +1,18 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.0.2.7,ou=attributeTypes,cn=apachemeta,ou=schema
+createtimestamp: 20090818022729Z
+m-singlevalue: FALSE
+entryuuid:: ewVnCq6jROSnomSzrBq1IQ==
+m-obsolete: FALSE
+m-description: The list of authorized ATs
+m-usage: USER_APPLICATIONS
+creatorsname: uid=admin,ou=system
+m-collective: FALSE
+m-oid: 1.3.6.1.4.1.18060.0.4.0.2.7
+entrycsn: 20090818052729.940000Z#000000#000#000000
+m-nousermodification: FALSE
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.38
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+m-name: m-may
+m-equality: nameOrNumericIdMatch

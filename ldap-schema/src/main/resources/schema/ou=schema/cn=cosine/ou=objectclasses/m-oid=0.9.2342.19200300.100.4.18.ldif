@@ -1,0 +1,14 @@
+dn: m-oid=0.9.2342.19200300.100.4.18,ou=objectClasses,cn=cosine,ou=schema
+m-must: co
+createtimestamp: 20090818022732Z
+entryuuid:: vadliEJSTOWIkDADi3qnHQ==
+m-oid: 0.9.2342.19200300.100.4.18
+m-obsolete: FALSE
+entrycsn: 20090818052732.762000Z#000000#000#000000
+m-supobjectclass: country
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-name: friendlyCountry
+m-typeobjectclass: STRUCTURAL
+creatorsname: uid=admin,ou=system

@@ -1,0 +1,6 @@
+dn: ou=objectClasses,cn=system,ou=schema
+ou: objectclasses
+entryuuid:: z+enzRQ6SgSf3pgsvBWoMQ==
+entrycsn: 20090818052726.019000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

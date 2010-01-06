@@ -1,0 +1,11 @@
+dn: cn=inetorgperson,ou=schema
+createtimestamp: 20090818022725Z
+entryuuid:: 54OiXFg+R1uUCjDFMjfKsQ==
+cn: inetorgperson
+entrycsn: 20090818052725.590000Z#000000#000#000000
+objectclass: metaSchema
+objectclass: top
+m-dependencies: system
+m-dependencies: core
+m-dependencies: cosine
+creatorsname: uid=admin,ou=system

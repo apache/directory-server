@@ -1,0 +1,20 @@
+dn: m-oid=2.5.6.6,ou=objectClasses,cn=core,ou=schema
+createtimestamp: 20090818022732Z
+m-must: sn
+m-must: cn
+entryuuid:: R1JqhOJhS/Wt9+caoQoHzw==
+m-obsolete: FALSE
+m-description: RFC2256: a person
+creatorsname: uid=admin,ou=system
+m-may: userPassword
+m-may: telephoneNumber
+m-may: seeAlso
+m-may: description
+m-oid: 2.5.6.6
+entrycsn: 20090818052732.777000Z#000000#000#000000
+m-supobjectclass: top
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-name: person
+m-typeobjectclass: STRUCTURAL

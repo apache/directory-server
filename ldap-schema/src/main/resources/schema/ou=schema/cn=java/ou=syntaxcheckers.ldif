@@ -1,0 +1,6 @@
+dn: ou=syntaxCheckers,cn=java,ou=schema
+ou: syntaxcheckers
+entryuuid:: VoSS4C6fSpmOXbIweSdTTg==
+entrycsn: 20090818052726.399000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

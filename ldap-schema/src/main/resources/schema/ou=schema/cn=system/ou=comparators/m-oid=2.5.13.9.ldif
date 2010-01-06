@@ -1,0 +1,11 @@
+dn: m-oid=2.5.13.9,ou=comparators,cn=system,ou=schema
+createtimestamp: 20090818022728Z
+entryuuid:: FAUkbvjJQWyjDkP5UBh/Ng==
+m-oid: 2.5.13.9
+entrycsn: 20090818052728.066000Z#000000#000#000000
+m-fqcn: org.apache.directory.shared.ldap.schema.comparators.ComparableComparator
+ 
+objectclass: metaComparator
+objectclass: metaTop
+objectclass: top
+creatorsname: uid=admin,ou=system

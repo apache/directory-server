@@ -1,0 +1,18 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.1.2.46,ou=attributeTypes,cn=apache,ou=schema
+createtimestamp: 20090818022730Z
+m-singlevalue: TRUE
+entryuuid:: DkDgUiGpSz+a8gQSqNaupg==
+m-obsolete: FALSE
+m-description: type of change operation
+m-usage: DSA_OPERATION
+creatorsname: uid=admin,ou=system
+m-collective: FALSE
+m-oid: 1.3.6.1.4.1.18060.0.4.1.2.46
+entrycsn: 20090818052730.732000Z#000000#000#000000
+m-nousermodification: TRUE
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.44
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+m-name: changeType
+m-equality: caseIgnoreMatch

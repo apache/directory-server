@@ -1,0 +1,6 @@
+dn: ou=comparators,cn=inetorgperson,ou=schema
+ou: comparators
+entryuuid:: vgnk1H2HTUqZG6DcarU5kg==
+entrycsn: 20090818052725.609000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

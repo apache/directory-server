@@ -1,0 +1,6 @@
+dn: ou=normalizers,cn=autofs,ou=schema
+ou: normalizers
+entryuuid:: LT6FQs+aS/+6SC2zpnAaWA==
+entrycsn: 20090818052725.463000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

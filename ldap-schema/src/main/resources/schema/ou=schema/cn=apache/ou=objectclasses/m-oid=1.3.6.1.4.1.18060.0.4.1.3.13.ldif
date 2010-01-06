@@ -1,0 +1,13 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.1.3.13, ou=objectClasses, cn=apache, ou=schema
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-oid: 1.3.6.1.4.1.18060.0.4.1.3.13
+m-name: tag
+m-description: represents a Tag in change log
+m-must: rev
+m-may: description
+createtimestamp: 20090818022732Z
+entryuuid:: 1Sh5K2m0TtyMtdIbIsPqIA==
+entrycsn: 20090818052732.504000Z#000000#000#000000
+creatorsname: uid=admin,ou=system

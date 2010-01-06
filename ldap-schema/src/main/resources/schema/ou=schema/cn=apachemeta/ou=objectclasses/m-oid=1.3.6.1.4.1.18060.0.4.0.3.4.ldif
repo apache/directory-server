@@ -1,0 +1,13 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.0.3.4,ou=objectClasses,cn=apachemeta,ou=schema
+createtimestamp: 20080711084056Z
+entryuuid:: 4UpBAqxAQ2eiHZsQTYjRxA==
+m-oid: 1.3.6.1.4.1.18060.0.4.0.3.4
+m-obsolete: FALSE
+m-supobjectclass: metaTop
+m-description: meta definition of the Syntax object
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-typeobjectclass: STRUCTURAL
+m-name: metaSyntax
+creatorsname: uid=admin,ou=system

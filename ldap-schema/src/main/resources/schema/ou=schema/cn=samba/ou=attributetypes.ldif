@@ -1,0 +1,6 @@
+dn: ou=attributeTypes,cn=samba,ou=schema
+ou: attributetypes
+entryuuid:: sx7l8+c0TZaP7l7S7cdrKA==
+entrycsn: 20090818052726.475000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

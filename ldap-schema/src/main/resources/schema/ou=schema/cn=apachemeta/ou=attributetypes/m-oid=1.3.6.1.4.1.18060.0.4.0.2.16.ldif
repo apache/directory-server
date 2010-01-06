@@ -1,0 +1,18 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.0.2.16,ou=attributeTypes,cn=apachemeta,ou=schema
+createtimestamp: 20090818022729Z
+m-singlevalue: TRUE
+entryuuid:: cZ9f0YvdTbyNyuKlR9+QFA==
+m-obsolete: FALSE
+m-description: The attribute is collective
+m-usage: USER_APPLICATIONS
+creatorsname: uid=admin,ou=system
+m-collective: FALSE
+m-oid: 1.3.6.1.4.1.18060.0.4.0.2.16
+entrycsn: 20090818052729.882000Z#000000#000#000000
+m-nousermodification: FALSE
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.7
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+m-name: m-collective
+m-equality: booleanMatch

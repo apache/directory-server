@@ -1,0 +1,6 @@
+dn: ou=comparators,cn=mozilla,ou=schema
+ou: comparators
+entryuuid:: lsq4KCxYR0eLNdJp7Rx34A==
+entrycsn: 20090818052725.401000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

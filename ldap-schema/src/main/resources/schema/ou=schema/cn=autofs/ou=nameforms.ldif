@@ -1,0 +1,6 @@
+dn: ou=nameForms,cn=autofs,ou=schema
+ou: nameforms
+entryuuid:: YiGiPyYCQ9SFEZvMnwprvg==
+entrycsn: 20090818052725.493000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

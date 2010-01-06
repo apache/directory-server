@@ -1,0 +1,6 @@
+dn: ou=matchingRules,cn=apachedns,ou=schema
+ou: matchingrules
+entryuuid:: nqEvtGg0Q6+TZ/JmXeDtZQ==
+entrycsn: 20090818052725.367000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

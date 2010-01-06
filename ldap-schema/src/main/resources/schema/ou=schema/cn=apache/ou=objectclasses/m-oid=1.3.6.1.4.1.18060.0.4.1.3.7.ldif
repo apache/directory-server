@@ -1,0 +1,14 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.1.3.7,ou=objectClasses,cn=apache,ou=schema
+m-must: unixFilePath
+createtimestamp: 20090818022732Z
+entryuuid:: i8G/J+X5RR6KZsUL0+OKCw==
+m-oid: 1.3.6.1.4.1.18060.0.4.1.3.7
+m-obsolete: FALSE
+entrycsn: 20090818052732.725000Z#000000#000#000000
+m-supobjectclass: top
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-name: unixFile
+m-typeobjectclass: STRUCTURAL
+creatorsname: uid=admin,ou=system

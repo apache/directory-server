@@ -1,0 +1,12 @@
+dn: m-oid=1.3.6.1.4.1.4203.666.11.2.4,ou=syntaxes,cn=apache,ou=schema
+createtimestamp: 20090818022727Z
+entryuuid:: mTc45RlvS9+Jg3UXwevuHw==
+m-oid: 1.3.6.1.4.1.4203.666.11.2.4
+x-humanreadable: TRUE
+m-obsolete: FALSE
+entrycsn: 20090818052727.043000Z#000000#000#000000
+m-description: a syntax for CSN SID values
+objectclass: metaSyntax
+objectclass: metaTop
+objectclass: top
+creatorsname: uid=admin,ou=system

@@ -1,0 +1,13 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.0.0.6,ou=syntaxes,cn=apachemeta,ou=schema
+createtimestamp: 20090818022727Z
+entryuuid:: vWIU1zH9SdGIJK1NgR1d0A==
+m-oid: 1.3.6.1.4.1.18060.0.4.0.0.6
+x-humanreadable: TRUE
+m-obsolete: FALSE
+entrycsn: 20090818052727.138000Z#000000#000#000000
+m-description: The syntax for object names.
+objectclass: metaSyntax
+objectclass: metaTop
+objectclass: top
+m-description: objectName
+creatorsname: uid=admin,ou=system

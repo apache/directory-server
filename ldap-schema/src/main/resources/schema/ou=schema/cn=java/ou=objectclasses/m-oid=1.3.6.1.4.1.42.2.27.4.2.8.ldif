@@ -1,0 +1,16 @@
+dn: m-oid=1.3.6.1.4.1.42.2.27.4.2.8, ou=objectClasses, cn=java, ou=schema
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-oid: 1.3.6.1.4.1.42.2.27.4.2.8
+m-name: javaMarshalledObject
+m-description: Java marshalled object
+m-supObjectClass: javaObject
+m-typeObjectClass: AUXILIARY
+m-must: javaSerializedData
+entryUUID:: Vp4K6buFT3qm4rxt7RVzCA==
+createtimestamp: 20090818022732Z
+entrycsn: 20090818052732.847000Z#000000#000#000000
+creatorsname: uid=admin,ou=system
+
+

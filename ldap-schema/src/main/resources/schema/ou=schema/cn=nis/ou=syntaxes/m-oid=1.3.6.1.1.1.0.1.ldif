@@ -1,0 +1,12 @@
+dn: m-oid=1.3.6.1.1.1.0.1,ou=syntaxes,cn=nis,ou=schema
+createtimestamp: 20090818022727Z
+entryuuid:: 1XX4QKadTGeX6OP+gn9n2A==
+m-oid: 1.3.6.1.1.1.0.1
+x-humanreadable: TRUE
+m-obsolete: FALSE
+entrycsn: 20090818052727.088000Z#000000#000#000000
+objectclass: metaSyntax
+objectclass: metaTop
+objectclass: top
+m-description: NIS Boot Parameter
+creatorsname: uid=admin,ou=system

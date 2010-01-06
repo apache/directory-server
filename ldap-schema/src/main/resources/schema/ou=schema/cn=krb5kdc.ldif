@@ -1,0 +1,12 @@
+dn: cn=krb5kdc,ou=schema
+createtimestamp: 20090818022726Z
+entryuuid:: jsTBsCa7RseWEBPWoXTR/w==
+cn: krb5kdc
+modifiersname: uid=admin,ou=system
+modifytimestamp: 20090824202608Z
+entrycsn: 20090818052726.166000Z#000000#000#000000
+objectclass: metaSchema
+objectclass: top
+m-dependencies: system
+m-dependencies: core
+creatorsname: uid=admin,ou=system

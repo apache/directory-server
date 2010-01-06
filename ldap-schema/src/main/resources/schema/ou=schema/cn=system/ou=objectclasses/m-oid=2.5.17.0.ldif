@@ -1,0 +1,15 @@
+dn: m-oid=2.5.17.0,ou=objectClasses,cn=system,ou=schema
+m-must: cn
+m-must: subtreeSpecification
+createtimestamp: 20090818022732Z
+entryuuid:: nsP9QJlXRqWAKRDz3IB/dw==
+m-oid: 2.5.17.0
+m-obsolete: FALSE
+entrycsn: 20090818052732.821000Z#000000#000#000000
+m-supobjectclass: top
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-name: subentry
+m-typeobjectclass: STRUCTURAL
+creatorsname: uid=admin,ou=system

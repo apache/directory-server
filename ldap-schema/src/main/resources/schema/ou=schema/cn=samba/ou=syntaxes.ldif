@@ -1,0 +1,6 @@
+dn: ou=syntaxes,cn=samba,ou=schema
+ou: syntaxes
+entryuuid:: H+BRDH1WQ1inoMc7x7Zfkg==
+entrycsn: 20090818052726.470000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

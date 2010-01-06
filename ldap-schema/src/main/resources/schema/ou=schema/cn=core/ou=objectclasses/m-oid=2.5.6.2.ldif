@@ -1,0 +1,17 @@
+dn: m-oid=2.5.6.2,ou=objectClasses,cn=core,ou=schema
+createtimestamp: 20090818022732Z
+entryuuid:: hXc7IUxaQy247RVNSy+54g==
+m-obsolete: FALSE
+m-description: RFC2256: a country
+creatorsname: uid=admin,ou=system
+m-may: searchGuide
+m-may: description
+m-must: c
+m-oid: 2.5.6.2
+entrycsn: 20090818052732.856000Z#000000#000#000000
+m-supobjectclass: top
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-name: country
+m-typeobjectclass: STRUCTURAL

@@ -1,0 +1,13 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.0.1.0,ou=matchingRules,cn=apachemeta,ou=schema
+createtimestamp: 20090818022728Z
+entryuuid:: 3FHLjIq2Q9+7sveo8m0aZA==
+m-oid: 1.3.6.1.4.1.18060.0.4.0.1.0
+m-obsolete: FALSE
+entrycsn: 20090818052728.569000Z#000000#000#000000
+m-description: A name or numeric id matchingRule
+m-syntax: 1.3.6.1.4.1.18060.0.4.0.0.0
+objectclass: metaMatchingRule
+objectclass: metaTop
+objectclass: top
+m-name: nameOrNumericIdMatch
+creatorsname: uid=admin,ou=system

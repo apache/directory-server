@@ -1,0 +1,6 @@
+dn: ou=syntaxes,cn=collective,ou=schema
+ou: syntaxes
+entryuuid:: X3X2jkCNSmaxPBDPlluDzQ==
+entrycsn: 20090818052725.731000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

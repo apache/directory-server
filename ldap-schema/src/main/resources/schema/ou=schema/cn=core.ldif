@@ -1,0 +1,9 @@
+dn: cn=core,ou=schema
+createtimestamp: 20090818022726Z
+entryuuid:: LV4pj7RRRaeJojlpL9IYBA==
+cn: core
+entrycsn: 20090818052726.353000Z#000000#000#000000
+objectclass: metaSchema
+objectclass: top
+m-dependencies: system
+creatorsname: uid=admin,ou=system

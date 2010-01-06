@@ -1,0 +1,6 @@
+dn: ou=objectClasses,cn=apachemeta,ou=schema
+ou: objectclasses
+entryuuid:: K8d//pAGTOiBm4D0k5Si6g==
+entrycsn: 20090818052726.444000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

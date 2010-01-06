@@ -1,0 +1,6 @@
+dn: ou=matchingRuleUse,cn=samba,ou=schema
+ou: matchingruleuse
+entryuuid:: fmfOagf+RsiXKs/SKQssZA==
+entrycsn: 20090818052726.497000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

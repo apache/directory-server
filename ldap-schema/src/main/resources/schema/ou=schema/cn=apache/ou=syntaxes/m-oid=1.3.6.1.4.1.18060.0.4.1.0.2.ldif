@@ -1,0 +1,12 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.1.0.2,ou=syntaxes,cn=apache,ou=schema
+createtimestamp: 20090818022727Z
+entryuuid:: LXReBXUvSECUqstzNYhZeA==
+m-oid: 1.3.6.1.4.1.18060.0.4.1.0.2
+x-humanreadable: TRUE
+m-obsolete: FALSE
+entrycsn: 20090818052727.171000Z#000000#000#000000
+m-description: a syntax for java short values
+objectclass: metaSyntax
+objectclass: metaTop
+objectclass: top
+creatorsname: uid=admin,ou=system

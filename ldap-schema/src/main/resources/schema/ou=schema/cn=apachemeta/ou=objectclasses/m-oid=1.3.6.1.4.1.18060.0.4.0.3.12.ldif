@@ -1,0 +1,16 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.0.3.12,ou=objectClasses,cn=apachemeta,ou=schema
+createtimestamp: 20090818022732Z
+m-must: m-fqcn
+entryuuid:: dPVK+ZPASN+rhiX2hocctQ==
+m-obsolete: FALSE
+m-description: meta definition of a Normalizer object
+creatorsname: uid=admin,ou=system
+m-may: m-bytecode
+m-oid: 1.3.6.1.4.1.18060.0.4.0.3.12
+entrycsn: 20090818052732.700000Z#000000#000#000000
+m-supobjectclass: metaTop
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-name: metaNormalizer
+m-typeobjectclass: STRUCTURAL

@@ -1,0 +1,6 @@
+dn: ou=syntaxCheckers,cn=system,ou=schema
+ou: syntaxcheckers
+entryuuid:: smf31m6CQQ+aGFfp6LQIwA==
+entrycsn: 20090818052725.999000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

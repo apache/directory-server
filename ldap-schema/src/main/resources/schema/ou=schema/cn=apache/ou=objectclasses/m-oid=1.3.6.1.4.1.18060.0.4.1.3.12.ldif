@@ -1,0 +1,15 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.1.3.12, ou=objectClasses, cn=apache, ou=schema
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-oid: 1.3.6.1.4.1.18060.0.4.1.3.12
+m-name: changeLogEvent
+m-description: represents change events
+m-must: changeTime
+m-must: changeType
+m-must: rev
+m-must: committer
+createtimestamp: 20090818022732Z
+entryuuid:: QXQ33PUYSXCRsNHhodo5TQ==
+entrycsn: 20090818052732.504000Z#000000#000#000000
+creatorsname: uid=admin,ou=system

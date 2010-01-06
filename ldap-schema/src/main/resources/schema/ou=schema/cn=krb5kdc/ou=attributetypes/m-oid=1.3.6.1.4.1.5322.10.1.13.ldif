@@ -1,0 +1,17 @@
+dn: m-oid=1.3.6.1.4.1.5322.10.1.13,ou=attributeTypes,cn=krb5kdc,ou=schema
+createtimestamp: 20090818022729Z
+m-singlevalue: TRUE
+entryuuid:: E3PEzNXgS++96RLNORw8IQ==
+m-obsolete: FALSE
+m-usage: USER_APPLICATIONS
+creatorsname: uid=admin,ou=system
+m-collective: FALSE
+m-oid: 1.3.6.1.4.1.5322.10.1.13
+entrycsn: 20090818052729.793000Z#000000#000#000000
+m-nousermodification: FALSE
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.7
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+m-name: krb5AccountDisabled
+m-equality: booleanMatch

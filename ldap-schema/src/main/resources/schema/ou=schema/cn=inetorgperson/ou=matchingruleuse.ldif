@@ -1,0 +1,6 @@
+dn: ou=matchingRuleUse,cn=inetorgperson,ou=schema
+ou: matchingruleuse
+entryuuid:: i4u2XYUJQlOBJ2hx2n4EoQ==
+entrycsn: 20090818052725.689000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

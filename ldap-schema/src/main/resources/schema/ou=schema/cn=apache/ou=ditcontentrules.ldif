@@ -1,0 +1,6 @@
+dn: ou=ditContentRules,cn=apache,ou=schema
+ou: ditcontentrules
+entryuuid:: AZJbrRnBTW6iUm8w7LomFw==
+entrycsn: 20090818052725.889000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

@@ -1,0 +1,6 @@
+dn: ou=comparators,cn=samba,ou=schema
+ou: comparators
+entryuuid:: CCdVLwCkSxmqN82DNstKwQ==
+entrycsn: 20090818052726.461000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

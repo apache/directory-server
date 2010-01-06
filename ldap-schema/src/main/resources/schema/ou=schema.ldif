@@ -1,0 +1,8 @@
+dn: ou=schema
+createtimestamp: 20090818022726Z
+ou: schema
+entryuuid:: SH52IL+rR36UW6EfmTGaVw==
+entrycsn: 20090818052725.311000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top
+creatorsname: uid=admin,ou=system

@@ -1,0 +1,12 @@
+dn: m-oid=1.3.6.1.4.1.1466.115.121.1.32,ou=syntaxes,cn=system,ou=schema
+createtimestamp: 20090818022727Z
+entryuuid:: ea5CGil+RAqxxG9P1UOqIg==
+m-oid: 1.3.6.1.4.1.1466.115.121.1.32
+x-humanreadable: TRUE
+m-obsolete: FALSE
+entrycsn: 20090818052727.253000Z#000000#000#000000
+objectclass: metaSyntax
+objectclass: metaTop
+objectclass: top
+m-description: Mail Preference
+creatorsname: uid=admin,ou=system

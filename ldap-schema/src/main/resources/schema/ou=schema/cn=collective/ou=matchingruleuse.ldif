@@ -1,0 +1,6 @@
+dn: ou=matchingRuleUse,cn=collective,ou=schema
+ou: matchingruleuse
+entryuuid:: dprSarsnRb+ptHi5qwkMMQ==
+entrycsn: 20090818052725.798000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

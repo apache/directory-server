@@ -1,0 +1,6 @@
+dn: ou=comparators,cn=autofs,ou=schema
+ou: comparators
+entryuuid:: 3HZychB7SOKAeNbOgTLDEQ==
+entrycsn: 20090818052725.458000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

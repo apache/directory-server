@@ -1,0 +1,6 @@
+dn: ou=syntaxes,cn=apachedns,ou=schema
+ou: syntaxes
+entryuuid:: AMDLG750RZ+11sCanu14bA==
+entrycsn: 20090818052725.362000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

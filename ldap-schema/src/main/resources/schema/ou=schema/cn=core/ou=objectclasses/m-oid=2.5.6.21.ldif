@@ -1,0 +1,15 @@
+dn: m-oid=2.5.6.21,ou=objectClasses,cn=core,ou=schema
+createtimestamp: 20090818022732Z
+entryuuid:: jRpbdvt6TjijosHOpJmPCw==
+m-oid: 2.5.6.21
+m-obsolete: FALSE
+entrycsn: 20090818052732.592000Z#000000#000#000000
+m-supobjectclass: top
+m-description: RFC2587: a PKI user
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-name: pkiUser
+m-typeobjectclass: AUXILIARY
+creatorsname: uid=admin,ou=system
+m-may: userCertificate

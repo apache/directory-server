@@ -1,0 +1,6 @@
+dn: ou=ditContentRules,cn=mozilla,ou=schema
+ou: ditcontentrules
+entryuuid:: sYuYTVzxRxOaj0jwyC0n3w==
+entrycsn: 20090818052725.443000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

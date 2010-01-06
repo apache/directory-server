@@ -1,0 +1,13 @@
+dn: cn=samba,ou=schema
+createtimestamp: 20090818022726Z
+entryuuid:: Zz3idaoISXiOUE5bHkb/gQ==
+cn: samba
+entrycsn: 20090818052726.457000Z#000000#000#000000
+m-disabled: TRUE
+objectclass: metaSchema
+objectclass: top
+m-dependencies: system
+m-dependencies: core
+m-dependencies: inetorgperson
+m-dependencies: nis
+creatorsname: uid=admin,ou=system

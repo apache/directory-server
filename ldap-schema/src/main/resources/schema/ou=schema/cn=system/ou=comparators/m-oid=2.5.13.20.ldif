@@ -1,0 +1,11 @@
+dn: m-oid=2.5.13.20,ou=comparators,cn=system,ou=schema
+createtimestamp: 20090818022728Z
+entryuuid:: Q2pJ3sDfSbOMpQwpRnJeNw==
+m-oid: 2.5.13.20
+entrycsn: 20090818052728.064000Z#000000#000#000000
+m-fqcn: org.apache.directory.shared.ldap.schema.comparators.TelephoneNumberCompa
+ rator
+objectclass: metaComparator
+objectclass: metaTop
+objectclass: top
+creatorsname: uid=admin,ou=system

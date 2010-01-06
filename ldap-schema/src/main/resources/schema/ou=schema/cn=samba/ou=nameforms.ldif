@@ -1,0 +1,6 @@
+dn: ou=nameForms,cn=samba,ou=schema
+ou: nameforms
+entryuuid:: 8+qqM6gTQRC8qlsVnWHolQ==
+entrycsn: 20090818052726.480000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

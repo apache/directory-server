@@ -1,0 +1,9 @@
+dn: cn=apachemeta,ou=schema
+createtimestamp: 20090818022726Z
+entryuuid:: FALDyKXkRciwM4emT/nQqQ==
+cn: apachemeta
+entrycsn: 20090818052726.424000Z#000000#000#000000
+objectclass: metaSchema
+objectclass: top
+m-dependencies: system
+creatorsname: uid=admin,ou=system

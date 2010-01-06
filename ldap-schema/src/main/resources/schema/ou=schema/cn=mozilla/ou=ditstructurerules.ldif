@@ -1,0 +1,6 @@
+dn: ou=ditStructureRules,cn=mozilla,ou=schema
+ou: ditstructurerules
+entryuuid:: PNfmlXSeQASHTVXarK6HBQ==
+entrycsn: 20090818052725.439000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

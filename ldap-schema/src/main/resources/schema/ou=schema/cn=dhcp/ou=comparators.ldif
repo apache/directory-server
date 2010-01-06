@@ -1,0 +1,6 @@
+dn: ou=comparators,cn=dhcp,ou=schema
+ou: comparators
+entryuuid:: QhtjEloXTTK1hV+Ay+Sdvg==
+entrycsn: 20090818052726.321000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

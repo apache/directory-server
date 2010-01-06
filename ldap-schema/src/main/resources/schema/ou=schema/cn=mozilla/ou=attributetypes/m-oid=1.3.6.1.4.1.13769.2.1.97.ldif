@@ -1,0 +1,17 @@
+dn: m-oid=1.3.6.1.4.1.13769.2.1.97,ou=attributeTypes,cn=mozilla,ou=schema
+createtimestamp: 20090818022729Z
+m-singlevalue: TRUE
+entryuuid:: 89y+Md2yRS2uVH4TDytxPQ==
+m-obsolete: FALSE
+m-usage: USER_APPLICATIONS
+creatorsname: uid=admin,ou=system
+m-collective: FALSE
+m-oid: 1.3.6.1.4.1.13769.2.1.97
+entrycsn: 20090818052729.954000Z#000000#000#000000
+m-nousermodification: FALSE
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.26
+m-name: custom2
+m-name: mozillaCustom2

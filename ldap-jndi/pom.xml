@@ -27,7 +27,7 @@
     <version>0.9.18-SNAPSHOT</version>
   </parent>
   <artifactId>shared-ldap-jndi</artifactId>
-  <name>Apache Directory JNDI Shared</name>
+  <name>Apache Directory Shared JNDI</name>
   <packaging>jar</packaging>  
 
   <description>
