@@ -269,7 +269,7 @@ public class LdapResultCodec extends AbstractAsn1Object
         }
         else
         {
-            matchedDNBytes = StringTools.getBytesUtf8( StringTools.trimLeft( matchedDN.getUpName() ) );
+            matchedDNBytes = StringTools.getBytesUtf8( StringTools.trimLeft( matchedDN.getName() ) );
             ldapResultLength += 1 + TLV.getNbBytes( matchedDNBytes.length ) + matchedDNBytes.length;
         }
 

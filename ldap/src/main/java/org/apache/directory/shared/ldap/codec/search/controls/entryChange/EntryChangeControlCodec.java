@@ -125,7 +125,7 @@ public class EntryChangeControlCodec extends AbstractAsn1Object
 
         if ( previousDn != null )
         {
-            previousDnBytes = StringTools.getBytesUtf8( previousDn.getUpName() );
+            previousDnBytes = StringTools.getBytesUtf8( previousDn.getName() );
             previousDnLength = 1 + TLV.getNbBytes( previousDnBytes.length ) + previousDnBytes.length;
         }
 

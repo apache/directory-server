@@ -20,7 +20,14 @@
 package org.apache.directory.shared.ldap.schema;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.naming.NamingException;
+
+import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 
 /**
@@ -109,59 +116,553 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface DITContentRule extends SchemaObject
+public class DITContentRule extends AbstractSchemaObject
 {
-    /**
-     * Gets the STRUCTURAL ObjectClass this DITContentRule specifies attributes
-     * for.
-     * 
-     * @return the ObjectClass this DITContentRule specifies attributes for
-     * @throws NamingException
-     *             if there is a failure resolving the object
-     */
-    ObjectClass getObjectClass() throws NamingException;
+    /** The serialVersionUID */
+    public static final long serialVersionUID = 1L;
+
+    /** The list of Auxiliary ObjectClass OIDs entries may belong to */
+    private List<String> auxObjectClassOids;
+
+    /** The list of Auxiliary ObjectClass entries may belong to */
+    private List<ObjectClass> auxObjectClasses;
+
+    /** The list of allowed AttributeType OIDs */
+    private List<String> mayAttributeTypeOids;
+
+    /** The list of allowed AttributeTypes */
+    private List<AttributeType> mayAttributeTypes;
+
+    /** The list of required AttributeType OIDs */
+    private List<String> mustAttributeTypeOids;
+
+    /** The list of required AttributeTypes */
+    private List<AttributeType> mustAttributeTypes;
+
+    /** The list of precluded AttributeType OIDs */
+    private List<String> notAttributeTypeOids;
+
+    /** The list of precluded AttributeTypes */
+    private List<AttributeType> notAttributeTypes;
 
 
     /**
-     * Gets all the AUXILIARY ObjectClasses this DITContentRule specifies for
-     * the given STRUCTURAL objectClass.
+     * Creates a DITContentRule object using a unique OID.
      * 
-     * @return the extra AUXILIARY ObjectClasses
-     * @throws NamingException
-     *             if there is a failure resolving the object
+     * @param oid the OID for this DITContentRule
      */
-    ObjectClass[] getAuxObjectClasses() throws NamingException;
+    public DITContentRule( String oid )
+    {
+        super( SchemaObjectType.DIT_CONTENT_RULE, oid );
+
+        mayAttributeTypeOids = new ArrayList<String>();
+        mustAttributeTypeOids = new ArrayList<String>();
+        notAttributeTypeOids = new ArrayList<String>();
+        auxObjectClassOids = new ArrayList<String>();
+
+        mayAttributeTypes = new ArrayList<AttributeType>();
+        mustAttributeTypes = new ArrayList<AttributeType>();
+        notAttributeTypes = new ArrayList<AttributeType>();
+        auxObjectClasses = new ArrayList<ObjectClass>();
+    }
 
 
     /**
-     * Gets all the AttributeTypes of the "must" attribute names this
-     * DITContentRule specifies for the given STRUCTURAL objectClass.
-     * 
-     * @return the AttributeTypes of attributes that must be included in entries
-     * @throws NamingException
-     *             if there is a failure resolving the object
+     * @return the auxObjectClassOids
      */
-    AttributeType[] getMustNames() throws NamingException;
+    public List<String> getAuxObjectClassOids()
+    {
+        return auxObjectClassOids;
+    }
 
 
     /**
-     * Gets all the AttributeTypes of the "may" attribute names this
-     * DITContentRule specifies for the given STRUCTURAL objectClass.
-     * 
-     * @return the AttributeTypes of attributes that may be included in entries
-     * @throws NamingException
-     *             if there is a failure resolving the object
+     * Add an Auxiliary ObjectClass Oid
+     *
+     * @param oid The ObjectClass oid
      */
-    AttributeType[] getMayNames() throws NamingException;
+    public void addAuxObjectClassOidOids( String oid )
+    {
+        if ( !isReadOnly )
+        {
+            auxObjectClassOids.add( oid );
+        }
+    }
 
 
     /**
-     * Gets all the AttributeTypes of the "not" attribute names this
-     * DITContentRule specifies for the given STRUCTURAL objectClass.
-     * 
-     * @return the AttributeTypes of attributes that are excluded in entries
-     * @throws NamingException
-     *             if there is a failure resolving the object
+     * Add an Auxiliary ObjectClass
+     *
+     * @param oid The ObjectClass
      */
-    AttributeType[] getNotNames() throws NamingException;
+    public void addAuxObjectClasses( ObjectClass objectClass )
+    {
+        if ( !isReadOnly )
+        {
+            if ( !auxObjectClassOids.contains( objectClass.getOid() ) )
+            {
+                auxObjectClasses.add( objectClass );
+                auxObjectClassOids.add( objectClass.getOid() );
+            }
+        }
+    }
+
+
+    /**
+     * @param auxObjectClassOids the auxObjectClassOids to set
+     */
+    public void setAuxObjectClassOids( List<String> auxObjectClassOids )
+    {
+        if ( !isReadOnly )
+        {
+            this.auxObjectClassOids = auxObjectClassOids;
+        }
+    }
+
+
+    /**
+     * @param auxObjectClasses the auxObjectClasses to set
+     */
+    public void setAuxObjectClasses( List<ObjectClass> auxObjectClasses )
+    {
+        if ( !isReadOnly )
+        {
+            this.auxObjectClasses = auxObjectClasses;
+
+            // update the OIDS now
+            auxObjectClassOids.clear();
+
+            for ( ObjectClass oc : auxObjectClasses )
+            {
+                auxObjectClassOids.add( oc.getOid() );
+            }
+        }
+    }
+
+
+    /**
+     * @return the auxObjectClasses
+     */
+    public List<ObjectClass> getAuxObjectClasses()
+    {
+        return auxObjectClasses;
+    }
+
+
+    /**
+     * @return the mayAttributeTypeOids
+     */
+    public List<String> getMayAttributeTypeOids()
+    {
+        return mayAttributeTypeOids;
+    }
+
+
+    /**
+     * Add an allowed AttributeType
+     *
+     * @param oid The attributeType oid
+     */
+    public void addMayAttributeTypeOids( String oid )
+    {
+        if ( !isReadOnly )
+        {
+            mayAttributeTypeOids.add( oid );
+        }
+    }
+
+
+    /**
+     * Add an allowed AttributeType
+     *
+     * @param attributeType The attributeType
+     */
+    public void addMayAttributeTypes( AttributeType attributeType )
+    {
+        if ( !isReadOnly )
+        {
+            if ( !mayAttributeTypeOids.contains( attributeType.getOid() ) )
+            {
+                mayAttributeTypes.add( attributeType );
+                mayAttributeTypeOids.add( attributeType.getOid() );
+            }
+        }
+    }
+
+
+    /**
+     * @param mayAttributeTypeOids the mayAttributeTypeOids to set
+     */
+    public void setMayAttributeTypeOids( List<String> mayAttributeTypeOids )
+    {
+        if ( !isReadOnly )
+        {
+            this.mayAttributeTypeOids = mayAttributeTypeOids;
+        }
+    }
+
+
+    /**
+     * Sets the list of allowed AttributeTypes
+     *
+     * @param mayAttributeTypes the list of allowed AttributeTypes
+     */
+    public void setMayAttributeTypes( List<AttributeType> mayAttributeTypes )
+    {
+        if ( !isReadOnly )
+        {
+            this.mayAttributeTypes = mayAttributeTypes;
+
+            // update the OIDS now
+            mayAttributeTypeOids.clear();
+
+            for ( AttributeType may : mayAttributeTypes )
+            {
+                mayAttributeTypeOids.add( may.getOid() );
+            }
+        }
+    }
+
+
+    /**
+     * @return the mayAttributeTypes
+     */
+    public List<AttributeType> getMayAttributeTypes()
+    {
+        return mayAttributeTypes;
+    }
+
+
+    /**
+     * @return the mustAttributeTypeOids
+     */
+    public List<String> getMustAttributeTypeOids()
+    {
+        return mustAttributeTypeOids;
+    }
+
+
+    /**
+     * Add a required AttributeType OID
+     *
+     * @param oid The attributeType OID
+     */
+    public void addMustAttributeTypeOids( String oid )
+    {
+        if ( !isReadOnly )
+        {
+            mustAttributeTypeOids.add( oid );
+        }
+    }
+
+
+    /**
+     * Add a required AttributeType
+     *
+     * @param attributeType The attributeType
+     */
+    public void addMustAttributeTypes( AttributeType attributeType )
+    {
+        if ( !isReadOnly )
+        {
+            if ( !mustAttributeTypeOids.contains( attributeType.getOid() ) )
+            {
+                mustAttributeTypes.add( attributeType );
+                mustAttributeTypeOids.add( attributeType.getOid() );
+            }
+        }
+    }
+
+
+    /**
+     * @param mustAttributeTypeOids the mustAttributeTypeOids to set
+     */
+    public void setMustAttributeTypeOids( List<String> mustAttributeTypeOids )
+    {
+        if ( !isReadOnly )
+        {
+            this.mustAttributeTypeOids = mustAttributeTypeOids;
+        }
+    }
+
+
+    /**
+     * Sets the list of required AttributeTypes
+     *
+     * @param mayAttributeTypes the list of required AttributeTypes
+     */
+    public void setMustAttributeTypes( List<AttributeType> mustAttributeTypes )
+    {
+        if ( !isReadOnly )
+        {
+            this.mustAttributeTypes = mustAttributeTypes;
+
+            // update the OIDS now
+            mustAttributeTypeOids.clear();
+
+            for ( AttributeType may : mustAttributeTypes )
+            {
+                mustAttributeTypeOids.add( may.getOid() );
+            }
+        }
+    }
+
+
+    /**
+     * @return the mustAttributeTypes
+     */
+    public List<AttributeType> getMustAttributeTypes()
+    {
+        return mustAttributeTypes;
+    }
+
+
+    /**
+     * @return the notAttributeTypeOids
+     */
+    public List<String> getNotAttributeTypeOids()
+    {
+        return notAttributeTypeOids;
+    }
+
+
+    /**
+     * Add a precluded AttributeType
+     *
+     * @param oid The attributeType oid
+     */
+    public void addNotAttributeTypeOids( String oid )
+    {
+        if ( !isReadOnly )
+        {
+            notAttributeTypeOids.add( oid );
+        }
+    }
+
+
+    /**
+     * Add a precluded AttributeType
+     *
+     * @param attributeType The attributeType
+     */
+    public void addNotAttributeTypes( AttributeType attributeType )
+    {
+        if ( !isReadOnly )
+        {
+            if ( !notAttributeTypeOids.contains( attributeType.getOid() ) )
+            {
+                notAttributeTypes.add( attributeType );
+                notAttributeTypeOids.add( attributeType.getOid() );
+            }
+        }
+    }
+
+
+    /**
+     * @param notAttributeTypeOids the notAttributeTypeOids to set
+     */
+    public void setNotAttributeTypeOids( List<String> notAttributeTypeOids )
+    {
+        if ( !isReadOnly )
+        {
+            this.notAttributeTypeOids = notAttributeTypeOids;
+        }
+    }
+
+
+    /**
+     * Sets the list of precluded AttributeTypes
+     *
+     * @param mayAttributeTypes the list of precluded AttributeTypes
+     */
+    public void setNotAttributeTypes( List<AttributeType> notAttributeTypes )
+    {
+        if ( !isReadOnly )
+        {
+            this.notAttributeTypes = notAttributeTypes;
+
+            // update the OIDS now
+            notAttributeTypeOids.clear();
+
+            for ( AttributeType not : notAttributeTypes )
+            {
+                notAttributeTypeOids.add( not.getOid() );
+            }
+        }
+    }
+
+
+    /**
+     * @return the notAttributeTypes
+     */
+    public List<AttributeType> getNotAttributeTypes()
+    {
+        return notAttributeTypes;
+    }
+
+
+    /**
+     * Inject the DITContentRule into the registries, updating the references to
+     * other SchemaObject
+     *
+     * @param registries The Registries
+     * @exception If the addition failed
+     */
+    public void addToRegistries( Registries registries ) throws NamingException
+    {
+        if ( registries != null )
+        {
+            AttributeTypeRegistry atRegistry = registries.getAttributeTypeRegistry();
+            ObjectClassRegistry ocRegistry = registries.getObjectClassRegistry();
+
+            if ( mayAttributeTypeOids != null )
+            {
+                mayAttributeTypes = new ArrayList<AttributeType>( mayAttributeTypeOids.size() );
+
+                for ( String oid : mayAttributeTypeOids )
+                {
+                    mayAttributeTypes.add( atRegistry.lookup( oid ) );
+                }
+            }
+
+            if ( mustAttributeTypeOids != null )
+            {
+                mustAttributeTypes = new ArrayList<AttributeType>( mustAttributeTypeOids.size() );
+
+                for ( String oid : mustAttributeTypeOids )
+                {
+                    mustAttributeTypes.add( atRegistry.lookup( oid ) );
+                }
+            }
+
+            if ( notAttributeTypeOids != null )
+            {
+                notAttributeTypes = new ArrayList<AttributeType>( notAttributeTypeOids.size() );
+
+                for ( String oid : notAttributeTypeOids )
+                {
+                    notAttributeTypes.add( atRegistry.lookup( oid ) );
+                }
+            }
+
+            if ( auxObjectClassOids != null )
+            {
+                auxObjectClasses = new ArrayList<ObjectClass>( auxObjectClassOids.size() );
+
+                for ( String oid : auxObjectClassOids )
+                {
+                    auxObjectClasses.add( ocRegistry.lookup( oid ) );
+                }
+            }
+        }
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return objectType + " " + DescriptionUtils.getDescription( this );
+    }
+
+
+    /**
+     * Copy a DITContentRule
+     */
+    public DITContentRule copy()
+    {
+        DITContentRule copy = new DITContentRule( oid );
+
+        // Copy the SchemaObject common data
+        copy.copy( this );
+
+        // copy the AUX ObjectClasses OIDs
+        copy.auxObjectClassOids = new ArrayList<String>();
+
+        for ( String oid : auxObjectClassOids )
+        {
+            copy.auxObjectClassOids.add( oid );
+        }
+
+        // copy the AUX ObjectClasses ( will be empty )
+        copy.auxObjectClasses = new ArrayList<ObjectClass>();
+
+        // Clone the MAY AttributeTypes OIDs
+        copy.mayAttributeTypeOids = new ArrayList<String>();
+
+        for ( String oid : mayAttributeTypeOids )
+        {
+            copy.mayAttributeTypeOids.add( oid );
+        }
+
+        // Clone the MAY AttributeTypes ( will be empty )
+        copy.mayAttributeTypes = new ArrayList<AttributeType>();
+
+        // Clone the MUST AttributeTypes OIDs
+        copy.mustAttributeTypeOids = new ArrayList<String>();
+
+        for ( String oid : mustAttributeTypeOids )
+        {
+            copy.mustAttributeTypeOids.add( oid );
+        }
+
+        // Clone the MUST AttributeTypes ( will be empty )
+        copy.mustAttributeTypes = new ArrayList<AttributeType>();
+
+        // Clone the NOT AttributeTypes OIDs
+        copy.notAttributeTypeOids = new ArrayList<String>();
+
+        for ( String oid : notAttributeTypeOids )
+        {
+            copy.notAttributeTypeOids.add( oid );
+        }
+
+        // Clone the NOT AttributeTypes ( will be empty )
+        copy.notAttributeTypes = new ArrayList<AttributeType>();
+
+        return copy;
+    }
+
+
+    /**
+     * @see Object#equals(Object)
+     */
+    public boolean equals( Object o )
+    {
+        if ( !super.equals( o ) )
+        {
+            return false;
+        }
+
+        if ( !( o instanceof DITContentRule ) )
+        {
+            return false;
+        }
+
+        DITContentRule that = ( DITContentRule ) o;
+
+        // TODO : complete the check
+        return true;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void clear()
+    {
+        // Clear the common elements
+        super.clear();
+
+        // Clear the references
+        auxObjectClasses.clear();
+        auxObjectClassOids.clear();
+        mayAttributeTypes.clear();
+        mayAttributeTypeOids.clear();
+        mustAttributeTypes.clear();
+        mustAttributeTypeOids.clear();
+        notAttributeTypes.clear();
+        notAttributeTypeOids.clear();
+    }
 }

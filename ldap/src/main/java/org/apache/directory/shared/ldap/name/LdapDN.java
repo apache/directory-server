@@ -36,7 +36,6 @@ import javax.naming.InvalidNameException;
 import javax.naming.Name;
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -215,6 +214,73 @@ public class LdapDN implements Name, Externalizable
 
 
     /**
+     * Creates a new instance of LdapDN, using varargs to declare the RDNs. Each
+     * String is either a full RDN, or a couple of AttributeType DI and a value.
+     * If the String contains a '=' symbol, the the constructor will assume that
+     * the String arg contains afull RDN, otherwise, it will consider that the 
+     * following arg is the value.
+     * An example of usage would be :
+     * <pre>
+     * String exampleName = "example";
+     * String baseDn = "dc=apache,dc=org";
+     * 
+     * LdapDN dn = new LdapDN(
+     *     "cn=Test",
+     *     "ou", exampleName,
+     *     baseDn);
+     * </pre>
+     *
+     * @param upNames
+     * @throws InvalidNameException
+     */
+    public LdapDN( String... upNames ) throws InvalidNameException
+    {
+        StringBuilder sb = new StringBuilder();
+        boolean valueExpected = false;
+        boolean isFirst = true;
+        
+        for ( String upName : upNames )
+        {
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else if ( !valueExpected )
+            {
+                sb.append( ',' );
+            }
+            
+            if ( !valueExpected )
+            {
+                sb.append( upName );
+                
+                if ( upName.indexOf( '=' ) == -1 )
+                {
+                    valueExpected = true;
+                }
+            }
+            else
+            {
+                sb.append( "=" ).append( upName );
+                
+                valueExpected = false;
+            }
+        }
+        
+        if ( valueExpected )
+        {
+            throw new InvalidNameException( "A value is missing on some RDN" );
+        }
+
+        // Stores the representations of a DN : internal (as a string and as a
+        // byte[]) and external.
+        upName = sb.toString();
+        LdapDnParser.parseInternal( upName, rdns );
+        normalizeInternal();
+        normalized = false;
+    }
+    
+    /**
      * Create a DN when deserializing it.
      * 
      * Note : this constructor is used only by the deserialization method.
@@ -334,7 +400,7 @@ public class LdapDN implements Name, Externalizable
                     sb.append( ',' );
                 }
 
-                sb.append( rdn );
+                sb.append( rdn.getNormName() );
             }
 
             String newNormName = sb.toString();
@@ -355,10 +421,11 @@ public class LdapDN implements Name, Externalizable
      * getNormName method
      *
      * @return A String representing the normalized DN
+     * @TODO : use the getName() method instead
      */
     public String toString()
     {
-        return normName == null ? "" : normName;
+        return getNormName();
     }
 
 
@@ -520,9 +587,21 @@ public class LdapDN implements Name, Externalizable
 
 
     /**
+     * Get the initial DN
+     *
+     * @return The DN as a String
+     */
+    public String getName()
+    {
+        return ( upName == null ? "" : upName );
+    }
+
+
+    /**
      * Get the initial DN (without normalization)
      *
      * @return The DN as a String
+     * @deprecated
      */
     public String getUpName()
     {
@@ -1097,7 +1176,7 @@ public class LdapDN implements Name, Externalizable
                 {
                     normName = dn.getNormName() + "," + normName;
                     bytes = StringTools.getBytesUtf8( normName );
-                    upName = dn.getUpName() + "," + upName;
+                    upName = dn.getName() + "," + upName;
                 }
             }
             else
@@ -1363,7 +1442,7 @@ public class LdapDN implements Name, Externalizable
     }
 
 
-    private static AttributeTypeAndValue atavOidToName( AttributeTypeAndValue atav, Map<String, OidNormalizer> oidsMap )
+    private static AVA atavOidToName( AVA atav, Map<String, OidNormalizer> oidsMap )
         throws InvalidNameException, NamingException
     {
         String type = StringTools.trim( atav.getNormType() );
@@ -1381,14 +1460,16 @@ public class LdapDN implements Name, Externalizable
             }
             else
             {
-                OidNormalizer oidNormalizer = oidsMap.get( type );
+                OidNormalizer oidNormalizer = oidsMap.get( type.toLowerCase() );
 
                 if ( oidNormalizer != null )
                 {
-                    return new AttributeTypeAndValue( atav.getUpType(), oidNormalizer.getAttributeTypeOid(), 
-                            atav.getUpValue(),
-                            oidNormalizer.getNormalizer().normalize( atav.getNormValue() ) );
-
+                    return new AVA( 
+                        atav.getUpType(), 
+                        oidNormalizer.getAttributeTypeOid(), 
+                        atav.getUpValue(),
+                        oidNormalizer.getNormalizer().normalize( atav.getNormValue() ),
+                        atav.getUpName() );
                 }
                 else
                 {
@@ -1403,29 +1484,8 @@ public class LdapDN implements Name, Externalizable
             LOG.error( "Empty type not allowed in a DN" );
             throw new InvalidNameException( "Empty type not allowed in a DN" );
         }
-
     }
 
-    /**
-     * This private method is used to normalize the value, when we have found a normalizer.
-     * This method deals with RDN having one single ATAV.
-     * 
-     * @param rdn the RDN we want to normalize. It will contain the resulting normalized RDN
-     * @param oidNormalizer the normalizer to use for the RDN
-     * @throws NamingException If something went wrong.
-     */
-    private static void oidNormalize( Rdn rdn, OidNormalizer oidNormalizer ) throws NamingException
-    {
-        String upValue = rdn.getUpValue();
-        String upType = rdn.getUpType();
-        rdn.clear();
-        String normStringValue = DefaultStringNormalizer.normalizeString( ( String ) upValue );
-        String normValue = oidNormalizer.getNormalizer().normalize( normStringValue );
-
-        rdn.addAttributeTypeAndValue( upType, oidNormalizer.getAttributeTypeOid(), 
-            new ClientStringValue( upValue ), 
-            new ClientStringValue( normValue ) );
-    }
 
     /**
      * Transform a RDN by changing the value to its OID counterpart and
@@ -1436,7 +1496,7 @@ public class LdapDN implements Name, Externalizable
      * @throws InvalidNameException If the RDN is invalid.
      * @throws NamingException If something went wrong.
      */
-    private static void rdnOidToName( Rdn rdn, Map<String, OidNormalizer> oidsMap ) throws InvalidNameException,
+    /** No qualifier */ static void rdnOidToName( Rdn rdn, Map<String, OidNormalizer> oidsMap ) throws InvalidNameException,
         NamingException
     {
         if ( rdn.getNbAtavs() > 1 )
@@ -1446,66 +1506,18 @@ public class LdapDN implements Name, Externalizable
             Rdn rdnCopy = ( Rdn ) rdn.clone();
             rdn.clear();
 
-            for ( AttributeTypeAndValue val:rdnCopy )
+            for ( AVA val:rdnCopy )
             {
-                AttributeTypeAndValue newAtav = atavOidToName( val, oidsMap );
-                rdn.addAttributeTypeAndValue( val.getUpType(), newAtav.getNormType(), val.getUpValue(), newAtav.getNormValue() );
+                AVA newAtav = atavOidToName( val, oidsMap );
+                rdn.addAttributeTypeAndValue( newAtav );
             }
-
         }
         else
         {
-            String type = rdn.getNormType();
-
-            if ( StringTools.isNotEmpty( type ) )
-            {
-                if ( oidsMap == null )
-                {
-                    return;
-                }
-                else
-                {
-                    OidNormalizer oidNormalizer = oidsMap.get( type );
-
-                    if ( oidNormalizer != null )
-                    {
-                        oidNormalize( rdn, oidNormalizer );
-                    }
-                    else
-                    {
-                        // May be the oidNormalizer was null because the type starts with OID
-                        if ( ( type.startsWith( "oid." ) ) || ( type.startsWith( "OID." ) ) )
-                        {
-                            type = type.substring( 4 );
-                            oidNormalizer = oidsMap.get( type );
-                            
-                            if ( oidNormalizer != null )
-                            {
-                                // Ok, just normalize after having removed the 4 first chars
-                                oidNormalize( rdn, oidNormalizer );
-                            }
-                            else
-                            {
-                                // We don't have a normalizer for this OID : just do
-                                // nothing.
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            // We don't have a normalizer for this OID : just do
-                            // nothing.
-                            return;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                // The type is empty : this is not possible...
-                LOG.error( "We should not have an empty DN" );
-                throw new InvalidNameException( "Empty type not allowed in a DN" );
-            }
+            AVA val = rdn.getAtav();
+            rdn.clear();
+            AVA newAtav = atavOidToName( val, oidsMap );
+            rdn.addAttributeTypeAndValue( newAtav );
         }
     }
 

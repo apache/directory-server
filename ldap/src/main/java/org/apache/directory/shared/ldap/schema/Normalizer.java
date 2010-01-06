@@ -20,8 +20,6 @@
 package org.apache.directory.shared.ldap.schema;
 
 
-import java.io.Serializable;
-
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.entry.Value;
@@ -33,16 +31,33 @@ import org.apache.directory.shared.ldap.entry.Value;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface Normalizer extends Serializable
+public abstract class Normalizer extends LoadableSchemaObject
 {
+    /** The serialversionUID */
+    private static final long serialVersionUID = 1L;
+
+
     /**
-     * Gets the normalized value.
+     * The Normalizer base constructor. We use it's MR OID to
+     * initialize the SchemaObject instance
      * 
-     * @param value the value to normalize. It must *not* be null !
-     * @return the normalized form for a value
-     * @throws NamingException if an error results during normalization
+     * @param oid The associated OID. It's the element's MR OID
      */
-    Value<?> normalize( Value<?> value ) throws NamingException;
+    protected Normalizer( String oid )
+    {
+        super( SchemaObjectType.NORMALIZER, oid );
+    }
+
+
+    /**
+     * Use this default constructor when the Normalizer must be instantiated
+     * before setting the OID.
+     */
+    protected Normalizer()
+    {
+        super( SchemaObjectType.NORMALIZER );
+    }
+
 
     /**
      * Gets the normalized value.
@@ -51,5 +66,50 @@ public interface Normalizer extends Serializable
      * @return the normalized form for a value
      * @throws NamingException if an error results during normalization
      */
-    String normalize( String value ) throws NamingException;
+    public abstract Value<?> normalize( Value<?> value ) throws NamingException;
+
+
+    /**
+     * Gets the normalized value.
+     * 
+     * @param value the value to normalize. It must *not* be null !
+     * @return the normalized form for a value
+     * @throws NamingException if an error results during normalization
+     */
+    public abstract String normalize( String value ) throws NamingException;
+
+
+    /**
+     * Store the SchemaManager in this instance. It may be necessary for some
+     * normalizer which needs to have access to the oidNormalizer Map.
+     *
+     * @param schemaManager the schemaManager to store
+     */
+    public void setSchemaManager( SchemaManager schemaManager )
+    {
+        // Do nothing (general case).
+    }
+
+
+    /**
+     * @see Object#equals()
+     */
+    public boolean equals( Object o )
+    {
+        if ( !super.equals( o ) )
+        {
+            return false;
+        }
+
+        return o instanceof Normalizer;
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return objectType + " " + DescriptionUtils.getDescription( this );
+    }
 }

@@ -22,8 +22,8 @@ package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 import java.text.ParseException;
 
-import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescription;
-import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,13 +39,13 @@ import static org.junit.Assert.assertNotNull;
 public class ComparatorDescriptionSchemaParserTest
 {
     /** the parser instance */
-    private ComparatorDescriptionSchemaParser parser;
+    private LdapComparatorDescriptionSchemaParser parser;
 
 
     @Before
     public void setUp() throws Exception
     {
-        parser = new ComparatorDescriptionSchemaParser();
+        parser = new LdapComparatorDescriptionSchemaParser();
     }
 
 
@@ -74,13 +74,13 @@ public class ComparatorDescriptionSchemaParserTest
     public void testFqcn() throws ParseException
     {
         String value = null;
-        ComparatorDescription cd = null;
+        LdapComparatorDescription ldapComparatorDescription = null;
 
         // FQCN simple
         value = "( 1.1 FQCN org.apache.directory.SimpleComparator )";
-        cd = parser.parseComparatorDescription( value );
-        assertNotNull( cd.getFqcn() );
-        assertEquals( "org.apache.directory.SimpleComparator", cd.getFqcn() );
+        ldapComparatorDescription = parser.parseComparatorDescription( value );
+        assertNotNull( ldapComparatorDescription.getFqcn() );
+        assertEquals( "org.apache.directory.SimpleComparator", ldapComparatorDescription.getFqcn() );
     }
 
 
@@ -88,25 +88,28 @@ public class ComparatorDescriptionSchemaParserTest
     public void testBytecode() throws ParseException
     {
         String value = null;
-        ComparatorDescription cd = null;
+        LdapComparatorDescription ldapComparatorDescription = null;
 
         // FQCN simple p
         value = "( 1.1 FQCN org.apache.directory.SimpleComparator BYTECODE ABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789==== )";
-        cd = parser.parseComparatorDescription( value );
-        assertNotNull( cd.getBytecode() );
-        assertEquals( "ABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789====", cd.getBytecode() );
+        ldapComparatorDescription = parser.parseComparatorDescription( value );
+        assertNotNull( ldapComparatorDescription.getBytecode() );
+        assertEquals( "ABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789====", 
+        		ldapComparatorDescription.getBytecode() );
 
         // FQCN simple, no spaces
         value = "(1.1 FQCNorg.apache.directory.SimpleComparator BYTECODEABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789====)";
-        cd = parser.parseComparatorDescription( value );
-        assertNotNull( cd.getBytecode() );
-        assertEquals( "ABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789====", cd.getBytecode() );
+        ldapComparatorDescription = parser.parseComparatorDescription( value );
+        assertNotNull( ldapComparatorDescription.getBytecode() );
+        assertEquals( "ABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789====", 
+        		ldapComparatorDescription.getBytecode() );
 
         // FQCN simple, tabs
         value = "\t(\t1.1\tFQCN\torg.apache.directory.SimpleComparator\tBYTECODE\tABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789====\t)\t";
-        cd = parser.parseComparatorDescription( value );
-        assertNotNull( cd.getBytecode() );
-        assertEquals( "ABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789====", cd.getBytecode() );
+        ldapComparatorDescription = parser.parseComparatorDescription( value );
+        assertNotNull( ldapComparatorDescription.getBytecode() );
+        assertEquals( "ABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789====", 
+        		ldapComparatorDescription.getBytecode() );
     }
 
 

@@ -54,7 +54,7 @@ public abstract class StoredProcedureParameter
         
         public String toString()
         {
-            return name + " \"" + ctxName.getUpName() + "\"";
+            return name + " \"" + ctxName.getName() + "\"";
         }
     }
 

@@ -83,6 +83,22 @@ public class OidNormalizer
     {
         return attributeTypeOid;
     }
+    
+    
+    /**
+     * Copy an OidNormalizer(). The contained Normalizer will be cloned too.
+     * 
+     * @return A deep clone of the current OidNormalizer
+     */
+    public OidNormalizer copy() throws CloneNotSupportedException
+    {
+        OidNormalizer copy = new OidNormalizer( attributeTypeOid, normalizer );
+
+        // Copy the SchemaObject common data
+        copy.copy();
+        
+        return copy;
+    }
 
 
     /**

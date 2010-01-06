@@ -19,8 +19,9 @@
  */
 package org.apache.directory.shared.ldap.schema;
 
-import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
 
 /**
  * The unit tests for methods on UsageEnum.
@@ -56,6 +57,6 @@ public class UsageEnumTest
         assertEquals( "userApplications", UsageEnum.render( UsageEnum.USER_APPLICATIONS ) );
         assertEquals( "distributedOperation", UsageEnum.render( UsageEnum.DISTRIBUTED_OPERATION ) );
         assertEquals( "dSAOperation", UsageEnum.render( UsageEnum.DSA_OPERATION ) );
-        assertEquals( "", UsageEnum.render( null ) );
+        assertEquals( "userApplications", UsageEnum.render( null ) );
     }
 }

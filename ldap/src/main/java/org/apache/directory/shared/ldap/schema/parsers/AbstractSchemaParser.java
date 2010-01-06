@@ -22,6 +22,11 @@ package org.apache.directory.shared.ldap.schema.parsers;
 
 import java.io.StringReader;
 import java.text.ParseException;
+import java.util.List;
+
+import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
+import org.apache.directory.shared.ldap.schema.SchemaObject;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 
@@ -101,6 +106,42 @@ public abstract class AbstractSchemaParser
     }
 
 
-    public abstract AbstractSchemaDescription parse( String schemaDescription ) throws ParseException;
-
+    /**
+     * Parse a SchemaObject description and returns back an instance of SchemaObject.
+     * 
+     * @param schemaDescription The SchemaObject description
+     * @return A SchemaObject instance
+     * @throws ParseException If the parsing failed
+     */
+    public abstract SchemaObject parse( String schemaDescription ) throws ParseException;
+    
+    
+    /**
+     * Update the schemaName for this SchemaObject, accordingly to the X-SCHEMA parameter. If
+     * not present, default to 'other'
+     */
+    protected void setSchemaName( SchemaObject schemaObject )
+    {
+        
+        // Update the Schema if we have the X-SCHEMA extension
+        List<String> schemaExtension = schemaObject.getExtensions().get( MetaSchemaConstants.X_SCHEMA );
+        
+        if ( schemaExtension != null )
+        {
+            String schemaName = schemaExtension.get( 0 );
+            
+            if ( StringTools.isEmpty( schemaName ) )
+            {
+                schemaObject.setSchemaName( MetaSchemaConstants.SCHEMA_OTHER );
+            }
+            else
+            {
+                schemaObject.setSchemaName( schemaName );
+            }
+        }
+        else
+        {
+            schemaObject.setSchemaName( MetaSchemaConstants.SCHEMA_OTHER );
+        }
+    }
 }

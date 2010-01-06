@@ -20,12 +20,12 @@
 package org.apache.directory.shared.ldap.schema.syntax;
 
 
-import org.apache.directory.shared.ldap.schema.syntaxes.OctetStringSyntaxChecker;
-import org.apache.directory.shared.ldap.util.StringTools;
-
-import org.junit.Test;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
+import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Test;
 
 /**
  * Test cases for OctetStringSyntaxChecker.
@@ -55,7 +55,7 @@ public class OctetStringSyntaxCheckerTest
     @Test
     public void testStringOctetString()
     {
-        assertFalse( checker.isValidSyntax( "" ) );
+        assertTrue( checker.isValidSyntax( "" ) );
     }
 
 

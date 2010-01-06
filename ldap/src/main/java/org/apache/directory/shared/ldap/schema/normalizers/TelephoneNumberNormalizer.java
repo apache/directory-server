@@ -24,6 +24,7 @@ import java.io.IOException;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.Normalizer;
@@ -35,10 +36,20 @@ import org.apache.directory.shared.ldap.schema.PrepareString;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class TelephoneNumberNormalizer implements Normalizer
+public class TelephoneNumberNormalizer extends Normalizer
 {
-    // The serial UID
-   static final long serialVersionUID = 1L;
+    /** The serial UID */
+    public static final long serialVersionUID = 1L;
+
+    /**
+     * Creates a new instance of TelephoneNumberNormalizer.
+     */
+    public TelephoneNumberNormalizer()
+    {
+        super( SchemaConstants.TELEPHONE_NUMBER_MATCH_MR_OID );
+    }
+
+
 
    /**
     * {@inheritDoc}

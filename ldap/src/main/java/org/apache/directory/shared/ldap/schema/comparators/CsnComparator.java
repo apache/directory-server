@@ -20,9 +20,10 @@
 package org.apache.directory.shared.ldap.schema.comparators;
 
 
-import java.util.Comparator;
-
 import org.apache.directory.shared.ldap.csn.Csn;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -37,21 +38,34 @@ import org.apache.directory.shared.ldap.csn.Csn;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CsnComparator implements Comparator<String>
+public class CsnComparator extends LdapComparator<String>
 {
-    /** A static instance of this comparator */
-    public static final Comparator<String> INSTANCE = new CsnComparator();
-    
-    
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( CsnComparator.class );
+
+    /** The serialVersionUID */
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * The CsnComparator constructor. Its OID is the CsnMatch matching
+     * rule OID.
+     */
+    public CsnComparator( String oid )
+    {
+        super( oid );
+    }
+
+
     /**
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
     public int compare( String csnStr1, String csnStr2 )
     {
+        LOG.debug( "comparing CSN objects '{}' with '{}'", csnStr1, csnStr2 );
+
         // -------------------------------------------------------------------
         // Handle some basis cases
         // -------------------------------------------------------------------
-
         if ( csnStr1 == null )
         {
             return ( csnStr2 == null ) ? 0 : -1;

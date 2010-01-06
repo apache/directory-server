@@ -19,10 +19,18 @@
  */
 package org.apache.directory.shared.ldap.util;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.InvalidAttributeValueException;
 
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -32,12 +40,7 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
-
 import org.junit.Test;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNull;
 
 /**
  * A test case for the AttributeUtils methods 
@@ -393,6 +396,38 @@ public class AttributeUtilsTest
         
         assertNotNull( entry.get( "cn" ) );
         assertNull( entry.get( "ou" ) );
+    }
+    
+    @Test
+    public void testCreateAttributesVarargs() throws NamingException
+    {
+        String mOid = "m-oid: 1.2.3.4";
+        String description = "description";
+        
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaSyntax",
+            mOid,
+            "m-description", description );
+        
+        assertEquals( "top", attrs.get( "objectClass" ).get( 0 ) );
+        assertEquals( "metaTop", attrs.get( "objectClass" ).get( 1 ) );
+        assertEquals( "metaSyntax", attrs.get( "objectClass" ).get( 2 ) );
+        assertEquals( "1.2.3.4", attrs.get( "m-oid" ).get() );
+        assertEquals( "description", attrs.get( "m-description" ).get() );
+
+        try
+        {
+            AttributeUtils.createAttributes( 
+                "objectClass", "top",
+                "objectClass" );
+            fail();
+        }
+        catch ( InvalidAttributeValueException iave )
+        {
+            assertTrue( true );
+        }
     }
 }
 

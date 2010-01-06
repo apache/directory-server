@@ -20,7 +20,10 @@
 package org.apache.directory.shared.ldap.schema;
 
 
-import javax.naming.NamingException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.directory.shared.ldap.NotImplementedException;
 
 
 /**
@@ -77,35 +80,187 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface DITStructureRule extends SchemaObject
+public class DITStructureRule extends AbstractSchemaObject
 {
-    /**
-     * Gets the rule identifier for this DITStructureRule.
-     * 
-     * @return the rule identifier 
-     */
-    Integer getRuleId();
-    
-    
-    /**
-     * The nameForm associating this ditStructureRule with a structural
-     * objectClass.
-     * 
-     * @return the nameForm for the structural objectClass
-     * @throws NamingException
-     *             if there is a failure resolving the object
-     */
-    NameForm getNameForm() throws NamingException;
+    /** The serialVersionUID */
+    private static final long serialVersionUID = 1L;
+
+    /** The rule ID. A DSR does not have an OID */
+    private int ruleId;
+
+    /** The associated NameForm */
+    private String form;
+
+    /** The list of superiors rules */
+    private List<Integer> superRules;
 
 
     /**
-     * Gets a collection of all the superior StructureRules. The difference with
-     * getSuperClass is this method will resolve the entire superior class
-     * chain.
-     * 
-     * @return the chain of StructureRules
-     * @throws NamingException
-     *             if there is a failure resolving the object
+     * Creates a new instance of DITStructureRule
      */
-    DITStructureRule[] getSuperClasses() throws NamingException;
+    public DITStructureRule( int ruleId )
+    {
+        super( SchemaObjectType.DIT_STRUCTURE_RULE, null );
+        this.ruleId = ruleId;
+        form = null;
+        superRules = new ArrayList<Integer>();
+    }
+
+
+    /**
+     *  @return The associated NameForm's OID
+     */
+    public String getForm()
+    {
+        return form;
+    }
+
+
+    /**
+     * Sets the associated NameForm's OID
+     *
+     * @param form The NameForm's OID
+     */
+    public void setForm( String form )
+    {
+        if ( !isReadOnly )
+        {
+            this.form = form;
+        }
+    }
+
+
+    /**
+     * @return The Rule ID
+     */
+    public int getRuleId()
+    {
+        return ruleId;
+    }
+
+
+    /**
+     * Sets the rule identifier of this DIT structure rule;
+     *
+     * @param ruleId the rule identifier of this DIT structure rule;
+     */
+    public void setRuleId( int ruleId )
+    {
+        if ( !isReadOnly )
+        {
+            this.ruleId = ruleId;
+        }
+    }
+
+
+    /**
+     * @return The list of superiors RuleIDs
+     */
+    public List<Integer> getSuperRules()
+    {
+        return superRules;
+    }
+
+
+    /**
+     * Sets the list of superior RuleIds
+     * 
+     * @param superRules the list of superior RuleIds
+     */
+    public void setSuperRules( List<Integer> superRules )
+    {
+        if ( !isReadOnly )
+        {
+            this.superRules = superRules;
+        }
+    }
+
+
+    /**
+     * Adds a new superior RuleId
+     *
+     * @param superRule The superior RuleID to add
+     */
+    public void addSuperRule( Integer superRule )
+    {
+        superRules.add( superRule );
+    }
+
+
+    /**
+     * The DSR does not have an OID, so throw an exception
+     */
+    public String getOid()
+    {
+        throw new NotImplementedException();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return objectType + " " + DescriptionUtils.getDescription( this );
+    }
+
+
+    /**
+     * Copy a DITStructureRule
+     */
+    public DITStructureRule copy()
+    {
+        DITStructureRule copy = new DITStructureRule( ruleId );
+
+        // Copy the SchemaObject common data
+        copy.copy( this );
+
+        // Copy the Superiors rules
+        copy.superRules = new ArrayList<Integer>();
+
+        // Copy the form
+        copy.form = form;
+
+        for ( int ruleId : superRules )
+        {
+            copy.superRules.add( ruleId );
+        }
+
+        return copy;
+    }
+
+
+    /**
+     * @see Object#equals(Object)
+     */
+    public boolean equals( Object o )
+    {
+        if ( !super.equals( o ) )
+        {
+            return false;
+        }
+
+        if ( !( o instanceof DITStructureRule ) )
+        {
+            return false;
+        }
+
+        DITStructureRule that = ( DITStructureRule ) o;
+
+        // TODO : complete the test
+        return true;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void clear()
+    {
+        // Clear the common elements
+        super.clear();
+
+        // Clear the references
+        superRules.clear();
+    }
 }

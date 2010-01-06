@@ -233,7 +233,7 @@ public class ClientBinaryValue extends AbstractValue<byte[]>
         {
             ClientBinaryValue binaryValue = ( ClientBinaryValue ) value;
 
-            return ByteArrayComparator.INSTANCE.compare( getNormalizedValue(), binaryValue.getNormalizedValue() );
+            return new ByteArrayComparator( null ).compare( getNormalizedValue(), binaryValue.getNormalizedValue() );
         }
         
         String message = "I don't really know how to compare anything other " +

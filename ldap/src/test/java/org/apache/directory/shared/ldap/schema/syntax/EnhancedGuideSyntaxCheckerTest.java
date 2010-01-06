@@ -19,7 +19,7 @@
  */
 package org.apache.directory.shared.ldap.schema.syntax;
 
-import org.apache.directory.shared.ldap.schema.syntaxes.EnhancedGuideSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.EnhancedGuideSyntaxChecker;
 
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
@@ -52,7 +52,7 @@ public class EnhancedGuideSyntaxCheckerTest
     @Test
     public void testOid()
     {
-        assertEquals( "1.3.6.1.4.1.1466.115.121.1.21", checker.getSyntaxOid() );
+        assertEquals( "1.3.6.1.4.1.1466.115.121.1.21", checker.getOid() );
     }
 
     @Test

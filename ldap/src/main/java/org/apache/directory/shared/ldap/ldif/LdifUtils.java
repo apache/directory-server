@@ -239,13 +239,13 @@ public class LdifUtils
         if ( entry.getDn() != null )
         {
             // First, dump the DN
-            if ( isLDIFSafe( entry.getDn().getUpName() ) )
+            if ( isLDIFSafe( entry.getDn().getName() ) )
             {
-                sb.append( stripLineToNChars( "dn: " + entry.getDn().getUpName(), length ) );
+                sb.append( stripLineToNChars( "dn: " + entry.getDn().getName(), length ) );
             }
             else
             {
-                sb.append( stripLineToNChars( "dn:: " + encodeBase64( entry.getDn().getUpName() ), length ) );
+                sb.append( stripLineToNChars( "dn:: " + encodeBase64( entry.getDn().getName() ), length ) );
             }
         
             sb.append( '\n' );
@@ -306,13 +306,13 @@ public class LdifUtils
         StringBuilder sb = new StringBuilder();
         
         // First, dump the DN
-        if ( isLDIFSafe( entry.getDn().getUpName() ) )
+        if ( isLDIFSafe( entry.getDn().getName() ) )
         {
             sb.append( stripLineToNChars( "dn: " + entry.getDn(), length ) );
         }
         else
         {
-            sb.append( stripLineToNChars( "dn:: " + encodeBase64( entry.getDn().getUpName() ), length ) );
+            sb.append( stripLineToNChars( "dn:: " + encodeBase64( entry.getDn().getName() ), length ) );
         }
         
         sb.append( '\n' );

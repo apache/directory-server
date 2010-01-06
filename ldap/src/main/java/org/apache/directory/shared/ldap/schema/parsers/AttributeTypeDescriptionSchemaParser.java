@@ -22,6 +22,9 @@ package org.apache.directory.shared.ldap.schema.parsers;
 
 import java.text.ParseException;
 
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
@@ -36,6 +39,8 @@ import antlr.TokenStreamRecognitionException;
  */
 public class AttributeTypeDescriptionSchemaParser extends AbstractSchemaParser
 {
+    /** The LoggerFactory used by this class */
+    protected static final Logger LOG = LoggerFactory.getLogger( AttributeTypeDescriptionSchemaParser.class );
 
     /**
      * Creates a schema parser instance.
@@ -78,12 +83,15 @@ public class AttributeTypeDescriptionSchemaParser extends AbstractSchemaParser
      * @return the parsed AttributeTypeDescription bean
      * @throws ParseException if there are any recognition errors (bad syntax)
      */
-    public synchronized AttributeTypeDescription parseAttributeTypeDescription( String attributeTypeDescription )
+    public synchronized AttributeType parseAttributeTypeDescription( String attributeTypeDescription )
         throws ParseException
     {
 
+        LOG.debug( "Parsing an AttributeType : {}", attributeTypeDescription );
+
         if ( attributeTypeDescription == null )
         {
+            LOG.error( "Cannot parse a null AttributeType" );
             throw new ParseException( "Null", 0 );
         }
 
@@ -91,36 +99,47 @@ public class AttributeTypeDescriptionSchemaParser extends AbstractSchemaParser
 
         try
         {
-            AttributeTypeDescription atd = parser.attributeTypeDescription();
-            return atd;
+            AttributeType attributeType = parser.attributeTypeDescription();
+            
+            // Update the schemaName
+            setSchemaName( attributeType );
+
+            return attributeType;
         }
         catch ( RecognitionException re )
         {
-            String msg = "Parser failure on attribute type description:\n\t" + attributeTypeDescription;
-            msg += "\nAntlr message: " + re.getMessage();
-            msg += "\nAntlr column: " + re.getColumn();
+            String msg = "Parser failure on attribute type description:\n\t" + attributeTypeDescription +
+                "\nAntlr message: " + re.getMessage() +
+                "\nAntlr column: " + re.getColumn();
+            LOG.error( msg );
             throw new ParseException( msg, re.getColumn() );
         }
         catch ( TokenStreamRecognitionException tsre )
         {
-            String msg = "Parser failure on attribute type description:\n\t" + attributeTypeDescription;
-            msg += "\nAntlr message: " + tsre.getMessage();
+            String msg = "Parser failure on attribute type description:\n\t" + attributeTypeDescription +
+                "\nAntlr message: " + tsre.getMessage();
+            LOG.error( msg );
             throw new ParseException( msg, 0 );
         }
         catch ( TokenStreamException tse )
         {
-            String msg = "Parser failure on attribute type description:\n\t" + attributeTypeDescription;
-            msg += "\nAntlr message: " + tse.getMessage();
+            String msg = "Parser failure on attribute type description:\n\t" + attributeTypeDescription +
+                "\nAntlr message: " + tse.getMessage();
+            LOG.error( msg );
             throw new ParseException( msg, 0 );
         }
 
     }
 
 
-    public AbstractSchemaDescription parse( String schemaDescription ) throws ParseException
+    /**
+     * Parses a AttributeType description
+     * 
+     * @param The AttributeType description to parse
+     * @return An instance of AttributeType
+     */
+    public AttributeType parse( String schemaDescription ) throws ParseException
     {
         return parseAttributeTypeDescription( schemaDescription );
     }
-
-
 }

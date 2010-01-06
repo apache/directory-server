@@ -22,6 +22,14 @@ package org.apache.directory.shared.ldap.schema.parsers;
 
 import java.util.List;
 
+import javax.naming.NamingException;
+
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.ObjectClass;
+import org.apache.directory.shared.ldap.schema.SchemaObject;
+
 
 
 /**
@@ -33,54 +41,54 @@ import java.util.List;
 public class ParserDescriptionUtils
 {
     /**
-     * Checks two schema objectClass descriptions for an exact match.
+     * Checks two schema objectClasses for an exact match.
      *
-     * @param ocd0 the first objectClass description to compare
-     * @param ocd1 the second objectClass description to compare
-     * @return true if both objectClasss descriptions match exactly, false otherwise
+     * @param ocd0 the first objectClass to compare
+     * @param ocd1 the second objectClass to compare
+     * @return true if both objectClasses match exactly, false otherwise
      */
-    public static boolean objectClassesMatch( ObjectClassDescription ocd0, ObjectClassDescription ocd1 )
+    public static boolean objectClassesMatch( ObjectClass oc0, ObjectClass oc1 ) throws NamingException
     {
         // compare all common description parameters
-        if ( ! descriptionsMatch( ocd0, ocd1 ) )
+        if ( ! descriptionsMatch( oc0, oc1 ) )
         {
             return false;
         }
 
         // compare the objectClass type (AUXILIARY, STRUCTURAL, ABSTRACT)
-        if ( ocd0.getKind() != ocd1.getKind() )
+        if ( oc0.getType() != oc1.getType() )
         {
             return false;
         }
         
         // compare the superior objectClasses (sizes must match)
-        if ( ocd0.getSuperiorObjectClasses().size() != ocd1.getSuperiorObjectClasses().size() )
+        if ( oc0.getSuperiorOids().size() != oc1.getSuperiorOids().size() )
         {
             return false;
         }
 
         // compare the superior objectClasses (sizes must match)
-        for ( int ii = 0; ii < ocd0.getSuperiorObjectClasses().size(); ii++ )
+        for ( int i = 0; i < oc0.getSuperiorOids().size(); i++ )
         {
-            if ( ! ocd0.getSuperiorObjectClasses().get( ii ).equals( ocd1.getSuperiorObjectClasses().get( ii ) ) )
+            if ( ! oc0.getSuperiorOids().get( i ).equals( oc1.getSuperiorOids().get( i ) ) )
             {
                 return false;
             }
         }
         
         // compare the must attributes (sizes must match)
-        for ( int ii = 0; ii < ocd0.getMustAttributeTypes().size(); ii++ )
+        for ( int i = 0; i < oc0.getMustAttributeTypeOids().size(); i++ )
         {
-            if ( ! ocd0.getMustAttributeTypes().get( ii ).equals( ocd1.getMustAttributeTypes().get( ii ) ) )
+            if ( ! oc0.getMustAttributeTypeOids().get( i ).equals( oc1.getMustAttributeTypeOids().get( i ) ) )
             {
                 return false;
             }
         }
         
         // compare the may attributes (sizes must match)
-        for ( int ii = 0; ii < ocd0.getMayAttributeTypes().size(); ii++ )
+        for ( int i = 0; i < oc0.getMayAttributeTypeOids().size(); i++ )
         {
-            if ( ! ocd0.getMayAttributeTypes().get( ii ).equals( ocd1.getMayAttributeTypes().get( ii ) ) )
+            if ( ! oc0.getMayAttributeTypeOids().get( i ).equals( oc1.getMayAttributeTypeOids().get( i ) ) )
             {
                 return false;
             }
@@ -91,76 +99,76 @@ public class ParserDescriptionUtils
     
     
     /**
-     * Checks two schema attributeType descriptions for an exact match.
+     * Checks two schema attributeTypes for an exact match.
      *
-     * @param atd0 the first attributeType description to compare
-     * @param atd1 the second attributeType description to compare
-     * @return true if both attributeType descriptions match exactly, false otherwise
+     * @param atd0 the first attributeType to compare
+     * @param atd1 the second attributeType to compare
+     * @return true if both attributeTypes match exactly, false otherwise
      */
-    public static boolean attributeTypesMatch( AttributeTypeDescription atd0, AttributeTypeDescription atd1 )
+    public static boolean attributeTypesMatch( AttributeType at0, AttributeType at1 )
     {
         // compare all common description parameters
-        if ( ! descriptionsMatch( atd0, atd1 ) )
+        if ( ! descriptionsMatch( at0, at1 ) )
         {
             return false;
         }
 
         // check that the same super type is being used for both attributes
-        if ( ! atd0.getSuperType().equals( atd1.getSuperType() ) )
+        if ( ! at0.getSuperiorOid().equals( at1.getSuperiorOid() ) )
         {
             return false;
         }
         
         // check that the same matchingRule is used by both ATs for EQUALITY
-        if ( ! atd0.getEqualityMatchingRule().equals( atd1.getEqualityMatchingRule() ) )
+        if ( ! at0.getEqualityOid().equals( at1.getEqualityOid() ) )
         {
             return false;
         }
         
         // check that the same matchingRule is used by both ATs for SUBSTRING
-        if ( ! atd0.getSubstringsMatchingRule().equals( atd1.getSubstringsMatchingRule() ) )
+        if ( ! at0.getSubstringOid().equals( at1.getSubstringOid() ) )
         {
             return false;
         }
         
         // check that the same matchingRule is used by both ATs for ORDERING
-        if ( ! atd0.getOrderingMatchingRule().equals( atd1.getOrderingMatchingRule() ) )
+        if ( ! at0.getOrderingOid().equals( at1.getOrderingOid() ) )
         {
             return false;
         }
         
         // check that the same syntax is used by both ATs
-        if ( ! atd0.getSyntax().equals( atd1.getSyntax() ) )
+        if ( ! at0.getSyntaxOid().equals( at1.getSyntaxOid() ) )
         {
             return false;
         }
         
         // check that the syntax length constraint is the same for both
-        if ( atd0.getSyntaxLength() != atd1.getSyntaxLength() )
+        if ( at0.getSyntaxLength() != at1.getSyntaxLength() )
         {
             return false;
         }
         
         // check that the ATs have the same single valued flag value
-        if ( atd0.isSingleValued() != atd1.isSingleValued() )
+        if ( at0.isSingleValued() != at1.isSingleValued() )
         {
             return false;
         }
         
         // check that the ATs have the same collective flag value
-        if ( atd0.isCollective() != atd1.isCollective() )
+        if ( at0.isCollective() != at1.isCollective() )
         {
             return false;
         }
         
         // check that the ATs have the same user modifiable flag value
-        if ( atd0.isUserModifiable() != atd1.isUserModifiable() )
+        if ( at0.isUserModifiable() != at1.isUserModifiable() )
         {
             return false;
         }
         
         // check that the ATs have the same USAGE
-        if ( atd0.getUsage() != atd1.getUsage() )
+        if ( at0.getUsage() != at1.getUsage() )
         {
             return false;
         }
@@ -170,22 +178,22 @@ public class ParserDescriptionUtils
     
     
     /**
-     * Checks to see if two matchingRule descriptions match exactly.
+     * Checks to see if two matchingRule match exactly.
      *
-     * @param mrd0 the first matchingRule description to compare
-     * @param mrd1 the second matchingRule description to compare
+     * @param mrd0 the first matchingRule to compare
+     * @param mrd1 the second matchingRule to compare
      * @return true if the matchingRules match exactly, false otherwise
      */
-    public static boolean matchingRulesMatch( MatchingRuleDescription mrd0, MatchingRuleDescription mrd1 )
+    public static boolean matchingRulesMatch( MatchingRule matchingRule0, MatchingRule matchingRule1 )
     {
         // compare all common description parameters
-        if ( ! descriptionsMatch( mrd0, mrd1 ) )
+        if ( ! descriptionsMatch( matchingRule0, matchingRule1 ) )
         {
             return false;
         }
 
         // check that the syntaxes of the matchingRules match
-        if ( ! mrd0.getSyntax().equals( mrd1.getSyntax() ) )
+        if ( ! matchingRule0.getSyntaxOid().equals( matchingRule1.getSyntaxOid() ) )
         {
             return false;
         }
@@ -195,15 +203,15 @@ public class ParserDescriptionUtils
     
     
     /**
-     * Checks to see if two syntax descriptions match exactly.
+     * Checks to see if two syntax match exactly.
      *
-     * @param lsd0 the first syntax description to compare
-     * @param lsd1 the second syntax description to compare
+     * @param ldapSyntax0 the first ldapSyntax to compare
+     * @param ldapSyntax1 the second ldapSyntax to compare
      * @return true if the syntaxes match exactly, false otherwise
      */
-    public static boolean syntaxesMatch( LdapSyntaxDescription lsd0, LdapSyntaxDescription lsd1 )
+    public static boolean syntaxesMatch( LdapSyntax ldapSyntax0, LdapSyntax ldapSyntax1 )
     {
-        return descriptionsMatch( lsd0, lsd1 );
+        return descriptionsMatch( ldapSyntax0, ldapSyntax1 );
     }
     
     
@@ -213,41 +221,41 @@ public class ParserDescriptionUtils
      * not compared because doing so would raise an exception since syntax 
      * descriptions do not support the OBSOLETE flag.
      * 
-     * @param asd0 the first schema description to compare 
-     * @param asd1 the second schema description to compare 
+     * @param lsd0 the first schema description to compare 
+     * @param lsd1 the second schema description to compare 
      * @return true if the descriptions match exactly, false otherwise
      */
-    public static boolean descriptionsMatch( AbstractSchemaDescription asd0, AbstractSchemaDescription asd1 )
+    public static boolean descriptionsMatch( SchemaObject so0, SchemaObject so1 )
     {
         // check that the OID matches
-        if ( ! asd0.getNumericOid().equals( asd1.getNumericOid() ) )
+        if ( ! so0.getOid().equals( so1.getOid() ) )
         {
             return false;
         }
         
         // check that the obsolete flag is equal but not for syntaxes
-        if ( ( asd0 instanceof LdapSyntaxDescription ) || ( asd1 instanceof LdapSyntaxDescription ) )
+        if ( ( so0 instanceof LdapSyntax ) || ( so1 instanceof LdapSyntax ) )
         {
-            if ( asd0.isObsolete() != asd1.isObsolete() )
+            if ( so0.isObsolete() != so1.isObsolete() )
             {
                 return false;
             }
         }
         
         // check that the description matches
-        if ( ! asd0.getDescription().equals( asd1.getDescription() ) )
+        if ( ! so0.getDescription().equals( so1.getDescription() ) )
         {
             return false;
         }
         
         // check alias names for exact match
-        if ( ! aliasNamesMatch( asd0, asd1 ) )
+        if ( ! aliasNamesMatch( so0, so1 ) )
         {
             return false;
         }
         
         // check extensions for exact match
-        if ( ! extensionsMatch( asd0, asd1 ) )
+        if ( ! extensionsMatch( so0, so1 ) )
         {
             return false;
         }
@@ -261,23 +269,23 @@ public class ParserDescriptionUtils
      * description.  The order of the extension values must match for a true
      * return.
      *
-     * @param asd0 the first schema description to compare the extensions of
-     * @param asd1 the second schema description to compare the extensions of
+     * @param lsd0 the first schema description to compare the extensions of
+     * @param lsd1 the second schema description to compare the extensions of
      * @return true if the extensions match exactly, false otherwise
      */
-    public static boolean extensionsMatch( AbstractSchemaDescription asd0, AbstractSchemaDescription asd1 )
+    public static boolean extensionsMatch( SchemaObject lsd0, SchemaObject lsd1 )
     {
         // check sizes first
-        if ( asd0.getExtensions().size() != asd1.getExtensions().size() )
+        if ( lsd0.getExtensions().size() != lsd1.getExtensions().size() )
         {
             return false;
         }
         
         // check contents and order of extension values must match
-        for ( String key : asd0.getExtensions().keySet() )
+        for ( String key : lsd0.getExtensions().keySet() )
         {
-            List<String> values0 = asd0.getExtensions().get( key );
-            List<String> values1 = asd1.getExtensions().get( key );
+            List<String> values0 = lsd0.getExtensions().get( key );
+            List<String> values1 = lsd1.getExtensions().get( key );
             
             // if the key is not present in asd1
             if ( values1 == null )
@@ -285,9 +293,9 @@ public class ParserDescriptionUtils
                 return false;
             }
             
-            for ( int ii = 0; ii < values0.size(); ii++ )
+            for ( int i = 0; i < values0.size(); i++ )
             {
-                if ( ! values0.get( ii ).equals( values1.get( ii ) ) )
+                if ( ! values0.get( i ).equals( values1.get( i ) ) )
                 {
                     return false;
                 }
@@ -306,18 +314,18 @@ public class ParserDescriptionUtils
      * @param asd1 the schema description to compare
      * @return true if alias names match exactly, false otherwise
      */
-    public static boolean aliasNamesMatch( AbstractSchemaDescription asd0, AbstractSchemaDescription asd1 )
+    public static boolean aliasNamesMatch( SchemaObject so0, SchemaObject so1 )
     {
         // check sizes first
-        if ( asd0.getNames().size() != asd1.getNames().size() )
+        if ( so0.getNames().size() != so1.getNames().size() )
         {
             return false;
         }
         
         // check contents and order must match too
-        for ( int ii = 0; ii < asd0.getNames().size(); ii++ )
+        for ( int i = 0; i < so0.getNames().size(); i++ )
         {
-            if ( ! asd0.getNames().get( ii ).equals( asd1.getNames().get( ii ) ) )
+            if ( ! so0.getNames().get( i ).equals( so1.getNames().get( i ) ) )
             {
                 return false;
             }

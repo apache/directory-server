@@ -19,7 +19,9 @@
  */
 package org.apache.directory.shared.ldap.ldif;
 
+
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -57,6 +59,7 @@ import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * <pre>
@@ -165,7 +168,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class LdifReader implements Iterable<LdifEntry>
+public class LdifReader implements Iterable<LdifEntry>, Closeable
 {
     /** A logger */
     private static final Logger LOG = LoggerFactory.getLogger( LdifReader.class );
@@ -180,6 +183,7 @@ public class LdifReader implements Iterable<LdifEntry>
         /** The current position */
         private int pos;
 
+
         /**
          * Creates a new instance of Position.
          */
@@ -187,6 +191,7 @@ public class LdifReader implements Iterable<LdifEntry>
         {
             pos = 0;
         }
+
 
         /**
          * Increment the current position by one
@@ -196,6 +201,7 @@ public class LdifReader implements Iterable<LdifEntry>
         {
             pos++;
         }
+
 
         /**
          * Increment the current position by the given value
@@ -244,7 +250,7 @@ public class LdifReader implements Iterable<LdifEntry>
     protected LdifEntry prefetched;
 
     /** The ldif Reader */
-    protected Reader in;
+    protected Reader reader;
 
     /** A flag set if the ldif contains entries */
     protected boolean containsEntries;
@@ -258,6 +264,7 @@ public class LdifReader implements Iterable<LdifEntry>
      */
     protected Exception error;
 
+
     /**
      * Constructors
      */
@@ -268,9 +275,10 @@ public class LdifReader implements Iterable<LdifEntry>
         version = DEFAULT_VERSION;
     }
 
-    private void init( BufferedReader inf ) throws NamingException
+
+    private void init( BufferedReader reader ) throws NamingException
     {
-        this.in = inf;
+        this.reader = reader;
         lines = new ArrayList<String>();
         position = new Position();
         version = DEFAULT_VERSION;
@@ -282,6 +290,7 @@ public class LdifReader implements Iterable<LdifEntry>
         prefetched = parseEntry();
     }
 
+
     /**
      * A constructor which takes a file name
      * 
@@ -291,43 +300,31 @@ public class LdifReader implements Iterable<LdifEntry>
      */
     public LdifReader( String ldifFileName ) throws NamingException
     {
-        File inf = new File( ldifFileName );
+        File file = new File( ldifFileName );
 
-        if ( !inf.exists() )
+        if ( !file.exists() )
         {
-            LOG.error( "File {} cannot be found", inf.getAbsoluteFile() );
-            throw new NamingException( "Cannot find file " + inf.getAbsoluteFile() );
+            LOG.error( "File {} cannot be found", file.getAbsoluteFile() );
+            throw new NamingException( "Cannot find file " + file.getAbsoluteFile() );
         }
 
-        if ( !inf.canRead() )
+        if ( !file.canRead() )
         {
-            LOG.error( "File {} cannot be read", inf.getName() );
-            throw new NamingException( "Cannot read file " + inf.getName() );
+            LOG.error( "File {} cannot be read", file.getName() );
+            throw new NamingException( "Cannot read file " + file.getName() );
         }
 
         try
         {
-            init( new BufferedReader( new FileReader( inf ) ) );
+            init( new BufferedReader( new FileReader( file ) ) );
         }
-        catch (FileNotFoundException fnfe)
+        catch ( FileNotFoundException fnfe )
         {
-            LOG.error( "File {} cannot be found", inf.getAbsoluteFile() );
-            throw new NamingException( "Cannot find file " + inf.getAbsoluteFile() );
+            LOG.error( "File {} cannot be found", file.getAbsoluteFile() );
+            throw new NamingException( "Cannot find file " + file.getAbsoluteFile() );
         }
     }
 
-    /**
-     * A constructor which takes a BufferedReader
-     * 
-     * @param in
-     *            A BufferedReader containing ldif formated input
-     * @throws NamingException
-     *             If the file cannot be processed or if the format is incorrect
-     */
-    public LdifReader( BufferedReader in ) throws NamingException
-    {
-        init( in );
-    }
 
     /**
      * A constructor which takes a Reader
@@ -342,6 +339,7 @@ public class LdifReader implements Iterable<LdifEntry>
         init( new BufferedReader( in ) );
     }
 
+
     /**
      * A constructor which takes an InputStream
      * 
@@ -355,6 +353,7 @@ public class LdifReader implements Iterable<LdifEntry>
         init( new BufferedReader( new InputStreamReader( in ) ) );
     }
 
+
     /**
      * A constructor which takes a File
      * 
@@ -363,30 +362,31 @@ public class LdifReader implements Iterable<LdifEntry>
      * @throws NamingException
      *             If the file cannot be processed or if the format is incorrect
      */
-    public LdifReader( File in ) throws NamingException
+    public LdifReader( File file ) throws NamingException
     {
-        if ( !in.exists() )
+        if ( !file.exists() )
         {
-            LOG.error( "File {} cannot be found", in.getAbsoluteFile() );
-            throw new NamingException( "Cannot find file " + in.getAbsoluteFile() );
+            LOG.error( "File {} cannot be found", file.getAbsoluteFile() );
+            throw new NamingException( "Cannot find file " + file.getAbsoluteFile() );
         }
 
-        if ( !in.canRead() )
+        if ( !file.canRead() )
         {
-            LOG.error( "File {} cannot be read", in.getName() );
-            throw new NamingException( "Cannot read file " + in.getName() );
+            LOG.error( "File {} cannot be read", file.getName() );
+            throw new NamingException( "Cannot read file " + file.getName() );
         }
 
         try
         {
-            init( new BufferedReader( new FileReader( in ) ) );
+            init( new BufferedReader( new FileReader( file ) ) );
         }
-        catch (FileNotFoundException fnfe)
+        catch ( FileNotFoundException fnfe )
         {
-            LOG.error( "File {} cannot be found", in.getAbsoluteFile() );
-            throw new NamingException( "Cannot find file " + in.getAbsoluteFile() );
+            LOG.error( "File {} cannot be found", file.getAbsoluteFile() );
+            throw new NamingException( "Cannot find file " + file.getAbsoluteFile() );
         }
     }
+
 
     /**
      * @return The ldif file version
@@ -396,6 +396,7 @@ public class LdifReader implements Iterable<LdifEntry>
         return version;
     }
 
+
     /**
      * @return The maximum size of a file which is used into an attribute value.
      */
@@ -403,6 +404,7 @@ public class LdifReader implements Iterable<LdifEntry>
     {
         return sizeLimit;
     }
+
 
     /**
      * Set the maximum file size that can be accepted for an attribute value
@@ -415,6 +417,7 @@ public class LdifReader implements Iterable<LdifEntry>
         this.sizeLimit = sizeLimit;
     }
 
+
     // <fill> ::= ' ' <fill> | �
     private static void parseFill( char[] document, Position position )
     {
@@ -424,6 +427,7 @@ public class LdifReader implements Iterable<LdifEntry>
             position.inc();
         }
     }
+
 
     /**
      * Parse a number following the rules :
@@ -463,6 +467,7 @@ public class LdifReader implements Iterable<LdifEntry>
         }
     }
 
+
     /**
      * Parse the changeType
      * 
@@ -499,6 +504,7 @@ public class LdifReader implements Iterable<LdifEntry>
 
         return operation;
     }
+
 
     /**
      * Parse the DN of an entry
@@ -537,7 +543,7 @@ public class LdifReader implements Iterable<LdifEntry>
                     {
                         dn = new String( Base64.decode( trimmedLine.toCharArray() ), "UTF-8" );
                     }
-                    catch (UnsupportedEncodingException uee)
+                    catch ( UnsupportedEncodingException uee )
                     {
                         // The DN is not base 64 encoded
                         LOG.error( "The ldif entry is supposed to have a base 64 encoded DN" );
@@ -567,7 +573,7 @@ public class LdifReader implements Iterable<LdifEntry>
         {
             LdapDnParser.parseInternal( dn, new ArrayList<Rdn>() );
         }
-        catch (InvalidNameException ine)
+        catch ( InvalidNameException ine )
         {
             LOG.error( "The DN {} is not valid" );
             throw ine;
@@ -575,6 +581,7 @@ public class LdifReader implements Iterable<LdifEntry>
 
         return dn;
     }
+
 
     /**
      * Parse the value part.
@@ -607,6 +614,7 @@ public class LdifReader implements Iterable<LdifEntry>
             return null;
         }
     }
+
 
     /**
      * Parse the value part.
@@ -661,7 +669,7 @@ public class LdifReader implements Iterable<LdifEntry>
                             }
                             else
                             {
-                                byte[] data = new byte[(int) length];
+                                byte[] data = new byte[( int ) length];
                                 DataInputStream inf = null;
 
                                 try
@@ -671,7 +679,7 @@ public class LdifReader implements Iterable<LdifEntry>
 
                                     return data;
                                 }
-                                catch (FileNotFoundException fnfe)
+                                catch ( FileNotFoundException fnfe )
                                 {
                                     // We can't reach this point, the file
                                     // existence has already been
@@ -679,7 +687,7 @@ public class LdifReader implements Iterable<LdifEntry>
                                     LOG.error( "File {} not found", fileName );
                                     throw new NamingException( "Bad URL, file not found" );
                                 }
-                                catch (IOException ioe)
+                                catch ( IOException ioe )
                                 {
                                     LOG.error( "File {} error reading", fileName );
                                     throw new NamingException( "Bad URL, file can't be read" );
@@ -705,7 +713,7 @@ public class LdifReader implements Iterable<LdifEntry>
                         throw new NamingException( "Unsupported URL protocol" );
                     }
                 }
-                catch (MalformedURLException mue)
+                catch ( MalformedURLException mue )
                 {
                     LOG.error( "Bad URL {}", urlName );
                     throw new NamingException( "Bad URL" );
@@ -721,6 +729,7 @@ public class LdifReader implements Iterable<LdifEntry>
             return null;
         }
     }
+
 
     /**
      * Parse a control. The grammar is : &lt;control&gt; ::= "control:" &lt;fill&gt;
@@ -776,7 +785,7 @@ public class LdifReader implements Iterable<LdifEntry>
         {
             oid = new OID( oidString );
         }
-        catch (DecoderException de)
+        catch ( DecoderException de )
         {
             LOG.error( "The OID {} is not valid", oidString );
             throw new NamingException( "Bad control oid" );
@@ -842,7 +851,7 @@ public class LdifReader implements Iterable<LdifEntry>
 
                 for ( int i = 0; i < length - criticalPos - 1; i++ )
                 {
-                    value[i] = (byte) controlValue[i + criticalPos + 1];
+                    value[i] = ( byte ) controlValue[i + criticalPos + 1];
                 }
 
                 control.setValue( value );
@@ -851,6 +860,7 @@ public class LdifReader implements Iterable<LdifEntry>
 
         return control;
     }
+
 
     /**
      * Parse an AttributeType/AttributeValue
@@ -875,6 +885,7 @@ public class LdifReader implements Iterable<LdifEntry>
             return null;
         }
     }
+
 
     /**
      * Parse an AttributeType/AttributeValue
@@ -903,6 +914,7 @@ public class LdifReader implements Iterable<LdifEntry>
         entry.addAttribute( attributeType, attributeValue );
     }
 
+
     /**
      * Parse a ModRDN operation
      * 
@@ -926,8 +938,8 @@ public class LdifReader implements Iterable<LdifEntry>
             {
                 int colonIndex = line.indexOf( ':' );
                 Object attributeValue = parseValue( line, colonIndex );
-                entry.setNewRdn( attributeValue instanceof String ? (String) attributeValue : StringTools
-                        .utf8ToString( (byte[]) attributeValue ) );
+                entry.setNewRdn( attributeValue instanceof String ? ( String ) attributeValue : StringTools
+                    .utf8ToString( ( byte[] ) attributeValue ) );
             }
             else
             {
@@ -967,6 +979,7 @@ public class LdifReader implements Iterable<LdifEntry>
 
         return;
     }
+
 
     /**
      * Parse a modify change type.
@@ -1095,19 +1108,20 @@ public class LdifReader implements Iterable<LdifEntry>
 
                 if ( attributeValue instanceof String )
                 {
-                    attribute.add( (String)attributeValue );
+                    attribute.add( ( String ) attributeValue );
                 }
                 else
                 {
-                    attribute.add( (byte[])attributeValue );
+                    attribute.add( ( byte[] ) attributeValue );
                 }
-                
+
                 isEmptyValue = false;
 
                 state = ATTRVAL_SPEC_OR_SEP;
             }
         }
     }
+
 
     /**
      * Parse a change operation. We have to handle different cases depending on
@@ -1177,8 +1191,8 @@ public class LdifReader implements Iterable<LdifEntry>
                     {
                         int colonIndex = line.indexOf( ':' );
                         Object attributeValue = parseValue( line, colonIndex );
-                        entry.setNewSuperior( attributeValue instanceof String ? (String) attributeValue : StringTools
-                                .utf8ToString( (byte[]) attributeValue ) );
+                        entry.setNewSuperior( attributeValue instanceof String ? ( String ) attributeValue
+                            : StringTools.utf8ToString( ( byte[] ) attributeValue ) );
                     }
                     else
                     {
@@ -1207,6 +1221,7 @@ public class LdifReader implements Iterable<LdifEntry>
         }
     }
 
+
     /**
      * Parse a ldif file. The following rules are processed :
      * 
@@ -1232,7 +1247,7 @@ public class LdifReader implements Iterable<LdifEntry>
         String line = lines.get( 0 );
 
         String name = parseDn( line );
-        
+
         LdapDN dn = new LdapDN( name );
 
         // Ok, we have found a DN
@@ -1362,6 +1377,7 @@ public class LdifReader implements Iterable<LdifEntry>
         return entry;
     }
 
+
     /**
      * Parse the version from the ldif input.
      * 
@@ -1410,7 +1426,7 @@ public class LdifReader implements Iterable<LdifEntry>
             {
                 ver = Integer.parseInt( versionNumber );
             }
-            catch (NumberFormatException nfe)
+            catch ( NumberFormatException nfe )
             {
                 LOG.error( "The version is not a number" );
                 throw new NamingException( "Ldif parsing error" );
@@ -1420,7 +1436,7 @@ public class LdifReader implements Iterable<LdifEntry>
 
             // We have found the version, just discard the line from the list
             lines.remove( 0 );
-            
+
             // and read the next lines if the current buffer is empty
             if ( lines.size() == 0 )
             {
@@ -1434,6 +1450,7 @@ public class LdifReader implements Iterable<LdifEntry>
 
         return ver;
     }
+
 
     /**
      * Reads an entry in a ldif buffer, and returns the resulting lines, without
@@ -1454,7 +1471,7 @@ public class LdifReader implements Iterable<LdifEntry>
 
         try
         {
-            while ( ( line = ( (BufferedReader) in ).readLine() ) != null )
+            while ( ( line = ( ( BufferedReader ) reader ).readLine() ) != null )
             {
                 if ( line.length() == 0 )
                 {
@@ -1513,7 +1530,7 @@ public class LdifReader implements Iterable<LdifEntry>
                 }
             }
         }
-        catch (IOException ioe)
+        catch ( IOException ioe )
         {
             throw new NamingException( "Error while reading ldif lines" );
         }
@@ -1526,6 +1543,7 @@ public class LdifReader implements Iterable<LdifEntry>
 
         return;
     }
+
 
     /**
      * Parse a ldif file (using the default encoding).
@@ -1540,6 +1558,7 @@ public class LdifReader implements Iterable<LdifEntry>
     {
         return parseLdifFile( fileName, Charset.forName( StringTools.getDefaultCharsetName() ).toString() );
     }
+
 
     /**
      * Parse a ldif file, decoding it using the given charset encoding
@@ -1568,20 +1587,39 @@ public class LdifReader implements Iterable<LdifEntry>
             throw new NamingException( "Filename " + fileName + " not found." );
         }
 
+        BufferedReader reader = null;
+
         // Open the file and then get a channel from the stream
         try
         {
-            BufferedReader inf = new BufferedReader( new InputStreamReader( new FileInputStream( file ), 
-                Charset.forName( encoding ) ) );
+            reader = new BufferedReader(
+                new InputStreamReader( 
+                    new FileInputStream( file ), Charset.forName( encoding ) ) );
 
-            return parseLdif( inf );
+            return parseLdif( reader );
         }
-        catch (FileNotFoundException fnfe)
+        catch ( FileNotFoundException fnfe )
         {
             LOG.error( "Cannot find file {}", fileName );
             throw new NamingException( "Filename " + fileName + " not found." );
         }
+        finally
+        {
+            // close the reader
+            try
+            {
+                if ( reader != null )
+                {
+                    reader.close();
+                }
+            }
+            catch ( IOException ioe )
+            {
+                // Nothing to do
+            }
+        }
     }
+
 
     /**
      * A method which parses a ldif string and returns a list of entries.
@@ -1601,26 +1639,44 @@ public class LdifReader implements Iterable<LdifEntry>
             return new ArrayList<LdifEntry>();
         }
 
-        StringReader strIn = new StringReader( ldif );
-        BufferedReader inf = new BufferedReader( strIn );
+        BufferedReader reader = new BufferedReader( 
+            new StringReader( ldif ) );
 
         try
         {
-            List<LdifEntry> entries = parseLdif( inf );
+            List<LdifEntry> entries = parseLdif( reader );
 
             if ( LOG.isDebugEnabled() )
             {
-                LOG.debug( "Parsed {} entries.", ( entries == null ? Integer.valueOf( 0 ) : Integer.valueOf( entries.size() ) ) );
+                LOG.debug( "Parsed {} entries.", ( entries == null ? Integer.valueOf( 0 ) : Integer.valueOf( entries
+                    .size() ) ) );
             }
 
             return entries;
         }
-        catch (NamingException ne)
+        catch ( NamingException ne )
         {
             LOG.error( "Cannot parse the ldif buffer : {}", ne.getMessage() );
             throw new NamingException( "Error while parsing the ldif buffer" );
         }
+        finally
+        {
+            // Close the reader
+            try
+            {
+                if ( reader != null )
+                {
+                    reader.close();
+                }
+            }
+            catch ( IOException ioe )
+            {
+                // Nothing to do
+            }
+
+        }
     }
+
 
     // ------------------------------------------------------------------------
     // Iterator Methods
@@ -1645,7 +1701,7 @@ public class LdifReader implements Iterable<LdifEntry>
             {
                 prefetched = parseEntry();
             }
-            catch (NamingException ne)
+            catch ( NamingException ne )
             {
                 error = ne;
                 throw new NoSuchElementException( ne.getMessage() );
@@ -1655,7 +1711,7 @@ public class LdifReader implements Iterable<LdifEntry>
 
             return entry;
         }
-        catch (NamingException ne)
+        catch ( NamingException ne )
         {
             LOG.error( "Premature termination of LDIF iterator" );
             error = ne;
@@ -1663,7 +1719,7 @@ public class LdifReader implements Iterable<LdifEntry>
         }
     }
 
-    
+
     /**
      * Gets the next LDIF on the channel.
      * 
@@ -1686,7 +1742,7 @@ public class LdifReader implements Iterable<LdifEntry>
         return null != prefetched;
     }
 
-    
+
     /**
      * Tests to see if another LDIF is on the input channel.
      * 
@@ -1710,7 +1766,7 @@ public class LdifReader implements Iterable<LdifEntry>
         throw new UnsupportedOperationException();
     }
 
-    
+
     /**
      * Always throws UnsupportedOperationException!
      * 
@@ -1721,29 +1777,33 @@ public class LdifReader implements Iterable<LdifEntry>
         removeInternal();
     }
 
+
     /**
      * @return An iterator on the file
      */
     public Iterator<LdifEntry> iterator()
     {
-        return new Iterator<LdifEntry>() 
+        return new Iterator<LdifEntry>()
         {
-            public boolean hasNext() 
+            public boolean hasNext()
             {
                 return hasNextInternal();
             }
-          
-            public LdifEntry next() 
+
+
+            public LdifEntry next()
             {
                 return nextInternal();
             }
-          
-            public void remove() 
+
+
+            public void remove()
             {
                 throw new UnsupportedOperationException();
             }
         };
     }
+
 
     /**
      * @return True if an error occured during parsing
@@ -1753,6 +1813,7 @@ public class LdifReader implements Iterable<LdifEntry>
         return error != null;
     }
 
+
     /**
      * @return The exception that occurs during an entry parsing
      */
@@ -1760,6 +1821,7 @@ public class LdifReader implements Iterable<LdifEntry>
     {
         return error;
     }
+
 
     /**
      * The main entry point of the LdifParser. It reads a buffer and returns a
@@ -1771,12 +1833,12 @@ public class LdifReader implements Iterable<LdifEntry>
      * @throws NamingException
      *             If something went wrong
      */
-    public List<LdifEntry> parseLdif( BufferedReader inf ) throws NamingException
+    public List<LdifEntry> parseLdif( BufferedReader reader ) throws NamingException
     {
         // Create a list that will contain the read entries
         List<LdifEntry> entries = new ArrayList<LdifEntry>();
 
-        this.in = inf;
+        this.reader = reader;
 
         // First get the version - if any -
         version = parseVersion();
@@ -1785,7 +1847,7 @@ public class LdifReader implements Iterable<LdifEntry>
         // When done, get the entries one by one.
         try
         {
-            for ( LdifEntry entry:this )
+            for ( LdifEntry entry : this )
             {
                 if ( entry != null )
                 {
@@ -1801,6 +1863,7 @@ public class LdifReader implements Iterable<LdifEntry>
         return entries;
     }
 
+
     /**
      * @return True if the ldif file contains entries, fals if it contains
      *         changes
@@ -1808,5 +1871,17 @@ public class LdifReader implements Iterable<LdifEntry>
     public boolean containsEntries()
     {
         return containsEntries;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void close() throws IOException
+    {
+        if ( reader != null )
+        {
+            reader.close();
+        }
     }
 }

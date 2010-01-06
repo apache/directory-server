@@ -31,7 +31,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.directory.shared.ldap.schema.syntaxes.OpenLdapObjectIdentifierMacro;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.ObjectClass;
+import org.apache.directory.shared.ldap.schema.SchemaObject;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.OpenLdapObjectIdentifierMacro;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 
 import antlr.RecognitionException;
@@ -50,11 +53,11 @@ public class OpenLdapSchemaParser extends AbstractSchemaParser
     /** The list of parsed schema descriptions */
     private List<Object> schemaDescriptions;
 
-    /** The list of attribute type literals, initialized by splitParsedSchemaDescriptions() */
-    private List<AttributeTypeLiteral> attributeTypeLiterals;
+    /** The list of attribute type, initialized by splitParsedSchemaDescriptions() */
+    private List<AttributeType> attributeTypes;
 
-    /** The list of object class literals, initialized by splitParsedSchemaDescriptions()*/
-    private List<ObjectClassLiteral> objectClassLiterals;
+    /** The list of object classes, initialized by splitParsedSchemaDescriptions()*/
+    private List<ObjectClass> objectClasses;
 
     /** The map of object identifier macros, initialized by splitParsedSchemaDescriptions()*/
     private Map<String, OpenLdapObjectIdentifierMacro> objectIdentifierMacros;
@@ -88,9 +91,9 @@ public class OpenLdapSchemaParser extends AbstractSchemaParser
      * 
      * @return the attribute types
      */
-    public List<AttributeTypeLiteral> getAttributeTypes()
+    public List<AttributeType> getAttributeTypes()
     {
-        return attributeTypeLiterals;
+        return attributeTypes;
     }
 
 
@@ -99,9 +102,9 @@ public class OpenLdapSchemaParser extends AbstractSchemaParser
      * 
      * @return the object class types
      */
-    public List<ObjectClassLiteral> getObjectClassTypes()
+    public List<ObjectClass> getObjectClassTypes()
     {
-        return objectClassLiterals;
+        return objectClasses;
     }
 
 
@@ -124,8 +127,8 @@ public class OpenLdapSchemaParser extends AbstractSchemaParser
      */
     private void afterParse() throws ParseException
     {
-        objectClassLiterals = new ArrayList<ObjectClassLiteral>();
-        attributeTypeLiterals = new ArrayList<AttributeTypeLiteral>();
+        objectClasses = new ArrayList<ObjectClass>();
+        attributeTypes = new ArrayList<AttributeType>();
         objectIdentifierMacros = new HashMap<String, OpenLdapObjectIdentifierMacro>();
 
         // split parsed schema descriptions
@@ -136,38 +139,17 @@ public class OpenLdapSchemaParser extends AbstractSchemaParser
                 OpenLdapObjectIdentifierMacro oid = ( OpenLdapObjectIdentifierMacro ) obj;
                 objectIdentifierMacros.put( oid.getName(), oid );
             }
-            else if ( obj instanceof AttributeTypeDescription )
+            else if ( obj instanceof AttributeType )
             {
-                AttributeTypeDescription atd = ( AttributeTypeDescription ) obj;
-                AttributeTypeLiteral literal = new AttributeTypeLiteral( atd.getNumericOid() );
-                literal.setNames( atd.getNames().toArray( new String[atd.getNames().size()] ) );
-                literal.setDescription( atd.getDescription() );
-                literal.setSuperior( atd.getSuperType() );
-                literal.setEquality( atd.getEqualityMatchingRule() );
-                literal.setOrdering( atd.getOrderingMatchingRule() );
-                literal.setSubstr( atd.getSubstringsMatchingRule() );
-                literal.setSyntax( atd.getSyntax() );
-                literal.setLength( atd.getSyntaxLength() );
-                literal.setObsolete( atd.isObsolete() );
-                literal.setCollective( atd.isCollective() );
-                literal.setSingleValue( atd.isSingleValued() );
-                literal.setNoUserModification( !atd.isUserModifiable() );
-                literal.setUsage( atd.getUsage() );
-                attributeTypeLiterals.add( literal );
+                AttributeType attributeType = ( AttributeType ) obj;
+
+                attributeTypes.add( attributeType );
             }
-            else if ( obj instanceof ObjectClassDescription )
+            else if ( obj instanceof ObjectClass )
             {
-                ObjectClassDescription ocd = ( ObjectClassDescription ) obj;
-                ObjectClassLiteral literal = new ObjectClassLiteral( ocd.getNumericOid() );
-                literal.setNames( ocd.getNames().toArray( new String[ocd.getNames().size()] ) );
-                literal.setDescription( ocd.getDescription() );
-                literal.setSuperiors( ocd.getSuperiorObjectClasses().toArray(
-                    new String[ocd.getSuperiorObjectClasses().size()] ) );
-                literal.setMay( ocd.getMayAttributeTypes().toArray( new String[ocd.getMayAttributeTypes().size()] ) );
-                literal.setMust( ocd.getMustAttributeTypes().toArray( new String[ocd.getMustAttributeTypes().size()] ) );
-                literal.setClassType( ocd.getKind() );
-                literal.setObsolete( ocd.isObsolete() );
-                objectClassLiterals.add( literal );
+                ObjectClass objectClass = ( ObjectClass ) obj;
+
+                objectClasses.add( objectClass );
             }
         }
 
@@ -179,18 +161,20 @@ public class OpenLdapSchemaParser extends AbstractSchemaParser
                 resolveObjectIdentifierMacro( oid );
             }
 
-            // apply object identifier macros to object classes and attribute types
-            for ( ObjectClassLiteral ocl : objectClassLiterals )
+            // apply object identifier macros to object classes
+            for ( ObjectClass objectClass : objectClasses )
             {
-                ocl.setOid( getResolveOid( ocl.getOid() ) );
+                objectClass.setOid( getResolveOid( objectClass.getOid() ) );
             }
-            for ( AttributeTypeLiteral atl : attributeTypeLiterals )
+            
+            // apply object identifier macros to attribute types
+            for ( AttributeType attributeType : attributeTypes )
             {
-                atl.setOid( getResolveOid( atl.getOid() ) );
-                atl.setSyntax( getResolveOid( atl.getSyntax() ) );
+                attributeType.setOid( getResolveOid( attributeType.getOid() ) );
+                attributeType.setSyntaxOid( getResolveOid( attributeType.getSyntaxOid() ) );
             }
+            
         }
-
     }
 
 
@@ -258,7 +242,7 @@ public class OpenLdapSchemaParser extends AbstractSchemaParser
      * @throws IOException If the schemaObject can't be transformed to a byteArrayInputStream
      * @throws ParseException If the schemaObject can't be parsed
      */
-    public AbstractSchemaDescription parse( String schemaObject ) throws ParseException
+    public SchemaObject parse( String schemaObject ) throws ParseException
     {
         if ( schemaObject == null || schemaObject.trim().equals( "" ) )
         {
@@ -272,9 +256,9 @@ public class OpenLdapSchemaParser extends AbstractSchemaParser
         {
             for ( Object obj : schemaDescriptions )
             {
-                if ( obj instanceof AbstractSchemaDescription )
+                if ( obj instanceof SchemaObject )
                 {
-                    return ( AbstractSchemaDescription ) obj;
+                    return ( SchemaObject ) obj;
                 }
             }
         }

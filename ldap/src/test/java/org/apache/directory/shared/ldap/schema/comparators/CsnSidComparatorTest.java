@@ -19,9 +19,10 @@
  */
 package org.apache.directory.shared.ldap.schema.comparators;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -37,7 +38,7 @@ public class CsnSidComparatorTest
     @Before
     public void init()
     {
-        comparator = new CsnSidComparator();
+        comparator = new CsnSidComparator( null );
     }
     
     

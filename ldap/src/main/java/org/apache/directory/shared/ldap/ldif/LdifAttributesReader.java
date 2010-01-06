@@ -20,6 +20,7 @@
 package org.apache.directory.shared.ldap.ldif;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 
@@ -274,7 +275,7 @@ public class LdifAttributesReader extends LdifReader
         }
 
         StringReader strIn = new StringReader( ldif );
-        in = new BufferedReader( strIn );
+        reader = new BufferedReader( strIn );
 
         try
         {
@@ -293,6 +294,17 @@ public class LdifAttributesReader extends LdifReader
         {
             LOG.error( "Cannot parse the ldif buffer : {}", ne.getMessage() );
             throw new NamingException( "Error while parsing the ldif buffer" );
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch ( IOException ioe )
+            {
+                // Do nothing
+            }
         }
     }
 }

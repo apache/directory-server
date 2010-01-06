@@ -300,6 +300,20 @@ public class RdnTest
 
 
     /**
+     * Test teh creation of a new RDN
+     * 
+     * @throws InvalidNameException
+     */
+    @Test
+    public void testRDNCreation() throws InvalidNameException
+    {
+        Rdn rdn = new Rdn( "A", "  b  " );
+        assertEquals( "a=\\  b \\ ", rdn.getNormName() );
+        assertEquals( "A=  b  ", rdn.getUpName() );
+    }
+
+
+    /**
      * Test the clone method for a RDN.
      * 
      * @throws InvalidNameException
@@ -624,7 +638,7 @@ public class RdnTest
     {
         Rdn rdn = new Rdn( " a = b + a = f + g = h + c = d " );
 
-        assertEquals( "b", rdn.getValue() );
+        assertEquals( "b", rdn.getNormValue() );
     }
 
 
@@ -830,7 +844,7 @@ public class RdnTest
     public void testMultiValuedIterator() throws InvalidNameException
     {
         Rdn rdn = new Rdn( "cn=Kate Bush+sn=Bush" );
-        Iterator<AttributeTypeAndValue> iterator = rdn.iterator();
+        Iterator<AVA> iterator = rdn.iterator();
         assertNotNull( iterator );
         assertTrue( iterator.hasNext() );
         assertNotNull( iterator.next() );
@@ -844,7 +858,7 @@ public class RdnTest
     public void testSingleValuedIterator() throws InvalidNameException
     {
         Rdn rdn = new Rdn( "cn=Kate Bush" );
-        Iterator<AttributeTypeAndValue> iterator = rdn.iterator();
+        Iterator<AVA> iterator = rdn.iterator();
         assertNotNull( iterator );
         assertTrue( iterator.hasNext() );
         assertNotNull( iterator.next() );
@@ -856,7 +870,7 @@ public class RdnTest
     public void testEmptyIterator()
     {
         Rdn rdn = new Rdn();
-        Iterator<AttributeTypeAndValue> iterator = rdn.iterator();
+        Iterator<AVA> iterator = rdn.iterator();
         assertNotNull( iterator );
         assertFalse( iterator.hasNext() );
     }

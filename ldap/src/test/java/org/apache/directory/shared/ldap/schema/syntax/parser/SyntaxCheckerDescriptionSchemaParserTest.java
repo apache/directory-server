@@ -20,6 +20,10 @@
 package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import java.text.ParseException;
 
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
@@ -27,9 +31,6 @@ import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescriptionS
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 
 /**
@@ -81,13 +82,13 @@ public class SyntaxCheckerDescriptionSchemaParserTest
     public void testFqcn() throws ParseException
     {
         String value = null;
-        SyntaxCheckerDescription scd = null;
+        SyntaxCheckerDescription syntaxCheckerDescription = null;
 
         // FQCN simple p
         value = "( 1.1 FQCN org.apache.directory.SimpleSyntaxChecker )";
-        scd = parser.parseSyntaxCheckerDescription( value );
-        assertNotNull( scd.getFqcn() );
-        assertEquals( "org.apache.directory.SimpleSyntaxChecker", scd.getFqcn() );
+        syntaxCheckerDescription = parser.parseSyntaxCheckerDescription( value );
+        assertNotNull( syntaxCheckerDescription.getFqcn() );
+        assertEquals( "org.apache.directory.SimpleSyntaxChecker", syntaxCheckerDescription.getFqcn() );
     }
 
 
@@ -95,13 +96,14 @@ public class SyntaxCheckerDescriptionSchemaParserTest
     public void testBytecode() throws ParseException
     {
         String value = null;
-        SyntaxCheckerDescription scd = null;
+        SyntaxCheckerDescription syntaxCheckerDescription = null;
 
         // FQCN simple p
         value = "( 1.1 FQCN org.apache.directory.SimpleSyntaxChecker BYTECODE ABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789==== )";
-        scd = parser.parseSyntaxCheckerDescription( value );
-        assertNotNull( scd.getBytecode() );
-        assertEquals( "ABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789====", scd.getBytecode() );
+        syntaxCheckerDescription = parser.parseSyntaxCheckerDescription( value );
+        assertNotNull( syntaxCheckerDescription.getBytecode() );
+        assertEquals( "ABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789====", 
+        		syntaxCheckerDescription.getBytecode() );
     }
 
 
@@ -147,12 +149,12 @@ public class SyntaxCheckerDescriptionSchemaParserTest
     public void testSimpleSyntaxChecker() throws ParseException
     {
         String simple = "( " + OID + " FQCN " + FQCN + " )";
-        SyntaxCheckerDescription desc = parser.parseSyntaxCheckerDescription( simple );
-        assertNotNull( desc );
-        assertEquals( OID, desc.getNumericOid() );
-        assertEquals( FQCN, desc.getFqcn() );
-        assertNull( desc.getBytecode() );
-        assertNull( desc.getDescription() );
+        SyntaxCheckerDescription syntaxCheckerDescription = parser.parseSyntaxCheckerDescription( simple );
+        assertNotNull( syntaxCheckerDescription );
+        assertEquals( OID, syntaxCheckerDescription.getOid() );
+        assertEquals( FQCN, syntaxCheckerDescription.getFqcn() );
+        assertNull( syntaxCheckerDescription.getBytecode() );
+        assertNull( syntaxCheckerDescription.getDescription() );
     }
 
 
@@ -160,12 +162,12 @@ public class SyntaxCheckerDescriptionSchemaParserTest
     public void testSyntaxCheckerWithDesc() throws ParseException
     {
         String simple = "( " + OID + " DESC '" + DESC + "' FQCN " + FQCN + " )";
-        SyntaxCheckerDescription desc = parser.parseSyntaxCheckerDescription( simple );
-        assertNotNull( desc );
-        assertEquals( OID, desc.getNumericOid() );
-        assertEquals( FQCN, desc.getFqcn() );
-        assertNull( desc.getBytecode() );
-        assertEquals( DESC, desc.getDescription() );
+        SyntaxCheckerDescription syntaxCheckerDescription = parser.parseSyntaxCheckerDescription( simple );
+        assertNotNull( syntaxCheckerDescription );
+        assertEquals( OID, syntaxCheckerDescription.getOid() );
+        assertEquals( FQCN, syntaxCheckerDescription.getFqcn() );
+        assertNull( syntaxCheckerDescription.getBytecode() );
+        assertEquals( DESC, syntaxCheckerDescription.getDescription() );
     }
 
 
@@ -173,21 +175,21 @@ public class SyntaxCheckerDescriptionSchemaParserTest
     public void testSyntaxCheckerWithDescAndByteCode() throws ParseException
     {
         String simple = "( " + OID + " DESC '" + DESC + "' FQCN " + FQCN + " BYTECODE " + BYTECODE + " )";
-        SyntaxCheckerDescription desc = parser.parseSyntaxCheckerDescription( simple );
-        assertNotNull( desc );
-        assertEquals( OID, desc.getNumericOid() );
-        assertEquals( FQCN, desc.getFqcn() );
-        assertEquals( BYTECODE, desc.getBytecode() );
-        assertEquals( DESC, desc.getDescription() );
+        SyntaxCheckerDescription syntaxCheckerDescription = parser.parseSyntaxCheckerDescription( simple );
+        assertNotNull( syntaxCheckerDescription );
+        assertEquals( OID, syntaxCheckerDescription.getOid() );
+        assertEquals( FQCN, syntaxCheckerDescription.getFqcn() );
+        assertEquals( BYTECODE, syntaxCheckerDescription.getBytecode() );
+        assertEquals( DESC, syntaxCheckerDescription.getDescription() );
     }
 
 
     @Test
     public void testSyntaxCheckerExample() throws ParseException
     {
-        String simple = "( 1.3.6.1.4.1.18060.0.4.1.0.10000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker )";
-        SyntaxCheckerDescription desc = parser.parseSyntaxCheckerDescription( simple );
-        assertNotNull( desc );
+        String simple = "( 1.3.6.1.4.1.18060.0.4.1.0.10000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.syntax.OctetStringSyntaxChecker )";
+        SyntaxCheckerDescription syntaxCheckerDescription = parser.parseSyntaxCheckerDescription( simple );
+        assertNotNull( syntaxCheckerDescription );
     }
 
 
@@ -208,12 +210,12 @@ public class SyntaxCheckerDescriptionSchemaParserTest
             + "gAPAAEACgAAAB0AAQABAAAABSq0AAKwAAAAAQALAAAABgABAAAAHQABABAAEQABAAoAAAAaAAEAAgAAAAIErAAA"
             + "AAEACwAAAAYAAQAAACMAAQASABMAAgAKAAAAGQAAAAIAAAABsQAAAAEACwAAAAYAAQAAACkAFAAAAAQAAQAVAAE"
             + "AFgAAAAIAFw== X-SCHEMA 'nis' )";
-        SyntaxCheckerDescription desc = parser.parseSyntaxCheckerDescription( simple );
-        assertNotNull( desc );
-        assertEquals( "1.3.6.1.4.1.18060.0.4.1.0.10002", desc.getNumericOid() );
-        assertEquals( "DummySyntaxChecker", desc.getFqcn() );
-        assertNotNull( desc.getBytecode() );
-        assertEquals( "bogus desc", desc.getDescription() );
+        SyntaxCheckerDescription syntaxCheckerDescription = parser.parseSyntaxCheckerDescription( simple );
+        assertNotNull( syntaxCheckerDescription );
+        assertEquals( "1.3.6.1.4.1.18060.0.4.1.0.10002", syntaxCheckerDescription.getOid() );
+        assertEquals( "DummySyntaxChecker", syntaxCheckerDescription.getFqcn() );
+        assertNotNull( syntaxCheckerDescription.getBytecode() );
+        assertEquals( "bogus desc", syntaxCheckerDescription.getDescription() );
     }
 
 

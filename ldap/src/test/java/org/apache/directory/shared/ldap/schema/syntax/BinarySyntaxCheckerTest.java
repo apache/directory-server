@@ -19,7 +19,7 @@
  */
 package org.apache.directory.shared.ldap.schema.syntax;
 
-import org.apache.directory.shared.ldap.schema.syntaxes.BinarySyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.BinarySyntaxChecker;
 
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
@@ -52,7 +52,7 @@ public class BinarySyntaxCheckerTest
     @Test
     public void testOid()
     {
-        assertEquals( "1.3.6.1.4.1.1466.115.121.1.5", checker.getSyntaxOid() );
+        assertEquals( "1.3.6.1.4.1.1466.115.121.1.5", checker.getOid() );
     }
 
     @Test

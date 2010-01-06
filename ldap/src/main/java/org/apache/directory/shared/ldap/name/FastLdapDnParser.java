@@ -82,7 +82,7 @@ public enum FastLdapDnParser implements NameParser
     
     void parseDn( String name, List<Rdn> rdns ) throws InvalidNameException
     {
-        if ( name == null || name.trim().length() == 0 )
+        if ( ( name == null ) || ( name.trim().length() == 0 ) )
         {
             // We have an empty DN, just get out of the function.
             return;
@@ -133,17 +133,16 @@ public enum FastLdapDnParser implements NameParser
         {
             throw new InvalidNameException( "RDN must not be empty" );
         }
+        if( rdn == null )
+        {
+            throw new InvalidNameException( "RDN must not be null" );
+        }
 
         Position pos = new Position();
         pos.start = 0;
         pos.length = name.length();
 
         parseRdnInternal( name, pos, rdn );
-
-        if ( !hasMoreChars( pos ) )
-        {
-            throw new InvalidNameException( "Expected no more characters at position " + pos.start );
-        }
     }
 
 
@@ -175,13 +174,14 @@ public enum FastLdapDnParser implements NameParser
         // SPACE*
         matchSpaces( name, pos );
 
-        rdn.addAttributeTypeAndValue( type, type, 
-            new ClientStringValue( upValue ), 
-            new ClientStringValue( value ) );
+        String upName = name.substring( rdnStart, pos.start );
 
-        rdn.setUpName( name.substring( rdnStart, pos.start ) );
+        AVA ava = new AVA( type, type, new ClientStringValue( upValue ),
+            new ClientStringValue( value ), upName );
+        rdn.addAttributeTypeAndValue( ava );
+
+        rdn.setUpName( upName );
         rdn.normalize();
-
     }
 
 

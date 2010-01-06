@@ -20,7 +20,13 @@
 package org.apache.directory.shared.ldap.schema;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.naming.NamingException;
+
+import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 
 /**
@@ -79,25 +85,212 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface MatchingRuleUse extends SchemaObject
+public class MatchingRuleUse extends AbstractSchemaObject
 {
-    /**
-     * Gets the matchingRule this MatchingRuleUse definition applies to.
-     * 
-     * @return the matchingRule
-     * @throws NamingException
-     *             if there is a failure resolving the object
-     */
-    public MatchingRule getMatchingRule() throws NamingException;
+    /** The serialVersionUID */
+    private static final long serialVersionUID = 1L;
+
+    /** The list of attributes types OID the matching rule applies to */
+    private List<String> applicableAttributeOids;
+
+    /** The list of attributes types the matching rule applies to */
+    private List<AttributeType> applicableAttributes;
 
 
     /**
-     * Gets the the attributes which can be used with the matching rule in an
-     * extensible match assertion.
-     * 
-     * @return the applicable attributes
-     * @throws NamingException
-     *             if there is a failure resolving the object
+     * Creates a new instance of MatchingRuleUseDescription
      */
-    public AttributeType[] getApplicableAttributes() throws NamingException;
+    public MatchingRuleUse( String oid )
+    {
+        super( SchemaObjectType.MATCHING_RULE_USE, oid );
+
+        applicableAttributeOids = new ArrayList<String>();
+        applicableAttributes = new ArrayList<AttributeType>();
+    }
+
+
+    /**
+     * Inject the MatchingRuleUse into the registries, updating the references to
+     * other SchemaObject
+     *
+     * @param registries The Registries
+     * @exception If the addition failed
+     */
+    public void addToRegistries( Registries registries ) throws NamingException
+    {
+        if ( registries != null )
+        {
+            AttributeTypeRegistry atRegistry = registries.getAttributeTypeRegistry();
+
+            if ( applicableAttributeOids != null )
+            {
+                applicableAttributes = new ArrayList<AttributeType>( applicableAttributeOids.size() );
+
+                for ( String oid : applicableAttributeOids )
+                {
+                    applicableAttributes.add( atRegistry.lookup( oid ) );
+                }
+            }
+        }
+    }
+
+
+    /**
+     * @return The matchingRule's list of AttributeType OIDs the MRU applies to
+     */
+    public List<String> getApplicableAttributeOids()
+    {
+        return applicableAttributeOids;
+    }
+
+
+    /**
+     * @return The matchingRule's list of AttributeType OIDs the MRU applies to
+     */
+    public List<AttributeType> getApplicableAttributes()
+    {
+        return applicableAttributes;
+    }
+
+
+    /**
+     * Set the matchingRule's AttributeType OIDs the MRU applies to.
+     *
+     * @param applicableAttributes The AttributeType OIDs list
+     */
+    public void setApplicableAttributeOids( List<String> applicableAttributeOids )
+    {
+        if ( !isReadOnly )
+        {
+            this.applicableAttributeOids = applicableAttributeOids;
+        }
+    }
+
+
+    /**
+     * Set the matchingRule's AttributeType the MRU applies to.
+     *
+     * @param applicableAttributes The AttributeType list
+     */
+    public void setApplicableAttributes( List<AttributeType> applicableAttributes )
+    {
+        if ( !isReadOnly )
+        {
+            this.applicableAttributes = applicableAttributes;
+
+            // update the OIDS now
+            applicableAttributeOids.clear();
+
+            for ( AttributeType at : applicableAttributes )
+            {
+                applicableAttributeOids.add( at.getOid() );
+            }
+        }
+    }
+
+
+    /**
+     * Add a matchingRule's AttributeType OIDs the MRU applies to.
+     *
+     * @param oid A matchingRule's AttributeType OIDs the MRU applies to
+     */
+    public void addApplicableAttributeOids( String oid )
+    {
+        if ( !isReadOnly )
+        {
+            if ( !applicableAttributeOids.contains( oid ) )
+            {
+                applicableAttributeOids.add( oid );
+            }
+        }
+    }
+
+
+    /**
+     * Add a matchingRule's AttributeType the MRU applies to.
+     *
+     * @param oid A matchingRule's AttributeType the MRU applies to
+     */
+    public void addApplicableAttribute( AttributeType attributeType )
+    {
+        if ( !isReadOnly )
+        {
+            if ( !applicableAttributeOids.contains( attributeType.getOid() ) )
+            {
+                applicableAttributes.add( attributeType );
+                applicableAttributeOids.add( attributeType.getOid() );
+            }
+        }
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return objectType + " " + DescriptionUtils.getDescription( this );
+    }
+
+
+    /**
+     * Copy an MatchingRuleUse
+     */
+    public MatchingRuleUse copy()
+    {
+        MatchingRuleUse copy = new MatchingRuleUse( oid );
+
+        // Copy the SchemaObject common data
+        copy.copy( this );
+
+        // Clone the APPLY AttributeTypes
+        copy.applicableAttributeOids = new ArrayList<String>();
+
+        // Copy the APPLIES oid list
+        for ( String oid : applicableAttributeOids )
+        {
+            copy.applicableAttributeOids.add( oid );
+        }
+
+        // Copy the APPLIES list (will be empty)
+        copy.applicableAttributes = new ArrayList<AttributeType>();
+
+        return copy;
+    }
+
+
+    /**
+     * @see Object#equals(Object)
+     */
+    public boolean equals( Object o )
+    {
+        if ( !super.equals( o ) )
+        {
+            return false;
+        }
+
+        if ( !( o instanceof MatchingRuleUse ) )
+        {
+            return false;
+        }
+
+        MatchingRuleUse that = ( MatchingRuleUse ) o;
+
+        // TODO : complete the checks
+        return true;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void clear()
+    {
+        // Clear the common elements
+        super.clear();
+
+        // Clear the references
+        applicableAttributes.clear();
+        applicableAttributeOids.clear();
+    }
 }

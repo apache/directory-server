@@ -28,13 +28,11 @@ import java.util.UUID;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.schema.parsers.AbstractAdsSchemaDescription;
-import org.apache.directory.shared.ldap.schema.parsers.AbstractSchemaDescription;
-import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescription;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -135,23 +133,25 @@ public class SchemaUtils
      *            the quoted description strings to render
      * @return the same string buffer that was given for call chaining
      */
-    public static StringBuffer render( StringBuffer buf, String[] qdescrs )
+    public static StringBuffer render( StringBuffer buf, List<String> qdescrs )
     {
-        if ( qdescrs == null || qdescrs.length == 0 )
+        if ( ( qdescrs == null ) || ( qdescrs.size() == 0 ) )
         {
             return buf;
         }
-        else if ( qdescrs.length == 1 )
+        else if ( qdescrs.size() == 1 )
         {
-            buf.append( "'" ).append( qdescrs[0] ).append( "'" );
+            buf.append( "'" ).append( qdescrs.get( 0 ) ).append( "'" );
         }
         else
         {
             buf.append( "( " );
-            for ( int ii = 0; ii < qdescrs.length; ii++ )
+            
+            for ( String qdescr : qdescrs )
             {
-                buf.append( "'" ).append( qdescrs[ii] ).append( "' " );
+                buf.append( "'" ).append( qdescr ).append( "' " );
             }
+            
             buf.append( ")" );
         }
 
@@ -166,7 +166,7 @@ public class SchemaUtils
      *            the quoted description strings to render
      * @return the string buffer the qdescrs are rendered into
      */
-    public static StringBuffer render( String[] qdescrs )
+    public static StringBuffer render( List<String> qdescrs )
     {
         StringBuffer buf = new StringBuffer();
         return render( buf, qdescrs );
@@ -345,10 +345,10 @@ public class SchemaUtils
         StringBuffer buf = new StringBuffer();
         buf.append( "( " ).append( oc.getOid() );
 
-        if ( oc.getNamesRef() != null && oc.getNamesRef().length > 0 )
+        if ( oc.getNames() != null && oc.getNames().size() > 0 )
         {
             buf.append( " NAME " );
-            render( buf, oc.getNamesRef() ).append( " " );
+            render( buf, oc.getNames() ).append( " " );
         }
         else
         {
@@ -365,10 +365,10 @@ public class SchemaUtils
             buf.append( " OBSOLETE " );
         }
 
-        if ( oc.getSuperClasses() != null && oc.getSuperClasses().length > 0 )
+        if ( ( oc.getSuperiorOids() != null ) && ( oc.getSuperiorOids().size() > 0 ) )
         {
             buf.append( "SUP " );
-            render( buf, oc.getSuperClasses() );
+            render( buf, oc.getSuperiorOids() );
         }
 
         if ( oc.getType() != null )
@@ -376,20 +376,20 @@ public class SchemaUtils
             buf.append( " " ).append( oc.getType() );
         }
 
-        if ( oc.getMustList() != null && oc.getMustList().length > 0 )
+        if ( ( oc.getMustAttributeTypeOids() != null ) && ( oc.getMustAttributeTypeOids().size() > 0 ) )
         {
             buf.append( " MUST " );
-            render( buf, oc.getMustList() );
+            render( buf, oc.getMustAttributeTypeOids() );
         }
 
-        if ( oc.getMayList() != null && oc.getMayList().length > 0 )
+        if ( ( oc.getMayAttributeTypeOids() != null ) && ( oc.getMayAttributeTypeOids().size() > 0 ) )
         {
             buf.append( " MAY " );
-            render( buf, oc.getMayList() );
+            render( buf, oc.getMayAttributeTypeOids() );
         }
 
         buf.append( " X-SCHEMA '" );
-        buf.append( oc.getSchema() );
+        buf.append( oc.getSchemaName() );
         buf.append( "'" );
 
         // @todo extensions are not presently supported and skipped
@@ -464,10 +464,10 @@ public class SchemaUtils
         StringBuffer buf = new StringBuffer();
         buf.append( "( " ).append( at.getOid() );
 
-        if ( at.getNamesRef() != null && at.getNamesRef().length > 0 )
+        if ( at.getNames() != null && at.getNames().size() > 0 )
         {
             buf.append( " NAME " );
-            render( buf, at.getNamesRef() ).append( " " );
+            render( buf, at.getNames() ).append( " " );
         }
         else
         {
@@ -499,22 +499,22 @@ public class SchemaUtils
             buf.append( " ORDERING " ).append( at.getOrdering().getName() );
         }
 
-        if ( at.getSubstr() != null )
+        if ( at.getSubstring() != null )
         {
-            buf.append( " SUBSTR " ).append( at.getSubstr().getName() );
+            buf.append( " SUBSTR " ).append( at.getSubstring().getName() );
         }
 
         if ( at.getSyntax() != null )
         {
             buf.append( " SYNTAX " ).append( at.getSyntax().getOid() );
 
-            if ( at.getLength() > 0 )
+            if ( at.getSyntaxLength() > 0 )
             {
-                buf.append( "{" ).append( at.getLength() ).append( "}" );
+                buf.append( "{" ).append( at.getSyntaxLength() ).append( "}" );
             }
         }
 
-        if ( at.isSingleValue() )
+        if ( at.isSingleValued() )
         {
             buf.append( " SINGLE-VALUE" );
         }
@@ -524,7 +524,7 @@ public class SchemaUtils
             buf.append( " COLLECTIVE" );
         }
 
-        if ( !at.isCanUserModify() )
+        if ( !at.isUserModifiable() )
         {
             buf.append( " NO-USER-MODIFICATION" );
         }
@@ -535,7 +535,7 @@ public class SchemaUtils
         }
 
         buf.append( " X-SCHEMA '" );
-        buf.append( at.getSchema() );
+        buf.append( at.getSchemaName() );
         buf.append( "'" );
 
         // @todo extensions are not presently supported and skipped
@@ -605,83 +605,83 @@ public class SchemaUtils
      * @return the StringBuffer containing the rendered attributeType description
      * @throws NamingException if there are problems accessing the objects
      * associated with the attribute type.
-     */
-    public static StringBuffer render( AttributeTypeDescription atd )
+     *
+    public static StringBuffer render( AttributeType attributeType )
     {
         StringBuffer buf = new StringBuffer();
-        buf.append( "( " ).append( atd.getNumericOid() );
+        buf.append( "( " ).append( attributeType.getOid() );
 
-        if ( atd.getNames() != null && atd.getNames().size() > 0 )
+        if ( attributeType.getNames() != null && attributeType.getNames().size() > 0 )
         {
             buf.append( " NAME " );
-            render( buf, atd.getNames().toArray( new String[atd.getNames().size()] ) ).append( " " );
+            render( buf, attributeType.getNames() ).append( " " );
         }
         else
         {
             buf.append( " " );
         }
 
-        if ( atd.getDescription() != null )
+        if ( attributeType.getDescription() != null )
         {
-            buf.append( "DESC " ).append( "'" ).append( atd.getDescription() ).append( "' " );
+            buf.append( "DESC " ).append( "'" ).append( attributeType.getDescription() ).append( "' " );
         }
 
-        if ( atd.isObsolete() )
+        if ( attributeType.isObsolete() )
         {
             buf.append( " OBSOLETE" );
         }
 
-        if ( atd.getSuperType() != null )
+        if ( attributeType.getSupOid() != null )
         {
-            buf.append( " SUP " ).append( atd.getSuperType() );
+            buf.append( " SUP " ).append( attributeType.getSupOid() );
         }
 
-        if ( atd.getEqualityMatchingRule() != null )
+        if ( attributeType.getEqualityOid() != null )
         {
-            buf.append( " EQUALITY " ).append( atd.getEqualityMatchingRule() );
+            buf.append( " EQUALITY " ).append( attributeType.getEqualityOid() );
         }
 
-        if ( atd.getOrderingMatchingRule() != null )
+        if ( attributeType.getOrderingOid() != null )
         {
-            buf.append( " ORDERING " ).append( atd.getOrderingMatchingRule() );
+            buf.append( " ORDERING " ).append( attributeType.getOrderingOid() );
         }
 
-        if ( atd.getSubstringsMatchingRule() != null )
+        if ( attributeType.getSubstrOid() != null )
         {
-            buf.append( " SUBSTR " ).append( atd.getSubstringsMatchingRule() );
+            buf.append( " SUBSTR " ).append( attributeType.getSubstrOid() );
         }
 
-        if ( atd.getSyntax() != null )
+        if ( attributeType.getSyntax() != null )
         {
-            buf.append( " SYNTAX " ).append( atd.getSyntax() );
+            buf.append( " SYNTAX " ).append( attributeType.getSyntax() );
 
-            if ( atd.getSyntaxLength() > 0 )
+            if ( attributeType.getLength() > 0 )
             {
-                buf.append( "{" ).append( atd.getSyntaxLength() ).append( "}" );
+                buf.append( "{" ).append( attributeType.getLength() ).append( "}" );
             }
         }
 
-        if ( atd.isSingleValued() )
+        if ( attributeType.isSingleValue() )
         {
             buf.append( " SINGLE-VALUE" );
         }
 
-        if ( atd.isCollective() )
+        if ( attributeType.isCollective() )
         {
             buf.append( " COLLECTIVE" );
         }
 
-        if ( !atd.isUserModifiable() )
+        if ( !attributeType.isCanUserModify() )
         {
             buf.append( " NO-USER-MODIFICATION" );
         }
 
-        if ( atd.getUsage() != null )
+        if ( attributeType.getUsage() != null )
         {
-            buf.append( " USAGE " ).append( UsageEnum.render( atd.getUsage() ) );
+            buf.append( " USAGE " ).append( UsageEnum.render( attributeType.getUsage() ) );
         }
 
-        return buf.append( render( atd.getExtensions() ) ).append( ")" );
+        return buf.append( render( attributeType.getExtensions() ) ).append( ")" );
     }
 
 
@@ -787,10 +787,10 @@ public class SchemaUtils
         StringBuffer buf = new StringBuffer();
         buf.append( "( " ).append( mr.getOid() );
 
-        if ( mr.getNamesRef() != null && mr.getNamesRef().length > 0 )
+        if ( mr.getNames() != null && mr.getNames().size() > 0 )
         {
             buf.append( " NAME " );
-            render( buf, mr.getNamesRef() ).append( " " );
+            render( buf, mr.getNames() ).append( " " );
         }
         else
         {
@@ -813,7 +813,7 @@ public class SchemaUtils
         }
 
         buf.append( " X-SCHEMA '" );
-        buf.append( mr.getSchema() );
+        buf.append( mr.getSchemaName() );
         buf.append( "'" );
 
         // @todo extensions are not presently supported and skipped
@@ -848,7 +848,7 @@ public class SchemaUtils
      * @param syntax the Syntax to render the description for
      * @return the StringBuffer containing the rendered syntax description
      */
-    public static StringBuffer render( Syntax syntax )
+    public static StringBuffer render( LdapSyntax syntax )
     {
         StringBuffer buf = new StringBuffer();
         buf.append( "( " ).append( syntax.getOid() ).append( " " );
@@ -859,7 +859,7 @@ public class SchemaUtils
         }
 
         buf.append( " X-SCHEMA '" );
-        buf.append( syntax.getSchema() );
+        buf.append( syntax.getSchemaName() );
 
         if ( syntax.isHumanReadable() )
         {
@@ -886,7 +886,7 @@ public class SchemaUtils
     {
         StringBuffer buf = new StringBuffer();
         buf.append( "( " ).append( mru.getOid() ).append( " NAME " );
-        render( buf, mru.getNamesRef() ).append( " " );
+        render( buf, mru.getNames() ).append( " " );
 
         if ( mru.getDescription() != null )
         {
@@ -894,7 +894,7 @@ public class SchemaUtils
         }
 
         buf.append( " X-SCHEMA '" );
-        buf.append( mru.getSchema() );
+        buf.append( mru.getSchemaName() );
         buf.append( "'" );
 
         // @todo extensions are not presently supported and skipped
@@ -913,7 +913,7 @@ public class SchemaUtils
     {
         StringBuffer buf = new StringBuffer();
         buf.append( "( " ).append( dcr.getOid() ).append( " NAME " );
-        render( buf, dcr.getNamesRef() ).append( " " );
+        render( buf, dcr.getNames() ).append( " " );
 
         if ( dcr.getDescription() != null )
         {
@@ -921,7 +921,7 @@ public class SchemaUtils
         }
 
         buf.append( " X-SCHEMA '" );
-        buf.append( dcr.getSchema() );
+        buf.append( dcr.getSchemaName() );
         buf.append( "'" );
 
         // @todo extensions are not presently supported and skipped
@@ -940,7 +940,7 @@ public class SchemaUtils
     {
         StringBuffer buf = new StringBuffer();
         buf.append( "( " ).append( dsr.getOid() ).append( " NAME " );
-        render( buf, dsr.getNamesRef() ).append( " " );
+        render( buf, dsr.getNames() ).append( " " );
 
         if ( dsr.getDescription() != null )
         {
@@ -948,7 +948,7 @@ public class SchemaUtils
         }
 
         buf.append( " X-SCHEMA '" );
-        buf.append( dsr.getSchema() );
+        buf.append( dsr.getSchemaName() );
         buf.append( "' )" );
 
         return buf;
@@ -962,7 +962,7 @@ public class SchemaUtils
     {
         StringBuffer buf = new StringBuffer();
         buf.append( "( " ).append( nf.getOid() ).append( " NAME " );
-        render( buf, nf.getNamesRef() ).append( " " );
+        render( buf, nf.getNames() ).append( " " );
 
         if ( nf.getDescription() != null )
         {
@@ -970,7 +970,7 @@ public class SchemaUtils
         }
 
         buf.append( " X-SCHEMA '" );
-        buf.append( nf.getSchema() );
+        buf.append( nf.getSchemaName() );
         buf.append( "' )" );
 
         return buf;
@@ -985,10 +985,10 @@ public class SchemaUtils
      * @param description The description to transform to a String
      * @return
      */
-    public static String render( AbstractAdsSchemaDescription description )
+    public static String render( LoadableSchemaObject description )
     {
         StringBuilder buf = new StringBuilder();
-        buf.append( "( " ).append( description.getNumericOid() ).append( " " );
+        buf.append( "( " ).append( description.getOid() ).append( " " );
 
         if ( description.getDescription() != null )
         {
@@ -997,26 +997,26 @@ public class SchemaUtils
 
         buf.append( "FQCN " ).append( description.getFqcn() ).append( " " );
 
-        if ( description.getBytecode() != null )
+        if ( !StringTools.isEmpty( description.getBytecode() ) )
         {
             buf.append( "BYTECODE " ).append( description.getBytecode() );
         }
 
         buf.append( " X-SCHEMA '" );
-        buf.append( getSchema( description ) );
+        buf.append( getSchemaName( description ) );
         buf.append( "' )" );
 
         return buf.toString();
     }
 
 
-    private static String getSchema( AbstractSchemaDescription desc )
+    private static String getSchemaName( SchemaObject desc )
     {
-        List<String> values = desc.getExtensions().get( "X-SCHEMA" );
+        List<String> values = desc.getExtensions().get( MetaSchemaConstants.X_SCHEMA );
 
         if ( values == null || values.size() == 0 )
         {
-            return "other";
+            return MetaSchemaConstants.SCHEMA_OTHER;
         }
 
         return values.get( 0 );

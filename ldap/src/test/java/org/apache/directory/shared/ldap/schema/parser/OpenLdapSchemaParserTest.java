@@ -21,16 +21,15 @@ package org.apache.directory.shared.ldap.schema.parser;
 
 
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
-import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeLiteral;
-import org.apache.directory.shared.ldap.schema.parsers.ObjectClassLiteral;
 import org.apache.directory.shared.ldap.schema.parsers.OpenLdapSchemaParser;
-import org.apache.directory.shared.ldap.schema.syntaxes.OpenLdapObjectIdentifierMacro;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.OpenLdapObjectIdentifierMacro;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,25 +73,25 @@ public class OpenLdapSchemaParserTest
             + "        SYNTAX 1.3.6.1.4.1.1466.115.121.1.25 )";
 
         parser.parse( attributeTypeData );
-        List<AttributeTypeLiteral> attributeTypeList = parser.getAttributeTypes();
-        Map<String, AttributeTypeLiteral> attributeTypes = mapAttributeTypes( attributeTypeList );
-        AttributeTypeLiteral type = attributeTypes.get( "2.5.4.14" );
+        List<AttributeType> attributeTypes = parser.getAttributeTypes();
+        Map<String, AttributeType> mapAttributeTypes = mapAttributeTypes( attributeTypes );
+        AttributeType attributeType = mapAttributeTypes.get( "2.5.4.14" );
 
-        assertNotNull( type );
-        assertEquals( "2.5.4.14", type.getOid() );
-        assertEquals( "searchGuide", type.getNames()[0] );
-        assertEquals( "RFC2256: search guide, obsoleted by enhancedSearchGuide", type.getDescription() );
-        assertEquals( "1.3.6.1.4.1.1466.115.121.1.25", type.getSyntax() );
+        assertNotNull( attributeType );
+        assertEquals( "2.5.4.14", attributeType.getOid() );
+        assertEquals( "searchGuide", attributeType.getName() );
+        assertEquals( "RFC2256: search guide, obsoleted by enhancedSearchGuide", attributeType.getDescription() );
+        assertEquals( "1.3.6.1.4.1.1466.115.121.1.25", attributeType.getSyntaxOid() );
     }
 
 
-    private Map<String, AttributeTypeLiteral> mapAttributeTypes( List<AttributeTypeLiteral> attributeTypeList )
+    private Map<String, AttributeType> mapAttributeTypes( List<AttributeType> attributeTypes )
     {
-        Map<String, AttributeTypeLiteral> m = new HashMap<String, AttributeTypeLiteral>();
+        Map<String, AttributeType> m = new HashMap<String, AttributeType>();
 
-        for ( AttributeTypeLiteral type : attributeTypeList )
+        for ( AttributeType attributeType : attributeTypes )
         {
-            m.put( type.getOid(), type );
+            m.put( attributeType.getOid(), attributeType );
         }
 
         return m;
@@ -106,16 +105,16 @@ public class OpenLdapSchemaParserTest
             + "        DESC 'RFC2256: knowledge information'\n" + "        EQUALITY caseIgnoreMatch\n"
             + "        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )";
         parser.parse( attributeTypeData );
-        List<AttributeTypeLiteral> attributeTypeList = parser.getAttributeTypes();
-        Map<String, AttributeTypeLiteral> attributeTypes = mapAttributeTypes( attributeTypeList );
-        AttributeTypeLiteral type = attributeTypes.get( "2.5.4.2" );
+        List<AttributeType> attributeTypeList = parser.getAttributeTypes();
+        Map<String, AttributeType> attributeTypes = mapAttributeTypes( attributeTypeList );
+        AttributeType type = attributeTypes.get( "2.5.4.2" );
 
         assertNotNull( type );
         assertEquals( "2.5.4.2", type.getOid() );
-        assertEquals( "knowledgeInformation", type.getNames()[0] );
+        assertEquals( "knowledgeInformation", type.getName() );
         assertEquals( "RFC2256: knowledge information", type.getDescription() );
-        assertEquals( "1.3.6.1.4.1.1466.115.121.1.15", type.getSyntax() );
-        assertEquals( 32768, type.getLength() );
+        assertEquals( "1.3.6.1.4.1.1466.115.121.1.15", type.getSyntaxOid() );
+        assertEquals( 32768, type.getSyntaxLength() );
     }
 
 
@@ -126,16 +125,16 @@ public class OpenLdapSchemaParserTest
             + "        DESC 'RFC2256: \"knowledge\" information'\n" + "        EQUALITY caseIgnoreMatch\n"
             + "        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )";
         parser.parse( attributeTypeData );
-        List<AttributeTypeLiteral> attributeTypeList = parser.getAttributeTypes();
-        Map<String, AttributeTypeLiteral> attributeTypes = mapAttributeTypes( attributeTypeList );
-        AttributeTypeLiteral type = attributeTypes.get( "2.5.4.2" );
+        List<AttributeType> attributeTypeList = parser.getAttributeTypes();
+        Map<String, AttributeType> attributeTypes = mapAttributeTypes( attributeTypeList );
+        AttributeType type = attributeTypes.get( "2.5.4.2" );
 
         assertNotNull( type );
         assertEquals( "2.5.4.2", type.getOid() );
-        assertEquals( "knowledgeInformation", type.getNames()[0] );
+        assertEquals( "knowledgeInformation", type.getName() );
         assertEquals( "RFC2256: \"knowledge\" information", type.getDescription() );
-        assertEquals( "1.3.6.1.4.1.1466.115.121.1.15", type.getSyntax() );
-        assertEquals( 32768, type.getLength() );
+        assertEquals( "1.3.6.1.4.1.1466.115.121.1.15", type.getSyntaxOid() );
+        assertEquals( 32768, type.getSyntaxLength() );
     }
 
 
@@ -147,26 +146,26 @@ public class OpenLdapSchemaParserTest
             + "        DESC 'RFC2256: knowledge information'\n" + "        EQUALITY caseIgnoreMatch\n"
             + "        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )";
         parser.parse( attributeTypeData );
-        List<AttributeTypeLiteral> attributeTypeList = parser.getAttributeTypes();
-        Map<String, AttributeTypeLiteral> attributeTypes = mapAttributeTypes( attributeTypeList );
-        AttributeTypeLiteral type = attributeTypes.get( "2.5.4.2" );
+        List<AttributeType> attributeTypeList = parser.getAttributeTypes();
+        Map<String, AttributeType> attributeTypes = mapAttributeTypes( attributeTypeList );
+        AttributeType type = attributeTypes.get( "2.5.4.2" );
 
         assertNotNull( type );
         assertEquals( "2.5.4.2", type.getOid() );
-        assertEquals( "knowledgeInformation", type.getNames()[0] );
+        assertEquals( "knowledgeInformation", type.getName() );
         assertEquals( "RFC2256: knowledge information", type.getDescription() );
-        assertEquals( "1.3.6.1.4.1.1466.115.121.1.15", type.getSyntax() );
-        assertEquals( 32768, type.getLength() );
+        assertEquals( "1.3.6.1.4.1.1466.115.121.1.15", type.getSyntaxOid() );
+        assertEquals( 32768, type.getSyntaxLength() );
     }
 
 
-    private Map<String, ObjectClassLiteral> mapObjectClasses( List<ObjectClassLiteral> objectClassList )
+    private Map<String, ObjectClass> mapObjectClasses( List<ObjectClass> objectClassList )
     {
-        Map<String, ObjectClassLiteral> m = new HashMap<String, ObjectClassLiteral>();
+        Map<String, ObjectClass> m = new HashMap<String, ObjectClass>();
 
-        for ( ObjectClassLiteral objectClassLiteral : objectClassList )
+        for ( ObjectClass objectClass : objectClassList )
         {
-            m.put( objectClassLiteral.getOid(), objectClassLiteral );
+            m.put( objectClass.getOid(), objectClass );
         }
 
         return m;
@@ -180,21 +179,21 @@ public class OpenLdapSchemaParserTest
             + "        SUP top STRUCTURAL\n" + "        MUST ( sn $ cn )\n"
             + "        MAY ( userPassword $ telephoneNumber $ seeAlso $ description ) )";
         parser.parse( objectClassData );
-        List<ObjectClassLiteral> objectClassesList = parser.getObjectClassTypes();
-        Map<String, ObjectClassLiteral> objectClasses = mapObjectClasses( objectClassesList );
-        ObjectClassLiteral objectClass = objectClasses.get( "2.5.6.6" );
+        List<ObjectClass> objectClassesList = parser.getObjectClassTypes();
+        Map<String, ObjectClass> objectClasses = mapObjectClasses( objectClassesList );
+        ObjectClass objectClass = objectClasses.get( "2.5.6.6" );
 
         assertNotNull( objectClass );
         assertEquals( "2.5.6.6", objectClass.getOid() );
-        assertEquals( "person", objectClass.getNames()[0] );
+        assertEquals( "person", objectClass.getName() );
         assertEquals( "RFC2256: a person", objectClass.getDescription() );
-        assertEquals( ObjectClassTypeEnum.STRUCTURAL, objectClass.getClassType() );
-        assertEquals( "sn", objectClass.getMust()[0] );
-        assertEquals( "cn", objectClass.getMust()[1] );
-        assertEquals( "userPassword", objectClass.getMay()[0] );
-        assertEquals( "telephoneNumber", objectClass.getMay()[1] );
-        assertEquals( "seeAlso", objectClass.getMay()[2] );
-        assertEquals( "description", objectClass.getMay()[3] );
+        assertEquals( ObjectClassTypeEnum.STRUCTURAL, objectClass.getType() );
+        assertEquals( "sn", objectClass.getMustAttributeTypeOids().get(0) );
+        assertEquals( "cn", objectClass.getMustAttributeTypeOids().get(1) );
+        assertEquals( "userPassword", objectClass.getMayAttributeTypeOids().get(0) );
+        assertEquals( "telephoneNumber", objectClass.getMayAttributeTypeOids().get(1) );
+        assertEquals( "seeAlso", objectClass.getMayAttributeTypeOids().get(2) );
+        assertEquals( "description", objectClass.getMayAttributeTypeOids().get(3) );
     }
 
 
@@ -211,36 +210,36 @@ public class OpenLdapSchemaParserTest
             + "\t\tpagerTelephoneNumber $ organizationalStatus $\n"
             + "\t\tmailPreferenceOption $ personalSignature )\n" + "\t)";
         parser.parse( objectClassData );
-        List<ObjectClassLiteral> objectClassesList = parser.getObjectClassTypes();
-        Map<String, ObjectClassLiteral> objectClasses = mapObjectClasses( objectClassesList );
-        ObjectClassLiteral objectClass = objectClasses.get( "0.9.2342.19200300.100.4.4" );
+        List<ObjectClass> objectClassesList = parser.getObjectClassTypes();
+        Map<String, ObjectClass> objectClasses = mapObjectClasses( objectClassesList );
+        ObjectClass objectClass = objectClasses.get( "0.9.2342.19200300.100.4.4" );
 
         assertNotNull( objectClass );
         assertEquals( "0.9.2342.19200300.100.4.4", objectClass.getOid() );
-        assertEquals( "pilotPerson", objectClass.getNames()[0] );
-        assertEquals( "newPilotPerson", objectClass.getNames()[1] );
-        assertEquals( ObjectClassTypeEnum.STRUCTURAL, objectClass.getClassType() );
-        assertEquals( "person", objectClass.getSuperiors()[0] );
+        assertEquals( "pilotPerson", objectClass.getName() );
+        assertEquals( "newPilotPerson", objectClass.getNames().get(1) );
+        assertEquals( ObjectClassTypeEnum.STRUCTURAL, objectClass.getType() );
+        assertEquals( "person", objectClass.getSuperiorOids().get(0) );
 
-        assertEquals( "userid", objectClass.getMay()[0] );
-        assertEquals( "textEncodedORAddress", objectClass.getMay()[1] );
-        assertEquals( "rfc822Mailbox", objectClass.getMay()[2] );
-        assertEquals( "favouriteDrink", objectClass.getMay()[3] );
-        assertEquals( "roomNumber", objectClass.getMay()[4] );
-        assertEquals( "userClass", objectClass.getMay()[5] );
-        assertEquals( "homeTelephoneNumber", objectClass.getMay()[6] );
-        assertEquals( "homePostalAddress", objectClass.getMay()[7] );
-        assertEquals( "secretary", objectClass.getMay()[8] );
-        assertEquals( "personalTitle", objectClass.getMay()[9] );
-        assertEquals( "preferredDeliveryMethod", objectClass.getMay()[10] );
-        assertEquals( "businessCategory", objectClass.getMay()[11] );
-        assertEquals( "janetMailbox", objectClass.getMay()[12] );
-        assertEquals( "otherMailbox", objectClass.getMay()[13] );
-        assertEquals( "mobileTelephoneNumber", objectClass.getMay()[14] );
-        assertEquals( "pagerTelephoneNumber", objectClass.getMay()[15] );
-        assertEquals( "organizationalStatus", objectClass.getMay()[16] );
-        assertEquals( "mailPreferenceOption", objectClass.getMay()[17] );
-        assertEquals( "personalSignature", objectClass.getMay()[18] );
+        assertEquals( "userid", objectClass.getMayAttributeTypeOids().get(0) );
+        assertEquals( "textEncodedORAddress", objectClass.getMayAttributeTypeOids().get(1) );
+        assertEquals( "rfc822Mailbox", objectClass.getMayAttributeTypeOids().get(2) );
+        assertEquals( "favouriteDrink", objectClass.getMayAttributeTypeOids().get(3) );
+        assertEquals( "roomNumber", objectClass.getMayAttributeTypeOids().get(4) );
+        assertEquals( "userClass", objectClass.getMayAttributeTypeOids().get(5) );
+        assertEquals( "homeTelephoneNumber", objectClass.getMayAttributeTypeOids().get(6) );
+        assertEquals( "homePostalAddress", objectClass.getMayAttributeTypeOids().get(7) );
+        assertEquals( "secretary", objectClass.getMayAttributeTypeOids().get(8) );
+        assertEquals( "personalTitle", objectClass.getMayAttributeTypeOids().get(9) );
+        assertEquals( "preferredDeliveryMethod", objectClass.getMayAttributeTypeOids().get(10) );
+        assertEquals( "businessCategory", objectClass.getMayAttributeTypeOids().get(11) );
+        assertEquals( "janetMailbox", objectClass.getMayAttributeTypeOids().get(12) );
+        assertEquals( "otherMailbox", objectClass.getMayAttributeTypeOids().get(13) );
+        assertEquals( "mobileTelephoneNumber", objectClass.getMayAttributeTypeOids().get(14) );
+        assertEquals( "pagerTelephoneNumber", objectClass.getMayAttributeTypeOids().get(15) );
+        assertEquals( "organizationalStatus", objectClass.getMayAttributeTypeOids().get(16) );
+        assertEquals( "mailPreferenceOption", objectClass.getMayAttributeTypeOids().get(17) );
+        assertEquals( "personalSignature", objectClass.getMayAttributeTypeOids().get(18) );
     }
 
 
@@ -250,8 +249,8 @@ public class OpenLdapSchemaParserTest
         InputStream input = getClass().getResourceAsStream( "core.schema" );
         parser.parse( input );
 
-        List<AttributeTypeLiteral> attributeTypes = parser.getAttributeTypes();
-        List<ObjectClassLiteral> objectClassTypes = parser.getObjectClassTypes();
+        List<AttributeType> attributeTypes = parser.getAttributeTypes();
+        List<ObjectClass> objectClassTypes = parser.getObjectClassTypes();
         Map<String, OpenLdapObjectIdentifierMacro> objectIdentifierMacros = parser.getObjectIdentifierMacros();
 
         assertEquals( 52, attributeTypes.size() );
@@ -266,8 +265,8 @@ public class OpenLdapSchemaParserTest
         InputStream input = getClass().getResourceAsStream( "inetorgperson.schema" );
         parser.parse( input );
 
-        List<AttributeTypeLiteral> attributeTypes = parser.getAttributeTypes();
-        List<ObjectClassLiteral> objectClassTypes = parser.getObjectClassTypes();
+        List<AttributeType> attributeTypes = parser.getAttributeTypes();
+        List<ObjectClass> objectClassTypes = parser.getObjectClassTypes();
         Map<String, OpenLdapObjectIdentifierMacro> objectIdentifierMacros = parser.getObjectIdentifierMacros();
 
         assertEquals( 9, attributeTypes.size() );
@@ -282,14 +281,14 @@ public class OpenLdapSchemaParserTest
         InputStream input = getClass().getResourceAsStream( "collective.schema" );
         parser.parse( input );
 
-        List<AttributeTypeLiteral> attributeTypes = parser.getAttributeTypes();
-        List<ObjectClassLiteral> objectClassTypes = parser.getObjectClassTypes();
+        List<AttributeType> attributeTypes = parser.getAttributeTypes();
+        List<ObjectClass> objectClassTypes = parser.getObjectClassTypes();
         Map<String, OpenLdapObjectIdentifierMacro> objectIdentifierMacros = parser.getObjectIdentifierMacros();
 
         assertEquals( 13, attributeTypes.size() );
         assertEquals( 0, objectClassTypes.size() );
         assertEquals( 0, objectIdentifierMacros.size() );
-        for ( AttributeTypeLiteral attributeTypeLiteral : attributeTypes )
+        for ( AttributeType attributeTypeLiteral : attributeTypes )
         {
             assertTrue( attributeTypeLiteral.isCollective() );
         }
@@ -302,8 +301,8 @@ public class OpenLdapSchemaParserTest
         InputStream input = getClass().getResourceAsStream( "dyngroup.schema" );
         parser.parse( input );
 
-        List<AttributeTypeLiteral> attributeTypes = parser.getAttributeTypes();
-        List<ObjectClassLiteral> objectClassTypes = parser.getObjectClassTypes();
+        List<AttributeType> attributeTypes = parser.getAttributeTypes();
+        List<ObjectClass> objectClassTypes = parser.getObjectClassTypes();
         Map<String, OpenLdapObjectIdentifierMacro> objectIdentifierMacros = parser.getObjectIdentifierMacros();
 
         assertEquals( 2, attributeTypes.size() );
@@ -319,32 +318,34 @@ public class OpenLdapSchemaParserTest
         }
 
         // check that OIDs in attribute types and object classes are resolved
-        for ( ObjectClassLiteral objectClassLiteral : objectClassTypes )
+        for ( ObjectClass objectClass : objectClassTypes )
         {
-            List<String> asList = Arrays.asList( objectClassLiteral.getNames() );
+            List<String> asList = objectClass.getNames();
             if ( asList.contains( "groupOfURLs" ) )
             {
-                assertEquals( "2.16.840.1.113730.3.2.33", objectClassLiteral.getOid() );
+                assertEquals( "2.16.840.1.113730.3.2.33", objectClass.getOid() );
             }
             else if ( asList.contains( "dgIdentityAux" ) )
             {
-                assertEquals( "1.3.6.1.4.1.4203.666.11.8.2.1", objectClassLiteral.getOid() );
+                assertEquals( "1.3.6.1.4.1.4203.666.11.8.2.1", objectClass.getOid() );
             }
             else
             {
                 fail( "object class 'groupOfURLs' or 'dgIdentityAux' expected" );
             }
         }
-        for ( AttributeTypeLiteral attributeTypeLiteral : attributeTypes )
+        
+        for ( AttributeType attributeType : attributeTypes )
         {
-            List<String> asList = Arrays.asList( attributeTypeLiteral.getNames() );
+            List<String> asList = attributeType.getNames();
+            
             if ( asList.contains( "memberURL" ) )
             {
-                assertEquals( "2.16.840.1.113730.3.1.198", attributeTypeLiteral.getOid() );
+                assertEquals( "2.16.840.1.113730.3.1.198", attributeType.getOid() );
             }
             else if ( asList.contains( "dgIdentity" ) )
             {
-                assertEquals( "1.3.6.1.4.1.4203.666.11.8.1.1", attributeTypeLiteral.getOid() );
+                assertEquals( "1.3.6.1.4.1.4203.666.11.8.1.1", attributeType.getOid() );
             }
             else
             {

@@ -27,8 +27,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.text.ParseException;
 
-import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
 
 

@@ -20,8 +20,15 @@
 package org.apache.directory.shared.ldap.schema;
 
 
+import java.util.List;
+
 import javax.naming.NamingException;
-import java.util.Comparator;
+
+import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.schema.comparators.ComparableComparator;
+import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 
 /**
@@ -75,36 +82,386 @@ import java.util.Comparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface MatchingRule extends SchemaObject
+public class MatchingRule extends AbstractSchemaObject
 {
+    /** The serialVersionUID */
+    private static final long serialVersionUID = 1L;
+
+    /** The associated Comparator */
+    protected LdapComparator<? super Object> ldapComparator;
+
+    /** The associated Normalizer */
+    protected Normalizer normalizer;
+
+    /** The associated LdapSyntax */
+    protected LdapSyntax ldapSyntax;
+
+    /** The associated LdapSyntax OID */
+    private String ldapSyntaxOid;
+
+
     /**
-     * Gets the SyntaxImpl used by this MatchingRule.
-     * 
-     * @return the SyntaxImpl of this MatchingRule
-     * @throws NamingException
-     *             if there is a failure resolving the object
+     * Creates a new instance of MatchingRule.
+     *
+     * @param oid The MatchingRule OID
+     * @param registries The Registries reference
      */
-    Syntax getSyntax() throws NamingException;
+    public MatchingRule( String oid )
+    {
+        super( SchemaObjectType.MATCHING_RULE, oid );
+    }
 
 
     /**
-     * Gets the Comparator enabling the use of this MatchingRule for ORDERING
+     * Inject the MatchingRule into the registries, updating the references to
+     * other SchemaObject
+     *
+     * @param registries The Registries
+     * @exception If the addition failed
+     */
+    public void addToRegistries( List<Throwable> errors, Registries registries ) throws NamingException
+    {
+        if ( registries != null )
+        {
+            try
+            {
+                // Gets the associated Comparator 
+                ldapComparator = ( LdapComparator<? super Object> ) registries.getComparatorRegistry().lookup( oid );
+            }
+            catch ( NamingException ne )
+            {
+                // Default to a catch all comparator
+                ldapComparator = new ComparableComparator( oid );
+            }
+
+            try
+            {
+                // Gets the associated Normalizer
+                normalizer = registries.getNormalizerRegistry().lookup( oid );
+            }
+            catch ( NamingException ne )
+            {
+                // Default to the NoOp normalizer
+                normalizer = new NoOpNormalizer( oid );
+            }
+
+            try
+            {
+                // Get the associated LdapSyntax
+                ldapSyntax = registries.getLdapSyntaxRegistry().lookup( ldapSyntaxOid );
+            }
+            catch ( NamingException ne )
+            {
+                // The Syntax is a mandatory element, it must exist.
+                throw new LdapSchemaViolationException(
+                    "The created MatchingRule must refers to an existing SYNTAX element",
+                    ResultCodeEnum.UNWILLING_TO_PERFORM );
+            }
+
+            /**
+             * Add the MR references (using and usedBy) : 
+             * MR -> C
+             * MR -> N
+             * MR -> S
+             */
+            if ( ldapComparator != null )
+            {
+                registries.addReference( this, ldapComparator );
+            }
+
+            if ( normalizer != null )
+            {
+                registries.addReference( this, normalizer );
+            }
+
+            if ( ldapSyntax != null )
+            {
+                registries.addReference( this, ldapSyntax );
+            }
+
+        }
+    }
+
+
+    /**
+     * Remove the MatchingRule from the registries, updating the references to
+     * other SchemaObject.
+     * 
+     * If one of the referenced SchemaObject does not exist (), 
+     * an exception is thrown.
+     *
+     * @param registries The Registries
+     * @exception If the MatchingRule is not valid 
+     */
+    public void removeFromRegistries( List<Throwable> errors, Registries registries ) throws NamingException
+    {
+        if ( registries != null )
+        {
+            /**
+             * Remove the MR references (using and usedBy) : 
+             * MR -> C
+             * MR -> N
+             * MR -> S
+             */
+            if ( ldapComparator != null )
+            {
+                registries.delReference( this, ldapComparator );
+            }
+
+            if ( ldapSyntax != null )
+            {
+                registries.delReference( this, ldapSyntax );
+            }
+
+            if ( normalizer != null )
+            {
+                registries.delReference( this, normalizer );
+            }
+        }
+    }
+
+
+    /**
+     * Gets the LdapSyntax used by this MatchingRule.
+     * 
+     * @return the LdapSyntax of this MatchingRule
+     */
+    public LdapSyntax getSyntax()
+    {
+        return ldapSyntax;
+    }
+
+
+    /**
+     * Gets the LdapSyntax OID used by this MatchingRule.
+     * 
+     * @return the LdapSyntax of this MatchingRule
+     * @throws NamingException if there is a failure resolving the object
+     */
+    public String getSyntaxOid()
+    {
+        return ldapSyntaxOid;
+    }
+
+
+    /**
+     * Sets the Syntax's OID
+     *
+     * @param oid The Syntax's OID
+     */
+    public void setSyntaxOid( String oid )
+    {
+        if ( !isReadOnly )
+        {
+            this.ldapSyntaxOid = oid;
+        }
+    }
+
+
+    /**
+     * Sets the Syntax
+     *
+     * @param oid The Syntax
+     */
+    public void setSyntax( LdapSyntax ldapSyntax )
+    {
+        if ( !isReadOnly )
+        {
+            this.ldapSyntax = ldapSyntax;
+            this.ldapSyntaxOid = ldapSyntax.getOid();
+        }
+    }
+
+
+    /**
+     * Update the associated Syntax, even if the SchemaObject is readOnly
+     *
+     * @param oid The Syntax
+     */
+    public void updateSyntax( LdapSyntax ldapSyntax )
+    {
+        this.ldapSyntax = ldapSyntax;
+        this.ldapSyntaxOid = ldapSyntax.getOid();
+    }
+
+
+    /**
+     * Gets the LdapComparator enabling the use of this MatchingRule for ORDERING
      * and sorted indexing.
      * 
-     * @return the ordering Comparator
-     * @throws NamingException
-     *             if there is a failure resolving the object
+     * @return the ordering LdapComparator
+     * @throws NamingException if there is a failure resolving the object
      */
-    Comparator getComparator() throws NamingException;
+    public LdapComparator<? super Object> getLdapComparator()
+    {
+        return ldapComparator;
+    }
+
+
+    /**
+     * Sets the LdapComparator
+     *
+     * @param oid The LdapComparator
+     */
+    public void setLdapComparator( LdapComparator<?> ldapComparator )
+    {
+        if ( !isReadOnly )
+        {
+            this.ldapComparator = ( LdapComparator<? super Object> ) ldapComparator;
+        }
+    }
+
+
+    /**
+     * Update the associated Comparator, even if the SchemaObject is readOnly
+     *
+     * @param oid The LdapComparator
+     */
+    public void updateLdapComparator( LdapComparator<?> ldapComparator )
+    {
+        this.ldapComparator = ( LdapComparator<? super Object> ) ldapComparator;
+    }
 
 
     /**
      * Gets the Normalizer enabling the use of this MatchingRule for EQUALITY
      * matching and indexing.
      * 
-     * @return the ordering Comparator
-     * @throws NamingException
-     *             if there is a failure resolving the object
+     * @return the associated normalizer
+     * @throws NamingException if there is a failure resolving the object
      */
-    Normalizer getNormalizer() throws NamingException;
+    public Normalizer getNormalizer()
+    {
+        return normalizer;
+    }
+
+
+    /**
+     * Sets the Normalizer
+     *
+     * @param oid The Normalizer
+     */
+    public void setNormalizer( Normalizer normalizer )
+    {
+        if ( !isReadOnly )
+        {
+            this.normalizer = normalizer;
+        }
+    }
+
+
+    /**
+     * Update the associated Normalizer, even if the SchemaObject is readOnly
+     *
+     * @param oid The Normalizer
+     */
+    public void updateNormalizer( Normalizer normalizer )
+    {
+        this.normalizer = normalizer;
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return objectType + " " + DescriptionUtils.getDescription( this );
+    }
+
+
+    /**
+     * Copy an MatchingRule
+     */
+    public MatchingRule copy()
+    {
+        MatchingRule copy = new MatchingRule( oid );
+
+        // Copy the SchemaObject common data
+        copy.copy( this );
+
+        // All the references to other Registries object are set to null.
+        copy.ldapComparator = null;
+        copy.ldapSyntax = null;
+        copy.normalizer = null;
+
+        // Copy the syntax OID
+        copy.ldapSyntaxOid = ldapSyntaxOid;
+
+        return copy;
+    }
+
+
+    /**
+     * @see Object#equals()
+     */
+    public boolean equals( Object o )
+    {
+        if ( !super.equals( o ) )
+        {
+            return false;
+        }
+
+        if ( !( o instanceof MatchingRule ) )
+        {
+            return false;
+        }
+
+        MatchingRule that = ( MatchingRule ) o;
+
+        // Check the Comparator
+        if ( ldapComparator != null )
+        {
+            if ( !ldapComparator.equals( that.ldapComparator ) )
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if ( that.ldapComparator != null )
+            {
+                return false;
+            }
+        }
+
+        // Check the Normalizer
+        if ( normalizer != null )
+        {
+            if ( !normalizer.equals( that.normalizer ) )
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if ( that.normalizer != null )
+            {
+                return false;
+            }
+        }
+
+        // Check the Syntax
+        if ( !compareOid( ldapSyntaxOid, that.ldapSyntaxOid ) )
+        {
+            return false;
+        }
+
+        return ldapSyntax.equals( that.ldapSyntax );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void clear()
+    {
+        // Clear the common elements
+        super.clear();
+
+        // Clear the references
+        ldapComparator = null;
+        ldapSyntax = null;
+        normalizer = null;
+    }
 }

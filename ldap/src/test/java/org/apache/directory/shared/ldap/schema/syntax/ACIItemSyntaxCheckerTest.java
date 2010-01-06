@@ -19,7 +19,7 @@
  */
 package org.apache.directory.shared.ldap.schema.syntax;
 
-import org.apache.directory.shared.ldap.schema.syntaxes.ACIItemSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.ACIItemSyntaxChecker;
 
 import org.junit.Test;
 import static org.junit.Assert.assertFalse;
@@ -54,7 +54,7 @@ public class ACIItemSyntaxCheckerTest
     @Test
     public void testOid()
     {
-        assertEquals( "1.3.6.1.4.1.1466.115.121.1.1", checker.getSyntaxOid() );
+        assertEquals( "1.3.6.1.4.1.1466.115.121.1.1", checker.getOid() );
     }
 
     @Test

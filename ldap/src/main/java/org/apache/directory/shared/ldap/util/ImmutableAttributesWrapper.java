@@ -90,7 +90,6 @@ public class ImmutableAttributesWrapper implements Attributes
     }
 
 
-    @SuppressWarnings ( { "CloneDoesntCallSuperClone" } )
     public Object clone()
     {
         throw new IllegalStateException( "Now why would you want to clone() an immutable object in the first place." );

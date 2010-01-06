@@ -20,7 +20,10 @@
 package org.apache.directory.shared.ldap.schema.comparators;
 
 
-import java.util.Comparator;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
+import org.apache.directory.shared.ldap.util.StringTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -29,16 +32,31 @@ import java.util.Comparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ByteArrayComparator implements Comparator<byte[]>
+public class ByteArrayComparator extends LdapComparator<byte[]>
 {
-    /** A static instance of this comparator */
-    public static final Comparator<byte[]> INSTANCE = new ByteArrayComparator();
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( ByteArrayComparator.class );
+
+    /** The serialVersionUID */
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * The ByteArrayComparator constructor. Its OID is the OctetStringMatch matching
+     * rule OID.
+     */
+    public ByteArrayComparator( String oid )
+    {
+        super( oid );
+    }
 
     /**
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
     public int compare( byte[] b1, byte[] b2 )
     {
+        LOG.debug( "comparing OctetString objects '{}' with '{}'", 
+            StringTools.dumpBytes( b1 ), StringTools.dumpBytes( b2 ) );
+
         // -------------------------------------------------------------------
         // Handle some basis cases
         // -------------------------------------------------------------------
@@ -55,13 +73,13 @@ public class ByteArrayComparator implements Comparator<byte[]>
         
         if ( b1.length == b2.length )
         {
-            for ( int ii = 0; ii < b1.length; ii++ )
+            for ( int i = 0; i < b1.length; i++ )
             {
-                if ( b1[ii] > b2[ii] )
+                if ( b1[i] > b2[i] )
                 {
                     return 1;
                 }
-                else if ( b1[ii] < b2[ii] )
+                else if ( b1[i] < b2[i] )
                 {
                     return -1;
                 }
@@ -71,13 +89,14 @@ public class ByteArrayComparator implements Comparator<byte[]>
         }
         
         int minLength = Math.min( b1.length, b2.length );
-        for ( int ii = 0; ii < minLength; ii++ )
+        
+        for ( int i = 0; i < minLength; i++ )
         {
-            if ( b1[ii] > b2[ii] )
+            if ( b1[i] > b2[i] )
             {
                 return 1;
             }
-            else if ( b1[ii] < b2[ii] )
+            else if ( b1[i] < b2[i] )
             {
                 return -1;
             }

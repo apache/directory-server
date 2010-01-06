@@ -20,7 +20,14 @@
 package org.apache.directory.shared.ldap.schema;
 
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import javax.naming.NamingException;
+
+import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 
 /**
@@ -57,7 +64,7 @@ import javax.naming.NamingException;
  *     NameFormDescription = LPAREN WSP
  *         numericoid                ; object identifier
  *         [ SP &quot;NAME&quot; SP qdescrs ]  ; short names (descriptors)
- *         [ SP &quot;DESC&quot; SP qdstring ] ; description
+ *         [ SP &quot;DESC&quot; SP qdstring ] ;String description
  *         [ SP &quot;OBSOLETE&quot; ]         ; not active
  *         SP &quot;OC&quot; SP oid            ; structural object class
  *         SP &quot;MUST&quot; SP oids         ; attribute types
@@ -80,7 +87,7 @@ import javax.naming.NamingException;
  *   shall be different.
  * </pre>
  * 
- * @see <a href="http://www.faqs.org/rfcs/rfc2252.html">RFC2252 Section 6.22</a>
+ * @see <a href="http://www.faqs.org/rfcs/rfc225String2.html">RFC2252 Section 6.22</a>
  * @see <a
  *      href="http://www.ietf.org/internet-drafts/draft-ietf-ldapbis-models-11.txt">ldapbis
  *      [MODELS]</a>
@@ -88,17 +95,151 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface NameForm extends SchemaObject
+public class NameForm extends AbstractSchemaObject
 {
+    /** The serialVersionUID */
+    private static final long serialVersionUID = 1L;
+
+    /** The structural object class OID this rule applies to */
+    private String structuralObjectClassOid;
+
+    /** The structural object class this rule applies to */
+    private ObjectClass structuralObjectClass;
+
+    /** The set of required attribute OIDs for this name form */
+    private List<String> mustAttributeTypeOids;
+
+    /** The set of required AttributeTypes for this name form */
+    private List<AttributeType> mustAttributeTypes;
+
+    /** The set of allowed attribute OIDs for this name form */
+    private List<String> mayAttributeTypeOids;
+
+    /** The set of allowed AttributeTypes for this name form */
+    private List<AttributeType> mayAttributeTypes;
+
+
+    /**
+     * Creates a new instance of MatchingRule.
+     *
+     * @param oid The MatchingRule OID
+     * @param registries The Registries reference
+     */
+    public NameForm( String oid )
+    {
+        super( SchemaObjectType.NAME_FORM, oid );
+
+        mustAttributeTypeOids = new ArrayList<String>();
+        mayAttributeTypeOids = new ArrayList<String>();
+
+        mustAttributeTypes = new ArrayList<AttributeType>();
+        mayAttributeTypes = new ArrayList<AttributeType>();
+    }
+
+
+    /**
+     * Inject the NameForm into the registries, updating the references to
+     * other SchemaObject
+     *
+     * @param registries The Registries
+     */
+    public void addToRegistries( Registries registries ) throws NamingException
+    {
+        if ( registries != null )
+        {
+            AttributeTypeRegistry atRegistry = registries.getAttributeTypeRegistry();
+
+            structuralObjectClass = registries.getObjectClassRegistry().lookup( structuralObjectClassOid );
+
+            if ( mayAttributeTypeOids != null )
+            {
+                mayAttributeTypes = new ArrayList<AttributeType>( mayAttributeTypeOids.size() );
+
+                for ( String oid : mayAttributeTypeOids )
+                {
+                    mayAttributeTypes.add( atRegistry.lookup( oid ) );
+                }
+            }
+
+            if ( mustAttributeTypeOids != null )
+            {
+                mustAttributeTypes = new ArrayList<AttributeType>( mustAttributeTypeOids.size() );
+
+                for ( String oid : mustAttributeTypeOids )
+                {
+                    mustAttributeTypes.add( atRegistry.lookup( oid ) );
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Gets the STRUCTURAL ObjectClass this name form specifies naming
+     * attributes for.
+     * 
+     * @return the ObjectClass's oid this NameForm is for
+     */
+    public String getStructuralObjectClassOid()
+    {
+        return structuralObjectClassOid;
+    }
+
+
     /**
      * Gets the STRUCTURAL ObjectClass this name form specifies naming
      * attributes for.
      * 
      * @return the ObjectClass this NameForm is for
-     * @throws NamingException
-     *             if there is a failure resolving the object
+     * @throws NamingException If the structuralObjectClass is invalid
      */
-    ObjectClass getObjectClass() throws NamingException;
+    public ObjectClass getStructuralObjectClass() throws NamingException
+    {
+        return structuralObjectClass;
+    }
+
+
+    /**
+     * Sets the structural object class this rule applies to
+     * 
+     * @param structuralObjectClass the structural object class to set
+     */
+    public void setStructuralObjectClassOid( String structuralObjectClassOid )
+    {
+        if ( !isReadOnly )
+        {
+            this.structuralObjectClassOid = structuralObjectClassOid;
+        }
+    }
+
+
+    /**
+     * Sets the structural object class this rule applies to
+     * 
+     * @param structuralObjectClass the structural object class to set
+     */
+    public void setStructuralObjectClass( ObjectClass structuralObjectClass )
+    {
+        if ( !isReadOnly )
+        {
+            this.structuralObjectClass = structuralObjectClass;
+            this.structuralObjectClassOid = structuralObjectClass.getOid();
+        }
+    }
+
+
+    /**
+     * Gets all the AttributeTypes OIDs of the attributes this NameForm specifies as
+     * having to be used in the given objectClass for naming: as part of the
+     * Rdn.
+     * 
+     * @return the AttributeTypes OIDs of the must use attributes
+     * @throws NamingException if there is a failure resolving one AttributeTyoe
+     */
+    public List<String> getMustAttributeTypeOids() throws NamingException
+    {
+        return Collections.unmodifiableList( mustAttributeTypeOids );
+    }
 
 
     /**
@@ -107,10 +248,93 @@ public interface NameForm extends SchemaObject
      * Rdn.
      * 
      * @return the AttributeTypes of the must use attributes
-     * @throws NamingException
-     *             if there is a failure resolving the object
      */
-    AttributeType[] getMustUse() throws NamingException;
+    public List<AttributeType> getMustAttributeTypes()
+    {
+        return Collections.unmodifiableList( mustAttributeTypes );
+    }
+
+
+    /**
+     * Sets the list of required AttributeTypes OIDs
+     *
+     * @param mustAttributeTypeOids the list of required AttributeTypes OIDs
+     */
+    public void setMustAttributeTypeOids( List<String> mustAttributeTypeOids )
+    {
+        if ( !isReadOnly )
+        {
+            this.mustAttributeTypeOids = mustAttributeTypeOids;
+        }
+    }
+
+
+    /**
+     * Sets the list of required AttributeTypes
+     *
+     * @param mayAttributeTypes the list of required AttributeTypes
+     */
+    public void setMustAttributeTypes( List<AttributeType> mustAttributeTypes )
+    {
+        if ( !isReadOnly )
+        {
+            this.mustAttributeTypes = mustAttributeTypes;
+
+            // update the OIDS now
+            mustAttributeTypeOids.clear();
+
+            for ( AttributeType may : mustAttributeTypes )
+            {
+                mustAttributeTypeOids.add( may.getOid() );
+            }
+        }
+    }
+
+
+    /**
+     * Add a required AttributeType OID
+     *
+     * @param oid The attributeType OID
+     */
+    public void addMustAttributeTypeOids( String oid )
+    {
+        if ( !isReadOnly )
+        {
+            mustAttributeTypeOids.add( oid );
+        }
+    }
+
+
+    /**
+     * Add a required AttributeType
+     *
+     * @param attributeType The attributeType
+     */
+    public void addMustAttributeTypes( AttributeType attributeType )
+    {
+        if ( !isReadOnly )
+        {
+            if ( !mustAttributeTypeOids.contains( attributeType.getOid() ) )
+            {
+                mustAttributeTypes.add( attributeType );
+                mustAttributeTypeOids.add( attributeType.getOid() );
+            }
+        }
+    }
+
+
+    /**
+     * Gets all the AttributeTypes OIDs of the attribute this NameForm specifies as
+     * being usable without requirement in the given objectClass for naming: as
+     * part of the Rdn.
+     * 
+     * @return the AttributeTypes OIDs of the may use attributes
+     * @throws NamingException if there is a failure resolving one AttributeTyoe
+     */
+    public List<String> getMayAttributeTypeOids() throws NamingException
+    {
+        return Collections.unmodifiableList( mayAttributeTypeOids );
+    }
 
 
     /**
@@ -119,8 +343,167 @@ public interface NameForm extends SchemaObject
      * part of the Rdn.
      * 
      * @return the AttributeTypes of the may use attributes
-     * @throws NamingException
-     *             if there is a failure resolving the object
      */
-    AttributeType[] getMayUse() throws NamingException;
+    public List<AttributeType> getMayAttributeTypes()
+    {
+        return Collections.unmodifiableList( mayAttributeTypes );
+    }
+
+
+    /**
+     * Sets the list of allowed AttributeTypes
+     *
+     * @param mayAttributeTypeOids the list of allowed AttributeTypes
+     */
+    public void setMayAttributeTypeOids( List<String> mayAttributeTypeOids )
+    {
+        if ( !isReadOnly )
+        {
+            this.mayAttributeTypeOids = mayAttributeTypeOids;
+        }
+    }
+
+
+    /**
+     * Sets the list of allowed AttributeTypes
+     *
+     * @param mayAttributeTypes the list of allowed AttributeTypes
+     */
+    public void setMayAttributeTypes( List<AttributeType> mayAttributeTypes )
+    {
+        if ( !isReadOnly )
+        {
+            this.mayAttributeTypes = mayAttributeTypes;
+
+            // update the OIDS now
+            mayAttributeTypeOids.clear();
+
+            for ( AttributeType may : mayAttributeTypes )
+            {
+                mayAttributeTypeOids.add( may.getOid() );
+            }
+        }
+    }
+
+
+    /**
+     * Add an allowed AttributeType
+     *
+     * @param oid The attributeType oid
+     */
+    public void addMayAttributeTypeOids( String oid )
+    {
+        if ( !isReadOnly )
+        {
+            mayAttributeTypeOids.add( oid );
+        }
+    }
+
+
+    /**
+     * Add an allowed AttributeType
+     *
+     * @param attributeType The attributeType
+     */
+    public void addMayAttributeTypes( AttributeType attributeType )
+    {
+        if ( !isReadOnly )
+        {
+            if ( !mayAttributeTypeOids.contains( attributeType.getOid() ) )
+            {
+                mayAttributeTypes.add( attributeType );
+                mayAttributeTypeOids.add( attributeType.getOid() );
+            }
+        }
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return objectType + " " + DescriptionUtils.getDescription( this );
+    }
+
+
+    /**
+     * Copy a NameForm
+     */
+    public NameForm copy()
+    {
+        NameForm copy = new NameForm( oid );
+
+        // Copy the SchemaObject common data
+        copy.copy( this );
+
+        // Copy the MAY AttributeTypes OIDs
+        copy.mayAttributeTypeOids = new ArrayList<String>();
+
+        for ( String oid : mayAttributeTypeOids )
+        {
+            copy.mayAttributeTypeOids.add( oid );
+        }
+
+        // Copy the MAY AttributeTypes (will be empty)
+        copy.mayAttributeTypes = new ArrayList<AttributeType>();
+
+        // Copy the MUST AttributeTypes OIDs
+        copy.mustAttributeTypeOids = new ArrayList<String>();
+
+        for ( String oid : mustAttributeTypeOids )
+        {
+            copy.mustAttributeTypeOids.add( oid );
+        }
+
+        // Copy the MUST AttributeTypes ( will be empty )
+        copy.mustAttributeTypes = new ArrayList<AttributeType>();
+
+        // Copy the Structural ObjectClass OID
+        copy.structuralObjectClassOid = structuralObjectClassOid;
+
+        // All the references to other Registries object are set to null.
+        copy.structuralObjectClass = null;
+
+        return copy;
+    }
+
+
+    /**
+     * @see Object#equals(Object)
+     */
+    public boolean equals( Object o )
+    {
+        if ( !super.equals( o ) )
+        {
+            return false;
+        }
+
+        if ( !( o instanceof NameForm ) )
+        {
+            return false;
+        }
+
+        NameForm that = ( NameForm ) o;
+
+        // TODO : complete the checks
+        return true;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void clear()
+    {
+        // Clear the common elements
+        super.clear();
+
+        // Clear the references
+        mayAttributeTypes.clear();
+        mayAttributeTypeOids.clear();
+        mustAttributeTypes.clear();
+        mustAttributeTypeOids.clear();
+        structuralObjectClass = null;
+    }
 }

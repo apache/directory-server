@@ -242,7 +242,7 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
             buffer.append( "base" );
             buffer.append( ' ' );
             buffer.append( '"' );
-            buffer.append( base.getUpName() );
+            buffer.append( base.getName() );
             buffer.append( '"' );
             buffer.append( ',' );
         }
@@ -278,7 +278,7 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
                 buffer.append( ':' );
                 buffer.append( ' ' );
                 buffer.append( '"' );
-                buffer.append( dn.getUpName() );
+                buffer.append( dn.getName() );
                 buffer.append( '"' );
 
                 if(it.hasNext())
@@ -302,7 +302,7 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
                 buffer.append( ':' );
                 buffer.append( ' ' );
                 buffer.append( '"' );
-                buffer.append( dn.getUpName() );
+                buffer.append( dn.getName() );
                 buffer.append( '"' );
 
                 if(it.hasNext())

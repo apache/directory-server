@@ -119,7 +119,7 @@ public enum UsageEnum
     {
         if ( usage == null)
         {
-            return "";
+            return "userApplications";
         }
         
         switch ( usage )

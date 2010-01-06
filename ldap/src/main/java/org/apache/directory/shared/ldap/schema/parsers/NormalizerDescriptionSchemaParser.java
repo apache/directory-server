@@ -22,6 +22,8 @@ package org.apache.directory.shared.ldap.schema.parsers;
 
 import java.text.ParseException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
@@ -35,12 +37,16 @@ import antlr.TokenStreamException;
  */
 public class NormalizerDescriptionSchemaParser extends AbstractSchemaParser
 {
+    /** The LoggerFactory used by this class */
+    protected static final Logger LOG = LoggerFactory.getLogger( NormalizerDescriptionSchemaParser.class );
+
 
     /**
      * Creates a schema parser instance.
      */
     public NormalizerDescriptionSchemaParser()
     {
+        super();
     }
 
 
@@ -71,9 +77,11 @@ public class NormalizerDescriptionSchemaParser extends AbstractSchemaParser
     public synchronized NormalizerDescription parseNormalizerDescription( String normalizerDescription )
         throws ParseException
     {
+        LOG.debug( "Parsing a Normalizer : {}", normalizerDescription );
 
         if ( normalizerDescription == null )
         {
+            LOG.error( "Cannot parse a null Normalizer description" );
             throw new ParseException( "Null", 0 );
         }
 
@@ -81,29 +89,40 @@ public class NormalizerDescriptionSchemaParser extends AbstractSchemaParser
 
         try
         {
-            NormalizerDescription nd = parser.normalizerDescription();
-            return nd;
+            NormalizerDescription normalizer = parser.normalizerDescription();
+
+            // Update the schemaName
+            setSchemaName( normalizer );
+
+            return normalizer;
         }
         catch ( RecognitionException re )
         {
-            String msg = "Parser failure on normalizer description:\n\t" + normalizerDescription;
-            msg += "\nAntlr message: " + re.getMessage();
-            msg += "\nAntlr column: " + re.getColumn();
+            String msg = "Parser failure on normalizer description:\n\t" + normalizerDescription +
+                "\nAntlr message: " + re.getMessage() +
+                "\nAntlr column: " + re.getColumn();
+            LOG.error( msg );
             throw new ParseException( msg, re.getColumn() );
         }
         catch ( TokenStreamException tse )
         {
-            String msg = "Parser failure on normalizer description:\n\t" + normalizerDescription;
-            msg += "\nAntlr message: " + tse.getMessage();
+            String msg = "Parser failure on normalizer description:\n\t" + normalizerDescription +
+                "\nAntlr message: " + tse.getMessage();
+            LOG.error( msg );
             throw new ParseException( msg, 0 );
         }
 
     }
 
 
-    public AbstractSchemaDescription parse( String schemaDescription ) throws ParseException
+    /**
+     * Parses a Normalizer description
+     * 
+     * @param The Normalizer description to parse
+     * @return An instance of NormalizerDescription
+     */
+    public NormalizerDescription parse( String schemaDescription ) throws ParseException
     {
         return parseNormalizerDescription( schemaDescription );
     }
-
 }

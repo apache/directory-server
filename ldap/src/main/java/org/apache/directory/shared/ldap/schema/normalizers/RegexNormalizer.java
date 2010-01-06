@@ -34,11 +34,11 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class RegexNormalizer implements Normalizer
+public class RegexNormalizer extends Normalizer
 {
-    // The serial UID
-    private static final long serialVersionUID = 1L;
-    
+    /** The serial UID */
+    public static final long serialVersionUID = 1L;
+
     /** the perl 5 regex engine */
     private final Pattern[] regexes;
 
@@ -49,11 +49,12 @@ public class RegexNormalizer implements Normalizer
     /**
      * Creates a Perl5 regular expression based normalizer.
      * 
-     * @param regexes
-     *            the set of regular expressions used to transform values
+     * @param oid The MR OID to use for this Normalizer
+     * @param regexes the set of regular expressions used to transform values
      */
-    public RegexNormalizer( Pattern[] regexes )
+    public RegexNormalizer( String oid, Pattern[] regexes )
     {
+        super( oid );
         if ( regexes != null )
         {
             this.regexes = new Pattern[ regexes.length ];

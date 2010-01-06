@@ -19,7 +19,7 @@
  */
 package org.apache.directory.shared.ldap.schema.syntax;
 
-import org.apache.directory.shared.ldap.schema.syntaxes.TelephoneNumberSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.TelephoneNumberSyntaxChecker;
 
 import org.junit.Test;
 import static org.junit.Assert.assertFalse;
@@ -46,7 +46,7 @@ public class TelephoneNumberSyntaxCheckerTest
     @Test
     public void testOID()
     {
-        assertEquals( "1.3.6.1.4.1.1466.115.121.1.50", checker.getSyntaxOid() );
+        assertEquals( "1.3.6.1.4.1.1466.115.121.1.50", checker.getOid() );
     }
 
 

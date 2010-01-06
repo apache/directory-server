@@ -20,7 +20,9 @@
 package org.apache.directory.shared.ldap.schema.comparators;
 
 
-import java.util.Comparator;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -31,10 +33,22 @@ import java.util.Comparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CsnSidComparator implements Comparator<String>
+public class CsnSidComparator extends LdapComparator<String>
 {
-    /** A static instance of this comparator */
-    public static final Comparator<String> INSTANCE = new CsnSidComparator();
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( CsnSidComparator.class );
+
+    /** The serialVersionUID */
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * The CsnSidComparator constructor. Its OID is the CsnSidMatch matching
+     * rule OID.
+     */
+    public CsnSidComparator( String oid )
+    {
+        super( oid );
+    }
     
     
     /**
@@ -42,10 +56,11 @@ public class CsnSidComparator implements Comparator<String>
      */
     public int compare( String sidStr1, String sidStr2 )
     {
+        LOG.debug( "comparing CSN SID objects '{}' with '{}'", sidStr1, sidStr2 );
+
         // -------------------------------------------------------------------
         // Handle some basis cases
         // -------------------------------------------------------------------
-
         if ( sidStr1 == null )
         {
             return ( sidStr2 == null ) ? 0 : -1;

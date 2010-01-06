@@ -21,9 +21,9 @@ package org.apache.directory.shared.ldap.util;
 
 
 import java.text.ParseException;
-
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -32,6 +32,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.InvalidAttributeIdentifierException;
+import javax.naming.directory.InvalidAttributeValueException;
 
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -39,6 +40,7 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
+import org.apache.directory.shared.ldap.ldif.LdifAttributesReader;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -67,7 +69,7 @@ public class AttributeUtils
 
         if ( attr == null )
         {
-            String[] aliases = type.getNamesRef();
+            List<String> aliases = type.getNames();
 
             for ( String alias : aliases )
             {
@@ -210,9 +212,9 @@ public class AttributeUtils
         }
 
         // optimization bypass to avoid cost of the loop below
-        if ( type.getNamesRef().length == 1 )
+        if ( type.getNames().size() == 1 )
         {
-            attr = attrs.get( type.getNamesRef()[0] );
+            attr = attrs.get( type.getNames().get( 0 ) );
 
             if ( attr != null )
             {
@@ -221,7 +223,7 @@ public class AttributeUtils
         }
 
         // iterate through aliases
-        for ( String alias : type.getNamesRef() )
+        for ( String alias : type.getNames() )
         {
             attr = attrs.get( alias );
 
@@ -258,11 +260,11 @@ public class AttributeUtils
 
         if ( matchingRule != null )
         {
-            normalizer = type.getEquality().getNormalizer();
+            normalizer = matchingRule.getNormalizer();
         }
         else
         {
-            normalizer = new NoOpNormalizer();
+            normalizer = new NoOpNormalizer( type.getOid() );
         }
 
         if ( type.getSyntax().isHumanReadable() )
@@ -1319,5 +1321,82 @@ public class AttributeUtils
         {
             return null;
         }
+    }
+    
+    
+    /**
+     * Build a new Attributes instance from a LDIF list of lines. The values can be 
+     * either a complete AVA, or a couple of AttributeType ID and a value (a String or 
+     * a byte[]). The following sample shows the three cases :
+     * 
+     * <pre>
+     * Attribute attr = AttributeUtils.createAttributes(
+     *     "objectclass: top",
+     *     "cn", "My name",
+     *     "jpegPhoto", new byte[]{0x01, 0x02} );
+     * </pre>
+     * 
+     * @param avas The AttributeType and Values, using a ldif format, or a couple of 
+     * Attribute ID/Value
+     * @return An Attributes instance
+     * @throws NamingException If the data are invalid
+     */
+    public static Attributes createAttributes( Object... avas ) throws NamingException
+    {
+        StringBuilder sb = new StringBuilder();
+        int pos = 0;
+        boolean valueExpected = false;
+        
+        for ( Object ava : avas)
+        {
+            if ( !valueExpected )
+            {
+                if ( !(ava instanceof String) )
+                {
+                    throw new InvalidAttributeValueException( "The Attribute ID #" + (pos+1) + " must be a String" );
+                }
+                
+                String attribute = (String)ava;
+                sb.append( attribute );
+                
+                if ( attribute.indexOf( ':' ) != -1 )
+                {
+                    sb.append( '\n' );
+                }
+                else
+                {
+                    valueExpected = true;
+                }
+            }
+            else
+            {
+                if ( ava instanceof String )
+                {
+                    sb.append( ": " ).append( (String)ava ).append( '\n' );
+                }
+                else if ( ava instanceof byte[] )
+                {
+                    sb.append( ":: " );
+                    sb.append( new String( Base64.encode( (byte[] )ava ) ) );
+                    sb.append( '\n' );
+                }
+                else
+                {
+                    throw new InvalidAttributeValueException( "The Attribute value #" + (pos+1) + " must be a String or a byte[]" );
+                }
+                
+                valueExpected = false;
+            }
+        }
+        
+        if ( valueExpected )
+        {
+            throw new InvalidAttributeValueException( "A value is missing at the end" );
+        }
+        
+        LdifAttributesReader reader = new LdifAttributesReader();
+        Attributes attributes = reader.parseAttributes( sb.toString() );
+
+        return attributes;
     }
 }

@@ -19,7 +19,7 @@
  */
 package org.apache.directory.shared.ldap.schema.syntax;
 
-import org.apache.directory.shared.ldap.schema.syntaxes.ProtocolInformationSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.ProtocolInformationSyntaxChecker;
 
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
@@ -52,7 +52,7 @@ public class ProtocolInformationSyntaxCheckerTest
     @Test
     public void testOid()
     {
-        assertEquals( "1.3.6.1.4.1.1466.115.121.1.42", checker.getSyntaxOid() );
+        assertEquals( "1.3.6.1.4.1.1466.115.121.1.42", checker.getOid() );
     }
 
     @Test

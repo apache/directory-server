@@ -22,6 +22,7 @@ package org.apache.directory.shared.ldap.schema.normalizers;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.Normalizer;
@@ -33,10 +34,19 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ObjectIdentifierNormalizer implements Normalizer
+public class ObjectIdentifierNormalizer extends Normalizer
 {
-    // The serial UID
-    private static final long serialVersionUID = 1L;
+    /** The serial UID */
+    public static final long serialVersionUID = 1L;
+
+    /**
+     * Creates a new instance of ObjectIdentifierNormalizer.
+     */
+    public ObjectIdentifierNormalizer()
+    {
+        super( SchemaConstants.OBJECT_IDENTIFIER_MATCH_MR_OID );
+    }
+
 
     /**
      * {@inheritDoc}

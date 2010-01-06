@@ -20,171 +20,129 @@
 package org.apache.directory.shared.ldap.schema;
 
 
-import org.apache.directory.shared.ldap.util.ArrayUtils;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.naming.NamingException;
+
+import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
- * The abstract base class for all schema object types.
- * 
+ * Most schema objects have some common attributes. This class
+ * contains the minimum set of properties exposed by a SchemaObject.<br> 
+ * We have 11 types of SchemaObjects :
+ * <li> AttributeType
+ * <li> DitCOntentRule
+ * <li> DitStructureRule
+ * <li> LdapComparator (specific to ADS)
+ * <li> LdapSyntaxe
+ * <li> MatchingRule
+ * <li> MatchingRuleUse
+ * <li> NameForm
+ * <li> Normalizer (specific to ADS)
+ * <li> ObjectClass
+ * <li> SyntaxChecker (specific to ADS)
+ * <br>
+ * <br>
+ * This class provides accessors and setters for the following attributes, 
+ * which are common to all those SchemaObjects :
+ * <li>oid : The numeric OID 
+ * <li>description : The SchemaObject description
+ * <li>obsolete : Tells if the schema object is obsolete
+ * <li>extensions : The extensions, a key/Values map
+ * <li>schemaObjectType : The SchemaObject type (see upper)
+ * <li>schema : The schema the SchemaObject is associated with (it's an extension).
+ * Can be null
+ * <li>isEnabled : The SchemaObject status (it's related to the schema status)
+ * <li>isReadOnly : Tells if the SchemaObject can be modified or not
+ * <br><br>
+ * Some of those attributes are not used by some Schema elements, even if they should
+ * have been used. Here is the list :
+ * <b>name</b> : LdapSyntax, Comparator, Normalizer, SyntaxChecker
+ * <b>numericOid</b> : DitStructureRule, 
+ * <b>obsolete</b> : LdapSyntax, Comparator, Normalizer, SyntaxChecker
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev: 885381 $
  */
 public abstract class AbstractSchemaObject implements SchemaObject
 {
-    /** a numeric object identifier */
-    protected final String oid;
-    
-    /** The object hash code compiled only once to avoid doing it at every call */
-    private int hash;
+    /** The serialVersionUID */
+    public static final long serialVersionUID = 1L;
 
-    /** whether or not this SchemaObject is active */
-    protected boolean isObsolete;
+    /** The SchemaObject numeric OID */
+    protected String oid;
 
-    /** a human readable identifiers for this SchemaObject */
-    protected String[] names = ArrayUtils.EMPTY_STRING_ARRAY;
+    /** The optional names for this SchemaObject */
+    protected List<String> names;
 
-    /** a short description of this SchemaObject */
+    /** Whether or not this SchemaObject is enabled */
+    protected boolean isEnabled = true;
+
+    /** Whether or not this SchemaObject can be modified */
+    protected boolean isReadOnly = false;
+
+    /** Whether or not this SchemaObject is obsolete */
+    protected boolean isObsolete = false;
+
+    /** A short description of this SchemaObject */
     protected String description;
 
-    /** the name of the schema this object is associated with */
-    protected String schema;
+    /** The SchemaObject specification */
+    protected String specification;
 
-    // ------------------------------------------------------------------------
-    // C O N S T R U C T O R S
-    // ------------------------------------------------------------------------
+    /** The name of the schema this object is associated with */
+    protected String schemaName;
 
-    /**
-     * Creates an abstract SchemaObject.
-     * 
-     * @param oid
-     *            the numeric object identifier (OID)
-     * @see SchemaObject#getOid()
-     * @see MatchingRuleUse
-     * @throws NullPointerException
-     *             if oid is null
-     */
-    protected AbstractSchemaObject( String oid )
-    {
-        this( oid, ArrayUtils.EMPTY_STRING_ARRAY, false, null );
-        
-        hash = oid.hashCode();
-    }
+    /** The SchemaObjectType */
+    protected SchemaObjectType objectType;
+
+    /** A map containing the list of supported extensions */
+    protected Map<String, List<String>> extensions;
 
 
     /**
-     * Creates an abstract SchemaObject.
+     * A constructor for a SchemaObject instance. It must be 
+     * invoked by the inherited class.
      * 
-     * @param oid the numeric object identifier (OID)
-     * @param names the human readable names for this SchemaObject
-     * @throws NullPointerException if oid is null
+     * @param objectType The SchemaObjectType to create
      */
-    protected AbstractSchemaObject( String oid, String[] names )
+    protected AbstractSchemaObject( SchemaObjectType objectType, String oid )
     {
-        this( oid, names, false, null );
-
-        hash = oid.hashCode();
-    }
-
-
-    /**
-     * Creates an abstract SchemaObject.
-     * 
-     * @param oid the numeric object identifier (OID)
-     * @param names the human readable names for this SchemaObject
-     * @param isObsolete true if this object is inactive, false if active
-     * @throws NullPointerException if oid is null
-     */
-    protected AbstractSchemaObject( String oid, String[] names, boolean isObsolete )
-    {
-        this( oid, names, isObsolete, null );
-
-        hash = oid.hashCode();
-    }
-
-
-    /**
-     * Creates an abstract SchemaObject.
-     * 
-     * @param oid the numeric object identifier (OID)
-     * @param name the first human readable name for this SchemaObject
-     * @param isObsolete true if this object is inactive, false if active
-     * @throws NullPointerException if oid is null
-     */
-    protected AbstractSchemaObject( String oid, String name, boolean isObsolete )
-    {
-        this( oid, new String[]
-            { name }, isObsolete, null );
-
-        hash = oid.hashCode();
-    }
-
-
-    /**
-     * Creates an abstract SchemaObject.
-     * 
-     * @param oid the numeric object identifier (OID)
-     * @param isObsolete true if this object is inactive, false if active
-     * @throws NullPointerException if oid is null
-     */
-    protected AbstractSchemaObject( String oid, boolean isObsolete )
-    {
-        this( oid, null, isObsolete, null );
-
-        hash = oid.hashCode();
-    }
-
-
-    /**
-     * Creates an abstract SchemaObject.
-     * 
-     * @param oid the numeric object identifier (OID)
-     * @param description a brief description for the SchemaObject
-     * @throws NullPointerException if oid is null
-     */
-    protected AbstractSchemaObject( String oid, String description )
-    {
-        this( oid, null, false, description );
-
-        hash = oid.hashCode();
-    }
-
-
-    /**
-     * Creates an abstract SchemaObject.
-     * 
-     * @param oid the numeric object identifier (OID)
-     * @param names the human readable names for this SchemaObject
-     * @param isObsolete true if this object is inactive, false if active
-     * @param description a brief description for the SchemaObject
-     * @throws NullPointerException if oid is null
-     */
-    protected AbstractSchemaObject( String oid, String[] names, boolean isObsolete, String description )
-    {
-        if ( oid == null )
-        {
-            throw new NullPointerException( "oid cannot be null" );
-        }
-
+        this.objectType = objectType;
         this.oid = oid;
-        this.isObsolete = isObsolete;
-        this.description = description;
-
-        if ( names != null )
-        {
-            this.names = new String[names.length];
-            System.arraycopy( names, 0, this.names, 0, names.length );
-        }
-
-        hash = oid.hashCode();
+        extensions = new HashMap<String, List<String>>();
+        names = new ArrayList<String>();
     }
 
 
-    // ------------------------------------------------------------------------
-    // P U B L I C A C C E S S O R S
-    // ------------------------------------------------------------------------
+    /**
+     * Constructor used when a generic reusable SchemaObject is assigned an
+     * OID after being instantiated.
+     * 
+     * @param objectType The SchemaObjectType to create
+     */
+    protected AbstractSchemaObject( SchemaObjectType objectType )
+    {
+        this.objectType = objectType;
+        extensions = new HashMap<String, List<String>>();
+        names = new ArrayList<String>();
+    }
+
 
     /**
-     * @see SchemaObject#getOid()
+     * Gets usually what is the numeric object identifier assigned to this
+     * SchemaObject. All schema objects except for MatchingRuleUses have an OID
+     * assigned specifically to then. A MatchingRuleUse's OID really is the OID
+     * of it's MatchingRule and not specific to the MatchingRuleUse. This
+     * effects how MatchingRuleUse objects are maintained by the system.
+     * 
      * @return an OID for this SchemaObject or its MatchingRule if this
      *         SchemaObject is a MatchingRuleUse object
      */
@@ -195,7 +153,298 @@ public abstract class AbstractSchemaObject implements SchemaObject
 
 
     /**
-     * @see SchemaObject#isObsolete()
+     * A special method used when renaming an SchemaObject: we may have to
+     * change it's OID
+     * @param oid The new OID
+     */
+    public void setOid( String oid )
+    {
+        this.oid = oid;
+    }
+
+
+    /**
+     * Gets short names for this SchemaObject if any exists for it, otherwise,
+     * returns an empty list.
+     * 
+     * @return the names for this SchemaObject
+     */
+    public List<String> getNames()
+    {
+        if ( names != null )
+        {
+            return Collections.unmodifiableList( names );
+        }
+        else
+        {
+            return Collections.emptyList();
+        }
+    }
+
+
+    /**
+     * Gets the first name in the set of short names for this SchemaObject if
+     * any exists for it.
+     * 
+     * @return the first of the names for this SchemaObject or the oid
+     * if one does not exist
+     */
+    public String getName()
+    {
+        if ( ( names != null ) && ( names.size() != 0 ) )
+        {
+            return names.get( 0 );
+        }
+        else
+        {
+            return oid;
+        }
+    }
+
+
+    /**
+     * Inject this SchemaObject to the given registries, updating the references to
+     * other SchemaObject
+     *
+     * @param errors The errors we got
+     * @param registries The Registries
+     */
+    public void addToRegistries( List<Throwable> errors, Registries registries ) throws NamingException
+    {
+        // do nothing
+    }
+
+
+    /**
+     * Remove this SchemaObject from the given registries, updating the references to
+     * other SchemaObject
+     *
+     * @param errors The errors we got
+     * @param registries The Registries
+     */
+    public void removeFromRegistries( List<Throwable> errors, Registries registries ) throws NamingException
+    {
+        // do nothing
+    }
+
+
+    /**
+     * Inject the Registries into the SchemaObject
+     *
+     * @param registries The Registries
+     */
+    public void setRegistries( Registries registries )
+    {
+        // do nothing
+    }
+
+
+    /**
+     * Add a new name to the list of names for this SchemaObject. The name
+     * is lowercased and trimmed.
+     *  
+     * @param names The names to add
+     */
+    public void addName( String... names )
+    {
+        if ( !isReadOnly )
+        {
+            // We must avoid duplicated names, as names are case insensitive
+            Set<String> lowerNames = new HashSet<String>();
+
+            // Fills a set with all the existing names
+            for ( String name : this.names )
+            {
+                lowerNames.add( StringTools.toLowerCase( name ) );
+            }
+
+            for ( String name : names )
+            {
+                if ( name != null )
+                {
+                    String lowerName = StringTools.toLowerCase( name );
+                    // Check that the lower cased names is not already present
+                    if ( !lowerNames.contains( lowerName ) )
+                    {
+                        this.names.add( name );
+                        lowerNames.add( lowerName );
+                    }
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Sets the list of names for this SchemaObject. The names are
+     * lowercased and trimmed.
+     *  
+     * @param names The list of names. Can be empty
+     */
+    public void setNames( List<String> names )
+    {
+        if ( names == null )
+        {
+            return;
+        }
+
+        if ( !isReadOnly )
+        {
+            this.names = new ArrayList<String>( names.size() );
+
+            for ( String name : names )
+            {
+                if ( name != null )
+                {
+                    this.names.add( name );
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Sets the list of names for this SchemaObject. The names are
+     * lowercased and trimmed.
+     *  
+     * @param names The list of names.
+     */
+    public void setNames( String... names )
+    {
+        if ( names == null )
+        {
+            return;
+        }
+
+        if ( !isReadOnly )
+        {
+            for ( String name : names )
+            {
+                if ( name != null )
+                {
+                    this.names.add( name );
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Gets a short description about this SchemaObject.
+     * 
+     * @return a short description about this SchemaObject
+     */
+    public String getDescription()
+    {
+        return description;
+    }
+
+
+    /**
+     * Sets the SchemaObject's description
+     * 
+     * @param description The SchemaObject's description
+     */
+    public void setDescription( String description )
+    {
+        if ( !isReadOnly )
+        {
+            this.description = description;
+        }
+    }
+
+
+    /**
+     * Gets the SchemaObject specification.
+     * 
+     * @return the SchemaObject specification
+     */
+    public String getSpecification()
+    {
+        return specification;
+    }
+
+
+    /**
+     * Sets the SchemaObject's specification
+     * 
+     * @param specification The SchemaObject's specification
+     */
+    public void setSpecification( String specification )
+    {
+        if ( !isReadOnly )
+        {
+            this.specification = specification;
+        }
+    }
+
+
+    /**
+     * Tells if this SchemaObject is enabled.
+     *  
+     * @param schemaEnabled the associated schema status
+     * @return true if the SchemaObject is enabled, or if it depends on 
+     * an enabled schema
+     */
+    public boolean isEnabled()
+    {
+        return isEnabled;
+    }
+
+
+    /**
+     * Tells if this SchemaObject is disabled.
+     *  
+     * @return true if the SchemaObject is disabled
+     */
+    public boolean isDisabled()
+    {
+        return !isEnabled;
+    }
+
+
+    /**
+     * Sets the SchemaObject state, either enabled or disabled.
+     * 
+     * @param enabled The current SchemaObject state
+     */
+    public void setEnabled( boolean enabled )
+    {
+        if ( !isReadOnly )
+        {
+            isEnabled = enabled;
+        }
+    }
+
+
+    /**
+     * Tells if this SchemaObject is ReadOnly.
+     *  
+     * @return true if the SchemaObject is not modifiable
+     */
+    public boolean isReadOnly()
+    {
+        return isReadOnly;
+    }
+
+
+    /**
+     * Sets the SchemaObject readOnly flag
+     * 
+     * @param enabled The current SchemaObject ReadOnly status
+     */
+    public void setReadOnly( boolean isReadOnly )
+    {
+        this.isReadOnly = isReadOnly;
+    }
+
+
+    /**
+     * Gets whether or not this SchemaObject has been inactivated. All
+     * SchemaObjects except Syntaxes allow for this parameter within their
+     * definition. For Syntaxes this property should always return false in
+     * which case it is never included in the description.
+     * 
      * @return true if inactive, false if active
      */
     public boolean isObsolete()
@@ -205,147 +454,430 @@ public abstract class AbstractSchemaObject implements SchemaObject
 
 
     /**
-     * @see SchemaObject#getNames()
-     * @return the names for this SchemaObject
+     * Sets the Obsolete flag.
+     * 
+     * @param obsolete The Obsolete flag state
      */
-    public String[] getNamesRef()
+    public void setObsolete( boolean obsolete )
     {
-        return names;
+        if ( !isReadOnly )
+        {
+            this.isObsolete = obsolete;
+        }
     }
 
 
     /**
-     * @see SchemaObject#getSchema()
+     * @return The SchemaObject extensions, as a Map of [extension, values]
+     */
+    public Map<String, List<String>> getExtensions()
+    {
+        return extensions;
+    }
+
+
+    /**
+     * Add an extension with its values
+     * @param key The extension key
+     * @param values The associated values
+     */
+    public void addExtension( String key, List<String> values )
+    {
+        if ( !isReadOnly )
+        {
+            extensions.put( key, values );
+        }
+    }
+
+
+    /**
+     * Add an extensions with their values. (Actually do a copy)
+     * 
+     * @param key The extension key
+     * @param values The associated values
+     */
+    public void setExtensions( Map<String, List<String>> extensions )
+    {
+        if ( !isReadOnly && ( extensions != null ) )
+        {
+            this.extensions = new HashMap<String, List<String>>();
+
+            for ( String key : extensions.keySet() )
+            {
+                List<String> values = new ArrayList<String>();
+
+                for ( String value : extensions.get( key ) )
+                {
+                    values.add( value );
+                }
+
+                this.extensions.put( key, values );
+            }
+
+        }
+    }
+
+
+    /**
+     * The SchemaObject type :
+     * <li> AttributeType
+     * <li> DitCOntentRule
+     * <li> DitStructureRule
+     * <li> LdapComparator (specific to ADS)
+     * <li> LdapSyntaxe
+     * <li> MatchingRule
+     * <li> MatchingRuleUse
+     * <li> NameForm
+     * <li> Normalizer (specific to ADS)
+     * <li> ObjectClass
+     * <li> SyntaxChecker (specific to ADS)
+     * 
+     * @return the SchemaObject type
+     */
+    public SchemaObjectType getObjectType()
+    {
+        return objectType;
+    }
+
+
+    /**
+     * Gets the name of the schema this SchemaObject is associated with.
+     *
      * @return the name of the schema associated with this schemaObject
      */
-    public String getSchema()
+    public String getSchemaName()
     {
-        return schema;
-    }
-    
-    
-    /**
-     * @see SchemaObject#getName()
-     * @return the first of the names for this SchemaObject or null if one does
-     *         not exist
-     */
-    public String getName()
-    {
-        return ( names == null || names.length == 0 ) ? null : names[0];
+        return schemaName;
     }
 
 
     /**
-     * @see SchemaObject#getDescription()
-     * @return a short description about this SchemaObject
-     */
-    public String getDescription()
-    {
-        return description;
-    }
-
-
-    // ------------------------------------------------------------------------
-    // P R O T E C T E D M U T A T O R S
-    // ------------------------------------------------------------------------
-
-    
-    /**
-     * Sets whether or not this SchemaObject is inactived.
+     * Sets the name of the schema this SchemaObject is associated with.
      * 
-     * @param obsolete
-     *            true if this object is inactive, false if it is in use
+     * @param schemaName the new schema name
      */
-    protected void setObsolete( boolean obsolete )
+    public void setSchemaName( String schemaName )
     {
-        isObsolete = obsolete;
+        if ( !isReadOnly )
+        {
+            this.schemaName = schemaName;
+        }
     }
 
 
     /**
-     * Sets schema name this schema object is associated with.
-     * 
-     * @param schema the name of the schema this object is associated with
-     */
-    public void setSchema( String schema )
-    {
-        this.schema = schema;
-    }
-
-
-    /**
-     * Sets the human readable names for this SchemaObject.
-     * 
-     * @param names
-     *            the human readable names for this SchemaObject
-     */
-    protected void setNames( String[] names )
-    {
-        this.names = new String[names.length];
-        System.arraycopy( names, 0, this.names, 0, names.length );
-    }
-
-
-    /**
-     * Sets the brief description for this SchemaObject.
-     * 
-     * @param description
-     *            the brief description for this SchemaObject
-     */
-    protected void setDescription( String description )
-    {
-        this.description = description;
-    }
-
-
-    // ------------------------------------------------------------------------
-    // Object overloads
-    // ------------------------------------------------------------------------
-
-
-    /**
-     * Based on the hashCode of the oid property. It's bre-computed, as this
-     * value won't change once the instance is created.
-     * 
-     * @return the hashCode of the oid String
+     * @see Object#hashCode()
      */
     public int hashCode()
     {
-        return hash;
+        int h = 37;
+
+        // The OID
+        h += h * 17 + oid.hashCode();
+
+        // The SchemaObject type
+        h += h * 17 + objectType.getValue();
+
+        // The Names, if any
+        if ( ( names != null ) && ( names.size() != 0 ) )
+        {
+            for ( String name : names )
+            {
+                h += h * 17 + name.hashCode();
+            }
+        }
+
+        // The schemaName if any
+        if ( schemaName != null )
+        {
+            h += h * 17 + schemaName.hashCode();
+        }
+
+        h += h * 17 + ( isEnabled ? 1 : 0 );
+        h += h * 17 + ( isReadOnly ? 1 : 0 );
+
+        // The description, if any
+        if ( description != null )
+        {
+            h += h * 17 + description.hashCode();
+        }
+
+        // The extensions, if any
+        for ( String key : extensions.keySet() )
+        {
+            h += h * 17 + key.hashCode();
+
+            List<String> values = extensions.get( key );
+
+            if ( values != null )
+            {
+                for ( String value : values )
+                {
+                    h += h * 17 + value.hashCode();
+                }
+            }
+        }
+
+        return h;
     }
 
 
     /**
-     * If the object implements SchemaObject and has the same OID as this
-     * SchemaObject then they are considered equal.
-     * 
-     * @param obj
-     *            the object to test for equality
-     * @return true if obj is a SchemaObject and the OID's match
+     * @see Object#equals(Object)
      */
-    public boolean equals( Object obj )
+    public boolean equals( Object o1 )
     {
-        if ( obj == this )
+        if ( this == o1 )
         {
             return true;
         }
 
-        if ( obj instanceof SchemaObject )
+        if ( !( o1 instanceof AbstractSchemaObject ) )
         {
-            return oid.equals( ( ( SchemaObject ) obj ).getOid() );
+            return false;
         }
 
-        return false;
+        AbstractSchemaObject that = ( AbstractSchemaObject ) o1;
+
+        // Two schemaObject are equals if their oid is equal,
+        // their ObjectType is equal, their names are equals
+        // their schema name is the same, all their flags are equals,
+        // the description is the same and their extensions are equals
+        if ( !compareOid( oid, that.oid ) )
+        {
+            return false;
+        }
+
+        // Compare the names
+        if ( names == null )
+        {
+            if ( that.names != null )
+            {
+                return false;
+            }
+        }
+        else if ( that.names == null )
+        {
+            return false;
+        }
+        else
+        {
+            int nbNames = 0;
+
+            for ( String name : names )
+            {
+                if ( !that.names.contains( name ) )
+                {
+                    return false;
+                }
+
+                nbNames++;
+            }
+
+            if ( nbNames != names.size() )
+            {
+                return false;
+            }
+        }
+
+        if ( schemaName == null )
+        {
+            if ( that.schemaName != null )
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if ( !schemaName.equalsIgnoreCase( that.schemaName ) )
+            {
+                return false;
+            }
+        }
+
+        if ( objectType != that.objectType )
+        {
+            return false;
+        }
+
+        if ( extensions != null )
+        {
+            if ( that.extensions == null )
+            {
+                return false;
+            }
+            else
+            {
+                for ( String key : extensions.keySet() )
+                {
+                    if ( !that.extensions.containsKey( key ) )
+                    {
+                        return false;
+                    }
+
+                    List<String> thisValues = extensions.get( key );
+                    List<String> thatValues = that.extensions.get( key );
+
+                    if ( thisValues != null )
+                    {
+                        if ( thatValues == null )
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            if ( thisValues.size() != thatValues.size() )
+                            {
+                                return false;
+                            }
+
+                            // TODO compare the values
+                        }
+                    }
+                    else if ( thatValues != null )
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+        else if ( that.extensions != null )
+        {
+            return false;
+        }
+
+        if ( this.isEnabled != that.isEnabled )
+        {
+            return false;
+        }
+
+        if ( this.isObsolete != that.isObsolete )
+        {
+            return false;
+        }
+
+        if ( this.isReadOnly != that.isReadOnly )
+        {
+            return false;
+        }
+
+        if ( this.description == null )
+        {
+            return that.description == null;
+        }
+        else
+        {
+            return this.description.equalsIgnoreCase( that.description );
+        }
     }
 
 
     /**
-     * Gets the String for the OID of this SchmeaObject.
-     * 
-     * @return the OID of this SchmeaObject
+     * Register the given SchemaObject into the given registries' globalOidRegistry
+     *
+     * @param schemaObject the SchemaObject we want to register
+     * @param registries The registries in which we want it to be stored
+     * @throws NamingException If the OID is invalid
      */
-    public String toString()
+    public void registerOid( SchemaObject schemaObject, Registries registries ) throws NamingException
     {
-        return "<" + oid + ", " + ( ( names == null ) || ( names.length == 0 ) ? "null" : names[0] ) + ">";
+        // Add the SchemaObject into the globalOidRegistry
+        registries.getGlobalOidRegistry().register( schemaObject );
+    }
+
+
+    /**
+     * Copy the current SchemaObject on place
+     *
+     * @return The copied SchemaObject
+     */
+    public abstract SchemaObject copy();
+
+
+    /**
+     * Compare two oids, and return true if they are both null or
+     * equals
+     */
+    protected boolean compareOid( String oid1, String oid2 )
+    {
+        if ( oid1 == null )
+        {
+            return oid2 == null;
+        }
+        else
+        {
+            return oid1.equals( oid2 );
+        }
+    }
+
+
+    /**
+     * Copy a SchemaObject.
+     * 
+     * @return A copy of the current SchemaObject
+     */
+    public SchemaObject copy( SchemaObject original )
+    {
+        // copy the description
+        description = original.getDescription();
+
+        // copy the flags
+        isEnabled = original.isEnabled();
+        isObsolete = original.isObsolete();
+        isReadOnly = original.isReadOnly();
+
+        // copy the names
+        names = new ArrayList<String>();
+
+        for ( String name : original.getNames() )
+        {
+            names.add( name );
+        }
+
+        // copy the extensions
+        extensions = new HashMap<String, List<String>>();
+
+        for ( String key : original.getExtensions().keySet() )
+        {
+            List<String> extensionValues = original.getExtensions().get( key );
+
+            List<String> cloneExtension = new ArrayList<String>();
+
+            for ( String value : extensionValues )
+            {
+                cloneExtension.add( value );
+            }
+
+            extensions.put( key, cloneExtension );
+        }
+
+        // The SchemaName
+        schemaName = original.getSchemaName();
+
+        // The specification
+        specification = original.getSpecification();
+
+        return this;
+    }
+
+
+    /**
+     * Clear the current SchemaObject : remove all the references to other objects, 
+     * and all the Maps. 
+     */
+    public void clear()
+    {
+        // Clear the extensions
+        for ( String extension : extensions.keySet() )
+        {
+            List<String> extensionList = extensions.get( extension );
+
+            extensionList.clear();
+        }
+
+        extensions.clear();
+
+        // Clear the names
+        names.clear();
     }
 }

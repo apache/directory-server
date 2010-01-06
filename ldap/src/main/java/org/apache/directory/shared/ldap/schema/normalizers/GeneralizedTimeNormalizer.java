@@ -24,12 +24,11 @@ import java.io.IOException;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.PrepareString;
-import org.apache.directory.shared.ldap.schema.PrepareString.StringType;
-import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -43,10 +42,19 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 491034 $
  */
-public class GeneralizedTimeNormalizer implements Normalizer
+public class GeneralizedTimeNormalizer extends Normalizer
 {
-    // The serial UID
-   static final long serialVersionUID = 1L;
+    /** The serial UID */
+    public static final long serialVersionUID = 1L;
+
+    /**
+     * Creates a new instance of GeneralizedTimeNormalizer.
+     */
+    public GeneralizedTimeNormalizer()
+    {
+        super( SchemaConstants.GENERALIZED_TIME_MATCH_MR_OID );
+    }
+
 
    /**
     * {@inheritDoc}

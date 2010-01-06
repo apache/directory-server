@@ -34,7 +34,7 @@ import java.io.ObjectOutputStream;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
-import org.apache.directory.shared.ldap.schema.syntaxes.Ia5StringSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.Ia5StringSyntaxChecker;
 import org.junit.Test;
 
 /**
@@ -306,7 +306,7 @@ public class ClientStringValueTest
         csv.set(  "  This is    a   TEST  " );
         assertFalse( csv.isNormalized() );
         
-        csv.normalize( new DeepTrimToLowerNormalizer() );
+        csv.normalize( new DeepTrimToLowerNormalizer( "1.1.1" ) );
         
         assertEquals( "this is a test", csv.getNormalizedValue() );
         assertTrue( csv.isNormalized() );
@@ -332,7 +332,7 @@ public class ClientStringValueTest
         csv.set(  "  This is    a   TEST  " );
         assertFalse( csv.isNormalized() );
         
-        csv.normalize( new DeepTrimToLowerNormalizer() );
+        csv.normalize( new DeepTrimToLowerNormalizer( "1.1.1" ) );
         
         assertEquals( "this is a test", csv.getNormalizedValue() );
         assertTrue( csv.isNormalized() );
@@ -341,7 +341,7 @@ public class ClientStringValueTest
         assertEquals( "this is a test", csv.getNormalizedValue() );
         assertFalse( csv.isNormalized() );
 
-        csv.normalize( new DeepTrimToLowerNormalizer() );
+        csv.normalize( new DeepTrimToLowerNormalizer( "1.1.1" ) );
         csv.clear();
         assertFalse( csv.isNormalized() );
     }
@@ -360,7 +360,7 @@ public class ClientStringValueTest
         csv.set(  "  This is    a   TEST  " );
         assertEquals( "  This is    a   TEST  ", csv.getNormalizedValue() );
         
-        csv.normalize( new DeepTrimToLowerNormalizer() );
+        csv.normalize( new DeepTrimToLowerNormalizer( "1.1.1" ) );
         
         assertEquals( "this is a test", csv.getNormalizedValue() );
 
@@ -383,7 +383,7 @@ public class ClientStringValueTest
         csv.set(  "  This is    a   TEST  " );
         assertEquals( "  This is    a   TEST  ", csv.getNormalizedValueCopy() );
         
-        csv.normalize( new DeepTrimToLowerNormalizer() );
+        csv.normalize( new DeepTrimToLowerNormalizer( "1.1.1" ) );
         
         assertEquals( "this is a test", csv.getNormalizedValueCopy() );
 
@@ -401,17 +401,17 @@ public class ClientStringValueTest
     {
         ClientStringValue csv = new ClientStringValue();
 
-        csv.normalize( new DeepTrimToLowerNormalizer() );
+        csv.normalize( new DeepTrimToLowerNormalizer( "1.1.1" ) );
         assertEquals( null, csv.getNormalizedValue() );
         
         csv.set( "" );
-        csv.normalize( new DeepTrimToLowerNormalizer() );
+        csv.normalize( new DeepTrimToLowerNormalizer( "1.1.1" ) );
         assertEquals( "", csv.getNormalizedValue() );
 
         csv.set(  "  This is    a   TEST  " );
         assertEquals( "  This is    a   TEST  ", csv.getNormalizedValue() );
         
-        csv.normalize( new DeepTrimToLowerNormalizer() );
+        csv.normalize( new DeepTrimToLowerNormalizer( "1.1.1" ) );
         
         assertEquals( "this is a test", csv.getNormalizedValue() );
     }
@@ -453,7 +453,7 @@ public class ClientStringValueTest
         // Now check that the equals method works on normalized values.
         csv1.set(  "  This is    a TEST   " );
         csv2.set( "this is a test" );
-        csv1.normalize( new DeepTrimToLowerNormalizer() );
+        csv1.normalize( new DeepTrimToLowerNormalizer( "1.1.1" ) );
         assertEquals( 0, csv1.compareTo( csv2 ) );
         
         csv1.set( "a" );
@@ -489,7 +489,7 @@ public class ClientStringValueTest
         
         assertEquals( csv, csv1 );
         
-        csv.normalize( new DeepTrimToLowerNormalizer() );
+        csv.normalize( new DeepTrimToLowerNormalizer( "1.1.1" ) );
         
         assertNotSame( csv, csv1 );
     }
@@ -515,7 +515,7 @@ public class ClientStringValueTest
         // Now check that the equals method works on normalized values.
         csv1.set(  "  This is    a TEST   " );
         csv2.set( "this is a test" );
-        csv1.normalize( new DeepTrimToLowerNormalizer() );
+        csv1.normalize( new DeepTrimToLowerNormalizer( "1.1.1" ) );
         assertEquals( csv1, csv2 );
     }
 
@@ -549,7 +549,7 @@ public class ClientStringValueTest
     {
         ClientStringValue csv = new ClientStringValue( "TEST");
         csv.setNormalized( true );
-        csv.normalize( new DeepTrimToLowerNormalizer() );
+        csv.normalize( new DeepTrimToLowerNormalizer( "1.1.1" ) );
         csv.isValid( new Ia5StringSyntaxChecker() );
 
         ClientStringValue csvSer = deserializeValue( serializeValue( csv ) );
@@ -589,7 +589,7 @@ public class ClientStringValueTest
         ClientStringValue csv = new ClientStringValue( "  " );
         csv.setNormalized( true );
         csv.isValid( new Ia5StringSyntaxChecker() );
-        csv.normalize( new DeepTrimToLowerNormalizer() );
+        csv.normalize( new DeepTrimToLowerNormalizer( "1.1.1" ) );
 
         ClientStringValue csvSer = deserializeValue( serializeValue( csv ) );
          assertNotSame( csv, csvSer );
@@ -609,7 +609,7 @@ public class ClientStringValueTest
         ClientStringValue csv = new ClientStringValue( null );
         csv.setNormalized( true );
         csv.isValid( new Ia5StringSyntaxChecker() );
-        csv.normalize( new DeepTrimToLowerNormalizer() );
+        csv.normalize( new DeepTrimToLowerNormalizer( "1.1.1" ) );
 
         ClientStringValue csvSer = deserializeValue( serializeValue( csv ) );
          assertNotSame( csv, csvSer );
@@ -629,7 +629,7 @@ public class ClientStringValueTest
         ClientStringValue csv = new ClientStringValue( "" );
         csv.setNormalized( true );
         csv.isValid( new Ia5StringSyntaxChecker() );
-        csv.normalize( new DeepTrimToLowerNormalizer() );
+        csv.normalize( new DeepTrimToLowerNormalizer( "1.1.1" ) );
 
         ClientStringValue csvSer = deserializeValue( serializeValue( csv ) );
          assertNotSame( csv, csvSer );

@@ -33,7 +33,6 @@ import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
 import javax.naming.NamingException;
-import javax.naming.directory.InvalidAttributeValueException;
 
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.Normalizer;
@@ -55,7 +54,7 @@ public class ClientBinaryValueTest
     private static final byte[] INVALID_BYTES = new byte[]{0x01, 0x02, 0x03, 0x04, 0x05};
     private static final byte[] BYTES_MOD = new byte[]{0x11, 0x02, 0x03, 0x04};
     
-    private static final Normalizer BINARY_NORMALIZER = new Normalizer()
+    private static final Normalizer BINARY_NORMALIZER = new Normalizer( "1.1.1" )
     {
         private static final long serialVersionUID = 1L;
         
@@ -89,7 +88,7 @@ public class ClientBinaryValueTest
     /**
      * A binary normalizer which set the normalized value to a empty byte array
      */
-    private static final Normalizer BINARY_NORMALIZER_EMPTY = new Normalizer()
+    private static final Normalizer BINARY_NORMALIZER_EMPTY = new Normalizer( "1.1.1" )
     {
         private static final long serialVersionUID = 1L;
         
@@ -110,12 +109,8 @@ public class ClientBinaryValueTest
     };
 
     
-    private static final SyntaxChecker BINARY_CHECKER = new SyntaxChecker()
+    private static final SyntaxChecker BINARY_CHECKER = new SyntaxChecker( "1.1.1" )
     {
-        public String getSyntaxOid()
-        {
-            return "1.1.1";
-        }
         public boolean isValidSyntax( Object value )
         {
             if ( value == null )
@@ -124,14 +119,6 @@ public class ClientBinaryValueTest
             }
             
             return ((byte[])value).length < 5 ;
-        }
-
-        public void assertSyntax( Object value ) throws NamingException
-        {
-            if ( ! isValidSyntax( value ) )
-            {
-                throw new InvalidAttributeValueException();
-            }
         }
     };
     

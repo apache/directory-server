@@ -22,15 +22,15 @@ package org.apache.directory.shared.ldap.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.io.FileFilter;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -38,6 +38,8 @@ import javax.naming.InvalidNameException;
 
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
+
+import com.sun.org.apache.regexp.internal.RESyntaxException;
 
 
 /**
@@ -410,6 +412,12 @@ public class StringTools
         {};
 
     /**
+     * The empty String[]
+     */
+    public static final String[] EMPTY_STRINGS = new String[]
+        {};
+
+    /**
      * Trims several consecutive characters into one.
      * 
      * @param str
@@ -636,7 +644,7 @@ public class StringTools
         
         for ( int i = 0; i < chars.length; i++ )
         {
-            chars[i] = LOWER_CASE[ chars[i] ];
+            chars[i] = TO_LOWER_CASE[ chars[i] ];
         }
         
         return new String( chars );
@@ -3191,9 +3199,7 @@ public class StringTools
         StringBuilder sb = new StringBuilder();
         boolean isFirst = true;
 
-        Iterator<?> iter = list.iterator();
-
-        while ( iter.hasNext() )
+        for ( Object elem : list )
         {
             if ( isFirst )
             {
@@ -3204,7 +3210,43 @@ public class StringTools
                 sb.append( ", " );
             }
 
-            sb.append( iter.next() );
+            sb.append( elem );
+        }
+
+        return sb.toString();
+    }
+
+
+
+
+    /**
+     * Utility method that return a String representation of a set
+     * 
+     * @param set The set to transform to a string
+     * @return A csv string
+     */
+    public static final String setToString( Set<?> set )
+    {
+        if ( ( set == null ) || ( set.size() == 0 ) )
+        {
+            return "";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        boolean isFirst = true;
+
+        for ( Object elem : set )
+        {
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                sb.append( ", " );
+            }
+
+            sb.append( elem );
         }
 
         return sb.toString();
@@ -3227,12 +3269,10 @@ public class StringTools
 
         StringBuffer sb = new StringBuffer();
 
-        Iterator<?> iter = list.iterator();
-
-        while ( iter.hasNext() )
+        for ( Object elem : list )
         {
             sb.append( tabs );
-            sb.append( iter.next() );
+            sb.append( elem );
             sb.append( '\n' );
         }
 

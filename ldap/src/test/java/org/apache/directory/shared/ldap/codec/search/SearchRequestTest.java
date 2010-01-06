@@ -46,6 +46,7 @@ import org.apache.directory.shared.ldap.codec.search.OrFilter;
 import org.apache.directory.shared.ldap.codec.search.PresentFilter;
 import org.apache.directory.shared.ldap.codec.search.SearchRequestCodec;
 import org.apache.directory.shared.ldap.codec.search.controls.subEntry.SubEntryControlCodec;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.InternalMessage;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -74,14 +75,29 @@ public class SearchRequestTest
     @Before
     public void setUp() throws Exception
     {
-        oids.put( "dc", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
-        oids.put( "domaincomponent", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
-        oids.put( "0.9.2342.19200300.100.1.25", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
-        oids.put( "ou", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
-        oids.put( "organizationalUnitName", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
-        oids.put( "2.5.4.11", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
-        oids.put( "objectclass", new OidNormalizer( "objectclass", new DeepTrimToLowerNormalizer() ) );
-        oids.put( "2.5.4.0", new OidNormalizer( "objectclass", new DeepTrimToLowerNormalizer() ) );
+        // DC normalizer
+        OidNormalizer dcOidNormalizer = new OidNormalizer( "dc",
+            new DeepTrimToLowerNormalizer( SchemaConstants.DOMAIN_COMPONENT_AT_OID ) );
+        
+        oids.put( "dc", dcOidNormalizer );
+        oids.put( "domaincomponent", dcOidNormalizer );
+        oids.put( "0.9.2342.19200300.100.1.25", dcOidNormalizer );
+        
+        
+        // OU normalizer
+        OidNormalizer ouOidNormalizer = new OidNormalizer( "ou",
+            new DeepTrimToLowerNormalizer( SchemaConstants.OU_AT_OID ) );
+        
+        oids.put( "ou", ouOidNormalizer );
+        oids.put( "organizationalUnitName", ouOidNormalizer );
+        oids.put( "2.5.4.11", ouOidNormalizer );
+
+        // ObjectClass normalizer
+        OidNormalizer objectClassOidNormalizer = new OidNormalizer( "objectClass",
+            new DeepTrimToLowerNormalizer( SchemaConstants.OBJECT_CLASS_AT_OID ) );
+        
+        oids.put( "objectclass", objectClassOidNormalizer );
+        oids.put( "2.5.4.0", objectClassOidNormalizer );
     }
 
 

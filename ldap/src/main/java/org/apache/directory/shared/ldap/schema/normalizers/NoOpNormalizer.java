@@ -20,8 +20,6 @@
 package org.apache.directory.shared.ldap.schema.normalizers;
 
 
-import java.io.Serializable;
-
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 
@@ -32,14 +30,32 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class NoOpNormalizer implements Normalizer, Serializable
+public class NoOpNormalizer extends Normalizer
 {
-    // The serial UID
-    static final long serialVersionUID = -7817763636668562489L;
-    
-    /** A static instance of this normalizer */
-    public static final NoOpNormalizer INSTANCE = new NoOpNormalizer();
+    /** The serial UID */
+    public static final long serialVersionUID = 1L;
 
+
+    /**
+     * Creates a new instance of NoOpNormalizer.
+     * 
+     * @param oid The MR OID to use with this Normalizer
+     */
+    public NoOpNormalizer( String oid )
+    {
+        super( oid );
+    }
+
+    
+    /**
+     * Default constructor for NoOpNormalizer used when we must set the OID
+     * after instantiating the Normalizer.
+     */
+    public NoOpNormalizer()
+    {
+    }
+
+    
     /**
      * Returns the value argument as-is without alterations all the time.
      * 

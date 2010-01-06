@@ -24,6 +24,8 @@ import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
 
 
@@ -33,9 +35,10 @@ import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CachingNormalizer implements Normalizer
+public class CachingNormalizer extends Normalizer
 {
-    private static final long serialVersionUID = 1L;
+    /** The serial UID */
+    public static final long serialVersionUID = 1L;
 
     /** Cache maximum size default */
     public static final int CACHE_MAX = 250;
@@ -53,8 +56,9 @@ public class CachingNormalizer implements Normalizer
 
     /**
      * Creates a CachingNormalizer that decorates another normalizer using a
-     * default cache size.
+     * default cache size.  This Normalizer delegates 
      * 
+     * @param oid The MR OID to use with this Normalizer
      * @param normalizer the underlying Normalizer being decorated
      */
     public CachingNormalizer( Normalizer normalizer )
@@ -72,8 +76,33 @@ public class CachingNormalizer implements Normalizer
      */
     public CachingNormalizer( Normalizer normalizer, int cacheSz )
     {
+        super( normalizer.getOid() );
         this.normalizer = normalizer;
         cache = new SynchronizedLRUMap( cacheSz );
+    }
+
+
+    /**
+     * Overrides default behavior by returning the OID of the wrapped 
+     * Normalizer.
+     */
+    @Override
+    public String getOid()
+    {
+        return normalizer.getOid();
+    }
+
+
+    /**
+     * Overrides default behavior by setting the OID of the wrapped Normalizer.
+     * 
+     * @param oid the object identifier to set
+     */
+    @Override
+    public void setOid( String oid )
+    {
+        super.setOid( oid );
+        normalizer.setOid( oid );
     }
 
 
@@ -87,7 +116,7 @@ public class CachingNormalizer implements Normalizer
             return null;
         }
 
-        Value<?> result =(Value<?>)cache.get( value );
+        Value<?> result = ( Value<?> ) cache.get( value );
 
         if ( result != null )
         {
@@ -110,7 +139,7 @@ public class CachingNormalizer implements Normalizer
             return null;
         }
 
-        String normalized =(String)cache.get( value );
+        String normalized = ( String ) cache.get( value );
 
         if ( normalized != null )
         {
@@ -120,5 +149,25 @@ public class CachingNormalizer implements Normalizer
         normalized = normalizer.normalize( value );
         cache.put( value, normalized );
         return normalized;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setRegistries( Registries registries )
+    {
+        normalizer.setRegistries( registries );
+    }
+
+
+    /**
+     * Sets the SchemaManager
+     * 
+     * @param schemaManager The SchemaManager
+     */
+    public void setSchemaManager( SchemaManager schemaManager )
+    {
+        normalizer.setSchemaManager( schemaManager );
     }
 }

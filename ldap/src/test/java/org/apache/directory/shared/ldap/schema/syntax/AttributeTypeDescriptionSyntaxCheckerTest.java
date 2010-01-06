@@ -20,7 +20,7 @@
 package org.apache.directory.shared.ldap.schema.syntax;
 
 
-import org.apache.directory.shared.ldap.schema.syntaxes.AttributeTypeDescriptionSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.AttributeTypeDescriptionSyntaxChecker;
 
 import org.junit.Test;
 import static org.junit.Assert.assertFalse;

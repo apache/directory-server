@@ -20,6 +20,9 @@
 
 package org.apache.directory.shared.ldap.schema.parsers;
 
+import org.apache.directory.shared.ldap.schema.LoadableSchemaObject;
+import org.apache.directory.shared.ldap.schema.SchemaObjectType;
+
 
 /**
  * An ApacheDS specific schema description for a Normalizer.
@@ -27,7 +30,26 @@ package org.apache.directory.shared.ldap.schema.parsers;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class NormalizerDescription extends AbstractAdsSchemaDescription
+public class NormalizerDescription extends LoadableSchemaObject
 {
+	/** SerialVersionUID */
+	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Default constructor for a NormalizerDecription
+	 * @param oid The SyntaxChecker OID
+	 */
+	public NormalizerDescription( String oid ) 
+	{
+		super( SchemaObjectType.NORMALIZER, oid );
+	}
+
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return "SyntaxChecker description : " + getDescription();
+    }
 }

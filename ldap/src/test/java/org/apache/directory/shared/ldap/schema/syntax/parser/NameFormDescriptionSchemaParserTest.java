@@ -22,7 +22,9 @@ package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 import java.text.ParseException;
 
-import org.apache.directory.shared.ldap.schema.parsers.NameFormDescription;
+import javax.naming.NamingException;
+
+import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.parsers.NameFormDescriptionSchemaParser;
 import org.junit.After;
 import org.junit.Before;
@@ -42,8 +44,7 @@ public class NameFormDescriptionSchemaParserTest
 {
     /** the parser instance */
     private NameFormDescriptionSchemaParser parser;
-
-
+    
     @Before
     public void setUp() throws Exception
     {
@@ -112,42 +113,42 @@ public class NameFormDescriptionSchemaParserTest
      * @throws ParseException
      */
     @Test
-    public void testOc() throws ParseException
+    public void testOc() throws ParseException, NamingException
     {
         String value = null;
-        NameFormDescription nfd = null;
+        NameForm nf = null;
 
         // numeric oid
         value = "( 1.1 MUST m OC 1.2.3.4.5.6.7.8.9.0 )";
-        nfd = parser.parseNameFormDescription( value );
-        assertEquals( "1.2.3.4.5.6.7.8.9.0", nfd.getStructuralObjectClass() );
+        nf = parser.parseNameFormDescription( value );
+        assertEquals( "1.2.3.4.5.6.7.8.9.0", nf.getStructuralObjectClassOid() );
 
         // numeric oid
         value = "(   1.1 MUST m   OC    123.4567.890    )";
-        nfd = parser.parseNameFormDescription( value );
-        assertEquals( "123.4567.890", nfd.getStructuralObjectClass() );
+        nf = parser.parseNameFormDescription( value );
+        assertEquals( "123.4567.890", nf.getStructuralObjectClassOid() );
 
         // descr
         value = "( 1.1 MUST m OC abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 )";
-        nfd = parser.parseNameFormDescription( value );
-        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", nfd
-            .getStructuralObjectClass() );
+        nf = parser.parseNameFormDescription( value );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", nf
+            .getStructuralObjectClassOid() );
 
         // quoted value
         value = "( 1.1 MUST m OC '1.2.3.4.5.6.7.8.9.0' )";
-        nfd = parser.parseNameFormDescription( value );
-        assertEquals( "1.2.3.4.5.6.7.8.9.0", nfd.getStructuralObjectClass() );
+        nf = parser.parseNameFormDescription( value );
+        assertEquals( "1.2.3.4.5.6.7.8.9.0", nf.getStructuralObjectClassOid() );
 
         // quoted value
         value = "( 1.1 MUST m OC 'test' )";
-        nfd = parser.parseNameFormDescription( value );
-        assertEquals( "test", nfd.getStructuralObjectClass() );
+        nf = parser.parseNameFormDescription( value );
+        assertEquals( "test", nf.getStructuralObjectClassOid() );
 
         // invalid character
         value = "( 1.1 MUST m OC 1.2.3.4.A )";
         try
         {
-            nfd = parser.parseNameFormDescription( value );
+            nf = parser.parseNameFormDescription( value );
             fail( "Exception expected, invalid OC 1.2.3.4.A (invalid character)" );
         }
         catch ( ParseException pe )
@@ -159,7 +160,7 @@ public class NameFormDescriptionSchemaParserTest
         value = "( 1.1 MUST m OC ( test1 test2 ) )";
         try
         {
-            nfd = parser.parseNameFormDescription( value );
+            nf = parser.parseNameFormDescription( value );
             fail( "Exception expected, OC must be single valued" );
         }
         catch ( ParseException pe )
@@ -171,7 +172,7 @@ public class NameFormDescriptionSchemaParserTest
         value = "( 1.1 MUST m OC test1 OC test2 )";
         try
         {
-            nfd = parser.parseNameFormDescription( value );
+            nf = parser.parseNameFormDescription( value );
             fail( "Exception expected, OC appears twice" );
         }
         catch ( ParseException pe )
@@ -185,7 +186,7 @@ public class NameFormDescriptionSchemaParserTest
             value = "( 1.1 MUST m )";
             try
             {
-                nfd = parser.parseNameFormDescription( value );
+                nf = parser.parseNameFormDescription( value );
                 fail( "Exception expected, OC is required" );
             }
             catch ( ParseException pe )
@@ -197,7 +198,7 @@ public class NameFormDescriptionSchemaParserTest
             value = "( 1.1 MUST m OC -test ) )";
             try
             {
-                nfd = parser.parseNameFormDescription( value );
+                nf = parser.parseNameFormDescription( value );
                 fail( "Exception expected, invalid OC '-test' (starts with hypen)" );
             }
             catch ( ParseException pe )
@@ -214,31 +215,31 @@ public class NameFormDescriptionSchemaParserTest
      * @throws ParseException
      */
     @Test
-    public void testMust() throws ParseException
+    public void testMust() throws ParseException, NamingException
     {
         String value = null;
-        NameFormDescription nfd = null;
+        NameForm nf = null;
 
         // MUST simple numericoid
         value = "( 1.1 OC o MUST 1.2.3 )";
-        nfd = parser.parseNameFormDescription( value );
-        assertEquals( 1, nfd.getMustAttributeTypes().size() );
-        assertEquals( "1.2.3", nfd.getMustAttributeTypes().get( 0 ) );
+        nf = parser.parseNameFormDescription( value );
+        assertEquals( 1, nf.getMustAttributeTypeOids().size() );
+        assertEquals( "1.2.3", nf.getMustAttributeTypeOids().get( 0 ) );
 
         // MUST mulitple
         value = "(1.1 OC o MUST (cn$sn       $11.22.33.44.55         $  objectClass   ))";
-        nfd = parser.parseNameFormDescription( value );
-        assertEquals( 4, nfd.getMustAttributeTypes().size() );
-        assertEquals( "cn", nfd.getMustAttributeTypes().get( 0 ) );
-        assertEquals( "sn", nfd.getMustAttributeTypes().get( 1 ) );
-        assertEquals( "11.22.33.44.55", nfd.getMustAttributeTypes().get( 2 ) );
-        assertEquals( "objectClass", nfd.getMustAttributeTypes().get( 3 ) );
+        nf = parser.parseNameFormDescription( value );
+        assertEquals( 4, nf.getMustAttributeTypeOids().size() );
+        assertEquals( "cn", nf.getMustAttributeTypeOids().get( 0 ) );
+        assertEquals( "sn", nf.getMustAttributeTypeOids().get( 1 ) );
+        assertEquals( "11.22.33.44.55", nf.getMustAttributeTypeOids().get( 2 ) );
+        assertEquals( "objectClass", nf.getMustAttributeTypeOids().get( 3 ) );
 
         // no MUST values
         value = "( 1.1 OC o MUST )";
         try
         {
-            nfd = parser.parseNameFormDescription( value );
+            nf = parser.parseNameFormDescription( value );
             fail( "Exception expected, no MUST value" );
         }
         catch ( ParseException pe )
@@ -250,7 +251,7 @@ public class NameFormDescriptionSchemaParserTest
         value = "( 1.1 OC o MUST test1 MUST test2 )";
         try
         {
-            nfd = parser.parseNameFormDescription( value );
+            nf = parser.parseNameFormDescription( value );
             fail( "Exception expected, MUST appears twice" );
         }
         catch ( ParseException pe )
@@ -264,7 +265,7 @@ public class NameFormDescriptionSchemaParserTest
             value = "( 1.1 OC o )";
             try
             {
-                nfd = parser.parseNameFormDescription( value );
+                nf = parser.parseNameFormDescription( value );
                 fail( "Exception expected, MUST is required" );
             }
             catch ( ParseException pe )
@@ -276,7 +277,7 @@ public class NameFormDescriptionSchemaParserTest
             value = "( 1.1 OC o MUST ( c_n ) )";
             try
             {
-                nfd = parser.parseNameFormDescription( value );
+                nf = parser.parseNameFormDescription( value );
                 fail( "Exception expected, invalid value c_n" );
             }
             catch ( ParseException pe )
@@ -293,36 +294,36 @@ public class NameFormDescriptionSchemaParserTest
      * @throws ParseException
      */
     @Test
-    public void testMay() throws ParseException
+    public void testMay() throws ParseException, NamingException
     {
         String value = null;
-        NameFormDescription nfd = null;
+        NameForm nf = null;
 
         // no MAY
         value = "( 1.1 OC o MUST m )";
-        nfd = parser.parseNameFormDescription( value );
-        assertEquals( 0, nfd.getMayAttributeTypes().size() );
+        nf = parser.parseNameFormDescription( value );
+        assertEquals( 0, nf.getMayAttributeTypeOids().size() );
 
         // MAY simple numericoid
         value = "( 1.1 OC o MUST m MAY 1.2.3 )";
-        nfd = parser.parseNameFormDescription( value );
-        assertEquals( 1, nfd.getMayAttributeTypes().size() );
-        assertEquals( "1.2.3", nfd.getMayAttributeTypes().get( 0 ) );
+        nf = parser.parseNameFormDescription( value );
+        assertEquals( 1, nf.getMayAttributeTypeOids().size() );
+        assertEquals( "1.2.3", nf.getMayAttributeTypeOids().get( 0 ) );
 
         // MAY mulitple
         value = "(1.1 OC o MUST m MAY (cn$sn       $11.22.33.44.55         $  objectClass   ))";
-        nfd = parser.parseNameFormDescription( value );
-        assertEquals( 4, nfd.getMayAttributeTypes().size() );
-        assertEquals( "cn", nfd.getMayAttributeTypes().get( 0 ) );
-        assertEquals( "sn", nfd.getMayAttributeTypes().get( 1 ) );
-        assertEquals( "11.22.33.44.55", nfd.getMayAttributeTypes().get( 2 ) );
-        assertEquals( "objectClass", nfd.getMayAttributeTypes().get( 3 ) );
+        nf = parser.parseNameFormDescription( value );
+        assertEquals( 4, nf.getMayAttributeTypeOids().size() );
+        assertEquals( "cn", nf.getMayAttributeTypeOids().get( 0 ) );
+        assertEquals( "sn", nf.getMayAttributeTypeOids().get( 1 ) );
+        assertEquals( "11.22.33.44.55", nf.getMayAttributeTypeOids().get( 2 ) );
+        assertEquals( "objectClass", nf.getMayAttributeTypeOids().get( 3 ) );
 
         // MAY must only appear once
         value = "( 1.1 OC o MUST m MAY test1 MAY test2 )";
         try
         {
-            nfd = parser.parseNameFormDescription( value );
+            nf = parser.parseNameFormDescription( value );
             fail( "Exception expected, MAY appears twice" );
         }
         catch ( ParseException pe )
@@ -336,7 +337,7 @@ public class NameFormDescriptionSchemaParserTest
             value = "( 1.1 OC o MUST m MAY ( c_n ) )";
             try
             {
-                nfd = parser.parseNameFormDescription( value );
+                nf = parser.parseNameFormDescription( value );
                 fail( "Exception expected, invalid value c_n" );
             }
             catch ( ParseException pe )
@@ -366,39 +367,39 @@ public class NameFormDescriptionSchemaParserTest
      * @throws ParseException
      */
     @Test
-    public void testFull() throws ParseException
+    public void testFull() throws ParseException, NamingException
     {
         String value = null;
-        NameFormDescription nfd = null;
+        NameForm nf = null;
 
         value = "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577' OBSOLETE OC bcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789a MUST ( 3.4.5.6.7.8.9.0.1.2 $ cdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789ab ) MAY ( 4.5.6.7.8.9.0.1.2.3 $ defghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789abc ) X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )";
-        nfd = parser.parseNameFormDescription( value );
+        nf = parser.parseNameFormDescription( value );
 
-        assertEquals( "1.2.3.4.5.6.7.8.9.0", nfd.getNumericOid() );
-        assertEquals( 2, nfd.getNames().size() );
-        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", nfd.getNames().get( 0 ) );
-        assertEquals( "test", nfd.getNames().get( 1 ) );
-        assertEquals( "Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577", nfd.getDescription() );
-        assertTrue( nfd.isObsolete() );
-        assertEquals( "bcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789a", nfd
-            .getStructuralObjectClass() );
-        assertEquals( 2, nfd.getMustAttributeTypes().size() );
-        assertEquals( "3.4.5.6.7.8.9.0.1.2", nfd.getMustAttributeTypes().get( 0 ) );
-        assertEquals( "cdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789ab", nfd.getMustAttributeTypes()
+        assertEquals( "1.2.3.4.5.6.7.8.9.0", nf.getOid() );
+        assertEquals( 2, nf.getNames().size() );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", nf.getNames().get( 0 ) );
+        assertEquals( "test", nf.getNames().get( 1 ) );
+        assertEquals( "Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577", nf.getDescription() );
+        assertTrue( nf.isObsolete() );
+        assertEquals( "bcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789a", nf
+            .getStructuralObjectClassOid() );
+        assertEquals( 2, nf.getMustAttributeTypeOids().size() );
+        assertEquals( "3.4.5.6.7.8.9.0.1.2", nf.getMustAttributeTypeOids().get( 0 ) );
+        assertEquals( "cdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789ab", nf.getMustAttributeTypeOids()
             .get( 1 ) );
-        assertEquals( 2, nfd.getMayAttributeTypes().size() );
-        assertEquals( "4.5.6.7.8.9.0.1.2.3", nfd.getMayAttributeTypes().get( 0 ) );
-        assertEquals( "defghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789abc", nfd.getMayAttributeTypes()
+        assertEquals( 2, nf.getMayAttributeTypeOids().size() );
+        assertEquals( "4.5.6.7.8.9.0.1.2.3", nf.getMayAttributeTypeOids().get( 0 ) );
+        assertEquals( "defghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789abc", nf.getMayAttributeTypeOids()
             .get( 1 ) );
-        assertEquals( 2, nfd.getExtensions().size() );
-        assertNotNull( nfd.getExtensions().get( "X-TEST-a" ) );
-        assertEquals( 2, nfd.getExtensions().get( "X-TEST-a" ).size() );
-        assertEquals( "test1-1", nfd.getExtensions().get( "X-TEST-a" ).get( 0 ) );
-        assertEquals( "test1-2", nfd.getExtensions().get( "X-TEST-a" ).get( 1 ) );
-        assertNotNull( nfd.getExtensions().get( "X-TEST-b" ) );
-        assertEquals( 2, nfd.getExtensions().get( "X-TEST-b" ).size() );
-        assertEquals( "test2-1", nfd.getExtensions().get( "X-TEST-b" ).get( 0 ) );
-        assertEquals( "test2-2", nfd.getExtensions().get( "X-TEST-b" ).get( 1 ) );
+        assertEquals( 2, nf.getExtensions().size() );
+        assertNotNull( nf.getExtensions().get( "X-TEST-a" ) );
+        assertEquals( 2, nf.getExtensions().get( "X-TEST-a" ).size() );
+        assertEquals( "test1-1", nf.getExtensions().get( "X-TEST-a" ).get( 0 ) );
+        assertEquals( "test1-2", nf.getExtensions().get( "X-TEST-a" ).get( 1 ) );
+        assertNotNull( nf.getExtensions().get( "X-TEST-b" ) );
+        assertEquals( 2, nf.getExtensions().get( "X-TEST-b" ).size() );
+        assertEquals( "test2-1", nf.getExtensions().get( "X-TEST-b" ).get( 0 ) );
+        assertEquals( "test2-2", nf.getExtensions().get( "X-TEST-b" ).get( 1 ) );
     }
 
 
@@ -425,22 +426,22 @@ public class NameFormDescriptionSchemaParserTest
      * @throws ParseException
      */
     @Test
-    public void testRequiredElements() throws ParseException
+    public void testRequiredElements() throws ParseException, NamingException
     {
         String value = null;
-        NameFormDescription nfd = null;
+        NameForm nf = null;
 
         value = "( 1.2.3.4.5.6.7.8.9.0 OC o MUST m )";
-        nfd = parser.parseNameFormDescription( value );
-        assertNotNull( nfd.getStructuralObjectClass() );
-        assertEquals( 1, nfd.getMustAttributeTypes().size() );
+        nf = parser.parseNameFormDescription( value );
+        assertNotNull( nf.getStructuralObjectClassOid() );
+        assertEquals( 1, nf.getMustAttributeTypeOids().size() );
 
         if ( !parser.isQuirksMode() )
         {
             value = "( 1.2.3.4.5.6.7.8.9.0 MUST m )";
             try
             {
-                nfd = parser.parseNameFormDescription( value );
+                nf = parser.parseNameFormDescription( value );
                 fail( "Exception expected, OC is required" );
             }
             catch ( ParseException pe )
@@ -451,7 +452,7 @@ public class NameFormDescriptionSchemaParserTest
             value = "( 1.2.3.4.5.6.7.8.9.0 OC o )";
             try
             {
-                nfd = parser.parseNameFormDescription( value );
+                nf = parser.parseNameFormDescription( value );
                 fail( "Exception expected, MUST is required" );
             }
             catch ( ParseException pe )
@@ -477,8 +478,8 @@ public class NameFormDescriptionSchemaParserTest
     //
     //        value = "( 1.2.3.4.5.6.7.8.9.0 OC o MUST test1 MAY test2 )";
     //        nfd = parser.parseNameFormDescription( value );
-    //        assertNotNull( nfd.getStructuralObjectClass() );
-    //        assertEquals( 1, nfd.getMustAttributeTypes().size() );
+    //        assertNotNull( nfd.getStructuralObjectClassOid() );
+    //        assertEquals( 1, nfd.getMustAttributeTypeOids().size() );
     //
     //        value = "( 1.2.3.4.5.6.7.8.9.0 OC o MUST test1 MAY test1 )";
     //        try
@@ -525,7 +526,7 @@ public class NameFormDescriptionSchemaParserTest
      * Tests quirks mode.
      */
     @Test
-    public void testQuirksMode() throws ParseException
+    public void testQuirksMode() throws ParseException, NamingException
     {
         SchemaParserTestUtils.testQuirksMode( parser, "OC o MUST m" );
 

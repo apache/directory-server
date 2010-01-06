@@ -40,7 +40,7 @@ import javax.naming.directory.InvalidAttributeValueException;
 
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.schema.syntaxes.Ia5StringSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.Ia5StringSyntaxChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.BeforeClass;
 import org.junit.Test;

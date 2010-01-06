@@ -21,7 +21,7 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import java.math.BigInteger;
 
-import org.apache.directory.shared.ldap.schema.syntaxes.JavaIntegerSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.JavaIntegerSyntaxChecker;
 import org.junit.Test;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

@@ -22,7 +22,7 @@ package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 import java.text.ParseException;
 
-import org.apache.directory.shared.ldap.schema.parsers.LdapSyntaxDescription;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.parsers.LdapSyntaxDescriptionSchemaParser;
 import org.junit.After;
 import org.junit.Before;
@@ -113,22 +113,23 @@ public class LdapSyntaxDescriptionSchemaParserTest
     public void testFull() throws ParseException
     {
         String value = null;
-        LdapSyntaxDescription lsd = null;
+        LdapSyntax ldapSyntax = null;
 
         value = "( 1.2.3.4.5.6.7.8.9.0 DESC 'Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577' X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )";
-        lsd = parser.parseLdapSyntaxDescription( value );
+        ldapSyntax = parser.parseLdapSyntaxDescription( value );
 
-        assertEquals( "1.2.3.4.5.6.7.8.9.0", lsd.getNumericOid() );
-        assertEquals( "Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577", lsd.getDescription() );
-        assertEquals( 2, lsd.getExtensions().size() );
-        assertNotNull( lsd.getExtensions().get( "X-TEST-a" ) );
-        assertEquals( 2, lsd.getExtensions().get( "X-TEST-a" ).size() );
-        assertEquals( "test1-1", lsd.getExtensions().get( "X-TEST-a" ).get( 0 ) );
-        assertEquals( "test1-2", lsd.getExtensions().get( "X-TEST-a" ).get( 1 ) );
-        assertNotNull( lsd.getExtensions().get( "X-TEST-b" ) );
-        assertEquals( 2, lsd.getExtensions().get( "X-TEST-b" ).size() );
-        assertEquals( "test2-1", lsd.getExtensions().get( "X-TEST-b" ).get( 0 ) );
-        assertEquals( "test2-2", lsd.getExtensions().get( "X-TEST-b" ).get( 1 ) );
+        assertEquals( "1.2.3.4.5.6.7.8.9.0", ldapSyntax.getOid() );
+        assertEquals( "Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577", ldapSyntax.getDescription() );
+        assertEquals( 2, ldapSyntax.getExtensions().size() );
+        assertNotNull( ldapSyntax.getExtensions().get( "X-TEST-a" ) );
+        assertEquals( 2, ldapSyntax.getExtensions().get( "X-TEST-a" ).size() );
+        assertEquals( "test1-1", ldapSyntax.getExtensions().get( "X-TEST-a" ).get( 0 ) );
+        assertEquals( "test1-2", ldapSyntax.getExtensions().get( "X-TEST-a" ).get( 1 ) );
+        assertNotNull( ldapSyntax.getExtensions().get( "X-TEST-b" ) );
+        assertEquals( 2, ldapSyntax.getExtensions().get( "X-TEST-b" ).size() );
+        assertEquals( "test2-1", ldapSyntax.getExtensions().get( "X-TEST-b" ).get( 0 ) );
+        assertEquals( "test2-2", ldapSyntax.getExtensions().get( "X-TEST-b" ).get( 1 ) );
+        assertEquals( value, ldapSyntax.getSpecification() );
     }
 
 
@@ -154,14 +155,15 @@ public class LdapSyntaxDescriptionSchemaParserTest
     public void testRfcBinary() throws ParseException
     {
         String value = "( 1.3.6.1.4.1.1466.115.121.1.5 DESC 'Binary' X-NOT-HUMAN-READABLE 'TRUE' )";
-        LdapSyntaxDescription lsd = parser.parseLdapSyntaxDescription( value );
+        LdapSyntax ldapSyntax = parser.parseLdapSyntaxDescription( value );
 
-        assertEquals( "1.3.6.1.4.1.1466.115.121.1.5", lsd.getNumericOid() );
-        assertEquals( "Binary", lsd.getDescription() );
-        assertEquals( 1, lsd.getExtensions().size() );
-        assertNotNull( lsd.getExtensions().get( "X-NOT-HUMAN-READABLE" ) );
-        assertEquals( 1, lsd.getExtensions().get( "X-NOT-HUMAN-READABLE" ).size() );
-        assertEquals( "TRUE", lsd.getExtensions().get( "X-NOT-HUMAN-READABLE" ).get( 0 ) );
+        assertEquals( "1.3.6.1.4.1.1466.115.121.1.5", ldapSyntax.getOid() );
+        assertEquals( "Binary", ldapSyntax.getDescription() );
+        assertEquals( 1, ldapSyntax.getExtensions().size() );
+        assertNotNull( ldapSyntax.getExtensions().get( "X-NOT-HUMAN-READABLE" ) );
+        assertEquals( 1, ldapSyntax.getExtensions().get( "X-NOT-HUMAN-READABLE" ).size() );
+        assertEquals( "TRUE", ldapSyntax.getExtensions().get( "X-NOT-HUMAN-READABLE" ).get( 0 ) );
+        assertEquals( value, ldapSyntax.getSpecification() );
     }
 
 
@@ -172,10 +174,11 @@ public class LdapSyntaxDescriptionSchemaParserTest
     public void testSyntaxWithExtensions() throws ParseException
     {
         String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 DESC 'bogus description' X-SCHEMA 'blah' X-IS-HUMAN-READABLE 'true' )";
-        LdapSyntaxDescription desc = parser.parseLdapSyntaxDescription( substrate );
-        assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", desc.getNumericOid() );
-        assertEquals( "bogus description", desc.getDescription() );
-        assertNotNull( desc.getExtensions().get( "X-IS-HUMAN-READABLE" ) );
+        LdapSyntax ldapSyntax = parser.parseLdapSyntaxDescription( substrate );
+        assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", ldapSyntax.getOid() );
+        assertEquals( "bogus description", ldapSyntax.getDescription() );
+        assertNotNull( ldapSyntax.getExtensions().get( "X-IS-HUMAN-READABLE" ) );
+        assertEquals( substrate, ldapSyntax.getSpecification() );
     }
 
 

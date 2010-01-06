@@ -148,9 +148,8 @@ options    {
     }
     static class UpAndNormValue
     {
-        String upValue = "";
-        Object normValue = "";
-        String trailingSpaces = "";
+        Object value = "";
+        String rawValue = "";
     }
 }
 
@@ -254,14 +253,12 @@ relativeDistinguishedName [Rdn initialRdn] returns [Rdn rdn]
     }
     :
     (
-        ( SPACE { upName += " "; } )*
         tmp = attributeTypeAndValue[rdn] 
         { 
             upName += tmp;
         }
         (
             PLUS { upName += "+"; }
-            ( SPACE { upName += " "; } )*
             tmp = attributeTypeAndValue[rdn] 
             { 
                 upName += tmp;
@@ -291,6 +288,7 @@ attributeTypeAndValue [Rdn rdn] returns [String upName = ""]
     }
     :
     (
+        ( SPACE { upName += " "; } )*
         type = attributeType { upName += type; }
         ( SPACE { upName += " "; } )*
         EQUALS { upName += "="; }
@@ -299,19 +297,31 @@ attributeTypeAndValue [Rdn rdn] returns [String upName = ""]
         {
             try
             {
-                if ( value.normValue instanceof String )
+                upName += value.rawValue;
+                AVA ava = null;
+            
+                if ( value.value instanceof String )
                 {
-                    rdn.addAttributeTypeAndValue( type, type, 
-                        new ClientStringValue( value.upValue ), 
-                        new ClientStringValue( (String)value.normValue ) );
+                    ava = new AVA(
+                        type,
+                        type,
+                        new ClientStringValue( (String)value.value ), 
+                        new ClientStringValue( (String)value.value ),
+                        upName
+                    );
                 }
                 else
                 {
-                    rdn.addAttributeTypeAndValue( type, type, 
-                        new ClientStringValue( value.upValue ), 
-                        new ClientBinaryValue( (byte[])value.normValue ) );
+                    ava = new AVA(
+                        type,
+                        type,
+                        new ClientBinaryValue( (byte[])value.value ), 
+                        new ClientBinaryValue( (byte[])value.value ),
+                        upName
+                    );
                 }
-                { upName += value.upValue + value.trailingSpaces; }
+           
+                rdn.addAttributeTypeAndValue( ava );
             }
             catch ( InvalidNameException e )
             {
@@ -403,14 +413,14 @@ attributeValue [UpAndNormValue value]
     (
         (
             quotestring [value]
-            ( SPACE { value.trailingSpaces += " "; } )*
+            ( SPACE { value.rawValue += " "; } )*
         )
         |
         string [value]
         |
         (
             hexstring [value]
-            ( SPACE { value.trailingSpaces += " "; } )*
+            ( SPACE { value.rawValue += " "; } )*
         )
     )?
     ;
@@ -430,25 +440,23 @@ quotestring [UpAndNormValue value]
     }
     :
     (
-        dq1:DQUOTE { value.upValue += dq1.getText(); }
+        dq1:DQUOTE { value.rawValue += dq1.getText(); }
         (
             (
                 s:~(DQUOTE|ESC|ESCESC|ESCSHARP|HEXPAIR) 
                 {
-                    value.upValue += s.getText();
+                    value.rawValue += s.getText();
                     bb.append( StringTools.getBytesUtf8( s.getText() ) ); 
                 }
             )
             |
             bytes = pair[value] { bb.append( bytes ); }
         )*
-        dq2:DQUOTE { value.upValue += dq2.getText(); }
+        dq2:DQUOTE { value.rawValue += dq2.getText(); }
     )
     {
-        // TODO: pair / s
         String string = StringTools.utf8ToString( bb.copyOfUsedBytes() );
-        string = string.replace("\\ ", " ");
-        value.normValue = string;
+        value.value = string;
     }
     ;
 
@@ -471,8 +479,8 @@ hexstring [UpAndNormValue value]
     hexValue:HEXVALUE
     {
         // convert to byte[]
-        value.upValue = "#" + hexValue.getText();
-        value.normValue = StringTools.toByteArray( hexValue.getText() ); 
+        value.rawValue = "#" + hexValue.getText();
+        value.value = StringTools.toByteArray( hexValue.getText() ); 
     }
     ;
 
@@ -486,8 +494,6 @@ hexstring [UpAndNormValue value]
      * string =   [ ( leadchar / pair ) [ *( stringchar / pair )
      *    ( trailchar / pair ) ] ]
      *
-     * TODO: Trailing SPACE is manually removed. This needs review! 
-     * TODO: ESC SPACE is replaced by a simgle SPACE. This needs review! 
      */ 
 string [UpAndNormValue value]
     {
@@ -501,13 +507,13 @@ string [UpAndNormValue value]
         (
             tmp = lutf1 
             { 
-                value.upValue += tmp;
+                value.rawValue += tmp;
                 bb.append( StringTools.getBytesUtf8( tmp ) ); 
             }
             |
             tmp = utfmb 
             {
-                value.upValue += tmp;
+                value.rawValue += tmp;
                 bb.append( StringTools.getBytesUtf8( tmp ) );
             }
             |
@@ -516,13 +522,13 @@ string [UpAndNormValue value]
         ( 
             tmp = sutf1
             {
-                value.upValue += tmp;
+                value.rawValue += tmp;
                 bb.append( StringTools.getBytesUtf8( tmp ) ); 
             }
             |
             tmp = utfmb 
             {
-                value.upValue += tmp;
+                value.rawValue += tmp;
                 bb.append( StringTools.getBytesUtf8( tmp ) ); 
             }
             |
@@ -534,16 +540,16 @@ string [UpAndNormValue value]
         
         // trim trailing space characters manually
         // don't know how to tell antlr that the last char mustn't be a space.
-        while ( string.length() > 0 && value.upValue.length() > 1 
-            && value.upValue.charAt( value.upValue.length() - 1 ) == ' ' 
-            && value.upValue.charAt( value.upValue.length() - 2 ) != '\\' )
+        int rawIndex = value.rawValue.length();
+        while ( string.length() > 0 && rawIndex > 1 
+            && value.rawValue.charAt( rawIndex - 1 ) == ' ' 
+            && value.rawValue.charAt( rawIndex - 2 ) != '\\' )
         {
             string = string.substring( 0, string.length() - 1 );
-            value.upValue = value.upValue.substring( 0, value.upValue.length() - 1 );
-            value.trailingSpaces += " ";
+            rawIndex--;
         }
         
-        value.normValue = string;
+        value.value = string;
     }
     ;
 
@@ -647,7 +653,6 @@ utfmb returns [String utfmb]
      * <special> ::= "," | "=" | <CR> | "+" | "<" |  ">"
      *           | "#" | ";"
      * 
-     * TODO: The ESC is removed from the norm value. This needs review! 
      */ 
 pair [UpAndNormValue value] returns [byte[] pair]
     {
@@ -658,7 +663,7 @@ pair [UpAndNormValue value] returns [byte[] pair]
     (
         ESCESC 
         { 
-            value.upValue += "\\\\";
+            value.rawValue += "\\\\";
             pair = StringTools.getBytesUtf8( "\\" );
         } 
     )
@@ -666,16 +671,16 @@ pair [UpAndNormValue value] returns [byte[] pair]
     (
         ESCSHARP 
         { 
-            value.upValue += "\\#";
+            value.rawValue += "\\#";
             pair = StringTools.getBytesUtf8( "#" );
         } 
     )
     |
     ( 
-        ESC { value.upValue += "\\"; }
+        ESC
         tmp = special 
         { 
-            value.upValue += tmp;
+            value.rawValue += "\\" + tmp;
             pair = StringTools.getBytesUtf8( tmp ); 
         }
     )
@@ -683,7 +688,7 @@ pair [UpAndNormValue value] returns [byte[] pair]
     ( 
         hexpair:HEXPAIR 
         { 
-            value.upValue += "\\" + hexpair.getText(); 
+            value.rawValue += "\\" + hexpair.getText();
             pair = StringTools.toByteArray( hexpair.getText() ); 
         } 
     )
@@ -696,7 +701,6 @@ pair [UpAndNormValue value] returns [byte[] pair]
      * special = escaped / SPACE / SHARP / EQUALS
      * escaped = DQUOTE / PLUS / COMMA / SEMI / LANGLE / RANGLE
      *
-     * TODO: For space an ESC is manually added. This needs review! 
      */ 
 special returns [String special]
     {
@@ -724,11 +728,3 @@ special returns [String special]
     )
     ;
 
-
-
-
-
-
-    
-    
-    

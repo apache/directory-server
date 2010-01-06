@@ -27,7 +27,7 @@
     <version>0.9.18-SNAPSHOT</version>
   </parent>
   <artifactId>shared-ldap</artifactId>
-  <name>Apache Directory Protocol Ldap Shared</name>
+  <name>Apache Directory Shared Ldap</name>
   <inceptionYear>2004</inceptionYear>
 
   <issueManagement>

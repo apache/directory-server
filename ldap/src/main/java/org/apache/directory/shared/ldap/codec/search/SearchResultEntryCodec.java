@@ -36,7 +36,6 @@ import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -242,7 +241,7 @@ public class SearchResultEntryCodec extends LdapMessageCodec
      */
     public int computeLength()
     {
-        objectNameBytes = StringTools.getBytesUtf8( entry.getDn().getUpName() );
+        objectNameBytes = StringTools.getBytesUtf8( entry.getDn().getName() );
 
         // The entry
         searchResultEntryLength = 1 + TLV.getNbBytes( objectNameBytes.length ) + objectNameBytes.length;

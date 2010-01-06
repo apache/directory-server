@@ -20,8 +20,11 @@
 package org.apache.directory.shared.ldap.schema.comparators;
 
 
-import java.io.Serializable;
 import java.util.Comparator;
+
+import org.apache.directory.shared.ldap.schema.LdapComparator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -30,10 +33,22 @@ import java.util.Comparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ComparableComparator implements Comparator, Serializable
+public class ComparableComparator<T> extends LdapComparator<Comparable<T>>
 {
-    private static final long serialVersionUID = -5295278271807198471L;
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( ComparableComparator.class );
 
+    /** The serialVersionUID */
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * The BooleanComparator constructor. Its OID is the BooleanMatch matching
+     * rule OID.
+     */
+    public ComparableComparator( String oid )
+    {
+        super( oid );
+    }
 
     /**
      * Compares two objects taking into account that one may be a Comparable. If
@@ -45,14 +60,16 @@ public class ComparableComparator implements Comparator, Serializable
      * 
      * @see Comparator#compare(Object, Object)
      */
-    public int compare( Object o1, Object o2 )
+    public int compare( Comparable<T> o1, Comparable<T> o2 )
     {
+        LOG.debug( "comparing objects '{}' with '{}'", o1, o2 );
+        
         if ( ( o1 == null ) && ( o2 == null ) )
         {
             return 0;
         }
         
-        if ( o1 instanceof Comparable )
+        if ( o1 instanceof Comparable<?> )
         {
             if ( o2 == null )
             {
@@ -60,7 +77,7 @@ public class ComparableComparator implements Comparator, Serializable
             }
             else
             {
-                return ( ( Comparable ) o1 ).compareTo( o2 );
+                return o1.compareTo( ( T ) o2 );
             }
         }
 
@@ -68,7 +85,7 @@ public class ComparableComparator implements Comparator, Serializable
         {
             return 1;
         }
-        else if ( o2 instanceof Comparable )
+        else if ( o2 instanceof Comparable<?> )
         {
             if ( o1 == null )
             {
@@ -76,7 +93,7 @@ public class ComparableComparator implements Comparator, Serializable
             }
             else
             {
-                return -( ( Comparable ) o2 ).compareTo( o1 );
+                return - o2.compareTo( ( T ) o1 );
             }
         }
 

@@ -22,7 +22,7 @@ package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 import java.text.ParseException;
 
-import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleUseDescription;
+import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleUseDescriptionSchemaParser;
 import org.junit.After;
 import org.junit.Before;
@@ -31,6 +31,7 @@ import static org.junit.Assert.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
 
 
@@ -92,96 +93,96 @@ public class MatchingRuleUseDescriptionSchemaParserTest
     {
 
         String value = null;
-        MatchingRuleUseDescription mrud = null;
+        MatchingRuleUse matchingRuleUse = null;
 
         // APPLIES simple numericoid
         value = "( 1.1 APPLIES 1.2.3.4.5.6.7.8.9.0 )";
-        mrud = parser.parseMatchingRuleUseDescription( value );
-        assertEquals( 1, mrud.getApplicableAttributes().size() );
-        assertEquals( "1.2.3.4.5.6.7.8.9.0", mrud.getApplicableAttributes().get( 0 ) );
+        matchingRuleUse = parser.parseMatchingRuleUseDescription( value );
+        assertEquals( 1, matchingRuleUse.getApplicableAttributeOids().size() );
+        assertEquals( "1.2.3.4.5.6.7.8.9.0", matchingRuleUse.getApplicableAttributeOids().get( 0 ) );
 
         // SUP simple descr
         value = "( 1.1 APPLIES abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 )";
-        mrud = parser.parseMatchingRuleUseDescription( value );
-        assertEquals( 1, mrud.getApplicableAttributes().size() );
-        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", mrud
-            .getApplicableAttributes().get( 0 ) );
+        matchingRuleUse = parser.parseMatchingRuleUseDescription( value );
+        assertEquals( 1, matchingRuleUse.getApplicableAttributeOids().size() );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", matchingRuleUse
+            .getApplicableAttributeOids().get( 0 ) );
 
         // APPLIES single numericoid
         value = "( 1.1 APPLIES ( 123.4567.890 ) )";
-        mrud = parser.parseMatchingRuleUseDescription( value );
-        assertEquals( 1, mrud.getApplicableAttributes().size() );
-        assertEquals( "123.4567.890", mrud.getApplicableAttributes().get( 0 ) );
+        matchingRuleUse = parser.parseMatchingRuleUseDescription( value );
+        assertEquals( 1, matchingRuleUse.getApplicableAttributeOids().size() );
+        assertEquals( "123.4567.890", matchingRuleUse.getApplicableAttributeOids().get( 0 ) );
 
         // APPLIES single descr
         value = "(1.1 APPLIES(a-z-A-Z-0-9))";
-        mrud = parser.parseMatchingRuleUseDescription( value );
-        assertEquals( 1, mrud.getApplicableAttributes().size() );
-        assertEquals( "a-z-A-Z-0-9", mrud.getApplicableAttributes().get( 0 ) );
+        matchingRuleUse = parser.parseMatchingRuleUseDescription( value );
+        assertEquals( 1, matchingRuleUse.getApplicableAttributeOids().size() );
+        assertEquals( "a-z-A-Z-0-9", matchingRuleUse.getApplicableAttributeOids().get( 0 ) );
 
         // APPLIES multi numericoid
         value = "( 1.1 APPLIES ( 1.2.3 $ 4.5.6 $ 7.8.90 ) )";
-        mrud = parser.parseMatchingRuleUseDescription( value );
-        assertEquals( 3, mrud.getApplicableAttributes().size() );
-        assertEquals( "1.2.3", mrud.getApplicableAttributes().get( 0 ) );
-        assertEquals( "4.5.6", mrud.getApplicableAttributes().get( 1 ) );
-        assertEquals( "7.8.90", mrud.getApplicableAttributes().get( 2 ) );
+        matchingRuleUse = parser.parseMatchingRuleUseDescription( value );
+        assertEquals( 3, matchingRuleUse.getApplicableAttributeOids().size() );
+        assertEquals( "1.2.3", matchingRuleUse.getApplicableAttributeOids().get( 0 ) );
+        assertEquals( "4.5.6", matchingRuleUse.getApplicableAttributeOids().get( 1 ) );
+        assertEquals( "7.8.90", matchingRuleUse.getApplicableAttributeOids().get( 2 ) );
 
         // APPLIES multi descr
         value = "( 1.1 APPLIES ( test1 $ test2 ) )";
-        mrud = parser.parseMatchingRuleUseDescription( value );
-        assertEquals( 2, mrud.getApplicableAttributes().size() );
-        assertEquals( "test1", mrud.getApplicableAttributes().get( 0 ) );
-        assertEquals( "test2", mrud.getApplicableAttributes().get( 1 ) );
+        matchingRuleUse = parser.parseMatchingRuleUseDescription( value );
+        assertEquals( 2, matchingRuleUse.getApplicableAttributeOids().size() );
+        assertEquals( "test1", matchingRuleUse.getApplicableAttributeOids().get( 0 ) );
+        assertEquals( "test2", matchingRuleUse.getApplicableAttributeOids().get( 1 ) );
 
         // APPLIES multi mixed, tabs
         value = "\t(\t1.1\tAPPLIES\t(\ttest1\t$\t1.2.3.4\t$\ttest2\t)\t)\t";
-        mrud = parser.parseMatchingRuleUseDescription( value );
-        assertEquals( 3, mrud.getApplicableAttributes().size() );
-        assertEquals( "test1", mrud.getApplicableAttributes().get( 0 ) );
-        assertEquals( "1.2.3.4", mrud.getApplicableAttributes().get( 1 ) );
-        assertEquals( "test2", mrud.getApplicableAttributes().get( 2 ) );
+        matchingRuleUse = parser.parseMatchingRuleUseDescription( value );
+        assertEquals( 3, matchingRuleUse.getApplicableAttributeOids().size() );
+        assertEquals( "test1", matchingRuleUse.getApplicableAttributeOids().get( 0 ) );
+        assertEquals( "1.2.3.4", matchingRuleUse.getApplicableAttributeOids().get( 1 ) );
+        assertEquals( "test2", matchingRuleUse.getApplicableAttributeOids().get( 2 ) );
 
         // APPLIES multi mixed no space
         value = "(1.1 APPLIES(TEST-1$1.2.3.4$TEST-2))";
-        mrud = parser.parseMatchingRuleUseDescription( value );
-        assertEquals( 3, mrud.getApplicableAttributes().size() );
-        assertEquals( "TEST-1", mrud.getApplicableAttributes().get( 0 ) );
-        assertEquals( "1.2.3.4", mrud.getApplicableAttributes().get( 1 ) );
-        assertEquals( "TEST-2", mrud.getApplicableAttributes().get( 2 ) );
+        matchingRuleUse = parser.parseMatchingRuleUseDescription( value );
+        assertEquals( 3, matchingRuleUse.getApplicableAttributeOids().size() );
+        assertEquals( "TEST-1", matchingRuleUse.getApplicableAttributeOids().get( 0 ) );
+        assertEquals( "1.2.3.4", matchingRuleUse.getApplicableAttributeOids().get( 1 ) );
+        assertEquals( "TEST-2", matchingRuleUse.getApplicableAttributeOids().get( 2 ) );
 
         // APPLIES multi mixed many spaces
         value = "(          1.1          APPLIES          (          test1          $          1.2.3.4$test2          )          )";
-        mrud = parser.parseMatchingRuleUseDescription( value );
-        assertEquals( 3, mrud.getApplicableAttributes().size() );
-        assertEquals( "test1", mrud.getApplicableAttributes().get( 0 ) );
-        assertEquals( "1.2.3.4", mrud.getApplicableAttributes().get( 1 ) );
-        assertEquals( "test2", mrud.getApplicableAttributes().get( 2 ) );
+        matchingRuleUse = parser.parseMatchingRuleUseDescription( value );
+        assertEquals( 3, matchingRuleUse.getApplicableAttributeOids().size() );
+        assertEquals( "test1", matchingRuleUse.getApplicableAttributeOids().get( 0 ) );
+        assertEquals( "1.2.3.4", matchingRuleUse.getApplicableAttributeOids().get( 1 ) );
+        assertEquals( "test2", matchingRuleUse.getApplicableAttributeOids().get( 2 ) );
 
         // quoted value
         value = "( 1.1 APPLIES 'test' )";
-        mrud = parser.parseMatchingRuleUseDescription( value );
-        assertEquals( 1, mrud.getApplicableAttributes().size() );
-        assertEquals( "test", mrud.getApplicableAttributes().get( 0 ) );
+        matchingRuleUse = parser.parseMatchingRuleUseDescription( value );
+        assertEquals( 1, matchingRuleUse.getApplicableAttributeOids().size() );
+        assertEquals( "test", matchingRuleUse.getApplicableAttributeOids().get( 0 ) );
 
         // quoted value
         value = "( 1.1 APPLIES '1.2.3.4' )";
-        mrud = parser.parseMatchingRuleUseDescription( value );
-        assertEquals( 1, mrud.getApplicableAttributes().size() );
-        assertEquals( "1.2.3.4", mrud.getApplicableAttributes().get( 0 ) );
+        matchingRuleUse = parser.parseMatchingRuleUseDescription( value );
+        assertEquals( 1, matchingRuleUse.getApplicableAttributeOids().size() );
+        assertEquals( "1.2.3.4", matchingRuleUse.getApplicableAttributeOids().get( 0 ) );
 
         // no $ separator
         value = "( 1.1 APPLIES ( test1 test2 ) )";
-        mrud = parser.parseMatchingRuleUseDescription( value );
-        assertEquals( 2, mrud.getApplicableAttributes().size() );
-        assertEquals( "test1", mrud.getApplicableAttributes().get( 0 ) );
-        assertEquals( "test2", mrud.getApplicableAttributes().get( 1 ) );
+        matchingRuleUse = parser.parseMatchingRuleUseDescription( value );
+        assertEquals( 2, matchingRuleUse.getApplicableAttributeOids().size() );
+        assertEquals( "test1", matchingRuleUse.getApplicableAttributeOids().get( 0 ) );
+        assertEquals( "test2", matchingRuleUse.getApplicableAttributeOids().get( 1 ) );
 
         // invalid character
         value = "( 1.1 APPLIES 1.2.3.4.A )";
         try
         {
-            mrud = parser.parseMatchingRuleUseDescription( value );
+            matchingRuleUse = parser.parseMatchingRuleUseDescription( value );
             fail( "Exception expected, invalid APPLIES '1.2.3.4.A' (invalid character)" );
         }
         catch ( ParseException pe )
@@ -193,7 +194,7 @@ public class MatchingRuleUseDescriptionSchemaParserTest
         value = "( 1.1 APPLIES )";
         try
         {
-            mrud = parser.parseMatchingRuleUseDescription( value );
+            matchingRuleUse = parser.parseMatchingRuleUseDescription( value );
             fail( "Exception expected, no APPLIES value" );
         }
         catch ( ParseException pe )
@@ -205,7 +206,7 @@ public class MatchingRuleUseDescriptionSchemaParserTest
         value = "( 1.1 APPLIES test1 APPLIES test2 )";
         try
         {
-            mrud = parser.parseMatchingRuleUseDescription( value );
+            matchingRuleUse = parser.parseMatchingRuleUseDescription( value );
             fail( "Exception expected, APPLIES appears twice" );
         }
         catch ( ParseException pe )
@@ -219,7 +220,7 @@ public class MatchingRuleUseDescriptionSchemaParserTest
             value = "( 1.1 )";
             try
             {
-                mrud = parser.parseMatchingRuleUseDescription( value );
+                matchingRuleUse = parser.parseMatchingRuleUseDescription( value );
                 fail( "Exception expected, APPLIES is required" );
             }
             catch ( ParseException pe )
@@ -231,7 +232,7 @@ public class MatchingRuleUseDescriptionSchemaParserTest
             value = "( 1.1 APPLIES ( test1 $ -test2 ) )";
             try
             {
-                mrud = parser.parseMatchingRuleUseDescription( value );
+                matchingRuleUse = parser.parseMatchingRuleUseDescription( value );
                 fail( "Exception expected, invalid APPLIES '-test' (starts with hypen)" );
             }
             catch ( ParseException pe )
@@ -253,30 +254,30 @@ public class MatchingRuleUseDescriptionSchemaParserTest
     public void testFull() throws ParseException
     {
         String value = null;
-        MatchingRuleUseDescription mrud = null;
+        MatchingRuleUse matchingRuleUse = null;
 
         value = "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577' OBSOLETE APPLIES ( 0.1.2.3.4.5.6.7.8.9 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )";
-        mrud = parser.parseMatchingRuleUseDescription( value );
+        matchingRuleUse = parser.parseMatchingRuleUseDescription( value );
 
-        assertEquals( "1.2.3.4.5.6.7.8.9.0", mrud.getNumericOid() );
-        assertEquals( 2, mrud.getNames().size() );
-        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", mrud.getNames().get( 0 ) );
-        assertEquals( "test", mrud.getNames().get( 1 ) );
-        assertEquals( "Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577", mrud.getDescription() );
-        assertTrue( mrud.isObsolete() );
-        assertEquals( 2, mrud.getApplicableAttributes().size() );
-        assertEquals( "0.1.2.3.4.5.6.7.8.9", mrud.getApplicableAttributes().get( 0 ) );
-        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", mrud
-            .getApplicableAttributes().get( 1 ) );
-        assertEquals( 2, mrud.getExtensions().size() );
-        assertNotNull( mrud.getExtensions().get( "X-TEST-a" ) );
-        assertEquals( 2, mrud.getExtensions().get( "X-TEST-a" ).size() );
-        assertEquals( "test1-1", mrud.getExtensions().get( "X-TEST-a" ).get( 0 ) );
-        assertEquals( "test1-2", mrud.getExtensions().get( "X-TEST-a" ).get( 1 ) );
-        assertNotNull( mrud.getExtensions().get( "X-TEST-b" ) );
-        assertEquals( 2, mrud.getExtensions().get( "X-TEST-b" ).size() );
-        assertEquals( "test2-1", mrud.getExtensions().get( "X-TEST-b" ).get( 0 ) );
-        assertEquals( "test2-2", mrud.getExtensions().get( "X-TEST-b" ).get( 1 ) );
+        assertEquals( "1.2.3.4.5.6.7.8.9.0", matchingRuleUse.getOid() );
+        assertEquals( 2, matchingRuleUse.getNames().size() );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", matchingRuleUse.getNames().get( 0 ) );
+        assertEquals( "test", matchingRuleUse.getNames().get( 1 ) );
+        assertEquals( "Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577", matchingRuleUse.getDescription() );
+        assertTrue( matchingRuleUse.isObsolete() );
+        assertEquals( 2, matchingRuleUse.getApplicableAttributeOids().size() );
+        assertEquals( "0.1.2.3.4.5.6.7.8.9", matchingRuleUse.getApplicableAttributeOids().get( 0 ) );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", matchingRuleUse
+            .getApplicableAttributeOids().get( 1 ) );
+        assertEquals( 2, matchingRuleUse.getExtensions().size() );
+        assertNotNull( matchingRuleUse.getExtensions().get( "X-TEST-a" ) );
+        assertEquals( 2, matchingRuleUse.getExtensions().get( "X-TEST-a" ).size() );
+        assertEquals( "test1-1", matchingRuleUse.getExtensions().get( "X-TEST-a" ).get( 0 ) );
+        assertEquals( "test1-2", matchingRuleUse.getExtensions().get( "X-TEST-a" ).get( 1 ) );
+        assertNotNull( matchingRuleUse.getExtensions().get( "X-TEST-b" ) );
+        assertEquals( 2, matchingRuleUse.getExtensions().get( "X-TEST-b" ).size() );
+        assertEquals( "test2-1", matchingRuleUse.getExtensions().get( "X-TEST-b" ).get( 0 ) );
+        assertEquals( "test2-2", matchingRuleUse.getExtensions().get( "X-TEST-b" ).get( 1 ) );
     }
 
 
@@ -305,11 +306,11 @@ public class MatchingRuleUseDescriptionSchemaParserTest
     public void testRequiredElements() throws ParseException
     {
         String value = null;
-        MatchingRuleUseDescription mrud = null;
+        MatchingRuleUse matchingRuleUse = null;
 
         value = "( 1.2.3.4.5.6.7.8.9.0 APPLIES a )";
-        mrud = parser.parseMatchingRuleUseDescription( value );
-        assertEquals( 1, mrud.getApplicableAttributes().size() );
+        matchingRuleUse = parser.parseMatchingRuleUseDescription( value );
+        assertEquals( 1, matchingRuleUse.getApplicableAttributeOids().size() );
 
         if ( !parser.isQuirksMode() )
         {
@@ -335,17 +336,17 @@ public class MatchingRuleUseDescriptionSchemaParserTest
     public void testOpenldap1() throws ParseException
     {
         String value = "( 2.5.13.17 NAME 'octetStringMatch' APPLIES ( javaSerializedData $ userPassword ) )";
-        MatchingRuleUseDescription mrud = parser.parseMatchingRuleUseDescription( value );
+        MatchingRuleUse matchingRuleUse = parser.parseMatchingRuleUseDescription( value );
 
-        assertEquals( "2.5.13.17", mrud.getNumericOid() );
-        assertEquals( 1, mrud.getNames().size() );
-        assertEquals( "octetStringMatch", mrud.getNames().get( 0 ) );
-        assertEquals( "", mrud.getDescription() );
-        assertFalse( mrud.isObsolete() );
-        assertEquals( 2, mrud.getApplicableAttributes().size() );
-        assertEquals( "javaSerializedData", mrud.getApplicableAttributes().get( 0 ) );
-        assertEquals( "userPassword", mrud.getApplicableAttributes().get( 1 ) );
-        assertEquals( 0, mrud.getExtensions().size() );
+        assertEquals( "2.5.13.17", matchingRuleUse.getOid() );
+        assertEquals( 1, matchingRuleUse.getNames().size() );
+        assertEquals( "octetStringMatch", matchingRuleUse.getNames().get( 0 ) );
+        assertNull( matchingRuleUse.getDescription() );
+        assertFalse( matchingRuleUse.isObsolete() );
+        assertEquals( 2, matchingRuleUse.getApplicableAttributeOids().size() );
+        assertEquals( "javaSerializedData", matchingRuleUse.getApplicableAttributeOids().get( 0 ) );
+        assertEquals( "userPassword", matchingRuleUse.getApplicableAttributeOids().get( 1 ) );
+        assertEquals( 0, matchingRuleUse.getExtensions().size() );
     }
 
 

@@ -1351,7 +1351,7 @@ public class LdapURL
 
         if ( dn != null )
         {
-            sb.append( '/' ).append( urlEncode( dn.getUpName(), false ) );
+            sb.append( '/' ).append( urlEncode( dn.getName(), false ) );
 
             if ( attributes.size() != 0 || forceScopeRendering
                 || ( ( scope != SearchControls.OBJECT_SCOPE ) || ( filter != null ) || ( extensionList.size() != 0 ) ) )

@@ -20,7 +20,9 @@
 package org.apache.directory.shared.ldap.schema.comparators;
 
 
-import java.util.Comparator;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -29,20 +31,33 @@ import java.util.Comparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class StringComparator implements Comparator<String>
+public class StringComparator extends LdapComparator<String>
 {
-    /** A static instance of this comparator */
-    public static final Comparator<String> INSTANCE = new StringComparator();
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( StringComparator.class );
+
+    /** The serialVersionUID */
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * The StringComparator constructor. Its OID is the StringMatch matching
+     * rule OID.
+     */
+    public StringComparator( String oid )
+    {
+        super( oid );
+    }
 
     /**
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
     public int compare( String s1, String s2 )
     {
+        LOG.debug( "comparing String objects '{}' with '{}'", s1, s2 );
+        
         // -------------------------------------------------------------------
         // Handle some basis cases
         // -------------------------------------------------------------------
-
         if ( s1 == null )
         {
             return ( s2 == null ) ? 0 : -1;

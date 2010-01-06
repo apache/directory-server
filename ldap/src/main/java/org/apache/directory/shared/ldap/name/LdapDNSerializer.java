@@ -57,7 +57,7 @@ public class LdapDNSerializer
      */
     public static void serialize( LdapDN dn, ObjectOutput out ) throws IOException
     {
-        if ( dn.getUpName() == null )
+        if ( dn.getName() == null )
         {
             String message = "Cannot serialize a NULL DN";
             LOG.error( message );
@@ -65,12 +65,12 @@ public class LdapDNSerializer
         }
         
         // Write the UPName
-        out.writeUTF( dn.getUpName() );
+        out.writeUTF( dn.getName() );
         
         // Write the NormName if different
         if ( dn.isNormalized() )
         {
-            if ( dn.getUpName().equals( dn.getNormName() ) )
+            if ( dn.getName().equals( dn.getNormName() ) )
             {
                 out.writeUTF( "" );
             }

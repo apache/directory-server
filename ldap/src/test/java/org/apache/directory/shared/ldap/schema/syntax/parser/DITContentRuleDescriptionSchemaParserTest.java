@@ -22,7 +22,7 @@ package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 import java.text.ParseException;
 
-import org.apache.directory.shared.ldap.schema.parsers.DITContentRuleDescription;
+import org.apache.directory.shared.ldap.schema.DITContentRule;
 import org.apache.directory.shared.ldap.schema.parsers.DITContentRuleDescriptionSchemaParser;
 import org.junit.After;
 import org.junit.Before;
@@ -115,99 +115,99 @@ public class DITContentRuleDescriptionSchemaParserTest
     public void testAux() throws ParseException
     {
         String value = null;
-        DITContentRuleDescription dcrd = null;
+        DITContentRule ditContentRule = null;
 
         // no AUX
         value = "( 1.1 )";
-        dcrd = parser.parseDITContentRuleDescription( value );
-        assertEquals( 0, dcrd.getAuxiliaryObjectClasses().size() );
+        ditContentRule = parser.parseDITContentRuleDescription( value );
+        assertEquals( 0, ditContentRule.getAuxObjectClassOids().size() );
 
         // AUX simple numericoid
         value = "( 1.1 AUX 1.2.3 )";
-        dcrd = parser.parseDITContentRuleDescription( value );
-        assertEquals( 1, dcrd.getAuxiliaryObjectClasses().size() );
-        assertEquals( "1.2.3", dcrd.getAuxiliaryObjectClasses().get( 0 ) );
+        ditContentRule = parser.parseDITContentRuleDescription( value );
+        assertEquals( 1, ditContentRule.getAuxObjectClassOids().size() );
+        assertEquals( "1.2.3", ditContentRule.getAuxObjectClassOids().get( 0 ) );
 
         // AUX simple descr
         value = "( 1.1 AUX top )";
-        dcrd = parser.parseDITContentRuleDescription( value );
-        assertEquals( 1, dcrd.getAuxiliaryObjectClasses().size() );
-        assertEquals( "top", dcrd.getAuxiliaryObjectClasses().get( 0 ) );
+        ditContentRule = parser.parseDITContentRuleDescription( value );
+        assertEquals( 1, ditContentRule.getAuxObjectClassOids().size() );
+        assertEquals( "top", ditContentRule.getAuxObjectClassOids().get( 0 ) );
 
         // AUX single numericoid
         value = "( 1.1 AUX ( 1.2.3.4.5 ) )";
-        dcrd = parser.parseDITContentRuleDescription( value );
-        assertEquals( 1, dcrd.getAuxiliaryObjectClasses().size() );
-        assertEquals( "1.2.3.4.5", dcrd.getAuxiliaryObjectClasses().get( 0 ) );
+        ditContentRule = parser.parseDITContentRuleDescription( value );
+        assertEquals( 1, ditContentRule.getAuxObjectClassOids().size() );
+        assertEquals( "1.2.3.4.5", ditContentRule.getAuxObjectClassOids().get( 0 ) );
 
         // AUX single descr
         value = "( 1.1 AUX ( A-Z-0-9 ) )";
-        dcrd = parser.parseDITContentRuleDescription( value );
-        assertEquals( 1, dcrd.getAuxiliaryObjectClasses().size() );
-        assertEquals( "A-Z-0-9", dcrd.getAuxiliaryObjectClasses().get( 0 ) );
+        ditContentRule = parser.parseDITContentRuleDescription( value );
+        assertEquals( 1, ditContentRule.getAuxObjectClassOids().size() );
+        assertEquals( "A-Z-0-9", ditContentRule.getAuxObjectClassOids().get( 0 ) );
 
         // AUX multi numericoid
         value = "( 1.1 AUX ( 1.2.3 $ 1.2.3.4.5 ) )";
-        dcrd = parser.parseDITContentRuleDescription( value );
-        assertEquals( 2, dcrd.getAuxiliaryObjectClasses().size() );
-        assertEquals( "1.2.3", dcrd.getAuxiliaryObjectClasses().get( 0 ) );
-        assertEquals( "1.2.3.4.5", dcrd.getAuxiliaryObjectClasses().get( 1 ) );
+        ditContentRule = parser.parseDITContentRuleDescription( value );
+        assertEquals( 2, ditContentRule.getAuxObjectClassOids().size() );
+        assertEquals( "1.2.3", ditContentRule.getAuxObjectClassOids().get( 0 ) );
+        assertEquals( "1.2.3.4.5", ditContentRule.getAuxObjectClassOids().get( 1 ) );
 
         // AUX multi descr
         value = "( 1.1 AUX ( top1 $ top2 ) )";
-        dcrd = parser.parseDITContentRuleDescription( value );
-        assertEquals( 2, dcrd.getAuxiliaryObjectClasses().size() );
-        assertEquals( "top1", dcrd.getAuxiliaryObjectClasses().get( 0 ) );
-        assertEquals( "top2", dcrd.getAuxiliaryObjectClasses().get( 1 ) );
+        ditContentRule = parser.parseDITContentRuleDescription( value );
+        assertEquals( 2, ditContentRule.getAuxObjectClassOids().size() );
+        assertEquals( "top1", ditContentRule.getAuxObjectClassOids().get( 0 ) );
+        assertEquals( "top2", ditContentRule.getAuxObjectClassOids().get( 1 ) );
 
         // AUX multi mixed
         value = "( 1.1 AUX ( top1 $ 1.2.3.4 $ top2 ) )";
-        dcrd = parser.parseDITContentRuleDescription( value );
-        assertEquals( 3, dcrd.getAuxiliaryObjectClasses().size() );
-        assertEquals( "top1", dcrd.getAuxiliaryObjectClasses().get( 0 ) );
-        assertEquals( "1.2.3.4", dcrd.getAuxiliaryObjectClasses().get( 1 ) );
-        assertEquals( "top2", dcrd.getAuxiliaryObjectClasses().get( 2 ) );
+        ditContentRule = parser.parseDITContentRuleDescription( value );
+        assertEquals( 3, ditContentRule.getAuxObjectClassOids().size() );
+        assertEquals( "top1", ditContentRule.getAuxObjectClassOids().get( 0 ) );
+        assertEquals( "1.2.3.4", ditContentRule.getAuxObjectClassOids().get( 1 ) );
+        assertEquals( "top2", ditContentRule.getAuxObjectClassOids().get( 2 ) );
 
         // AUX multi mixed no space
         value = "(1.1 AUX(TOP-1$1.2.3.4$TOP-2))";
-        dcrd = parser.parseDITContentRuleDescription( value );
-        assertEquals( 3, dcrd.getAuxiliaryObjectClasses().size() );
-        assertEquals( "TOP-1", dcrd.getAuxiliaryObjectClasses().get( 0 ) );
-        assertEquals( "1.2.3.4", dcrd.getAuxiliaryObjectClasses().get( 1 ) );
-        assertEquals( "TOP-2", dcrd.getAuxiliaryObjectClasses().get( 2 ) );
+        ditContentRule = parser.parseDITContentRuleDescription( value );
+        assertEquals( 3, ditContentRule.getAuxObjectClassOids().size() );
+        assertEquals( "TOP-1", ditContentRule.getAuxObjectClassOids().get( 0 ) );
+        assertEquals( "1.2.3.4", ditContentRule.getAuxObjectClassOids().get( 1 ) );
+        assertEquals( "TOP-2", ditContentRule.getAuxObjectClassOids().get( 2 ) );
 
         // AUX multi mixed many spaces
         value = "(          1.1          AUX          (          top1          $          1.2.3.4$top2          )          )";
-        dcrd = parser.parseDITContentRuleDescription( value );
-        assertEquals( 3, dcrd.getAuxiliaryObjectClasses().size() );
-        assertEquals( "top1", dcrd.getAuxiliaryObjectClasses().get( 0 ) );
-        assertEquals( "1.2.3.4", dcrd.getAuxiliaryObjectClasses().get( 1 ) );
-        assertEquals( "top2", dcrd.getAuxiliaryObjectClasses().get( 2 ) );
+        ditContentRule = parser.parseDITContentRuleDescription( value );
+        assertEquals( 3, ditContentRule.getAuxObjectClassOids().size() );
+        assertEquals( "top1", ditContentRule.getAuxObjectClassOids().get( 0 ) );
+        assertEquals( "1.2.3.4", ditContentRule.getAuxObjectClassOids().get( 1 ) );
+        assertEquals( "top2", ditContentRule.getAuxObjectClassOids().get( 2 ) );
 
         // no quote allowed
         value = "( 1.1 AUX 'top' )";
-        dcrd = parser.parseDITContentRuleDescription( value );
-        assertEquals( 1, dcrd.getAuxiliaryObjectClasses().size() );
-        assertEquals( "top", dcrd.getAuxiliaryObjectClasses().get( 0 ) );
+        ditContentRule = parser.parseDITContentRuleDescription( value );
+        assertEquals( 1, ditContentRule.getAuxObjectClassOids().size() );
+        assertEquals( "top", ditContentRule.getAuxObjectClassOids().get( 0 ) );
 
         // quoted value
         value = "( 1.1 AUX '1.2.3.4' )";
-        dcrd = parser.parseDITContentRuleDescription( value );
-        assertEquals( 1, dcrd.getAuxiliaryObjectClasses().size() );
-        assertEquals( "1.2.3.4", dcrd.getAuxiliaryObjectClasses().get( 0 ) );
+        ditContentRule = parser.parseDITContentRuleDescription( value );
+        assertEquals( 1, ditContentRule.getAuxObjectClassOids().size() );
+        assertEquals( "1.2.3.4", ditContentRule.getAuxObjectClassOids().get( 0 ) );
 
         // no $ separator
         value = "( 1.1 AUX ( top1 top2 ) )";
-        dcrd = parser.parseDITContentRuleDescription( value );
-        assertEquals( 2, dcrd.getAuxiliaryObjectClasses().size() );
-        assertEquals( "top1", dcrd.getAuxiliaryObjectClasses().get( 0 ) );
-        assertEquals( "top2", dcrd.getAuxiliaryObjectClasses().get( 1 ) );
+        ditContentRule = parser.parseDITContentRuleDescription( value );
+        assertEquals( 2, ditContentRule.getAuxObjectClassOids().size() );
+        assertEquals( "top1", ditContentRule.getAuxObjectClassOids().get( 0 ) );
+        assertEquals( "top2", ditContentRule.getAuxObjectClassOids().get( 1 ) );
 
         // invalid character
         value = "( 1.1 AUX 1.2.3.4.A )";
         try
         {
-            dcrd = parser.parseDITContentRuleDescription( value );
+            ditContentRule = parser.parseDITContentRuleDescription( value );
             fail( "Exception expected, invalid AUX '1.2.3.4.A' (invalid character)" );
         }
         catch ( ParseException pe )
@@ -219,7 +219,7 @@ public class DITContentRuleDescriptionSchemaParserTest
         value = "( 1.1 AUX )";
         try
         {
-            dcrd = parser.parseDITContentRuleDescription( value );
+            ditContentRule = parser.parseDITContentRuleDescription( value );
             fail( "Exception expected, no AUX value" );
         }
         catch ( ParseException pe )
@@ -233,7 +233,7 @@ public class DITContentRuleDescriptionSchemaParserTest
             value = "( 1.1 AUX ( top1 $ -top2 ) )";
             try
             {
-                dcrd = parser.parseDITContentRuleDescription( value );
+                ditContentRule = parser.parseDITContentRuleDescription( value );
                 fail( "Exception expected, invalid AUX '-top' (starts with hypen)" );
             }
             catch ( ParseException pe )
@@ -254,33 +254,33 @@ public class DITContentRuleDescriptionSchemaParserTest
     public void testMust() throws ParseException
     {
         String value = null;
-        DITContentRuleDescription dcrd = null;
+        DITContentRule ditContentRule = null;
 
         // no MUST
         value = "( 1.1 )";
-        dcrd = parser.parseDITContentRuleDescription( value );
-        assertEquals( 0, dcrd.getMustAttributeTypes().size() );
+        ditContentRule = parser.parseDITContentRuleDescription( value );
+        assertEquals( 0, ditContentRule.getMustAttributeTypeOids().size() );
 
         // MUST simple numericoid
         value = "( 1.1 MUST 1.2.3 )";
-        dcrd = parser.parseDITContentRuleDescription( value );
-        assertEquals( 1, dcrd.getMustAttributeTypes().size() );
-        assertEquals( "1.2.3", dcrd.getMustAttributeTypes().get( 0 ) );
+        ditContentRule = parser.parseDITContentRuleDescription( value );
+        assertEquals( 1, ditContentRule.getMustAttributeTypeOids().size() );
+        assertEquals( "1.2.3", ditContentRule.getMustAttributeTypeOids().get( 0 ) );
 
         // MUST mulitple
         value = "(1.1 MUST (cn\rsn       $11.22.33.44.55            objectClass\t))";
-        dcrd = parser.parseDITContentRuleDescription( value );
-        assertEquals( 4, dcrd.getMustAttributeTypes().size() );
-        assertEquals( "cn", dcrd.getMustAttributeTypes().get( 0 ) );
-        assertEquals( "sn", dcrd.getMustAttributeTypes().get( 1 ) );
-        assertEquals( "11.22.33.44.55", dcrd.getMustAttributeTypes().get( 2 ) );
-        assertEquals( "objectClass", dcrd.getMustAttributeTypes().get( 3 ) );
+        ditContentRule = parser.parseDITContentRuleDescription( value );
+        assertEquals( 4, ditContentRule.getMustAttributeTypeOids().size() );
+        assertEquals( "cn", ditContentRule.getMustAttributeTypeOids().get( 0 ) );
+        assertEquals( "sn", ditContentRule.getMustAttributeTypeOids().get( 1 ) );
+        assertEquals( "11.22.33.44.55", ditContentRule.getMustAttributeTypeOids().get( 2 ) );
+        assertEquals( "objectClass", ditContentRule.getMustAttributeTypeOids().get( 3 ) );
 
         // no MUST values
         value = "( 1.1 MUST )";
         try
         {
-            dcrd = parser.parseDITContentRuleDescription( value );
+            ditContentRule = parser.parseDITContentRuleDescription( value );
             fail( "Exception expected, no MUST value" );
         }
         catch ( ParseException pe )
@@ -294,7 +294,7 @@ public class DITContentRuleDescriptionSchemaParserTest
             value = "( 1.1 MUST ( c_n ) )";
             try
             {
-                dcrd = parser.parseDITContentRuleDescription( value );
+                ditContentRule = parser.parseDITContentRuleDescription( value );
                 fail( "Exception expected, invalid value c_n" );
             }
             catch ( ParseException pe )
@@ -315,27 +315,27 @@ public class DITContentRuleDescriptionSchemaParserTest
     public void testMay() throws ParseException
     {
         String value = null;
-        DITContentRuleDescription dcrd = null;
+        DITContentRule ditContentRule = null;
 
         // no MAY
         value = "( 1.1 )";
-        dcrd = parser.parseDITContentRuleDescription( value );
-        assertEquals( 0, dcrd.getMayAttributeTypes().size() );
+        ditContentRule = parser.parseDITContentRuleDescription( value );
+        assertEquals( 0, ditContentRule.getMayAttributeTypeOids().size() );
 
         // MAY simple numericoid
         value = "( 1.1 MAY 1.2.3 )";
-        dcrd = parser.parseDITContentRuleDescription( value );
-        assertEquals( 1, dcrd.getMayAttributeTypes().size() );
-        assertEquals( "1.2.3", dcrd.getMayAttributeTypes().get( 0 ) );
+        ditContentRule = parser.parseDITContentRuleDescription( value );
+        assertEquals( 1, ditContentRule.getMayAttributeTypeOids().size() );
+        assertEquals( "1.2.3", ditContentRule.getMayAttributeTypeOids().get( 0 ) );
 
         // MAY mulitple
         value = "(1.1 MAY (cn$sn       $11.22.33.44.55         $  objectClass   ))";
-        dcrd = parser.parseDITContentRuleDescription( value );
-        assertEquals( 4, dcrd.getMayAttributeTypes().size() );
-        assertEquals( "cn", dcrd.getMayAttributeTypes().get( 0 ) );
-        assertEquals( "sn", dcrd.getMayAttributeTypes().get( 1 ) );
-        assertEquals( "11.22.33.44.55", dcrd.getMayAttributeTypes().get( 2 ) );
-        assertEquals( "objectClass", dcrd.getMayAttributeTypes().get( 3 ) );
+        ditContentRule = parser.parseDITContentRuleDescription( value );
+        assertEquals( 4, ditContentRule.getMayAttributeTypeOids().size() );
+        assertEquals( "cn", ditContentRule.getMayAttributeTypeOids().get( 0 ) );
+        assertEquals( "sn", ditContentRule.getMayAttributeTypeOids().get( 1 ) );
+        assertEquals( "11.22.33.44.55", ditContentRule.getMayAttributeTypeOids().get( 2 ) );
+        assertEquals( "objectClass", ditContentRule.getMayAttributeTypeOids().get( 3 ) );
 
         if ( !parser.isQuirksMode() )
         {
@@ -343,7 +343,7 @@ public class DITContentRuleDescriptionSchemaParserTest
             value = "( 1.1 MAY ( c_n ) )";
             try
             {
-                dcrd = parser.parseDITContentRuleDescription( value );
+                ditContentRule = parser.parseDITContentRuleDescription( value );
                 fail( "Exception expected, invalid value c_n" );
             }
             catch ( ParseException pe )
@@ -364,27 +364,27 @@ public class DITContentRuleDescriptionSchemaParserTest
     public void testNot() throws ParseException
     {
         String value = null;
-        DITContentRuleDescription dcrd = null;
+        DITContentRule ditContentRule = null;
 
         // no NOT
         value = "( 1.1 )";
-        dcrd = parser.parseDITContentRuleDescription( value );
-        assertEquals( 0, dcrd.getNotAttributeTypes().size() );
+        ditContentRule = parser.parseDITContentRuleDescription( value );
+        assertEquals( 0, ditContentRule.getNotAttributeTypeOids().size() );
 
         // NOT simple numericoid
         value = "( 1.1 NOT 1.2.3 )";
-        dcrd = parser.parseDITContentRuleDescription( value );
-        assertEquals( 1, dcrd.getNotAttributeTypes().size() );
-        assertEquals( "1.2.3", dcrd.getNotAttributeTypes().get( 0 ) );
+        ditContentRule = parser.parseDITContentRuleDescription( value );
+        assertEquals( 1, ditContentRule.getNotAttributeTypeOids().size() );
+        assertEquals( "1.2.3", ditContentRule.getNotAttributeTypeOids().get( 0 ) );
 
         // NOT mulitple
         value = "(1.1 NOT (cn\nsn\t$11.22.33.44.55         $  objectClass   ))";
-        dcrd = parser.parseDITContentRuleDescription( value );
-        assertEquals( 4, dcrd.getNotAttributeTypes().size() );
-        assertEquals( "cn", dcrd.getNotAttributeTypes().get( 0 ) );
-        assertEquals( "sn", dcrd.getNotAttributeTypes().get( 1 ) );
-        assertEquals( "11.22.33.44.55", dcrd.getNotAttributeTypes().get( 2 ) );
-        assertEquals( "objectClass", dcrd.getNotAttributeTypes().get( 3 ) );
+        ditContentRule = parser.parseDITContentRuleDescription( value );
+        assertEquals( 4, ditContentRule.getNotAttributeTypeOids().size() );
+        assertEquals( "cn", ditContentRule.getNotAttributeTypeOids().get( 0 ) );
+        assertEquals( "sn", ditContentRule.getNotAttributeTypeOids().get( 1 ) );
+        assertEquals( "11.22.33.44.55", ditContentRule.getNotAttributeTypeOids().get( 2 ) );
+        assertEquals( "objectClass", ditContentRule.getNotAttributeTypeOids().get( 3 ) );
 
         if ( !parser.isQuirksMode() )
         {
@@ -392,7 +392,7 @@ public class DITContentRuleDescriptionSchemaParserTest
             value = "( 1.1 NOT ( c_n ) )";
             try
             {
-                dcrd = parser.parseDITContentRuleDescription( value );
+                ditContentRule = parser.parseDITContentRuleDescription( value );
                 fail( "Exception expected, invalid value c_n" );
             }
             catch ( ParseException pe )
@@ -425,42 +425,42 @@ public class DITContentRuleDescriptionSchemaParserTest
     public void testFull() throws ParseException
     {
         String value = null;
-        DITContentRuleDescription dcrd = null;
+        DITContentRule ditContentRule = null;
 
         value = "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577' OBSOLETE AUX ( 2.3.4.5.6.7.8.9.0.1 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) MUST ( 3.4.5.6.7.8.9.0.1.2 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) MAY ( 4.5.6.7.8.9.0.1.2.3 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) NOT ( 5.6.7.8.9.0.1.2.3.4 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )";
-        dcrd = parser.parseDITContentRuleDescription( value );
+        ditContentRule = parser.parseDITContentRuleDescription( value );
 
-        assertEquals( "1.2.3.4.5.6.7.8.9.0", dcrd.getNumericOid() );
-        assertEquals( 2, dcrd.getNames().size() );
-        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", dcrd.getNames().get( 0 ) );
-        assertEquals( "test", dcrd.getNames().get( 1 ) );
-        assertEquals( "Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577", dcrd.getDescription() );
-        assertTrue( dcrd.isObsolete() );
-        assertEquals( 2, dcrd.getAuxiliaryObjectClasses().size() );
-        assertEquals( "2.3.4.5.6.7.8.9.0.1", dcrd.getAuxiliaryObjectClasses().get( 0 ) );
-        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", dcrd
-            .getAuxiliaryObjectClasses().get( 1 ) );
-        assertEquals( 2, dcrd.getMustAttributeTypes().size() );
-        assertEquals( "3.4.5.6.7.8.9.0.1.2", dcrd.getMustAttributeTypes().get( 0 ) );
-        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", dcrd.getMustAttributeTypes()
+        assertEquals( "1.2.3.4.5.6.7.8.9.0", ditContentRule.getOid() );
+        assertEquals( 2, ditContentRule.getNames().size() );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", ditContentRule.getNames().get( 0 ) );
+        assertEquals( "test", ditContentRule.getNames().get( 1 ) );
+        assertEquals( "Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577", ditContentRule.getDescription() );
+        assertTrue( ditContentRule.isObsolete() );
+        assertEquals( 2, ditContentRule.getAuxObjectClassOids().size() );
+        assertEquals( "2.3.4.5.6.7.8.9.0.1", ditContentRule.getAuxObjectClassOids().get( 0 ) );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", ditContentRule
+            .getAuxObjectClassOids().get( 1 ) );
+        assertEquals( 2, ditContentRule.getMustAttributeTypeOids().size() );
+        assertEquals( "3.4.5.6.7.8.9.0.1.2", ditContentRule.getMustAttributeTypeOids().get( 0 ) );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", ditContentRule.getMustAttributeTypeOids()
             .get( 1 ) );
-        assertEquals( 2, dcrd.getMayAttributeTypes().size() );
-        assertEquals( "4.5.6.7.8.9.0.1.2.3", dcrd.getMayAttributeTypes().get( 0 ) );
-        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", dcrd.getMayAttributeTypes()
+        assertEquals( 2, ditContentRule.getMayAttributeTypeOids().size() );
+        assertEquals( "4.5.6.7.8.9.0.1.2.3", ditContentRule.getMayAttributeTypeOids().get( 0 ) );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", ditContentRule.getMayAttributeTypeOids()
             .get( 1 ) );
-        assertEquals( 2, dcrd.getNotAttributeTypes().size() );
-        assertEquals( "5.6.7.8.9.0.1.2.3.4", dcrd.getNotAttributeTypes().get( 0 ) );
-        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", dcrd.getNotAttributeTypes()
+        assertEquals( 2, ditContentRule.getNotAttributeTypeOids().size() );
+        assertEquals( "5.6.7.8.9.0.1.2.3.4", ditContentRule.getNotAttributeTypeOids().get( 0 ) );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", ditContentRule.getNotAttributeTypeOids()
             .get( 1 ) );
-        assertEquals( 2, dcrd.getExtensions().size() );
-        assertNotNull( dcrd.getExtensions().get( "X-TEST-a" ) );
-        assertEquals( 2, dcrd.getExtensions().get( "X-TEST-a" ).size() );
-        assertEquals( "test1-1", dcrd.getExtensions().get( "X-TEST-a" ).get( 0 ) );
-        assertEquals( "test1-2", dcrd.getExtensions().get( "X-TEST-a" ).get( 1 ) );
-        assertNotNull( dcrd.getExtensions().get( "X-TEST-b" ) );
-        assertEquals( 2, dcrd.getExtensions().get( "X-TEST-b" ).size() );
-        assertEquals( "test2-1", dcrd.getExtensions().get( "X-TEST-b" ).get( 0 ) );
-        assertEquals( "test2-2", dcrd.getExtensions().get( "X-TEST-b" ).get( 1 ) );
+        assertEquals( 2, ditContentRule.getExtensions().size() );
+        assertNotNull( ditContentRule.getExtensions().get( "X-TEST-a" ) );
+        assertEquals( 2, ditContentRule.getExtensions().get( "X-TEST-a" ).size() );
+        assertEquals( "test1-1", ditContentRule.getExtensions().get( "X-TEST-a" ).get( 0 ) );
+        assertEquals( "test1-2", ditContentRule.getExtensions().get( "X-TEST-a" ).get( 1 ) );
+        assertNotNull( ditContentRule.getExtensions().get( "X-TEST-b" ) );
+        assertEquals( 2, ditContentRule.getExtensions().get( "X-TEST-b" ).size() );
+        assertEquals( "test2-1", ditContentRule.getExtensions().get( "X-TEST-b" ).get( 0 ) );
+        assertEquals( "test2-2", ditContentRule.getExtensions().get( "X-TEST-b" ).get( 1 ) );
     }
 
 
@@ -527,5 +527,4 @@ public class DITContentRuleDescriptionSchemaParserTest
             parser.setQuirksMode( false );
         }
     }
-
 }

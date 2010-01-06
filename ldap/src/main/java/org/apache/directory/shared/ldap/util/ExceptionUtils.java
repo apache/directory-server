@@ -964,4 +964,17 @@ public class ExceptionUtils
         }
         return list;
     }
+    
+    
+    public static String printErrors( List<Throwable> errors )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        for ( Throwable error:errors )
+        {
+            sb.append( "Error : " ).append( error.getMessage() ).append( "\n" );
+        }
+        
+        return sb.toString();
+    }
 }

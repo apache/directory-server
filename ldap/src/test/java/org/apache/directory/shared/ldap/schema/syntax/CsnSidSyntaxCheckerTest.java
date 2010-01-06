@@ -19,7 +19,7 @@
  */
 package org.apache.directory.shared.ldap.schema.syntax;
 
-import org.apache.directory.shared.ldap.schema.syntaxes.CsnSidSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.CsnSidSyntaxChecker;
 
 import org.junit.Test;
 import static org.junit.Assert.assertFalse;

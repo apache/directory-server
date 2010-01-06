@@ -46,6 +46,7 @@ public class ComplexLdapDnParser
     public void parseDn( String name, List<Rdn> rdns ) throws InvalidNameException
     {
         AntlrDnParser dnParser = new AntlrDnParser( new AntlrDnLexer( new StringReader( name ) ) );
+        
         try
         {
             dnParser.relativeDistinguishedNames( rdns );

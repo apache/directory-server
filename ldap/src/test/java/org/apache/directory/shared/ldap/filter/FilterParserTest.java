@@ -20,23 +20,17 @@
 package org.apache.directory.shared.ldap.filter;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 
-import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
-import org.apache.directory.shared.ldap.filter.BranchNode;
-import org.apache.directory.shared.ldap.filter.ExtensibleNode;
-import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.filter.SimpleNode;
-import org.apache.directory.shared.ldap.filter.SubstringNode;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertNull;
 
 
 /**
@@ -723,7 +717,6 @@ public class FilterParserTest
     }
 
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testTwoByteUTF8Raw() throws ParseException
     {
@@ -732,7 +725,7 @@ public class FilterParserTest
 
         try
         {
-            String s = new String( bytes, "UTF-8" );
+            new String( bytes, "UTF-8" );
             String str = "(cn=\\C2\\A2)";
             SimpleNode<?> node = ( SimpleNode<?> ) FilterParser.parse( str );
 
@@ -749,7 +742,6 @@ public class FilterParserTest
     }
 
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testTwoByteUTF8Escaped() throws ParseException
     {
@@ -759,7 +751,7 @@ public class FilterParserTest
         try
         {
             String str = "(cn=\\C2\\A2)";
-            String s = new String( bytes, "UTF-8" );
+            new String( bytes, "UTF-8" );
 
             SimpleNode<?> node = ( SimpleNode<?> ) FilterParser.parse( str );
 
@@ -776,7 +768,6 @@ public class FilterParserTest
     }
 
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testThreeByteUTF8Raw() throws ParseException
     {
@@ -785,7 +776,7 @@ public class FilterParserTest
 
         try
         {
-            String s = new String( bytes, "UTF-8" );
+            new String( bytes, "UTF-8" );
             String str = "(cn=\\E2\\89\\A0)";
             SimpleNode<?> node = ( SimpleNode<?> ) FilterParser.parse( str );
 
@@ -802,7 +793,6 @@ public class FilterParserTest
     }
 
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testThreeByteUTF8Escaped() throws ParseException
     {
@@ -812,7 +802,7 @@ public class FilterParserTest
         try
         {
             String str = "(cn=\\E2\\89\\A0aa)";
-            String s = new String( bytes, "UTF-8" );
+            new String( bytes, "UTF-8" );
 
             SimpleNode<?> node = ( SimpleNode<?> ) FilterParser.parse( str );
 
@@ -829,7 +819,6 @@ public class FilterParserTest
     }
 
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testThreeByteJapaneseUTF8Raw() throws ParseException
     {
@@ -838,7 +827,7 @@ public class FilterParserTest
 
         try
         {
-            String s = new String( bytes, "UTF-8" );
+            new String( bytes, "UTF-8" );
             String str = "(cn=\\E3\\81\\99)";
             SimpleNode<?> node = ( SimpleNode<?> ) FilterParser.parse( str );
 
@@ -855,7 +844,6 @@ public class FilterParserTest
     }
 
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testThreeByteJapaneseUTF8Escaped() throws ParseException
     {
@@ -865,7 +853,7 @@ public class FilterParserTest
         try
         {
             String str = "(cn=\\E3\\81\\99)";
-            String s = new String( bytes, "UTF-8" );
+            new String( bytes, "UTF-8" );
 
             SimpleNode<?> node = ( SimpleNode<?> ) FilterParser.parse( str );
             assertEquals( "cn", node.getAttribute() );
@@ -1055,19 +1043,10 @@ public class FilterParserTest
     */
 
 
-
-
-    @SuppressWarnings("unchecked")
     @Test
     public void testBinaryValueEscaped() throws ParseException
     {
-        byte[] bytes =
-            {   0x29, 0x4C, 0x04, (byte)0xB5, 
-                (byte)0xD4, (byte)0xED, 0x38, 0x46, 
-                (byte)0x87, (byte)0xEE, 0x77, 0x58, 
-                0x5C, 0x32, (byte)0xAD, (byte)0x91 }; 
-
         String str = "(objectguid=\\29\\4C\\04\\B5\\D4\\ED\\38\\46\\87\\EE\\77\\58\\5C\\32\\AD\\91)";
-        SimpleNode<String> node = ( SimpleNode<String> ) FilterParser.parse( str );
+        FilterParser.parse( str );
     }
 }

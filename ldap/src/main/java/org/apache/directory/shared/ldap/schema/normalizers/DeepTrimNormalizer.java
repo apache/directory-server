@@ -28,8 +28,6 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.PrepareString;
-import org.apache.directory.shared.ldap.schema.PrepareString.StringType;
-import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -40,10 +38,32 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DeepTrimNormalizer implements Normalizer
+public class DeepTrimNormalizer extends Normalizer
 {
-    // The serial UID
-   private static final long serialVersionUID = 1L;
+    /** The serial UID */
+    public static final long serialVersionUID = 1L;
+
+    
+    /**
+     * Creates a new instance of DeepTrimNormalizer with OID known.
+     * 
+     * @param oid The MR OID to use with this Normalizer
+     */
+    public DeepTrimNormalizer( String oid )
+    {
+        super( oid );
+    }
+
+
+    /**
+     * Creates a new instance of DeepTrimNormalizer when the Normalizer must be
+     * instantiated before setting the OID.
+     */
+    public DeepTrimNormalizer()
+    {
+    }
+
+
 
    /**
     * {@inheritDoc}

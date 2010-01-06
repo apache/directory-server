@@ -19,10 +19,10 @@
 package org.apache.directory.shared.ldap.util;
 
 
-import javax.naming.directory.Attribute;
-import javax.naming.directory.DirContext;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.DirContext;
 
 
 /**
@@ -102,7 +102,6 @@ public class ImmutableAttributeWrapper implements Attribute
     }
 
 
-    @SuppressWarnings ( { "CloneDoesntCallSuperClone" } )
     public Object clone()
     {
         throw new IllegalStateException( "Now why would you ever want to clone an immutable object?" );

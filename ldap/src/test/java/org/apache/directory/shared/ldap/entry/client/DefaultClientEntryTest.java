@@ -42,6 +42,7 @@ import java.util.Set;
 import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -177,13 +178,21 @@ public class DefaultClientEntryTest
 
         oids = new HashMap<String, OidNormalizer>();
 
-        oids.put( "dc", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
-        oids.put( "domaincomponent", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
-        oids.put( "0.9.2342.19200300.100.1.25", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
+        // DC normalizer
+        OidNormalizer dcOidNormalizer = new OidNormalizer( "dc",
+            new DeepTrimToLowerNormalizer( SchemaConstants.DOMAIN_COMPONENT_AT_OID ) );
+        
+        oids.put( "dc", dcOidNormalizer );
+        oids.put( "domaincomponent", dcOidNormalizer );
+        oids.put( "0.9.2342.19200300.100.1.25", dcOidNormalizer );
 
-        oids.put( "ou", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
-        oids.put( "organizationalUnitName", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
-        oids.put( "2.5.4.11", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
+        // OU normalizer
+        OidNormalizer ouOidNormalizer = new OidNormalizer( "ou",
+            new DeepTrimToLowerNormalizer( SchemaConstants.OU_AT_OID ) );
+        
+        oids.put( "ou", ouOidNormalizer );
+        oids.put( "organizationalUnitName", ouOidNormalizer );
+        oids.put( "2.5.4.11", ouOidNormalizer );
     }
 
 

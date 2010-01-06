@@ -22,6 +22,9 @@ package org.apache.directory.shared.ldap.schema.parsers;
 
 import java.text.ParseException;
 
+import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
@@ -35,6 +38,9 @@ import antlr.TokenStreamException;
  */
 public class MatchingRuleUseDescriptionSchemaParser extends AbstractSchemaParser
 {
+    /** The LoggerFactory used by this class */
+    protected static final Logger LOG = LoggerFactory.getLogger( MatchingRuleUseDescriptionSchemaParser.class );
+
 
     /**
      * Creates a schema parser instance.
@@ -64,12 +70,14 @@ public class MatchingRuleUseDescriptionSchemaParser extends AbstractSchemaParser
      * @return the parsed MatchingRuleUseDescription bean
      * @throws ParseException if there are any recognition errors (bad syntax)
      */
-    public synchronized MatchingRuleUseDescription parseMatchingRuleUseDescription( String matchingRuleUseDescription )
+    public synchronized MatchingRuleUse parseMatchingRuleUseDescription( String matchingRuleUseDescription )
         throws ParseException
     {
+        LOG.debug( "Parsing a MatchingRuleUse : {}", matchingRuleUseDescription );
 
         if ( matchingRuleUseDescription == null )
         {
+            LOG.error( "Cannot parse a null MatchingRuleUse" );
             throw new ParseException( "Null", 0 );
         }
 
@@ -77,29 +85,40 @@ public class MatchingRuleUseDescriptionSchemaParser extends AbstractSchemaParser
 
         try
         {
-            MatchingRuleUseDescription mrud = parser.matchingRuleUseDescription();
-            return mrud;
+            MatchingRuleUse matchingRuleUse = parser.matchingRuleUseDescription();
+            
+            // Update the schemaName
+            setSchemaName( matchingRuleUse );
+
+            return matchingRuleUse;
         }
         catch ( RecognitionException re )
         {
-            String msg = "Parser failure on matching rule description:\n\t" + matchingRuleUseDescription;
-            msg += "\nAntlr message: " + re.getMessage();
-            msg += "\nAntlr column: " + re.getColumn();
+            String msg = "Parser failure on matching rule description:\n\t" + matchingRuleUseDescription +
+                "\nAntlr message: " + re.getMessage() +
+                "\nAntlr column: " + re.getColumn();
+            LOG.error( msg );
             throw new ParseException( msg, re.getColumn() );
         }
         catch ( TokenStreamException tse )
         {
-            String msg = "Parser failure on matching rule description:\n\t" + matchingRuleUseDescription;
-            msg += "\nAntlr message: " + tse.getMessage();
+            String msg = "Parser failure on matching rule description:\n\t" + matchingRuleUseDescription +
+                "\nAntlr message: " + tse.getMessage();
+            LOG.error( msg );
             throw new ParseException( msg, 0 );
         }
 
     }
 
 
-    public AbstractSchemaDescription parse( String schemaDescription ) throws ParseException
+    /**
+     * Parses a MatchingRuleUse description
+     * 
+     * @param The MatchingRuleUse description to parse
+     * @return An instance of MatchingRuleUse
+     */
+    public MatchingRuleUse parse( String schemaDescription ) throws ParseException
     {
         return parseMatchingRuleUseDescription( schemaDescription );
     }
-
 }

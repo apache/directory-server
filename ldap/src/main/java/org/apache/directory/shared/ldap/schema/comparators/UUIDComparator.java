@@ -20,7 +20,10 @@
 package org.apache.directory.shared.ldap.schema.comparators;
 
 
-import java.util.Comparator;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
+import org.apache.directory.shared.ldap.util.StringTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -29,17 +32,32 @@ import java.util.Comparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class UUIDComparator implements Comparator<byte[]>
+public class UUIDComparator extends LdapComparator<byte[]>
 {
-    /** A static instance of this comparator */
-    public static final Comparator<byte[]> INSTANCE = new UUIDComparator();
-    
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( UUIDComparator.class );
+
+    /** The serialVersionUID */
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * The UUIDComparator constructor. Its OID is the UUIDMatch matching
+     * rule OID.
+     */
+    public UUIDComparator( String oid )
+    {
+        super( oid );
+    }
+
     
     /**
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
     public int compare( byte[] uuid1, byte[] uuid2 )
     {
+        LOG.debug( "comparing UUID objects '{}' with '{}'", 
+            StringTools.dumpBytes( uuid1 ), StringTools.dumpBytes( uuid2 ) );
+
         // -------------------------------------------------------------------
         // Handle some basis cases
         // -------------------------------------------------------------------

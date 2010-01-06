@@ -22,7 +22,7 @@ package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 import java.text.ParseException;
 
-import org.apache.directory.shared.ldap.schema.parsers.DITStructureRuleDescription;
+import org.apache.directory.shared.ldap.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.schema.parsers.DITStructureRuleDescriptionSchemaParser;
 import org.junit.After;
 import org.junit.Before;
@@ -67,7 +67,7 @@ public class DITStructureRuleDescriptionSchemaParserTest
     public void testNumericRuleId() throws ParseException
     {
         String value = null;
-        DITStructureRuleDescription dsrd = null;
+        DITStructureRule ditStructureRule = null;
 
         // null test
         value = null;
@@ -95,18 +95,18 @@ public class DITStructureRuleDescriptionSchemaParserTest
 
         // simple
         value = "( 1 FORM 1.1 )";
-        dsrd = parser.parseDITStructureRuleDescription( value );
-        assertEquals( new Integer( 1 ), dsrd.getRuleId() );
+        ditStructureRule = parser.parseDITStructureRuleDescription( value );
+        assertEquals( 1, ditStructureRule.getRuleId() );
 
         // simple
         value = "( 1234567890 FORM 1.1 )";
-        dsrd = parser.parseDITStructureRuleDescription( value );
-        assertEquals( new Integer( 1234567890 ), dsrd.getRuleId() );
+        ditStructureRule = parser.parseDITStructureRuleDescription( value );
+        assertEquals( 1234567890, ditStructureRule.getRuleId() );
 
         // simple with spaces
         value = "(      1234567890   FORM   1.1     )";
-        dsrd = parser.parseDITStructureRuleDescription( value );
-        assertEquals( new Integer( 1234567890 ), dsrd.getRuleId() );
+        ditStructureRule = parser.parseDITStructureRuleDescription( value );
+        assertEquals( 1234567890, ditStructureRule.getRuleId() );
 
         // non-numeric not allowed
         value = "( test FORM 1.1 )";
@@ -192,48 +192,48 @@ public class DITStructureRuleDescriptionSchemaParserTest
     public void testForm() throws ParseException
     {
         String value = null;
-        DITStructureRuleDescription dsrd = null;
+        DITStructureRule ditStructureRule = null;
 
         // numeric oid
         value = "( 1 FORM 1.2.3.4.5.6.7.8.9.0 )";
-        dsrd = parser.parseDITStructureRuleDescription( value );
-        assertEquals( "1.2.3.4.5.6.7.8.9.0", dsrd.getForm() );
+        ditStructureRule = parser.parseDITStructureRuleDescription( value );
+        assertEquals( "1.2.3.4.5.6.7.8.9.0", ditStructureRule.getForm() );
 
         // numeric oid
         value = "(   1    FORM    123.4567.890    )";
-        dsrd = parser.parseDITStructureRuleDescription( value );
-        assertEquals( "123.4567.890", dsrd.getForm() );
+        ditStructureRule = parser.parseDITStructureRuleDescription( value );
+        assertEquals( "123.4567.890", ditStructureRule.getForm() );
 
         // descr
         value = "( 1 FORM abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 )";
-        dsrd = parser.parseDITStructureRuleDescription( value );
-        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", dsrd.getForm() );
+        ditStructureRule = parser.parseDITStructureRuleDescription( value );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", ditStructureRule.getForm() );
 
         // descr, no space
         value = "(1 FORMabc)";
-        dsrd = parser.parseDITStructureRuleDescription( value );
-        assertEquals( "abc", dsrd.getForm() );
+        ditStructureRule = parser.parseDITStructureRuleDescription( value );
+        assertEquals( "abc", ditStructureRule.getForm() );
 
         // descr, tab
         value = "\t(\t1\tFORM\tabc\t)\t";
-        dsrd = parser.parseDITStructureRuleDescription( value );
-        assertEquals( "abc", dsrd.getForm() );
+        ditStructureRule = parser.parseDITStructureRuleDescription( value );
+        assertEquals( "abc", ditStructureRule.getForm() );
 
         // quoted value
         value = "( 1 FORM '1.2.3.4.5.6.7.8.9.0' )";
-        dsrd = parser.parseDITStructureRuleDescription( value );
-        assertEquals( "1.2.3.4.5.6.7.8.9.0", dsrd.getForm() );
+        ditStructureRule = parser.parseDITStructureRuleDescription( value );
+        assertEquals( "1.2.3.4.5.6.7.8.9.0", ditStructureRule.getForm() );
 
         // no quote allowed
         value = "( 1 FORM ('test') )";
-        dsrd = parser.parseDITStructureRuleDescription( value );
-        assertEquals( "test", dsrd.getForm() );
+        ditStructureRule = parser.parseDITStructureRuleDescription( value );
+        assertEquals( "test", ditStructureRule.getForm() );
 
         // invalid character
         value = "( 1 FORM 1.2.3.4.A )";
         try
         {
-            dsrd = parser.parseDITStructureRuleDescription( value );
+            ditStructureRule = parser.parseDITStructureRuleDescription( value );
             fail( "Exception expected, invalid FORM 1.2.3.4.A (invalid character)" );
         }
         catch ( ParseException pe )
@@ -245,7 +245,7 @@ public class DITStructureRuleDescriptionSchemaParserTest
         value = "( 1 FORM ( test1 test2 ) )";
         try
         {
-            dsrd = parser.parseDITStructureRuleDescription( value );
+            ditStructureRule = parser.parseDITStructureRuleDescription( value );
             fail( "Exception expected, FORM must be single valued" );
         }
         catch ( ParseException pe )
@@ -259,7 +259,7 @@ public class DITStructureRuleDescriptionSchemaParserTest
             value = "( 1 FORM -test ) )";
             try
             {
-                dsrd = parser.parseDITStructureRuleDescription( value );
+                ditStructureRule = parser.parseDITStructureRuleDescription( value );
                 fail( "Exception expected, invalid FORM '-test' (starts with hypen)" );
             }
             catch ( ParseException pe )
@@ -279,31 +279,31 @@ public class DITStructureRuleDescriptionSchemaParserTest
     public void testSup() throws ParseException
     {
         String value = null;
-        DITStructureRuleDescription dsrd = null;
+        DITStructureRule ditStructureRule = null;
 
         // no SUP
         value = "( 1 FORM 1.1 )";
-        dsrd = parser.parseDITStructureRuleDescription( value );
-        assertEquals( 0, dsrd.getSuperRules().size() );
+        ditStructureRule = parser.parseDITStructureRuleDescription( value );
+        assertEquals( 0, ditStructureRule.getSuperRules().size() );
 
         // SUP simple number
         value = "( 1 FORM 1.1 SUP 1 )";
-        dsrd = parser.parseDITStructureRuleDescription( value );
-        assertEquals( 1, dsrd.getSuperRules().size() );
-        assertEquals( new Integer( 1 ), dsrd.getSuperRules().get( 0 ) );
+        ditStructureRule = parser.parseDITStructureRuleDescription( value );
+        assertEquals( 1, ditStructureRule.getSuperRules().size() );
+        assertEquals( new Integer( 1 ), ditStructureRule.getSuperRules().get( 0 ) );
 
         // SUP single number
         value = "( 1 FORM 1.1 SUP ( 1 ) )";
-        dsrd = parser.parseDITStructureRuleDescription( value );
-        assertEquals( 1, dsrd.getSuperRules().size() );
-        assertEquals( new Integer( 1 ), dsrd.getSuperRules().get( 0 ) );
+        ditStructureRule = parser.parseDITStructureRuleDescription( value );
+        assertEquals( 1, ditStructureRule.getSuperRules().size() );
+        assertEquals( new Integer( 1 ), ditStructureRule.getSuperRules().get( 0 ) );
 
         // SUP multi number
         value = "( 1 FORM 1.1 SUP(12345 67890))";
-        dsrd = parser.parseDITStructureRuleDescription( value );
-        assertEquals( 2, dsrd.getSuperRules().size() );
-        assertEquals( new Integer( 12345 ), dsrd.getSuperRules().get( 0 ) );
-        assertEquals( new Integer( 67890 ), dsrd.getSuperRules().get( 1 ) );
+        ditStructureRule = parser.parseDITStructureRuleDescription( value );
+        assertEquals( 2, ditStructureRule.getSuperRules().size() );
+        assertEquals( new Integer( 12345 ), ditStructureRule.getSuperRules().get( 0 ) );
+        assertEquals( new Integer( 67890 ), ditStructureRule.getSuperRules().get( 1 ) );
 
         // non-numeric not allowed
         value = "( 1 FORM 1.1 SUP test )";
@@ -354,31 +354,31 @@ public class DITStructureRuleDescriptionSchemaParserTest
     public void testFull() throws ParseException
     {
         String value = null;
-        DITStructureRuleDescription dsrd = null;
+        DITStructureRule ditStructureRule = null;
 
         value = "( 1234567890 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577' OBSOLETE FORM 2.3.4.5.6.7.8.9.0.1 SUP ( 1 1234567890 5 ) X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )";
-        dsrd = parser.parseDITStructureRuleDescription( value );
+        ditStructureRule = parser.parseDITStructureRuleDescription( value );
 
-        assertEquals( new Integer( 1234567890 ), dsrd.getRuleId() );
-        assertEquals( 2, dsrd.getNames().size() );
-        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", dsrd.getNames().get( 0 ) );
-        assertEquals( "test", dsrd.getNames().get( 1 ) );
-        assertEquals( "Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577", dsrd.getDescription() );
-        assertTrue( dsrd.isObsolete() );
-        assertEquals( "2.3.4.5.6.7.8.9.0.1", dsrd.getForm() );
-        assertEquals( 3, dsrd.getSuperRules().size() );
-        assertEquals( new Integer( 1 ), dsrd.getSuperRules().get( 0 ) );
-        assertEquals( new Integer( 1234567890 ), dsrd.getSuperRules().get( 1 ) );
-        assertEquals( new Integer( 5 ), dsrd.getSuperRules().get( 2 ) );
-        assertEquals( 2, dsrd.getExtensions().size() );
-        assertNotNull( dsrd.getExtensions().get( "X-TEST-a" ) );
-        assertEquals( 2, dsrd.getExtensions().get( "X-TEST-a" ).size() );
-        assertEquals( "test1-1", dsrd.getExtensions().get( "X-TEST-a" ).get( 0 ) );
-        assertEquals( "test1-2", dsrd.getExtensions().get( "X-TEST-a" ).get( 1 ) );
-        assertNotNull( dsrd.getExtensions().get( "X-TEST-b" ) );
-        assertEquals( 2, dsrd.getExtensions().get( "X-TEST-b" ).size() );
-        assertEquals( "test2-1", dsrd.getExtensions().get( "X-TEST-b" ).get( 0 ) );
-        assertEquals( "test2-2", dsrd.getExtensions().get( "X-TEST-b" ).get( 1 ) );
+        assertEquals( 1234567890, ditStructureRule.getRuleId() );
+        assertEquals( 2, ditStructureRule.getNames().size() );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", ditStructureRule.getNames().get( 0 ) );
+        assertEquals( "test", ditStructureRule.getNames().get( 1 ) );
+        assertEquals( "Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577", ditStructureRule.getDescription() );
+        assertTrue( ditStructureRule.isObsolete() );
+        assertEquals( "2.3.4.5.6.7.8.9.0.1", ditStructureRule.getForm() );
+        assertEquals( 3, ditStructureRule.getSuperRules().size() );
+        assertEquals( new Integer( 1 ), ditStructureRule.getSuperRules().get( 0 ) );
+        assertEquals( new Integer( 1234567890 ), ditStructureRule.getSuperRules().get( 1 ) );
+        assertEquals( new Integer( 5 ), ditStructureRule.getSuperRules().get( 2 ) );
+        assertEquals( 2, ditStructureRule.getExtensions().size() );
+        assertNotNull( ditStructureRule.getExtensions().get( "X-TEST-a" ) );
+        assertEquals( 2, ditStructureRule.getExtensions().get( "X-TEST-a" ).size() );
+        assertEquals( "test1-1", ditStructureRule.getExtensions().get( "X-TEST-a" ).get( 0 ) );
+        assertEquals( "test1-2", ditStructureRule.getExtensions().get( "X-TEST-a" ).get( 1 ) );
+        assertNotNull( ditStructureRule.getExtensions().get( "X-TEST-b" ) );
+        assertEquals( 2, ditStructureRule.getExtensions().get( "X-TEST-b" ).size() );
+        assertEquals( "test2-1", ditStructureRule.getExtensions().get( "X-TEST-b" ).get( 0 ) );
+        assertEquals( "test2-2", ditStructureRule.getExtensions().get( "X-TEST-b" ).get( 1 ) );
     }
 
 
@@ -407,11 +407,11 @@ public class DITStructureRuleDescriptionSchemaParserTest
     public void testRequiredElements() throws ParseException
     {
         String value = null;
-        DITStructureRuleDescription dsrd = null;
+        DITStructureRule ditStructureRule = null;
 
         value = "( 1 FORM 1.1 )";
-        dsrd = parser.parseDITStructureRuleDescription( value );
-        assertNotNull( dsrd.getForm() );
+        ditStructureRule = parser.parseDITStructureRuleDescription( value );
+        assertNotNull( ditStructureRule.getForm() );
 
         value = "( 1 )";
         try

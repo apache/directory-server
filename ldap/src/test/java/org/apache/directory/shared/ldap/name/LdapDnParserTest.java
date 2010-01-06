@@ -54,7 +54,7 @@ public class LdapDnParserTest
     {
         NameParser dnParser = LdapDnParser.getNameParser();
 
-        assertEquals( "", ( ( LdapDN ) dnParser.parse( "" ) ).getUpName() );
+        assertEquals( "", ( ( LdapDN ) dnParser.parse( "" ) ).getName() );
     }
 
 
@@ -66,7 +66,7 @@ public class LdapDnParserTest
     {
         NameParser dnParser = LdapDnParser.getNameParser();
 
-        assertEquals( "a = b", ( ( LdapDN ) dnParser.parse( "a = b" ) ).getUpName() );
+        assertEquals( "a = b", ( ( LdapDN ) dnParser.parse( "a = b" ) ).getName() );
         assertEquals( "a=b", ( ( LdapDN ) dnParser.parse( "a = b" ) ).toString() );
     }
 
@@ -80,7 +80,7 @@ public class LdapDnParserTest
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "a = b, c = d" );
         assertEquals( "a=b,c=d", dn.toString() );
-        assertEquals( "a = b, c = d", dn.getUpName() );
+        assertEquals( "a = b, c = d", dn.getName() );
     }
 
 
@@ -93,7 +93,7 @@ public class LdapDnParserTest
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "a=b, a =b, a= b, a = b, a  =  b" );
         assertEquals( "a=b,a=b,a=b,a=b,a=b", dn.toString() );
-        assertEquals( "a=b, a =b, a= b, a = b, a  =  b", dn.getUpName() );
+        assertEquals( "a=b, a =b, a= b, a = b, a  =  b", dn.getName() );
     }
 
 
@@ -107,7 +107,7 @@ public class LdapDnParserTest
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "a=b;c=d,e=f" );
         assertEquals( "a=b,c=d,e=f", dn.toString() );
-        assertEquals( "a=b;c=d,e=f", dn.getUpName() );
+        assertEquals( "a=b;c=d,e=f", dn.getName() );
     }
 
 
@@ -120,7 +120,7 @@ public class LdapDnParserTest
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "a = b + c = d" );
         assertEquals( "a=b+c=d", dn.toString() );
-        assertEquals( "a = b + c = d", dn.getUpName() );
+        assertEquals( "a = b + c = d", dn.getName() );
     }
 
 
@@ -134,7 +134,7 @@ public class LdapDnParserTest
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "a=b+c=d, e=f + g=h + i=j" );
         assertEquals( "a=b+c=d,e=f+g=h+i=j", dn.toString() );
-        assertEquals( "a=b+c=d, e=f + g=h + i=j", dn.getUpName() );
+        assertEquals( "a=b+c=d, e=f + g=h + i=j", dn.getName() );
     }
 
 
@@ -147,7 +147,7 @@ public class LdapDnParserTest
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "OID.12.34.56 = azerty" );
         assertEquals( "oid.12.34.56=azerty", dn.toString() );
-        assertEquals( "OID.12.34.56 = azerty", dn.getUpName() );
+        assertEquals( "OID.12.34.56 = azerty", dn.getName() );
     }
 
 
@@ -160,7 +160,7 @@ public class LdapDnParserTest
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "oid.12.34.56 = azerty" );
         assertEquals( "oid.12.34.56=azerty", dn.toString() );
-        assertEquals( "oid.12.34.56 = azerty", dn.getUpName() );
+        assertEquals( "oid.12.34.56 = azerty", dn.getName() );
     }
 
 
@@ -174,7 +174,7 @@ public class LdapDnParserTest
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "12.34.56 = azerty" );
         assertEquals( "12.34.56=azerty", dn.toString() );
-        assertEquals( "12.34.56 = azerty", dn.getUpName() );
+        assertEquals( "12.34.56 = azerty", dn.getName() );
     }
 
 
@@ -188,7 +188,7 @@ public class LdapDnParserTest
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "12.34.56 = azerty; 7.8 = test" );
         assertEquals( "12.34.56=azerty,7.8=test", dn.toString() );
-        assertEquals( "12.34.56 = azerty; 7.8 = test", dn.getUpName() );
+        assertEquals( "12.34.56 = azerty; 7.8 = test", dn.getName() );
     }
 
 
@@ -201,11 +201,11 @@ public class LdapDnParserTest
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "a = \\,\\=\\+\\<\\>\\#\\;\\\\\\\"\\C3\\A9" );
         assertEquals( "a=\\,=\\+\\<\\>#\\;\\\\\\\"\u00e9", dn.toString() );
-        assertEquals( "a = \\,\\=\\+\\<\\>\\#\\;\\\\\\\"\\C3\\A9", dn.getUpName() );
+        assertEquals( "a = \\,\\=\\+\\<\\>\\#\\;\\\\\\\"\\C3\\A9", dn.getName() );
 
         dn = ( LdapDN ) dnParser.parse( "a = \\,\\=\\+\\<\\>\\#\\;\\\\\\\"\u00e9" );
         assertEquals( "a=\\,=\\+\\<\\>#\\;\\\\\\\"\u00e9", dn.toString() );
-        assertEquals( "a = \\,\\=\\+\\<\\>\\#\\;\\\\\\\"\u00e9", dn.getUpName() );
+        assertEquals( "a = \\,\\=\\+\\<\\>\\#\\;\\\\\\\"\u00e9", dn.getName() );
     }
 
 
@@ -218,7 +218,7 @@ public class LdapDnParserTest
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "a = #0010A0AAFF" );
         assertEquals( "a=#0010A0AAFF", dn.toString() );
-        assertEquals( "a = #0010A0AAFF", dn.getUpName() );
+        assertEquals( "a = #0010A0AAFF", dn.getName() );
     }
 
 
@@ -254,11 +254,11 @@ public class LdapDnParserTest
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "a = quoted \\\"value" );
         assertEquals( "a=quoted \\\"value", dn.toString() );
-        assertEquals( "a = quoted \\\"value", dn.getUpName() );
+        assertEquals( "a = quoted \\\"value", dn.getName() );
         
         dn = ( LdapDN ) dnParser.parse( "cn=Mackie \\\"The Knife\\\" Messer" );
         assertEquals( "cn=Mackie \\\"The Knife\\\" Messer", dn.toString() );
-        assertEquals( "cn=Mackie \\\"The Knife\\\" Messer", dn.getUpName() );
+        assertEquals( "cn=Mackie \\\"The Knife\\\" Messer", dn.getName() );
     }
 
 
@@ -271,7 +271,7 @@ public class LdapDnParserTest
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN dn = ( LdapDN ) dnParser.parse( "a = AC\\\\DC" );
         assertEquals( "a=AC\\\\DC", dn.toString() );
-        assertEquals( "a = AC\\\\DC", dn.getUpName() );
+        assertEquals( "a = AC\\\\DC", dn.getName() );
     }
 
 
@@ -301,7 +301,7 @@ public class LdapDnParserTest
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN name = ( LdapDN ) dnParser.parse( dn );
 
-        assertEquals( dn, name.getUpName() );
+        assertEquals( dn, name.getName() );
         assertEquals( "cn=Emmanuel  L\u00e9charny", name.toString() );
     }
 
@@ -315,7 +315,7 @@ public class LdapDnParserTest
         NameParser dnParser = LdapDnParser.getNameParser();
         LdapDN name = ( LdapDN ) dnParser.parse( dn );
 
-        assertEquals( dn, name.getUpName() );
+        assertEquals( dn, name.getName() );
         assertEquals( "c=E\u00e9c", name.toString() );
     }
 
@@ -329,7 +329,7 @@ public class LdapDnParserTest
 
         assertEquals(
             "cn=Billy Bakers, OID.2.5.4.11=Corporate Tax, ou=Fin-Accounting, ou=Americas, ou=Search, o=IMC, c=US", name
-                .getUpName() );
+                .getName() );
         assertEquals(
             "cn=Billy Bakers,oid.2.5.4.11=Corporate Tax,ou=Fin-Accounting,ou=Americas,ou=Search,o=IMC,c=US", name
                 .toString() );
@@ -400,7 +400,7 @@ public class LdapDnParserTest
 
         assertEquals( "RFC1779_1 : ",
             "CN=Marshall T. Rose, O=Dover Beach Consulting, L=Santa Clara, ST=California, C=US",
-            ( ( LdapDN ) nameRFC1779_1 ).getUpName() );
+            ( ( LdapDN ) nameRFC1779_1 ).getName() );
         assertEquals( "RFC1779_1 : ", "cn=Marshall T. Rose,o=Dover Beach Consulting,l=Santa Clara,st=California,c=US",
             nameRFC1779_1.toString() );
     }
@@ -418,7 +418,7 @@ public class LdapDnParserTest
 
         Name nameRFC2253_1 = parser.parse( "CN=Steve Kille,O=Isode limited,C=GB" );
 
-        assertEquals( "RFC2253_1 : ", "CN=Steve Kille,O=Isode limited,C=GB", ( ( LdapDN ) nameRFC2253_1 ).getUpName() );
+        assertEquals( "RFC2253_1 : ", "CN=Steve Kille,O=Isode limited,C=GB", ( ( LdapDN ) nameRFC2253_1 ).getName() );
     }
 
 
@@ -435,7 +435,7 @@ public class LdapDnParserTest
         Name nameRFC2253_2 = parser.parse( "CN = Sales + CN =   J. Smith , O = Widget Inc. , C = US" );
 
         assertEquals( "RFC2253_2 : ", "CN = Sales + CN =   J. Smith , O = Widget Inc. , C = US",
-            ( ( LdapDN ) nameRFC2253_2 ).getUpName() );
+            ( ( LdapDN ) nameRFC2253_2 ).getName() );
         assertEquals( "RFC2253_2 : ", "cn=J. Smith+cn=Sales,o=Widget Inc.,c=US", nameRFC2253_2.toString() );
     }
 
@@ -453,7 +453,7 @@ public class LdapDnParserTest
         Name nameRFC2253_3 = parser.parse( "CN=L. Eagle,   O=Sue\\, Grabbit and Runn, C=GB" );
 
         assertEquals( "RFC2253_3 : ", "CN=L. Eagle,   O=Sue\\, Grabbit and Runn, C=GB", ( ( LdapDN ) nameRFC2253_3 )
-            .getUpName() );
+            .getName() );
         assertEquals( "RFC2253_3 : ", "cn=L. Eagle,o=Sue\\, Grabbit and Runn,c=GB", nameRFC2253_3.toString() );
     }
 
@@ -469,7 +469,7 @@ public class LdapDnParserTest
         NameParser parser = LdapDnParser.getNameParser();
 
         Name nameRFC2253_4 = parser.parse( "CN=Before\\0DAfter,O=Test,C=GB" );
-        assertEquals( "RFC2253_4 : ", "CN=Before\\0DAfter,O=Test,C=GB", ( ( LdapDN ) nameRFC2253_4 ).getUpName() );
+        assertEquals( "RFC2253_4 : ", "CN=Before\\0DAfter,O=Test,C=GB", ( ( LdapDN ) nameRFC2253_4 ).getName() );
     }
 
 
@@ -486,7 +486,7 @@ public class LdapDnParserTest
         Name nameRFC2253_5 = parser.parse( "1.3.6.1.4.1.1466.0=#04024869,O=Test,C=GB" );
 
         assertEquals( "RFC2253_5 : ", "1.3.6.1.4.1.1466.0=#04024869,O=Test,C=GB", ( ( LdapDN ) nameRFC2253_5 )
-            .getUpName() );
+            .getName() );
     }
 
 
@@ -502,7 +502,7 @@ public class LdapDnParserTest
 
         Name nameRFC2253_6 = parser.parse( "SN=Lu\\C4\\8Di\\C4\\87" );
 
-        assertEquals( "RFC2253_6 : ", "SN=Lu\\C4\\8Di\\C4\\87", ( ( LdapDN ) nameRFC2253_6 ).getUpName() );
+        assertEquals( "RFC2253_6 : ", "SN=Lu\\C4\\8Di\\C4\\87", ( ( LdapDN ) nameRFC2253_6 ).getName() );
     }
 
 
@@ -553,7 +553,7 @@ public class LdapDnParserTest
         String path = "windowsFilePath=C:\\\\cygwin";
         NameParser parser = LdapDnParser.getNameParser();
         Name result = parser.parse( path );
-        assertEquals( path, ( ( LdapDN ) result ).getUpName() );
+        assertEquals( path, ( ( LdapDN ) result ).getName() );
         assertEquals( "windowsfilepath=C:\\\\cygwin", result.toString() );
     }
 

@@ -20,7 +20,18 @@
 package org.apache.directory.shared.ldap.schema;
 
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import javax.naming.NamingException;
+
+import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -129,15 +140,623 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface AttributeType extends SchemaObject
+public class AttributeType extends AbstractSchemaObject implements Cloneable
 {
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( AttributeType.class );
+
+    /** The serialVersionUID */
+    public static final long serialVersionUID = 1L;
+
+    /** The syntax OID associated with this AttributeType */
+    private String syntaxOid;
+
+    /** The syntax associated with the syntaxID */
+    private LdapSyntax syntax;
+
+    /** The equality OID associated with this AttributeType */
+    private String equalityOid;
+
+    /** The equality MatchingRule associated with the equalityID */
+    private MatchingRule equality;
+
+    /** The substring OID associated with this AttributeType */
+    private String substringOid;
+
+    /** The substring MatchingRule associated with the substringID */
+    private MatchingRule substring;
+
+    /** The ordering OID associated with this AttributeType */
+    private String orderingOid;
+
+    /** The ordering MatchingRule associated with the orderingID */
+    private MatchingRule ordering;
+
+    /** The superior AttributeType OID */
+    private String superiorOid;
+
+    /** The superior AttributeType */
+    private AttributeType superior;
+
+    /** whether or not this type is single valued */
+    private boolean isSingleValued = false;
+
+    /** whether or not this type is a collective attribute */
+    private boolean isCollective = false;
+
+    /** whether or not this type can be modified by directory users */
+    private boolean canUserModify = true;
+
+    /** the usage for this attributeType */
+    private UsageEnum usage = UsageEnum.USER_APPLICATIONS;
+
+    /** the length of this attribute in bytes */
+    private int syntaxLength = 0;
+
+
+    /**
+     * Creates a AttributeType object using a unique OID.
+     * 
+     * @param oid the OID for this AttributeType
+     */
+    public AttributeType( String oid )
+    {
+        super( SchemaObjectType.ATTRIBUTE_TYPE, oid );
+    }
+
+
+    /**
+     * Build the Superior AttributeType reference for an AttributeType
+     */
+    private boolean buildSuperior( List<Throwable> errors, Registries registries )
+    {
+        AttributeType superior = null;
+        AttributeTypeRegistry attributeTypeRegistry = registries.getAttributeTypeRegistry();
+
+        if ( superiorOid != null )
+        {
+            // This AT has a superior
+            try
+            {
+                superior = attributeTypeRegistry.lookup( superiorOid );
+            }
+            catch ( Exception e )
+            {
+                // Not allowed.
+                String msg = "Cannot find the SUPERIOR object " + superiorOid
+                    + " while building cross-references for the " + getName() + " AttributeType.";
+
+                Throwable error = new LdapSchemaViolationException( msg, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                errors.add( error );
+                LOG.info( msg );
+
+                // Get out now
+                return false;
+            }
+
+            if ( superior != null )
+            {
+                this.superior = superior;
+
+                // Recursively update the superior if not already done. We don't recurse
+                // if the superior's superior is not null, as it means it has already been
+                // handled.
+                if ( superior.getSuperior() == null )
+                {
+                    registries.buildReference( errors, superior );
+                }
+
+                // Update the descendant MAP
+                try
+                {
+                    attributeTypeRegistry.registerDescendants( this, superior );
+                }
+                catch ( NamingException ne )
+                {
+                    errors.add( ne );
+                    LOG.info( ne.getMessage() );
+                    return false;
+                }
+
+                // Check for cycles now
+                Set<String> superiors = new HashSet<String>();
+                superiors.add( oid );
+                AttributeType tmp = superior;
+                boolean isOk = true;
+
+                while ( tmp != null )
+                {
+                    if ( superiors.contains( tmp.getOid() ) )
+                    {
+                        // There is a cycle : bad bad bad !
+                        // Not allowed.
+                        String msg = "A cycle has been detected in the superior hierarchyOid"
+                            + " while building cross-references for the " + getName() + " AttributeType.";
+
+                        Throwable error = new LdapSchemaViolationException( msg,
+                            ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                        errors.add( error );
+                        LOG.info( msg );
+                        isOk = false;
+
+                        break;
+                    }
+                    else
+                    {
+                        superiors.add( tmp.getOid() );
+                        tmp = tmp.getSuperior();
+                    }
+                }
+
+                superiors.clear();
+
+                return isOk;
+            }
+            else
+            {
+                // Not allowed.
+                String msg = "Cannot find the SUPERIOR object " + superiorOid
+                    + " while building cross-references for the " + getName() + " AttributeType.";
+
+                Throwable error = new LdapSchemaViolationException( msg, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                errors.add( error );
+                LOG.info( msg );
+
+                // Get out now
+                return false;
+            }
+        }
+        else
+        {
+            // No superior, just return
+            return true;
+        }
+    }
+
+
+    /**
+     * Build the SYNTAX reference for an AttributeType
+     */
+    private void buildSyntax( List<Throwable> errors, Registries registries )
+    {
+        if ( syntaxOid != null )
+        {
+            LdapSyntax syntax = null;
+
+            try
+            {
+                syntax = registries.getLdapSyntaxRegistry().lookup( syntaxOid );
+            }
+            catch ( NamingException ne )
+            {
+                // Not allowed.
+                String msg = "Cannot find a Syntax object " + syntaxOid + " while building cross-references for the "
+                    + getName() + " AttributeType.";
+
+                Throwable error = new LdapSchemaViolationException( msg, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                errors.add( error );
+                LOG.info( msg );
+                return;
+            }
+
+            if ( syntax != null )
+            {
+                // Update the Syntax reference
+                this.syntax = syntax;
+            }
+            else
+            {
+                // Not allowed.
+                String msg = "Cannot find a Syntax object " + syntaxOid + " while building cross-references for the "
+                    + getName() + " AttributeType.";
+
+                Throwable error = new LdapSchemaViolationException( msg, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                errors.add( error );
+                LOG.info( msg );
+                return;
+            }
+        }
+        else
+        {
+            // We inherit from the superior's syntax, if any
+            if ( superior != null )
+            {
+                this.syntax = superior.getSyntax();
+                this.syntaxOid = this.syntax.getOid();
+            }
+            else
+            {
+                // Not allowed.
+                String msg = "The AttributeType " + getName() + " must have "
+                    + "a syntax OID or a superior, it does not have any.";
+
+                Throwable error = new LdapSchemaViolationException( msg, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                errors.add( error );
+                LOG.info( msg );
+                return;
+            }
+        }
+    }
+
+
+    /**
+     * Build the EQUALITY MR reference for an AttributeType
+     */
+    private void buildEquality( List<Throwable> errors, Registries registries )
+    {
+        // The equality MR. It can be null
+        if ( equalityOid != null )
+        {
+            MatchingRule equality = null;
+
+            try
+            {
+                equality = registries.getMatchingRuleRegistry().lookup( equalityOid );
+            }
+            catch ( NamingException ne )
+            {
+                // Not allowed.
+                String msg = "Cannot find an Equality MatchingRule object for " + equalityOid
+                    + " while building cross-references for the " + getName() + " AttributeType.";
+
+                Throwable error = new LdapSchemaViolationException( msg, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                errors.add( error );
+                LOG.info( msg );
+                return;
+            }
+
+            if ( equality != null )
+            {
+                this.equality = equality;
+            }
+            else
+            {
+                // Not allowed.
+                String msg = "Cannot find an EQUALITY MatchingRule instance for " + equalityOid
+                    + " while building cross-references for the " + getName() + " AttributeType.";
+
+                Throwable error = new LdapSchemaViolationException( msg, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                errors.add( error );
+                LOG.info( msg );
+            }
+        }
+        else
+        {
+            // If the AT has a superior, take its Equality MR if any
+            if ( ( superior != null ) && ( superior.getEquality() != null ) )
+            {
+                this.equality = superior.getEquality();
+                this.equalityOid = this.equality.getOid();
+            }
+        }
+    }
+
+
+    /**
+     * Build the ORDERING MR reference for an AttributeType
+     */
+    private void buildOrdering( List<Throwable> errors, Registries registries )
+    {
+        if ( orderingOid != null )
+        {
+            MatchingRule ordering = null;
+
+            try
+            {
+                ordering = registries.getMatchingRuleRegistry().lookup( orderingOid );
+            }
+            catch ( NamingException ne )
+            {
+                // Not allowed.
+                String msg = "Cannot find a Ordering MatchingRule object for " + orderingOid
+                    + " while building cross-references for the " + getName() + " AttributeType.";
+
+                Throwable error = new LdapSchemaViolationException( msg, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                errors.add( error );
+                LOG.info( msg );
+                return;
+            }
+
+            if ( ordering != null )
+            {
+                this.ordering = ordering;
+            }
+            else
+            {
+                // Not allowed.
+                String msg = "Cannot find an ORDERING MatchingRule instance for " + orderingOid
+                    + " while building cross-references for the " + getName() + " AttributeType.";
+
+                Throwable error = new LdapSchemaViolationException( msg, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                errors.add( error );
+                LOG.info( msg );
+            }
+        }
+        else
+        {
+            // If the AT has a superior, take its Ordering MR if any
+            if ( ( superior != null ) && ( superior.getOrdering() != null ) )
+            {
+                this.ordering = superior.getOrdering();
+                this.orderingOid = this.ordering.getOid();
+            }
+        }
+    }
+
+
+    /**
+     * Build the SUBSTR MR reference for an AttributeType
+     */
+    private void buildSubstring( List<Throwable> errors, Registries registries )
+    {
+        // The Substring MR. It can be null
+        if ( substringOid != null )
+        {
+            MatchingRule substring = null;
+
+            try
+            {
+                substring = registries.getMatchingRuleRegistry().lookup( substringOid );
+            }
+            catch ( NamingException ne )
+            {
+                // Not allowed.
+                String msg = "Cannot find a SUBSTR MatchingRule object for " + substringOid
+                    + " while building cross-references for the " + getName() + " AttributeType.";
+
+                Throwable error = new LdapSchemaViolationException( msg, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                errors.add( error );
+                LOG.info( msg );
+                return;
+            }
+
+            if ( substring != null )
+            {
+                this.substring = substring;
+            }
+            else
+            {
+                // Not allowed.
+                String msg = "Cannot find a SUBSTR MatchingRule instance for " + substringOid
+                    + " while building cross-references for the " + getName() + " AttributeType.";
+
+                Throwable error = new LdapSchemaViolationException( msg, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                errors.add( error );
+                LOG.info( msg );
+                return;
+            }
+        }
+        else
+        {
+            // If the AT has a superior, take its Substring MR if any
+            if ( ( superior != null ) && ( superior.getSubstring() != null ) )
+            {
+                this.substring = superior.getSubstring();
+                this.substringOid = this.substring.getOid();
+            }
+        }
+    }
+
+
+    /**
+     * Check the constraints for the Usage field.
+     */
+    private void checkUsage( List<Throwable> errors, Registries registries )
+    {
+        // Check that the AT usage is the same that its superior
+        if ( ( superior != null ) && ( usage != superior.getUsage() ) )
+        {
+            // This is an error
+            String msg = "The attributeType " + getName() + " must have the same USAGE than its superior";
+
+            Throwable error = new LdapSchemaViolationException( msg, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+            errors.add( error );
+            LOG.info( msg );
+            return;
+        }
+
+        // Now, check that the AttributeType's USAGE does not conflict
+        if ( !isUserModifiable() && ( usage == UsageEnum.USER_APPLICATIONS ) )
+        {
+            // Cannot have a not user modifiable AT which is not an operational AT
+            String msg = "The attributeType " + getName() + " is a USER-APPLICATION attribute, "
+                + "it must be USER-MODIFIABLE";
+
+            Throwable error = new LdapSchemaViolationException( msg, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+            errors.add( error );
+            LOG.info( msg );
+        }
+    }
+
+
+    /**
+     * Check the constraints for the Collective field.
+     */
+    private void checkCollective( List<Throwable> errors, Registries registries )
+    {
+        if ( superior != null )
+        {
+            if ( superior.isCollective() )
+            {
+                // An AttributeType will be collective if its superior is collective
+                this.isCollective = true;
+            }
+        }
+
+        if ( isCollective() && ( usage != UsageEnum.USER_APPLICATIONS ) )
+        {
+            // An AttributeType which is collective must be a USER attributeType
+            String msg = "The attributeType " + getName() + " is a COLLECTIVE AttributeType, "
+                + ", it must be a USER-APPLICATION attributeType too.";
+
+            Throwable error = new LdapSchemaViolationException( msg, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+            errors.add( error );
+            LOG.info( msg );
+        }
+    }
+
+
+    /**
+     * Inject the attributeType into the registries, updating the references to
+     * other SchemaObject.
+     * 
+     * If one of the referenced SchemaObject does not exist (SUP, EQUALITY, ORDERING, SUBSTR, SYNTAX), 
+     * an exception is thrown.
+     *
+     * @param registries The Registries
+     * @exception If the AttributeType is not valid 
+     */
+    public void addToRegistries( List<Throwable> errors, Registries registries ) throws NamingException
+    {
+        if ( registries != null )
+        {
+            AttributeTypeRegistry attributeTypeRegistry = registries.getAttributeTypeRegistry();
+
+            // The superior
+            if ( !buildSuperior( errors, registries ) )
+            {
+                // We have had errors, let's stop here as we need a correct superior to continue
+                return;
+            }
+
+            // The Syntax
+            buildSyntax( errors, registries );
+
+            // The EQUALITY matching rule
+            buildEquality( errors, registries );
+
+            // The ORDERING matching rule
+            buildOrdering( errors, registries );
+
+            // The SUBSTR matching rule
+            buildSubstring( errors, registries );
+
+            // Check the USAGE
+            checkUsage( errors, registries );
+
+            // Check the COLLECTIVE element
+            checkCollective( errors, registries );
+
+            // Inject the attributeType into the oid/normalizer map
+            attributeTypeRegistry.addMappingFor( this );
+
+            // Register this AttributeType into the Descendant map
+            attributeTypeRegistry.registerDescendants( this, superior );
+
+            /**
+             * Add the AT references (using and usedBy) : 
+             * AT -> MR (for EQUALITY, ORDERING and SUBSTR)
+             * AT -> S
+             * AT -> AT
+             */
+            if ( equality != null )
+            {
+                registries.addReference( this, equality );
+            }
+
+            if ( ordering != null )
+            {
+                registries.addReference( this, ordering );
+            }
+
+            if ( substring != null )
+            {
+                registries.addReference( this, substring );
+            }
+
+            if ( syntax != null )
+            {
+                registries.addReference( this, syntax );
+            }
+
+            if ( superior != null )
+            {
+                registries.addReference( this, superior );
+            }
+        }
+    }
+
+
+    /**
+     * Remove the attributeType from the registries, updating the references to
+     * other SchemaObject.
+     * 
+     * If one of the referenced SchemaObject does not exist (SUP, EQUALITY, ORDERING, SUBSTR, SYNTAX), 
+     * an exception is thrown.
+     *
+     * @param registries The Registries
+     * @exception If the AttributeType is not valid 
+     */
+    public void removeFromRegistries( List<Throwable> errors, Registries registries ) throws NamingException
+    {
+        if ( registries != null )
+        {
+            AttributeTypeRegistry attributeTypeRegistry = registries.getAttributeTypeRegistry();
+
+            // Remove the attributeType from the oid/normalizer map
+            attributeTypeRegistry.removeMappingFor( this );
+
+            // Unregister this AttributeType into the Descendant map
+            attributeTypeRegistry.unregisterDescendants( this, superior );
+
+            /**
+             * Remove the AT references (using and usedBy) : 
+             * AT -> MR (for EQUALITY, ORDERING and SUBSTR)
+             * AT -> S
+             * AT -> AT
+             */
+            if ( equality != null )
+            {
+                registries.delReference( this, equality );
+            }
+
+            if ( ordering != null )
+            {
+                registries.delReference( this, ordering );
+            }
+
+            if ( substring != null )
+            {
+                registries.delReference( this, substring );
+            }
+
+            if ( syntax != null )
+            {
+                registries.delReference( this, syntax );
+            }
+
+            if ( superior != null )
+            {
+                registries.delReference( this, superior );
+            }
+        }
+    }
+
+
     /**
      * Gets whether or not this AttributeType is single-valued.
      * 
      * @return true if only one value can exist for this AttributeType, false
      *         otherwise
      */
-    boolean isSingleValue();
+    public boolean isSingleValued()
+    {
+        return isSingleValued;
+    }
+
+
+    /**
+     * Tells if this AttributeType is Single Valued or not
+     *
+     * @param singleValue True if the AttributeType is single-valued
+     */
+    public void setSingleValued( boolean singleValued )
+    {
+        if ( !isReadOnly )
+        {
+            this.isSingleValued = singleValued;
+        }
+    }
 
 
     /**
@@ -145,7 +764,24 @@ public interface AttributeType extends SchemaObject
      * 
      * @return true if users can modify it, false if only the directory can.
      */
-    boolean isCanUserModify();
+    public boolean isUserModifiable()
+    {
+        return canUserModify;
+    }
+
+
+    /**
+     * Tells if this AttributeType can be modified by a user or not
+     *
+     * @param canUserModify The flag to set
+     */
+    public void setUserModifiable( boolean canUserModify )
+    {
+        if ( !isReadOnly )
+        {
+            this.canUserModify = canUserModify;
+        }
+    }
 
 
     /**
@@ -153,7 +789,35 @@ public interface AttributeType extends SchemaObject
      * 
      * @return true if the attribute is collective, false otherwise
      */
-    boolean isCollective();
+    public boolean isCollective()
+    {
+        return isCollective;
+    }
+
+
+    /**
+     * Updates the collective flag
+     *
+     * @param collective The new value to set
+     */
+    public void updateCollective( boolean collective )
+    {
+        this.isCollective = collective;
+    }
+
+
+    /**
+     * Sets the collective flag
+     *
+     * @param collective The new value to set
+     */
+    public void setCollective( boolean collective )
+    {
+        if ( !isReadOnly )
+        {
+            this.isCollective = collective;
+        }
+    }
 
 
     /**
@@ -161,27 +825,45 @@ public interface AttributeType extends SchemaObject
      * 
      * @return a type safe UsageEnum
      */
-    UsageEnum getUsage();
+    public UsageEnum getUsage()
+    {
+        return usage;
+    }
 
 
     /**
-     * Gets the name of the superior class for this AttributeType.
-     * 
-     * @return the super class for this AttributeType
-     * @throws NamingException
-     *             if there is a failure to resolve the superior
+     * Sets the AttributeType usage, one of :<br>
+     * <li>USER_APPLICATIONS
+     * <li>DIRECTORY_OPERATION
+     * <li>DISTRIBUTED_OPERATION
+     * <li>DSA_OPERATION
+     * <br>
+     * @see UsageEnum
+     * @param usage The AttributeType usage
      */
-    AttributeType getSuperior() throws NamingException, NamingException;
+    public void setUsage( UsageEnum usage )
+    {
+        if ( !isReadOnly )
+        {
+            this.usage = usage;
+        }
+    }
 
 
     /**
-     * The Syntax for this AttributeType's values.
-     * 
-     * @return the value syntax
-     * @throws NamingException
-     *             if there is a failure to resolve the syntax
+     * Updates the AttributeType usage, one of :<br>
+     * <li>USER_APPLICATIONS
+     * <li>DIRECTORY_OPERATION
+     * <li>DISTRIBUTED_OPERATION
+     * <li>DSA_OPERATION
+     * <br>
+     * @see UsageEnum
+     * @param usage The AttributeType usage
      */
-    Syntax getSyntax() throws NamingException;
+    public void updateUsage( UsageEnum usage )
+    {
+        this.usage = usage;
+    }
 
 
     /**
@@ -189,37 +871,444 @@ public interface AttributeType extends SchemaObject
      * 
      * @return the length of the attribute
      */
-    int getLength();
+    public int getSyntaxLength()
+    {
+        return syntaxLength;
+    }
+
+
+    /**
+     * Sets the length limit of this AttributeType based on its associated
+     * syntax.
+     * 
+     * @param length the new length to set
+     */
+    public void setSyntaxLength( int length )
+    {
+        if ( !isReadOnly )
+        {
+            this.syntaxLength = length;
+        }
+    }
+
+
+    /**
+     * Gets the the superior AttributeType of this AttributeType.
+     * 
+     * @return the superior AttributeType for this AttributeType
+     */
+    public AttributeType getSuperior()
+    {
+        return superior;
+    }
+
+
+    /**
+     * Gets the OID of the superior AttributeType for this AttributeType.
+     * 
+     * @return The OID of the superior AttributeType for this AttributeType.
+     */
+    public String getSuperiorOid()
+    {
+        return superiorOid;
+    }
+
+
+    /**
+     * Gets the Name of the superior AttributeType for this AttributeType.
+     * 
+     * @return The Name of the superior AttributeType for this AttributeType.
+     */
+    public String getSuperiorName()
+    {
+        if ( superior != null )
+        {
+            return superior.getName();
+        }
+        else
+        {
+            return superiorOid;
+        }
+    }
+
+
+    /**
+     * Sets the superior AttributeType OID of this AttributeType
+     *
+     * @param superiorOid The superior AttributeType OID of this AttributeType
+     */
+    public void setSuperiorOid( String superiorOid )
+    {
+        if ( !isReadOnly )
+        {
+            this.superiorOid = superiorOid;
+        }
+    }
+
+
+    /**
+     * Sets the superior for this AttributeType
+     *
+     * @param superior The superior for this AttributeType
+     */
+    public void setSuperior( AttributeType superior )
+    {
+        if ( !isReadOnly )
+        {
+            this.superior = superior;
+            this.superiorOid = superior.getOid();
+        }
+    }
+
+
+    /**
+     * Sets the superior oid for this AttributeType
+     *
+     * @param superior The superior oid for this AttributeType
+     */
+    public void setSuperior( String superiorOid )
+    {
+        if ( !isReadOnly )
+        {
+            this.superiorOid = superiorOid;
+        }
+    }
+
+
+    /**
+     * Update the associated Superior AttributeType, even if the SchemaObject is readOnly
+     *
+     * @param superior The superior for this AttributeType
+     */
+    public void updateSuperior( AttributeType superior )
+    {
+        this.superior = superior;
+        this.superiorOid = superior.getOid();
+    }
+
+
+    /**
+     * Gets the Syntax for this AttributeType's values.
+     * 
+     * @return the value syntax
+     */
+    public LdapSyntax getSyntax()
+    {
+        return syntax;
+    }
+
+
+    /**
+     * Gets the Syntax name for this AttributeType's values.
+     * 
+     * @return the value syntax name
+     */
+    public String getSyntaxName()
+    {
+        if ( syntax != null )
+        {
+            return syntax.getName();
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+
+    /**
+     * Gets the Syntax OID for this AttributeType's values.
+     * 
+     * @return the value syntax's OID
+     */
+    public String getSyntaxOid()
+    {
+        return syntaxOid;
+    }
+
+
+    /**
+     * Sets the Syntax OID for this AttributeType
+     *
+     * @param superiorOid The syntax OID for this AttributeType
+     */
+    public void setSyntaxOid( String syntaxOid )
+    {
+        if ( !isReadOnly )
+        {
+            this.syntaxOid = syntaxOid;
+        }
+    }
+
+
+    /**
+     * Sets the Syntax for this AttributeType
+     *
+     * @param syntax The Syntax for this AttributeType
+     */
+    public void setSyntax( LdapSyntax syntax )
+    {
+        if ( !isReadOnly )
+        {
+            this.syntax = syntax;
+            this.syntaxOid = syntax.getOid();
+        }
+    }
+
+
+    /**
+     * Update the associated Syntax, even if the SchemaObject is readOnly
+     *
+     * @param syntax The Syntax for this AttributeType
+     */
+    public void updateSyntax( LdapSyntax syntax )
+    {
+        this.syntax = syntax;
+        this.syntaxOid = syntax.getOid();
+    }
 
 
     /**
      * Gets the MatchingRule for this AttributeType used for equality matching.
      * 
      * @return the equality matching rule
-     * @throws NamingException
-     *             if there is a failure to resolve the matchingRule
      */
-    MatchingRule getEquality() throws NamingException;
+    public MatchingRule getEquality()
+    {
+        return equality;
+    }
 
 
     /**
-     * Gets the MatchingRule for this AttributeType used for ordering.
+     * Gets the Equality OID for this AttributeType's values.
      * 
-     * @return the ordering matching rule
-     * @throws NamingException
-     *             if there is a failure to resolve the matchingRule
+     * @return the value Equality's OID
      */
-    MatchingRule getOrdering() throws NamingException;
+    public String getEqualityOid()
+    {
+        return equalityOid;
+    }
 
 
     /**
-     * Gets the MatchingRule for this AttributeType used for substring matching.
+     * Gets the Equality Name for this AttributeType's values.
      * 
-     * @return the substring matching rule
-     * @throws NamingException
-     *             if there is a failure to resolve the matchingRule
+     * @return the value Equality's Name
      */
-    MatchingRule getSubstr() throws NamingException;
+    public String getEqualityName()
+    {
+        if ( equality != null )
+        {
+            return equality.getName();
+        }
+        else
+        {
+            return equalityOid;
+        }
+    }
+
+
+    /**
+     * Sets the Equality OID for this AttributeType
+     *
+     * @param equalityOid The Equality OID for this AttributeType
+     */
+    public void setEqualityOid( String equalityOid )
+    {
+        if ( !isReadOnly )
+        {
+            this.equalityOid = equalityOid;
+        }
+    }
+
+
+    /**
+     * Sets the Equality MR for this AttributeType
+     *
+     * @param equality The Equality MR for this AttributeType
+     */
+    public void setEquality( MatchingRule equality )
+    {
+        if ( !isReadOnly )
+        {
+            this.equality = equality;
+            this.equalityOid = equality.getOid();
+        }
+    }
+
+
+    /**
+     * Update the associated Equality MatchingRule, even if the SchemaObject is readOnly
+     *
+     * @param equality The Equality MR for this AttributeType
+     */
+    public void updateEquality( MatchingRule equality )
+    {
+        this.equality = equality;
+        this.equalityOid = equality.getOid();
+    }
+
+
+    /**
+     * Gets the MatchingRule for this AttributeType used for Ordering matching.
+     * 
+     * @return the Ordering matching rule
+     */
+    public MatchingRule getOrdering()
+    {
+        return ordering;
+    }
+
+
+    /**
+     * Gets the MatchingRule name for this AttributeType used for Ordering matching.
+     * 
+     * @return the Ordering matching rule name
+     */
+    public String getOrderingName()
+    {
+        if ( ordering != null )
+        {
+            return ordering.getName();
+        }
+        else
+        {
+            return orderingOid;
+        }
+    }
+
+
+    /**
+     * Gets the Ordering OID for this AttributeType's values.
+     * 
+     * @return the value Equality's OID
+     */
+    public String getOrderingOid()
+    {
+        return orderingOid;
+    }
+
+
+    /**
+     * Sets the Ordering OID for this AttributeType
+     *
+     * @param orderingOid The Ordering OID for this AttributeType
+     */
+    public void setOrderingOid( String orderingOid )
+    {
+        if ( !isReadOnly )
+        {
+            this.orderingOid = orderingOid;
+        }
+    }
+
+
+    /**
+     * Sets the Ordering MR for this AttributeType
+     *
+     * @param ordering The Ordering MR for this AttributeType
+     */
+    public void setOrdering( MatchingRule ordering )
+    {
+        if ( !isReadOnly )
+        {
+            this.ordering = ordering;
+            this.orderingOid = ordering.getOid();
+        }
+    }
+
+
+    /**
+     * Update the associated Ordering MatchingRule, even if the SchemaObject is readOnly
+     *
+     * @param ordering The Ordering MR for this AttributeType
+     */
+    public void updateOrdering( MatchingRule ordering )
+    {
+        this.ordering = ordering;
+        this.orderingOid = ordering.getOid();
+    }
+
+
+    /**
+     * Gets the MatchingRule for this AttributeType used for Substr matching.
+     * 
+     * @return the Substr matching rule
+     */
+    public MatchingRule getSubstring()
+    {
+        return substring;
+    }
+
+
+    /**
+     * Gets the MatchingRule name for this AttributeType used for Substring matching.
+     * 
+     * @return the Substring matching rule name
+     */
+    public String getSubstringName()
+    {
+        if ( substring != null )
+        {
+            return substring.getName();
+        }
+        else
+        {
+            return substringOid;
+        }
+    }
+
+
+    /**
+     * Gets the Substr OID for this AttributeType's values.
+     * 
+     * @return the value Substr's OID
+     */
+    public String getSubstringOid()
+    {
+        return substringOid;
+    }
+
+
+    /**
+     * Sets the Substr OID for this AttributeType
+     *
+     * @param substrOid The Substr OID for this AttributeType
+     */
+    public void setSubstringOid( String substrOid )
+    {
+        if ( !isReadOnly )
+        {
+            this.substringOid = substrOid;
+        }
+    }
+
+
+    /**
+     * Sets the Substr MR for this AttributeType
+     *
+     * @param substring The Substr MR for this AttributeType
+     */
+    public void setSubstring( MatchingRule substring )
+    {
+        if ( !isReadOnly )
+        {
+            this.substring = substring;
+            this.substringOid = substring.getOid();
+        }
+    }
+
+
+    /**
+     * Update the associated Substring MatchingRule, even if the SchemaObject is readOnly
+     *
+     * @param substring The Substr MR for this AttributeType
+     */
+    public void updateSubstring( MatchingRule substring )
+    {
+        this.substring = substring;
+        this.substringOid = substring.getOid();
+    }
 
 
     /**
@@ -227,10 +1316,17 @@ public interface AttributeType extends SchemaObject
      * attributeType.
      *
      * @param descendant the perspective descendant to check
-     * @return true if the descendant is truely a derived from this AttributeType
-     * @throws NamingException if there are problems resolving superior types
+     * @return true if the descendant is truly a derived from this AttributeType
      */
-    boolean isAncestorOf( AttributeType descendant ) throws NamingException;
+    public boolean isAncestorOf( AttributeType descendant )
+    {
+        if ( ( descendant == null ) || this.equals( descendant ) )
+        {
+            return false;
+        }
+
+        return isAncestorOrEqual( this, descendant );
+    }
 
 
     /**
@@ -238,8 +1334,267 @@ public interface AttributeType extends SchemaObject
      * attributeType.
      *
      * @param ancestor the perspective ancestor to check
-     * @return true if this AttributeType truely descends from the ancestor
-     * @throws NamingException if there are problems resolving superior types
+     * @return true if this AttributeType truly descends from the ancestor
      */
-    boolean isDescendantOf( AttributeType ancestor ) throws NamingException;
+    public boolean isDescendantOf( AttributeType ancestor )
+    {
+        if ( ( ancestor == null ) || equals( ancestor ) )
+        {
+            return false;
+        }
+
+        return isAncestorOrEqual( ancestor, this );
+    }
+
+
+    /**
+     * Recursive method which checks to see if a descendant is really an ancestor or if the two
+     * are equal.
+     *
+     * @param ancestor the possible ancestor of the descendant
+     * @param descendant the possible descendant of the ancestor
+     * @return true if the ancestor equals the descendant or if the descendant is really
+     * a subtype of the ancestor. otherwise false
+     */
+    private boolean isAncestorOrEqual( AttributeType ancestor, AttributeType descendant )
+    {
+        if ( ( ancestor == null ) || ( descendant == null ) )
+        {
+            return false;
+        }
+
+        if ( ancestor.equals( descendant ) )
+        {
+            return true;
+        }
+
+        return isAncestorOrEqual( ancestor, descendant.getSuperior() );
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return objectType + " " + DescriptionUtils.getDescription( this );
+    }
+
+
+    /**
+     * Copy an AttributeType
+     */
+    public AttributeType copy()
+    {
+        AttributeType copy = new AttributeType( oid );
+
+        // Copy the SchemaObject common data
+        copy.copy( this );
+
+        // Copy the canUserModify flag
+        copy.canUserModify = canUserModify;
+
+        // Copy the isCollective flag
+        copy.isCollective = isCollective;
+
+        // Copy the isSingleValue flag
+        copy.isSingleValued = isSingleValued;
+
+        // Copy the USAGE type
+        copy.usage = usage;
+
+        // All the references to other Registries object are set to null,
+        // all the OIDs are copied
+        // The EQUALITY MR
+        copy.equality = null;
+        copy.equalityOid = equalityOid;
+
+        // The ORDERING MR
+        copy.ordering = null;
+        copy.orderingOid = orderingOid;
+
+        // The SUBSTR MR
+        copy.substring = null;
+        copy.substringOid = substringOid;
+
+        // The SUP AT
+        copy.superior = null;
+        copy.superiorOid = superiorOid;
+
+        // The SYNTAX
+        copy.syntax = null;
+        copy.syntaxOid = syntaxOid;
+        copy.syntaxLength = syntaxLength;
+
+        return copy;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void clear()
+    {
+        // Clear the common elements
+        super.clear();
+
+        // Clear the references
+        equality = null;
+        ordering = null;
+        substring = null;
+        superior = null;
+        syntax = null;
+    }
+
+
+    /**
+     * @see Object#equals(Object)
+     */
+    public boolean equals( Object o )
+    {
+        if ( !super.equals( o ) )
+        {
+            return false;
+        }
+
+        if ( !( o instanceof AttributeType ) )
+        {
+            return false;
+        }
+
+        AttributeType that = ( AttributeType ) o;
+
+        // The COLLECTIVE
+        if ( isCollective != that.isCollective )
+        {
+            return false;
+        }
+
+        // The SINGLE_VALUE
+        if ( isSingleValued != that.isSingleValued )
+        {
+            return false;
+        }
+
+        // The NO_USER_MODIFICATION
+        if ( canUserModify != that.canUserModify )
+        {
+            return false;
+        }
+
+        // The USAGE
+        if ( usage != that.usage )
+        {
+            return false;
+        }
+
+        // The equality
+        if ( !compareOid( equalityOid, that.equalityOid ) )
+        {
+            return false;
+        }
+
+        if ( equality != null )
+        {
+            if ( !equality.equals( that.equality ) )
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if ( that.equality != null )
+            {
+                return false;
+            }
+        }
+
+        // The ordering
+        if ( !compareOid( orderingOid, that.orderingOid ) )
+        {
+            return false;
+        }
+
+        if ( ordering != null )
+        {
+            if ( !ordering.equals( that.ordering ) )
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if ( that.ordering != null )
+            {
+                return false;
+            }
+        }
+
+        // The substring
+        if ( !compareOid( substringOid, that.substringOid ) )
+        {
+            return false;
+        }
+
+        if ( substring != null )
+        {
+            if ( !substring.equals( that.substring ) )
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if ( that.substring != null )
+            {
+                return false;
+            }
+        }
+
+        // The superior
+        if ( !compareOid( superiorOid, that.superiorOid ) )
+        {
+            return false;
+        }
+
+        if ( superior != null )
+        {
+            if ( !superior.equals( that.superior ) )
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if ( that.superior != null )
+            {
+                return false;
+            }
+        }
+
+        // The syntax
+        if ( !compareOid( syntaxOid, that.syntaxOid ) )
+        {
+            return false;
+        }
+
+        if ( syntaxLength != that.syntaxLength )
+        {
+            return false;
+        }
+
+        if ( syntax == null )
+        {
+            return that.syntax == null;
+        }
+
+        if ( syntax.equals( that.syntax ) )
+        {
+            return syntaxLength == that.syntaxLength;
+        }
+        else
+        {
+            return false;
+        }
+    }
 }
