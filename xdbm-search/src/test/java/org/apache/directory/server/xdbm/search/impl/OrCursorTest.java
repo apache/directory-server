@@ -162,7 +162,6 @@ public class OrCursorTest
 
     
     @Test
-    @SuppressWarnings( "unchecked" )
     public void testOrCursorUsingCursorBuilder() throws Exception
     {
         String filter = "(|(cn=J*)(sn=W*))";

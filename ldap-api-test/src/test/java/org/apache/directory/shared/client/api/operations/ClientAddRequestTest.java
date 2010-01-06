@@ -32,7 +32,6 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.client.api.LdapConnection;
 import org.apache.directory.shared.ldap.client.api.exception.LdapException;
 import org.apache.directory.shared.ldap.client.api.listeners.AddListener;

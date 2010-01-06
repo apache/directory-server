@@ -199,7 +199,6 @@ public class SubstringEvaluator implements Evaluator<SubstringNode, ServerEntry>
     }
 
 
-    @SuppressWarnings( { "UnusedDeclaration" } )
     private boolean evaluateWithIndex( ServerEntry entry ) throws Exception
     {
         throw new UnsupportedOperationException( "This is too inefficient without getId() on ServerEntry" );

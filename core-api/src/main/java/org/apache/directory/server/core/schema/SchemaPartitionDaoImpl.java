@@ -650,7 +650,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         List<String> names = mr.getNames();
         
-        if ( ( names != null ) || ( names.size() > 0 ) )
+        if ( ( names != null ) && ( names.size() > 0 ) )
         {
             for ( String name : names )
             {

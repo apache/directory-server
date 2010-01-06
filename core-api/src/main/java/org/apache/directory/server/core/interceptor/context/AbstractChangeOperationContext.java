@@ -21,8 +21,8 @@ package org.apache.directory.server.core.interceptor.context;
 
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.changelog.LogChange;
 import org.apache.directory.server.core.changelog.ChangeLogEvent;
+import org.apache.directory.server.core.changelog.LogChange;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -81,6 +81,6 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
      */
     public boolean isLogChange()
     {
-        return logChange != logChange.FALSE;
+        return logChange != LogChange.FALSE;
     }
 }

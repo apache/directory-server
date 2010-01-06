@@ -20,18 +20,16 @@
 package org.apache.directory.server.core.subtree;
 
 
+import java.util.Iterator;
+
+import javax.naming.NamingException;
+
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
-import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
-import org.apache.directory.shared.ldap.util.StringTools;
-
-import javax.naming.NamingException;
-import java.util.Iterator;
 
 
 /**

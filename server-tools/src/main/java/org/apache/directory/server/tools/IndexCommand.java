@@ -62,7 +62,6 @@ public class IndexCommand extends ToolCommand
     }
 
 
-    @SuppressWarnings("unchecked")
     private SchemaManager loadSchemaManager() throws Exception
     {
         // --------------------------------------------------------------------
@@ -89,7 +88,7 @@ public class IndexCommand extends ToolCommand
         
         for ( int ii = 0; ii < partitions.length; ii++ )
         {
-            File partitionDirectory = partitionDirectory = new File( getInstanceLayout().getPartitionsDir(), partitions[ii] );
+            File partitionDirectory = new File( getInstanceLayout().getPartitionsDir(), partitions[ii] );
             File indexDir = null;
             
             if( indexDirPath != null )

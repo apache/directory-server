@@ -135,7 +135,6 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     }
 
 
-    @SuppressWarnings("unchecked")
     public void before( IndexEntry<V, ServerEntry> element ) throws Exception
     {
         checkNotClosed( "before()" );
@@ -180,7 +179,6 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     }
 
 
-    @SuppressWarnings("unchecked")
     public void afterValue( Long id, V value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
@@ -217,7 +215,6 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     }
 
 
-    @SuppressWarnings("unchecked")
     public void after( IndexEntry<V, ServerEntry> element ) throws Exception
     {
         checkNotClosed( "after()" );
@@ -337,7 +334,6 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     }
 
 
-    @SuppressWarnings("unchecked")
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
