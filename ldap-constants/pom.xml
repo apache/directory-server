@@ -27,7 +27,7 @@
     <version>0.9.18-SNAPSHOT</version>
   </parent>
   <artifactId>shared-ldap-constants</artifactId>
-  <name>Apache Directory Protocol Ldap Shared Constants</name>
+  <name>Apache Directory Shared Ldap Constants</name>
   <inceptionYear>2007</inceptionYear>
 
   <issueManagement>
