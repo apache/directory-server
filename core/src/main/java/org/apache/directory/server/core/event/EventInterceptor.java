@@ -43,13 +43,12 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.normalization.FilterNormalizingVisitor;
 import org.apache.directory.server.core.partition.ByPassConstants;
-import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
-
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,11 +81,11 @@ public class EventInterceptor extends BaseInterceptor
         super.init( ds );
         
         this.ds = ds;
-        OidRegistry oidRegistry = ds.getRegistries().getOidRegistry();
-        AttributeTypeRegistry attributeRegistry = ds.getRegistries().getAttributeTypeRegistry();
-        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
-        filterNormalizer = new FilterNormalizingVisitor( ncn, ds.getRegistries() );
-        evaluator = new ExpressionEvaluator( oidRegistry, attributeRegistry );
+        OidRegistry oidRegistry = ds.getSchemaManager().getGlobalOidRegistry();
+        SchemaManager schemaManager = ds.getSchemaManager();
+        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
+        filterNormalizer = new FilterNormalizingVisitor( ncn, schemaManager );
+        evaluator = new ExpressionEvaluator( oidRegistry, schemaManager );
         executor = new ThreadPoolExecutor( 1, 10, 1000, TimeUnit.MILLISECONDS, 
             new ArrayBlockingQueue<Runnable>( 100 ) );
         
@@ -192,12 +191,17 @@ public class EventInterceptor extends BaseInterceptor
     {
         ClonedServerEntry oriEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
         List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), oriEntry );
+        
         next.modify( opContext );
 
         if ( selecting.isEmpty() )
         {
             return;
         }
+
+        // Get the modified entry
+        ClonedServerEntry alteredEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
+        opContext.setAlteredEntry( alteredEntry );
 
         for ( final RegistrationEntry registration : selecting )
         {
@@ -213,6 +217,7 @@ public class EventInterceptor extends BaseInterceptor
     {
         ClonedServerEntry oriEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
         List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), oriEntry );
+        
         next.rename( opContext );
 
         if ( selecting.isEmpty() )
@@ -220,7 +225,9 @@ public class EventInterceptor extends BaseInterceptor
             return;
         }
 
-        opContext.setAlteredEntry( opContext.lookup( opContext.getNewDn(), ByPassConstants.LOOKUP_BYPASS ) );
+        // Get the modifed entry
+        ClonedServerEntry alteredEntry = opContext.lookup( opContext.getNewDn(), ByPassConstants.LOOKUP_BYPASS );
+        opContext.setAlteredEntry( alteredEntry );
         
         for ( final RegistrationEntry registration : selecting )
         {
@@ -265,6 +272,7 @@ public class EventInterceptor extends BaseInterceptor
     {
         ClonedServerEntry oriEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
         List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), oriEntry );
+        
         next.move( opContext );
 
         if ( selecting.isEmpty() )
@@ -326,7 +334,7 @@ public class EventInterceptor extends BaseInterceptor
          */
         public void addListener( DirectoryListener listener, NotificationCriteria criteria ) throws Exception
         {
-            criteria.getBase().normalize( ds.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            criteria.getBase().normalize( ds.getSchemaManager().getNormalizerMapping() );
             ExprNode result = ( ExprNode ) criteria.getFilter().accept( filterNormalizer );
             criteria.setFilter( result );
             registrations.add( new RegistrationEntry( listener, criteria ) );

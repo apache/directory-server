@@ -25,8 +25,9 @@ import javax.naming.NamingException;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.prefs.PreferencesUtils;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -35,7 +36,7 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class PreferencesUtilsTest extends TestCase
+public class PreferencesUtilsTest
 {
     /**
      * Tests to confirm the toSysDn() method can translate an absolute
@@ -43,6 +44,7 @@ public class PreferencesUtilsTest extends TestCase
      *
      * @throws NamingException if there are problems transforming the name
      */
+    @Test
     public void testToSysDn() throws NamingException
     {
         // simple test
@@ -53,7 +55,7 @@ public class PreferencesUtilsTest extends TestCase
 
         LdapDN dn = ( LdapDN ) PreferencesUtils.toSysDn( test );
 
-        assertEquals( expectedDN, dn.getUpName() );
+        assertEquals( expectedDN, dn.getName() );
 
         // simple test without trailing '/'
 
@@ -61,7 +63,7 @@ public class PreferencesUtilsTest extends TestCase
 
         dn = ( LdapDN ) PreferencesUtils.toSysDn( test );
 
-        assertEquals( expectedDN, dn.getUpName() );
+        assertEquals( expectedDN, dn.getName() );
 
         // basis condition tests
 
@@ -69,7 +71,7 @@ public class PreferencesUtilsTest extends TestCase
 
         dn = ( LdapDN ) PreferencesUtils.toSysDn( test );
 
-        assertEquals( ServerDNConstants.SYSPREFROOT_SYSTEM_DN, dn.getUpName() );
+        assertEquals( ServerDNConstants.SYSPREFROOT_SYSTEM_DN, dn.getName() );
 
         // endpoint tests
 
@@ -77,7 +79,7 @@ public class PreferencesUtilsTest extends TestCase
 
         dn = ( LdapDN ) PreferencesUtils.toSysDn( test );
 
-        assertEquals( ServerDNConstants.SYSPREFROOT_SYSTEM_DN, dn.getUpName() );
+        assertEquals( ServerDNConstants.SYSPREFROOT_SYSTEM_DN, dn.getName() );
 
     }
 }

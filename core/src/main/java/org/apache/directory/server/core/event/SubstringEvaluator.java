@@ -26,8 +26,6 @@ import java.util.regex.PatternSyntaxException;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -35,6 +33,7 @@ import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -45,10 +44,8 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
  */
 public class SubstringEvaluator implements Evaluator
 {
-    /** Oid Registry used to translate attributeIds to OIDs */
-    private OidRegistry oidRegistry;
-    /** AttributeType registry needed for normalizing and comparing values */
-    private AttributeTypeRegistry attributeTypeRegistry;
+    /** SchemaManager needed for normalizing and comparing values */
+    private SchemaManager schemaManager;
 
 
     /**
@@ -57,10 +54,9 @@ public class SubstringEvaluator implements Evaluator
      * @param oidRegistry the OID registry for name to OID mapping
      * @param attributeTypeRegistry the attributeType registry
      */
-    public SubstringEvaluator(OidRegistry oidRegistry, AttributeTypeRegistry attributeTypeRegistry)
+    public SubstringEvaluator( SchemaManager schemaManager )
     {
-        this.oidRegistry = oidRegistry;
-        this.attributeTypeRegistry = attributeTypeRegistry;
+        this.schemaManager = schemaManager;
     }
 
 
@@ -71,9 +67,9 @@ public class SubstringEvaluator implements Evaluator
     {
         Pattern regex = null;
         SubstringNode snode = (SubstringNode)node;
-        String oid = oidRegistry.getOid( snode.getAttribute() );
-        AttributeType type = attributeTypeRegistry.lookup( oid );
-        MatchingRule matchingRule = type.getSubstr();
+        String oid = schemaManager.getAttributeTypeRegistry().getOidByName( snode.getAttribute() );
+        AttributeType type = schemaManager.lookupAttributeTypeRegistry( oid );
+        MatchingRule matchingRule = type.getSubstring();
         
         if ( matchingRule == null )
         {

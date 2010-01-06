@@ -30,7 +30,6 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -40,6 +39,7 @@ import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 
 
@@ -52,12 +52,12 @@ import org.apache.directory.shared.ldap.schema.SchemaUtils;
 public class CollectiveAttributesSchemaChecker
 {
     private PartitionNexus nexus = null;
-    private AttributeTypeRegistry attrTypeRegistry = null;
+    private SchemaManager schemaManager = null;
     
-    public CollectiveAttributesSchemaChecker( PartitionNexus nexus, AttributeTypeRegistry attrTypeRegistry )
+    public CollectiveAttributesSchemaChecker( PartitionNexus nexus, SchemaManager schemaManager )
     {
         this.nexus = nexus;
-        this.attrTypeRegistry = attrTypeRegistry;
+        this.schemaManager = schemaManager;
     }
     
     /* package scope*/ void checkAdd( LdapDN normName, ServerEntry entry ) throws Exception
@@ -113,13 +113,13 @@ public class CollectiveAttributesSchemaChecker
 
             if ( attrType == null )
             {
-                if ( !attrTypeRegistry.hasAttributeType( attr.getUpId() ) )
+                if ( !schemaManager.getAttributeTypeRegistry().contains( attr.getUpId() ) )
                 {
                     throw new LdapInvalidAttributeIdentifierException();
                 }
                 else
                 {
-                    attrType = attrTypeRegistry.lookup( attr.getUpId() );
+                    attrType = schemaManager.lookupAttributeTypeRegistry( attr.getUpId() );
                 }
             }
             

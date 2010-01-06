@@ -19,7 +19,7 @@
 package org.apache.directory.server.core.journal;
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

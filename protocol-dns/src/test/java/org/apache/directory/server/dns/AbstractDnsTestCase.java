@@ -28,8 +28,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.server.dns.messages.DnsMessage;
 import org.apache.directory.server.dns.messages.DnsMessageModifier;
 import org.apache.directory.server.dns.messages.MessageType;
@@ -48,7 +46,7 @@ import org.apache.mina.core.buffer.IoBuffer;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class AbstractDnsTestCase extends TestCase
+public abstract class AbstractDnsTestCase
 {
     protected static final int MINIMUM_DNS_DATAGRAM_SIZE = 576;
 

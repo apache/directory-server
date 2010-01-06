@@ -94,8 +94,8 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
         changeLog = directoryService.getChangeLog();
         schemaService = directoryService.getSchemaService();
-        entryDeleted = directoryService.getRegistries().getAttributeTypeRegistry()
-                .lookup( ApacheSchemaConstants.ENTRY_DELETED_AT_OID );
+        entryDeleted = directoryService.getSchemaManager()
+                .lookupAttributeTypeRegistry( ApacheSchemaConstants.ENTRY_DELETED_AT_OID );
     }
 
 
@@ -221,7 +221,16 @@ public class ChangeLogInterceptor extends BaseInterceptor
             // @todo make sure we're not putting in operational attributes that cannot be user modified
             serverEntry = getAttributes( opContext );
         }
+        
+        // Duplicate modifications so that the reverse does not contain the operational attributes
+        List<Modification> clonedMods = new ArrayList<Modification>(); 
 
+        for ( Modification mod : opContext.getModItems() )
+        {
+            clonedMods.add( mod.clone() );
+        }
+
+        // Call the next interceptor
         next.modify( opContext );
 
         // @TODO: needs big consideration!!!
@@ -249,9 +258,9 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setChangeType( ChangeType.Modify );
         forward.setDn( opContext.getDn() );
         
-        List<Modification> mods = new ArrayList<Modification>( opContext.getModItems().size() );
+        List<Modification> mods = new ArrayList<Modification>( clonedMods.size() );
         
-        for ( Modification modItem : opContext.getModItems() )
+        for ( Modification modItem : clonedMods )
         {
             Modification mod = ((ServerModification)modItem).toClientModification();
             
@@ -287,13 +296,15 @@ public class ChangeLogInterceptor extends BaseInterceptor
     {
         ServerEntry serverEntry = null;
         
-        if ( changeLog.isEnabled() && renameContext.isFirstOperation() )
+        if ( renameContext.getEntry() != null )
         {
-            // @todo make sure we're not putting in operational attributes that cannot be user modified
-            serverEntry = getAttributes( renameContext );
+            serverEntry = renameContext.getEntry().getOriginalEntry();
         }
-
+        
         next.rename( renameContext );
+        
+        // After this point, the entry has been modified. The cloned entry contains
+        // the modified entry, the originalEntry has changed
 
         if ( ! changeLog.isEnabled() || ! renameContext.isFirstOperation() )
         {
@@ -336,7 +347,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setDn( opCtx.getDn() );
         forward.setDeleteOldRdn( opCtx.getDelOldDn() );
         forward.setNewRdn( opCtx.getNewRdn().getUpName() );
-        forward.setNewSuperior( opCtx.getParent().getUpName() );
+        forward.setNewSuperior( opCtx.getParent().getName() );
 
         List<LdifEntry> reverses = LdifRevertor.reverseMoveAndRename(  
             serverEntry, opCtx.getParent(), new Rdn( opCtx.getNewRdn() ), false );
@@ -356,7 +367,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         LdifEntry forward = new LdifEntry();
         forward.setChangeType( ChangeType.ModDn );
         forward.setDn( opCtx.getDn() );
-        forward.setNewSuperior( opCtx.getParent().getUpName() );
+        forward.setNewSuperior( opCtx.getParent().getName() );
 
         LdifEntry reverse = LdifRevertor.reverseMove( opCtx.getParent(), opCtx.getDn() );
         opCtx.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );

@@ -31,12 +31,12 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.client.api.LdapConnection;
 import org.apache.directory.shared.ldap.client.api.exception.LdapException;
 import org.apache.directory.shared.ldap.client.api.listeners.DeleteListener;
@@ -55,46 +55,49 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-@RunWith(SiRunner.class)
-@CleanupLevel(Level.METHOD)
+@RunWith(FrameworkRunner.class)
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" ), 
+        @CreateTransport( protocol = "LDAPS" ) 
+    })
 @ApplyLdifs( {
-    "dn: cn=parent,ou=system\n" +
-    "objectClass: person\n" +
-    "cn: parent_cn\n" +
-    "sn: parent_sn\n" + 
+    "dn: cn=parent,ou=system",
+    "objectClass: person",
+    "cn: parent_cn",
+    "sn: parent_sn", 
     
-    "\n" +
+    "",
     
-    "dn: cn=child1,cn=parent,ou=system\n" +
-    "objectClass: person\n" +
-    "cn: child1_cn\n" +
-    "sn: child1_sn\n" + 
+    "dn: cn=child1,cn=parent,ou=system",
+    "objectClass: person",
+    "cn: child1_cn",
+    "sn: child1_sn", 
     
-    "\n" +
+    "",
     
-    "dn: cn=child2,cn=parent,ou=system\n" +
-    "objectClass: person\n" +
-    "cn: child2_cn\n" +
-    "sn: child2_sn\n" + 
+    "dn: cn=child2,cn=parent,ou=system",
+    "objectClass: person",
+    "cn: child2_cn",
+    "sn: child2_sn", 
     
-    "\n" +
+    "",
     
-    "dn: cn=grand_child11,cn=child1,cn=parent,ou=system\n" +
-    "objectClass: person\n" +
-    "cn: grand_child11_cn\n" +
-    "sn: grand_child11_sn\n" + 
+    "dn: cn=grand_child11,cn=child1,cn=parent,ou=system",
+    "objectClass: person",
+    "cn: grand_child11_cn",
+    "sn: grand_child11_sn", 
     
-    "\n" +
+    "",
     
-    "dn: cn=grand_child12,cn=child1,cn=parent,ou=system\n" +
-    "objectClass: person\n" +
-    "cn: grand_child12_cn\n" +
-    "sn: grand_child12_sn\n"
+    "dn: cn=grand_child12,cn=child1,cn=parent,ou=system",
+    "objectClass: person",
+    "cn: grand_child12_cn",
+    "sn: grand_child12_sn"
 })
-public class ClientDeleteRequestTest
+public class ClientDeleteRequestTest extends AbstractLdapTestUnit
 {
-    public static LdapServer ldapServer;
-    
     private LdapConnection connection;
     
     private CoreSession session;
@@ -105,7 +108,7 @@ public class ClientDeleteRequestTest
         connection = new LdapConnection( "localhost", ldapServer.getPort() );
 
         LdapDN bindDn = new LdapDN( "uid=admin,ou=system" );
-        connection.bind( bindDn.getUpName(), "secret" );
+        connection.bind( bindDn.getName(), "secret" );
         
         session = ldapServer.getDirectoryService().getAdminSession();
     }
@@ -124,7 +127,7 @@ public class ClientDeleteRequestTest
         
         assertTrue( session.exists( dn ) );
         
-        DeleteResponse response = connection.delete( dn.getUpName() );
+        DeleteResponse response = connection.delete( dn.getName() );
         assertNotNull( response );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         
@@ -138,7 +141,7 @@ public class ClientDeleteRequestTest
         LdapDN dn = new LdapDN( "cn=child1,cn=parent,ou=system" ); // has children
         assertTrue( session.exists( dn ) );
  
-        DeleteResponse response = connection.delete( dn.getUpName() );
+        DeleteResponse response = connection.delete( dn.getName() );
         assertNotNull( response );
         assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF, response.getLdapResult().getResultCode() );
         

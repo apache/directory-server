@@ -20,6 +20,10 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
+import java.io.IOException;
+import java.util.Comparator;
+import java.util.Map;
+
 import jdbm.RecordManager;
 import jdbm.btree.BTree;
 import jdbm.helper.Serializer;
@@ -29,19 +33,16 @@ import org.apache.directory.server.core.avltree.ArrayMarshaller;
 import org.apache.directory.server.core.avltree.ArrayTree;
 import org.apache.directory.server.core.avltree.ArrayTreeCursor;
 import org.apache.directory.server.core.avltree.Marshaller;
-import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.xdbm.Table;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.Comparator;
-import java.util.Map;
 
 
 /**
@@ -91,6 +92,8 @@ public class JdbmTable<K,V> implements Table<K,V>
 
     Marshaller<ArrayTree<V>> marshaller;
 
+    /** The global SchemaManager */
+    private SchemaManager schemaManager;
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R
@@ -114,11 +117,13 @@ public class JdbmTable<K,V> implements Table<K,V>
      * @throws IOException if the table's file cannot be created
      */
     @SuppressWarnings("unchecked")
-    public JdbmTable( String name, int numDupLimit, RecordManager manager,
+    public JdbmTable( SchemaManager schemaManager, String name, int numDupLimit, RecordManager manager,
         Comparator<K> keyComparator, Comparator<V> valueComparator,
         Serializer keySerializer, Serializer valueSerializer )
         throws IOException
     {
+        this.schemaManager = schemaManager;
+
         // TODO make the size of the duplicate btree cache configurable via constructor
         duplicateBtrees = new SynchronizedLRUMap( 100 );
 
@@ -177,6 +182,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         else // Load existing BTree
         {
             bt = BTree.load( recMan, recId );
+            ((SerializableComparator<K>)bt.getComparator()).setSchemaManager( schemaManager );
             recId = recMan.getNamedObject( name + SZSUFFIX );
             count = ( Integer ) recMan.fetch( recId );
         }
@@ -197,16 +203,25 @@ public class JdbmTable<K,V> implements Table<K,V>
      * using default Java serialization which could be very expensive
      * @throws IOException if the table's file cannot be created
      */
-    public JdbmTable( String name, RecordManager manager, SerializableComparator<K> keyComparator,
+    public JdbmTable( SchemaManager schemaManager, String name, RecordManager manager, Comparator<K> keyComparator,
                       Serializer keySerializer, Serializer valueSerializer )
         throws IOException
     {
+        this.schemaManager = schemaManager;
         this.duplicateBtrees = null;
         this.numDupLimit = Integer.MAX_VALUE;
         this.name = name;
         this.recMan = manager;
 
-        this.keyComparator = keyComparator;
+        if ( keyComparator == null )
+        {
+            throw new NullPointerException( "Key comparator cannot be null." );
+        }
+        else
+        {
+            this.keyComparator = keyComparator;
+        }
+
         this.valueComparator = null;
 
         this.keySerializer = keySerializer;
@@ -219,6 +234,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         if ( recId != 0 )
         {
             bt = BTree.load( recMan, recId );
+            ((SerializableComparator<K>)bt.getComparator()).setSchemaManager( schemaManager );
             bt.setValueSerializer( valueSerializer );
             recId = recMan.getNamedObject( name + SZSUFFIX );
             count = ( Integer ) recMan.fetch( recId );
@@ -394,6 +410,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         // Handle values if they are stored in another BTree
         BTree tree = getBTree( values.getBTreeRedirect() );
+
         jdbm.helper.Tuple tuple = new jdbm.helper.Tuple();
         tree.browse().getNext( tuple );
         //noinspection unchecked
@@ -1008,6 +1025,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
         
         BTree tree = BTree.load( recMan, redirect.getRecId() );
+        ((SerializableComparator<K>)tree.getComparator()).setSchemaManager( schemaManager );
         duplicateBtrees.put( redirect.getRecId(), tree );
         return tree;
     }

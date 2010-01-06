@@ -37,11 +37,11 @@ import java.util.Enumeration;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.SingletonEnumeration;
@@ -78,7 +78,8 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
 
     private ServerEntry getTlsEntry() throws Exception
     {
-        LdapDN adminDn = PartitionNexus.getAdminName();
+        LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
+        adminDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
         LdapPrincipal principal = new LdapPrincipal( adminDn, AuthenticationLevel.SIMPLE );
         CoreSession session = directoryService.getSession( principal );
         return session.lookup( adminDn );

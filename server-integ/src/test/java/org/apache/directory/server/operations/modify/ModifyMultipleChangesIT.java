@@ -20,6 +20,11 @@
 package org.apache.directory.server.operations.modify;
 
 
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -30,18 +35,13 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.integ.SiRunner;
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -50,37 +50,39 @@ import static org.junit.Assert.assertNotNull;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.SUITE )
+@RunWith ( FrameworkRunner.class ) 
+//@CreateDS( name="ModifyMultipleChangesIT-class", enableChangeLog=false )
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" )
+    })
 @ApplyLdifs( {
     // Entry # 1
-    "dn: cn=Tori Amos,ou=system\n" +
-    "objectClass: inetOrgPerson\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "description: an American singer-songwriter\n" +
-    "cn: Tori Amos\n" +
-    "sn: Amos\n\n" + 
+    "dn: cn=Tori Amos,ou=system",
+    "objectClass: inetOrgPerson", 
+    "objectClass: organizationalPerson", 
+    "objectClass: person", 
+    "objectClass: top", 
+    "description: an American singer-songwriter", 
+    "cn: Tori Amos", 
+    "sn: Amos",  
     // Entry # 2
-    "dn: cn=Debbie Harry,ou=system\n" +
-    "objectClass: inetOrgPerson\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "cn: Debbie Harry\n" +
-    "sn: Harry\n\n" 
+    "dn: cn=Debbie Harry,ou=system", 
+    "objectClass: inetOrgPerson", 
+    "objectClass: organizationalPerson", 
+    "objectClass: person", 
+    "objectClass: top", 
+    "cn: Debbie Harry", 
+    "sn: Harry" 
     }
 )
-public class ModifyMultipleChangesIT 
+public class ModifyMultipleChangesIT  extends AbstractLdapTestUnit
 {
     private static final String BASE = "ou=system";
     private static final String RDN_TORI_AMOS = "cn=Tori Amos";
     private static final String PERSON_DESCRIPTION = "an American singer-songwriter";
     private static final String RDN_DEBBIE_HARRY = "cn=Debbie Harry";
-
-    public static LdapServer ldapServer;
-    
 
     /**
      * Creation of required attributes of a person entry.

@@ -20,19 +20,13 @@
 package org.apache.directory.server.core.jndi;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
-import org.apache.directory.shared.ldap.util.ArrayUtils;
-import org.apache.directory.shared.ldap.util.StringTools;
-import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Hashtable;
 
 import javax.naming.Context;
 import javax.naming.Name;
@@ -45,7 +39,15 @@ import javax.naming.directory.SchemaViolationException;
 import javax.naming.ldap.LdapContext;
 import javax.naming.spi.DirObjectFactory;
 import javax.naming.spi.DirStateFactory;
-import java.util.Hashtable;
+
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
+import org.apache.directory.shared.ldap.util.ArrayUtils;
+import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -54,18 +56,16 @@ import java.util.Hashtable;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-public class ObjStateFactoryIT
+@RunWith ( FrameworkRunner.class )
+public class ObjStateFactoryIT extends AbstractLdapTestUnit
 {
-    public static DirectoryService service;
-
 
     @Test
     public void testObjectFactory() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
         service.getAdminSession().add( 
-            new DefaultServerEntry( service.getRegistries(), akarasulu.getEntry() ) ); 
+            new DefaultServerEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
 
 
         LdapContext sysRoot = getSystemContext( service );

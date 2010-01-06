@@ -20,6 +20,17 @@
 package org.apache.directory.server.core.prefs;
 
 
+import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.List;
+import java.util.prefs.AbstractPreferences;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
+
+import javax.naming.InvalidNameException;
+import javax.naming.NamingException;
+
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
@@ -36,17 +47,6 @@ import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.PreferencesDictionary;
-
-import javax.naming.InvalidNameException;
-import javax.naming.NamingException;
-
-import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.List;
-import java.util.prefs.AbstractPreferences;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 
 
 /**
@@ -115,8 +115,8 @@ public class ServerSystemPreferences extends AbstractPreferences
         LdapDN parentDn = ( ( ServerSystemPreferences ) parent() ).dn;
         try
         {
-            dn = new LdapDN( "prefNodeName=" + name + "," + parentDn.getUpName() );
-            dn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            dn = new LdapDN( "prefNodeName=" + name + "," + parentDn.getName() );
+            dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
             
             if ( ! directoryService.getAdminSession().exists( dn ) )
             {
@@ -226,7 +226,7 @@ public class ServerSystemPreferences extends AbstractPreferences
             while ( list.next() )
             {
                 ClonedServerEntry entry = list.get();
-                children.add( ( String ) entry.getDn().getRdn().getValue() );
+                children.add( ( String ) entry.getDn().getRdn().getNormValue() );
             }
         }
         catch ( Exception e )
@@ -272,7 +272,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         AttributeType at;
         try
         {
-            at = directoryService.getRegistries().getAttributeTypeRegistry().lookup( key );
+            at = directoryService.getSchemaManager().lookupAttributeTypeRegistry( key );
             ServerAttribute attr = new DefaultServerAttribute( at );
             Modification mi = new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, attr );
             addDelta( mi );
@@ -346,7 +346,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         AttributeType at;
         try
         {
-            at = directoryService.getRegistries().getAttributeTypeRegistry().lookup( key );
+            at = directoryService.getSchemaManager().lookupAttributeTypeRegistry( key );
             ServerAttribute attr = new DefaultServerAttribute( at, value );
             Modification mi = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attr );
             addDelta( mi );

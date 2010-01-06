@@ -20,6 +20,12 @@
 package org.apache.directory.server.core.operations.modify;
 
 
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -29,19 +35,12 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -50,33 +49,31 @@ import static org.junit.Assert.assertNotNull;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class ) 
+@RunWith ( FrameworkRunner.class ) 
 @ApplyLdifs( {
     // Entry # 1
-    "dn: cn=Tori Amos,ou=system\n" +
-    "objectClass: inetOrgPerson\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "description: an American singer-songwriter\n" +
-    "cn: Tori Amos\n" +
-    "sn: Amos\n\n" + 
+    "dn: cn=Tori Amos,ou=system",
+    "objectClass: inetOrgPerson",
+    "objectClass: organizationalPerson",
+    "objectClass: person",
+    "objectClass: top",
+    "description: an American singer-songwriter",
+    "cn: Tori Amos",
+    "sn: Amos", 
     // Entry # 2
-    "dn: cn=Debbie Harry,ou=system\n" +
-    "objectClass: inetOrgPerson\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "cn: Debbie Harry\n" +
-    "sn: Harry\n\n" 
+    "dn: cn=Debbie Harry,ou=system",
+    "objectClass: inetOrgPerson",
+    "objectClass: organizationalPerson",
+    "objectClass: person",
+    "objectClass: top",
+    "cn: Debbie Harry",
+    "sn: Harry" 
     }
 )
-public class ModifyMultipleChangesIT 
+public class ModifyMultipleChangesIT extends AbstractLdapTestUnit 
 {
     private static final String RDN_TORI_AMOS = "cn=Tori Amos";
 
-    public static DirectoryService service;
-    
 
     /**
      * @param sysRoot the system root to add entries to

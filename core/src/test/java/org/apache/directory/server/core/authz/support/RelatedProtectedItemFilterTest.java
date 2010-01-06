@@ -20,20 +20,17 @@
 package org.apache.directory.server.core.authz.support;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.authz.support.OperationScope;
-import org.apache.directory.server.core.authz.support.RelatedProtectedItemFilter;
-import org.apache.directory.server.core.authz.support.RelatedUserClassFilter;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
@@ -42,8 +39,6 @@ import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.event.ExpressionEvaluator;
 import org.apache.directory.server.core.subtree.RefinementEvaluator;
 import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
@@ -54,12 +49,14 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-
-
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.loader.ldif.JarLdifSchemaLoader;
+import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
 
 /**
  * Tests {@link RelatedUserClassFilter}.
@@ -78,41 +75,45 @@ public class RelatedProtectedItemFilterTest
     private static Set<LdapDN> USER_NAMES = new HashSet<LdapDN>();
     private static Set<LdapDN> GROUP_NAMES = new HashSet<LdapDN>();
 
-    private static final AttributeTypeRegistry ATTR_TYPE_REGISTRY_A = new DummyAttributeTypeRegistry( false );
-    private static final AttributeTypeRegistry ATTR_TYPE_REGISTRY_B = new DummyAttributeTypeRegistry( true );
+    private static SchemaManager schemaManager;
+    //private static AttributeTypeRegistry atRegistryA;
+    //private static AttributeTypeRegistry atRegistryB;
     private static OidRegistry OID_REGISTRY;
 
     private static RelatedProtectedItemFilter filterA;
     private static RelatedProtectedItemFilter filterB;
-
-    /** A reference to the directory service */
-    private static DirectoryService service;
     
     /** The CN attribute Type */
     private static AttributeType CN_AT;
 
-    /** The SN attribute Type */
-    private static AttributeType SN_AT;
-
     
-    @BeforeClass public static void setup() throws NamingException
+    @BeforeClass public static void setup() throws Exception
     {
-        service = new DefaultDirectoryService();
-        OID_REGISTRY = service.getRegistries().getOidRegistry();
+        JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
+
+        schemaManager = new DefaultSchemaManager( loader );
+
+        boolean loaded = schemaManager.loadAllEnabled();
+
+        if ( !loaded )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
+        }
+
+        OID_REGISTRY = schemaManager.getGlobalOidRegistry();
 
         GROUP_NAME = new LdapDN( "ou=test,ou=groups,ou=system" );
         USER_NAME = new LdapDN( "ou=test, ou=users, ou=system" );
-
+        
         filterA = new RelatedProtectedItemFilter( new RefinementEvaluator( new RefinementLeafEvaluator(
-            OID_REGISTRY ) ), new ExpressionEvaluator( OID_REGISTRY, ATTR_TYPE_REGISTRY_A ), OID_REGISTRY, ATTR_TYPE_REGISTRY_A );
+            OID_REGISTRY ) ), new ExpressionEvaluator( OID_REGISTRY, schemaManager ), OID_REGISTRY, schemaManager );
 
         filterB = new RelatedProtectedItemFilter( new RefinementEvaluator( new RefinementLeafEvaluator(
-            OID_REGISTRY ) ), new ExpressionEvaluator( OID_REGISTRY, ATTR_TYPE_REGISTRY_B ), OID_REGISTRY, ATTR_TYPE_REGISTRY_B );
+            OID_REGISTRY ) ), new ExpressionEvaluator( OID_REGISTRY, schemaManager ), OID_REGISTRY, schemaManager );
 
         USER_NAMES.add( USER_NAME );
         GROUP_NAMES.add( GROUP_NAME );
-        CN_AT = service.getRegistries().getAttributeTypeRegistry().lookup( "cn" );
-        SN_AT = service.getRegistries().getAttributeTypeRegistry().lookup( "sn" );
+        CN_AT = schemaManager.lookupAttributeTypeRegistry( "cn" );
     }
 
     
@@ -330,7 +331,7 @@ public class RelatedProtectedItemFilterTest
         attrTypes.add( "cn" );
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.SelfValue( attrTypes ) );
 
-        ServerEntry entry = new DefaultServerEntry( service.getRegistries(), USER_NAME );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, USER_NAME );
         entry.put( "cn", USER_NAME.toNormName() );
 
         // Test wrong scope

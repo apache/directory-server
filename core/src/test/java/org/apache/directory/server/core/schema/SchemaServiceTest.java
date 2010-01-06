@@ -20,24 +20,23 @@
 package org.apache.directory.server.core.schema;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.directory.server.schema.bootstrap.ApacheSchema;
-import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.directory.server.schema.bootstrap.CoreSchema;
-import org.apache.directory.server.schema.bootstrap.CosineSchema;
-import org.apache.directory.server.schema.bootstrap.NisSchema;
-import org.apache.directory.server.schema.bootstrap.SystemSchema;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.DefaultOidRegistry;
-import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.junit.Before;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
+import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -45,27 +44,47 @@ import static org.junit.Assert.assertEquals;
  */
 public class SchemaServiceTest
 {
-    private static DefaultRegistries registries;
+    private static SchemaManager schemaManager;
     
     
-    @Before
-    public void setUp() throws Exception
+    @BeforeClass
+    public static void setUp() throws Exception
     {
-        BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        registries = new DefaultRegistries( "bootstrap", loader, new DefaultOidRegistry() );
-        loader.load( new SystemSchema(), registries, false );
-        loader.load( new ApacheSchema(), registries, false );
-        loader.load( new CoreSchema(), registries, false );
-        loader.load( new CosineSchema(), registries, false );
-        loader.load( new NisSchema(), registries, false );
+    	String workingDirectory = System.getProperty( "workingDirectory" );
+
+        if ( workingDirectory == null )
+        {
+            String path = SchemaServiceTest.class.getResource( "" ).getPath();
+            int targetPos = path.indexOf( "target" );
+            workingDirectory = path.substring( 0, targetPos + 6 );
+        }
+
+        File schemaRepository = new File( workingDirectory, "schema" );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+        extractor.extractOrCopy( true );
+        LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
+        schemaManager = new DefaultSchemaManager( loader );
+
+        boolean loaded = schemaManager.loadAllEnabled();
+
+        if ( !loaded )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
+        }
+
+        loaded = schemaManager.loadWithDeps( "nis" );
+        
+        if ( !loaded )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
+        }
     }
 
     
     @Test
     public void testDescendants() throws Exception
     {
-        AttributeTypeRegistry attrRegistry = registries.getAttributeTypeRegistry();
-        Iterator<AttributeType> list = attrRegistry.descendants( "name" );
+        Iterator<AttributeType> list = schemaManager.getAttributeTypeRegistry().descendants( "name" );
         Set<String> nameAttrs = new HashSet<String>();
         
         while ( list.hasNext() )
@@ -74,19 +93,37 @@ public class SchemaServiceTest
             nameAttrs.add( type.getName() );
         }
         
-        assertEquals( "size of attributes extending name", 15, nameAttrs.size() );
-        assertTrue( nameAttrs.contains( "dmdName" ) );
-        assertTrue( nameAttrs.contains( "o" ) );
-        assertTrue( nameAttrs.contains( "c" ) );
-        assertTrue( nameAttrs.contains( "initials" ) );
-        assertTrue( nameAttrs.contains( "ou" ) );
-        assertTrue( nameAttrs.contains( "sn" ) );
-        assertTrue( nameAttrs.contains( "title" ) );
-        assertTrue( nameAttrs.contains( "l" ) );
-        assertTrue( nameAttrs.contains( "apacheExistence" ) );
-        assertTrue( nameAttrs.contains( "cn" ) );
-        assertTrue( nameAttrs.contains( "st" ) );
-        assertTrue( nameAttrs.contains( "givenName" ) );
+        // We should only have 13 AT
+        String[] expectedNames = new String[]
+        {
+            "sn", 
+            "generationQualifier", 
+            "ou", 
+            "c", 
+            "o", 
+            "l", 
+            "c-st", 
+            "givenName", 
+            "title", 
+            "cn", 
+            "initials", 
+            "dmdName", 
+            "c-ou", 
+            "c-o", 
+            "apacheExistence", 
+            "st", 
+            "c-l"
+        };
+        
+        for ( String name : expectedNames )
+        {
+            if ( nameAttrs.contains( name) )
+            {
+                nameAttrs.remove( name );
+            }
+        }
+        
+        assertEquals( 0, nameAttrs.size() );
     }
 /*
     public void testAlterObjectClassesBogusAttr() throws NamingException

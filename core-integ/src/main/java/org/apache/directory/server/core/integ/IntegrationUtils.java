@@ -22,7 +22,6 @@ package org.apache.directory.server.core.integ;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
@@ -34,10 +33,13 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
@@ -45,12 +47,9 @@ import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.schema.bootstrap.Schema;
 
 
 /**
@@ -109,7 +108,7 @@ public class IntegrationUtils
             if ( entry.isChangeAdd() )
             {
                 service.getAdminSession().add( 
-                    new DefaultServerEntry( service.getRegistries(), entry.getEntry() ) );
+                    new DefaultServerEntry( service.getSchemaManager(), entry.getEntry() ) );
             }
             else if ( entry.isChangeModify() )
             {
@@ -124,6 +123,9 @@ public class IntegrationUtils
                 throw new NamingException( message );
             }
         }
+        
+        // And close the reader
+        reader.close();
     }
 
 
@@ -142,7 +144,7 @@ public class IntegrationUtils
         }
 
         LdapDN userDn = new LdapDN( principalDn );
-        userDn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        userDn.normalize( service.getSchemaManager().getNormalizerMapping() );
         LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
 
         if ( dn == null )
@@ -165,7 +167,7 @@ public class IntegrationUtils
         }
         
         LdapDN userDn = new LdapDN( principalDn );
-        userDn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        userDn.normalize( service.getSchemaManager().getNormalizerMapping() );
         LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
         
         if ( dn == null )
@@ -186,7 +188,7 @@ public class IntegrationUtils
 
     public static LdapContext getSchemaContext( DirectoryService service ) throws Exception
     {
-        return getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, ServerDNConstants.OU_SCHEMA_DN );
+        return getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, SchemaConstants.OU_SCHEMA );
     }
 
 
@@ -205,7 +207,7 @@ public class IntegrationUtils
         {
             case( ChangeType.ADD_ORDINAL ):
                 session.add( 
-                    new DefaultServerEntry( service.getRegistries(), entry.getEntry() ) ); 
+                    new DefaultServerEntry( service.getSchemaManager(), entry.getEntry() ) ); 
                 break;
                 
             case( ChangeType.DELETE_ORDINAL ):
@@ -271,7 +273,7 @@ public class IntegrationUtils
         attr = new DefaultClientAttribute( "ou", "Engineering", "People" );
         ldif.addAttribute( attr );
 
-        String uid = ( String ) dn.getRdn().getValue();
+        String uid = ( String ) dn.getRdn().getNormValue();
         ldif.putAttribute( "uid", uid );
 
         ldif.putAttribute( "l", "Bogusville" );
@@ -291,10 +293,6 @@ public class IntegrationUtils
     // -----------------------------------------------------------------------
     // Enable/Disable Schema Tests
     // -----------------------------------------------------------------------
-    public static Map<String, Schema> getLoadedSchemas( DirectoryService service )
-    {
-        return service.getRegistries().getLoadedSchemas();
-    }
 
 
     public static void enableSchema( DirectoryService service, String schemaName ) throws Exception
@@ -322,23 +320,35 @@ public class IntegrationUtils
     
     
     /**
-     * A helper method which tells if a schema is disabled
+     * A helper method which tells if a schema is disabled.
      */
     public static boolean isDisabled( DirectoryService service, String schemaName )
     {
-        Schema schema = getLoadedSchemas(service ).get( schemaName );
+        Schema schema = service.getSchemaManager().getLoadedSchema( schemaName );
         
-        return ( schema == null ) || ( schema.isDisabled() );
+        return ( schema == null ) || schema.isDisabled();
     }
     
     
     /**
-     * A helper method which tells if a schema is enabled
+     * A helper method which tells if a schema is loaded.
+     */
+    public static boolean isLoaded( DirectoryService service, String schemaName )
+    {
+        Schema schema = service.getSchemaManager().getLoadedSchema( schemaName );
+        
+        return ( schema != null );
+    }
+    
+    
+    /**
+     * A helper method which tells if a schema is enabled. A shema must be
+     * loaded and enabled.
      */
     public static boolean isEnabled( DirectoryService service, String schemaName )
     {
-        Schema schema = getLoadedSchemas( service ).get( schemaName );
+        Schema schema = service.getSchemaManager().getLoadedSchema( schemaName );
         
-        return ( schema != null ) && ( !schema.isDisabled() );
+        return ( schema != null ) && schema.isEnabled();
     }
 }

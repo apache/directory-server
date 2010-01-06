@@ -20,10 +20,9 @@
 package org.apache.directory.server.core.authz.support;
 
 
-import org.apache.directory.server.core.authz.support.OperationScope;
+import static org.junit.Assert.assertEquals;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 
 /**
@@ -33,21 +32,23 @@ import junit.framework.TestCase;
  * @version $Rev$, $Date$
  *
  */
-public class OperationScopeTest extends TestCase
+public class OperationScopeTest
 {
+    @Test
     public void testGetName() throws Exception
     {
-        Assert.assertEquals( "Entry", OperationScope.ENTRY.getName() );
-        Assert.assertEquals( "Attribute Type", OperationScope.ATTRIBUTE_TYPE.getName() );
-        Assert.assertEquals( "Attribute Type & Value", OperationScope.ATTRIBUTE_TYPE_AND_VALUE.getName() );
+        assertEquals( "Entry", OperationScope.ENTRY.getName() );
+        assertEquals( "Attribute Type", OperationScope.ATTRIBUTE_TYPE.getName() );
+        assertEquals( "Attribute Type & Value", OperationScope.ATTRIBUTE_TYPE_AND_VALUE.getName() );
     }
 
 
+    @Test
     public void testGetNameAndToStringEquality()
     {
-        Assert.assertEquals( OperationScope.ENTRY.getName(), OperationScope.ENTRY.toString() );
-        Assert.assertEquals( OperationScope.ATTRIBUTE_TYPE.getName(), OperationScope.ATTRIBUTE_TYPE.toString() );
-        Assert.assertEquals( OperationScope.ATTRIBUTE_TYPE_AND_VALUE.getName(), OperationScope.ATTRIBUTE_TYPE_AND_VALUE
+        assertEquals( OperationScope.ENTRY.getName(), OperationScope.ENTRY.toString() );
+        assertEquals( OperationScope.ATTRIBUTE_TYPE.getName(), OperationScope.ATTRIBUTE_TYPE.toString() );
+        assertEquals( OperationScope.ATTRIBUTE_TYPE_AND_VALUE.getName(), OperationScope.ATTRIBUTE_TYPE_AND_VALUE
             .toString() );
     }
 }

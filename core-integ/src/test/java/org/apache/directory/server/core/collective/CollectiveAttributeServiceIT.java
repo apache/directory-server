@@ -20,18 +20,15 @@
 package org.apache.directory.server.core.collective;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.SetupMode;
-import org.apache.directory.server.core.integ.annotations.Mode;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -44,8 +41,11 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -54,72 +54,64 @@ import java.util.Map;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-@Mode ( SetupMode.ROLLBACK )
-public class CollectiveAttributeServiceIT
+@RunWith ( FrameworkRunner.class )
+public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 {
-    public static DirectoryService service;
-
-
-    public Attributes getTestEntry( String cn )
+    private Attributes getTestEntry( String cn ) throws NamingException
     {
-        Attributes subentry = new BasicAttributes( true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        objectClass.add( "top" );
-        objectClass.add( "person" );
-        subentry.put( objectClass );
-        subentry.put( "cn", cn );
-        subentry.put( "sn", "testentry" );
+        Attributes subentry = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: person",
+            "cn", cn ,
+            "sn: testentry" );
+        
         return subentry;
     }
 
 
-    public Attributes getTestSubentry()
+    private Attributes getTestSubentry()  throws NamingException
     {
-        Attributes subentry = new BasicAttributes( true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        objectClass.add( "top" );
-        objectClass.add( "subentry" );
-        objectClass.add( "collectiveAttributeSubentry" );
-        subentry.put( objectClass );
-        subentry.put( "c-ou", "configuration" );
-        subentry.put( "subtreeSpecification", "{ base \"ou=configuration\" }" );
-        subentry.put( "cn", "testsubentry" );
+        Attributes subentry = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: subentry",
+            "objectClass: collectiveAttributeSubentry",
+            "c-ou: configuration",
+            "subtreeSpecification: { base \"ou=configuration\" }",
+            "cn: testsubentry" );
+        
         return subentry;
     }
 
 
-    public Attributes getTestSubentry2()
+    private Attributes getTestSubentry2() throws NamingException
     {
-        Attributes subentry = new BasicAttributes( true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        objectClass.add( "top" );
-        objectClass.add( "subentry" );
-        objectClass.add( "collectiveAttributeSubentry" );
-        subentry.put( objectClass );
-        subentry.put( "c-ou", "configuration2" );
-        subentry.put( "subtreeSpecification", "{ base \"ou=configuration\" }" );
-        subentry.put( "cn", "testsubentry2" );
+        Attributes subentry = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: subentry",
+            "objectClass: collectiveAttributeSubentry",
+            "c-ou: configuration2",
+            "subtreeSpecification: { base \"ou=configuration\" }",
+            "cn: testsubentry2" );
+        
         return subentry;
     }
 
 
-    public Attributes getTestSubentry3()
+    private Attributes getTestSubentry3() throws NamingException
     {
-        Attributes subentry = new BasicAttributes( true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        objectClass.add( "top" );
-        objectClass.add( "subentry" );
-        objectClass.add( "collectiveAttributeSubentry" );
-        subentry.put( objectClass );
-        subentry.put( "c-st", "FL" );
-        subentry.put( "subtreeSpecification", "{ base \"ou=configuration\" }" );
-        subentry.put( "cn", "testsubentry3" );
+        Attributes subentry = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: subentry",
+            "objectClass: collectiveAttributeSubentry",
+            "c-st: FL",
+            "subtreeSpecification: { base \"ou=configuration\" }",
+            "cn: testsubentry3" );
+        
         return subentry;
     }
 
 
-    public void addAdministrativeRole( String role ) throws Exception
+    private void addAdministrativeRole( String role ) throws Exception
     {
         Attribute attribute = new BasicAttribute( "administrativeRole" );
         attribute.add( role );
@@ -128,7 +120,7 @@ public class CollectiveAttributeServiceIT
     }
 
 
-    public Map<String, Attributes> getAllEntries() throws Exception
+    private Map<String, Attributes> getAllEntries() throws Exception
     {
         Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
         SearchControls controls = new SearchControls();
@@ -146,25 +138,7 @@ public class CollectiveAttributeServiceIT
     }
 
 
-    public SearchResult getEntry( String name ) throws Exception
-    {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setReturningAttributes( new String[]
-            { "+", "*" } );
-        
-        NamingEnumeration<SearchResult> results = getSystemContext( service ).search( name, "(objectClass=*)", controls );
-        
-        if ( results.hasMore() )
-        {
-            return results.next();
-        }
-        
-        return null;
-    }
-
-
-    public Map<String, Attributes> getAllEntriesRestrictAttributes() throws Exception
+    private Map<String, Attributes> getAllEntriesRestrictAttributes() throws Exception
     {
         Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
         SearchControls controls = new SearchControls();
@@ -181,7 +155,7 @@ public class CollectiveAttributeServiceIT
     }
     
     
-    public Map<String, Attributes> getAllEntriesCollectiveAttributesOnly() throws Exception
+    private Map<String, Attributes> getAllEntriesCollectiveAttributesOnly() throws Exception
     {
         Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
         SearchControls controls = new SearchControls();
@@ -465,10 +439,11 @@ public class CollectiveAttributeServiceIT
     
     
     @Test
-    public void testAddRegularEntryWithCollectiveAttribute()
+    public void testAddRegularEntryWithCollectiveAttribute() throws NamingException
     {
         Attributes entry = getTestEntry( "Ersin Er" );
         entry.put( "c-l", "Turkiye" );
+        
         try
         {
             getSystemContext( service ).createSubcontext( "cn=Ersin Er", entry );

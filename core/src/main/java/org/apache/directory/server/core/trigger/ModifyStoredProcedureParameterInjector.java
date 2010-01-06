@@ -62,7 +62,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
-            return new LdapDN( modifiedEntryName.getUpName() );
+            return new LdapDN( modifiedEntryName.getName() );
         }
     };
     

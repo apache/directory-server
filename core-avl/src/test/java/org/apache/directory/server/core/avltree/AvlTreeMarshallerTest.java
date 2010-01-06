@@ -110,7 +110,7 @@ public class AvlTreeMarshallerTest
         };
         
       
-        tree = new AvlTree<Integer>( comparator );
+        tree = new AvlTreeImpl<Integer>( comparator );
         treeMarshaller = new AvlTreeMarshaller<Integer>( comparator, new IntegerKeyMarshaller() );
     }
 
@@ -164,7 +164,7 @@ public class AvlTreeMarshallerTest
     @Test
     public void testMarshalEmptyTree() throws IOException
     {
-        byte[] bites = treeMarshaller.serialize( new AvlTree<Integer>( comparator ) );
+        byte[] bites = treeMarshaller.serialize( new AvlTreeImpl<Integer>( comparator ) );
         AvlTree<Integer> tree = treeMarshaller.deserialize( bites );
         assertNotNull( tree );
     }
@@ -173,7 +173,7 @@ public class AvlTreeMarshallerTest
     @Test
     public void testRoundTripEmpty() throws IOException
     {
-        AvlTree<Integer> original = new AvlTree<Integer>( comparator );
+        AvlTree<Integer> original = new AvlTreeImpl<Integer>( comparator );
         byte[] bites = treeMarshaller.serialize( original );
         AvlTree<Integer> deserialized = treeMarshaller.deserialize( bites );
         assertTrue( deserialized.isEmpty() );
@@ -183,7 +183,7 @@ public class AvlTreeMarshallerTest
     @Test
     public void testRoundTripOneEntry() throws IOException
     {
-        AvlTree<Integer> original = new AvlTree<Integer>( comparator );
+        AvlTree<Integer> original = new AvlTreeImpl<Integer>( comparator );
         original.insert( 0 );
         byte[] bites = treeMarshaller.serialize( original );
         AvlTree<Integer> deserialized = treeMarshaller.deserialize( bites );
@@ -196,7 +196,7 @@ public class AvlTreeMarshallerTest
     @Test
     public void testRoundTripOneEntryFirstLast() throws IOException
     {
-        AvlTree<Integer> original = new AvlTree<Integer>( comparator );
+        AvlTree<Integer> original = new AvlTreeImpl<Integer>( comparator );
         original.insert( 0 );
         byte[] bites = treeMarshaller.serialize( original );
         AvlTree<Integer> deserialized = treeMarshaller.deserialize( bites );
@@ -222,7 +222,7 @@ public class AvlTreeMarshallerTest
     @Test
     public void testRoundTripTwoEntries() throws IOException
     {
-        AvlTree<Integer> original = new AvlTree<Integer>( comparator );
+        AvlTree<Integer> original = new AvlTreeImpl<Integer>( comparator );
         original.insert( 0 );
         original.insert( 1 );
         byte[] bites = treeMarshaller.serialize( original );
@@ -237,7 +237,7 @@ public class AvlTreeMarshallerTest
     @Test
     public void testRoundTripTwoEntriesFirstLast() throws IOException
     {
-        AvlTree<Integer> original = new AvlTree<Integer>( comparator );
+        AvlTree<Integer> original = new AvlTreeImpl<Integer>( comparator );
         original.insert( 0 );
         original.insert( 1 );
         byte[] bites = treeMarshaller.serialize( original );
@@ -265,7 +265,7 @@ public class AvlTreeMarshallerTest
     @Test
     public void testRoundTripManyEntries() throws Exception
     {
-        AvlTree<Integer> original = new AvlTree<Integer>( comparator );
+        AvlTree<Integer> original = new AvlTreeImpl<Integer>( comparator );
         for ( int ii = 0; ii < 100; ii++ )
         {
             original.insert( ii );
@@ -288,7 +288,7 @@ public class AvlTreeMarshallerTest
     @Test
     public void testRoundTripManyEntriesFirstLast() throws Exception
     {
-        AvlTree<Integer> original = new AvlTree<Integer>( comparator );
+        AvlTree<Integer> original = new AvlTreeImpl<Integer>( comparator );
         for ( int ii = 0; ii < 100; ii++ )
         {
             original.insert( ii );
@@ -331,7 +331,7 @@ public class AvlTreeMarshallerTest
             }
         };
 
-        AvlTree<Bar> original = new AvlTree<Bar>( barComparator );
+        AvlTree<Bar> original = new AvlTreeImpl<Bar>( barComparator );
 
         for ( int ii = 0; ii < 100; ii++ )
         {

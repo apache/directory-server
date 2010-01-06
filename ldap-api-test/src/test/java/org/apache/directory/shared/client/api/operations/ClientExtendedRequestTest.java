@@ -28,10 +28,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.naming.ldap.StartTlsRequest;
 
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.shared.ldap.client.api.LdapConnection;
 import org.apache.directory.shared.ldap.client.api.exception.LdapException;
 import org.apache.directory.shared.ldap.client.api.listeners.ExtendedListener;
@@ -49,13 +50,19 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-@RunWith(SiRunner.class)
-@CleanupLevel(Level.CLASS)
-public class ClientExtendedRequestTest
+@RunWith(FrameworkRunner.class)
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" ), 
+        @CreateTransport( protocol = "LDAPS" ) 
+    },
+    extendedOpHandlers = 
+    {
+        StartTlsHandler.class
+    })
+public class ClientExtendedRequestTest extends AbstractLdapTestUnit
 {
-    /** The server instance */
-    public static LdapServer ldapServer;
-
     private LdapConnection connection;
     
     @Before
@@ -63,7 +70,7 @@ public class ClientExtendedRequestTest
     {
         connection = new LdapConnection( "localhost", ldapServer.getPort() );
         LdapDN bindDn = new LdapDN( "uid=admin,ou=system" );
-        connection.bind( bindDn.getUpName(), "secret" );
+        connection.bind( bindDn.getName(), "secret" );
     }
     
     

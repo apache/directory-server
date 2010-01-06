@@ -19,31 +19,28 @@
  */
 package org.apache.directory.server.core.subtree;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import javax.naming.NamingException;
-
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
-import org.apache.directory.server.core.subtree.RefinementEvaluator;
-import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.loader.ldif.JarLdifSchemaLoader;
+import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -65,19 +62,27 @@ public class RefinementEvaluatorTest
 
     /** The CN AttributeType */
     private static AttributeType CN;
-
-    /** A reference to the directory service */
-    private static DirectoryService service;
-
+    
     
     /**
      * Initializes the global registries.
      * @throws javax.naming.NamingException if there is a failure loading the schema
      */
-    @BeforeClass public static void init() throws NamingException
+    @BeforeClass 
+    public static void init() throws Exception
     {
-        service = new DefaultDirectoryService();
-        registries = service.getRegistries();
+        JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
+
+        SchemaManager sm = new DefaultSchemaManager( loader );
+
+        boolean loaded = sm.loadAllEnabled();
+
+        if ( !loaded )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
+        }
+
+        registries = sm.getRegistries();
     }
 
 
@@ -87,7 +92,7 @@ public class RefinementEvaluatorTest
      */
     @Before public void setUp() throws Exception
     {
-        OidRegistry registry = registries.getOidRegistry();
+        OidRegistry registry = registries.getGlobalOidRegistry();
         RefinementLeafEvaluator leafEvaluator = new RefinementLeafEvaluator( registry );
         evaluator = new RefinementEvaluator( leafEvaluator );
         

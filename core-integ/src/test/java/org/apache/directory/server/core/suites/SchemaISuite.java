@@ -19,9 +19,8 @@
 package org.apache.directory.server.core.suites;
 
 
-import org.apache.directory.server.core.integ.CiSuite;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.*;
+import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.integ.FrameworkSuite;
 import org.apache.directory.server.core.schema.MetaAttributeTypeHandlerIT;
 import org.apache.directory.server.core.schema.MetaComparatorHandlerIT;
 import org.apache.directory.server.core.schema.MetaMatchingRuleHandlerIT;
@@ -33,7 +32,6 @@ import org.apache.directory.server.core.schema.MetaSyntaxHandlerIT;
 import org.apache.directory.server.core.schema.ObjectClassCreateIT;
 import org.apache.directory.server.core.schema.SchemaPersistenceIT;
 import org.apache.directory.server.core.schema.SchemaServiceIT;
-import org.apache.directory.server.core.schema.SubschemaSubentryIT;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -44,7 +42,8 @@ import org.junit.runners.Suite;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-@RunWith ( CiSuite.class )
+@RunWith ( FrameworkSuite.class )
+@CreateDS( name="SchemaISuite" )
 @Suite.SuiteClasses ( {
         MetaAttributeTypeHandlerIT.class,
         MetaComparatorHandlerIT.class,
@@ -56,10 +55,9 @@ import org.junit.runners.Suite;
         MetaSyntaxHandlerIT.class,
         ObjectClassCreateIT.class,
         SchemaPersistenceIT.class,
-        SubschemaSubentryIT.class,
+        //SubschemaSubentryIT.class,
         SchemaServiceIT.class
         } )
-@CleanupLevel ( Level.SUITE )
 public class SchemaISuite
 {
 }

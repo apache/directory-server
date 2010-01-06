@@ -22,7 +22,7 @@ package org.apache.directory.server.core.changelog;
 import java.util.List;
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.slf4j.Logger;
@@ -312,7 +312,7 @@ public class DefaultChangeLog implements ChangeLog
                 tmp.createPartition( partitionSuffix, revContainerName, tagContainerName );
                 
                 Partition partition = tmp.getPartition();
-                partition.init( service );
+                partition.initialize( );
 
                 service.addPartition( partition );
             }

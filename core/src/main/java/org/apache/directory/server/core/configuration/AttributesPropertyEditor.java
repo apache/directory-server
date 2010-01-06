@@ -19,6 +19,15 @@
  */
 package org.apache.directory.server.core.configuration;
 
+import java.beans.PropertyEditor;
+import java.beans.PropertyEditorSupport;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -27,14 +36,6 @@ import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
-
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import java.beans.PropertyEditor;
-import java.beans.PropertyEditorSupport;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StringReader;
 
 
 /**
@@ -68,7 +69,6 @@ public class AttributesPropertyEditor extends PropertyEditorSupport
     /**
      * Returns LDIF string of {@link Attributes} object.
      */
-    @SuppressWarnings("deprecation")
     public String getAsText()
     {
         Attributes attrs = (Attributes) getValue();

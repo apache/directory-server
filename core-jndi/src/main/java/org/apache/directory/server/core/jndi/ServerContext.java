@@ -20,12 +20,34 @@
 package org.apache.directory.server.core.jndi;
 
 
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+
+import javax.naming.Context;
+import javax.naming.InvalidNameException;
+import javax.naming.Name;
+import javax.naming.NameNotFoundException;
+import javax.naming.NameParser;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.Reference;
+import javax.naming.Referenceable;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.event.EventContext;
+import javax.naming.event.NamingListener;
+import javax.naming.ldap.Control;
+import javax.naming.spi.DirStateFactory;
+import javax.naming.spi.DirectoryManager;
+
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.OperationManager;
-import org.apache.directory.server.core.authn.LdapPrincipal;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -52,6 +74,7 @@ import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
@@ -61,33 +84,11 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
+import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
-
-import javax.naming.Context;
-import javax.naming.InvalidNameException;
-import javax.naming.Name;
-import javax.naming.NameNotFoundException;
-import javax.naming.NameParser;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.Reference;
-import javax.naming.Referenceable;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.event.EventContext;
-import javax.naming.event.NamingListener;
-import javax.naming.ldap.Control;
-import javax.naming.spi.DirStateFactory;
-import javax.naming.spi.DirectoryManager;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -148,7 +149,6 @@ public abstract class ServerContext implements EventContext
      * @throws NamingException if the environment parameters are not set 
      * correctly.
      */
-    @SuppressWarnings(value = { "unchecked" })
     protected ServerContext( DirectoryService service, Hashtable<String, Object> env ) throws Exception
     {
         this.service = service;
@@ -338,7 +338,7 @@ public abstract class ServerContext implements EventContext
             
             if ( result )
             {
-                ServerEntry emptyEntry = new DefaultServerEntry( service.getRegistries(), LdapDN.EMPTY_LDAPDN ); 
+                ServerEntry emptyEntry = new DefaultServerEntry( service.getSchemaManager(), LdapDN.EMPTY_LDAPDN ); 
                 return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( emptyEntry ), (SearchOperationContext)opContext );
             }
             else
@@ -484,7 +484,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after moveAndRename operations.
      */
-    protected void doMoveAndRenameOperation( LdapDN oldDn, LdapDN parent, String newRdn, boolean delOldDn )
+    protected void doMoveAndRenameOperation( LdapDN oldDn, LdapDN parent, Rdn newRdn, boolean delOldDn )
         throws Exception
     {
         // setup the op context and populate with request controls
@@ -552,10 +552,10 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after rename operations.
      */
-    protected void doRename( LdapDN oldDn, String newRdn, boolean delOldRdn ) throws Exception
+    protected void doRename( LdapDN oldDn, Rdn newRdn, boolean delOldRdn ) throws Exception
     {
         // setup the op context and populate with request controls
-        RenameOperationContext opCtx = new RenameOperationContext( session, oldDn, new Rdn( newRdn ), delOldRdn );
+        RenameOperationContext opCtx = new RenameOperationContext( session, oldDn, newRdn, delOldRdn );
         opCtx.addRequestControls( requestControls );
 
         // Inject the referral handling into the operation context
@@ -653,7 +653,7 @@ public abstract class ServerContext implements EventContext
      */
     public String getNameInNamespace() throws NamingException
     {
-        return dn.getUpName();
+        return dn.getName();
     }
 
 
@@ -807,11 +807,11 @@ public abstract class ServerContext implements EventContext
 
         if ( rdn.size() == 1 )
         {
-            serverEntry.put( rdn.getUpType(), ( String ) rdn.getValue() );
+            serverEntry.put( rdn.getUpType(), ( String ) rdn.getNormValue() );
         }
         else
         {
-            for ( AttributeTypeAndValue atav : rdn )
+            for ( AVA atav : rdn )
             {
                 serverEntry.put( atav.getUpType(), atav.getNormValue().getString() );
             }
@@ -831,7 +831,7 @@ public abstract class ServerContext implements EventContext
 
         // let's be sure that the Attributes is case insensitive
         ServerEntry outServerEntry = ServerEntryUtils.toServerEntry( AttributeUtils.toCaseInsensitive( res
-            .getAttributes() ), target, service.getRegistries() );
+            .getAttributes() ), target, service.getSchemaManager() );
 
         if ( outServerEntry != null )
         {
@@ -885,7 +885,7 @@ public abstract class ServerContext implements EventContext
             injectRdnAttributeValues( target, serverEntry );
 
             // Serialize object into entry attributes and add it.
-            JavaLdapSupport.serialize( serverEntry, obj, service.getRegistries() );
+            JavaLdapSupport.serialize( serverEntry, obj, service.getSchemaManager() );
             try
             {
                 doAddOperation( target, serverEntry );
@@ -899,7 +899,7 @@ public abstract class ServerContext implements EventContext
         {
             // Grab attributes and merge with outAttrs
             ServerEntry serverEntry = ServerEntryUtils.toServerEntry( ( ( DirContext ) obj ).getAttributes( "" ),
-                target, service.getRegistries() );
+                target, service.getSchemaManager() );
 
             if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
             {
@@ -949,13 +949,13 @@ public abstract class ServerContext implements EventContext
         }
 
         // calculate parents
-        LdapDN oldBase = ( LdapDN ) oldName.clone();
-        oldBase.remove( oldName.size() - 1 );
-        LdapDN newBase = ( LdapDN ) newName.clone();
-        newBase.remove( newName.size() - 1 );
+        LdapDN oldParent = (LdapDN)oldDn.clone();
+        oldParent.remove( oldDn.size() - 1 );
+        LdapDN newParent = ( LdapDN ) newDn.clone();
+        newParent.remove( newDn.size() - 1 );
 
-        String newRdn = newName.get( newName.size() - 1 );
-        String oldRdn = oldName.get( oldName.size() - 1 );
+        Rdn oldRdn = oldDn.getRdn();
+        Rdn newRdn = newDn.getRdn();
         boolean delOldRdn = true;
 
         /*
@@ -977,7 +977,7 @@ public abstract class ServerContext implements EventContext
          * a move operation.  Furthermore if the RDN in the move operation 
          * changes it is both an RDN change and a move operation.
          */
-        if ( ( oldName.size() == newName.size() ) && oldBase.equals( newBase ) )
+        if ( oldParent.equals( newParent ) )
         {
             try
             {
@@ -990,14 +990,11 @@ public abstract class ServerContext implements EventContext
         }
         else
         {
-            LdapDN target = ( LdapDN ) newDn.clone();
-            target.remove( newDn.size() - 1 );
-
-            if ( newRdn.equalsIgnoreCase( oldRdn ) )
+            if ( newRdn.equals( oldRdn ) )
             {
                 try
                 {
-                    doMove( oldDn, target );
+                    doMove( oldDn, newParent );
                 }
                 catch ( Exception e )
                 {
@@ -1008,7 +1005,7 @@ public abstract class ServerContext implements EventContext
             {
                 try
                 {
-                    doMoveAndRenameOperation( oldDn, target, newRdn, delOldRdn );
+                    doMoveAndRenameOperation( oldDn, newParent, newRdn, delOldRdn );
                 }
                 catch ( Exception e )
                 {

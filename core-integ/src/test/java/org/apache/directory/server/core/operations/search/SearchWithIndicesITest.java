@@ -20,24 +20,13 @@
 package org.apache.directory.server.core.operations.search;
 
 
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.Factory;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -50,8 +39,17 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
-import java.util.HashSet;
-import java.util.Set;
+
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.xdbm.Index;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -60,16 +58,12 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-@CleanupLevel ( Level.CLASS )
-@Factory ( SearchWithIndicesITest.MyFactory.class )
-public class SearchWithIndicesITest
+@RunWith ( FrameworkRunner.class )
+public class SearchWithIndicesITest extends AbstractLdapTestUnit
 {
-    public static DirectoryService service;
 
-
-
-    private void createData() throws Exception
+    @Before
+    public void createData() throws Exception
     {
         // -------------------------------------------------------------------
         // Enable the nis schema
@@ -79,6 +73,7 @@ public class SearchWithIndicesITest
         LdapContext schemaRoot = getSchemaContext( service );
         Attributes nisAttrs = schemaRoot.getAttributes( "cn=nis" );
         boolean isNisDisabled = false;
+        
         if ( nisAttrs.get( "m-disabled" ) != null )
         {
             isNisDisabled = ( ( String ) nisAttrs.get( "m-disabled" ).get() ).equalsIgnoreCase( "TRUE" );
@@ -92,6 +87,10 @@ public class SearchWithIndicesITest
                 new ModificationItem( DirContext.REMOVE_ATTRIBUTE, disabled ) };
             schemaRoot.modifyAttributes( "cn=nis", mods );
         }
+
+        Partition systemPartition = service.getSystemPartition();
+        Set<Index<?,ServerEntry>> indexedAtributes = ( ( JdbmPartition ) systemPartition ).getIndexedAttributes();
+        indexedAtributes.add( new JdbmIndex<String,ServerEntry>( "gidNumber" ) );
 
         // -------------------------------------------------------------------
         // Add a bunch of nis groups
@@ -112,32 +111,6 @@ public class SearchWithIndicesITest
         attrs.put( "cn", name );
         attrs.put( "gidNumber", String.valueOf( gid ) );
         return getSystemContext( service ).createSubcontext( "cn="+name+",ou=groups", attrs );
-    }
-    
-    
-    public static class MyFactory implements DirectoryServiceFactory
-    {
-        public DirectoryService newInstance() 
-        {
-            DirectoryService service = new DefaultDirectoryService();
-            service.getChangeLog().setEnabled( true );
-
-            // -------------------------------------------------------------------
-            // Alter the partition configuration to index gidNumber
-            // -------------------------------------------------------------------
-
-            JdbmPartition partition = new JdbmPartition();
-            partition.setId( "system" );
-            partition.setSuffix( "ou=system" );
-
-            Set<Index<?, ServerEntry>> indices = new HashSet<Index<?, ServerEntry>>();
-            indices.addAll( partition.getIndexedAttributes() );
-            indices.add( new JdbmIndex<String,ServerEntry>( "gidNumber" ) );
-            partition.setIndexedAttributes( indices );
-            service.setSystemPartition( partition );
-
-            return service;
-        }
     }
     
     
@@ -187,7 +160,6 @@ public class SearchWithIndicesITest
     @Test
     public void testLessThanSearchWithIndices() throws Exception
     {
-        createData();
         Set<String> results = searchGroups( "(gidNumber<=5)" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
@@ -233,7 +205,6 @@ public class SearchWithIndicesITest
     @Test
     public void testGreaterThanSearchWithIndices() throws Exception
     {
-        createData();
         Set<String> results = searchGroups( "(gidNumber>=0)" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );

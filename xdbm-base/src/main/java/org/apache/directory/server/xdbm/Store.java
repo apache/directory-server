@@ -20,17 +20,17 @@
 package org.apache.directory.server.xdbm;
 
 
-import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
-import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.Modification;
-
 import java.io.File;
-import java.util.Set;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -163,11 +163,11 @@ public interface Store<E>
     /**
      * Initialize the JDBM storage system.
      *
-     * @param registries the schema registries
-     * @throws Exception on failure to lookup elements in registries
+     * @param schemaManager the schema schemaManager
+     * @throws Exception on failure to lookup elements in schemaManager
      * @throws Exception on failure to create database files
      */
-    void init( Registries registries ) throws Exception;
+    void init( SchemaManager schemaManager ) throws Exception;
 
 
     /**
@@ -519,5 +519,5 @@ public interface Store<E>
     void move( LdapDN oldChildDn, LdapDN newParentDn ) throws Exception;
 
 
-    void initRegistries( Registries registries );
+    void initSchemaManager( SchemaManager schemaManager );
 }

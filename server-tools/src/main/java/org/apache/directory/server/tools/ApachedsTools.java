@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.directory.daemon.InstanceLayout;
 
 
 /**
@@ -92,17 +93,10 @@ public class ApachedsTools
         cmd.setDebugEnabled( cmdline.hasOption( 'd' ) );
         cmd.setVerboseEnabled( cmdline.hasOption( 'v' ) );
         cmd.setVersion( tools.getProductVersion() );
+        
         if ( cmdline.getOptionValue( 'i' ) != null )
         {
             cmd.setLayout( cmdline.getOptionValue( 'i' ) );
-//            if ( !cmd.isQuietEnabled() )
-//            {
-//                System.out.println( "loading settings from: " + cmd.getLayout().getConfigurationFile() );
-//            }
-//            ApplicationContext factory = null;
-//            URL configUrl = cmd.getLayout().getConfigurationFile().toURL();
-//            factory = new FileSystemXmlApplicationContext( configUrl.toString() );
-//            cmd.setApacheDS( ( ApacheDS ) factory.getBean( "apacheDS" ) );
         }
         else if ( cmdline.hasOption( 'c' ) )
         {
@@ -112,7 +106,7 @@ public class ApachedsTools
 
         if ( cmdline.getOptionValue( 'z' ) != null )
         {
-            cmd.setInstanceLayout( new InstanceLayout( new File( cmdline.getOptionValue( 'z' ) ) ) );
+            cmd.setInstanceLayout( new InstanceLayout( cmd.getLayout(), new File( cmdline.getOptionValue( 'z' ) ) ) );
         }
         
         cmd.execute( cmdline );

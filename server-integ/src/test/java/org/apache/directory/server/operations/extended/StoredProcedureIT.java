@@ -20,113 +20,68 @@
 package org.apache.directory.server.operations.extended;
 
 
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.core.integ.annotations.Factory;
-import org.apache.directory.server.integ.LdapServerFactory;
-import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.ExtendedOperationHandler;
-import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.SimpleMechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
-import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
-import org.apache.directory.server.protocol.shared.transport.TcpTransport;
-import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
-import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
-import org.apache.directory.shared.ldap.sp.JavaStoredProcUtils;
-import org.apache.mina.util.AvailablePortFinder;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
 
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.annotations.SaslMechanism;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
+import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
+import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
+import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
+import org.apache.directory.shared.ldap.sp.JavaStoredProcUtils;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.CLASS )
-@Factory ( StoredProcedureIT.Factory.class )
-public class StoredProcedureIT
+@RunWith ( FrameworkRunner.class ) 
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" )
+    },
+    saslHost="localhost",
+    saslMechanisms = 
+    {
+        @SaslMechanism( name=SupportedSaslMechanisms.PLAIN, implClass=PlainMechanismHandler.class ),
+        @SaslMechanism( name=SupportedSaslMechanisms.CRAM_MD5, implClass=CramMd5MechanismHandler.class),
+        @SaslMechanism( name=SupportedSaslMechanisms.DIGEST_MD5, implClass=DigestMd5MechanismHandler.class),
+        @SaslMechanism( name=SupportedSaslMechanisms.GSSAPI, implClass=GssapiMechanismHandler.class),
+        @SaslMechanism( name=SupportedSaslMechanisms.NTLM, implClass=NtlmMechanismHandler.class),
+        @SaslMechanism( name=SupportedSaslMechanisms.GSS_SPNEGO, implClass=NtlmMechanismHandler.class)
+    },
+    extendedOpHandlers = 
+    {
+        StoredProcedureExtendedOperationHandler.class
+    })
+public class StoredProcedureIT extends AbstractLdapTestUnit
 {
     private LdapContext ctx;
     private LdapContext spCtx;
     private Map<String, OidNormalizer> oids;
 
-    
-    public static LdapServer ldapServer;
-
-    
-    public static class Factory implements LdapServerFactory
-    {
-        public LdapServer newInstance() throws Exception
-        {
-            DirectoryService service = new DefaultDirectoryService();
-            IntegrationUtils.doDelete( service.getWorkingDirectory() );
-            service.getChangeLog().setEnabled( true );
-            service.setShutdownHookEnabled( false );
-
-            // change the working directory to something that is unique
-            // on the system and somewhere either under target directory
-            // or somewhere in a temp area of the machine.
-
-            LdapServer ldapServer = new LdapServer();
-            ldapServer.setDirectoryService( service );
-            int port = AvailablePortFinder.getNextAvailable( 1024 );
-            ldapServer.setTransports( new TcpTransport( port ) );
-            ldapServer.setEnabled( true );
-            ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
-
-            // Setup SASL Mechanisms
-            
-            Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String,MechanismHandler>();
-            mechanismHandlerMap.put( SupportedSaslMechanisms.PLAIN, new SimpleMechanismHandler() );
-
-            CramMd5MechanismHandler cramMd5MechanismHandler = new CramMd5MechanismHandler();
-            mechanismHandlerMap.put( SupportedSaslMechanisms.CRAM_MD5, cramMd5MechanismHandler );
-
-            DigestMd5MechanismHandler digestMd5MechanismHandler = new DigestMd5MechanismHandler();
-            mechanismHandlerMap.put( SupportedSaslMechanisms.DIGEST_MD5, digestMd5MechanismHandler );
-
-            GssapiMechanismHandler gssapiMechanismHandler = new GssapiMechanismHandler();
-            mechanismHandlerMap.put( SupportedSaslMechanisms.GSSAPI, gssapiMechanismHandler );
-
-            NtlmMechanismHandler ntlmMechanismHandler = new NtlmMechanismHandler();
-            mechanismHandlerMap.put( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
-            mechanismHandlerMap.put( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
-
-            ldapServer.setSaslMechanismHandlers( mechanismHandlerMap );
-
-            Set<ExtendedOperationHandler> handlers = new HashSet<ExtendedOperationHandler>( ldapServer.getExtendedOperationHandlers() );
-            handlers.add( new StoredProcedureExtendedOperationHandler() );
-            ldapServer.setExtendedOperationHandlers( handlers );
-
-            return ldapServer;
-        }
-    }
-    
     
     @Before 
     public void setUp() throws Exception

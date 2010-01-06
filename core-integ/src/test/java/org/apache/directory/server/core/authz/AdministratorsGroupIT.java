@@ -20,24 +20,24 @@
 package org.apache.directory.server.core.authz;
 
 
-import org.apache.directory.server.core.DirectoryService;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.addUserToGroup;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAs;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.addUserToGroup;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.SetupMode;
-import org.apache.directory.server.core.integ.annotations.*;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.NoPermissionException;
 import javax.naming.directory.DirContext;
+
+import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -47,11 +47,16 @@ import javax.naming.directory.DirContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-@Mode ( SetupMode.PRISTINE )
-public class AdministratorsGroupIT
+@RunWith ( FrameworkRunner.class )
+public class AdministratorsGroupIT extends AbstractLdapTestUnit
 {
-    public static DirectoryService service;
+    
+    @Before
+    public void setService()
+    {
+       AutzIntegUtils.service = service;
+    }
+    
     
     boolean canReadAdministrators( DirContext ctx ) throws NamingException
     {
@@ -77,9 +82,12 @@ public class AdministratorsGroupIT
      * @throws Exception on failures
      */
     @Test
-    @Factory ( AutzIntegUtils.ServiceFactory.class )
+    @CreateDS ( enableAccessControl=true, name="testNonAdminReadAccessToGroups-method" )
     public void testNonAdminReadAccessToGroups() throws Exception
     {
+        // this is required cause the new service is at method level
+        AutzIntegUtils.service = service;
+        
         Name billydDn = createUser( "billyd", "s3kr3t" );
         
         // this should fail with a no permission exception because we
@@ -110,9 +118,12 @@ public class AdministratorsGroupIT
      * @throws Exception on failure
      */
     @Test
-    @Factory ( AutzIntegUtils.DefaultServiceFactory.class )
+    @CreateDS ( name="testNonAdminReadAccessToGroups-method" )
     public void testDefaultNonAdminReadAccessToGroups() throws Exception
     {
+        // this is required cause the new service is at method level
+        AutzIntegUtils.service = service;
+
         Name billydDn = createUser( "billyd", "s3kr3t" );
         assertFalse( service.isAccessControlEnabled() );
         DirContext ctx = getContextAs( billydDn, "s3kr3t" );

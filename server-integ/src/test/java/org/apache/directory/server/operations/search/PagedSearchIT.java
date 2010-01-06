@@ -20,6 +20,10 @@
 package org.apache.directory.server.operations.search;
 
  
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,20 +37,17 @@ import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.PagedResultsResponseControl;
 
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.integ.SiRunner;
-
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.message.control.PagedSearchControl;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -87,8 +88,8 @@ import static org.junit.Assert.assertTrue;
  * |test   | SL | RL | PL | Nb of responses     | nb | X |<br>
  * +-------+----+----+----+---------------------+----+---+<br>
  * |test18 | 0  | 0  | 3  | 4 ( 3 + 3 + 3 + 1 ) | 10 |   |<br>
- * |test19  | 0  | 0  | 5  | 2 ( 5 + 5 )         | 10 |   |<br>
- * |test20  | 3  | 0  | 5  | 1 ( 3 )             | 3  | Y |<br>
+ * |test19 | 0  | 0  | 5  | 2 ( 5 + 5 )         | 10 |   |<br>
+ * |test20 | 3  | 0  | 5  | 1 ( 3 )             | 3  | Y |<br>
  * |test21 | 0  | 3  | 5  | 1 ( 3 )             | 3  | Y |<br>
  * |test22 | 5  | 0  | 3  | 2 ( 3 + 2 )         | 5  | Y |<br>
  * |test23 | 0  | 9  | 5  | 2 ( 5 + 4 )         | 9  | Y |<br>
@@ -108,88 +109,90 @@ import static org.junit.Assert.assertTrue;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 545029 $
  */
-@RunWith ( SiRunner.class )
+@RunWith ( FrameworkRunner.class )
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" )
+    })
 @ApplyLdifs( {
     // Add 10 new entries
-    "dn: dc=users,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: domain\n" +
-    "dc: users\n" +
-    "\n" +
-    "dn: cn=user0,dc=users,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "cn: user0\n" +
-    "sn: user 0\n" +
-    "\n" +
-    "dn: cn=user1,dc=users,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "cn: user1\n" +
-    "sn: user 1\n" +
-    "\n" +
-    "dn: cn=user2,dc=users,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "cn: user2\n" +
-    "sn: user 2\n" +
-    "\n" +
-    "dn: cn=user3,dc=users,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "cn: user3\n" +
-    "sn: user 3\n" +
-    "\n" +
-    "dn: cn=user4,dc=users,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "cn: user4\n" +
-    "sn: user 4\n" +
-    "\n" +
-    "dn: cn=user5,dc=users,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "cn: user5\n" +
-    "sn: user 5\n" +
-    "\n" +
-    "dn: cn=user6,dc=users,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "cn: user6\n" +
-    "sn: user 6\n" +
-    "\n" +
-    "dn: cn=user7,dc=users,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "cn: user7\n" +
-    "sn: user 7\n" +
-    "\n" +
-    "dn: cn=user8,dc=users,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "cn: user8\n" +
-    "sn: user 8\n" +
-    "\n" +
-    "dn: cn=user9,dc=users,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "cn: user9\n" +
-    "sn: user 9\n" +
-    "\n" +
+    "dn: dc=users,ou=system", 
+    "objectClass: top", 
+    "objectClass: domain", 
+    "dc: users", 
+    //
+    "dn: cn=user0,dc=users,ou=system", 
+    "objectClass: top", 
+    "objectClass: person", 
+    "cn: user0", 
+    "sn: user 0", 
+    //
+    "dn: cn=user1,dc=users,ou=system", 
+    "objectClass: top", 
+    "objectClass: person", 
+    "cn: user1", 
+    "sn: user 1", 
+    //
+    "dn: cn=user2,dc=users,ou=system", 
+    "objectClass: top", 
+    "objectClass: person", 
+    "cn: user2", 
+    "sn: user 2", 
+    //
+    "dn: cn=user3,dc=users,ou=system", 
+    "objectClass: top", 
+    "objectClass: person", 
+    "cn: user3", 
+    "sn: user 3", 
+    //
+    "dn: cn=user4,dc=users,ou=system", 
+    "objectClass: top", 
+    "objectClass: person", 
+    "cn: user4", 
+    "sn: user 4", 
+    //
+    "dn: cn=user5,dc=users,ou=system", 
+    "objectClass: top", 
+    "objectClass: person", 
+    "cn: user5", 
+    "sn: user 5", 
+    //
+    "dn: cn=user6,dc=users,ou=system", 
+    "objectClass: top", 
+    "objectClass: person", 
+    "cn: user6", 
+    "sn: user 6", 
+    //
+    "dn: cn=user7,dc=users,ou=system", 
+    "objectClass: top", 
+    "objectClass: person", 
+    "cn: user7", 
+    "sn: user 7", 
+    //
+    "dn: cn=user8,dc=users,ou=system", 
+    "objectClass: top", 
+    "objectClass: person", 
+    "cn: user8", 
+    "sn: user 8", 
+    // 
+    "dn: cn=user9,dc=users,ou=system", 
+    "objectClass: top", 
+    "objectClass: person", 
+    "cn: user9", 
+    "sn: user 9", 
+    "", 
     // Add another user for non admin tests
-    "dn: cn=user,ou=system\n" +
-    "objectClass: top\n" +
-    "objectClass: person\n" +
-    "cn: user\n" +
-    "userPassword: secret\n" +
-    "sn: user\n" +
-    "\n"
+    "dn: cn=user,ou=system", 
+    "objectClass: top", 
+    "objectClass: person", 
+    "cn: user", 
+    "userPassword: secret", 
+    "sn: user"
     }
 )
-public class PagedSearchIT
+public class PagedSearchIT extends AbstractLdapTestUnit
 {
-    public static LdapServer ldapServer;
-
     /**
      * Create the searchControls with a paged size
      */

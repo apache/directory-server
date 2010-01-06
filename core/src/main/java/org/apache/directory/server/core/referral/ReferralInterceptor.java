@@ -21,6 +21,10 @@ package org.apache.directory.server.core.referral;
 
 
 
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.directory.SearchControls;
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.ReferralManager;
 import org.apache.directory.server.core.ReferralManagerImpl;
@@ -36,21 +40,16 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.LdapURL;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.directory.SearchControls;
 
 
 /**
@@ -67,16 +66,10 @@ public class ReferralInterceptor extends BaseInterceptor
 {
     private static final Logger LOG = LoggerFactory.getLogger( ReferralInterceptor.class );
 
-    /** The directoryService */
-    private DirectoryService directoryService;
-    
     private PartitionNexus nexus;
 
-    /** The attributeType registry */
-    private AttributeTypeRegistry atRegistry;
-
-    /** The global registries */
-    private Registries registries;
+    /** The global schemaManager */
+    private SchemaManager schemaManager;
 
     /** The referralManager */
     private ReferralManager referralManager;
@@ -208,9 +201,7 @@ public class ReferralInterceptor extends BaseInterceptor
     public void init( DirectoryService directoryService ) throws Exception
     {
         nexus = directoryService.getPartitionNexus();
-        registries = directoryService.getRegistries();
-        atRegistry = registries.getAttributeTypeRegistry();
-        this.directoryService = directoryService;
+        schemaManager = directoryService.getSchemaManager();
 
         // Initialize the referralManager
         referralManager = new ReferralManagerImpl( directoryService );
@@ -218,7 +209,7 @@ public class ReferralInterceptor extends BaseInterceptor
 
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         LdapDN subschemaSubentryDn = new LdapDN( subschemaSubentry.getString() );
-        subschemaSubentryDn.normalize( atRegistry.getNormalizerMapping() );
+        subschemaSubentryDn.normalize( schemaManager.getNormalizerMapping() );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
     }
 
@@ -363,13 +354,6 @@ public class ReferralInterceptor extends BaseInterceptor
 
     public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
     {
-        LdapDN oldName = opContext.getDn();
-
-        LdapDN newName = ( LdapDN ) oldName.clone();
-        newName.remove( oldName.size() - 1 );
-
-        newName.add( opContext.getNewRdn() );
-
         // Check if the entry is a referral itself
         boolean isReferral = isReferral( opContext.getEntry() );
 
@@ -378,14 +362,14 @@ public class ReferralInterceptor extends BaseInterceptor
         if ( isReferral ) 
         {
             // Update the referralManager
-            LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), newName );
+            LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), opContext.getNewDn() );
             
             ServerEntry newEntry = nexus.lookup( lookupContext );
             
             referralManager.lockWrite();
             
             referralManager.addReferral( newEntry );
-            referralManager.removeReferral( opContext.getEntry() );
+            referralManager.removeReferral( opContext.getEntry().getOriginalEntry() );
             
             referralManager.unlock();
         }

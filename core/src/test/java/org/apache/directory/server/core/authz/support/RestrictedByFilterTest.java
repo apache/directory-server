@@ -20,18 +20,15 @@
 package org.apache.directory.server.core.authz.support;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.authz.support.OperationScope;
-import org.apache.directory.server.core.authz.support.RestrictedByFilter;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.aci.ACITuple;
@@ -42,11 +39,12 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
-
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.loader.ldif.JarLdifSchemaLoader;
+import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -73,17 +71,26 @@ public class RestrictedByFilterTest
     }
 
 
-    /** A reference to the directory service */
-    private static DirectoryService service;
+    /** A reference to the schemaManager */
+    private static SchemaManager schemaManager;
 
     
-    @BeforeClass public static void setup() throws NamingException
+    @BeforeClass public static void setup() throws Exception
     {
-        service = new DefaultDirectoryService();
+        JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
+
+        schemaManager = new DefaultSchemaManager( loader );
+
+        boolean loaded = schemaManager.loadAllEnabled();
+
+        if ( !loaded )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
+        }
 
         LdapDN entryName = new LdapDN( "ou=test, ou=system" );
         PROTECTED_ITEMS.add( new ProtectedItem.MaxImmSub( 2 ) );
-        ENTRY = new DefaultServerEntry( service.getRegistries(), entryName );
+        ENTRY = new DefaultServerEntry( schemaManager, entryName );
 
         ENTRY.put( "cn", "1", "2" );
     }

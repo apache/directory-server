@@ -23,11 +23,11 @@ package org.apache.directory.server.dns.io.decoder;
 
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.server.dns.store.DnsAttribute;
 import org.apache.mina.core.buffer.IoBuffer;
-
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Tests for the NS resource record decoder.
@@ -35,7 +35,7 @@ import org.apache.mina.core.buffer.IoBuffer;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 501160 $, $Date: 2007-01-29 12:41:33 -0700 (Mon, 29 Jan 2007) $
  */
-public class NameServerRecordDecoderTest extends TestCase
+public class NameServerRecordDecoderTest
 {
     IoBuffer inputBuffer;
 
@@ -46,6 +46,7 @@ public class NameServerRecordDecoderTest extends TestCase
     NameServerRecordDecoder decoder;
 
 
+    @Before
     public void setUp()
     {
         inputBuffer = IoBuffer.allocate( 128 );
@@ -62,9 +63,10 @@ public class NameServerRecordDecoderTest extends TestCase
     }
 
 
+    @Test
     public void testDecode() throws Exception
     {
-        Map attributes = decoder.decode( inputBuffer, ( short ) inputBuffer.remaining() );
+        Map<String, Object> attributes = decoder.decode( inputBuffer, ( short ) inputBuffer.remaining() );
         assertEquals( domainName, attributes.get( DnsAttribute.DOMAIN_NAME ) );
     }
 }

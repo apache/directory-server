@@ -20,22 +20,22 @@
 package org.apache.directory.server.operations.compare;
 
 
+import static org.junit.Assert.assertEquals;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
-import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -46,29 +46,31 @@ import static org.junit.Assert.assertEquals;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.SUITE )
+@RunWith ( FrameworkRunner.class ) 
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" )
+    })
 @ApplyLdifs( {
     // Entry # 1
-    "dn: cn=Tori Amos,ou=system\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "telephoneNumber: 1234567890\n" +
-    "userPassword: Secret1!\n" +
-    "cn: Tori Amos\n" +
-    "sn: Amos\n\n" + 
+    "dn: cn=Tori Amos,ou=system",
+    "objectClass: person",
+    "objectClass: top",
+    "telephoneNumber: 1234567890",
+    "userPassword: Secret1!",
+    "cn: Tori Amos",
+    "sn: Amos", 
     // Entry # 2
-    "dn: cn=Artists,ou=system\n" +
-    "objectClass: groupOfNames\n" +
-    "objectClass: top\n" +
-    "cn: Artists\n" +
-    "member: cn=Tori Amos,ou=system\n\n"
+    "dn: cn=Artists,ou=system",
+    "objectClass: groupOfNames",
+    "objectClass: top",
+    "cn: Artists",
+    "member: cn=Tori Amos,ou=system"
     }
 )
-public class MatchingRuleCompareIT
+public class MatchingRuleCompareIT extends AbstractLdapTestUnit
 {
-    public static LdapServer ldapServer;
-
     public static final String PERSON_CN = "Tori Amos";
     public static final String PERSON_SN = "Amos";
     public static final String PERSON_RDN = "cn=" + PERSON_CN;

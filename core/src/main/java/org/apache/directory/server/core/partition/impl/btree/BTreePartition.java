@@ -20,11 +20,20 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
+import java.io.File;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+import javax.naming.InvalidNameException;
+import javax.naming.directory.SearchControls;
+
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
@@ -37,21 +46,15 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.gui.PartitionViewer;
-import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.server.xdbm.*;
+import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-
-import javax.naming.directory.SearchControls;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -84,15 +87,16 @@ public abstract class BTreePartition implements Partition
     protected SearchEngine<ServerEntry> searchEngine;
     protected Optimizer optimizer;
 
-    protected Registries registries;
+    protected SchemaManager schemaManager;
 
     protected String id;
     protected int cacheSize = -1;
-    protected LdapDN suffixDn;
-    protected String suffix;
+    protected LdapDN suffix;
+    private File partitionDir;
     
     /** The rootDSE context */
     protected ServerEntry contextEntry;
+	private Set<Index<?,ServerEntry>> indexedAttributes;
 
 
     // ------------------------------------------------------------------------
@@ -105,12 +109,74 @@ public abstract class BTreePartition implements Partition
      */
     protected BTreePartition()
     {
+        indexedAttributes = new HashSet<Index<?,ServerEntry>>();
     }
 
     
     // ------------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
     // ------------------------------------------------------------------------
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setSchemaManager( SchemaManager schemaManager )
+    {
+        this.schemaManager = schemaManager;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public SchemaManager getSchemaManager()
+    {
+        return schemaManager;
+    }
+    
+    
+    /**
+     * Gets the directory in which this Partition stores files.
+     *
+     * @return the directory in which this Partition stores files.
+     */
+    public File getPartitionDir()
+    {
+        return partitionDir;
+    }
+    
+    
+    /**
+     * Sets the directory in which this Partition stores files.
+     *
+     * @param partitionDir the directory in which this Partition stores files.
+     */
+    public void setPartitionDir( File partitionDir )
+    {
+        this.partitionDir = partitionDir;
+    }
+    
+    
+    public void setIndexedAttributes( Set<Index<?,ServerEntry>> indexedAttributes )
+    {
+        this.indexedAttributes = indexedAttributes;
+    }
+
+
+    public void addIndexedAttributes( Index<?,ServerEntry>... indexes )
+    {
+        for ( Index<?,ServerEntry> index : indexes )
+        {
+            indexedAttributes.add( index );
+        }
+    }
+
+
+    public Set<Index<?,ServerEntry>> getIndexedAttributes()
+    {
+        return indexedAttributes;
+    }
 
 
     /**
@@ -164,19 +230,6 @@ public abstract class BTreePartition implements Partition
     // -----------------------------------------------------------------------
 
 
-    /**
-     * Allows for schema entity registries to be swapped out during runtime.  This is 
-     * primarily here to facilitate the swap out of a temporary bootstrap registry.  
-     * Registry changes require swapping out the search engine used by a partition 
-     * since the registries are used by elements in the search engine.
-     * 
-     * @org.apache.xbean.Property hidden="true"
-     * @param registries the schema entity registries
-     * @throws Exception 
-     */
-    public abstract void setRegistries( Registries registries ) throws Exception;
-
-    
     // ------------------------------------------------------------------------
     // Public Accessors - not declared in any interfaces just for this class
     // ------------------------------------------------------------------------
@@ -198,6 +251,9 @@ public abstract class BTreePartition implements Partition
     // ------------------------------------------------------------------------
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void delete( DeleteOperationContext opContext ) throws Exception
     {
         LdapDN dn = opContext.getDn();
@@ -304,7 +360,7 @@ public abstract class BTreePartition implements Partition
 
     public void inspect() throws Exception
     {
-        PartitionViewer viewer = new PartitionViewer( this, registries );
+        PartitionViewer viewer = new PartitionViewer( this, schemaManager );
         viewer.execute();
     }
 
@@ -472,9 +528,9 @@ public abstract class BTreePartition implements Partition
     /**
      * {@inheritDoc}
      */
-    public void setSuffix( String suffix )
+    public void setSuffix( String suffix ) throws InvalidNameException
     {
-        this.suffix = suffix;
+        this.suffix = new LdapDN( suffix );
     }
 
 

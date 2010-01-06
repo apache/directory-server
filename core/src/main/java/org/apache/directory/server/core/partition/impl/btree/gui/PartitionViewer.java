@@ -24,7 +24,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,14 +42,14 @@ public class PartitionViewer
     /** A handle on the atomic partition */
     private BTreePartition partition;
     
-    /** A handle on the global registries */
-    private Registries registries;
+    /** A handle on the global schemaManager */
+    private SchemaManager schemaManager;
 
 
-    public PartitionViewer( BTreePartition db, Registries registries )
+    public PartitionViewer( BTreePartition db, SchemaManager schemaManager )
     {
         this.partition = db;
-        this.registries = registries;
+        this.schemaManager = schemaManager;
     }
 
 
@@ -62,7 +62,7 @@ public class PartitionViewer
                 PartitionFrame frame = null;
                 try
                 {
-                    frame = new PartitionFrame( PartitionViewer.this.partition, registries );
+                    frame = new PartitionFrame( PartitionViewer.this.partition, schemaManager );
                 }
                 catch ( Exception e )
                 {

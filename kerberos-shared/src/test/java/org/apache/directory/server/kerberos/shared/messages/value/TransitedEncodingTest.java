@@ -24,9 +24,8 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import org.apache.directory.server.kerberos.shared.messages.value.types.TransitedEncodingType;
-
-import junit.framework.TestCase;
-
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test the TransitedEncoding encoding and decoding
@@ -34,8 +33,9 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 542147 $, $Date: 2007-05-28 10:14:21 +0200 (Mon, 28 May 2007) $
  */
-public class TransitedEncodingTest extends TestCase
+public class TransitedEncodingTest
 {
+    @Test
     public void testEncodingFast() throws Exception
     {
         TransitedEncoding te = new TransitedEncoding( TransitedEncodingType.DOMAIN_X500_COMPRESS, new byte[]
@@ -58,6 +58,7 @@ public class TransitedEncodingTest extends TestCase
     }
 
 
+    @Test
     public void testEncodingNoStructureFast() throws Exception
     {
         TransitedEncoding te = new TransitedEncoding( TransitedEncodingType.DOMAIN_X500_COMPRESS, null );

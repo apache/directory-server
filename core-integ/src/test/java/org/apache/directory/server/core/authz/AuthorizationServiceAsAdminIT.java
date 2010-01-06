@@ -20,20 +20,13 @@
 package org.apache.directory.server.core.authz;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.server.core.integ.annotations.Factory;
-import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.util.ArrayUtils;
-import org.apache.directory.shared.ldap.util.StringTools;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.util.HashSet;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -43,7 +36,14 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
-import java.util.HashSet;
+
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.util.ArrayUtils;
+import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -53,12 +53,9 @@ import java.util.HashSet;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-@Factory ( AutzIntegUtils.ServiceFactory.class )
-public class AuthorizationServiceAsAdminIT
+@RunWith ( FrameworkRunner.class )
+public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
 {
-    public static DirectoryService service;
-
 
     /**
      * Makes sure the admin cannot delete the admin account.

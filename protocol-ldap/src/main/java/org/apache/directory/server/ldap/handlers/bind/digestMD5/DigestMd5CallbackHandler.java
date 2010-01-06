@@ -23,8 +23,11 @@ package org.apache.directory.server.ldap.handlers.bind.digestMD5;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.naming.Context;
+import javax.security.sasl.AuthorizeCallback;
+
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.ldap.LdapSession;
@@ -43,9 +46,6 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.Context;
-import javax.security.sasl.AuthorizeCallback;
 
 
 /**
@@ -83,7 +83,7 @@ public class DigestMd5CallbackHandler extends AbstractSaslCallbackHandler
             ExprNode filter = FilterParser.parse( "(uid=" + username + ")" );
             Set<AttributeTypeOptions> returningAttributes = new HashSet<AttributeTypeOptions>();
             
-            AttributeType passwordAT = adminSession.getDirectoryService().getRegistries().getAttributeTypeRegistry().lookup( SchemaConstants.USER_PASSWORD_AT );
+            AttributeType passwordAT = adminSession.getDirectoryService().getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );
             returningAttributes.add( new AttributeTypeOptions( passwordAT) );
             bindDn = (String)ldapSession.getSaslProperty( SaslConstants.SASL_USER_BASE_DN );
             

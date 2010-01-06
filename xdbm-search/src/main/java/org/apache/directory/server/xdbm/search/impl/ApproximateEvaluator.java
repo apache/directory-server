@@ -20,21 +20,21 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import org.apache.directory.shared.ldap.filter.ApproximateNode;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.entry.Value;
+import java.util.Iterator;
+
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerAttribute;
-
-import java.util.Iterator;
-import java.util.Comparator;
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.filter.ApproximateNode;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -48,19 +48,19 @@ public class ApproximateEvaluator implements Evaluator<ApproximateNode, ServerEn
 {
     private final ApproximateNode<Object> node;
     private final Store<ServerEntry> db;
-    private final Registries registries;
+    private final SchemaManager schemaManager;
     private final AttributeType type;
     private final Normalizer normalizer;
-    private final Comparator comparator;
+    private final LdapComparator<? super Object> ldapComparator;
     private final Index<Object,ServerEntry> idx;
 
 
-    public ApproximateEvaluator( ApproximateNode node, Store<ServerEntry> db, Registries registries )
+    public ApproximateEvaluator( ApproximateNode node, Store<ServerEntry> db, SchemaManager schemaManager )
         throws Exception
     {
         this.db = db;
         this.node = node;
-        this.registries = registries;
+        this.schemaManager = schemaManager;
 
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
@@ -68,12 +68,12 @@ public class ApproximateEvaluator implements Evaluator<ApproximateNode, ServerEn
             idx = ( Index<Object,ServerEntry> ) db.getUserIndex( node.getAttribute() );
             type = null;
             normalizer = null;
-            comparator = null;
+            ldapComparator = null;
         }
         else
         {
             idx = null;
-            type = registries.getAttributeTypeRegistry().lookup( node.getAttribute() );
+            type = schemaManager.lookupAttributeTypeRegistry( node.getAttribute() );
 
             MatchingRule mr = type.getEquality();
 
@@ -84,7 +84,7 @@ public class ApproximateEvaluator implements Evaluator<ApproximateNode, ServerEn
             }
 
             normalizer = mr.getNormalizer();
-            comparator = mr.getComparator();
+            ldapComparator = mr.getLdapComparator();
         }
     }
 
@@ -109,13 +109,13 @@ public class ApproximateEvaluator implements Evaluator<ApproximateNode, ServerEn
         // If we do not have the attribute, loop through the sub classes of
         // the attributeType.  Perhaps the entry has an attribute value of a
         // subtype (descendant) that will produce a match
-        if ( registries.getAttributeTypeRegistry().hasDescendants( node.getAttribute() ) )
+        if ( schemaManager.getAttributeTypeRegistry().hasDescendants( node.getAttribute() ) )
         {
             // TODO check to see if descendant handling is necessary for the
             // index so we can match properly even when for example a name
             // attribute is used instead of more specific commonName
             Iterator<AttributeType> descendants =
-                registries.getAttributeTypeRegistry().descendants( node.getAttribute() );
+                schemaManager.getAttributeTypeRegistry().descendants( node.getAttribute() );
 
             while ( descendants.hasNext() )
             {
@@ -182,7 +182,7 @@ public class ApproximateEvaluator implements Evaluator<ApproximateNode, ServerEn
             value.normalize( normalizer );
 
             //noinspection unchecked
-            if ( comparator.compare( value.getNormalizedValue(), node.getValue().getNormalizedValue() ) == 0 )
+            if ( ldapComparator.compare( value.getNormalizedValue(), node.getValue().getNormalizedValue() ) == 0 )
             {
                 return true;
             }

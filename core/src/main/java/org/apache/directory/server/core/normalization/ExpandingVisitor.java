@@ -25,7 +25,6 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -39,6 +38,7 @@ import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -49,18 +49,19 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  */
 public class ExpandingVisitor implements FilterVisitor
 {
-    private final AttributeTypeRegistry attrRegistry;
-
-
+    /** The schemaManager */
+    private SchemaManager schemaManager;
+    
+    
     /**
      * 
      * Creates a new instance of ExpandingVisitor.
      *
-     * @param attrRegistry The AttributeType registry
+     * @param schemaManager The schemaManager
      */
-    public ExpandingVisitor( AttributeTypeRegistry attrRegistry )
+    public ExpandingVisitor( SchemaManager schemaManager )
     {
-        this.attrRegistry = attrRegistry;
+        this.schemaManager = schemaManager;
     }
 
 
@@ -102,7 +103,7 @@ public class ExpandingVisitor implements FilterVisitor
 
                 try
                 {
-                    if ( attrRegistry.hasDescendants( leaf.getAttribute() ) )
+                    if ( schemaManager.getAttributeTypeRegistry().hasDescendants( leaf.getAttribute() ) )
                     {
                         // create a new OR node to hold all descendent forms
                         // add to this node the generalized leaf node and 
@@ -112,7 +113,7 @@ public class ExpandingVisitor implements FilterVisitor
                         children.set( childNumber++, orNode );
 
                         // iterate through descendants adding them to the orNode
-                        Iterator<AttributeType> descendants = attrRegistry.descendants( leaf.getAttribute() );
+                        Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants( leaf.getAttribute() );
 
                         while ( descendants.hasNext() )
                         {

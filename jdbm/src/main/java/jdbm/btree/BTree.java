@@ -46,19 +46,17 @@
 
 package jdbm.btree;
 
-import jdbm.RecordManager;
-
-import jdbm.helper.Serializer;
-import jdbm.helper.Tuple;
-import jdbm.helper.TupleBrowser;
-
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.Serializable;
-
 import java.util.Comparator;
+
+import jdbm.RecordManager;
+import jdbm.helper.Serializer;
+import jdbm.helper.Tuple;
+import jdbm.helper.TupleBrowser;
 
 /**
  * B+Tree persistent indexing data structure.  B+Trees are optimized for
@@ -604,6 +602,15 @@ public class BTree
         {
             return false;
         }
+    }
+
+
+    /**
+     * @return the _comparator
+     */
+    public Comparator getComparator()
+    {
+        return _comparator;
     }
 }
 

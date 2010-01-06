@@ -80,7 +80,7 @@ public class DnsServer extends DirectoryBackedService
     {
         RecordStore store = new JndiRecordStoreImpl( getSearchBaseDn(), getSearchBaseDn(), getDirectoryService() );
 
-        if ( ( transports == null ) || ( transports.length == 0 ) )
+        if ( ( transports == null ) || ( transports.size() == 0 ) )
         {
             // Default to UDP with port 53
             // We have to create a DatagramAcceptor

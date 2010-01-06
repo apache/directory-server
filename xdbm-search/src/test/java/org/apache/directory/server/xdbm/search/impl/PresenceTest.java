@@ -20,42 +20,35 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.directory.server.schema.SerializableComparator;
-import org.apache.directory.server.schema.bootstrap.ApacheSchema;
-import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
-import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.directory.server.schema.bootstrap.CollectiveSchema;
-import org.apache.directory.server.schema.bootstrap.CoreSchema;
-import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.bootstrap.SystemSchema;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.DefaultOidRegistry;
-import org.apache.directory.server.schema.registries.DefaultRegistries;
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.tools.StoreUtils;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmStore;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.util.Set;
-import java.util.HashSet;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmStore;
+import org.apache.directory.server.xdbm.ForwardIndexEntry;
+import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.xdbm.tools.StoreUtils;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
+import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -70,27 +63,40 @@ public class PresenceTest
 
     File wkdir;
     Store<ServerEntry> store;
-    Registries registries = null;
-    AttributeTypeRegistry attributeRegistry;
+    static SchemaManager schemaManager = null;
 
 
-    public PresenceTest() throws Exception
+    @BeforeClass
+    public static void setup() throws Exception
     {
-        // setup the standard registries
-        BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        OidRegistry oidRegistry = new DefaultOidRegistry();
-        registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
-        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
+    	String workingDirectory = System.getProperty( "workingDirectory" );
 
-        // load essential bootstrap schemas
-        Set<Schema> bootstrapSchemas = new HashSet<Schema>();
-        bootstrapSchemas.add( new ApachemetaSchema() );
-        bootstrapSchemas.add( new ApacheSchema() );
-        bootstrapSchemas.add( new CoreSchema() );
-        bootstrapSchemas.add( new SystemSchema() );
-        bootstrapSchemas.add( new CollectiveSchema() );
-        loader.loadWithDependencies( bootstrapSchemas, registries );
-        attributeRegistry = registries.getAttributeTypeRegistry();
+        if ( workingDirectory == null )
+        {
+            String path = PresenceTest.class.getResource( "" ).getPath();
+            int targetPos = path.indexOf( "target" );
+            workingDirectory = path.substring( 0, targetPos + 6 );
+        }
+
+        File schemaRepository = new File( workingDirectory, "schema" );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+        extractor.extractOrCopy( true );
+        LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
+        schemaManager = new DefaultSchemaManager( loader );
+
+        boolean loaded = schemaManager.loadAllEnabled();
+
+        if ( !loaded )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
+        }
+        
+        loaded = schemaManager.loadWithDeps( loader.getSchema( "collective" ) );
+        
+        if ( !loaded )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
+        }
     }
 
 
@@ -114,7 +120,7 @@ public class PresenceTest
 
         store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new JdbmIndex( SchemaConstants.CN_AT_OID ) );
-        StoreUtils.loadExampleData( store, registries );
+        StoreUtils.loadExampleData( store, schemaManager );
         LOG.debug( "Created new store" );
     }
 
@@ -141,7 +147,7 @@ public class PresenceTest
     public void testIndexedServerEntry() throws Exception
     {
         PresenceNode node = new PresenceNode( SchemaConstants.CN_AT_OID );
-        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, registries );
+        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
         PresenceCursor cursor = new PresenceCursor( store, evaluator );
 
         assertEquals( node, evaluator.getExpression() );
@@ -209,7 +215,7 @@ public class PresenceTest
         assertEquals( SchemaConstants.CN_AT_OID, cursor.get().getValue() );
 
         node = new PresenceNode( SchemaConstants.OU_AT_OID );
-        evaluator = new PresenceEvaluator( node, store, registries );
+        evaluator = new PresenceEvaluator( node, store, schemaManager );
         cursor = new PresenceCursor( store, evaluator );
 
         assertTrue( cursor.isElementReused() );
@@ -255,7 +261,7 @@ public class PresenceTest
     public void testNonIndexedServerEntry() throws Exception
     {
         PresenceNode node = new PresenceNode( SchemaConstants.SN_AT_OID );
-        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, registries );
+        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
         PresenceCursor cursor = new PresenceCursor( store, evaluator );
 
         assertEquals( node, evaluator.getExpression() );
@@ -316,7 +322,7 @@ public class PresenceTest
         // ----------- organizationName attribute
 
         node = new PresenceNode( SchemaConstants.O_AT_OID );
-        evaluator = new PresenceEvaluator( node, store, registries );
+        evaluator = new PresenceEvaluator( node, store, schemaManager );
         cursor = new PresenceCursor( store, evaluator );
 
         assertTrue( cursor.isElementReused() );
@@ -338,7 +344,7 @@ public class PresenceTest
     public void testEvaluatorIndexed() throws Exception
     {
         PresenceNode node = new PresenceNode( SchemaConstants.CN_AT_OID );
-        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, registries );
+        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
         ForwardIndexEntry<String,ServerEntry> entry = new ForwardIndexEntry<String,ServerEntry>();
         entry.setValue( SchemaConstants.CN_AT_OID );
         entry.setId( ( long ) 3 );
@@ -354,7 +360,7 @@ public class PresenceTest
     public void testEvaluatorNotIndexed() throws Exception
     {
         PresenceNode node = new PresenceNode( SchemaConstants.NAME_AT_OID );
-        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, registries );
+        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
         ForwardIndexEntry<String,ServerEntry> entry = new ForwardIndexEntry<String,ServerEntry>();
         entry.setValue( SchemaConstants.NAME_AT_OID );
         entry.setId( ( long ) 3 );
@@ -365,7 +371,7 @@ public class PresenceTest
         assertTrue( evaluator.evaluate( entry ) );
 
         node = new PresenceNode( SchemaConstants.SEARCHGUIDE_AT_OID );
-        evaluator = new PresenceEvaluator( node, store, registries );
+        evaluator = new PresenceEvaluator( node, store, schemaManager );
         entry = new ForwardIndexEntry<String,ServerEntry>();
         entry.setValue( SchemaConstants.SEARCHGUIDE_AT_OID );
         entry.setId( ( long ) 3 );
@@ -377,7 +383,7 @@ public class PresenceTest
         assertFalse( evaluator.evaluate( entry ) );
 
         node = new PresenceNode( SchemaConstants.ST_AT_OID );
-        evaluator = new PresenceEvaluator( node, store, registries );
+        evaluator = new PresenceEvaluator( node, store, schemaManager );
         entry = new ForwardIndexEntry<String,ServerEntry>();
         entry.setValue( SchemaConstants.ST_AT_OID );
         entry.setId( ( long ) 3 );
@@ -394,7 +400,7 @@ public class PresenceTest
     public void testInvalidCursorPositionException() throws Exception
     {
         PresenceNode node = new PresenceNode( SchemaConstants.SN_AT_OID );
-        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, registries );
+        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
         PresenceCursor cursor = new PresenceCursor( store, evaluator );
         cursor.get();
     }
@@ -404,7 +410,7 @@ public class PresenceTest
     public void testInvalidCursorPositionException2() throws Exception
     {
         PresenceNode node = new PresenceNode( SchemaConstants.CN_AT_OID );
-        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, registries );
+        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
         PresenceCursor cursor = new PresenceCursor( store, evaluator );
         cursor.get();
     }
@@ -414,7 +420,7 @@ public class PresenceTest
     public void testUnsupportBeforeWithoutIndex() throws Exception
     {
         PresenceNode node = new PresenceNode( SchemaConstants.SN_AT_OID );
-        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, registries );
+        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
         PresenceCursor cursor = new PresenceCursor( store, evaluator );
 
         // test before()
@@ -428,7 +434,7 @@ public class PresenceTest
     public void testUnsupportAfterWithoutIndex() throws Exception
     {
         PresenceNode node = new PresenceNode( SchemaConstants.SN_AT_OID );
-        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, registries );
+        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
         PresenceCursor cursor = new PresenceCursor( store, evaluator );
 
         // test before()

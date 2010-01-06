@@ -20,22 +20,12 @@
 package org.apache.directory.server.core.exception;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
-import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -49,6 +39,18 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
+import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
+import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 
 /**
  * Tests the correct operation of the ServerExceptionService.
@@ -56,12 +58,9 @@ import javax.naming.ldap.LdapContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-public class ExceptionServiceIT
+@RunWith ( FrameworkRunner.class )
+public class ExceptionServiceIT extends AbstractLdapTestUnit
 {
-    public static DirectoryService service;
-
-
     private DirContext createSubContext( String type, String value ) throws Exception
     {
         return createSubContext( getSystemContext( service ), type, value );
@@ -70,17 +69,14 @@ public class ExceptionServiceIT
 
     private DirContext createSubContext( DirContext ctx, String type, String value ) throws NamingException
     {
-        Attributes attrs = new BasicAttributes( type, value, true );
-        Attribute attr = new BasicAttribute( "ObjectClass" );
-        attr.add( "top"  );
-        attr.add( "person" );
-        attr.add( "OrganizationalPerson" );
-        attrs.put( attr );
+        Attributes subentry = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: person",
+            "objectClass: OrganizationalPerson",
+            "sn", value,
+            "cn", value );
 
-        attrs.put( "sn", value );
-        attrs.put( "cn", value );
-
-        return ctx.createSubcontext( type + "=" + value, attrs );
+        return ctx.createSubcontext( type + "=" + value, subentry );
     }
 
 
@@ -296,7 +292,7 @@ public class ExceptionServiceIT
         }
         catch ( LdapNameNotFoundException e )
         {
-            assertEquals( "ou=system", e.getResolvedName().toString() );
+            assertEquals( "ou=blah,ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
         }
     }

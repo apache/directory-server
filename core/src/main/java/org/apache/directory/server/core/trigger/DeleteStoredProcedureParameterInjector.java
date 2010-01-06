@@ -54,7 +54,7 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws Exception
         {
             // Return a safe copy constructed with user provided name.
-            return new LdapDN( deletedEntryName.getUpName() );
+            return new LdapDN( deletedEntryName.getName() );
         }
     };
     

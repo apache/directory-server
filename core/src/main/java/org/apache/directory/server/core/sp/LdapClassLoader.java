@@ -31,17 +31,16 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,7 +73,7 @@ public class LdapClassLoader extends ClassLoader
         super( LdapClassLoader.class.getClassLoader() );
         this.directoryService = directoryService;
         defaultSearchDn = new LdapDN( defaultSearchContextsConfig );
-        defaultSearchDn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        defaultSearchDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
     }
 
     
@@ -161,7 +160,7 @@ public class LdapClassLoader extends ClassLoader
                 for ( Value<?> val : attr )
                 {
                     LdapDN dn = new LdapDN( val.getString() );
-                    dn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+                    dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
                     searchContexts.add( dn );
                 }
                 
@@ -190,7 +189,7 @@ public class LdapClassLoader extends ClassLoader
                 for ( String suffix:suffixes )
                 {
                     LdapDN dn = new LdapDN( suffix );
-                    dn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+                    dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
                     namingContexts.add( dn );
                 }
                 

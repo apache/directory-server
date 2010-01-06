@@ -20,29 +20,32 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.directory.server.schema.bootstrap.*;
-import org.apache.directory.server.schema.registries.*;
-import org.apache.directory.server.schema.SerializableComparator;
-import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.cursor.Cursor;
-
-import java.util.Set;
-import java.util.HashSet;
 import java.io.File;
 import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
+import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 
 /**
@@ -53,27 +56,41 @@ import java.io.IOException;
  */
 public class JdbmIndexTest
 {
-    AttributeTypeRegistry registry;
-    File dbFileDir;
+    private static File dbFileDir;
     Index<String,ServerEntry> idx;
+    private static SchemaManager schemaManager;
 
 
-    @Before
-    public void setup() throws Exception
+    @BeforeClass
+    public static void init() throws Exception
     {
-        BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        OidRegistry oidRegistry = new DefaultOidRegistry();
-        Registries registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
-        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
+    	String workingDirectory = System.getProperty( "workingDirectory" );
 
-        // load essential bootstrap schemas
-        Set<Schema> bootstrapSchemas = new HashSet<Schema>();
-        bootstrapSchemas.add( new ApachemetaSchema() );
-        bootstrapSchemas.add( new ApacheSchema() );
-        bootstrapSchemas.add( new CoreSchema() );
-        bootstrapSchemas.add( new SystemSchema() );
-        loader.loadWithDependencies( bootstrapSchemas, registries );
-        this.registry = registries.getAttributeTypeRegistry();
+        if ( workingDirectory == null )
+        {
+            String path = JdbmIndexTest.class.getResource( "" ).getPath();
+            int targetPos = path.indexOf( "target" );
+            workingDirectory = path.substring( 0, targetPos + 6 );
+        }
+
+        File schemaRepository = new File( workingDirectory, "schema" );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+        extractor.extractOrCopy( true );
+        LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
+        schemaManager = new DefaultSchemaManager( loader );
+
+        boolean loaded = schemaManager.loadAllEnabled();
+
+        if ( !loaded )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
+        }
+    }
+    
+    
+    @Before
+    public void setup() throws IOException
+    {
 
         File tmpIndexFile = File.createTempFile( JdbmIndexTest.class.getSimpleName(), "db" );
         tmpIndexFile.deleteOnExit();
@@ -87,7 +104,6 @@ public class JdbmIndexTest
     @After
     public void teardown() throws Exception
     {
-        registry = null;
         destroyIndex();
         
         if ( ( dbFileDir != null ) && dbFileDir.exists() )
@@ -130,7 +146,7 @@ public class JdbmIndexTest
             jdbmIdx = new JdbmIndex<String,ServerEntry>();
         }
 
-        jdbmIdx.init( registry.lookup( SchemaConstants.OU_AT ), dbFileDir );
+        jdbmIdx.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT ), dbFileDir );
         this.idx = jdbmIdx;
     }
 
@@ -153,6 +169,7 @@ public class JdbmIndexTest
 
         // initialized index
         initIndex();
+        
         try
         {
             idx.setAttributeId( "foo" );
@@ -251,7 +268,7 @@ public class JdbmIndexTest
         assertNull( jdbmIndex.getAttribute() );
 
         initIndex();
-        assertEquals( registry.lookup( "ou" ), idx.getAttribute() );
+        assertEquals( schemaManager.lookupAttributeTypeRegistry( "ou" ), idx.getAttribute() );
     }
 
 
@@ -550,7 +567,9 @@ public class JdbmIndexTest
 
         try
         {
-            jdbmIndex.init( new NoEqMatchAttribute(), dbFileDir );
+            AttributeType noEqMatchAttribute = new AttributeType( "1.1" );
+            
+            jdbmIndex.init( schemaManager, noEqMatchAttribute, dbFileDir );
             fail( "should not get here" );
         }
         catch( IOException e )
@@ -568,7 +587,7 @@ public class JdbmIndexTest
     public void testSingleValuedAttribute() throws Exception
     {
         JdbmIndex jdbmIndex = new JdbmIndex();
-        jdbmIndex.init( registry.lookup( SchemaConstants.CREATORS_NAME_AT ), dbFileDir );
+        jdbmIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATORS_NAME_AT ), dbFileDir );
         jdbmIndex.close();
     }
 }

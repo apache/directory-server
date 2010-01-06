@@ -19,28 +19,23 @@
  */
 package org.apache.directory.server.core.entry;
 
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.schema.bootstrap.ApacheSchema;
-import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
-import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.directory.server.schema.bootstrap.CoreSchema;
-import org.apache.directory.server.schema.bootstrap.CosineSchema;
-import org.apache.directory.server.schema.bootstrap.InetorgpersonSchema;
-import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.bootstrap.SystemSchema;
-import org.apache.directory.server.schema.registries.DefaultOidRegistry;
-import org.apache.directory.server.schema.registries.DefaultRegistries;
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
@@ -48,13 +43,12 @@ import org.apache.directory.shared.ldap.entry.client.ClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.fail;
-
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
+import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -67,9 +61,8 @@ import org.junit.Test;
  */
 public class ServerModificationTest
 {
-    private static BootstrapSchemaLoader loader;
-    private static Registries registries;
-    private static OidRegistry oidRegistry;
+    private static LdifSchemaLoader loader;
+    private static SchemaManager schemaManager;
     private static AttributeType atCN;
     
     // A SINGLE-VALUE attribute
@@ -127,7 +120,7 @@ public class ServerModificationTest
             oIn = new ObjectInputStream( in );
 
             ServerModification value = new ServerModification();
-            value.deserialize( oIn, registries.getAttributeTypeRegistry() );
+            value.deserialize( oIn, schemaManager );
 
             return value;
         }
@@ -158,22 +151,32 @@ public class ServerModificationTest
     @BeforeClass
     public static void setup() throws Exception
     {
-        loader = new BootstrapSchemaLoader();
-        oidRegistry = new DefaultOidRegistry();
-        registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
+    	String workingDirectory = System.getProperty( "workingDirectory" );
+    	
+        if ( workingDirectory == null )
+        {
+            String path = ServerModificationTest.class.getResource( "" ).getPath();
+            int targetPos = path.indexOf( "target" );
+            workingDirectory = path.substring( 0, targetPos + 6 );
+        }
+    	
+    	File schemaRepository = new File( workingDirectory, "schema" );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+        extractor.extractOrCopy( true );
+        loader = new LdifSchemaLoader( schemaRepository );
         
-        // load essential bootstrap schemas 
-        Set<Schema> bootstrapSchemas = new HashSet<Schema>();
-        bootstrapSchemas.add( new ApachemetaSchema() );
-        bootstrapSchemas.add( new ApacheSchema() );
-        bootstrapSchemas.add( new CoreSchema() );
-        bootstrapSchemas.add( new SystemSchema() );
-        bootstrapSchemas.add( new InetorgpersonSchema() );
-        bootstrapSchemas.add( new CosineSchema() );
-        loader.loadWithDependencies( bootstrapSchemas, registries );
+        schemaManager = new DefaultSchemaManager( loader );
+        schemaManager.loadAllEnabled();
         
-        atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
-        atC = registries.getAttributeTypeRegistry().lookup( "c" );
+        List<Throwable> errors = schemaManager.getErrors();
+        
+        if ( errors.size() != 0 )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+        }
+
+        atCN = schemaManager.lookupAttributeTypeRegistry( "cn" );
+        atC = schemaManager.lookupAttributeTypeRegistry( "c" );
     }
 
 
@@ -209,7 +212,7 @@ public class ServerModificationTest
         attribute.add( "test1", "test2" );
         Modification serverModification = new ServerModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
         
-        Modification copy = new ServerModification( registries, serverModification );
+        Modification copy = new ServerModification( schemaManager, serverModification );
         
         assertTrue( copy instanceof ServerModification );
         assertEquals( copy, serverModification );
@@ -234,7 +237,7 @@ public class ServerModificationTest
         attribute.add( "test1", "test2" );
         Modification clientModification = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
         
-        Modification copy = new ServerModification( registries, clientModification );
+        Modification copy = new ServerModification( schemaManager, clientModification );
         
         assertTrue( copy instanceof ServerModification );
         assertFalse( copy instanceof ClientModification );

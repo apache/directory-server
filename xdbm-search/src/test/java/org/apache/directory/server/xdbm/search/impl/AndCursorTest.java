@@ -20,32 +20,22 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmStore;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.schema.SerializableComparator;
-import org.apache.directory.server.schema.bootstrap.ApacheSchema;
-import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
-import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.directory.server.schema.bootstrap.CollectiveSchema;
-import org.apache.directory.server.schema.bootstrap.CoreSchema;
-import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.bootstrap.SystemSchema;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.DefaultOidRegistry;
-import org.apache.directory.server.schema.registries.DefaultRegistries;
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -55,16 +45,19 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
+import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
 
 /**
  * 
@@ -79,35 +72,53 @@ public class AndCursorTest
 
     File wkdir;
     Store<ServerEntry> store;
-    Registries registries = null;
-    AttributeTypeRegistry attributeRegistry;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
+    private static SchemaManager schemaManager;
+    
+    @BeforeClass
+    public static void setup() throws Exception
+    {
+        // setup the standard registries
+        String workingDirectory = System.getProperty( "workingDirectory" );
+
+        if ( workingDirectory == null )
+        {
+            String path = AndCursorTest.class.getResource( "" ).getPath();
+            int targetPos = path.indexOf( "target" );
+            workingDirectory = path.substring( 0, targetPos + 6 );
+        }
+
+        File schemaRepository = new File( workingDirectory, "schema" );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+        extractor.extractOrCopy( true );
+        LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
+        schemaManager = new DefaultSchemaManager( loader );
+
+        boolean loaded = schemaManager.loadAllEnabled();
+        
+        if ( !loaded )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
+        }
+
+        loaded = schemaManager.loadWithDeps( "collective" );
+        
+        if ( !loaded )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
+        }
+    }
 
     public AndCursorTest() throws Exception
     {
-        // setup the standard registries
-        BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        OidRegistry oidRegistry = new DefaultOidRegistry();
-        registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
-        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
-
-        // load essential bootstrap schemas
-        Set<Schema> bootstrapSchemas = new HashSet<Schema>();
-        bootstrapSchemas.add( new ApachemetaSchema() );
-        bootstrapSchemas.add( new ApacheSchema() );
-        bootstrapSchemas.add( new CoreSchema() );
-        bootstrapSchemas.add( new SystemSchema() );
-        bootstrapSchemas.add( new CollectiveSchema() );
-        loader.loadWithDependencies( bootstrapSchemas, registries );
-        attributeRegistry = registries.getAttributeTypeRegistry();
     }
 
 
     @Before
     public void createStore() throws Exception
     {
-        destryStore();
+        destroyStore();
 
         // setup the working directory for the store
         wkdir = File.createTempFile( getClass().getSimpleName(), "db" );
@@ -121,12 +132,12 @@ public class AndCursorTest
         store.setCacheSize( 10 );
         store.setWorkingDirectory( wkdir );
         store.setSyncOnWrite( false );
-
+        
         store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new JdbmIndex( SchemaConstants.CN_AT_OID ) );
-        StoreUtils.loadExampleData( store, registries );
+        StoreUtils.loadExampleData( store, schemaManager );
         
-        evaluatorBuilder = new EvaluatorBuilder( store, registries );
+        evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
         cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
         
         LOG.debug( "Created new store" );
@@ -134,7 +145,7 @@ public class AndCursorTest
 
     
     @After
-    public void destryStore() throws Exception
+    public void destroyStore() throws Exception
     {
         if ( store != null )
         {
@@ -194,7 +205,7 @@ public class AndCursorTest
         Evaluator<? extends ExprNode, ServerEntry> eval;
         
         ExprNode exprNode = new SubstringNode( "cn", "J", null );
-        eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, registries );
+        eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
         IndexCursor<?,ServerEntry> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
         
         /* adding this results in NPE  adding Presence evaluator not 
@@ -204,7 +215,7 @@ public class AndCursorTest
         andNode.addNode( exprNode );
         
         exprNode = new PresenceNode( "sn" );
-        eval = new PresenceEvaluator( ( PresenceNode ) exprNode, store, registries );
+        eval = new PresenceEvaluator( ( PresenceNode ) exprNode, store, schemaManager );
         evaluators.add( eval );
         
         andNode.addNode( exprNode );

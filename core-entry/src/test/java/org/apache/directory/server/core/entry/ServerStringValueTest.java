@@ -20,6 +20,13 @@
 package org.apache.directory.server.core.entry;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -32,26 +39,17 @@ import java.util.HashSet;
 import java.util.List;
 
 import javax.naming.NamingException;
-import javax.naming.directory.InvalidAttributeValueException;
 
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.comparators.StringComparator;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
-import org.apache.directory.shared.ldap.schema.syntaxes.AcceptAllSyntaxChecker;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.junit.Before;
 import org.junit.Test;
-
-import jdbm.helper.StringComparator;
 
 
 /**
@@ -81,15 +79,15 @@ public class ServerStringValueTest
     @Before public void initAT()
     {
         s = new TestServerEntryUtils.S( "1.1.1.1", false );
-        s.setSyntaxChecker( new AcceptAllSyntaxChecker( "1.1.1.1" ) );
+        s.setSyntaxChecker( new OctetStringSyntaxChecker() );
         mr = new TestServerEntryUtils.MR( "1.1.2.1" );
-        mr.syntax = s;
-        mr.comparator = new StringComparator();
-        mr.normalizer = new DeepTrimToLowerNormalizer();
+        mr.setSyntax( s );
+        mr.setLdapComparator( new StringComparator( "1.1.2.1" ) );
+        mr.setNormalizer( new DeepTrimToLowerNormalizer( "1.1.2.1" ) );
         at = new TestServerEntryUtils.AT( "1.1.3.1" );
         at.setEquality( mr );
         at.setOrdering( mr );
-        at.setSubstr( mr );
+        at.setSubstring( mr );
         at.setSyntax( s );
     }
     
@@ -443,8 +441,9 @@ public class ServerStringValueTest
      */
     @Test public void testConstrainedString()
     {
-        s.setSyntaxChecker( new SyntaxChecker() {
-            public String getSyntaxOid() { return "1.1.1.1"; }
+        s.setSyntaxChecker( new SyntaxChecker( "1.1.1.1" ) {
+            private static final long serialVersionUID = 0L;
+
             public boolean isValidSyntax( Object value )
             {
                 if ( value instanceof String )
@@ -454,13 +453,13 @@ public class ServerStringValueTest
                 }
                 return false;
             }
-            public void assertSyntax( Object value ) throws NamingException
-            { if ( ! isValidSyntax( value ) ) {throw new InvalidAttributeValueException(); }}
         });
 
-        mr.syntax = s;
-        mr.comparator = new Comparator<String>()
+        mr.setSyntax( s );
+        mr.setLdapComparator( new LdapComparator<String>( mr.getOid() )
         {
+            private static final long serialVersionUID = 0L;
+
             public int compare( String o1, String o2 )
             {
                 if ( o1 == null )
@@ -496,8 +495,9 @@ public class ServerStringValueTest
                 if ( val.equals( "HIGH" ) ) { return 2; }
                 throw new IllegalArgumentException( "Not a valid value" );
             }
-        };
-        mr.normalizer = new NoOpNormalizer();
+        } );
+        
+        mr.setNormalizer( new NoOpNormalizer( mr.getOid() ) );
         at.setEquality( mr );
         at.setSyntax( s );
 
@@ -655,14 +655,7 @@ public class ServerStringValueTest
                     return 1;
                 }
 
-                try
-                {
-                    return mr.getComparator().compare( n1, n2 );
-                }
-                catch ( NamingException ne )
-                {
-                    throw new IllegalStateException( "Normalization and comparison should succeed!", ne );
-                }
+                return mr.getLdapComparator().compare( n1, n2 );
             }
         };
 

@@ -21,25 +21,23 @@ package org.apache.directory.server.core.authz.support;
 
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.authz.support.ACITupleFilter;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.Syntax;
-import org.apache.directory.shared.ldap.schema.SyntaxChecker;
-import org.apache.directory.shared.ldap.schema.UsageEnum;
+import org.apache.directory.shared.ldap.schema.SchemaObjectType;
+import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.registries.DefaultSchemaObjectRegistry;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.schema.registries.SchemaObjectRegistry;
 
 
 /**
@@ -49,486 +47,45 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @version $Rev$, $Date$
  *
  */
-public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
+public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<AttributeType> 
 {
     private final boolean returnOperational;
 
 
     public DummyAttributeTypeRegistry(boolean returnOperational)
     {
+        super( SchemaObjectType.ATTRIBUTE_TYPE, new OidRegistry() );
         this.returnOperational = returnOperational;
     }
 
 
     public AttributeType lookup( final String id ) throws NamingException
     {
+        Normalizer normalizer = new DeepTrimToLowerNormalizer( "1.1.1" );
+
+        MatchingRule equality = new MatchingRule( "1.1.1" );
+        equality.setNormalizer( normalizer );
+        
+        AttributeType attributeType = new AttributeType( id );
+        attributeType.setEquality( equality );
+        attributeType.setSingleValued( false );
+        attributeType.setCollective( false );
+        attributeType.setDescription( id );
+
         if ( returnOperational )
         {
-            return new AttributeType()
-            {
-                private static final long serialVersionUID = 1L;
-
-
-                public boolean isSingleValue()
-                {
-                    return false;
-                }
-
-
-                public boolean isCanUserModify()
-                {
-                    return false;
-                }
-
-
-                public boolean isCollective()
-                {
-                    return false;
-                }
-
-
-                public UsageEnum getUsage()
-                {
-                    return null;
-                }
-
-
-                public AttributeType getSuperior() throws NamingException
-                {
-                    return null;
-                }
-
-
-                public Syntax getSyntax() throws NamingException
-                {
-                    return null;
-                }
-
-
-                public int getLength()
-                {
-                    return 0;
-                }
-
-
-                public MatchingRule getEquality() throws NamingException
-                {
-                    return new MatchingRule()
-                    {
-                        private static final long serialVersionUID = 1L;
-
-                        public Syntax getSyntax() throws NamingException
-                        {
-                            return null;
-                        }
-
-                        public Comparator getComparator() throws NamingException
-                        {
-                            return null;
-                        }
-
-                        public Normalizer getNormalizer() throws NamingException
-                        {
-                            return new Normalizer()
-                            {
-                                private static final long serialVersionUID = 1L;
-
-                                public Value<?> normalize( Value<?> value ) throws NamingException
-                                {
-                                    return new ClientStringValue( StringTools.deepTrimToLower( value.getString() ) );
-                                }
-                                
-                                public String normalize( String value ) throws NamingException
-                                {
-                                    return StringTools.deepTrimToLower( value );
-                                }
-                            };
-                        }
-
-                        public boolean isObsolete()
-                        {
-                            return false;
-                        }
-
-                        public String getOid()
-                        {
-                            return null;
-                        }
-
-                        public String[] getNamesRef()
-                        {
-                            return null;
-                        }
-
-                        public String getName()
-                        {
-                            return null;
-                        }
-
-                        public String getDescription()
-                        {
-                            return null;
-                        }
-
-                        public String getSchema()
-                        {
-                            return null;
-                        }
-
-                        public void setSchema( String schemaName )
-                        {
-                        }
-                    };
-                }
-
-
-                public MatchingRule getOrdering() throws NamingException
-                {
-                    return null;
-                }
-
-
-                public MatchingRule getSubstr() throws NamingException
-                {
-                    return null;
-                }
-
-
-                public boolean isAncestorOf( AttributeType descendant ) throws NamingException
-                {
-                    return false;
-                }
-
-
-                public boolean isDescendantOf( AttributeType ancestor ) throws NamingException
-                {
-                    return false;
-                }
-
-
-                public boolean isObsolete()
-                {
-                    return false;
-                }
-
-
-                public String getOid()
-                {
-                    return String.valueOf( id.hashCode() );
-                }
-
-
-                public String[] getNamesRef()
-                {
-                    return new String[]
-                        { id };
-                }
-
-
-                public String getName()
-                {
-                    return id;
-                }
-
-
-                public String getDescription()
-                {
-                    return id;
-                }
-
-
-                public String getSchema()
-                {
-                    return null;
-                }
-
-
-                public void setSchema( String schemaName )
-                {
-                }
-            };
+            attributeType.setUserModifiable( false );
         }
         else
         {
-            return new AttributeType()
-            {
-                private static final long serialVersionUID = 1L;
-
-                public boolean isSingleValue()
-                {
-                    return false;
-                }
-
-
-                public boolean isCanUserModify()
-                {
-                    return true;
-                }
-
-
-                public boolean isCollective()
-                {
-                    return false;
-                }
-
-
-                public UsageEnum getUsage()
-                {
-                    return null;
-                }
-
-
-                public AttributeType getSuperior() throws NamingException
-                {
-                    return null;
-                }
-
-
-                public Syntax getSyntax() throws NamingException
-                {
-                    return new Syntax()
-                    {
-
-                        private static final long serialVersionUID = 1L;
-
-                        public boolean isHumanReadable()
-                        {
-                            return true;
-                        }
-
-                        public SyntaxChecker getSyntaxChecker() throws NamingException
-                        {
-                            return null;
-                        }
-
-                        public boolean isObsolete()
-                        {
-                            return false;
-                        }
-
-                        public String getOid()
-                        {
-                            return null;
-                        }
-
-                        public String[] getNamesRef()
-                        {
-                            return null;
-                        }
-
-                        public String getName()
-                        {
-                            return null;
-                        }
-
-                        public String getDescription()
-                        {
-                            return null;
-                        }
-
-                        public String getSchema()
-                        {
-                            return null;
-                        }
-
-                        public void setSchema( String schemaName )
-                        {
-                        }
-                    };
-                }
-
-
-                public int getLength()
-                {
-                    return 0;
-                }
-
-
-                public MatchingRule getEquality() throws NamingException
-                {
-                    return new MatchingRule()
-                    {
-                        private static final long serialVersionUID = 1L;
-
-                        public Syntax getSyntax() throws NamingException
-                        {
-                            return new Syntax()
-                            {
-                                private static final long serialVersionUID = 1L;
-
-
-                                public boolean isHumanReadable()
-                                {
-                                    return true;
-                                }
-
-                                public SyntaxChecker getSyntaxChecker() throws NamingException
-                                {
-                                    return null;
-                                }
-
-                                public boolean isObsolete()
-                                {
-                                    return false;
-                                }
-
-                                public String getOid()
-                                {
-                                    return null;
-                                }
-
-                                public String[] getNamesRef()
-                                {
-                                    return null;
-                                }
-
-                                public String getName()
-                                {
-                                    return null;
-                                }
-
-                                public String getDescription()
-                                {
-                                    return null;
-                                }
-
-                                public String getSchema()
-                                {
-                                    return null;
-                                }
-
-                                public void setSchema( String schemaName )
-                                {
-                                }
-                            };
-                        }
-
-                        public Comparator getComparator() throws NamingException
-                        {
-                            return null;
-                        }
-
-                        public Normalizer getNormalizer() throws NamingException
-                        {
-                            return new Normalizer()
-                            {
-                                private static final long serialVersionUID = 1L;
-
-                                public Value<?> normalize( Value<?> value ) throws NamingException
-                                {
-                                    return new ClientStringValue( StringTools.deepTrimToLower( value.getString() ) );
-                                }
-
-                                public String normalize( String value ) throws NamingException
-                                {
-                                    return StringTools.deepTrimToLower( value );
-                                }
-                            };
-                        }
-
-                        public boolean isObsolete()
-                        {
-                            return false;
-                        }
-
-                        public String getOid()
-                        {
-                            return null;
-                        }
-
-                        public String[] getNamesRef()
-                        {
-                            return null;
-                        }
-
-                        public String getName()
-                        {
-                            return null;
-                        }
-
-                        public String getDescription()
-                        {
-                            return null;
-                        }
-
-                        public String getSchema()
-                        {
-                            return null;
-                        }
-
-                        public void setSchema( String schemaName )
-                        {
-                        }
-                    };
-                }
-
-
-                public MatchingRule getOrdering() throws NamingException
-                {
-                    return null;
-                }
-
-
-                public MatchingRule getSubstr() throws NamingException
-                {
-                    return null;
-                }
-
-
-                public boolean isAncestorOf( AttributeType descendant ) throws NamingException
-                {
-                    return false;
-                }
-
-
-                public boolean isDescendantOf( AttributeType ancestor ) throws NamingException
-                {
-                    return false;
-                }
-
-
-                public boolean isObsolete()
-                {
-                    return false;
-                }
-
-
-                public String getOid()
-                {
-                    return String.valueOf( id.hashCode() );
-                }
-
-
-                public String[] getNamesRef()
-                {
-                    return new String[]
-                        { id };
-                }
-
-
-                public String getName()
-                {
-                    return id;
-                }
-
-
-                public String getDescription()
-                {
-                    return id;
-                }
-
-
-                public String getSchema()
-                {
-                    return null;
-                }
-
-
-                public void setSchema( String schemaName )
-                {
-                }
-            };
+            LdapSyntax syntax = new LdapSyntax( "1.1.1" );
+            syntax.setHumanReadable( true );
+
+            attributeType.setSyntax( syntax );
+            attributeType.setUserModifiable( true );
         }
+        
+        return attributeType;
     }
 
 
@@ -538,19 +95,19 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
     }
 
 
-    public boolean hasAttributeType( String id )
+    public boolean contains( String id )
     {
         return true;
     }
 
 
-    public Iterator list()
+    public Iterator<AttributeType> list()
     {
-        return new ArrayList().iterator();
+        return new ArrayList<AttributeType>().iterator();
     }
 
 
-    public Map<String,OidNormalizer> getNormalizerMapping() throws NamingException
+    public Map<String,OidNormalizer> getNormalizerMapping()
     {
         return null;
     }
@@ -574,8 +131,9 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
     }
 
 
-    public void unregister( String numericOid ) throws NamingException
+    public AttributeType unregister( String numericOid ) throws NamingException
     {
+    	return null;
     }
 
 
@@ -585,6 +143,29 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
 
 
     public Set<String> getBinaryAttributes() throws NamingException
+    {
+        return null;
+    }
+
+    
+    public void unregisterDescendants( AttributeType attributeType, AttributeType ancestor ) 
+    throws NamingException
+    {
+    }
+
+    
+    public void registerDescendants( AttributeType attributeType, AttributeType ancestor ) 
+    throws NamingException
+    {
+    }
+    
+    
+    public void addMappingFor( AttributeType attributeType ) throws NamingException
+    {
+    }
+
+
+    public SchemaObjectRegistry<AttributeType> copy()
     {
         return null;
     }

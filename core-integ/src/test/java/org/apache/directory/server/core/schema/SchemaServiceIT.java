@@ -20,9 +20,19 @@
 package org.apache.directory.server.core.schema;
 
 
+import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -32,24 +42,14 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.integ.CiRunner;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -63,29 +63,26 @@ import org.junit.runner.RunWith;
  */
 @ApplyLdifs( {
     // Entry # 1
-    "dn: cn=person0,ou=system\n" +
-    "objectClass: person\n" +
-    "cn: person0\n" +
+    "dn: cn=person0,ou=system",
+    "objectClass: person",
+    "cn: person0",
     "sn: sn_person0\n",
     // Entry # 2
-    "dn: cn=person1,ou=system\n" +
-    "objectClass: organizationalPerson\n" +
-    "cn: person1\n" +
-    "sn: sn_person1\n" +
-    "seealso: cn=Good One,ou=people,o=sevenSeas\n" +
+    "dn: cn=person1,ou=system",
+    "objectClass: organizationalPerson",
+    "cn: person1",
+    "sn: sn_person1",
+    "seealso: cn=Good One,ou=people,o=sevenSeas",
     "seealso:: Y249QmFkIEXDqWvDoCxvdT1wZW9wbGUsbz1zZXZlblNlYXM=\n",
     // Entry # 3
-    "dn: cn=person2,ou=system\n" +
-    "objectClass: inetOrgPerson\n" +
-    "cn: person2\n" +
-    "sn: sn_person2\n" }
+    "dn: cn=person2,ou=system",
+    "objectClass: inetOrgPerson",
+    "cn: person2",
+    "sn: sn_person2" }
     )
-@RunWith ( CiRunner.class )
-public class SchemaServiceIT
+@RunWith(FrameworkRunner.class)
+public class SchemaServiceIT extends AbstractLdapTestUnit
 {
-    /** The Directory service */
-    public static DirectoryService service;
-
 
     /**
      * For <a href="https://issues.apache.org/jira/browse/DIRSERVER-925">DIRSERVER-925</a>.
@@ -180,13 +177,13 @@ public class SchemaServiceIT
         
         // should be fine with unique OID
         service.getAdminSession().add( 
-            new DefaultServerEntry( service.getRegistries(), numberOfGunsAttrEntry.getEntry() ) ); 
+            new DefaultServerEntry( service.getSchemaManager(), numberOfGunsAttrEntry.getEntry() ) ); 
 
         // should blow chuncks using same OID
         try
         {
             service.getAdminSession().add( 
-                new DefaultServerEntry( service.getRegistries(), shipOCEntry.getEntry() ) ); 
+                new DefaultServerEntry( service.getSchemaManager(), shipOCEntry.getEntry() ) ); 
             
             fail( "Should not be possible to create two schema entities with the same OID." );
         }

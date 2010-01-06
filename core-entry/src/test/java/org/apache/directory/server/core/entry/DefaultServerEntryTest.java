@@ -19,6 +19,16 @@
  */
 package org.apache.directory.server.core.entry;
 
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -32,19 +42,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.NoSuchAttributeException;
 
-import org.apache.directory.server.schema.bootstrap.ApacheSchema;
-import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
-import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.directory.server.schema.bootstrap.CoreSchema;
-import org.apache.directory.server.schema.bootstrap.CosineSchema;
-import org.apache.directory.server.schema.bootstrap.InetorgpersonSchema;
-import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.bootstrap.SystemSchema;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.DefaultOidRegistry;
-import org.apache.directory.server.schema.registries.DefaultRegistries;
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -55,16 +52,13 @@ import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
+import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -81,10 +75,8 @@ public class DefaultServerEntryTest
     private static final byte[] BYTES2 = new byte[]{ 'b' };
     private static final byte[] BYTES3 = new byte[]{ 'c' };
 
-    private static BootstrapSchemaLoader loader;
-    private static Registries registries;
-    private static AttributeTypeRegistry atr;
-    private static OidRegistry oidRegistry;
+    private static LdifSchemaLoader loader;
+    private static SchemaManager schemaManager;
     
     private static AttributeType atObjectClass;
     private static AttributeType atCN;
@@ -104,29 +96,37 @@ public class DefaultServerEntryTest
     @BeforeClass
     public static void setup() throws Exception
     {
-        loader = new BootstrapSchemaLoader();
-        oidRegistry = new DefaultOidRegistry();
-        registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
+    	String workingDirectory = System.getProperty( "workingDirectory" );
+
+        if ( workingDirectory == null )
+        {
+            String path = DefaultServerEntryTest.class.getResource( "" ).getPath();
+            int targetPos = path.indexOf( "target" );
+            workingDirectory = path.substring( 0, targetPos + 6 );
+        }
+
+        File schemaRepository = new File( workingDirectory, "schema" );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+        extractor.extractOrCopy( true );
+        loader = new LdifSchemaLoader( schemaRepository );
+
+        schemaManager = new DefaultSchemaManager( loader );
+        schemaManager.loadAllEnabled();
         
-        // load essential bootstrap schemas 
-        Set<Schema> bootstrapSchemas = new HashSet<Schema>();
-        bootstrapSchemas.add( new ApachemetaSchema() );
-        bootstrapSchemas.add( new ApacheSchema() );
-        bootstrapSchemas.add( new CoreSchema() );
-        bootstrapSchemas.add( new SystemSchema() );
-        bootstrapSchemas.add( new InetorgpersonSchema() );
-        bootstrapSchemas.add( new CosineSchema() );
-        loader.loadWithDependencies( bootstrapSchemas, registries );
+        List<Throwable> errors = schemaManager.getErrors();
+        
+        if ( errors.size() != 0 )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+        }
 
-        atr = registries.getAttributeTypeRegistry();
-
-        atObjectClass = registries.getAttributeTypeRegistry().lookup( "objectClass" );
-        atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
-        atC = registries.getAttributeTypeRegistry().lookup( "c" );
-        atL = registries.getAttributeTypeRegistry().lookup( "l" );
-        atOC = registries.getAttributeTypeRegistry().lookup( "objectClass" );
-        atSN = registries.getAttributeTypeRegistry().lookup( "sn" );
-        atPwd = registries.getAttributeTypeRegistry().lookup( "userpassword" );
+        atObjectClass = schemaManager.lookupAttributeTypeRegistry( "objectClass" );
+        atCN = schemaManager.lookupAttributeTypeRegistry( "cn" );
+        atC = schemaManager.lookupAttributeTypeRegistry( "c" );
+        atL = schemaManager.lookupAttributeTypeRegistry( "l" );
+        atOC = schemaManager.lookupAttributeTypeRegistry( "objectClass" );
+        atSN = schemaManager.lookupAttributeTypeRegistry( "sn" );
+        atPwd = schemaManager.lookupAttributeTypeRegistry( "userpassword" );
         
         EXAMPLE_DN = new LdapDN( "dc=example,dc=com" );
     }
@@ -154,7 +154,7 @@ public class DefaultServerEntryTest
     @Test
     public void testDefaultServerEntryRegistries() throws Exception
     {
-        Entry entry = new DefaultServerEntry( registries );
+        Entry entry = new DefaultServerEntry( schemaManager );
         assertNotNull( entry );
         assertEquals( LdapDN.EMPTY_LDAPDN, entry.getDn() );
         assertEquals( 0, entry.size() );
@@ -167,7 +167,7 @@ public class DefaultServerEntryTest
     @Test
     public void testDefaultServerEntryRegistriesDN() throws Exception
     {
-        Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         assertNotNull( entry );
         assertEquals( EXAMPLE_DN, entry.getDn() );
         assertEquals( 0, entry.size() );
@@ -180,7 +180,7 @@ public class DefaultServerEntryTest
     @Test
     public void testDefaultServerEntryRegistriesDNAttributeTypeArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN, atOC, atPwd, atCN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN, atOC, atPwd, atCN );
         assertNotNull( entry );
         assertEquals( EXAMPLE_DN, entry.getDn() );
         assertEquals( 3, entry.size() );
@@ -196,7 +196,7 @@ public class DefaultServerEntryTest
     @Test
     public void testDefaultServerEntryRegistriesDNAttributeTypeUpId() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN, atOC, "  OBJECTCLASS  " );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN, atOC, "  OBJECTCLASS  " );
         assertNotNull( entry );
         assertEquals( EXAMPLE_DN, entry.getDn() );
         assertEquals( 1, entry.size() );
@@ -212,7 +212,7 @@ public class DefaultServerEntryTest
     @Test
     public void testDefaultServerEntryRegistriesDNUpIdArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN, "  OBJECTCLASS  ", " Cn " );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN, "  OBJECTCLASS  ", " Cn " );
         assertNotNull( entry );
         assertEquals( EXAMPLE_DN, entry.getDn() );
         assertEquals( 2, entry.size() );
@@ -234,7 +234,7 @@ public class DefaultServerEntryTest
     @Test
     public void testAddEntryAttribute() throws Exception
     {
-        Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         EntryAttribute oc = new DefaultServerAttribute( atObjectClass, "top", "person" );
         EntryAttribute cn = new DefaultServerAttribute( atCN, "test1", "test2" );
@@ -273,7 +273,7 @@ public class DefaultServerEntryTest
     @Test
     public void testAddStringByteArrayArray() throws Exception
     {
-        Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         entry.add( "userPassword", (byte[])null );
         assertEquals( 1, entry.size() );
@@ -317,7 +317,7 @@ public class DefaultServerEntryTest
     @Test
     public void testAddStringStringArray() throws Exception
     {
-        Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         entry.add( "cn", (String)null );
         assertEquals( 1, entry.size() );
@@ -362,7 +362,7 @@ public class DefaultServerEntryTest
     @Test
     public void testAddStringValueArray() throws Exception
     {
-        Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         Value<String> value = new ServerStringValue( atCN, (String)null );
         
         entry.add( "cn", value );
@@ -415,7 +415,7 @@ public class DefaultServerEntryTest
     @Test
     public void testAddAttributeTypeByteArrayArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         entry.add( atPwd, BYTES1, BYTES2 );
         assertEquals( 1, entry.size() );
@@ -438,7 +438,7 @@ public class DefaultServerEntryTest
     @Test
     public void testAddAttributeTypeStringArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         entry.add( atC, "us", "fr" );
         assertEquals( 1, entry.size() );
@@ -466,7 +466,7 @@ public class DefaultServerEntryTest
     @Test
     public void testAddAttributeTypeValueArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         Value<String> strValue1 = new ServerStringValue( atCN, "test1" );
         Value<String> strValue2 = new ServerStringValue( atCN, "test2" );
@@ -512,7 +512,7 @@ public class DefaultServerEntryTest
     @Test
     public void testAddStringAttributeTypeByteArrayArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         entry.add( "UserPassword", atPwd, BYTES1, BYTES2 );
         assertEquals( 1, entry.size() );
@@ -549,7 +549,7 @@ public class DefaultServerEntryTest
     @Test
     public void testAddStringAttributeTypeStringArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         entry.add( "CommonName", atCN, "test1", "test2" );
         assertEquals( 1, entry.size() );
@@ -584,7 +584,7 @@ public class DefaultServerEntryTest
     @Test
     public void testAddStringAttributeTypeValueArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         Value<String> strValue1 = new ServerStringValue( atCN, "test1" );
         Value<String> strValue2 = new ServerStringValue( atCN, "test2" );
@@ -642,7 +642,7 @@ public class DefaultServerEntryTest
     @Test public void testAddAtStringElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
         // Test a simple addition
         entry.add( atCN, "test1" );
@@ -691,9 +691,9 @@ public class DefaultServerEntryTest
     @Test public void testAddAtBytesElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
-        AttributeType atPassword = registries.getAttributeTypeRegistry().lookup( "userPassword" );
+        AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
         
         byte[] test1 = StringTools.getBytesUtf8( "test1" );
         byte[] test2 = StringTools.getBytesUtf8( "test2" );
@@ -748,9 +748,9 @@ public class DefaultServerEntryTest
     @Test public void testAddAtServerValueElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
-        AttributeType atPassword = registries.getAttributeTypeRegistry().lookup( "userPassword" );
+        AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
         
         byte[] b1 = StringTools.getBytesUtf8( "test1" );
         byte[] b2 = StringTools.getBytesUtf8( "test2" );
@@ -853,7 +853,7 @@ public class DefaultServerEntryTest
     @Test public void testAddUpIdStringElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
         // Test a simple addition
         entry.add( "CN", "test1" );
@@ -905,9 +905,9 @@ public class DefaultServerEntryTest
     @Test public void testAddUpIdBytesElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
-        AttributeType atPassword = registries.getAttributeTypeRegistry().lookup( "userPassword" );
+        AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
         
         byte[] test1 = StringTools.getBytesUtf8( "test1" );
         byte[] test2 = StringTools.getBytesUtf8( "test2" );
@@ -962,9 +962,9 @@ public class DefaultServerEntryTest
     @Test public void testAddUpIdServerValueElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
-        ServerEntry entry = new DefaultServerEntry( registries, dn );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
-        AttributeType atPassword = registries.getAttributeTypeRegistry().lookup( "userPassword" );
+        AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
         
         byte[] b1 = StringTools.getBytesUtf8( "test1" );
         byte[] b2 = StringTools.getBytesUtf8( "test2" );
@@ -1073,7 +1073,7 @@ public class DefaultServerEntryTest
     @Test public void testAddUpIdAtStringElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
         // Test a simple addition
         entry.add( "cn", atCN, "test1" );
@@ -1122,9 +1122,9 @@ public class DefaultServerEntryTest
     @Test public void testAddUpIdAtBytesElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
-        AttributeType atPassword = registries.getAttributeTypeRegistry().lookup( "userPassword" );
+        AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
         
         byte[] test1 = StringTools.getBytesUtf8( "test1" );
         byte[] test2 = StringTools.getBytesUtf8( "test2" );
@@ -1179,9 +1179,9 @@ public class DefaultServerEntryTest
     @Test public void testAddUpIdAtServerValueElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
-        ServerEntry entry = new DefaultServerEntry( registries, dn );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
-        AttributeType atPassword = registries.getAttributeTypeRegistry().lookup( "userPassword" );
+        AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
         
         byte[] b1 = StringTools.getBytesUtf8( "test1" );
         byte[] b2 = StringTools.getBytesUtf8( "test2" );
@@ -1290,7 +1290,7 @@ public class DefaultServerEntryTest
     @Test
     public void testClear() throws Exception
     {
-        Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
          
         assertEquals( 0, entry.size() );
         assertNull( entry.get( "ObjectClass" ) );
@@ -1314,7 +1314,7 @@ public class DefaultServerEntryTest
     @Test
     public void testClone() throws Exception
     {
-        Entry entry1 = new DefaultServerEntry( registries );
+        Entry entry1 = new DefaultServerEntry( schemaManager );
         
         Entry entry2 = entry1.clone();
         
@@ -1351,7 +1351,7 @@ public class DefaultServerEntryTest
     @Test
     public void testContainsAttributeTypeByteArrayArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         assertFalse( entry.contains( (AttributeType )null, BYTES1 ) );
         assertFalse( entry.contains( atPwd, BYTES1 ) );
@@ -1374,7 +1374,7 @@ public class DefaultServerEntryTest
     @Test
     public void testContainsAttributeTypeStringArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         assertFalse( entry.contains( (AttributeType )null, "test" ) );
         assertFalse( entry.contains( atCN, "test" ) );
@@ -1397,7 +1397,7 @@ public class DefaultServerEntryTest
     @Test
     public void testContainsAttributeTypeValuesArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         Value<String> strValue1 = new ServerStringValue( atCN, "test1" );
         Value<String> strValue2 = new ServerStringValue( atCN, "test2" );
@@ -1432,7 +1432,7 @@ public class DefaultServerEntryTest
     @Test
     public void testContainsEntryAttributeArray() throws Exception
     {
-        Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         EntryAttribute attrOC = new DefaultServerAttribute( atOC, "top", "person" );
         EntryAttribute attrCN = new DefaultServerAttribute( atCN, "test1", "test2" );
@@ -1462,7 +1462,7 @@ public class DefaultServerEntryTest
     @Test
     public void testContainsStringByteArrayArray() throws Exception
     {
-        Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         assertFalse( entry.contains( (String)null, BYTES3 ) );
         assertFalse( entry.containsAttribute( "objectClass" ) );
@@ -1486,7 +1486,7 @@ public class DefaultServerEntryTest
     @Test
     public void testContainsStringStringArray() throws Exception
     {
-        Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         assertFalse( entry.contains( (String)null, "test" ) );
         assertFalse( entry.containsAttribute( "objectClass" ) );
@@ -1510,7 +1510,7 @@ public class DefaultServerEntryTest
     @Test
     public void testContainsStringValueArray() throws Exception
     {
-        Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         assertFalse( entry.contains( (String)null, "test" ) );
         assertFalse( entry.containsAttribute( "objectClass" ) );
@@ -1545,7 +1545,7 @@ public class DefaultServerEntryTest
     @Test
     public void testContainsAttributeAttributeType() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         assertFalse( entry.containsAttribute( atOC ) );
         
@@ -1576,7 +1576,7 @@ public class DefaultServerEntryTest
     @Test
     public void testContainsAttributeString() throws Exception
     {
-        Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         assertFalse( entry.containsAttribute( "objectClass" ) );
         
@@ -1605,8 +1605,8 @@ public class DefaultServerEntryTest
     @Test
     public void testEqualsObject() throws Exception
     {
-        Entry entry1 = new DefaultServerEntry( registries );
-        Entry entry2 = new DefaultServerEntry( registries );
+        Entry entry1 = new DefaultServerEntry( schemaManager );
+        Entry entry2 = new DefaultServerEntry( schemaManager );
         
         assertEquals( entry1, entry2 );
         
@@ -1653,7 +1653,7 @@ public class DefaultServerEntryTest
     @Test
     public void testGetAttributeTypes() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         assertEquals( 0, entry.getAttributeTypes().size() );
 
@@ -1681,7 +1681,7 @@ public class DefaultServerEntryTest
     @Test
     public void testGetAttributeType() throws Exception 
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
 
         assertNull( entry.get( atCN ) );
         assertNull( entry.get( (AttributeType)null ) );
@@ -1708,7 +1708,7 @@ public class DefaultServerEntryTest
     @Test
     public void testGetString() throws Exception 
     {
-        Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
 
         assertNull( entry.get( "cn" ) );
         assertNull( entry.get( "badId" ) );
@@ -1737,7 +1737,7 @@ public class DefaultServerEntryTest
     @Test
     public void testGetDn() throws InvalidNameException 
     {
-        Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
          
         assertEquals( EXAMPLE_DN, entry.getDn() );
          
@@ -1754,8 +1754,8 @@ public class DefaultServerEntryTest
     @Test
     public void testHashCode() throws InvalidNameException, Exception
     {
-        Entry entry1 = new DefaultServerEntry( registries, EXAMPLE_DN );
-        Entry entry2 = new DefaultServerEntry( registries, EXAMPLE_DN );
+        Entry entry1 = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry2 = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         assertEquals( entry1.hashCode(), entry2.hashCode() );
         
@@ -1776,7 +1776,7 @@ public class DefaultServerEntryTest
 
         assertEquals( entry1.hashCode(), entry2.hashCode() );
         
-        Entry entry3 = new DefaultServerEntry( registries, EXAMPLE_DN );
+        Entry entry3 = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         entry3.add( attrOC, attrSN, attrCN, attrPWD );
 
         assertEquals( entry1.hashCode(), entry3.hashCode() );
@@ -1789,7 +1789,7 @@ public class DefaultServerEntryTest
     @Test
     public void testHasObjectClassEntryAttribute() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         EntryAttribute attrOC = new DefaultServerAttribute( atOC, "top", "person" );
         
@@ -1818,7 +1818,7 @@ public class DefaultServerEntryTest
     @Test
     public void testHasObjectClassString() throws Exception
     {
-        Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         assertFalse( entry.containsAttribute( "objectClass" ) );
         assertFalse( entry.hasObjectClass( "top" ) );
@@ -1872,7 +1872,7 @@ public class DefaultServerEntryTest
     @Test
     public void testIterator() throws Exception
     {
-        Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         EntryAttribute attrOC = new DefaultServerAttribute( atOC, "top", "person" );
         EntryAttribute attrCN = new DefaultServerAttribute( atCN, "test1", "test2" );
@@ -1913,7 +1913,7 @@ public class DefaultServerEntryTest
     @Test
     public void testPutAttributeTypeByteArrayArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         try
         {
@@ -1954,7 +1954,7 @@ public class DefaultServerEntryTest
     @Test
     public void testPutAttributeTypeStringArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         try
         {
@@ -1995,7 +1995,7 @@ public class DefaultServerEntryTest
     @Test
     public void testPutAttributeTypeValueArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         Value<String> strValue1 = new ServerStringValue( atCN, "test1" );
         Value<String> strValue2 = new ServerStringValue( atCN, "test2" );
@@ -2043,7 +2043,7 @@ public class DefaultServerEntryTest
     @Test
     public void testPutEntryAttribute() throws Exception
     {
-        Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         EntryAttribute oc = new DefaultServerAttribute( atObjectClass, "top", "person" );
         EntryAttribute cn = new DefaultServerAttribute( atCN, "test1", "test2" );
@@ -2093,7 +2093,7 @@ public class DefaultServerEntryTest
     @Test
     public void testPutStringAttributeTypeByteArrayArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         try
         {
@@ -2168,7 +2168,7 @@ public class DefaultServerEntryTest
     @Test
     public void testPutStringAttributeTypeStringArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         try
         {
@@ -2242,7 +2242,7 @@ public class DefaultServerEntryTest
     @Test
     public void testPutStringAttributeTypeValueArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         Value<String> strValue1 = new ServerStringValue( atCN, "test1" );
         Value<String> strValue2 = new ServerStringValue( atCN, "test2" );
@@ -2323,7 +2323,7 @@ public class DefaultServerEntryTest
     @Test
     public void testPutStringByteArrayArray()
     {
-        Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         try
         {
@@ -2391,7 +2391,7 @@ public class DefaultServerEntryTest
     @Test
     public void testPutStringStringArray()
     {
-        Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         try
         {
@@ -2461,7 +2461,7 @@ public class DefaultServerEntryTest
     @Test
     public void testPutStringValueArray()
     {
-        Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         Value<String> strValue1 = new ServerStringValue( atCN, "test1" );
         Value<String> strValue2 = new ServerStringValue( atCN, "test2" );
@@ -2542,7 +2542,7 @@ public class DefaultServerEntryTest
     @Test public void tesPutServerAttributeElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
 
         // first test a null SA addition. It should be allowed.
         try
@@ -2556,9 +2556,9 @@ public class DefaultServerEntryTest
         }
         
         // Adding some serverAttributes
-        //AttributeType atCo = registries.getAttributeTypeRegistry().lookup( "countryName" );
-        AttributeType atGN = registries.getAttributeTypeRegistry().lookup( "givenname" );
-        AttributeType atStreet = registries.getAttributeTypeRegistry().lookup( "2.5.4.9" );
+        //AttributeType atCo = registries.lookupAttributeTypeRegistry( "countryName" );
+        AttributeType atGN = schemaManager.lookupAttributeTypeRegistry( "givenname" );
+        AttributeType atStreet = schemaManager.lookupAttributeTypeRegistry( "2.5.4.9" );
 
         ServerAttribute sa = new DefaultServerAttribute( atL, "france" );
         entry.put( sa );
@@ -2597,7 +2597,7 @@ public class DefaultServerEntryTest
         assertEquals( "testStreet", entry.get( atStreet ).get().getString() );
         
         // test an ObjectClass replacement
-        AttributeType OBJECT_CLASS_AT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT );
+        AttributeType OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
         ServerAttribute oc = new DefaultServerAttribute( "OBJECTCLASS", OBJECT_CLASS_AT, "person", "inetorgperson" );
         List<EntryAttribute> oldOc = entry.put( oc );
         
@@ -2622,7 +2622,7 @@ public class DefaultServerEntryTest
     @Test public void tesPutAtStringElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
         // Test an empty AT
         entry.put( atCN, (String)null );
@@ -2642,7 +2642,7 @@ public class DefaultServerEntryTest
         }
         
         // Add a single value
-        atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
+        atCN = schemaManager.lookupAttributeTypeRegistry( "cn" );
         entry.put( atCN, "test" );
         
         assertEquals( 1, entry.size() );
@@ -2679,7 +2679,7 @@ public class DefaultServerEntryTest
     @Test public void tesPutAtByteElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
         // Test an empty AT
         entry.put( atPwd, (byte[])null );
@@ -2704,7 +2704,7 @@ public class DefaultServerEntryTest
         byte[] test3 = StringTools.getBytesUtf8( "test3" );
         
         // Add a single value
-        atPwd = registries.getAttributeTypeRegistry().lookup( "userPassword" );
+        atPwd = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
         entry.put( atPwd, password );
         
         assertEquals( 1, entry.size() );
@@ -2741,7 +2741,7 @@ public class DefaultServerEntryTest
     @Test public void tesPutAtSVs() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
         // Adding a null value to an attribute
         entry.put( atCN, (Value<?>)null );
@@ -2761,7 +2761,7 @@ public class DefaultServerEntryTest
         }
         
         // Add a single value
-        atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
+        atCN = schemaManager.lookupAttributeTypeRegistry( "cn" );
         Value<?> ssv = new ServerStringValue( atCN, "test" );
         entry.put( atCN, ssv );
         
@@ -2803,7 +2803,7 @@ public class DefaultServerEntryTest
     @Test public void tesPutUpIdStringElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
         // Adding a null value should be possible
         entry.put( "cn", (String)null );
@@ -2824,7 +2824,7 @@ public class DefaultServerEntryTest
         }
         
         // Add a single value
-        atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
+        atCN = schemaManager.lookupAttributeTypeRegistry( "cn" );
         entry.put( "cn", "test" );
         
         assertEquals( 1, entry.size() );
@@ -2865,9 +2865,9 @@ public class DefaultServerEntryTest
     @Test public void tesPutUpIdBytesElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
-        AttributeType atPassword = registries.getAttributeTypeRegistry().lookup( "userPassword" );
+        AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
         
         // Adding a null value should be possible
         entry.put( "userPassword", (byte[])null );
@@ -2928,7 +2928,7 @@ public class DefaultServerEntryTest
     @Test public void tesPutUpIDAtStringElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
         // Test that we get an error when the ID or AT are null
         try
@@ -2991,9 +2991,9 @@ public class DefaultServerEntryTest
     @Test public void tesPutUpIDAtBytesElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
-        AttributeType atPassword = registries.getAttributeTypeRegistry().lookup( "userPassword" );
+        AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
         
         // Test that we get an error when the ID or AT are null
         try
@@ -3074,7 +3074,7 @@ public class DefaultServerEntryTest
     @Test public void tesPutUpIDAtSVElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
         // Test that we get an error when the ID or AT are null
         try
@@ -3152,7 +3152,7 @@ public class DefaultServerEntryTest
     @Test public void tesPutUpIDSVElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
         // Test that we get an error when the ID or AT are null
         try
@@ -3198,7 +3198,7 @@ public class DefaultServerEntryTest
     @Test
     public void testRemoveAttributeTypeByteArrayArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         EntryAttribute attrPWD = new DefaultServerAttribute( atPwd, BYTES1, (byte[])null, BYTES2 );
 
@@ -3227,7 +3227,7 @@ public class DefaultServerEntryTest
     @Test
     public void testRemoveAttributeTypeStringArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         EntryAttribute attrCN = new DefaultServerAttribute( atCN, "test1", (String)null, "test2" );
 
@@ -3256,7 +3256,7 @@ public class DefaultServerEntryTest
     @Test
     public void testRemoveAttributeTypeValueArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         Value<String> strValue1 = new ServerStringValue( atCN, "test1" );
         Value<String> strValue2 = new ServerStringValue( atCN, "test2" );
@@ -3292,7 +3292,7 @@ public class DefaultServerEntryTest
     @Test
     public void testRemoveEntryAttribute() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         EntryAttribute attrOC = new DefaultServerAttribute( atOC, "top", "person" );
         EntryAttribute attrCN = new DefaultServerAttribute( atCN, "test1", "test2" );
@@ -3324,7 +3324,7 @@ public class DefaultServerEntryTest
     @Test
     public void testRemoveAttributesAttributeTypeArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
 
         EntryAttribute attrOC = new DefaultServerAttribute( atOC, "top", "person" );
         EntryAttribute attrCN = new DefaultServerAttribute( atCN, "test1", "test2" );
@@ -3352,7 +3352,7 @@ public class DefaultServerEntryTest
     @Test
     public void testRemoveAttributesStringArray() throws Exception
     {
-        Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
 
         EntryAttribute attrOC = new DefaultServerAttribute( atOC, "top", "person" );
         EntryAttribute attrCN = new DefaultServerAttribute( atCN, "test1", "test2" );
@@ -3383,7 +3383,7 @@ public class DefaultServerEntryTest
     @Test
     public void testRemoveStringByteArrayArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         EntryAttribute attrPWD = new DefaultServerAttribute( atPwd, BYTES1, (byte[])null, BYTES2 );
 
@@ -3416,7 +3416,7 @@ public class DefaultServerEntryTest
     @Test
     public void testRemoveStringStringArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         EntryAttribute attrCN = new DefaultServerAttribute( atCN, "test1", (String)null, "test2" );
 
@@ -3449,7 +3449,7 @@ public class DefaultServerEntryTest
     @Test
     public void testRemoveStringValueArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         Value<String> strValue1 = new ServerStringValue( atCN, "test1" );
         Value<String> strValue2 = new ServerStringValue( atCN, "test2" );
@@ -3485,9 +3485,9 @@ public class DefaultServerEntryTest
     @Test public void testRemoveUpIdElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
-        AttributeType atPassword = registries.getAttributeTypeRegistry().lookup( "userPassword" );
+        AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
         
         byte[] b1 = StringTools.getBytesUtf8( "test1" );
         byte[] b2 = StringTools.getBytesUtf8( "test2" );
@@ -3517,7 +3517,7 @@ public class DefaultServerEntryTest
         assertNotNull( entry.get( atCN ) );
         assertNotNull( entry.get( atPassword ) );
         
-        AttributeType OBJECT_CLASS_AT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT );
+        AttributeType OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
         
         entry.removeAttributes( "cN", "UsErPaSsWoRd" );
         assertEquals( 0, entry.size() );
@@ -3544,7 +3544,7 @@ public class DefaultServerEntryTest
     @Test public void testSetATElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
-        ServerEntry entry = new DefaultServerEntry( registries, dn );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
         List<EntryAttribute> result = null;
         
@@ -3562,8 +3562,8 @@ public class DefaultServerEntryTest
         assertEquals( "sn", ((ServerAttribute)sa).getAttributeType().getName() );
         
         // Add two AT now
-        AttributeType atGN = registries.getAttributeTypeRegistry().lookup( "givenname" );
-        AttributeType atStreet = registries.getAttributeTypeRegistry().lookup( "2.5.4.9" );
+        AttributeType atGN = schemaManager.lookupAttributeTypeRegistry( "givenname" );
+        AttributeType atStreet = schemaManager.lookupAttributeTypeRegistry( "2.5.4.9" );
         result = entry.set( atL, atC, atGN, atStreet );
         
         assertNull( result );
@@ -3597,14 +3597,14 @@ public class DefaultServerEntryTest
         assertEquals( "test", entry.get( "sn" ).get().getString() ); 
         
         // Now add a new SN empty AT : it should replace the existing one.
-        AttributeType atSNEmpty = registries.getAttributeTypeRegistry().lookup( "sn" );
+        AttributeType atSNEmpty = schemaManager.lookupAttributeTypeRegistry( "sn" );
         sa = entry.set( atSNEmpty ).get( 0 );
         assertEquals( "test", sa.get().getString() ); 
         assertNotNull( entry.get(  "sn" ) );
         assertNull( entry.get(  "sn" ).get() );
         
         // Last, not least, put an ObjectClass AT
-        AttributeType OBJECT_CLASS_AT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT );
+        AttributeType OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
         
         entry.set( OBJECT_CLASS_AT );
         
@@ -3623,7 +3623,7 @@ public class DefaultServerEntryTest
     @Test public void testSetUpID() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
         // First check that this method fails if we pass a null or empty ID
         List<EntryAttribute> result = entry.set( (String)null );
@@ -3646,8 +3646,8 @@ public class DefaultServerEntryTest
         assertEquals( "sn", sa.getId() );
         
         // Add different upIds now
-        AttributeType atGN = registries.getAttributeTypeRegistry().lookup( "givenname" );
-        AttributeType atStreet = registries.getAttributeTypeRegistry().lookup( "2.5.4.9" );
+        AttributeType atGN = schemaManager.lookupAttributeTypeRegistry( "givenname" );
+        AttributeType atStreet = schemaManager.lookupAttributeTypeRegistry( "2.5.4.9" );
         
         entry.set( "L" );
         entry.set( "CountryName" );
@@ -3688,7 +3688,7 @@ public class DefaultServerEntryTest
         assertEquals( "test", entry.get( "sn" ).get().getString() ); 
         
         // Now add a new SN empty AT : it should replace the existing one.
-        AttributeType atSNEmpty = registries.getAttributeTypeRegistry().lookup( "sn" );
+        AttributeType atSNEmpty = schemaManager.lookupAttributeTypeRegistry( "sn" );
         sa = entry.set( atSNEmpty ).get( 0 );
         assertEquals( "test", sa.get().getString() ); 
         assertNotNull( entry.get(  "sn" ) );
@@ -3702,7 +3702,7 @@ public class DefaultServerEntryTest
     @Test
     public void testSetAttributeTypeArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
 
         entry.add( "ObjectClass", "top", "person" );
         entry.add( "cn", "test1", "test2" );
@@ -3732,7 +3732,7 @@ public class DefaultServerEntryTest
     @Test
     public void testSetStringArray() throws Exception
     {
-        Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
 
         entry.add( "ObjectClass", "top", "person" );
         entry.add( "cn", "test1", "test2" );
@@ -3762,7 +3762,7 @@ public class DefaultServerEntryTest
     @Test
     public void testSetDn()
     {
-        Entry entry = new DefaultServerEntry( registries );
+        Entry entry = new DefaultServerEntry( schemaManager );
          
         assertEquals( LdapDN.EMPTY_LDAPDN, entry.getDn() );
          
@@ -3777,12 +3777,12 @@ public class DefaultServerEntryTest
      @Test
      public void testSize() throws Exception
      {
-         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
           
          assertEquals( 0, entry.size() );
-         entry.add( "ObjectClass", atr.lookup( "ObjectClass" ), "top", "person" );
-         entry.add( "CN", atr.lookup( "Cn" ), "test" );
-         entry.add( "SN", atr.lookup( "Sn" ), "Test" );
+         entry.add( "ObjectClass", schemaManager.lookupAttributeTypeRegistry( "ObjectClass" ), "top", "person" );
+         entry.add( "CN", schemaManager.lookupAttributeTypeRegistry( "Cn" ), "test" );
+         entry.add( "SN", schemaManager.lookupAttributeTypeRegistry( "Sn" ), "Test" );
           
          assertEquals( 3, entry.size() );
          
@@ -3797,12 +3797,12 @@ public class DefaultServerEntryTest
     @Test public void testToBasicAttributes() throws InvalidNameException, Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
-        AttributeType OBJECT_CLASS_AT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT );
+        AttributeType OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
         
         entry.put( "objectClass", OBJECT_CLASS_AT, "top", "person", "inetOrgPerson", "organizationalPerson" );
-        entry.put( "cn", registries.getAttributeTypeRegistry().lookup( "cn" ), "test" );
+        entry.put( "cn", schemaManager.lookupAttributeTypeRegistry( "cn" ), "test" );
         
         Attributes attributes = ServerEntryUtils.toBasicAttributes( entry );
         
@@ -3833,7 +3833,7 @@ public class DefaultServerEntryTest
     @Test
     public void testToString() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
         assertEquals( "ServerEntry\n    dn[]: dc=example,dc=com\n", entry.toString() );
         
@@ -3869,11 +3869,11 @@ public class DefaultServerEntryTest
     @Test 
     public void testCopyConstructorServerEntry() throws NamingException
     {
-        Entry serverEntry = new DefaultServerEntry( registries );
+        Entry serverEntry = new DefaultServerEntry( schemaManager );
         serverEntry.add( "cn", "test1", "test2" );
         serverEntry.add( "objectClass", "top", "person" );
         
-        Entry copyEntry = new DefaultServerEntry( registries, serverEntry );
+        Entry copyEntry = new DefaultServerEntry( schemaManager, serverEntry );
         
         assertEquals( copyEntry, serverEntry );
         assertTrue( copyEntry.contains( "objectClass", "top", "person" ) );
@@ -3898,7 +3898,7 @@ public class DefaultServerEntryTest
         clientEntry.add( "cn", "test1", "test2" );
         clientEntry.add( "objectClass", "top", "person" );
         
-        Entry copyEntry = new DefaultServerEntry( registries, clientEntry );
+        Entry copyEntry = new DefaultServerEntry( schemaManager, clientEntry );
         
         assertTrue( copyEntry instanceof ServerEntry );
         assertTrue( copyEntry.contains( "objectClass", "top", "person" ) );
@@ -3918,7 +3918,7 @@ public class DefaultServerEntryTest
     public void testToClientEntry() throws NamingException
     {
         LdapDN dn = new LdapDN( "ou=system" );
-        ServerEntry serverEntry = new DefaultServerEntry( registries );
+        ServerEntry serverEntry = new DefaultServerEntry( schemaManager );
         serverEntry.setDn( dn );
         serverEntry.add( "cn", "test1", "test2" );
         serverEntry.add( "objectClass", "top", "person" );

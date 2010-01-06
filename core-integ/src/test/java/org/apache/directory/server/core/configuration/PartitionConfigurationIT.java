@@ -20,26 +20,28 @@
 package org.apache.directory.server.core.configuration;
 
 
+import java.util.Hashtable;
+import java.util.UUID;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NameNotFoundException;
+
 import junit.framework.Assert;
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
-import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NameNotFoundException;
-import java.util.Hashtable;
-import java.util.UUID;
 
 
 /**
@@ -48,25 +50,24 @@ import java.util.UUID;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-public class PartitionConfigurationIT
+@RunWith ( FrameworkRunner.class )
+public class PartitionConfigurationIT extends AbstractLdapTestUnit
 {
-    public static DirectoryService service;
-
 
     @Test
     public void testAddAndRemove() throws Exception
     {
-        Partition partition = new JdbmPartition();
+        JdbmPartition partition = new JdbmPartition();
         partition.setId( "removable" );
         partition.setSuffix( "ou=removable" );
+        partition.setPartitionDir( service.getWorkingDirectory() );
         
         // Test AddContextPartition
         service.addPartition( partition );
         
         LdapDN suffixDn = new LdapDN( "ou=removable" );
-        suffixDn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
-        ServerEntry ctxEntry = new DefaultServerEntry( service.getRegistries(), suffixDn );
+        suffixDn.normalize( service.getSchemaManager().getNormalizerMapping() );
+        ServerEntry ctxEntry = new DefaultServerEntry( service.getSchemaManager(), suffixDn );
         ctxEntry.put( "objectClass", "top" );
         ctxEntry.get( "objectClass" ).add( "organizationalUnit" );
         ctxEntry.put( "ou", "removable" );

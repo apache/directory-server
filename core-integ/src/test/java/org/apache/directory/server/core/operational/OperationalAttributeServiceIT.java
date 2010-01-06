@@ -20,23 +20,14 @@
 package org.apache.directory.server.core.operational;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
-import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
-import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.util.StringTools;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -52,6 +43,17 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
+import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 
 /**
  * Tests the methods on JNDI contexts that are analogous to entry modify
@@ -60,15 +62,11 @@ import javax.naming.ldap.LdapContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-public class OperationalAttributeServiceIT
+@RunWith ( FrameworkRunner.class )
+public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 {
     private static final String BINARY_KEY = "java.naming.ldap.attributes.binary";
     private static final String RDN_KATE_BUSH = "cn=Kate Bush";
-
-
-    public static DirectoryService service;
-
 
     protected Attributes getPersonAttributes( String sn, String cn )
     {
@@ -268,7 +266,7 @@ public class OperationalAttributeServiceIT
     {
         LdifEntry akarasulu = getUserAddLdif();
         service.getAdminSession().add( 
-            new DefaultServerEntry( service.getRegistries(), akarasulu.getEntry() ) ); 
+            new DefaultServerEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
 
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -369,29 +367,19 @@ public class OperationalAttributeServiceIT
      *
      * @throws NamingException on error
      */
-    @Test
+    @Test( expected=LdapSchemaViolationException.class )
     public void testModifyOperationalAttributeAdd() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
 
-        ModificationItem modifyOp = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute(
+        ModificationItem modifyOp = new ModificationItem( DirContext.ADD_ATTRIBUTE, 
+            new BasicAttribute(
             "modifiersName", "cn=Tori Amos,dc=example,dc=com" ) );
 
-        try
-        {
-            sysRoot.modifyAttributes( RDN_KATE_BUSH, new ModificationItem[]
-                { modifyOp } );
-            fail( "modification of entry should fail" );
-        }
-        catch ( InvalidAttributeValueException e )
-        {
-            // expected
-        }
-        catch ( NoPermissionException e )
-        {
-            // expected
-        }
+        sysRoot.modifyAttributes( RDN_KATE_BUSH, new ModificationItem[]
+            { modifyOp } );
+        fail( "modification of entry should fail" );
     }
 
 

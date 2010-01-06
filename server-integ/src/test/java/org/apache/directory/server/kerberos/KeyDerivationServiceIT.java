@@ -20,45 +20,18 @@
 package org.apache.directory.server.kerberos;
 
 
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.core.integ.annotations.Factory;
-import org.apache.directory.server.core.interceptor.Interceptor;
-import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
-import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.integ.LdapServerFactory;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
-import org.apache.directory.server.kerberos.shared.io.decoder.EncryptionKeyDecoder;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
-import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
-import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
-import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
-import org.apache.directory.server.protocol.shared.transport.TcpTransport;
-import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.mina.util.AvailablePortFinder;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
 
 import javax.crypto.spec.DESKeySpec;
 import javax.naming.Context;
@@ -71,15 +44,30 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.ModificationItem;
 
-import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.annotations.SaslMechanism;
+import org.apache.directory.server.core.annotations.ContextEntry;
+import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.annotations.CreateIndex;
+import org.apache.directory.server.core.annotations.CreatePartition;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.io.decoder.EncryptionKeyDecoder;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
+import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
+import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -90,90 +78,54 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.CLASS )
-@Factory ( KeyDerivationServiceIT.Factory.class )
-@ApplyLdifs( {
-    // Entry #0
-    "dn: dc=example,dc=com\n" +
-    "dc: example\n" +
-    "objectClass: top\n" +
-    "objectClass: domain\n\n"
-    }
-)
-public class KeyDerivationServiceIT 
+@RunWith ( FrameworkRunner.class ) 
+@CreateDS( name="KeyDerivationServiceIT-class",
+    partitions =
+        {
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=example,dc=com",
+                contextEntry = @ContextEntry( 
+                    entryLdif =
+                        "dn: dc=example,dc=com\n" +
+                        "dc: example\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n" ),
+                indexes = 
+                {
+                    @CreateIndex( attribute = "objectClass" ),
+                    @CreateIndex( attribute = "dc" ),
+                    @CreateIndex( attribute = "ou" )
+                } )
+        },
+        additionalInterceptors = 
+        {
+            KeyDerivationInterceptor.class
+        })
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" )
+    },
+    saslHost="localhost",
+    saslMechanisms = 
+    {
+        @SaslMechanism( name=SupportedSaslMechanisms.PLAIN, implClass=PlainMechanismHandler.class ),
+        @SaslMechanism( name=SupportedSaslMechanisms.CRAM_MD5, implClass=CramMd5MechanismHandler.class),
+        @SaslMechanism( name=SupportedSaslMechanisms.DIGEST_MD5, implClass=DigestMd5MechanismHandler.class),
+        @SaslMechanism( name=SupportedSaslMechanisms.GSSAPI, implClass=GssapiMechanismHandler.class),
+        @SaslMechanism( name=SupportedSaslMechanisms.NTLM, implClass=NtlmMechanismHandler.class),
+        @SaslMechanism( name=SupportedSaslMechanisms.GSS_SPNEGO, implClass=NtlmMechanismHandler.class)
+    },
+    extendedOpHandlers = 
+    {
+        StoredProcedureExtendedOperationHandler.class
+    })
+public class KeyDerivationServiceIT extends AbstractLdapTestUnit 
 {
     private static final String RDN = "uid=hnelson,ou=users,dc=example,dc=com";
 
 
-    public static LdapServer ldapServer;
-
-     
-     public static class Factory implements LdapServerFactory
-     {
-         public LdapServer newInstance() throws Exception
-         {
-             DirectoryService service = new DefaultDirectoryService();
-             IntegrationUtils.doDelete( service.getWorkingDirectory() );
-             service.getChangeLog().setEnabled( true );
-             service.setAllowAnonymousAccess( false );
-             service.setShutdownHookEnabled( false );
-
-             Set<Partition> partitions = new HashSet<Partition>();
-             JdbmPartition partition = new JdbmPartition();
-             partition.setId( "example" );
-             partition.setSuffix( "dc=example,dc=com" );
-
-             Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
-             indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "ou" ) );
-             indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "dc" ) );
-             indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "objectClass" ) );
-             partition.setIndexedAttributes( indexedAttrs );
-
-             partitions.add( partition );
-             service.setPartitions( partitions );
-
-             List<Interceptor> list = service.getInterceptors();
-             list.add( new KeyDerivationInterceptor() );
-             service.setInterceptors( list );
-             
-             // change the working directory to something that is unique
-             // on the system and somewhere either under target directory
-             // or somewhere in a temp area of the machine.
-
-             LdapServer ldapServer = new LdapServer();
-             ldapServer.setDirectoryService( service );
-             int port = AvailablePortFinder.getNextAvailable( 1024 );
-             ldapServer.setTransports( new TcpTransport( port ) );
-             ldapServer.setAllowAnonymousAccess( false );
-             ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
-
-             // Setup SASL Mechanisms
-             
-             Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String,MechanismHandler>();
-             mechanismHandlerMap.put( SupportedSaslMechanisms.PLAIN, new PlainMechanismHandler() );
-
-             CramMd5MechanismHandler cramMd5MechanismHandler = new CramMd5MechanismHandler();
-             mechanismHandlerMap.put( SupportedSaslMechanisms.CRAM_MD5, cramMd5MechanismHandler );
-
-             DigestMd5MechanismHandler digestMd5MechanismHandler = new DigestMd5MechanismHandler();
-             mechanismHandlerMap.put( SupportedSaslMechanisms.DIGEST_MD5, digestMd5MechanismHandler );
-
-             GssapiMechanismHandler gssapiMechanismHandler = new GssapiMechanismHandler();
-             mechanismHandlerMap.put( SupportedSaslMechanisms.GSSAPI, gssapiMechanismHandler );
-
-             NtlmMechanismHandler ntlmMechanismHandler = new NtlmMechanismHandler();
-             mechanismHandlerMap.put( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
-             mechanismHandlerMap.put( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
-
-             ldapServer.setSaslMechanismHandlers( mechanismHandlerMap );
-             ldapServer.setSaslHost( "localhost" );
-             
-             return ldapServer;
-         }
-     }
-     
-     
      private void checkKeyNumber( Attributes attributes )
      {
          Attribute krb5key = attributes.get( "krb5key" );

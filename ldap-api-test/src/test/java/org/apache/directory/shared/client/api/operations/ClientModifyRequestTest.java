@@ -26,12 +26,12 @@ import static org.junit.Assert.assertNull;
 
 import java.util.concurrent.Semaphore;
 
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.client.api.LdapConnection;
 import org.apache.directory.shared.ldap.client.api.exception.LdapException;
 import org.apache.directory.shared.ldap.client.api.listeners.ModifyListener;
@@ -54,13 +54,15 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-@RunWith(SiRunner.class)
-@CleanupLevel(Level.CLASS)
-public class ClientModifyRequestTest
+@RunWith(FrameworkRunner.class)
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" ), 
+        @CreateTransport( protocol = "LDAPS" ) 
+    })
+public class ClientModifyRequestTest extends AbstractLdapTestUnit
 {
-    /** The server instance */
-    public static LdapServer ldapServer;
-
     private LdapConnection connection;
     
     private CoreSession session;
@@ -71,7 +73,7 @@ public class ClientModifyRequestTest
         connection = new LdapConnection( "localhost", ldapServer.getPort() );
 
         LdapDN bindDn = new LdapDN( "uid=admin,ou=system" );
-        connection.bind( bindDn.getUpName(), "secret" );
+        connection.bind( bindDn.getName(), "secret" );
         
         session = ldapServer.getDirectoryService().getAdminSession();
     }

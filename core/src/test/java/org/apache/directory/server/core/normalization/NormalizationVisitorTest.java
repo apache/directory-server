@@ -19,23 +19,26 @@
  */
 package org.apache.directory.server.core.normalization;
 
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.text.ParseException;
 
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
-import org.junit.Before;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.loader.ldif.JarLdifSchemaLoader;
+import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -49,18 +52,25 @@ public class NormalizationVisitorTest
     /** a filter node value normalizer and undefined node remover */
     private static FilterNormalizingVisitor normVisitor;
     
-    /** A reference to the directory service */
-    private static DirectoryService service;
+    /** A reference to the schemaManager */
+    private static SchemaManager schemaManager;
     
-    @Before
-    public void init() throws Exception
+    @BeforeClass
+    public static void init() throws Exception
     {
-        service = new DefaultDirectoryService();
+        JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
 
-        OidRegistry oidRegistry = service.getRegistries().getOidRegistry();
-        AttributeTypeRegistry attributeRegistry = service.getRegistries().getAttributeTypeRegistry();
-        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
-        normVisitor = new FilterNormalizingVisitor( ncn, service.getRegistries() );
+        schemaManager = new DefaultSchemaManager( loader );
+
+        boolean loaded = schemaManager.loadAllEnabled();
+
+        if ( !loaded )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
+        }
+
+        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
+        normVisitor = new FilterNormalizingVisitor( ncn, schemaManager );
     }
 
     @Test

@@ -26,7 +26,10 @@
     <artifactId>apacheds-parent</artifactId>
     <version>1.5.6-SNAPSHOT</version>
   </parent>
+  
+  <groupId>org.apache.directory.server</groupId>  
   <artifactId>apacheds-protocol-kerberos</artifactId>
+  
   <name>ApacheDS Protocol Kerberos</name>
 
   <description>
@@ -41,15 +44,10 @@
       <artifactId>apacheds-kerberos-shared</artifactId>
       <version>${pom.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-server-unit</artifactId>
-      <version>${pom.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-bootstrap-partition</artifactId>
+      <artifactId>apacheds-jdbm-partition</artifactId>
       <version>${pom.version}</version>
       <scope>test</scope>
     </dependency>

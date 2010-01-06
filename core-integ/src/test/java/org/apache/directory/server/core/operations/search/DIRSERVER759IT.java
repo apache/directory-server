@@ -20,16 +20,10 @@
 package org.apache.directory.server.core.operations.search;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
-import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
@@ -41,6 +35,13 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 
 /**
  * Tests the search() methods of the provider.
@@ -48,11 +49,9 @@ import javax.naming.ldap.LdapContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 493916 $
  */
-@RunWith ( CiRunner.class )
-public class DIRSERVER759IT
+@RunWith ( FrameworkRunner.class )
+public class DIRSERVER759IT extends AbstractLdapTestUnit
 {
-    public static DirectoryService service;
-
 
     /**
      * @todo replace with ldif annotations

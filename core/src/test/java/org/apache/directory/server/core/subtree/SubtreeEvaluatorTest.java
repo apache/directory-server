@@ -20,34 +20,35 @@
 package org.apache.directory.server.core.subtree;
 
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
-
-import junit.framework.TestCase;
 
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.normalization.FilterNormalizingVisitor;
-import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
-import org.apache.directory.server.schema.bootstrap.ApacheSchema;
-import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.directory.server.schema.bootstrap.CoreSchema;
-import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.bootstrap.SystemSchema;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.DefaultOidRegistry;
-import org.apache.directory.server.schema.registries.DefaultRegistries;
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
+import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationModifier;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 
 
 /**
@@ -56,44 +57,62 @@ import org.junit.Test;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubtreeEvaluatorTest extends TestCase
+public class SubtreeEvaluatorTest
 {
-    private Registries registries;
+    private static SchemaManager schemaManager;
     private SubtreeEvaluator evaluator;
     FilterNormalizingVisitor visitor;
-    AttributeTypeRegistry attributeRegistry;
-
-
-    private void init() throws Exception
-    {
-        BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        OidRegistry oidRegistry = new DefaultOidRegistry();
-        DefaultRegistries bsRegistries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
-        registries = bsRegistries;
-        Set<Schema> schemas = new HashSet<Schema>();
-        schemas.add( new SystemSchema() );
-        schemas.add( new ApacheSchema() );
-        schemas.add( new CoreSchema() );
-        loader.loadWithDependencies( schemas, bsRegistries );
-        attributeRegistry = registries.getAttributeTypeRegistry();
-        
-        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
-        visitor = new FilterNormalizingVisitor( ncn, registries );
-    }
+    static ConcreteNameComponentNormalizer ncn;
 
     @BeforeClass
-    protected void setUp() throws Exception
+    public static void init() throws Exception
     {
-        init();
-        evaluator = new SubtreeEvaluator( registries.getOidRegistry(), registries.getAttributeTypeRegistry() );
+    	String workingDirectory = System.getProperty( "workingDirectory" );
+
+        if ( workingDirectory == null )
+        {
+            String path = SubtreeEvaluatorTest.class.getResource( "" ).getPath();
+            int targetPos = path.indexOf( "target" );
+            workingDirectory = path.substring( 0, targetPos + 6 );
+        }
+
+        File schemaRepository = new File( workingDirectory, "schema" );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+        extractor.extractOrCopy( true );
+        LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
+        schemaManager = new DefaultSchemaManager( loader );
+
+        boolean loaded = schemaManager.loadAllEnabled();
+
+        if ( !loaded )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
+        }
+
+        ncn = new ConcreteNameComponentNormalizer( schemaManager );
+    }
+
+    
+    @Before
+    public void initTest()
+    {
+        visitor = new FilterNormalizingVisitor( ncn, schemaManager );
+        evaluator = new SubtreeEvaluator( schemaManager.getGlobalOidRegistry(), schemaManager );
     }
 
 
-    @AfterClass
-    protected void tearDown() throws Exception
+    @After
+    public void destroyTest()
     {
+        visitor = null;
         evaluator = null;
-        registries = null;
+    }
+
+    
+    @AfterClass
+    public static void tearDown() throws Exception
+    {
+        schemaManager = null;
     }
 
 
@@ -104,7 +123,7 @@ public class SubtreeEvaluatorTest extends TestCase
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
         LdapDN apDn = new LdapDN( "ou=system" );
         LdapDN entryDn = new LdapDN( "ou=users,ou=system" );
-        ServerEntry entry = new DefaultServerEntry( registries, entryDn, "objectClass" );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, entryDn, "objectClass" );
 
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
@@ -124,7 +143,7 @@ public class SubtreeEvaluatorTest extends TestCase
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
         LdapDN apDn = new LdapDN( "ou=system" );
         LdapDN entryDn = new LdapDN( "ou=users,ou=system" );
-        ServerEntry entry = new DefaultServerEntry( registries, entryDn, "objectClass" );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, entryDn, "objectClass" );
 
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
@@ -146,7 +165,7 @@ public class SubtreeEvaluatorTest extends TestCase
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
         LdapDN apDn = new LdapDN( "ou=system" );
         LdapDN entryDn = new LdapDN( "ou=users,ou=system" );
-        ServerEntry entry = new DefaultServerEntry( registries, entryDn, "objectClass" );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, entryDn, "objectClass" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
@@ -181,7 +200,7 @@ public class SubtreeEvaluatorTest extends TestCase
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
         LdapDN apDn = new LdapDN( "ou=system" );
         LdapDN entryDn = new LdapDN( "ou=users,ou=system" );
-        ServerEntry entry = new DefaultServerEntry( registries, entryDn, "objectClass" );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, entryDn, "objectClass" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
@@ -216,7 +235,7 @@ public class SubtreeEvaluatorTest extends TestCase
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
         LdapDN apDn = new LdapDN( "ou=system" );
         LdapDN entryDn = new LdapDN( "ou=users,ou=system" );
-        ServerEntry entry = new DefaultServerEntry( registries, entryDn, "objectClass" );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, entryDn, "objectClass" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
@@ -251,7 +270,7 @@ public class SubtreeEvaluatorTest extends TestCase
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
         LdapDN apDn = new LdapDN( "ou=system" );
         LdapDN entryDn = new LdapDN( "ou=users,ou=system" );
-        ServerEntry entry = new DefaultServerEntry( registries, entryDn );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, entryDn );
         entry.put( "objectClass", "person" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
@@ -272,7 +291,7 @@ public class SubtreeEvaluatorTest extends TestCase
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
         // now change the refinement so the entry is rejected
-        entry = new DefaultServerEntry( registries, entryDn );
+        entry = new DefaultServerEntry( schemaManager, entryDn );
         entry.put( "objectClass", "organizationalUnit" );
         
 
@@ -311,7 +330,7 @@ public class SubtreeEvaluatorTest extends TestCase
         LdapDN apDn = new LdapDN( "ou=system" );
         LdapDN entryDn = new LdapDN( "ou=users,ou=system" );
 
-        ServerEntry entry = new DefaultServerEntry( registries, entryDn );;
+        ServerEntry entry = new DefaultServerEntry( schemaManager, entryDn );;
         entry.put( "objectClass", "person" );
         entry.put( "cn", "Ersin" );
 
@@ -321,7 +340,7 @@ public class SubtreeEvaluatorTest extends TestCase
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
         // now change the filter so the entry is rejected
-        entry = new DefaultServerEntry( registries, entryDn );;
+        entry = new DefaultServerEntry( schemaManager, entryDn );;
         entry.put( "objectClass", "person" );
         entry.put( "cn", "Alex" );
 

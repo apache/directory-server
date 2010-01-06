@@ -20,11 +20,10 @@
 package org.apache.directory.server.core.jndi;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.junit.Test;import static org.junit.Assert.assertNotNull;import static org.junit.Assert.assertEquals;import static org.junit.Assert.assertTrue;
-import org.junit.runner.RunWith;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -33,6 +32,13 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 
 /**
  * Tests the use of extensible objects.
@@ -40,11 +46,10 @@ import javax.naming.ldap.LdapContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-public class ExtensibleObjectIT
+@RunWith ( FrameworkRunner.class )
+@CreateDS( factory=DefaultDirectoryServiceFactory.class, name="ExtensibleObjectIT-class" )
+public class ExtensibleObjectIT extends AbstractLdapTestUnit
 {
-    public static DirectoryService service;
-
 
     @Test
     public void testExtensibleObjectModify() throws Exception

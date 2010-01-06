@@ -20,6 +20,13 @@
 package org.apache.directory.server.operations.compare;
 
 
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.ReferralException;
 import javax.naming.directory.SearchControls;
@@ -34,23 +41,16 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPResponse;
 import netscape.ldap.LDAPResponseListener;
 
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 
 /**
@@ -59,40 +59,42 @@ import static org.junit.Assert.fail;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.SUITE )
+@RunWith ( FrameworkRunner.class ) 
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" )
+    })
 @ApplyLdifs( {
     // Entry # 1
-    "dn: uid=akarasulu,ou=users,ou=system\n" +
-    "objectClass: uidObject\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "uid: akarasulu\n" +
-    "cn: Alex Karasulu\n" +
-    "sn: karasulu\n\n" + 
+    "dn: uid=akarasulu,ou=users,ou=system",
+    "objectClass: uidObject",
+    "objectClass: person",
+    "objectClass: top",
+    "uid: akarasulu",
+    "cn: Alex Karasulu",
+    "sn: karasulu", 
     // Entry # 2
-    "dn: ou=Computers,uid=akarasulu,ou=users,ou=system\n" +
-    "objectClass: organizationalUnit\n" +
-    "objectClass: top\n" +
-    "ou: computers\n" +
-    "description: Computers for Alex\n" +
-    "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system\n\n" + 
+    "dn: ou=Computers,uid=akarasulu,ou=users,ou=system",
+    "objectClass: organizationalUnit",
+    "objectClass: top",
+    "ou: computers",
+    "description: Computers for Alex",
+    "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system", 
     // Entry # 3
-    "dn: uid=akarasuluref,ou=users,ou=system\n" +
-    "objectClass: uidObject\n" +
-    "objectClass: referral\n" +
-    "objectClass: top\n" +
-    "uid: akarasuluref\n" +
-    "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system\n" + 
-    "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system\n" +
-    "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system\n\n"
+    "dn: uid=akarasuluref,ou=users,ou=system",
+    "objectClass: uidObject",
+    "objectClass: referral",
+    "objectClass: top",
+    "uid: akarasuluref",
+    "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system", 
+    "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system",
+    "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system"
     }
 )
-public class CompareIT
+public class CompareIT extends AbstractLdapTestUnit
 {
     private static final Logger LOG = LoggerFactory.getLogger( CompareIT.class );
-    
-    public static LdapServer ldapServer;
     
 
     /**

@@ -20,7 +20,6 @@
 package org.apache.directory.server.ldap;
 
 
-import junit.framework.TestCase;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.AbandonHandler;
@@ -44,7 +43,9 @@ import org.apache.directory.shared.ldap.message.InternalModifyRequest;
 import org.apache.directory.shared.ldap.message.InternalSearchRequest;
 import org.apache.directory.shared.ldap.message.InternalUnbindRequest;
 import org.apache.mina.core.session.IoSession;
-
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 /**
  * This test is simply used to test that handlers can be set properly.
@@ -52,27 +53,15 @@ import org.apache.mina.core.session.IoSession;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SettingAlternativeHandlersTest extends TestCase
+public class SettingAlternativeHandlersTest
 {
     LdapServer ldapServer;
 
 
+    @Before
     public void setUp() throws Exception
     {
         ldapServer = new LdapServer();
-        
-        if ( getName().equals( "testAlternativeConfiguration" ) )
-        {
-            ldapServer.setAbandonHandler( new BogusAbandonHandler() );
-            ldapServer.setAddHandler( new BogusAddHandler() );
-            ldapServer.setBindHandler( new BogusBindHandler() );
-            ldapServer.setCompareHandler( new BogusCompareHandler() );
-            ldapServer.setDeleteHandler( new BogusDeleteHandler() );
-            ldapServer.setModifyDnHandler( new BogusModifyDnHandler() );
-            ldapServer.setModifyHandler( new BogusModifyHandler() );
-            ldapServer.setSearchHandler( new BogusSearchHandler() );
-            ldapServer.setUnbindHandler( new BogusUnbindHandler() );
-        }
     }
 
 
@@ -83,6 +72,7 @@ public class SettingAlternativeHandlersTest extends TestCase
      * @throws LdapNamingException if there are problems initializing the
      * provider
      */
+    @Test
     public void testDefaultOperation() throws LdapNamingException
     {
         assertEquals( ldapServer.getName(), LdapServer.SERVICE_NAME );
@@ -96,8 +86,19 @@ public class SettingAlternativeHandlersTest extends TestCase
      * @throws LdapNamingException if there are problems initializing the
      * provider
      */
+    @Test
     public void testAlternativeConfiguration() throws LdapNamingException
     {
+        ldapServer.setAbandonHandler( new BogusAbandonHandler() );
+        ldapServer.setAddHandler( new BogusAddHandler() );
+        ldapServer.setBindHandler( new BogusBindHandler() );
+        ldapServer.setCompareHandler( new BogusCompareHandler() );
+        ldapServer.setDeleteHandler( new BogusDeleteHandler() );
+        ldapServer.setModifyDnHandler( new BogusModifyDnHandler() );
+        ldapServer.setModifyHandler( new BogusModifyHandler() );
+        ldapServer.setSearchHandler( new BogusSearchHandler() );
+        ldapServer.setUnbindHandler( new BogusUnbindHandler() );
+
         assertEquals( ldapServer.getAbandonHandler().getClass(), BogusAbandonHandler.class  );
         assertEquals( ldapServer.getAddHandler().getClass(), BogusAddHandler.class  );
         assertEquals( ldapServer.getBindHandler().getClass(), BogusBindHandler.class  );

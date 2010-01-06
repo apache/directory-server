@@ -43,15 +43,14 @@ import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.subtree.SubtreeEvaluator;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 
 
 /**
@@ -90,15 +89,15 @@ public class ACDFEngine
      * 
      * @throws NamingException if failed to initialize internal components
      */
-    public ACDFEngine( OidRegistry oidRegistry, AttributeTypeRegistry attrTypeRegistry ) throws NamingException
+    public ACDFEngine( OidRegistry oidRegistry, SchemaManager schemaManager ) throws NamingException
     {
-        Evaluator entryEvaluator = new ExpressionEvaluator( oidRegistry, attrTypeRegistry );
-        SubtreeEvaluator subtreeEvaluator = new SubtreeEvaluator( oidRegistry, attrTypeRegistry );
+        Evaluator entryEvaluator = new ExpressionEvaluator( oidRegistry, schemaManager );
+        SubtreeEvaluator subtreeEvaluator = new SubtreeEvaluator( oidRegistry, schemaManager );
         RefinementEvaluator refinementEvaluator = new RefinementEvaluator( new RefinementLeafEvaluator( oidRegistry ) );
 
         filters = new ACITupleFilter[] {
             new RelatedUserClassFilter( subtreeEvaluator ),
-            new RelatedProtectedItemFilter( refinementEvaluator, entryEvaluator, oidRegistry, attrTypeRegistry ),
+            new RelatedProtectedItemFilter( refinementEvaluator, entryEvaluator, oidRegistry, schemaManager ),
             new MaxValueCountFilter(),
             new MaxImmSubFilter(),
             new RestrictedByFilter(),
@@ -128,7 +127,7 @@ public class ACDFEngine
      * @throws NamingException if failed to evaluate ACI items
      */
     public void checkPermission( 
-        Registries registries, 
+        SchemaManager schemaManager, 
         OperationContext opContext, 
         Collection<LdapDN> userGroupNames, 
         LdapDN username,
@@ -141,7 +140,7 @@ public class ACDFEngine
         ServerEntry entry, 
         ServerEntry entryView ) throws Exception
     {
-        if ( !hasPermission( registries, opContext, userGroupNames, username, authenticationLevel, entryName, 
+        if ( !hasPermission( schemaManager, opContext, userGroupNames, username, authenticationLevel, entryName, 
             attrId, attrValue, microOperations, aciTuples, entry, entryView ) )
         {
             throw new LdapNoPermissionException();
@@ -186,7 +185,7 @@ public class ACDFEngine
      * @param entryView in case of a Modify operation, view of the entry being modified as if the modification permitted and completed
      */
     public boolean hasPermission( 
-        Registries registries, 
+        SchemaManager schemaManager, 
         OperationContext opContext, 
         Collection<LdapDN> userGroupNames, 
         LdapDN userName,
@@ -229,7 +228,7 @@ public class ACDFEngine
         for ( ACITupleFilter filter : filters )
         {
             aciTuples = filter.filter( 
-                registries, 
+                schemaManager, 
                 aciTuples, 
                 scope, 
                 opContext, 

@@ -30,6 +30,7 @@ import java.util.Set;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -59,7 +60,6 @@ import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedExcep
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -443,7 +443,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             // This is a case where the Bind request contains a DN, but no password.
             // We don't check the DN, we just return a UnwillingToPerform error
             // Cf RFC 4513, chap. 5.1.2
-            throw new LdapOperationNotSupportedException( "Cannot Bind for DN " + opContext.getDn().getUpName(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapOperationNotSupportedException( "Cannot Bind for DN " + opContext.getDn().getName(), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
         Collection<Authenticator> authenticators = getAuthenticators( level.getName() );
@@ -513,7 +513,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
 
         LdapDN dn = opContext.getDn();
-        String upDn = ( dn == null ? "" : dn.getUpName() );
+        String upDn = ( dn == null ? "" : dn.getName() );
         throw new LdapAuthenticationException( "Cannot authenticate user " + upDn );
     }
 }

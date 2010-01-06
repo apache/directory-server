@@ -19,29 +19,35 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.directory.server.xdbm.Tuple;
-import org.apache.directory.server.schema.SerializableComparator;
-import org.apache.directory.server.schema.registries.ComparatorRegistry;
-import org.apache.directory.shared.ldap.cursor.Cursor;
-import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescription;
-import org.junit.Before;
-import org.junit.After;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.util.Comparator;
-import java.util.Iterator;
 
 import jdbm.RecordManager;
-import jdbm.helper.IntegerSerializer;
+import jdbm.helper.DefaultSerializer;
 import jdbm.recman.BaseRecordManager;
 
-import javax.naming.NamingException;
+import org.apache.directory.server.xdbm.Tuple;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
+import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -55,12 +61,40 @@ public class DupsContainerCursorTest
     private static final Logger LOG = LoggerFactory.getLogger( NoDupsCursorTest.class.getSimpleName() );
     private static final String TEST_OUTPUT_PATH = "test.output.path";
 
-    transient JdbmTable<Integer,Integer> table;
+    transient JdbmTable<String,String> table;
     transient File dbFile;
+    private static SchemaManager schemaManager;
     transient RecordManager recman;
     private static final int SIZE = 15;
 
 
+    @BeforeClass
+    public static void init() throws Exception
+    {
+        String workingDirectory = System.getProperty( "workingDirectory" );
+
+        if ( workingDirectory == null )
+        {
+            String path = DupsContainerCursorTest.class.getResource( "" ).getPath();
+            int targetPos = path.indexOf( "target" );
+            workingDirectory = path.substring( 0, targetPos + 6 );
+        }
+
+        File schemaRepository = new File( workingDirectory, "schema" );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+        extractor.extractOrCopy( true );
+        LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
+        schemaManager = new DefaultSchemaManager( loader );
+
+        boolean loaded = schemaManager.loadAllEnabled();
+
+        if ( !loaded )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
+        }
+    }
+
+    
     @Before
     public void createTable() throws Exception
     {
@@ -75,16 +109,12 @@ public class DupsContainerCursorTest
         dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
         dbFile.deleteOnExit();
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
-
-        // gosh this is a terrible use of a global static variable
-        SerializableComparator.setRegistry( new MockComparatorRegistry() );
-
-        table = new JdbmTable<Integer,Integer>( "test", SIZE, recman,
-                new SerializableComparator<Integer>( "" ),
-                new SerializableComparator<Integer>( "" ),
-                null, new IntegerSerializer() );
+        
+        SerializableComparator<String> comparator = new SerializableComparator<String>( SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
+        comparator.setSchemaManager( schemaManager );
+        table = new JdbmTable<String,String>( schemaManager, "test", SIZE, recman,
+                comparator, comparator, null, new DefaultSerializer() );
         LOG.debug( "Created new table and populated it with data" );
-
     }
 
 
@@ -109,11 +139,15 @@ public class DupsContainerCursorTest
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
 
         // gosh this is a terrible use of a global static variable
-        SerializableComparator.setRegistry( new MockComparatorRegistry() );
-        table = new JdbmTable<Integer,Integer>( "test", recman, new SerializableComparator<Integer>( "" ), null, null );
+        //SerializableComparator.setRegistry( 
+        //    new MockComparatorRegistry(
+        //        new OidRegistry() ) );
+        SerializableComparator<String> comparator = new SerializableComparator<String>( SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
+        comparator.setSchemaManager( schemaManager );
+        table = new JdbmTable<String,String>( schemaManager, "test", recman, comparator, null, null );
 
-        Cursor<Tuple<Integer,DupsContainer<Integer>>> cursor =
-            new DupsContainerCursor<Integer,Integer>( table );
+        Cursor<Tuple<String,DupsContainer<String>>> cursor =
+            new DupsContainerCursor<String,String>( table );
         assertNotNull( cursor );
     }
 
@@ -121,21 +155,21 @@ public class DupsContainerCursorTest
     @Test( expected=InvalidCursorPositionException.class )
     public void testEmptyTable() throws Exception
     {
-        Cursor<Tuple<Integer,DupsContainer<Integer>>> cursor =
-            new DupsContainerCursor<Integer,Integer>( table );
+        Cursor<Tuple<String,DupsContainer<String>>> cursor =
+            new DupsContainerCursor<String,String>( table );
         assertNotNull( cursor );
 
         assertFalse( cursor.available() );
         assertFalse( cursor.isClosed() );
         assertTrue( cursor.isElementReused() );
 
-        cursor = new DupsContainerCursor<Integer,Integer>( table );
+        cursor = new DupsContainerCursor<String,String>( table );
         assertFalse( cursor.previous() );
 
-        cursor = new DupsContainerCursor<Integer,Integer>( table );
+        cursor = new DupsContainerCursor<String,String>( table );
         assertFalse( cursor.next() );
 
-        cursor.after( new Tuple<Integer,DupsContainer<Integer>>( 7, null ) );
+        cursor.after( new Tuple<String,DupsContainer<String>>( "7", null ) );
         cursor.get();
     }
 
@@ -143,14 +177,14 @@ public class DupsContainerCursorTest
     @Test
     public void testOnTableWithSingleEntry() throws Exception
     {
-        table.put( 1, 1 );
-        Cursor<Tuple<Integer,DupsContainer<Integer>>> cursor =
-            new DupsContainerCursor<Integer,Integer>( table );
+        table.put( "1", "1" );
+        Cursor<Tuple<String,DupsContainer<String>>> cursor =
+            new DupsContainerCursor<String,String>( table );
         assertTrue( cursor.first() );
 
-        Tuple<Integer,DupsContainer<Integer>> tuple = cursor.get();
-        assertTrue( tuple.getKey().equals( 1 ) );
-        assertEquals( 1, ( int ) tuple.getValue().getArrayTree().getFirst() );
+        Tuple<String,DupsContainer<String>> tuple = cursor.get();
+        assertEquals( "1", tuple.getKey() );
+        assertEquals( "1", tuple.getValue().getArrayTree().getFirst() );
 
         cursor.beforeFirst();
         assertFalse( cursor.previous() );
@@ -163,24 +197,25 @@ public class DupsContainerCursorTest
     {
         for( int i=1; i < 10; i++ )
         {
-            table.put( i, i );
+            String istr = Integer.toString( i );
+            table.put( istr, istr );
         }
 
-        Cursor<Tuple<Integer,DupsContainer<Integer>>> cursor =
-            new DupsContainerCursor<Integer,Integer>( table );
+        Cursor<Tuple<String,DupsContainer<String>>> cursor =
+            new DupsContainerCursor<String,String>( table );
 
-        cursor.after( new Tuple<Integer,DupsContainer<Integer>>( 2, null ) );
+        cursor.after( new Tuple<String,DupsContainer<String>>( "2", null ) );
         assertTrue( cursor.next() );
 
-        Tuple<Integer,DupsContainer<Integer>> tuple = cursor.get();
-        assertTrue( tuple.getKey().equals( 3 ) );
-        assertEquals( 3, ( int ) tuple.getValue().getArrayTree().getFirst() );
+        Tuple<String,DupsContainer<String>> tuple = cursor.get();
+        assertEquals( "3", tuple.getKey() );
+        assertEquals( "3", tuple.getValue().getArrayTree().getFirst() );
 
-        cursor.before( new Tuple<Integer,DupsContainer<Integer>>( 7, null ) );
+        cursor.before( new Tuple<String,DupsContainer<String>>( "7", null ) );
         cursor.next();
         tuple = cursor.get();
-        assertTrue( tuple.getKey().equals( 7 ) );
-        assertEquals( 7, ( int ) tuple.getValue().getArrayTree().getFirst() );
+        assertEquals( "7", tuple.getKey() );
+        assertEquals( "7", tuple.getValue().getArrayTree().getFirst() );
 
         cursor.last();
         cursor.next();
@@ -192,8 +227,8 @@ public class DupsContainerCursorTest
         cursor.beforeFirst();
         cursor.next();
         tuple = cursor.get();
-        assertTrue( tuple.getKey().equals( 1 ) );
-        assertEquals( 1, ( int ) tuple.getValue().getArrayTree().getFirst() );
+        assertEquals( "1", tuple.getKey() );
+        assertEquals( "1", tuple.getValue().getArrayTree().getFirst() );
 
         cursor.afterLast();
         assertFalse( cursor.next() );
@@ -203,79 +238,18 @@ public class DupsContainerCursorTest
 
         // just to clear the jdbmTuple value so that line 127 inside after(tuple) method
         // can be executed as part of the below after(tuple) call
-        cursor.before(new Tuple<Integer,DupsContainer<Integer>>( 1, null ) );
-        cursor.after( new Tuple<Integer,DupsContainer<Integer>>( 0, null ) ); // this positions on tuple with key 1
+        cursor.before(new Tuple<String,DupsContainer<String>>( "1", null ) );
+        cursor.after( new Tuple<String,DupsContainer<String>>( "0", null ) ); // this positions on tuple with key 1
 
         cursor.next(); // this moves onto tuple with key 2
         tuple = cursor.get();
-        assertTrue( tuple.getKey().equals( 2 ) );
-        assertEquals( 2, ( int ) tuple.getValue().getArrayTree().getFirst() );
+        assertEquals( "2", tuple.getKey() );
+        assertEquals( "2", tuple.getValue().getArrayTree().getFirst() );
     }
 
 
     @Test
     public void testMiscellaneous() throws Exception
     {
-    }
-
-
-    private class MockComparatorRegistry implements ComparatorRegistry
-    {
-        private Comparator<Integer> comparator = new Comparator<Integer>()
-        {
-            public int compare( Integer i1, Integer i2 )
-            {
-                return i1.compareTo( i2 );
-            }
-        };
-
-        public String getSchemaName( String oid ) throws NamingException
-        {
-            return null;
-        }
-
-
-        public void register( ComparatorDescription description, Comparator comparator ) throws NamingException
-        {
-        }
-
-
-        public Comparator lookup( String oid ) throws NamingException
-        {
-            return comparator;
-        }
-
-
-        public boolean hasComparator( String oid )
-        {
-            return true;
-        }
-
-
-        public Iterator<String> iterator()
-        {
-            return null;
-        }
-
-
-        public Iterator<ComparatorDescription> comparatorDescriptionIterator()
-        {
-            return null;
-        }
-
-
-        public void unregister( String oid ) throws NamingException
-        {
-        }
-
-
-        public void unregisterSchemaElements( String schemaName )
-        {
-        }
-
-
-        public void renameSchema( String originalSchemaName, String newSchemaName )
-        {
-        }
     }
 }

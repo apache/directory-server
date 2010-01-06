@@ -21,17 +21,14 @@
 package org.apache.directory.server.core.subtree;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
@@ -41,8 +38,14 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
-import java.util.HashMap;
-import java.util.Map;
+
+import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -52,11 +55,10 @@ import java.util.Map;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-public class SubentryServiceObjectClassChangeHandlingIT 
+@RunWith ( FrameworkRunner.class )
+@CreateDS( factory=DefaultDirectoryServiceFactory.class, name="SubentryServiceObjectClassChangeHandlingIT-class" )
+public class SubentryServiceObjectClassChangeHandlingIT extends AbstractLdapTestUnit 
 {
-    public static DirectoryService service;
-
 
     public Attributes getTestEntry( String cn )
     {

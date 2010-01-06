@@ -28,12 +28,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.Semaphore;
 
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.client.api.LdapConnection;
 import org.apache.directory.shared.ldap.client.api.exception.LdapException;
 import org.apache.directory.shared.ldap.client.api.listeners.ModifyDnListener;
@@ -53,18 +53,21 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-@RunWith(SiRunner.class)
-@CleanupLevel(Level.METHOD)
+@RunWith(FrameworkRunner.class)
 @ApplyLdifs( {
-    "dn: cn=modDn,ou=system\n" +
-    "objectClass: person\n" +
-    "cn: modDn\n" +
-    "sn: snModDn\n" 
+    "dn: cn=modDn,ou=system",
+    "objectClass: person",
+    "cn: modDn",
+    "sn: snModDn" 
 })
-public class ClientModifyDnRequestTest
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" ), 
+        @CreateTransport( protocol = "LDAPS" ) 
+    })
+public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
 {
-    public static LdapServer ldapServer;
-    
     private LdapConnection connection;
     
     private CoreSession session;
@@ -77,7 +80,7 @@ public class ClientModifyDnRequestTest
         connection = new LdapConnection( "localhost", ldapServer.getPort() );
 
         LdapDN bindDn = new LdapDN( "uid=admin,ou=system" );
-        connection.bind( bindDn.getUpName(), "secret" );
+        connection.bind( bindDn.getName(), "secret" );
         
         session = ldapServer.getDirectoryService().getAdminSession();
     }
@@ -106,7 +109,7 @@ public class ClientModifyDnRequestTest
         assertNotNull( entry );
         
         Rdn oldRdn = oldDn.getRdn();
-        assertTrue( entry.contains( oldRdn.getUpType(), ( String ) oldRdn.getValue() ) );
+        assertTrue( entry.contains( oldRdn.getUpType(), ( String ) oldRdn.getNormValue() ) );
     }
     
     

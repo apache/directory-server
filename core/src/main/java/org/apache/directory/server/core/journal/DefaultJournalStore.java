@@ -29,14 +29,12 @@ import java.io.Writer;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 
 /**
  * 
- * @author elecharny
- *
   * @org.apache.xbean.XBean
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

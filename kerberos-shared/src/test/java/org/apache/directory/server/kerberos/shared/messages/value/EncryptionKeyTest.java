@@ -27,9 +27,8 @@ import java.util.Arrays;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.io.encoder.EncryptionKeyEncoder;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-
-import junit.framework.TestCase;
-
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test the EncryptionKey encoding and decoding
@@ -37,8 +36,9 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 542147 $, $Date: 2007-05-28 10:14:21 +0200 (Mon, 28 May 2007) $
  */
-public class EncryptionKeyTest extends TestCase
+public class EncryptionKeyTest
 {
+    @Test
     public void testEncodingFast() throws Exception
     {
         EncryptionKey ec = new EncryptionKey( EncryptionType.AES128_CTS_HMAC_SHA1_96, new byte[]
@@ -61,6 +61,7 @@ public class EncryptionKeyTest extends TestCase
     }
 
 
+    @Test
     public void testEncodingNoStructureFast() throws Exception
     {
         EncryptionKey ec = new EncryptionKey( EncryptionType.AES128_CTS_HMAC_SHA1_96, null );
@@ -102,6 +103,7 @@ public class EncryptionKeyTest extends TestCase
      }
      */
 
+    @Test
     public void testEncodingSlow() throws Exception
     {
         EncryptionKey ec = new EncryptionKey( EncryptionType.AES128_CTS_HMAC_SHA1_96, new byte[]
@@ -122,6 +124,7 @@ public class EncryptionKeyTest extends TestCase
     }
 
 
+    @Test
     public void testPerfSlow() throws IOException
     {
         EncryptionKey ec = new EncryptionKey( EncryptionType.AES128_CTS_HMAC_SHA1_96, new byte[]
@@ -141,6 +144,7 @@ public class EncryptionKeyTest extends TestCase
     }
 
 
+    @Test
     public void testPerfFast() throws EncoderException
     {
         EncryptionKey ec = new EncryptionKey( EncryptionType.AES128_CTS_HMAC_SHA1_96, new byte[]

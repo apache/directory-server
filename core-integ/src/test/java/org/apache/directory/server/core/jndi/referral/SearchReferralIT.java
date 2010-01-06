@@ -21,9 +21,9 @@ package org.apache.directory.server.core.jndi.referral;
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getContext;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.junit.Assert.assertNotNull;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -41,14 +41,12 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.Before;
@@ -66,63 +64,60 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 691179 $
  */
-@RunWith ( CiRunner.class )
-@CleanupLevel ( Level.CLASS )
+@RunWith ( FrameworkRunner.class )
 @ApplyLdifs( {
     // Root
-    "dn: c=WW,ou=system\n" +
-    "objectClass: country\n" +
-    "objectClass: top\n" +
-    "c: WW\n\n" +
+    "dn: c=WW,ou=system",
+    "objectClass: country",
+    "objectClass: top",
+    "c: WW",
     
     // Sub-root
-    "dn: o=MNN,c=WW,ou=system\n" +
-    "objectClass: organization\n" +
-    "objectClass: top\n" +
-    "o: MNN\n\n" +
+    "dn: o=MNN,c=WW,ou=system",
+    "objectClass: organization",
+    "objectClass: top",
+    "o: MNN",
     
     // Another Sub-root
-    "dn: o=PNN,c=WW,ou=system\n" +
-    "objectClass: organization\n" +
-    "objectClass: top\n" +
-    "o: MNN\n\n" +
+    "dn: o=PNN,c=WW,ou=system",
+    "objectClass: organization",
+    "objectClass: top",
+    "o: MNN",
     
     // Referral #1
-    "dn: ou=Roles,o=MNN,c=WW,ou=system\n" +
-    "objectClass: extensibleObject\n" +
-    "objectClass: referral\n" +
-    "objectClass: top\n" +
-    "ou: Roles\n" +
-    "ref: ldap://hostd/ou=Roles,dc=apache,dc=org\n\n" +
+    "dn: ou=Roles,o=MNN,c=WW,ou=system",
+    "objectClass: extensibleObject",
+    "objectClass: referral",
+    "objectClass: top",
+    "ou: Roles",
+    "ref: ldap://hostd/ou=Roles,dc=apache,dc=org",
     
     // Referral #2
-    "dn: ou=People,o=MNN,c=WW,ou=system\n" +
-    "objectClass: extensibleObject\n" +
-    "objectClass: referral\n" +
-    "objectClass: top\n" +
-    "ou: People\n" +
-    "ref: ldap://hostb/OU=People,DC=example,DC=com\n" +
-    "ref: ldap://hostc/OU=People,O=MNN,C=WW\n\n" +
+    "dn: ou=People,o=MNN,c=WW,ou=system",
+    "objectClass: extensibleObject",
+    "objectClass: referral",
+    "objectClass: top",
+    "ou: People",
+    "ref: ldap://hostb/OU=People,DC=example,DC=com",
+    "ref: ldap://hostc/OU=People,O=MNN,C=WW",
     
     // Entry # 1
-    "dn: cn=Alex Karasulu,o=MNN,c=WW,ou=system\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "cn: Alex Karasulu\n" +
-    "sn: akarasulu\n\n" +
+    "dn: cn=Alex Karasulu,o=MNN,c=WW,ou=system",
+    "objectClass: person",
+    "objectClass: top",
+    "cn: Alex Karasulu",
+    "sn: akarasulu",
     
     // Entry # 2
-    "dn: cn=Alex,o=MNN,c=WW,ou=system\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "cn: Alex\n" +
-    "sn: akarasulu\n\n"
+    "dn: cn=Alex,o=MNN,c=WW,ou=system",
+    "objectClass: person",
+    "objectClass: top",
+    "cn: Alex",
+    "sn: akarasulu"
     }
 )
-public class SearchReferralIT
+public class SearchReferralIT extends AbstractLdapTestUnit
 {
-    /** The directory service */
-    public static DirectoryService service;
 
     /** The Context we are using to inject entries with JNDI */
     LdapContext MNNCtx;
@@ -144,7 +139,7 @@ public class SearchReferralIT
         
         // Core API entry
         LdapDN dn = new LdapDN( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
-        serverEntry = new DefaultServerEntry( service.getRegistries(), dn );
+        serverEntry = new DefaultServerEntry( service.getSchemaManager(), dn );
 
         serverEntry.put( "ObjectClass", "top", "person" );
         serverEntry.put( "sn", "elecharny" );

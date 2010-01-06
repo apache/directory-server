@@ -23,7 +23,6 @@ package org.apache.directory.server.kerberos.shared.store.operations;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.directory.DirContext;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.core.CoreSession;
@@ -33,11 +32,11 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.protocol.shared.store.DirectoryServiceOperation;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -77,16 +76,16 @@ public class ChangePassword implements DirectoryServiceOperation
             return null;
         }
 
-        AttributeTypeRegistry registry = session.getDirectoryService().getRegistries().getAttributeTypeRegistry();
+        SchemaManager schemaManager = session.getDirectoryService().getSchemaManager();
         
         List<Modification> mods = new ArrayList<Modification>(2);
         
         ServerAttribute newPasswordAttribute = new DefaultServerAttribute( 
-            registry.lookup( SchemaConstants.USER_PASSWORD_AT ), StringTools.getBytesUtf8( newPassword ) );
+            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT ), StringTools.getBytesUtf8( newPassword ) );
         mods.add( new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, newPasswordAttribute ) );
         
         ServerAttribute principalAttribute = new DefaultServerAttribute( 
-            registry.lookup( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ), principal.getName() );
+            schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ), principal.getName() );
         mods.add( new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, principalAttribute ) );
         
         //FIXME check if keyderivation is necessary

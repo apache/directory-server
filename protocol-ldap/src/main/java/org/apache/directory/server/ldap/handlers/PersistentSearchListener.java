@@ -39,7 +39,6 @@ import org.apache.directory.shared.ldap.message.InternalSearchResponseEntry;
 import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
 import org.apache.directory.shared.ldap.message.control.EntryChangeControl;
 import org.apache.directory.shared.ldap.message.control.PersistentSearchControl;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -168,7 +167,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
     
         InternalSearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
         respEntry.setObjectName( opContext.getDn() );
-        respEntry.setEntry( opContext.getEntry() );
+        respEntry.setEntry( opContext.getAlteredEntry() );
         setECResponseControl( respEntry, opContext, ChangeType.MODIFY );
         session.getIoSession().write( respEntry );
     }

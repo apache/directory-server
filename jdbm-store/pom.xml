@@ -85,15 +85,16 @@
     </dependency>
 
     <dependency>
-      <groupId>${pom.groupId}</groupId>
-      <artifactId>apacheds-schema-registries</artifactId>
-      <version>${pom.version}</version>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-schema</artifactId>
+      <version>${org.apache.directory.shared.version}</version>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
-      <groupId>${pom.groupId}</groupId>
-      <artifactId>apacheds-schema-bootstrap</artifactId>
-      <version>${pom.version}</version>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-schema-manager</artifactId>
+      <version>${org.apache.directory.shared.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

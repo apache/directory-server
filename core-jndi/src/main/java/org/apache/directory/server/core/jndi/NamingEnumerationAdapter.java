@@ -116,7 +116,7 @@ public class NamingEnumerationAdapter implements NamingEnumeration<SearchResult>
             JndiUtils.wrap( e );
         }
         
-        SearchResult result = new SearchResult( entry.getDn().getUpName(), null, 
+        SearchResult result = new SearchResult( entry.getDn().getName(), null, 
             ServerEntryUtils.toBasicAttributes( entry ) );
         result.setRelative( false );
         return result;

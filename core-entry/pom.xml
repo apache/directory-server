@@ -39,30 +39,46 @@
     <dependency>
       <groupId>${pom.groupId}</groupId>
       <version>${pom.version}</version>
-      <artifactId>apacheds-schema-registries</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>${pom.groupId}</groupId>
-      <version>${pom.version}</version>
-      <artifactId>apacheds-schema-bootstrap</artifactId>
-      <scope>test</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>${pom.groupId}</groupId>
-      <version>${pom.version}</version>
-      <artifactId>apacheds-schema-extras</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>${pom.groupId}</groupId>
-      <version>${pom.version}</version>
       <artifactId>apacheds-jdbm</artifactId>
     </dependency>
     
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <version>${org.apache.directory.shared.version}</version>
+      <artifactId>shared-ldap-schema-manager</artifactId>
+      <scope>test</scope>
+    </dependency>    
+    
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <scope>test</scope>
+    </dependency>
+      
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <version>${org.apache.directory.shared.version}</version>
+      <artifactId>shared-ldap-schema</artifactId>
+      <scope>test</scope>
+    </dependency>    
   </dependencies>
   
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <configuration>
+          <systemProperties>
+            <property>
+              <name>workingDirectory</name>
+              <value>${basedir}/target</value>
+            </property>
+          </systemProperties>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
 

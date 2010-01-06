@@ -20,21 +20,38 @@
 package org.apache.directory.server.core.authz.support;
 
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
+import javax.naming.NamingException;
+import javax.naming.ldap.Control;
+import javax.naming.ldap.LdapContext;
+
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.OperationManager;
 import org.apache.directory.server.core.ReferralHandlingMode;
 import org.apache.directory.server.core.ReferralManager;
-import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.event.EventService;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -56,12 +73,10 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.journal.Journal;
+import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
-import org.apache.directory.server.core.schema.SchemaOperationControl;
 import org.apache.directory.server.core.schema.SchemaService;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
@@ -75,24 +90,10 @@ import org.apache.directory.shared.ldap.cursor.CursorIterator;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
-
-import javax.naming.NamingException;
-import javax.naming.ldap.Control;
-import javax.naming.ldap.LdapContext;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
-
-import org.junit.Test;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.junit.BeforeClass;
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 
 /**
@@ -118,13 +119,13 @@ public class MaxImmSubFilterTest
     private static DirectoryService service;
 
     
-    @BeforeClass public static void setup() throws NamingException
+    @BeforeClass public static void setup() throws Exception
     {
         service = new DefaultDirectoryService();
 
         ENTRY_NAME = new LdapDN( "ou=test, ou=system" );
         PROTECTED_ITEMS.add( new ProtectedItem.MaxImmSub( 2 ) );
-        ENTRY = new DefaultServerEntry( service.getRegistries(), ENTRY_NAME );
+        ENTRY = new DefaultServerEntry( service.getSchemaManager(), ENTRY_NAME );
     }
 
 
@@ -497,7 +498,7 @@ public class MaxImmSubFilterTest
         }
 
 
-        public PartitionNexus getPartitionNexus()
+        public DefaultPartitionNexus getPartitionNexus()
         {
             return null;
         }
@@ -519,7 +520,7 @@ public class MaxImmSubFilterTest
         }
 
 
-        public Registries getRegistries()
+        public SchemaManager getSchemaManager()
         {
             return null;
         }
@@ -550,17 +551,6 @@ public class MaxImmSubFilterTest
         public void setSchemaService( SchemaService schemaService )
         {
 
-        }
-
-
-        public SchemaOperationControl getSchemaManager()
-        {
-            return null;
-        }
-
-
-        public void setSchemaManager( SchemaOperationControl schemaManager )
-        {
         }
 
 
@@ -830,7 +820,7 @@ public class MaxImmSubFilterTest
             return false;
         }
         
-        public void setPassordHidden( boolean passwordHidden )
+        public void setPasswordHidden( boolean passwordHidden )
         {
         }
 
@@ -885,6 +875,12 @@ public class MaxImmSubFilterTest
         {
             // TODO Auto-generated method stub
             return null;
+        }
+
+        public void setSchemaManager( SchemaManager schemaManager )
+        {
+            // TODO Auto-generated method stub
+            
         }
     }
 
@@ -1055,7 +1051,7 @@ public class MaxImmSubFilterTest
 
         public ServerEntry get() throws Exception
         {
-            return new DefaultServerEntry( service.getRegistries() );
+            return new DefaultServerEntry( service.getSchemaManager() );
         }
 
 

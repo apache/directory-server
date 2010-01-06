@@ -30,7 +30,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ServerBinaryValue;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
@@ -181,7 +181,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     {
         Value<?> val = null;
         
-        AttributeType attributeType = getService().getRegistries().getAttributeTypeRegistry().lookup( oid );
+        AttributeType attributeType = getService().getSchemaManager().lookupAttributeTypeRegistry( oid );
         
         // make sure we add the request controls to operation
         if ( attributeType.getSyntax().isHumanReadable() )

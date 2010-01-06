@@ -20,9 +20,22 @@
 package org.apache.directory.server.core;
 
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import javax.naming.NamingException;
+
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
-import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.changelog.ChangeLog;
@@ -53,33 +66,14 @@ import org.apache.directory.server.core.operational.OperationalAttributeIntercep
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
-import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
-import org.apache.directory.server.core.schema.PartitionSchemaLoader;
+import org.apache.directory.server.core.schema.DefaultSchemaService;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
-import org.apache.directory.server.core.schema.SchemaOperationControl;
-import org.apache.directory.server.core.schema.SchemaPartitionDao;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
-import org.apache.directory.server.schema.SerializableComparator;
-import org.apache.directory.server.schema.bootstrap.ApacheSchema;
-import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
-import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.directory.server.schema.bootstrap.CoreSchema;
-import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.bootstrap.SystemSchema;
-import org.apache.directory.server.schema.bootstrap.partition.DbFileListing;
-import org.apache.directory.server.schema.bootstrap.partition.SchemaPartitionExtractor;
-import org.apache.directory.server.schema.registries.DefaultOidRegistry;
-import org.apache.directory.server.schema.registries.DefaultRegistries;
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -90,15 +84,13 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
-import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
@@ -106,20 +98,6 @@ import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.NamingException;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
 
 /**
@@ -132,15 +110,11 @@ public class DefaultDirectoryService implements DirectoryService
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultDirectoryService.class );
-
-    private static final String ILLEGAL_STATE_MSG = "Something has got to be severely " +
-    "wrong with the core packaging\nor the build to have " +
-    "resulted in this exception.";
     
     private SchemaService schemaService;
-
-    /** the registries for system schema objects */
-    private Registries registries;
+    
+    /** A reference on the SchemaManager */
+    private SchemaManager schemaManager;
     
     /** the root nexus */
     private DefaultPartitionNexus partitionNexus;
@@ -194,13 +168,6 @@ public class DefaultDirectoryService implements DirectoryService
             "changes are made by the admin user.\n Furthermore the used controls are not at " +
             "all taken into account";
 
-    
-    /** A structure telling the changeLog what to do with the incoming change */
-    public enum LogChange
-    {
-        TRUE,  // The change must me stored 
-        FALSE  // The change must not be stred
-    };
     
     /** The delay to wait between each sync on disk */
     private long syncPeriodMillis;
@@ -312,60 +279,27 @@ public class DefaultDirectoryService implements DirectoryService
     // ------------------------------------------------------------------------
     // Constructor
     // ------------------------------------------------------------------------
+    
+    
     /**
      * Creates a new instance of the directory service.
      */
-    public DefaultDirectoryService() 
+    public DefaultDirectoryService() throws Exception
     {
         setDefaultInterceptorConfigurations();
         changeLog = new DefaultChangeLog();
         journal = new DefaultJournal();
         syncPeriodMillis = DEFAULT_SYNC_PERIOD;
-        
-        // --------------------------------------------------------------------
-        // Load the bootstrap schemas to start up the schema partition
-        // --------------------------------------------------------------------
-
-        // setup temporary loader and temp registry 
-        BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        OidRegistry oidRegistry = new DefaultOidRegistry();
-        registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
-
-        // load essential bootstrap schemas 
-        Set<Schema> bootstrapSchemas = new HashSet<Schema>();
-        bootstrapSchemas.add( new ApachemetaSchema() );
-        bootstrapSchemas.add( new ApacheSchema() );
-        bootstrapSchemas.add( new CoreSchema() );
-        bootstrapSchemas.add( new SystemSchema() );
-        
-        try
-        {
-            loader.loadWithDependencies( bootstrapSchemas, registries );
-        }
-        catch ( Exception e )
-        {
-            throw new IllegalStateException( ILLEGAL_STATE_MSG, e );
-        }
-
-        // run referential integrity tests
-        List<Throwable> errors = registries.checkRefInteg();
-        
-        if ( !errors.isEmpty() )
-        {
-            NamingException e = new NamingException();
-            e.setRootCause( errors.get( 0 ) );
-            throw new IllegalStateException( ILLEGAL_STATE_MSG, e );
-        }
-        
-        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
-        
         csnFactory = new CsnFactory( replicaId );
+        schemaService = new DefaultSchemaService();
     }
 
 
     // ------------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
     // ------------------------------------------------------------------------
+    
+    
     public void setInstanceId( String instanceId )
     {
         this.instanceId = instanceId;
@@ -401,13 +335,16 @@ public class DefaultDirectoryService implements DirectoryService
         Set<Partition> cloned = new HashSet<Partition>();
         cloned.addAll( partitions );
         Set<String> names = new HashSet<String>();
+        
         for ( Partition partition : cloned )
         {
             String id = partition.getId();
+            
             if ( names.contains( id ) )
             {
                 LOG.warn( "Encountered duplicate partition {} identifier.", id );
             }
+            
             names.add( id );
         }
 
@@ -645,9 +582,10 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public void addPartition( Partition parition ) throws Exception
+    public void addPartition( Partition partition ) throws Exception
     {
-        partitions.add( parition );
+        partition.setSchemaManager( schemaManager );
+        partitions.add( partition );
 
         if ( ! started )
         {
@@ -655,7 +593,7 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         AddContextPartitionOperationContext addPartitionCtx = 
-            new AddContextPartitionOperationContext( adminSession, parition );
+            new AddContextPartitionOperationContext( adminSession, partition );
         partitionNexus.addContextPartition( addPartitionCtx );
     }
 
@@ -882,7 +820,7 @@ public class DefaultDirectoryService implements DirectoryService
                     {
                         case ChangeType.ADD_ORDINAL :
                             adminSession.add( 
-                                new DefaultServerEntry( registries, reverse.getEntry() ), true ); 
+                                new DefaultServerEntry( schemaManager, reverse.getEntry() ), true ); 
                             break;
                             
                         case ChangeType.DELETE_ORDINAL :
@@ -1024,6 +962,7 @@ public class DefaultDirectoryService implements DirectoryService
         // --------------------------------------------------------------------
         // Shutdown the partition
         // --------------------------------------------------------------------
+
         partitionNexus.sync();
         partitionNexus.destroy();
         
@@ -1075,17 +1014,22 @@ public class DefaultDirectoryService implements DirectoryService
     
     
     /**
-     * @return the registries
+     * @return the SchemaManager
      */
-    public Registries getRegistries()
+    public SchemaManager getSchemaManager()
     {
-        return registries;
+        return schemaManager;
     }
-
-
-    public void setRegistries( Registries registries )
+    
+    
+    /**
+     * Set the SchemaManager instance.
+     *
+     * @param schemaManager The schemaManager
+     */
+    public void setSchemaManager( SchemaManager schemaManager )
     {
-        this.registries = registries;
+        this.schemaManager = schemaManager;
     }
 
 
@@ -1101,7 +1045,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public PartitionNexus getPartitionNexus()
+    public DefaultPartitionNexus getPartitionNexus()
     {
         return partitionNexus;
     }
@@ -1127,7 +1071,7 @@ public class DefaultDirectoryService implements DirectoryService
 
     public ServerEntry newEntry( LdapDN dn ) 
     {
-        return new DefaultServerEntry( registries, dn );
+        return new DefaultServerEntry( schemaManager, dn );
     }
     
 
@@ -1150,11 +1094,11 @@ public class DefaultDirectoryService implements DirectoryService
         /*
          * If the admin entry is there, then the database was already created
          */
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, PartitionNexus.getAdminName() ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, adminDn ) ) )
         {
             firstStart = true;
 
-            ServerEntry serverEntry = new DefaultServerEntry( registries, PartitionNexus.getAdminName() );
+            ServerEntry serverEntry = new DefaultServerEntry( schemaManager, adminDn );
             
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
                                 SchemaConstants.TOP_OC,
@@ -1181,7 +1125,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system users area
         // -------------------------------------------------------------------
 
-        Map<String,OidNormalizer> oidsMap = registries.getAttributeTypeRegistry().getNormalizerMapping();
+        Map<String,OidNormalizer> oidsMap = schemaManager.getNormalizerMapping();
         LdapDN userDn = new LdapDN( ServerDNConstants.USERS_SYSTEM_DN );
         userDn.normalize( oidsMap );
         
@@ -1189,7 +1133,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            ServerEntry serverEntry = new DefaultServerEntry( registries, userDn );
+            ServerEntry serverEntry = new DefaultServerEntry( schemaManager, userDn );
             
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
                                 SchemaConstants.TOP_OC,
@@ -1215,7 +1159,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            ServerEntry serverEntry = new DefaultServerEntry( registries, groupDn );
+            ServerEntry serverEntry = new DefaultServerEntry( schemaManager, groupDn );
             
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
                                 SchemaConstants.TOP_OC,
@@ -1241,7 +1185,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            ServerEntry serverEntry = new DefaultServerEntry( registries, name );
+            ServerEntry serverEntry = new DefaultServerEntry( schemaManager, name );
             
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
                                 SchemaConstants.TOP_OC,
@@ -1291,7 +1235,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            ServerEntry serverEntry = new DefaultServerEntry( registries, configurationDn );
+            ServerEntry serverEntry = new DefaultServerEntry( schemaManager, configurationDn );
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.ORGANIZATIONAL_UNIT_OC );
 
             serverEntry.put( SchemaConstants.OU_AT, "configuration" );
@@ -1314,7 +1258,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            ServerEntry serverEntry = new DefaultServerEntry( registries, partitionsDn );
+            ServerEntry serverEntry = new DefaultServerEntry( schemaManager, partitionsDn );
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             serverEntry.put( SchemaConstants.OU_AT, "partitions" );
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
@@ -1336,7 +1280,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            ServerEntry serverEntry = new DefaultServerEntry( registries, servicesDn );
+            ServerEntry serverEntry = new DefaultServerEntry( schemaManager, servicesDn );
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.ORGANIZATIONAL_UNIT_OC );
 
             serverEntry.put( SchemaConstants.OU_AT, "services" );
@@ -1359,7 +1303,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            ServerEntry serverEntry = new DefaultServerEntry( registries, interceptorsDn );
+            ServerEntry serverEntry = new DefaultServerEntry( schemaManager, interceptorsDn );
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.ORGANIZATIONAL_UNIT_OC );
 
             serverEntry.put( SchemaConstants.OU_AT, "interceptors" );
@@ -1382,7 +1326,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            ServerEntry serverEntry = new DefaultServerEntry( registries, sysPrefRootDn );
+            ServerEntry serverEntry = new DefaultServerEntry( schemaManager, sysPrefRootDn );
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
                 SchemaConstants.TOP_OC, 
                 SchemaConstants.ORGANIZATIONAL_UNIT_OC,
@@ -1411,7 +1355,7 @@ public class DefaultDirectoryService implements DirectoryService
         boolean needToChangeAdminPassword = false;
 
         LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
-        adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        adminDn.normalize( schemaManager.getNormalizerMapping() );
         
         ServerEntry adminEntry = partitionNexus.lookup( new LookupOperationContext( adminSession, adminDn ) );
         Object userPassword = adminEntry.get( SchemaConstants.USER_PASSWORD_AT ).get();
@@ -1448,12 +1392,11 @@ public class DefaultDirectoryService implements DirectoryService
             {
                 LdifEntry ldifEntry = testEntry.clone();
                 Entry entry = ldifEntry.getEntry();
-                String dn = ldifEntry.getDn().getUpName();
+                String dn = ldifEntry.getDn().getName();
 
                 try
                 {
-                    getAdminSession().add( 
-                        new DefaultServerEntry( registries, entry ) ); 
+                    getAdminSession().add( new DefaultServerEntry( schemaManager, entry ) ); 
                 }
                 catch ( Exception e )
                 {
@@ -1480,137 +1423,26 @@ public class DefaultDirectoryService implements DirectoryService
             LOG.debug( "---> Initializing the DefaultDirectoryService " );
         }
 
-        // --------------------------------------------------------------------
-        // If not present extract schema partition from jar
-        // --------------------------------------------------------------------
+        // triggers partition to load schema fully from schema partition
+        schemaService.initialize();
+        schemaService.getSchemaPartition().initialize();
+        partitions.add( schemaService.getSchemaPartition() );
+        systemPartition.getSuffixDn().normalize( schemaManager.getNormalizerMapping() );
 
-        File schemaDirectory = new File( workingDirectory, "schema" );
-        SchemaPartitionExtractor extractor;
-        
-        if ( ! schemaDirectory.exists() )
-        {
-            try
-            {
-                extractor = new SchemaPartitionExtractor( workingDirectory );
-                extractor.extract();
-            }
-            catch ( IOException e )
-            {
-                NamingException ne = new NamingException( "Failed to extract pre-loaded schema partition." );
-                ne.setRootCause( e );
-                throw ne;
-            }
-        }
-        
-        // --------------------------------------------------------------------
-        // Initialize schema partition
-        // --------------------------------------------------------------------
-
-        JdbmPartition schemaPartition = new JdbmPartition();
-        schemaPartition.setId( "schema" );
-        schemaPartition.setCacheSize( 1000 );
-
-        DbFileListing listing;
-        
-        try 
-        {
-            listing = new DbFileListing();
-        }
-        catch( IOException e )
-        {
-            throw new LdapNamingException( "Got IOException while trying to read DBFileListing: " + e.getMessage(), 
-                ResultCodeEnum.OTHER );
-        }
-
-        Set<Index<?,ServerEntry>> indexedAttributes = new HashSet<Index<?,ServerEntry>>();
-        
-        for ( String attributeId : listing.getIndexedAttributes() )
-        {
-            indexedAttributes.add( new JdbmIndex<Object,ServerEntry>( attributeId ) );
-        }
-
-        schemaPartition.setIndexedAttributes( indexedAttributes );
-        schemaPartition.setSuffix( ServerDNConstants.OU_SCHEMA_DN );
-        schemaPartition.init( this );
-
-        // --------------------------------------------------------------------
-        // Enable schemas of all indices of partition configurations 
-        // --------------------------------------------------------------------
-
-        /*
-         * We need to make sure that every attribute indexed by a partition is
-         * loaded into the registries on the next step.  So here we must enable
-         * the schemas of those attributes so they are loaded into the global
-         * registries.
-         */
-        
-        SchemaPartitionDao dao = new SchemaPartitionDao( schemaPartition, registries );
-        Map<String,Schema> schemaMap = dao.getSchemas();
-        Set<Partition> partitions = new HashSet<Partition>();
-        partitions.add( systemPartition );
-        partitions.addAll( this.partitions );
-
-        for ( Partition partition : partitions )
-        {
-            if ( partition instanceof BTreePartition )
-            {
-                JdbmPartition btpconf = ( JdbmPartition ) partition;
-                for ( Index<?,ServerEntry> index : btpconf.getIndexedAttributes() )
-                {
-                    String schemaName = null;
-                    
-                    try
-                    {
-                        // Try to retrieve the AT in the registries
-                        AttributeType at = registries.getAttributeTypeRegistry().lookup( index.getAttributeId() );
-                        schemaName = dao.findSchema( at.getOid() );
-                    }
-                    catch ( Exception e )
-                    {
-                        // It does not exists: just use the attribute ID
-                        schemaName = dao.findSchema( index.getAttributeId() );
-                    }
-                    
-                    if ( schemaName == null )
-                    {
-                        throw new NamingException( "Index on unidentified attribute: " + index.toString() );
-                    }
-
-                    Schema schema = schemaMap.get( schemaName );
-                    if ( schema.isDisabled() )
-                    {
-                        dao.enableSchema( schemaName );
-                    }
-                }
-            }
-        }
-        
-        // --------------------------------------------------------------------
-        // Initialize schema subsystem and reset registries
-        // --------------------------------------------------------------------
-        
-        PartitionSchemaLoader schemaLoader = new PartitionSchemaLoader( schemaPartition, registries );
-        Registries globalRegistries = new DefaultRegistries( "global", schemaLoader, registries.getOidRegistry() );
-        schemaLoader.loadEnabled( globalRegistries );
-        registries = globalRegistries;
-        SerializableComparator.setRegistry( globalRegistries.getComparatorRegistry() );
-
-        SchemaOperationControl schemaControl = new SchemaOperationControl( registries, schemaLoader,
-            new SchemaPartitionDao( schemaPartition, registries ) );
-
-        schemaService = new SchemaService( this, schemaPartition, schemaControl );
-
-        adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-        adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN ).normalize( schemaManager.getNormalizerMapping() );
+        adminDn.normalize( schemaManager.getNormalizerMapping() );
         adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), this );
-
-        partitionNexus = new DefaultPartitionNexus( new DefaultServerEntry( registries, LdapDN.EMPTY_LDAPDN ) );
-        partitionNexus.init( this );
-        partitionNexus.addContextPartition( new AddContextPartitionOperationContext( adminSession, schemaPartition ) );
+        
+        // @TODO - NOTE: Need to find a way to instantiate without dependency on DPN
+        partitionNexus = new DefaultPartitionNexus( new DefaultServerEntry( schemaManager, LdapDN.EMPTY_LDAPDN ) );
+        partitionNexus.setDirectoryService( this );
+        partitionNexus.initialize( );
+        //partitionNexus.addContextPartition( new AddContextPartitionOperationContext( adminSession, schemaService.getSchemaPartition() ) );
 
         // --------------------------------------------------------------------
         // Create all the bootstrap entries before initializing chain
         // --------------------------------------------------------------------
+        
         firstStart = createBootstrapEntries();
 
         interceptorChain = new InterceptorChain();
@@ -1619,13 +1451,14 @@ public class DefaultDirectoryService implements DirectoryService
         // --------------------------------------------------------------------
         // Initialize the changeLog if it's enabled
         // --------------------------------------------------------------------
+        
         if ( changeLog.isEnabled() )
         {
             changeLog.init( this );
             
             if( changeLog.isExposed() && changeLog.isTagSearchSupported() )
             {
-                String clSuffix = ( ( TaggableSearchableChangeLogStore ) changeLog.getChangeLogStore() ).getPartition().getSuffix();
+                String clSuffix = ( ( TaggableSearchableChangeLogStore ) changeLog.getChangeLogStore() ).getPartition().getSuffixDn().getName();
                 partitionNexus.getRootDSE( null ).getOriginalEntry().add( SchemaConstants.CHANGELOG_CONTEXT_AT, clSuffix );
             }
         }
@@ -1729,7 +1562,7 @@ public class DefaultDirectoryService implements DirectoryService
             entry.setDn( ldapDn );
             
             // TODO Let's get rid of this Attributes crap
-            ServerEntry serverEntry = new DefaultServerEntry( registries, entry );
+            ServerEntry serverEntry = new DefaultServerEntry( schemaManager, entry );
             return serverEntry;
         }
         catch ( Exception e )
@@ -1765,7 +1598,7 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * {@inheritDoc}
      */
-    public void setPassordHidden( boolean passwordHidden )
+    public void setPasswordHidden( boolean passwordHidden )
     {
         this.passwordHidden = passwordHidden;
     }

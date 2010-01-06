@@ -22,7 +22,6 @@ package org.apache.directory.server.tools;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -40,38 +39,25 @@ import jdbm.recman.CacheRecordManager;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmMasterTable;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.core.schema.PartitionSchemaLoader;
-import org.apache.directory.server.schema.SerializableComparator;
-import org.apache.directory.server.schema.bootstrap.ApacheSchema;
-import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
-import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.directory.server.schema.bootstrap.CoreSchema;
-import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.bootstrap.SystemSchema;
-import org.apache.directory.server.schema.bootstrap.partition.DbFileListing;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.DefaultOidRegistry;
-import org.apache.directory.server.schema.registries.DefaultRegistries;
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.shared.ldap.MultiException;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
+import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.util.Base64;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 
 
 /**
@@ -82,8 +68,7 @@ import org.apache.directory.shared.ldap.util.Base64;
  */
 public class DumpCommand extends ToolCommand
 {
-    private Registries bootstrapRegistries = new DefaultRegistries( "bootstrap", new BootstrapSchemaLoader(),
-        new DefaultOidRegistry() );
+    private SchemaManager schemaManager;
     private Set<String> exclusions = new HashSet<String>();
     private boolean includeOperational = false;
 
@@ -94,28 +79,41 @@ public class DumpCommand extends ToolCommand
     }
 
 
-    private Registries loadRegistries() throws Exception
+    private SchemaManager loadSchemaManager() throws Exception
     {
         // --------------------------------------------------------------------
         // Load the bootstrap schemas to start up the schema partition
         // --------------------------------------------------------------------
 
         // setup temporary loader and temp registry 
-        BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        OidRegistry oidRegistry = new DefaultOidRegistry();
-        final Registries registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
+    	String workingDirectory = System.getProperty( "workingDirectory" );
 
-        // load essential bootstrap schemas 
-        Set<Schema> bootstrapSchemas = new HashSet<Schema>();
-        bootstrapSchemas.add( new ApachemetaSchema() );
-        bootstrapSchemas.add( new ApacheSchema() );
-        bootstrapSchemas.add( new CoreSchema() );
-        bootstrapSchemas.add( new SystemSchema() );
-        loader.loadWithDependencies( bootstrapSchemas, registries );
+        if ( workingDirectory == null )
+        {
+            String path = DumpCommand.class.getResource( "" ).getPath();
+            int targetPos = path.indexOf( "target" );
+            workingDirectory = path.substring( 0, targetPos + 6 );
+        }
 
-        // run referential integrity tests
-        List<Throwable> errors = registries.checkRefInteg();
+        File schemaRepository = new File( workingDirectory, "schema" );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+        extractor.extractOrCopy();
+        LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
+        schemaManager = new DefaultSchemaManager( loader );
+        schemaManager.loadAllEnabled();
+        
+        List<Throwable> errors = schemaManager.getErrors();
+        
+        if ( errors.size() != 0 )
+        {
+            throw new Exception( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+        }
 
+        
+        schemaManager.loadWithDeps( "collective" );
+        
+        errors = schemaManager.getErrors();
+        
         if ( !errors.isEmpty() )
         {
             MultiException e = new MultiException();
@@ -127,14 +125,12 @@ public class DumpCommand extends ToolCommand
             throw e;
         }
 
-        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
-
         // --------------------------------------------------------------------
         // Initialize schema partition or bomb out if we cannot find it on disk
         // --------------------------------------------------------------------
 
         // If not present then we need to abort 
-        File schemaDirectory = new File( getLayout().getPartitionsDirectory(), "schema" );
+        File schemaDirectory = new File( getInstanceLayout().getPartitionsDir(), "schema" );
 
         if ( !schemaDirectory.exists() )
         {
@@ -142,50 +138,23 @@ public class DumpCommand extends ToolCommand
                 + "the installation layout could not be found:\n\t" + schemaDirectory );
         }
 
-        JdbmPartition schemaPartition = new JdbmPartition();
-        schemaPartition.setId( "schema" );
-        schemaPartition.setCacheSize( 1000 );
-
-        DbFileListing listing;
-        
-        try
-        {
-            listing = new DbFileListing();
-        }
-        catch ( IOException e )
-        {
-            throw new LdapNamingException( "Got IOException while trying to read DBFileListing: " + e.getMessage(),
-                ResultCodeEnum.OTHER );
-        }
-
-        Set<Index<?,ServerEntry>> indexedAttributes = new HashSet<Index<?,ServerEntry>>();
-
-        for ( String attributeId : listing.getIndexedAttributes() )
-        {
-            indexedAttributes.add( new JdbmIndex( attributeId ) );
-        }
-
-        schemaPartition.setIndexedAttributes( indexedAttributes );
-        schemaPartition.setSuffix( ServerDNConstants.OU_SCHEMA_DN );
-
         DirectoryService directoryService = new DefaultDirectoryService();
-        schemaPartition.init( directoryService );
+        //schemaPartition.init( directoryService );
 
         // --------------------------------------------------------------------
         // Initialize schema subsystem and reset registries
         // --------------------------------------------------------------------
-        PartitionSchemaLoader schemaLoader = new PartitionSchemaLoader( schemaPartition, registries );
-        Registries globalRegistries = new DefaultRegistries( "global", schemaLoader, oidRegistry );
-        schemaLoader.loadEnabled( globalRegistries );
-        SerializableComparator.setRegistry( globalRegistries.getComparatorRegistry() );
-        return globalRegistries;
+//        PartitionSchemaLoader schemaLoader = new PartitionSchemaLoader( schemaPartition, registries );
+//        schemaLoader.loadEnabled( globalRegistries );
+//        SerializableComparator.setRegistry( globalRegistries.getComparatorRegistry() );
+        return schemaManager;
     }
 
 
     public void execute( CommandLine cmdline ) throws Exception
     {
         getLayout().verifyInstallation();
-        bootstrapRegistries = loadRegistries();
+        schemaManager = loadSchemaManager();
 
         includeOperational = cmdline.hasOption( 'o' );
         String[] partitions = cmdline.getOptionValues( 'p' );
@@ -196,11 +165,9 @@ public class DumpCommand extends ToolCommand
         
         if ( excludedAttributes != null )
         {
-            AttributeTypeRegistry registry = bootstrapRegistries.getAttributeTypeRegistry();
-            
             for ( String attributeType:excludedAttributes)
             {
-                AttributeType type = registry.lookup( attributeType );
+                AttributeType type = schemaManager.lookupAttributeTypeRegistry( attributeType );
                 exclusions.add( type.getName() );
             }
         }
@@ -216,7 +183,7 @@ public class DumpCommand extends ToolCommand
 
         for ( String partition:partitions )
         {
-            File partitionDirectory = new File( getLayout().getPartitionsDirectory(), partition );
+            File partitionDirectory = new File( getInstanceLayout().getPartitionsDir(), partition );
             out.println( "\n\n" );
             dump( partitionDirectory, out );
         }
@@ -241,14 +208,14 @@ public class DumpCommand extends ToolCommand
         base.disableTransactions();
         CacheRecordManager recMan = new CacheRecordManager( base, new MRU( 1000 ) );
 
-        JdbmMasterTable<ServerEntry> master = new JdbmMasterTable<ServerEntry>( recMan, bootstrapRegistries );
-        AttributeType attributeType = bootstrapRegistries.getAttributeTypeRegistry().lookup( "apacheUpdn" );
+        JdbmMasterTable<ServerEntry> master = new JdbmMasterTable<ServerEntry>( recMan, schemaManager );
+        AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( "apacheUpdn" );
         JdbmIndex idIndex = new JdbmIndex();
         idIndex.setAttributeId( attributeType.getName() );
         idIndex.setWkDirPath( partitionDirectory );
         idIndex.setCacheSize( 1000 );
         idIndex.setNumDupLimit( 1000 );
-        idIndex.init( attributeType, partitionDirectory );
+        idIndex.init( schemaManager, attributeType, partitionDirectory );
 
         out.println( "#---------------------" );
         Cursor<Tuple<Long,ServerEntry>> list = master.cursor();
@@ -293,14 +260,13 @@ public class DumpCommand extends ToolCommand
     private void filterAttributes( String dn, Attributes entry ) throws Exception
     {
         List<String> toRemove = new ArrayList<String>();
-        AttributeTypeRegistry registry = bootstrapRegistries.getAttributeTypeRegistry();
         NamingEnumeration<? extends Attribute> attrs = entry.getAll();
         
         while ( attrs.hasMore() )
         {
             Attribute attr = attrs.next();
             
-            if ( !registry.hasAttributeType( attr.getID() ) )
+            if ( !schemaManager.getAttributeTypeRegistry().contains( attr.getID() ) )
             {
                 if ( !isQuietEnabled() )
                 {
@@ -310,7 +276,7 @@ public class DumpCommand extends ToolCommand
                 continue;
             }
 
-            AttributeType type = registry.lookup( attr.getID() );
+            AttributeType type = schemaManager.lookupAttributeTypeRegistry( attr.getID() );
             boolean isOperational = type.getUsage() != UsageEnum.USER_APPLICATIONS;
             
             if ( exclusions.contains( attr.getID() ) || ( isOperational && ( !includeOperational ) ) )

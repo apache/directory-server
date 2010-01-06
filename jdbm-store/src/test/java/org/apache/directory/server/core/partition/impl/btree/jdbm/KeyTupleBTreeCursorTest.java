@@ -22,25 +22,29 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.util.Comparator;
-import java.util.Iterator;
-
-import javax.naming.NamingException;
 
 import jdbm.RecordManager;
 import jdbm.btree.BTree;
-import jdbm.helper.IntegerSerializer;
+import jdbm.helper.DefaultSerializer;
 import jdbm.recman.BaseRecordManager;
 
-import org.apache.directory.server.schema.SerializableComparator;
-import org.apache.directory.server.schema.registries.ComparatorRegistry;
 import org.apache.directory.server.xdbm.Tuple;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
+import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 
@@ -52,23 +56,50 @@ import org.junit.Test;
  */
 public class KeyTupleBTreeCursorTest
 {
-
-    JdbmTable<Integer,Integer> table;
-    Comparator<Integer> comparator;
-    KeyTupleBTreeCursor<Integer, Integer> cursor;
+    JdbmTable<String,String> table;
+    Comparator<String> comparator;
+    KeyTupleBTreeCursor<String, String> cursor;
     File dbFile;
     RecordManager recman;
     
-    private static final Integer KEY = 1;
+    private static final String KEY = "1";
     private static final String TEST_OUTPUT_PATH = "test.output.path";
+    private static SchemaManager schemaManager;
+
+
+    @BeforeClass
+    public static void init() throws Exception
+    {
+        String workingDirectory = System.getProperty( "workingDirectory" );
+
+        if ( workingDirectory == null )
+        {
+            String path = DupsContainerCursorTest.class.getResource( "" ).getPath();
+            int targetPos = path.indexOf( "target" );
+            workingDirectory = path.substring( 0, targetPos + 6 );
+        }
+
+        File schemaRepository = new File( workingDirectory, "schema" );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+        extractor.extractOrCopy( true );
+        LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
+        schemaManager = new DefaultSchemaManager( loader );
+
+        boolean loaded = schemaManager.loadAllEnabled();
+
+        if ( !loaded )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
+        }
+    }
     
     @Before
     public void createTree() throws Exception
     {
-      comparator = new Comparator<Integer>() 
+      comparator = new Comparator<String>() 
       {
 
-          public int compare( Integer i1, Integer i2 )
+          public int compare( String i1, String i2 )
           {
               return i1.compareTo( i2 );
           }
@@ -84,14 +115,13 @@ public class KeyTupleBTreeCursorTest
         dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
         
-        SerializableComparator.setRegistry( new MockComparatorRegistry() );
-        
-        table = new JdbmTable<Integer,Integer>( "test", 6, recman,
-                new SerializableComparator<Integer>( "" ),
-                new SerializableComparator<Integer>( "" ),
-                new IntegerSerializer(), new IntegerSerializer() );
+        SerializableComparator<String> comparator = new SerializableComparator<String>( SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
+        comparator.setSchemaManager( schemaManager );
 
-        cursor = new KeyTupleBTreeCursor<Integer, Integer>( table.getBTree(), KEY, comparator );
+        table = new JdbmTable<String,String>( schemaManager, "test", 6, recman,
+                comparator, comparator, new DefaultSerializer(), new DefaultSerializer() );
+
+        cursor = new KeyTupleBTreeCursor<String, String>( table.getBTree(), KEY, comparator );
     }
     
     
@@ -129,49 +159,49 @@ public class KeyTupleBTreeCursorTest
     @Test
     public void testNonEmptyCursor() throws Exception
     {
-        table.put( KEY, 3 );
-        table.put( KEY, 5 );
-        table.put( KEY, 7 );
-        table.put( KEY, 12 );
-        table.put( KEY, 0 );
-        table.put( KEY, 30 );
-        table.put( KEY, 25 );
+        table.put( KEY, "3" );
+        table.put( KEY, "5" );
+        table.put( KEY, "7" );
+        table.put( KEY, "12" );
+        table.put( KEY, "0" );
+        table.put( KEY, "30" );
+        table.put( KEY, "25" );
        
-        cursor = new KeyTupleBTreeCursor<Integer, Integer>( getDupsContainer(), KEY, comparator );
+        cursor = new KeyTupleBTreeCursor<String, String>( getDupsContainer(), KEY, comparator );
    
-        cursor.before( new Tuple<Integer, Integer>( KEY, 3) );
+        cursor.before( new Tuple<String, String>( KEY, "3" ) );
         assertTrue( cursor.next() );
-        assertEquals( 3, ( int ) cursor.get().getValue() );
+        assertEquals( "3", cursor.get().getValue() );
         
-        cursor.after( new Tuple<Integer, Integer>( KEY, 100 ) );
+        cursor.after( new Tuple<String, String>( KEY, "100" ) );
         assertFalse( cursor.next() );
         
         cursor.beforeFirst();
-        cursor.after( new Tuple<Integer, Integer>( KEY, 13 ) );
+        cursor.after( new Tuple<String, String>( KEY, "13" ) );
         assertTrue( cursor.next() );
-        assertEquals( 25, ( int ) cursor.get().getValue() );
+        assertEquals( "25", cursor.get().getValue() );
         
         cursor.beforeFirst();
         assertFalse( cursor.previous() );
         assertTrue( cursor.next() );
-        assertEquals( 0, ( int ) cursor.get().getValue() );
+        assertEquals( "0", cursor.get().getValue() );
         
         cursor.afterLast();
         assertFalse( cursor.next() );
         
         assertTrue( cursor.first() );
         assertTrue( cursor.available() );
-        assertEquals( 0, ( int ) cursor.get().getValue() );
+        assertEquals( "0", cursor.get().getValue() );
         
         assertTrue( cursor.last() );
         assertTrue( cursor.available() );
-        assertEquals( 30, ( int ) cursor.get().getValue() );
+        assertEquals( "30", cursor.get().getValue() );
         
         assertTrue( cursor.previous() );
-        assertEquals( 25, ( int ) cursor.get().getValue() );
+        assertEquals( "25", cursor.get().getValue() );
     
         assertTrue( cursor.next() );
-        assertEquals( 30, ( int ) cursor.get().getValue() ); 
+        assertEquals( "30", cursor.get().getValue() ); 
     
     }
 
@@ -179,68 +209,8 @@ public class KeyTupleBTreeCursorTest
     {
         BTree tree = table.getBTree();
         
-        DupsContainer<Integer> values = table.getDupsContainer( ( byte[] ) tree.find( KEY ) );
+        DupsContainer<String> values = table.getDupsContainer( ( byte[] ) tree.find( KEY ) );
         
         return table.getBTree( values.getBTreeRedirect() );   
-    }
-    
-    private class MockComparatorRegistry implements ComparatorRegistry
-    {
-        private Comparator<Integer> comparator = new Comparator<Integer>()
-        {
-            public int compare( Integer i1, Integer i2 )
-            {
-                return i1.compareTo( i2 );
-            }
-        };
-
-        public String getSchemaName( String oid ) throws NamingException
-        {
-            return null;
-        }
-
-
-        public void register( ComparatorDescription description, Comparator comparator ) throws NamingException
-        {
-        }
-
-
-        public Comparator lookup( String oid ) throws NamingException
-        {
-            return comparator;
-        }
-
-
-        public boolean hasComparator( String oid )
-        {
-            return true;
-        }
-
-
-        public Iterator<String> iterator()
-        {
-            return null;
-        }
-
-
-        public Iterator<ComparatorDescription> comparatorDescriptionIterator()
-        {
-            return null;
-        }
-
-
-        public void unregister( String oid ) throws NamingException
-        {
-        }
-
-
-        public void unregisterSchemaElements( String schemaName )
-        {
-        }
-
-
-        public void renameSchema( String originalSchemaName, String newSchemaName )
-        {
-        }
     }
 }

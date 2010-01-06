@@ -20,48 +20,59 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.junit.Before;
-import org.junit.After;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+import javax.naming.directory.Attributes;
+
 import org.apache.commons.io.FileUtils;
-import org.apache.directory.server.schema.bootstrap.*;
-import org.apache.directory.server.schema.registries.*;
-import org.apache.directory.server.schema.SerializableComparator;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.xdbm.IndexNotFoundException;
-import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.xdbm.IndexCursor;
-import org.apache.directory.server.xdbm.tools.StoreUtils;
+import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
-import org.apache.directory.server.core.entry.DefaultServerAttribute;
-import org.apache.directory.server.core.entry.ServerAttribute;
-import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.IndexNotFoundException;
+import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.Cursor;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.SchemaUtils;
-import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
-
-import javax.naming.directory.Attributes;
-import java.lang.reflect.Method;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.UUID;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.SchemaUtils;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
+import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -77,26 +88,34 @@ public class JdbmStoreTest
 
     File wkdir;
     JdbmStore<ServerEntry> store;
-    Registries registries = null;
-    AttributeTypeRegistry attributeRegistry;
+    private static SchemaManager schemaManager = null;
+    private static LdifSchemaLoader loader;
 
 
-    public JdbmStoreTest() throws Exception
+    @BeforeClass
+    public static void setup() throws Exception
     {
-        // setup the standard registries
-        BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        OidRegistry oidRegistry = new DefaultOidRegistry();
-        registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
-        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
+    	String workingDirectory = System.getProperty( "workingDirectory" );
 
-        // load essential bootstrap schemas
-        Set<Schema> bootstrapSchemas = new HashSet<Schema>();
-        bootstrapSchemas.add( new ApachemetaSchema() );
-        bootstrapSchemas.add( new ApacheSchema() );
-        bootstrapSchemas.add( new CoreSchema() );
-        bootstrapSchemas.add( new SystemSchema() );
-        loader.loadWithDependencies( bootstrapSchemas, registries );
-        attributeRegistry = registries.getAttributeTypeRegistry();
+        if ( workingDirectory == null )
+        {
+            String path = JdbmStoreTest.class.getResource( "" ).getPath();
+            int targetPos = path.indexOf( "target" );
+            workingDirectory = path.substring( 0, targetPos + 6 );
+        }
+
+        File schemaRepository = new File( workingDirectory, "schema" );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+        extractor.extractOrCopy( true );
+        loader = new LdifSchemaLoader( schemaRepository );
+        schemaManager = new DefaultSchemaManager( loader );
+
+        boolean loaded = schemaManager.loadAllEnabled();
+
+        if ( !loaded )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
+        }
     }
 
 
@@ -117,10 +136,10 @@ public class JdbmStoreTest
         store.setCacheSize( 10 );
         store.setWorkingDirectory( wkdir );
         store.setSyncOnWrite( false );
-
         store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new JdbmIndex( SchemaConstants.UID_AT_OID ) );
-        StoreUtils.loadExampleData( store, registries );
+
+        StoreUtils.loadExampleData( store, schemaManager );
         LOG.debug( "Created new store" );
     }
 
@@ -321,12 +340,12 @@ public class JdbmStoreTest
     public void testFreshStore() throws Exception
     {
         LdapDN dn = new LdapDN( "o=Good Times Co." );
-        dn.normalize( attributeRegistry.getNormalizerMapping() );
+        dn.normalize( schemaManager.getNormalizerMapping() );
         assertEquals( 1L, ( long ) store.getEntryId( dn.toNormName() ) );
         assertEquals( 11, store.count() );
         assertEquals( "o=Good Times Co.", store.getEntryUpdn( dn.toNormName() ) );
         assertEquals( dn.toNormName(), store.getEntryDn( 1L ) );
-        assertEquals( dn.getUpName(), store.getEntryUpdn( 1L ) );
+        assertEquals( dn.getName(), store.getEntryUpdn( 1L ) );
 
         // note that the suffix entry returns 0 for it's parent which does not exist
         assertEquals( 0L, ( long ) store.getParentId( dn.toNormName() ) );
@@ -356,8 +375,8 @@ public class JdbmStoreTest
         
         // add an alias and delete to test dropAliasIndices method
         LdapDN dn = new LdapDN( "commonName=Jack Daniels,ou=Apache,ou=Board of Directors,o=Good Times Co." );
-        dn.normalize( attributeRegistry.getNormalizerMapping() );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        dn.normalize( schemaManager.getNormalizerMapping() );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "ou", "Apache" );
         entry.add( "commonName",  "Jack Daniels");
@@ -405,8 +424,8 @@ public class JdbmStoreTest
       
       // dn id 12
       LdapDN martinDn = new LdapDN( "cn=Marting King,ou=Sales,o=Good Times Co." );
-      martinDn.normalize( attributeRegistry.getNormalizerMapping() );
-      DefaultServerEntry entry = new DefaultServerEntry( registries, martinDn );
+      martinDn.normalize( schemaManager.getNormalizerMapping() );
+      DefaultServerEntry entry = new DefaultServerEntry( schemaManager, martinDn );
       entry.add( "objectClass", "top", "person", "organizationalPerson" );
       entry.add( "ou", "Sales" );
       entry.add( "cn",  "Martin King");
@@ -420,7 +439,7 @@ public class JdbmStoreTest
       assertEquals( 12, ( long ) cursor.get().getId() );
       
       LdapDN newParentDn = new LdapDN( "ou=Board of Directors,o=Good Times Co." );
-      newParentDn.normalize( attributeRegistry.getNormalizerMapping() );
+      newParentDn.normalize( schemaManager.getNormalizerMapping() );
       
       store.move( martinDn, newParentDn );
       cursor = idx.forwardCursor( 3L);
@@ -430,8 +449,8 @@ public class JdbmStoreTest
       
       // dn id 13
       LdapDN marketingDn = new LdapDN( "ou=Marketing,ou=Sales,o=Good Times Co." );
-      marketingDn.normalize( attributeRegistry.getNormalizerMapping() );
-      entry = new DefaultServerEntry( registries, marketingDn );
+      marketingDn.normalize( schemaManager.getNormalizerMapping() );
+      entry = new DefaultServerEntry( schemaManager, marketingDn );
       entry.add( "objectClass", "top", "organizationalUnit" );
       entry.add( "ou", "Marketing" );
       entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
@@ -440,8 +459,8 @@ public class JdbmStoreTest
 
       // dn id 14
       LdapDN jimmyDn = new LdapDN( "cn=Jimmy Wales,ou=Marketing, ou=Sales,o=Good Times Co." );
-      jimmyDn.normalize( attributeRegistry.getNormalizerMapping() );
-      entry = new DefaultServerEntry( registries, jimmyDn );
+      jimmyDn.normalize( schemaManager.getNormalizerMapping() );
+      entry = new DefaultServerEntry( schemaManager, jimmyDn );
       entry.add( "objectClass", "top", "person", "organizationalPerson" );
       entry.add( "ou", "Marketing" );
       entry.add( "cn",  "Jimmy Wales");
@@ -679,8 +698,8 @@ public class JdbmStoreTest
     public void testAddWithoutParentId() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=Marting King,ou=Not Present,o=Good Times Co." );
-        dn.normalize( attributeRegistry.getNormalizerMapping() );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        dn.normalize( schemaManager.getNormalizerMapping() );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Not Present" );
         entry.add( "cn",  "Martin King");
@@ -692,8 +711,8 @@ public class JdbmStoreTest
     public void testAddWithoutObjectClass() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=Martin King,ou=Sales,o=Good Times Co." );
-        dn.normalize( attributeRegistry.getNormalizerMapping() );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        dn.normalize( schemaManager.getNormalizerMapping() );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "ou", "Sales" );
         entry.add( "cn",  "Martin King");
         store.add( entry );
@@ -704,11 +723,11 @@ public class JdbmStoreTest
     public void testModifyAddOUAttrib() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
-        dn.normalize( attributeRegistry.getNormalizerMapping() );
+        dn.normalize( schemaManager.getNormalizerMapping() );
 
         List<Modification> mods = new ArrayList<Modification>();
         ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.OU_AT,
-            attributeRegistry.lookup( SchemaConstants.OU_AT_OID ) );
+            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT_OID ) );
         attrib.add( "Engineering" );
         
         Modification add = new ServerModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
@@ -723,8 +742,8 @@ public class JdbmStoreTest
     public void testRename() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
-        dn.normalize( attributeRegistry.getNormalizerMapping() );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        dn.normalize( schemaManager.getNormalizerMapping() );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Engineering" );
         entry.add( "cn",  "Private Ryan");
@@ -740,11 +759,38 @@ public class JdbmStoreTest
     
     
     @Test
+    public void testRenameEscaped() throws Exception
+    {
+        LdapDN dn = new LdapDN( "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
+        dn.normalize( schemaManager.getNormalizerMapping() );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        entry.add( "objectClass", "top", "person", "organizationalPerson" );
+        entry.add( "ou", "Engineering" );
+        entry.add( "cn",  "Private Ryan");
+        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
+        entry.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
+        
+        store.add( entry );
+        
+        Rdn rdn = new Rdn("sn=Ja\\+es");
+        
+        store.rename( dn, rdn, true );
+        
+        LdapDN dn2 = new LdapDN( "sn=Ja\\+es,ou=Engineering,o=Good Times Co." );
+        dn2.normalize( schemaManager.getNormalizerMapping() );
+        Long id = store.getEntryId( dn2.getNormName() );
+        assertNotNull( id );
+        ServerEntry entry2 = store.lookup( id );
+        assertEquals("Ja+es", entry2.get( "sn" ).getString());
+    }
+    
+    
+    @Test
     public void testMove() throws Exception
     {
         LdapDN childDn = new LdapDN( "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
-        childDn.normalize( attributeRegistry.getNormalizerMapping() );
-        DefaultServerEntry childEntry = new DefaultServerEntry( registries, childDn );
+        childDn.normalize( schemaManager.getNormalizerMapping() );
+        DefaultServerEntry childEntry = new DefaultServerEntry( schemaManager, childDn );
         childEntry.add( "objectClass", "top", "person", "organizationalPerson" );
         childEntry.add( "ou", "Engineering" );
         childEntry.add( "cn",  "Private Ryan");
@@ -754,7 +800,7 @@ public class JdbmStoreTest
         store.add( childEntry );
 
         LdapDN parentDn = new LdapDN( "ou=Sales,o=Good Times Co." );
-        parentDn.normalize( attributeRegistry.getNormalizerMapping() );
+        parentDn.normalize( schemaManager.getNormalizerMapping() );
 
         Rdn rdn = new Rdn("cn=Ryan");
 
@@ -762,10 +808,10 @@ public class JdbmStoreTest
 
         // to drop the alias indices   
         childDn = new LdapDN( "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co." );
-        childDn.normalize( attributeRegistry.getNormalizerMapping() );
+        childDn.normalize( schemaManager.getNormalizerMapping() );
         
         parentDn = new LdapDN( "ou=Engineering,o=Good Times Co." );
-        parentDn.normalize( attributeRegistry.getNormalizerMapping() );
+        parentDn.normalize( schemaManager.getNormalizerMapping() );
         
         assertEquals( 3, store.getSubAliasIndex().count() );
         
@@ -779,11 +825,11 @@ public class JdbmStoreTest
     public void testModifyAdd() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
-        dn.normalize( attributeRegistry.getNormalizerMapping() );
+        dn.normalize( schemaManager.getNormalizerMapping() );
 
         List<Modification> mods = new ArrayList<Modification>();
         ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.SURNAME_AT,
-            attributeRegistry.lookup( SchemaConstants.SURNAME_AT ) );
+            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.SURNAME_AT ) );
         
         String attribVal = "Walker";
         attrib.add( attribVal );
@@ -797,7 +843,7 @@ public class JdbmStoreTest
         assertTrue( lookedup.get( "sn" ).contains( attribVal ) );
         
         // testing the store.modify( dn, mod, entry ) API
-        ServerEntry entry = new DefaultServerEntry( registries, dn );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         attribVal = "+1974045779";
         entry.add( "telephoneNumber", attribVal );
         
@@ -811,11 +857,11 @@ public class JdbmStoreTest
     public void testModifyReplace() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
-        dn.normalize( attributeRegistry.getNormalizerMapping() );
+        dn.normalize( schemaManager.getNormalizerMapping() );
 
         List<Modification> mods = new ArrayList<Modification>();
         ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.SN_AT,
-            attributeRegistry.lookup( SchemaConstants.SN_AT_OID ) );
+            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.SN_AT_OID ) );
         
         String attribVal = "Johnny";
         attrib.add( attribVal );
@@ -831,7 +877,7 @@ public class JdbmStoreTest
         assertEquals( attribVal, lookedup.get( "sn" ).get().getString() );
         
         // testing the store.modify( dn, mod, entry ) API
-        ServerEntry entry = new DefaultServerEntry( registries, dn );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         attribVal = "JWalker";
         entry.add( "sn", attribVal );
         
@@ -844,11 +890,11 @@ public class JdbmStoreTest
     public void testModifyRemove() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
-        dn.normalize( attributeRegistry.getNormalizerMapping() );
+        dn.normalize( schemaManager.getNormalizerMapping() );
 
         List<Modification> mods = new ArrayList<Modification>();
         ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.SN_AT,
-            attributeRegistry.lookup( SchemaConstants.SN_AT_OID ) );
+            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.SN_AT_OID ) );
         
         Modification add = new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
         mods.add( add );
@@ -861,7 +907,7 @@ public class JdbmStoreTest
         assertNull( lookedup.get( "sn" ) );
         
         // testing the store.modify( dn, mod, entry ) API
-        ServerEntry entry = new DefaultServerEntry( registries, dn );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
         // add an entry for the sake of testing the remove operation
         entry.add( "sn", "JWalker" );
@@ -877,8 +923,8 @@ public class JdbmStoreTest
     public void testModifyReplaceNonExistingIndexAttribute() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=Tim B,ou=Sales,o=Good Times Co." );
-        dn.normalize( attributeRegistry.getNormalizerMapping() );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        dn.normalize( schemaManager.getNormalizerMapping() );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "cn", "Tim B");
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
@@ -888,7 +934,7 @@ public class JdbmStoreTest
         
         List<Modification> mods = new ArrayList<Modification>();
         ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.OU_AT,
-            attributeRegistry.lookup( SchemaConstants.OU_AT_OID ) );
+            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT_OID ) );
         
         String attribVal = "Marketing";
         attrib.add( attribVal );

@@ -21,18 +21,14 @@
 package org.apache.directory.server.core.trigger;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
@@ -44,8 +40,14 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
-import java.util.HashMap;
-import java.util.Map;
+
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -54,13 +56,11 @@ import java.util.Map;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$
  */
-@RunWith ( CiRunner.class )
+@RunWith ( FrameworkRunner.class )
 @Ignore ( "Reverts are failing to delete marked entries. Fixing this " +
         "problem in testEntryAdd() will fix it all over." )
-public class SubentryServiceForTriggersIT
+public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
 {
-    public static DirectoryService service;
-
 
     public Attributes getTestEntry( String cn )
     {

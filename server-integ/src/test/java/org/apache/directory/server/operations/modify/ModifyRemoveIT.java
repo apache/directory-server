@@ -20,6 +20,14 @@
 package org.apache.directory.server.operations.modify;
 
 
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -34,22 +42,14 @@ import javax.naming.directory.SchemaViolationException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.integ.SiRunner;
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -59,26 +59,28 @@ import static org.junit.Assert.assertNotNull;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.SUITE )
+@RunWith ( FrameworkRunner.class ) 
+//@CreateDS( name="ModifyRemoveIT-class", enableChangeLog=false )
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" )
+    })
 @ApplyLdifs( {
     // Entry # 1
-    "dn: cn=Tori Amos,ou=system\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "description: an American singer-songwriter\n" +
-    "cn: Tori Amos\n" +
-    "sn: Amos\n\n"
+    "dn: cn=Tori Amos,ou=system",
+    "objectClass: person",
+    "objectClass: top",
+    "description: an American singer-songwriter",
+    "cn: Tori Amos",
+    "sn: Amos"
     }
 )
-public class ModifyRemoveIT
+public class ModifyRemoveIT extends AbstractLdapTestUnit
 {
     private static final String BASE = "ou=system";
     private static final String RDN = "cn=Tori Amos";
 
-    
-    public static LdapServer ldapServer;
-    
     /**
      * Enable the krb5kdc schema.
      */

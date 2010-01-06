@@ -63,7 +63,7 @@ public class ClonedServerEntry implements ServerEntry
      */
     public ClonedServerEntry( ServerEntry originalEntry )
     {
-        this.originalEntry = originalEntry;
+        this.originalEntry = ( ServerEntry )originalEntry.clone();
         this.clonedEntry = ( ServerEntry ) originalEntry.clone();
     }
     

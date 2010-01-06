@@ -25,7 +25,9 @@ import java.util.Arrays;
 
 import javax.crypto.spec.DESKeySpec;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -35,7 +37,7 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DesStringToKeyTest extends TestCase
+public class DesStringToKeyTest
 {
     private byte[] fanFold1 =
         { ( byte ) 0xC0, ( byte ) 0x1E, ( byte ) 0x38, ( byte ) 0x68, ( byte ) 0x8A, ( byte ) 0xC8, ( byte ) 0x6C,
@@ -63,6 +65,7 @@ public class DesStringToKeyTest extends TestCase
     /**
      * Tests DES StringToKey test vector 1 from RFC 3961.
      */
+    @Test
     public void testDesStringToKeyVector1()
     {
         byte[] key = stringToKey.getKey( "password", "ATHENA.MIT.EDU", "raeburn" );
@@ -74,6 +77,7 @@ public class DesStringToKeyTest extends TestCase
     /**
      * Tests DES StringToKey test vector 2 from RFC 3961.
      */
+    @Test
     public void testDesStringToKeyVector2()
     {
         byte[] key = stringToKey.getKey( "potatoe", "WHITEHOUSE.GOV", "danny" );
@@ -87,6 +91,7 @@ public class DesStringToKeyTest extends TestCase
      *
      * @throws InvalidKeyException
      */
+    @Test
     public void testIntermediateDesStringToKeyVector1() throws InvalidKeyException
     {
         String passPhrase = "passwordATHENA.MIT.EDUraeburn";
@@ -110,6 +115,7 @@ public class DesStringToKeyTest extends TestCase
      * 
      * @throws InvalidKeyException
      */
+    @Test
     public void testIntermediateDesStringToKeyVector2() throws InvalidKeyException
     {
         String passPhrase = "potatoeWHITEHOUSE.GOVdanny";

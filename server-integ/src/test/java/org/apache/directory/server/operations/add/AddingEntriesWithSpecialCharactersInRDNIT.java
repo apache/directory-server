@@ -28,18 +28,17 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
-import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -50,35 +49,32 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith( SiRunner.class )
-@CleanupLevel( Level.CLASS )
-public class AddingEntriesWithSpecialCharactersInRDNIT
-{
-    public static LdapServer ldapServer;
-
-
-    protected Attributes getPersonAttributes( String sn, String cn )
+@RunWith( FrameworkRunner.class )
+@CreateLdapServer ( 
+    transports = 
     {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute ocls = new BasicAttribute( "objectClass" );
-        ocls.add( "top" );
-        ocls.add( "person" );
-        attrs.put( ocls );
-        attrs.put( "cn", cn );
-        attrs.put( "sn", sn );
+        @CreateTransport( protocol = "LDAP" )
+    })
+public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestUnit
+{
+    private Attributes getPersonAttributes( String sn, String cn ) throws NamingException
+    {
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: person",
+            "cn", cn,
+            "sn", sn );
 
         return attrs;
     }
 
 
-    protected Attributes getOrgUnitAttributes( String ou )
+    private Attributes getOrgUnitAttributes( String ou ) throws NamingException
     {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute ocls = new BasicAttribute( "objectClass" );
-        ocls.add( "top" );
-        ocls.add( "organizationalUnit" );
-        attrs.put( ocls );
-        attrs.put( "ou", ou );
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: organizationalUnit",
+            "ou", ou );
 
         return attrs;
     }

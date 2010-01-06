@@ -20,18 +20,19 @@
 package org.apache.directory.server.core.authz;
 
 
-import org.apache.directory.server.core.DirectoryService;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.annotations.Factory;
-import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import javax.naming.NamingException;
+
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -40,13 +41,17 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 494176 $
  */
-@RunWith ( CiRunner.class )
-@Factory ( AutzIntegUtils.ServiceFactory.class )
-public class GeneralAuthorizationIT 
+@RunWith ( FrameworkRunner.class )
+public class GeneralAuthorizationIT extends AbstractLdapTestUnit 
 {
-    public static DirectoryService service;
 
-
+    @Before
+    public void setService()
+    {
+       AutzIntegUtils.service = service;
+    }
+    
+    
     /**
      * Checks to make sure we cannot create a malformed ACI missing two
      * last brackets.

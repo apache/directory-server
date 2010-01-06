@@ -21,6 +21,12 @@
 package org.apache.directory.server.core.trigger;
 
 
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -40,7 +46,6 @@ import org.apache.directory.server.core.sp.StoredProcEngineConfig;
 import org.apache.directory.server.core.sp.StoredProcExecutionManager;
 import org.apache.directory.server.core.sp.java.JavaStoredProcEngineConfig;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -49,20 +54,15 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.trigger.ActionTime;
 import org.apache.directory.shared.ldap.trigger.LdapOperation;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecification;
-import org.apache.directory.shared.ldap.trigger.TriggerSpecification.SPSpec;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecificationParser;
+import org.apache.directory.shared.ldap.trigger.TriggerSpecification.SPSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -229,13 +229,14 @@ public class TriggerInterceptor extends BaseInterceptor
         super.init( directoryService );
         
         triggerSpecCache = new TriggerSpecCache( directoryService );
-        final AttributeTypeRegistry attrRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
+        final SchemaManager schemaManager = directoryService.getSchemaManager();
+
         triggerParser = new TriggerSpecificationParser
             ( new NormalizerMappingResolver()
                 {
                     public Map<String, OidNormalizer> getNormalizerMapping() throws Exception
                     {
-                        return attrRegistry.getNormalizerMapping();
+                        return schemaManager.getNormalizerMapping();
                     }
                 }
             );
@@ -367,8 +368,9 @@ public class TriggerInterceptor extends BaseInterceptor
         }
         
         // Gather supplementary data.        
-        ClonedServerEntry renamedEntry = renameContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
+        ServerEntry renamedEntry = (ServerEntry)renameContext.getEntry().getClonedEntry();
         
+        // @TODO : To be completely reviewed !!!
         LdapDN oldRDN = new LdapDN( name.getRdn().getUpName() );
         LdapDN oldSuperiorDN = ( LdapDN ) name.clone();
         oldSuperiorDN.remove( oldSuperiorDN.size() - 1 );

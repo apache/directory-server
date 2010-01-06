@@ -21,11 +21,12 @@
 
 package org.apache.directory.server.core.sp;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
-public class StoredProcUtilsTest extends TestCase
+public class StoredProcUtilsTest
 {
-
+    @Test
     public void testSPNameTokenization()
     {
         String fullSPName = "Greeter:seyHello";

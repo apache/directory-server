@@ -18,16 +18,25 @@
  */
 package org.apache.directory.server.core.suites;
 
+
 import org.apache.directory.server.core.authn.SimpleAuthenticationIT;
+import org.apache.directory.server.core.authz.AddAuthorizationIT;
+import org.apache.directory.server.core.authz.AdministratorsGroupIT;
+import org.apache.directory.server.core.authz.AuthorizationServiceAsAdminIT;
+import org.apache.directory.server.core.authz.AuthorizationServiceAsNonAdminIT;
+import org.apache.directory.server.core.authz.AuthzAuthnIT;
+import org.apache.directory.server.core.authz.CompareAuthorizationIT;
+import org.apache.directory.server.core.authz.DeleteAuthorizationIT;
+import org.apache.directory.server.core.authz.GeneralAuthorizationIT;
+import org.apache.directory.server.core.authz.ModifyAuthorizationIT;
+import org.apache.directory.server.core.authz.MoveRenameAuthorizationIT;
+import org.apache.directory.server.core.authz.SearchAuthorizationIT;
 import org.apache.directory.server.core.changelog.DefaultChangeLogIT;
 import org.apache.directory.server.core.collective.CollectiveAttributeServiceIT;
 import org.apache.directory.server.core.configuration.PartitionConfigurationIT;
 import org.apache.directory.server.core.event.EventServiceIT;
 import org.apache.directory.server.core.exception.ExceptionServiceIT;
-import org.apache.directory.server.core.integ.CiSuite;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.SetupMode;
-import org.apache.directory.server.core.integ.annotations.*;
+import org.apache.directory.server.core.integ.FrameworkSuite;
 import org.apache.directory.server.core.jndi.AddIT;
 import org.apache.directory.server.core.jndi.CreateContextIT;
 import org.apache.directory.server.core.jndi.DIRSERVER169IT;
@@ -39,13 +48,41 @@ import org.apache.directory.server.core.jndi.ListIT;
 import org.apache.directory.server.core.jndi.ModifyContextIT;
 import org.apache.directory.server.core.jndi.ObjStateFactoryIT;
 import org.apache.directory.server.core.jndi.RFC2713IT;
+import org.apache.directory.server.core.jndi.ReferralIT;
 import org.apache.directory.server.core.jndi.RootDSEIT;
 import org.apache.directory.server.core.jndi.UniqueMemberIT;
+import org.apache.directory.server.core.jndi.referral.AddReferralIT;
+import org.apache.directory.server.core.jndi.referral.CompareReferralIT;
+import org.apache.directory.server.core.jndi.referral.DeleteReferralIT;
+import org.apache.directory.server.core.jndi.referral.ModifyReferralIT;
+import org.apache.directory.server.core.jndi.referral.MoveAndRenameReferralIT;
+import org.apache.directory.server.core.jndi.referral.MoveReferralIT;
+import org.apache.directory.server.core.jndi.referral.RenameReferralIT;
+import org.apache.directory.server.core.jndi.referral.SearchReferralIT;
 import org.apache.directory.server.core.normalization.NormalizationServiceIT;
 import org.apache.directory.server.core.operational.OperationalAttributeServiceIT;
+import org.apache.directory.server.core.operations.bind.SimpleBindIT;
+import org.apache.directory.server.core.operations.compare.CompareDirserver1139IT;
+import org.apache.directory.server.core.operations.lookup.LookupIT;
+import org.apache.directory.server.core.operations.modify.ModifyAddIT;
+import org.apache.directory.server.core.operations.modify.ModifyDelIT;
+import org.apache.directory.server.core.operations.modify.ModifyMultipleChangesIT;
 import org.apache.directory.server.core.operations.search.DIRSERVER759IT;
 import org.apache.directory.server.core.operations.search.SearchIT;
+import org.apache.directory.server.core.partition.PartitionIT;
 import org.apache.directory.server.core.prefs.PreferencesIT;
+import org.apache.directory.server.core.schema.MetaAttributeTypeHandlerIT;
+import org.apache.directory.server.core.schema.MetaComparatorHandlerIT;
+import org.apache.directory.server.core.schema.MetaMatchingRuleHandlerIT;
+import org.apache.directory.server.core.schema.MetaNormalizerHandlerIT;
+import org.apache.directory.server.core.schema.MetaObjectClassHandlerIT;
+import org.apache.directory.server.core.schema.MetaSchemaHandlerIT;
+import org.apache.directory.server.core.schema.MetaSyntaxCheckerHandlerIT;
+import org.apache.directory.server.core.schema.MetaSyntaxHandlerIT;
+import org.apache.directory.server.core.schema.ObjectClassCreateIT;
+import org.apache.directory.server.core.schema.SchemaPersistenceIT;
+import org.apache.directory.server.core.schema.SchemaServiceIT;
+import org.apache.directory.server.core.schema.SubschemaSubentryIT;
 import org.apache.directory.server.core.sp.LdapClassLoaderIT;
 import org.apache.directory.server.core.subtree.BadSubentryServiceIT;
 import org.apache.directory.server.core.subtree.SubentryServiceEntryModificationHandlingIT;
@@ -63,42 +100,93 @@ import org.junit.runners.Suite;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-@RunWith ( CiSuite.class )
+@RunWith ( FrameworkSuite.class )
 @Suite.SuiteClasses ( {
         SimpleAuthenticationIT.class,
         CollectiveAttributeServiceIT.class,
         ExceptionServiceIT.class,
         EventServiceIT.class,
         AddIT.class,
+
         CreateContextIT.class,
         DestroyContextIT.class,
-        PartitionConfigurationIT.class,
+        
         DIRSERVER169IT.class,
         DIRSERVER759IT.class,
         DIRSERVER783IT.class,
         DIRSERVER791IT.class,
+        
         ListIT.class,
         ObjStateFactoryIT.class,
         ExtensibleObjectIT.class,
-        ModifyContextIT.class,
         RFC2713IT.class,
         RootDSEIT.class,
         SearchIT.class,
         UniqueMemberIT.class,
-        OperationalAttributeServiceIT.class,
         PreferencesIT.class,
         TriggerInterceptorIT.class,
+        LdapClassLoaderIT.class,
+        NormalizationServiceIT.class,
+        DefaultChangeLogIT.class,        
+        CompareDirserver1139IT.class,
+
+        ModifyContextIT.class,
+        ModifyDelIT.class,
+        ModifyAddIT.class,
+        ModifyMultipleChangesIT.class,
+        
+        LookupIT.class,
+        SimpleBindIT.class,
+        
+        MoveAndRenameReferralIT.class,
+        DeleteReferralIT.class,
+        SearchReferralIT.class,
+        CompareReferralIT.class,
+        MoveReferralIT.class,
+        ModifyReferralIT.class,
+        RenameReferralIT.class,
+        AddReferralIT.class,
+        ReferralIT.class,
+        
+        MoveRenameAuthorizationIT.class,
+        DeleteAuthorizationIT.class,
+        SearchAuthorizationIT.class,
+        CompareAuthorizationIT.class,
+        ModifyAuthorizationIT.class,
+        AddAuthorizationIT.class,
+        AuthzAuthnIT.class,
+        AuthorizationServiceAsNonAdminIT.class,
+        AuthorizationServiceAsAdminIT.class,
+        GeneralAuthorizationIT.class,
+        
+        AdministratorsGroupIT.class,
+
+        SchemaPersistenceIT.class,
+        SubschemaSubentryIT.class,
         SubentryServiceForTriggersIT.class,
         BadSubentryServiceIT.class,
         SubentryServiceEntryModificationHandlingIT.class,
         SubentryServiceObjectClassChangeHandlingIT.class,
         SubentryServiceIT.class,
-        LdapClassLoaderIT.class,
-        NormalizationServiceIT.class,
-        DefaultChangeLogIT.class
+
+        MetaNormalizerHandlerIT.class,
+        MetaSchemaHandlerIT.class,
+        MetaMatchingRuleHandlerIT.class,
+        MetaAttributeTypeHandlerIT.class,
+        MetaSyntaxHandlerIT.class,
+        MetaComparatorHandlerIT.class,
+        MetaSyntaxCheckerHandlerIT.class,
+        MetaObjectClassHandlerIT.class,
+        
+        ObjectClassCreateIT.class,
+
+        SchemaServiceIT.class,
+        
+        PartitionIT.class,
+        PartitionConfigurationIT.class,
+        
+        OperationalAttributeServiceIT.class
         } )
-@CleanupLevel ( Level.SUITE )
-@Mode ( SetupMode.ROLLBACK )
 public class StockCoreISuite
 {
 }

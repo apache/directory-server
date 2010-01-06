@@ -20,31 +20,28 @@
 package org.apache.directory.server.core.partition;
 
 
-import java.util.HashMap;
-
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.DirectoryServiceFactory;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.Factory;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
-
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.annotations.ContextEntry;
+import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.annotations.CreateIndex;
+import org.apache.directory.server.core.annotations.CreatePartition;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -53,53 +50,50 @@ import javax.naming.ldap.LdapContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-@Factory ( PartitionIT.Factory.class )
-@ApplyLdifs (
+@RunWith(FrameworkRunner.class)
+/*
+ * Creates a DirectoryService configured with two separate dc=com based 
+ * domains to test multiple partitions.
+ */
+@CreateDS( name = "PartitionIT-class",
+    partitions =
     {
-        "dn: dc=foo,dc=com\n" +
-        "objectClass: top\n" +
-        "objectClass: domain\n" +
-        "dc: foo\n\n" +
-
-        "dn: dc=bar,dc=com\n" +
-        "objectClass: top\n" +
-        "objectClass: domain\n" +
-        "dc: bar\n\n"
-    }
-)
-public final class PartitionIT
+        @CreatePartition(
+            name = "foo",
+            suffix = "dc=foo,dc=com",
+            contextEntry = @ContextEntry( 
+                entryLdif =
+                    "dn: dc=foo,dc=com\n" +
+                    "dc: foo\n" +
+                    "objectClass: top\n" +
+                    "objectClass: domain\n\n" ),
+            indexes = 
+            {
+                @CreateIndex( attribute = "objectClass" ),
+                @CreateIndex( attribute = "dc" ),
+                @CreateIndex( attribute = "ou" )
+            } ),
+            @CreatePartition(
+                name = "bar",
+                suffix = "dc=bar,dc=com",
+                contextEntry = @ContextEntry( 
+                    entryLdif =
+                        "dn: dc=bar,dc=com\n" +
+                        "dc: bar\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n" ),
+                indexes = 
+                {
+                    @CreateIndex( attribute = "objectClass" ),
+                    @CreateIndex( attribute = "dc" ),
+                    @CreateIndex( attribute = "ou" )
+                } )
+    } )
+public final class PartitionIT extends AbstractLdapTestUnit
 {
     private static final Logger LOG = LoggerFactory.getLogger( PartitionIT.class );
-    public static DirectoryService service;
 
     
-    /**
-     * Creates a DirectoryService configured with two separate dc=com based 
-     * domains to test multiple partitions.
-     */
-    public static class Factory implements DirectoryServiceFactory
-    {
-        public DirectoryService newInstance() throws Exception 
-        {
-            DirectoryService service = new DefaultDirectoryService();
-            service.getChangeLog().setEnabled( true );
-            
-            Partition foo = new JdbmPartition();
-            foo.setId( "foo" );
-            foo.setSuffix( "dc=foo,dc=com" );
-            service.addPartition( foo );
-            
-            Partition bar = new JdbmPartition();
-            bar.setId( "bar" );
-            bar.setSuffix( "dc=bar,dc=com" );
-            service.addPartition( bar );
-            
-            return service;
-        }
-    }
-    
-
     /**
      * Test case to weed out issue in DIRSERVER-1118.
      *
@@ -112,13 +106,13 @@ public final class PartitionIT
          * Confirm the presence of the partitions foo and bar through DS API
          */
         HashMap<String, Partition> partitionMap = new HashMap<String, Partition>();
-        
+
         for ( Partition partition : service.getPartitions() )
         {
             LOG.debug( "partition id = {}", partition.getId() );
             partitionMap.put( partition.getId(), partition );
         }
-        
+
         assertNotNull( partitionMap.containsKey( "foo" ) );
         assertNotNull( partitionMap.containsKey( "bar" ) );
 
@@ -127,19 +121,19 @@ public final class PartitionIT
          * namingContexts as values innamingContexts attribute of the rootDSE
          */
         LdapContext rootDSE = getRootContext( service );
-        Attribute namingContexts = rootDSE.getAttributes( "", 
-            new String[] { "namingContexts" } ).get( "namingContexts" );
+        Attribute namingContexts = rootDSE.getAttributes( "", new String[]
+            { "namingContexts" } ).get( "namingContexts" );
         assertTrue( namingContexts.contains( "dc=foo,dc=com" ) );
         assertTrue( namingContexts.contains( "dc=bar,dc=com" ) );
         LOG.debug( "Found both dc=foo,dc=com and dc=bar,dc=com in namingContexts" );
-        
+
         /*
          * Add, lookup, then delete entry in both foo and bar partitions
          */
         addLookupDelete( "dc=foo,dc=com" );
         addLookupDelete( "dc=bar,dc=com" );
     }
-    
+
 
     /**
      * Given the suffix DN of a partition this method will add an entry, look 
@@ -155,12 +149,12 @@ public final class PartitionIT
         String entryDn = "ou=people," + partitionSuffix;
         rootDSE.createSubcontext( entryDn, attrs );
         LOG.debug( "added entry {} to partition {}", entryDn, partitionSuffix );
-        
+
         Attributes reloaded = rootDSE.getAttributes( entryDn );
         assertNotNull( reloaded );
         assertTrue( reloaded.get( "ou" ).contains( "people" ) );
         LOG.debug( "looked up entry {} from partition {}", entryDn, partitionSuffix );
-        
+
         rootDSE.destroySubcontext( entryDn );
         try
         {

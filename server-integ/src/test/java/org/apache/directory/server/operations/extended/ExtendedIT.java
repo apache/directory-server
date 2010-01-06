@@ -20,22 +20,21 @@
 package org.apache.directory.server.operations.extended;
 
 
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+import static org.junit.Assert.fail;
+
 import javax.naming.CommunicationException;
 import javax.naming.NamingException;
 import javax.naming.ldap.ExtendedRequest;
 import javax.naming.ldap.ExtendedResponse;
 import javax.naming.ldap.LdapContext;
 
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.fail;
 
 
 /**
@@ -44,13 +43,14 @@ import static org.junit.Assert.fail;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 545029 $
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.SUITE )
-public class ExtendedIT 
+@RunWith ( FrameworkRunner.class ) 
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" )
+    })
+public class ExtendedIT extends AbstractLdapTestUnit
 {
-    public static LdapServer ldapServer;
-    
-
     /**
      * Calls an extended exception, which does not exist. Expected behaviour is
      * a CommunicationException.

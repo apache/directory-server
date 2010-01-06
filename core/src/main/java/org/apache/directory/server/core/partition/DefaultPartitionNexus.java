@@ -22,7 +22,6 @@ package org.apache.directory.server.core.partition;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,13 +35,12 @@ import java.util.UUID;
 import javax.naming.ConfigurationException;
 import javax.naming.NameNotFoundException;
 import javax.naming.directory.SearchControls;
-import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
@@ -68,12 +66,6 @@ import org.apache.directory.server.core.interceptor.context.RemoveContextPartiti
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.MultiException;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
@@ -100,6 +92,7 @@ import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.DateUtils;
@@ -111,14 +104,17 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A nexus for partitions dedicated for storing entries specific to a naming
- * context.
- * 
+ * A root {@link Partition} that contains all other partitions, and
+ * routes all operations to the child partition that matches to its base suffixes.
+ * It also provides some extended operations such as accessing rootDSE and
+ * listing base suffixes.
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev$, $Date$
  */
-public class DefaultPartitionNexus extends PartitionNexus
+public class DefaultPartitionNexus implements Partition, PartitionNexus
 {
+    /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultPartitionNexus.class );
 
     /** Speedup for logs */
@@ -127,33 +123,28 @@ public class DefaultPartitionNexus extends PartitionNexus
     /** the vendorName string proudly set to: Apache Software Foundation*/
     private static final String ASF = "Apache Software Foundation";
 
-    /** the closed state of this partition */
-    private boolean initialized;
+    /** the read only rootDSE attributes */
+    private final ServerEntry rootDSE;
 
+    /** The DirectoryService instance */
     private DirectoryService directoryService;
-
-    /** the system partition */
-    private Partition system;
-
+    
+    /** The global schemaManager */
+    private SchemaManager schemaManager;
+    
     /** the partitions keyed by normalized suffix strings */
     private Map<String, Partition> partitions = new HashMap<String, Partition>();
     
     /** A structure to hold all the partitions */
     private DnBranchNode<Partition> partitionLookupTree = new DnBranchNode<Partition>();
     
-    /** the read only rootDSE attributes */
-    private final ServerEntry rootDSE;
+    /** the system partition */
+    private Partition system;
 
-    /** The global registries */
-    private Registries registries;
+    /** the closed state of this partition */
+    private boolean initialized;
     
-    /** The attributeType registry */
-    private AttributeTypeRegistry atRegistry;
-    
-    /** The OID registry */
-    private OidRegistry oidRegistry;
-
-
+   
     /**
      * Creates the root nexus singleton of the entire system.  The root DSE has
      * several attributes that are injected into it besides those that may
@@ -189,7 +180,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             SyncInfoValueControl.CONTROL_OID,
             SyncRequestValueControl.CONTROL_OID,
             SyncStateValueControl.CONTROL_OID 
-            );
+        );
 
         // Add the objectClasses
         rootDSE.put( SchemaConstants.OBJECT_CLASS_AT,
@@ -214,110 +205,44 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
     
-    /**
-     * Always returns the string "NEXUS".
-     *
-     * @return the string "NEXUS"
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#initialize()
      */
-    public String getId()
-    {
-        return "NEXUS";
-    }
-
-
-    // -----------------------------------------------------------------------
-    // C O N F I G U R A T I O N   M E T H O D S
-    // -----------------------------------------------------------------------
-
-
-    /**
-     * Not supported!
-     *
-     * @throws UnsupportedOperationException everytime
-     */
-    public void setId( String id )
-    {
-        throw new UnsupportedOperationException( "The id cannot be set for the partition nexus." );
-    }
-
-
-    /**
-     * Always returns the empty String "".
-     * @return the empty String ""
-     */
-    public String getSuffix()
-    {
-        return "";
-    }
-
-
-    /**
-     * Unsupported operation on the Nexus.
-     * @throws UnsupportedOperationException everytime
-     */
-    public void setSuffix( String suffix )
-    {
-        throw new UnsupportedOperationException();
-    }
-
-
-    /**
-     * Not support!
-     */
-    public void setCacheSize( int cacheSize )
-    {
-        throw new UnsupportedOperationException( "You cannot set the cache size of the nexus" );
-    }
-
-
-    /**
-     * Not supported!
-     *
-     * @throws UnsupportedOperationException always
-     */
-    public int getCacheSize()
-    {
-        throw new UnsupportedOperationException( "There is no cache size associated with the nexus" );
-    }
-
-
-
-    public void init( DirectoryService directoryService )
-        throws Exception
+    public void initialize( ) throws Exception
     {
         // NOTE: We ignore ContextPartitionConfiguration parameter here.
         if ( initialized )
         {
             return;
         }
-
-        this.directoryService = directoryService;
-        registries = directoryService.getRegistries();
-        atRegistry = registries.getAttributeTypeRegistry();
-        oidRegistry = registries.getOidRegistry();
+    
+        //this.directoryService = directoryService;
+        schemaManager = directoryService.getSchemaManager();
         
-        initializeSystemPartition();
+        // Initialize and normalize the localy used DNs
+        LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
+        adminDn.normalize( schemaManager.getNormalizerMapping() );
+            
+        initializeSystemPartition( directoryService );
         
         List<Partition> initializedPartitions = new ArrayList<Partition>();
         initializedPartitions.add( 0, this.system );
 
-        //noinspection unchecked
-        Iterator<? extends Partition> partitions = ( Iterator<? extends Partition> ) directoryService.getPartitions().iterator();
+    
         try
         {
-            while ( partitions.hasNext() )
+            for ( Partition partition : directoryService.getPartitions() )
             {
-                Partition partition = partitions.next();
-                LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-                adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+                partition.setSchemaManager( schemaManager );
                 CoreSession adminSession = new DefaultCoreSession( 
                     new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
-
+    
                 AddContextPartitionOperationContext opCtx = 
                     new AddContextPartitionOperationContext( adminSession, partition );
                 addContextPartition( opCtx );
                 initializedPartitions.add( opCtx.getPartition() );
             }
+            
             initialized = true;
         }
         finally
@@ -347,7 +272,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    private Partition initializeSystemPartition() throws Exception
+    private Partition initializeSystemPartition( DirectoryService directoryService ) throws Exception
     {
         // initialize system partition first
         Partition override = directoryService.getSystemPartition();
@@ -365,53 +290,20 @@ public class DefaultPartitionNexus extends PartitionNexus
                         + override.getId() + "'." );
             }
             
-            // add all attribute oids of index configs to a hashset
-            if ( override instanceof JdbmPartition )
-            {
-                Set<Index<?,ServerEntry>> indices = ( ( JdbmPartition ) override ).getIndexedAttributes();
-                Set<String> indexOids = new HashSet<String>();
-                OidRegistry registry = registries.getOidRegistry();
-
-                for ( Index<?,ServerEntry> index : indices )
-                {
-                    indexOids.add( registry.getOid( index.getAttributeId() ) );
-                }
-
-                if ( ! indexOids.contains( registry.getOid( SchemaConstants.OBJECT_CLASS_AT ) ) )
-                {
-                    LOG.warn( "CAUTION: You have not included objectClass as an indexed attribute" +
-                            "in the system partition configuration.  This will lead to poor " +
-                            "performance.  The server is automatically adding this index for you." );
-                    JdbmIndex<?,ServerEntry> index = new JdbmIndex<Object,ServerEntry>();
-                    index.setAttributeId( SchemaConstants.OBJECT_CLASS_AT );
-                    indices.add( index );
-                }
-
-                ( ( JdbmPartition ) override ).setIndexedAttributes( indices );
-            }
 
             system = override;
         }
         else
         {
-            system = new JdbmPartition();
-            system.setId( "system" );
-            system.setCacheSize( 500 );
-            system.setSuffix( ServerDNConstants.SYSTEM_DN );
-    
-            // Add objectClass attribute for the system partition
-            Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
-            indexedAttrs.add( new JdbmIndex<Object,ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
-            ( ( JdbmPartition ) system ).setIndexedAttributes( indexedAttrs );
         }
 
-        system.init( directoryService );
+        system.initialize( );
         
         
         // Add root context entry for system partition
         LdapDN systemSuffixDn = new LdapDN( ServerDNConstants.SYSTEM_DN );
-        systemSuffixDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-        ServerEntry systemEntry = new DefaultServerEntry( registries, systemSuffixDn );
+        systemSuffixDn.normalize( schemaManager.getNormalizerMapping() );
+        ServerEntry systemEntry = new DefaultServerEntry( schemaManager, systemSuffixDn );
 
         // Add the ObjectClasses
         systemEntry.put( SchemaConstants.OBJECT_CLASS_AT,
@@ -428,7 +320,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         systemEntry.put( NamespaceTools.getRdnAttribute( ServerDNConstants.SYSTEM_DN ),
             NamespaceTools.getRdnValue( ServerDNConstants.SYSTEM_DN ) );
         LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-        adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        adminDn.normalize( schemaManager.getNormalizerMapping() );
         CoreSession adminSession = new DefaultCoreSession( 
             new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
         AddOperationContext addOperationContext = new AddOperationContext( adminSession, systemEntry );
@@ -438,7 +330,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             system.add( addOperationContext );
         }
         
-        String key = system.getSuffixDn().toString();
+        String key = system.getSuffixDn().getName();
         
         if ( partitions.containsKey( key ) )
         {
@@ -454,26 +346,23 @@ public class DefaultPartitionNexus extends PartitionNexus
             if ( namingContexts == null )
             {
                 namingContexts = new DefaultServerAttribute( 
-                    registries.getAttributeTypeRegistry().lookup( SchemaConstants.NAMING_CONTEXTS_AT ), 
-                    system.getUpSuffixDn().getUpName() );
+                    schemaManager.lookupAttributeTypeRegistry( SchemaConstants.NAMING_CONTEXTS_AT ), 
+                    system.getSuffixDn().getName() );
                 rootDSE.put( namingContexts );
             }
             else
             {
-                namingContexts.add( system.getUpSuffixDn().getUpName() );
+                namingContexts.add( system.getSuffixDn().getName() );
             }
         }
 
         return system;
     }
-
-
-    public boolean isInitialized()
-    {
-        return initialized;
-    }
-
-
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#destroy()
+     */
     public synchronized void destroy()
     {
         if ( !initialized )
@@ -488,7 +377,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             try
             {
                 LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-                adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+                adminDn.normalize( schemaManager.getNormalizerMapping() );
                 CoreSession adminSession = new DefaultCoreSession( 
                     new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
                 removeContextPartition( new RemoveContextPartitionOperationContext( 
@@ -504,8 +393,80 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#getId()
+     */
+    public String getId()
+    {
+        return "NEXUS";
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#setId(java.lang.String)
+     */
+    public void setId( String id )
+    {
+        throw new UnsupportedOperationException( "The id cannot be set for the partition nexus." );
+    }
+
+
     /**
-     * @see Partition#sync()
+     * {@inheritDoc}
+     */
+    public SchemaManager getSchemaManager()
+    {
+        return schemaManager;
+    }
+    
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setSchemaManager( SchemaManager schemaManager )
+    {
+        this.schemaManager = schemaManager;
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#getSuffixDn()
+     */
+    public LdapDN getSuffixDn()
+    {
+        return LdapDN.EMPTY_LDAPDN;
+    }
+
+    
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#getSuffix()
+     */
+    public String getSuffix()
+    {
+        return StringTools.EMPTY;
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#setSuffix(java.lang.String)
+     */
+    public void setSuffix( String suffix )
+    {
+        throw new UnsupportedOperationException();
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#isInitialized()
+     */
+    public boolean isInitialized()
+    {
+        return initialized;
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#sync()
      */
     public void sync() throws Exception
     {
@@ -536,25 +497,45 @@ public class DefaultPartitionNexus extends PartitionNexus
             throw error;
         }
     }
-
-
+    
     // ------------------------------------------------------------------------
-    // ContextPartitionNexus Method Implementations
+    // DirectoryPartition Interface Method Implementations
     // ------------------------------------------------------------------------
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#add(org.apache.directory.server.core.interceptor.context.AddOperationContext)
+     */
+    public void add( AddOperationContext addContext ) throws Exception
+    {
+        Partition backend = getPartition( addContext.getDn() );
+        backend.add( addContext );
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#bind(org.apache.directory.server.core.interceptor.context.BindOperationContext)
+     */
+    public void bind( BindOperationContext bindContext ) throws Exception
+    {
+        Partition partition = getPartition( bindContext.getDn() );
+        partition.bind( bindContext );
+    }
 
     
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#compare(org.apache.directory.server.core.interceptor.context.CompareOperationContext)
+     */
     public boolean compare( CompareOperationContext compareContext ) throws Exception
     {
         Partition partition = getPartition( compareContext.getDn() );
-        AttributeTypeRegistry registry = registries.getAttributeTypeRegistry();
+        //AttributeTypeRegistry registry = schemaManager.getAttributeTypeRegistry();
         
         // complain if we do not recognize the attribute being compared
-        if ( !registry.hasAttributeType( compareContext.getOid() ) )
+        if ( !schemaManager.getAttributeTypeRegistry().contains( compareContext.getOid() ) )
         {
             throw new LdapInvalidAttributeIdentifierException( compareContext.getOid() + " not found within the attributeType registry" );
         }
 
-        AttributeType attrType = registry.lookup( compareContext.getOid() );
+        AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( compareContext.getOid() );
         
         EntryAttribute attr = partition.lookup( compareContext.newLookupContext( 
             compareContext.getDn() ) ).get( attrType.getName() );
@@ -595,220 +576,8 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    public synchronized void addContextPartition( AddContextPartitionOperationContext opContext ) throws Exception
-    {
-        Partition partition = opContext.getPartition();
-
-        // Turn on default indices
-        String key = partition.getSuffix();
-        
-        if ( partitions.containsKey( key ) )
-        {
-            throw new ConfigurationException( "Duplicate partition suffix: " + key );
-        }
-
-        if ( ! partition.isInitialized() )
-        {
-            partition.init( directoryService );
-        }
-        
-        synchronized ( partitionLookupTree )
-        {
-            LdapDN partitionSuffix = partition.getSuffixDn();
-            
-            if ( partitionSuffix == null )
-            {
-                throw new ConfigurationException( "The current partition does not have any suffix: " + partition.getId() );
-            }
-            
-            partitions.put( partitionSuffix.toString(), partition );
-            partitionLookupTree.add( partition.getSuffixDn(), partition );
-
-            EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
-
-            LdapDN partitionUpSuffix = partition.getUpSuffixDn();
-            
-            if ( partitionUpSuffix == null )
-            {
-                throw new ConfigurationException( "The current partition does not have any user provided suffix: " + partition.getId() );
-            }
-            
-            if ( namingContexts == null )
-            {
-                namingContexts = new DefaultServerAttribute( 
-                    registries.getAttributeTypeRegistry().lookup( SchemaConstants.NAMING_CONTEXTS_AT ), partitionUpSuffix.getUpName() );
-                rootDSE.put( namingContexts );
-            }
-            else
-            {
-                namingContexts.add( partitionUpSuffix.getUpName() );
-            }
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public synchronized void removeContextPartition( RemoveContextPartitionOperationContext removeContextPartition ) throws Exception
-    {
-        // Get the Partition name. It's a DN.
-        String key = removeContextPartition.getDn().getNormName();
-        
-        // Retrieve this partition from the aprtition's table
-        Partition partition = partitions.get( key );
-        
-        if ( partition == null )
-        {
-            String msg = "No partition with suffix: " + key;
-            LOG.error( msg );
-            throw new NameNotFoundException( msg );
-        }
-        
-        String partitionSuffix = partition.getUpSuffixDn().getUpName();
-
-        // Retrieve the namingContexts from the RootDSE : the partition
-        // suffix must be present in those namingContexts
-        EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
-        
-        if ( namingContexts != null )
-        {
-            if ( namingContexts.contains( partitionSuffix ) )
-            {
-                namingContexts.remove( partitionSuffix );
-            }
-            else
-            {
-                String msg = "No partition with suffix '" + key + 
-                                    "' can be found in the NamingContexts";
-                LOG.error( msg );
-                throw new NameNotFoundException( msg );
-            }
-        }
-
-        // Update the partition tree
-        partitionLookupTree.remove( partition );
-        partitions.remove( key );
-        partition.destroy();
-    }
-
-
-    public Partition getSystemPartition()
-    {
-        return system;
-    }
-
-
-    /**
-     * @see PartitionNexus#getLdapContext()
-     */
-    public LdapContext getLdapContext()
-    {
-        throw new NotImplementedException();
-    }
-
-
-    /**
-     * @see PartitionNexus#getMatchedName( GetMatchedNameOperationContext )
-     */
-    public LdapDN getMatchedName ( GetMatchedNameOperationContext matchedNameContext ) throws Exception
-    {
-        LdapDN dn = ( LdapDN ) matchedNameContext.getDn().clone();
-        
-        while ( dn.size() > 0 )
-        {
-            if ( hasEntry( new EntryOperationContext( matchedNameContext.getSession(), dn ) ) )
-            {
-                return dn;
-            }
-
-            dn.remove( dn.size() - 1 );
-        }
-
-        return dn;
-    }
-
-
-    public LdapDN getSuffixDn()
-    {
-        return LdapDN.EMPTY_LDAPDN;
-    }
-
-    public LdapDN getUpSuffixDn()
-    {
-        return LdapDN.EMPTY_LDAPDN;
-    }
-
-
-    /**
-     * @see PartitionNexus#getSuffix( GetSuffixOperationContext )
-     */
-    public LdapDN getSuffix ( GetSuffixOperationContext getSuffixContext ) throws Exception
-    {
-        Partition backend = getPartition( getSuffixContext.getDn() );
-        return backend.getSuffixDn();
-    }
-
-
-    /**
-     * @see PartitionNexus#listSuffixes( ListSuffixOperationContext )
-     */
-    public Set<String> listSuffixes( ListSuffixOperationContext emptyContext ) throws Exception
-    {
-        return Collections.unmodifiableSet( partitions.keySet() );
-    }
-
-
-    public ClonedServerEntry getRootDSE( GetRootDSEOperationContext getRootDSEContext )
-    {
-        return new ClonedServerEntry( rootDSE );
-    }
-
-
-    /**
-     * Unregisters an ContextPartition with this BackendManager.  Called for each
-     * registered Backend right befor it is to be stopped.  This prevents
-     * protocol server requests from reaching the Backend and effectively puts
-     * the ContextPartition's naming context offline.
-     *
-     * Operations against the naming context should result in an LDAP BUSY
-     * result code in the returnValue if the naming context is not online.
-     *
-     * @param partition ContextPartition component to unregister with this
-     * BackendNexus.
-     * @throws Exception if there are problems unregistering the partition
-     */
-    private void unregister( Partition partition ) throws Exception
-    {
-        EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
-        
-        if ( namingContexts != null )
-        {
-            namingContexts.remove( partition.getSuffixDn().getUpName() );
-        }
-        
-        partitions.remove( partition.getSuffixDn().toString() );
-    }
-
-
-    // ------------------------------------------------------------------------
-    // DirectoryPartition Interface Method Implementations
-    // ------------------------------------------------------------------------
-    public void bind( BindOperationContext bindContext ) throws Exception
-    {
-        Partition partition = getPartition( bindContext.getDn() );
-        partition.bind( bindContext );
-    }
-
-    public void unbind( UnbindOperationContext unbindContext ) throws Exception
-    {
-        Partition partition = getPartition( unbindContext.getDn() );
-        partition.unbind( unbindContext );
-    }
-
-
-    /**
-     * @see Partition#delete(DeleteOperationContext)
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#delete(org.apache.directory.server.core.interceptor.context.DeleteOperationContext)
      */
     public void delete( DeleteOperationContext deleteContext ) throws Exception
     {
@@ -817,37 +586,30 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    /**
-     * Looks up the backend corresponding to the entry first, then checks to
-     * see if the entry already exists.  If so an exception is thrown.  If not
-     * the add operation against the backend proceeds.  This check is performed
-     * here so backend implementors do not have to worry about performing these
-     * kinds of checks.
-     *
-     * @see Partition#add( AddOperationContext )
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#hasEntry(org.apache.directory.server.core.interceptor.context.EntryOperationContext)
      */
-    public void add( AddOperationContext addContext ) throws Exception
+    public boolean hasEntry( EntryOperationContext opContext ) throws Exception
     {
-        Partition backend = getPartition( addContext.getDn() );
-        backend.add( addContext );
-    }
-
-
-    public void modify( ModifyOperationContext modifyContext ) throws Exception
-    {
-        // Special case : if we don't have any modification to apply, just return
-        if ( modifyContext.getModItems().size() == 0 )
-        {
-            return;
-        }
+        LdapDN dn = opContext.getDn();
         
-        Partition backend = getPartition( modifyContext.getDn() );
-        backend.modify( modifyContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Check if DN '" + dn + "' exists." );
+        }
+
+        if ( dn.size() == 0 )
+        {
+            return true;
+        }
+
+        Partition backend = getPartition( dn );
+        return backend.hasEntry( opContext );
     }
 
 
-    /**
-     * @see Partition#list(ListOperationContext)
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#list(org.apache.directory.server.core.interceptor.context.ListOperationContext)
      */
     public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
     {
@@ -856,134 +618,9 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    public EntryFilteringCursor search( SearchOperationContext opContext )
-        throws Exception
-    {
-        LdapDN base = opContext.getDn();
-        SearchControls searchCtls = opContext.getSearchControls();
-        ExprNode filter = opContext.getFilter();
-        
-        // TODO since we're handling the *, and + in the EntryFilteringCursor
-        // we may not need this code: we need see if this is actually the 
-        // case and remove this code.
-        if ( base.size() == 0 )
-        {
-            boolean isObjectScope = searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
-            
-            // test for (objectClass=*)
-            boolean isSearchAll = false;
-            
-            // We have to be careful, as we may have a filter which is not a PresenceFilter
-            if ( filter instanceof PresenceNode )
-            {
-                isSearchAll = ( ( PresenceNode ) filter ).getAttribute().equals( SchemaConstants.OBJECT_CLASS_AT_OID );
-            }
-
-            /*
-             * if basedn is "", filter is "(objectclass=*)" and scope is object
-             * then we have a request for the rootDSE
-             */
-            if ( filter instanceof PresenceNode && isObjectScope && isSearchAll )
-            {
-                String[] ids = searchCtls.getReturningAttributes();
-
-                // -----------------------------------------------------------
-                // If nothing is asked for then we just return the entry asis.
-                // We let other mechanisms filter out operational attributes.
-                // -----------------------------------------------------------
-                if ( ( ids == null ) || ( ids.length == 0 ) )
-                {
-                    ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
-                    return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( rootDSE ), opContext );
-                }
-                
-                // -----------------------------------------------------------
-                // Collect all the real attributes besides 1.1, +, and * and
-                // note if we've seen these special attributes as well.
-                // -----------------------------------------------------------
-
-                Set<String> realIds = new HashSet<String>();
-                boolean containsAsterisk = false;
-                boolean containsPlus = false;
-                boolean containsOneDotOne = false;
-                
-                for ( String id:ids )
-                {
-                    String idTrimmed = id.trim();
-                    
-                    if ( idTrimmed.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) )
-                    {
-                        containsAsterisk = true;
-                    }
-                    else if ( idTrimmed.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
-                    {
-                        containsPlus = true;
-                    }
-                    else if ( idTrimmed.equals( SchemaConstants.NO_ATTRIBUTE ) )
-                    {
-                        containsOneDotOne = true;
-                    }
-                    else
-                    {
-                        try
-                        {
-                            realIds.add( oidRegistry.getOid( idTrimmed ) );
-                        }
-                        catch ( Exception e )
-                        {
-                            realIds.add( idTrimmed );
-                        }
-                    }
-                }
-
-                // return nothing
-                if ( containsOneDotOne )
-                {
-                    ServerEntry serverEntry = new DefaultServerEntry( registries, base );
-                    return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), opContext );
-                }
-                
-                // return everything
-                if ( containsAsterisk && containsPlus )
-                {
-                    ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
-                    return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( rootDSE ), opContext );
-                }
-                
-                ServerEntry serverEntry = new DefaultServerEntry( registries, opContext.getDn() );
-                
-                ServerEntry rootDSE = getRootDSE( new GetRootDSEOperationContext( opContext.getSession() ) );
-                
-                for ( EntryAttribute attribute:rootDSE )
-                {
-                    AttributeType type = atRegistry.lookup( attribute.getUpId() );
-                    
-                    if ( realIds.contains( type.getOid() ) )
-                    {
-                        serverEntry.put( attribute );
-                    }
-                    else if ( containsAsterisk && ( type.getUsage() == UsageEnum.USER_APPLICATIONS ) )
-                    {
-                        serverEntry.put( attribute );
-                    }
-                    else if ( containsPlus && ( type.getUsage() != UsageEnum.USER_APPLICATIONS ) )
-                    {
-                        serverEntry.put( attribute );
-                    }
-                }
-
-                return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), opContext );
-            }
-
-            // TODO : handle searches based on the RootDSE
-            throw new LdapNameNotFoundException();
-        }
-
-        Partition backend = getPartition( base );
-        return backend.search( opContext );
-    }
-
-
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#lookup(org.apache.directory.server.core.interceptor.context.LookupOperationContext)
+     */
     public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
     {
         LdapDN dn = opContext.getDn();
@@ -1017,40 +654,35 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    /**
-     * @see Partition#hasEntry(EntryOperationContext)
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#lookup(java.lang.Long)
      */
-    public boolean hasEntry( EntryOperationContext opContext ) throws Exception
+    public ClonedServerEntry lookup( Long id ) throws Exception
     {
-        LdapDN dn = opContext.getDn();
+        // TODO not implemented until we can use id to figure out the partition using
+        // the partition ID component of the 64 bit Long identifier
+        throw new NotImplementedException();
+    }
+
+    
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#modify(org.apache.directory.server.core.interceptor.context.ModifyOperationContext)
+     */
+    public void modify( ModifyOperationContext modifyContext ) throws Exception
+    {
+        // Special case : if we don't have any modification to apply, just return
+        if ( modifyContext.getModItems().size() == 0 )
+        {
+            return;
+        }
         
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "Check if DN '" + dn + "' exists." );
-        }
-
-        if ( dn.size() == 0 )
-        {
-            return true;
-        }
-
-        Partition backend = getPartition( dn );
-        return backend.hasEntry( opContext );
+        Partition backend = getPartition( modifyContext.getDn() );
+        backend.modify( modifyContext );
     }
 
 
-    /**
-     * @see Partition#rename(RenameOperationContext)
-     */
-    public void rename( RenameOperationContext opContext ) throws Exception
-    {
-        Partition backend = getPartition( opContext.getDn() );
-        backend.rename( opContext );
-    }
-
-
-    /**
-     * @see Partition#move(MoveOperationContext)
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#move(org.apache.directory.server.core.interceptor.context.MoveOperationContext)
      */
     public void move( MoveOperationContext opContext ) throws Exception
     {
@@ -1059,6 +691,9 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#moveAndRename(org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext)
+     */
     public void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception
     {
         Partition backend = getPartition( opContext.getDn() );
@@ -1066,12 +701,272 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    /**
-     * Gets the partition associated with a normalized dn.
-     *
-     * @param dn the normalized distinguished name to resolve to a partition
-     * @return the backend partition associated with the normalized dn
-     * @throws Exception if the name cannot be resolved to a partition
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#rename(org.apache.directory.server.core.interceptor.context.RenameOperationContext)
+     */
+    public void rename( RenameOperationContext opContext ) throws Exception
+    {
+        Partition backend = getPartition( opContext.getDn() );
+        backend.rename( opContext );
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#search(org.apache.directory.server.core.interceptor.context.SearchOperationContext)
+     */
+    public EntryFilteringCursor search( SearchOperationContext opContext )
+        throws Exception
+    {
+        LdapDN base = opContext.getDn();
+        SearchControls searchCtls = opContext.getSearchControls();
+        ExprNode filter = opContext.getFilter();
+        
+        // TODO since we're handling the *, and + in the EntryFilteringCursor
+        // we may not need this code: we need see if this is actually the 
+        // case and remove this code.
+        if ( base.size() == 0 )
+        {
+            boolean isObjectScope = searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
+            
+            // test for (objectClass=*)
+            boolean isSearchAll = false;
+            
+            // We have to be careful, as we may have a filter which is not a PresenceFilter
+            if ( filter instanceof PresenceNode )
+            {
+                isSearchAll = ( ( PresenceNode ) filter ).getAttribute().equals( SchemaConstants.OBJECT_CLASS_AT_OID );
+            }
+    
+            /*
+             * if basedn is "", filter is "(objectclass=*)" and scope is object
+             * then we have a request for the rootDSE
+             */
+            if ( filter instanceof PresenceNode && isObjectScope && isSearchAll )
+            {
+                String[] ids = searchCtls.getReturningAttributes();
+    
+                // -----------------------------------------------------------
+                // If nothing is asked for then we just return the entry asis.
+                // We let other mechanisms filter out operational attributes.
+                // -----------------------------------------------------------
+                if ( ( ids == null ) || ( ids.length == 0 ) )
+                {
+                    ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
+                    return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( rootDSE ), opContext );
+                }
+                
+                // -----------------------------------------------------------
+                // Collect all the real attributes besides 1.1, +, and * and
+                // note if we've seen these special attributes as well.
+                // -----------------------------------------------------------
+    
+                Set<String> realIds = new HashSet<String>();
+                boolean containsAsterisk = false;
+                boolean containsPlus = false;
+                boolean containsOneDotOne = false;
+                
+                for ( String id:ids )
+                {
+                    String idTrimmed = id.trim();
+                    
+                    if ( idTrimmed.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) )
+                    {
+                        containsAsterisk = true;
+                    }
+                    else if ( idTrimmed.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
+                    {
+                        containsPlus = true;
+                    }
+                    else if ( idTrimmed.equals( SchemaConstants.NO_ATTRIBUTE ) )
+                    {
+                        containsOneDotOne = true;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            realIds.add( schemaManager.getAttributeTypeRegistry().getOidByName( idTrimmed ) );
+                        }
+                        catch ( Exception e )
+                        {
+                            realIds.add( idTrimmed );
+                        }
+                    }
+                }
+    
+                // return nothing
+                if ( containsOneDotOne )
+                {
+                    ServerEntry serverEntry = new DefaultServerEntry( schemaManager, base );
+                    return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), opContext );
+                }
+                
+                // return everything
+                if ( containsAsterisk && containsPlus )
+                {
+                    ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
+                    return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( rootDSE ), opContext );
+                }
+                
+                ServerEntry serverEntry = new DefaultServerEntry( schemaManager, opContext.getDn() );
+                
+                ServerEntry rootDSE = getRootDSE( new GetRootDSEOperationContext( opContext.getSession() ) );
+                
+                for ( EntryAttribute attribute:rootDSE )
+                {
+                    AttributeType type = schemaManager.lookupAttributeTypeRegistry( attribute.getUpId() );
+                    
+                    if ( realIds.contains( type.getOid() ) )
+                    {
+                        serverEntry.put( attribute );
+                    }
+                    else if ( containsAsterisk && ( type.getUsage() == UsageEnum.USER_APPLICATIONS ) )
+                    {
+                        serverEntry.put( attribute );
+                    }
+                    else if ( containsPlus && ( type.getUsage() != UsageEnum.USER_APPLICATIONS ) )
+                    {
+                        serverEntry.put( attribute );
+                    }
+                }
+    
+                return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), opContext );
+            }
+    
+            // TODO : handle searches based on the RootDSE
+            throw new LdapNameNotFoundException();
+        }
+    
+        base.normalize( schemaManager.getNormalizerMapping() );
+        Partition backend = getPartition( base );
+        return backend.search( opContext );
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#unbind(org.apache.directory.server.core.interceptor.context.UnbindOperationContext)
+     */
+    public void unbind( UnbindOperationContext unbindContext ) throws Exception
+    {
+        Partition partition = getPartition( unbindContext.getDn() );
+        partition.unbind( unbindContext );
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#getRootDSE(org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext)
+     */
+    public ClonedServerEntry getRootDSE( GetRootDSEOperationContext getRootDSEContext )
+    {
+        return new ClonedServerEntry( rootDSE );
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#addContextPartition(org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext)
+     */
+    public synchronized void addContextPartition( AddContextPartitionOperationContext opContext ) throws Exception
+    {
+        Partition partition = opContext.getPartition();
+
+        // Turn on default indices
+        String key = partition.getSuffixDn().getNormName();
+        
+        if ( partitions.containsKey( key ) )
+        {
+            throw new ConfigurationException( "Duplicate partition suffix: " + key );
+        }
+
+        if ( ! partition.isInitialized() )
+        {
+            partition.initialize( );
+        }
+        
+        synchronized ( partitionLookupTree )
+        {
+            LdapDN partitionSuffix = partition.getSuffixDn();
+            
+            if ( partitionSuffix == null )
+            {
+                throw new ConfigurationException( "The current partition does not have any suffix: " + partition.getId() );
+            }
+            
+            partitions.put( partitionSuffix.toString(), partition );
+            partitionLookupTree.add( partition.getSuffixDn(), partition );
+
+            EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
+
+            if ( namingContexts == null )
+            {
+                namingContexts = new DefaultServerAttribute( 
+                    schemaManager.lookupAttributeTypeRegistry( SchemaConstants.NAMING_CONTEXTS_AT ), partitionSuffix.getName() );
+                rootDSE.put( namingContexts );
+            }
+            else
+            {
+                namingContexts.add( partitionSuffix.getName() );
+            }
+        }
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#removeContextPartition(org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext)
+     */
+    public synchronized void removeContextPartition( RemoveContextPartitionOperationContext removeContextPartition ) throws Exception
+    {
+        // Get the Partition name. It's a DN.
+        String key = removeContextPartition.getDn().getNormName();
+        
+        // Retrieve this partition from the aprtition's table
+        Partition partition = partitions.get( key );
+        
+        if ( partition == null )
+        {
+            String msg = "No partition with suffix: " + key;
+            LOG.error( msg );
+            throw new NameNotFoundException( msg );
+        }
+        
+        String partitionSuffix = partition.getSuffixDn().getName();
+
+        // Retrieve the namingContexts from the RootDSE : the partition
+        // suffix must be present in those namingContexts
+        EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
+        
+        if ( namingContexts != null )
+        {
+            if ( namingContexts.contains( partitionSuffix ) )
+            {
+                namingContexts.remove( partitionSuffix );
+            }
+            else
+            {
+                String msg = "No partition with suffix '" + key + 
+                                    "' can be found in the NamingContexts";
+                LOG.error( msg );
+                throw new NameNotFoundException( msg );
+            }
+        }
+
+        // Update the partition tree
+        partitionLookupTree.remove( partition );
+        partitions.remove( key );
+        partition.destroy();
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#getSystemPartition()
+     */
+    public Partition getSystemPartition()
+    {
+        return system;
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#getPartition(org.apache.directory.shared.ldap.name.LdapDN)
      */
     public Partition getPartition( LdapDN dn ) throws Exception
     {
@@ -1088,6 +983,49 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#getMatchedName(org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext)
+     */
+    public LdapDN getMatchedName( GetMatchedNameOperationContext matchedNameContext ) throws Exception
+    {
+        LdapDN dn = ( LdapDN ) matchedNameContext.getDn().clone();
+        
+        while ( dn.size() > 0 )
+        {
+            if ( hasEntry( new EntryOperationContext( matchedNameContext.getSession(), dn ) ) )
+            {
+                return dn;
+            }
+
+            dn.remove( dn.size() - 1 );
+        }
+
+        return dn;
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#getSuffix(org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext)
+     */
+    public LdapDN getSuffix( GetSuffixOperationContext getSuffixContext ) throws Exception
+    {
+        Partition backend = getPartition( getSuffixContext.getDn() );
+        return backend.getSuffixDn();
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#listSuffixes(org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext)
+     */
+    public Set<String> listSuffixes( ListSuffixOperationContext emptyContext ) throws Exception
+    {
+        return Collections.unmodifiableSet( partitions.keySet() );
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#registerSupportedExtensions(java.util.Set)
+     */
     public void registerSupportedExtensions( Set<String> extensionOids ) throws Exception
     {
         EntryAttribute supportedExtension = rootDSE.get( SchemaConstants.SUPPORTED_EXTENSION_AT );
@@ -1105,6 +1043,9 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#registerSupportedSaslMechanisms(java.util.Set)
+     */
     public void registerSupportedSaslMechanisms( Set<String> supportedSaslMechanisms ) throws Exception
     {
         EntryAttribute supportedSaslMechanismsAttribute = rootDSE.get( SchemaConstants.SUPPORTED_SASL_MECHANISMS_AT );
@@ -1122,10 +1063,46 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    public ClonedServerEntry lookup( Long id ) throws Exception
+    /**
+     * Unregisters an ContextPartition with this BackendManager.  Called for each
+     * registered Backend right befor it is to be stopped.  This prevents
+     * protocol server requests from reaching the Backend and effectively puts
+     * the ContextPartition's naming context offline.
+     *
+     * Operations against the naming context should result in an LDAP BUSY
+     * result code in the returnValue if the naming context is not online.
+     *
+     * @param partition ContextPartition component to unregister with this
+     * BackendNexus.
+     * @throws Exception if there are problems unregistering the partition
+     */
+    private void unregister( Partition partition ) throws Exception
     {
-        // TODO not implemented until we can use id to figure out the partition using
-        // the partition ID component of the 64 bit Long identifier
-        throw new NotImplementedException();
+        EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
+        
+        if ( namingContexts != null )
+        {
+            namingContexts.remove( partition.getSuffixDn().getName() );
+        }
+        
+        partitions.remove( partition.getSuffixDn().getName() );
+    }
+
+
+    /**
+     * @return the directoryService
+     */
+    public DirectoryService getDirectoryService()
+    {
+        return directoryService;
+    }
+
+
+    /**
+     * @param directoryService the directoryService to set
+     */
+    public void setDirectoryService( DirectoryService directoryService )
+    {
+        this.directoryService = directoryService;
     }
 }

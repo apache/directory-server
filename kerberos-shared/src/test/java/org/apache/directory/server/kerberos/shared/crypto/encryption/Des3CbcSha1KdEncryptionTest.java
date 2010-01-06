@@ -25,7 +25,9 @@ import java.util.Arrays;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -35,7 +37,7 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Des3CbcSha1KdEncryptionTest extends TestCase
+public class Des3CbcSha1KdEncryptionTest
 {
     private Des3CbcSha1KdEncryption keyDerivationFunction = new Des3CbcSha1KdEncryption();
 
@@ -43,6 +45,7 @@ public class Des3CbcSha1KdEncryptionTest extends TestCase
     /**
      * Tests setting parity as defined in RFC 3961.
      */
+    @Test
     public void testParity()
     {
         byte[] test =
@@ -60,6 +63,7 @@ public class Des3CbcSha1KdEncryptionTest extends TestCase
     /**
      * Tests 'deriveRandom' and 'randomToKey' functions. 
      */
+    @Test
     public void testDerivedKey()
     {
         byte[] key =
@@ -94,6 +98,7 @@ public class Des3CbcSha1KdEncryptionTest extends TestCase
     /**
      * Tests 'deriveRandom' and 'randomToKey' functions. 
      */
+    @Test
     public void testDerivedKey2()
     {
         byte[] key =
@@ -128,6 +133,7 @@ public class Des3CbcSha1KdEncryptionTest extends TestCase
     /**
      * Tests that key derivation can be performed for a Triple-DES key.
      */
+    @Test
     public void testTestVectorsTripleDesKerberosKey1()
     {
         byte[] expectedKey =
@@ -148,6 +154,7 @@ public class Des3CbcSha1KdEncryptionTest extends TestCase
     /**
      * Tests that key derivation can be performed for a Triple-DES key.
      */
+    @Test
     public void testTestVectorsTripleDesKerberosKey2()
     {
         byte[] expectedKey =
@@ -168,6 +175,7 @@ public class Des3CbcSha1KdEncryptionTest extends TestCase
     /**
      * Tests that key derivation can be performed for a Triple-DES key.
      */
+    @Test
     public void testTestVectorsTripleDesKerberosKey3()
     {
         byte[] expectedKey =
@@ -188,6 +196,7 @@ public class Des3CbcSha1KdEncryptionTest extends TestCase
     /**
      * Tests that key derivation can be performed for a Triple-DES key.
      */
+    @Test
     public void testTestVectorsTripleDesKerberosKey4()
     {
         if ( VendorHelper.isIbm() )
@@ -213,6 +222,7 @@ public class Des3CbcSha1KdEncryptionTest extends TestCase
     /**
      * Tests that key derivation can be performed for a Triple-DES key.
      */
+    @Test
     public void testTestVectorsTripleDesKerberosKey5()
     {
         if ( VendorHelper.isIbm() )

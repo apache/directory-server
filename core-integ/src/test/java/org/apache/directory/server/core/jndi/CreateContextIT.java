@@ -20,17 +20,12 @@
 package org.apache.directory.server.core.jndi;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import org.junit.Test;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import org.junit.runner.RunWith;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import javax.naming.CompositeName;
 import javax.naming.Name;
@@ -45,6 +40,13 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 
 /**
  * Tests the creation of contexts in various ways.
@@ -52,21 +54,16 @@ import javax.naming.ldap.LdapContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-public class CreateContextIT
+@RunWith ( FrameworkRunner.class )
+public class CreateContextIT extends AbstractLdapTestUnit
 {
-    public static DirectoryService service;
-
-
-    protected Attributes getPersonAttributes( String sn, String cn )
+    protected Attributes getPersonAttributes( String sn, String cn ) throws Exception
     {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute ocls = new BasicAttribute( "objectClass" );
-        ocls.add( "top" );
-        ocls.add( "person" );
-        attrs.put( ocls );
-        attrs.put( "cn", cn );
-        attrs.put( "sn", sn );
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: person",
+            "cn", cn,
+            "sn", sn );
 
         return attrs;
     }

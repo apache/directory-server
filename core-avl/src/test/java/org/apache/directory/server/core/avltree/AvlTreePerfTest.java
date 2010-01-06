@@ -74,7 +74,7 @@ public class AvlTreePerfTest
     @Before
     public void createTree()
     {
-      tree = new AvlTree<Integer>( new Comparator<Integer>() 
+      tree = new AvlTreeImpl<Integer>( new Comparator<Integer>() 
           {
 
             public int compare( Integer i1, Integer i2 )

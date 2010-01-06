@@ -20,17 +20,12 @@
 package org.apache.directory.server.core.schema;
 
 
-import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
-import static org.apache.directory.server.core.integ.IntegrationUtils.*;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.junit.Assert.assertEquals;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -42,16 +37,20 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-@RunWith ( CiRunner.class )
-public class ObjectClassCreateIT
+
+@RunWith(FrameworkRunner.class)
+public class ObjectClassCreateIT extends AbstractLdapTestUnit
 {
     private String testOID = "1.3.6.1.4.1.18060.0.4.0.3.1.555555.5555.5555555";
 
 
-    public static DirectoryService service;
-
-    
     private void injectSchema() throws Exception
     {
         //--------------------------------------------------------------------

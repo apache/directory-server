@@ -30,7 +30,7 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
@@ -67,13 +67,21 @@ public class MemoryChangeLogStoreTest
     {
         store = new MemoryChangeLogStore();
 
-        oidsMap.put( SchemaConstants.UID_AT, new OidNormalizer( SchemaConstants.UID_AT_OID, new NoOpNormalizer() ) );
-        oidsMap.put( SchemaConstants.USER_ID_AT, new OidNormalizer( SchemaConstants.UID_AT_OID, new NoOpNormalizer() ) );
-        oidsMap.put( SchemaConstants.UID_AT_OID, new OidNormalizer( SchemaConstants.UID_AT_OID, new NoOpNormalizer() ) );
+        // The uid/UserId/0.9.2342.19200300.100.1.1 normalizer
+        OidNormalizer uidOidNormalizer = new OidNormalizer( SchemaConstants.UID_AT_OID, 
+            new NoOpNormalizer( SchemaConstants.UID_AT_OID ) );
         
-        oidsMap.put( SchemaConstants.OU_AT, new OidNormalizer( SchemaConstants.OU_AT_OID, new NoOpNormalizer()  ) );
-        oidsMap.put( SchemaConstants.ORGANIZATIONAL_UNIT_NAME_AT, new OidNormalizer( SchemaConstants.OU_AT_OID, new NoOpNormalizer()  ) );
-        oidsMap.put( SchemaConstants.OU_AT_OID, new OidNormalizer( SchemaConstants.OU_AT_OID, new NoOpNormalizer()  ) );
+        oidsMap.put( SchemaConstants.UID_AT, uidOidNormalizer );
+        oidsMap.put( SchemaConstants.USER_ID_AT, uidOidNormalizer );
+        oidsMap.put( SchemaConstants.UID_AT_OID, uidOidNormalizer );
+        
+        // The ou/organizationalUnit/2.5.4.11 normalizer
+        OidNormalizer ouOidNormalizer = new OidNormalizer( SchemaConstants.OU_AT_OID, 
+            new NoOpNormalizer( SchemaConstants.OU_AT_OID ) );
+        
+        oidsMap.put( SchemaConstants.OU_AT, ouOidNormalizer );
+        oidsMap.put( SchemaConstants.ORGANIZATIONAL_UNIT_NAME_AT, ouOidNormalizer );
+        oidsMap.put( SchemaConstants.OU_AT_OID, ouOidNormalizer );
     }
 
 

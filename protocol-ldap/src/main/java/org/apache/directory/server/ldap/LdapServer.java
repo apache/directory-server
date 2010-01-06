@@ -647,7 +647,7 @@ public class LdapServer extends DirectoryBackedService
     public void removeExtendedOperationHandler( String oid )
     {
         // need to do something like this to make this work right
-        //            PartitionNexus nexus = getDirectoryService().getPartitionNexus();
+        //            DefaultPartitionNexus nexus = getDirectoryService().getPartitionNexus();
         //            nexus.unregisterSupportedExtensions( eoh.getExtensionOids() );
 
         ExtendedOperationHandler handler = null;

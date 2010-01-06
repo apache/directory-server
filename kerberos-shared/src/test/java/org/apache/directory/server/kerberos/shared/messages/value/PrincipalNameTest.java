@@ -24,9 +24,8 @@ import java.nio.ByteBuffer;
 
 import org.apache.directory.server.kerberos.shared.messages.value.types.PrincipalNameType;
 import org.apache.directory.shared.ldap.util.StringTools;
-
-import junit.framework.TestCase;
-
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test the PrincipalName encoding and decoding
@@ -34,8 +33,9 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 542147 $, $Date: 2007-05-28 10:14:21 +0200 (Mon, 28 May 2007) $
  */
-public class PrincipalNameTest extends TestCase
+public class PrincipalNameTest
 {
+    @Test
     public void testEncodingPrincipalNameOneName() throws Exception
     {
         PrincipalName principal = new PrincipalName( "Test@APACHE", PrincipalNameType.KRB_NT_PRINCIPAL );
@@ -59,6 +59,7 @@ public class PrincipalNameTest extends TestCase
     }
 
 
+    @Test
     public void testEncodingPrincipalName3names() throws Exception
     {
         PrincipalName principal = new PrincipalName( "Test1@APACHE", PrincipalNameType.KRB_NT_PRINCIPAL );
@@ -88,6 +89,7 @@ public class PrincipalNameTest extends TestCase
     }
 
 
+    @Test
     public void testEncodingPrincipalNameNullName() throws Exception
     {
         PrincipalName principal = new PrincipalName( null, PrincipalNameType.KRB_NT_PRINCIPAL );

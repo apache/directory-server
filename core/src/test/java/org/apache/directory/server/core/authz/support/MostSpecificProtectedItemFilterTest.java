@@ -29,8 +29,8 @@ import java.util.Set;
 
 import javax.naming.directory.Attribute;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 import org.apache.directory.server.core.authz.support.MostSpecificProtectedItemFilter;
 import org.apache.directory.server.core.authz.support.OperationScope;
@@ -40,6 +40,7 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.junit.Test;
 
 
 /**
@@ -48,7 +49,7 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MostSpecificProtectedItemFilterTest extends TestCase
+public class MostSpecificProtectedItemFilterTest
 {
     private static final Collection<String> EMPTY_STRING_COLLECTION = Collections.unmodifiableCollection( new ArrayList<String>() );
     
@@ -143,21 +144,23 @@ public class MostSpecificProtectedItemFilterTest extends TestCase
     }
 
 
+    @Test
     public void testZeroOrOneTuple() throws Exception
     {
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
 
-        Assert.assertEquals( 0, filter.filter( null, EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
+        assertEquals( 0, filter.filter( null, EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
             null, null, null, null, null, null, null, null, null ).size() );
 
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
         tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, false, 0 ) );
 
-        Assert.assertEquals( 1, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
+        assertEquals( 1, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
             null, null, null, null, null, null, null ).size() );
     }
 
 
+    @Test
     public void testTuplesA() throws Exception
     {
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
@@ -166,14 +169,15 @@ public class MostSpecificProtectedItemFilterTest extends TestCase
         tuples = ( List<ACITuple> ) filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
             null, null, null );
 
-        Assert.assertEquals( 4, tuples.size() );
-        Assert.assertSame( TUPLES_A.get( 0 ), tuples.get( 0 ) );
-        Assert.assertSame( TUPLES_A.get( 1 ), tuples.get( 1 ) );
-        Assert.assertSame( TUPLES_A.get( 2 ), tuples.get( 2 ) );
-        Assert.assertSame( TUPLES_A.get( 3 ), tuples.get( 3 ) );
+        assertEquals( 4, tuples.size() );
+        assertSame( TUPLES_A.get( 0 ), tuples.get( 0 ) );
+        assertSame( TUPLES_A.get( 1 ), tuples.get( 1 ) );
+        assertSame( TUPLES_A.get( 2 ), tuples.get( 2 ) );
+        assertSame( TUPLES_A.get( 3 ), tuples.get( 3 ) );
     }
 
 
+    @Test
     public void testTuplesB() throws Exception
     {
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
@@ -182,13 +186,14 @@ public class MostSpecificProtectedItemFilterTest extends TestCase
         tuples = ( List<ACITuple> ) filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
             null, null, null );
 
-        Assert.assertEquals( 3, tuples.size() );
-        Assert.assertSame( TUPLES_B.get( 0 ), tuples.get( 0 ) );
-        Assert.assertSame( TUPLES_B.get( 1 ), tuples.get( 1 ) );
-        Assert.assertSame( TUPLES_B.get( 2 ), tuples.get( 2 ) );
+        assertEquals( 3, tuples.size() );
+        assertSame( TUPLES_B.get( 0 ), tuples.get( 0 ) );
+        assertSame( TUPLES_B.get( 1 ), tuples.get( 1 ) );
+        assertSame( TUPLES_B.get( 2 ), tuples.get( 2 ) );
     }
 
 
+    @Test
     public void testTuplesC() throws Exception
     {
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
@@ -197,12 +202,13 @@ public class MostSpecificProtectedItemFilterTest extends TestCase
         tuples = ( List<ACITuple> ) filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
             null, null, null );
 
-        Assert.assertEquals( 2, tuples.size() );
-        Assert.assertSame( TUPLES_C.get( 0 ), tuples.get( 0 ) );
-        Assert.assertSame( TUPLES_C.get( 1 ), tuples.get( 1 ) );
+        assertEquals( 2, tuples.size() );
+        assertSame( TUPLES_C.get( 0 ), tuples.get( 0 ) );
+        assertSame( TUPLES_C.get( 1 ), tuples.get( 1 ) );
     }
 
 
+    @Test
     public void testTuplesD() throws Exception
     {
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
@@ -211,11 +217,12 @@ public class MostSpecificProtectedItemFilterTest extends TestCase
         tuples = ( List<ACITuple> ) filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
             null, null, null );
 
-        Assert.assertEquals( 1, tuples.size() );
-        Assert.assertSame( TUPLES_D.get( 0 ), tuples.get( 0 ) );
+        assertEquals( 1, tuples.size() );
+        assertSame( TUPLES_D.get( 0 ), tuples.get( 0 ) );
     }
 
 
+    @Test
     public void testTuplesE() throws Exception
     {
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
@@ -224,8 +231,8 @@ public class MostSpecificProtectedItemFilterTest extends TestCase
         tuples = ( List<ACITuple> ) filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
             null, null, null );
 
-        Assert.assertEquals( 2, tuples.size() );
-        Assert.assertSame( TUPLES_E.get( 0 ), tuples.get( 0 ) );
-        Assert.assertSame( TUPLES_E.get( 1 ), tuples.get( 1 ) );
+        assertEquals( 2, tuples.size() );
+        assertSame( TUPLES_E.get( 0 ), tuples.get( 0 ) );
+        assertSame( TUPLES_E.get( 1 ), tuples.get( 1 ) );
     }
 }

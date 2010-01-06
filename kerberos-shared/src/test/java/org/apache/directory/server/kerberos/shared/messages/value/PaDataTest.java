@@ -24,9 +24,8 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
-
-import junit.framework.TestCase;
-
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test the PaData encoding and decoding
@@ -34,8 +33,9 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 542147 $, $Date: 2007-05-28 10:14:21 +0200 (Mon, 28 May 2007) $
  */
-public class PaDataTest extends TestCase
+public class PaDataTest
 {
+    @Test
     public void testEncodingPreAuthenticationData() throws Exception
     {
         PaData pad = new PaData( PaDataType.PA_ASF3_SALT, new byte[]
@@ -59,6 +59,7 @@ public class PaDataTest extends TestCase
     }
 
 
+    @Test
     public void testEncodingNullPreAuthenticationData() throws Exception
     {
         PaData pad = new PaData( PaDataType.PA_ASF3_SALT, null );

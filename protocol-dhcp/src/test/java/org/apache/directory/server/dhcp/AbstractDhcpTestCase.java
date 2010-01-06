@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.server.dhcp.messages.DhcpMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class AbstractDhcpTestCase extends TestCase
+public abstract class AbstractDhcpTestCase
 {
     protected static final int MINIMUM_DHCP_DATAGRAM_SIZE = 576;
     protected final Logger log;
@@ -48,7 +46,7 @@ public abstract class AbstractDhcpTestCase extends TestCase
     }
 
 
-    public AbstractDhcpTestCase(Class subclass)
+    public AbstractDhcpTestCase(Class<?> subclass)
     {
         log = LoggerFactory.getLogger( subclass );
     }

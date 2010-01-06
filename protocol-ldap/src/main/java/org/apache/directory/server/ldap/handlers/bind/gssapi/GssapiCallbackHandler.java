@@ -25,7 +25,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.sasl.AuthorizeCallback;
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
 import org.apache.directory.server.ldap.LdapSession;

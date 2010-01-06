@@ -19,6 +19,7 @@
 package org.apache.directory.server.core.entry;
 
 
+import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -109,15 +110,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
         else
         {
             
-            try
-            {
-                isHR = attributeType.getSyntax().isHumanReadable();
-            }
-            catch ( NamingException ne )
-            {
-                // Do nothing : the syntax should always exist ...
-            }
-            
+            isHR = attributeType.getSyntax().isHumanReadable();
 
             // Copy all the values
             for ( Value<?> clientValue:attribute )
@@ -429,94 +422,86 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
         
         for ( Value<?> val:vals )
         {
-            try
+            if ( attributeType.getSyntax().isHumanReadable() )
             {
-                if ( attributeType.getSyntax().isHumanReadable() )
+                if ( ( val == null ) || val.isNull() )
                 {
-                    if ( ( val == null ) || val.isNull() )
+                    Value<String> nullSV = new ServerStringValue( attributeType, (String)null );
+                    
+                    if ( !values.contains( nullSV ) )
                     {
-                        Value<String> nullSV = new ServerStringValue( attributeType, (String)null );
-                        
-                        if ( !values.contains( nullSV ) )
+                        values.add( nullSV );
+                        nbAdded++;
+                    }
+                }
+                else if ( val instanceof ServerStringValue )
+                {
+                    if ( !values.contains( val ) )
+                    {
+                        if ( values.add( val ) )
                         {
-                            values.add( nullSV );
                             nbAdded++;
                         }
                     }
-                    else if ( val instanceof ServerStringValue )
+                }
+                else if ( val instanceof ClientStringValue )
+                {
+                    // If we get a Client value, convert it to a Server value first 
+                    Value<String> serverStringValue = new ServerStringValue( attributeType, val.getString() ); 
+                    
+                    if ( !values.contains( serverStringValue ) )
                     {
-                        if ( !values.contains( val ) )
+                        if ( values.add( serverStringValue ) )
                         {
-                            if ( values.add( val ) )
-                            {
-                                nbAdded++;
-                            }
+                            nbAdded++;
                         }
-                    }
-                    else if ( val instanceof ClientStringValue )
-                    {
-                        // If we get a Client value, convert it to a Server value first 
-                        Value<String> serverStringValue = new ServerStringValue( attributeType, val.getString() ); 
-                        
-                        if ( !values.contains( serverStringValue ) )
-                        {
-                            if ( values.add( serverStringValue ) )
-                            {
-                                nbAdded++;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        String message = "The value must be a String, as its AttributeType is H/R";
-                        LOG.error( message );
                     }
                 }
                 else
                 {
-                    if ( val == null )
+                    String message = "The value must be a String, as its AttributeType is H/R";
+                    LOG.error( message );
+                }
+            }
+            else
+            {
+                if ( val == null )
+                {
+                    Value<byte[]> nullSV = new ServerBinaryValue( attributeType, (byte[])null );
+                    
+                    if ( !values.contains( nullSV ) )
                     {
-                        Value<byte[]> nullSV = new ServerBinaryValue( attributeType, (byte[])null );
-                        
-                        if ( !values.contains( nullSV ) )
+                        values.add( nullSV );
+                        nbAdded++;
+                    }
+                }
+                else if ( ( val instanceof ClientBinaryValue ) )
+                {
+                    Value<byte[]> serverBinaryValue = new ServerBinaryValue( attributeType, val.getBytes() ); 
+                    
+                    if ( !values.contains( serverBinaryValue ) )
+                    {
+                        if ( values.add( serverBinaryValue ) )
                         {
-                            values.add( nullSV );
                             nbAdded++;
                         }
                     }
-                    else if ( ( val instanceof ClientBinaryValue ) )
+                }
+                else if ( val instanceof ServerBinaryValue )
+                {
+                    if ( !values.contains( val ) )
                     {
-                        Value<byte[]> serverBinaryValue = new ServerBinaryValue( attributeType, val.getBytes() ); 
-                        
-                        if ( !values.contains( serverBinaryValue ) )
+                        if ( values.add( val ) )
                         {
-                            if ( values.add( serverBinaryValue ) )
-                            {
-                                nbAdded++;
-                            }
+                            nbAdded++;
                         }
-                    }
-                    else if ( val instanceof ServerBinaryValue )
-                    {
-                        if ( !values.contains( val ) )
-                        {
-                            if ( values.add( val ) )
-                            {
-                                nbAdded++;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        String message = "The value must be a byte[], as its AttributeType is not H/R";
-                        LOG.error( message );
                     }
                 }
-            }
-            catch ( NamingException ne )
-            {
-                String message = "Error while adding value '" + val.toString() +"' : " + ne.getMessage();
-                LOG.error( message );
+                else
+                {
+                    String message = "The value must be a byte[], as its AttributeType is not H/R";
+                    LOG.error( message );
+                }
             }
         }
         
@@ -722,7 +707,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
         
         String normId = StringTools.lowerCaseAscii( trimmedId );
         
-        for ( String name:attributeType.getNamesRef() )
+        for ( String name:attributeType.getNames() )
         {
             if ( normId.equalsIgnoreCase( name ) )
             {
@@ -750,9 +735,15 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
     {
         // First check if the attribute has more than one value
         // if the attribute is supposed to be SINGLE_VALUE
-        if ( attributeType.isSingleValue() && ( values.size() > 1 ) )
+        if ( attributeType.isSingleValued() && ( values.size() > 1 ) )
         {
             return false;
+        }
+
+        // Check that we can have no value for this attributeType
+        if ( values.size() == 0 )
+        {
+            return attributeType.getSyntax().getSyntaxChecker().isValidSyntax( null );
         }
 
         for ( Value<?> value : values )
@@ -762,7 +753,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 return false;
             }
         }
-
+        
         return true;
     }
 
@@ -893,21 +884,12 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
         this.attributeType = attributeType;
         setUpId( null, attributeType );
         
-        try
+        if ( attributeType.getSyntax().isHumanReadable() )
         {
-            if ( attributeType.getSyntax().isHumanReadable() )
-            {
-                isHR = true;
-            }
-            else
-            {
-                isHR = false;
-            }
+            isHR = true;
         }
-        catch ( NamingException ne )
+        else
         {
-            // If we have an exception while trying to get the Syntax for this attribute
-            // just set it as Binary
             isHR = false;
         }
     }
@@ -965,7 +947,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 // In this case, it must be equals to the attributeType OID.
                 String normId = StringTools.lowerCaseAscii( StringTools.trim( id ) );
                 
-                for ( String atName:attributeType.getNamesRef() )
+                for ( String atName:attributeType.getNames() )
                 {
                     if ( atName.equalsIgnoreCase( normId ) )
                     {
@@ -1034,7 +1016,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 // In this case, it must be equals to the attributeType OID.
                 String normUpId = StringTools.lowerCaseAscii( StringTools.trim( upId ) );
                 
-                for ( String atId:attributeType.getNamesRef() )
+                for ( String atId:attributeType.getNames() )
                 {
                     if ( atId.equalsIgnoreCase( normUpId ) )
                     {
@@ -1112,7 +1094,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 // In this case, it must be equals to the attributeType OID.
                 String normUpId = StringTools.lowerCaseAscii( StringTools.trim( upId ) );
                 
-                for ( String atId:attributeType.getNamesRef() )
+                for ( String atId:attributeType.getNames() )
                 {
                     if ( atId.equalsIgnoreCase( normUpId ) )
                     {

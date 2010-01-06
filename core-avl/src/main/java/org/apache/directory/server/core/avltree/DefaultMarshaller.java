@@ -20,16 +20,20 @@
 package org.apache.directory.server.core.avltree;
 
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 
 /**
- * A marshaller which uses default Java Serialization.
+ * A Marshaller which uses default Java Serialization.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultMarshaller implements Marshaller
+public class DefaultMarshaller implements Marshaller<Object>
 {
     public static final DefaultMarshaller INSTANCE = new DefaultMarshaller();
 

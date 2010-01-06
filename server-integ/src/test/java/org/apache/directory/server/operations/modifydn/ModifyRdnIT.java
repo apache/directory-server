@@ -20,32 +20,32 @@
 package org.apache.directory.server.operations.modifydn;
 
 
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.NoPermissionException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SchemaViolationException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
 
 /**
@@ -55,28 +55,29 @@ import static org.junit.Assert.fail;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 679049 $
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.SUITE )
-public class ModifyRdnIT 
+@RunWith ( FrameworkRunner.class )
+@CreateDS( name="ModifyRdnIT-class", enableChangeLog=false )
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" )
+    })
+public class ModifyRdnIT extends AbstractLdapTestUnit
 {
     private static final String BASE = "ou=system";
 
-    public static LdapServer ldapServer;
-    
-    
+
     /**
      * Create attributes for a person entry.
      */
-    private Attributes getPersonAttributes( String sn, String cn )
+    private Attributes getPersonAttributes( String sn, String cn ) throws Exception
     {
-        Attributes attributes = new BasicAttributes( true );
-        Attribute attribute = new BasicAttribute( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "person" );
-        attributes.put( attribute );
-        attributes.put( "cn", cn );
-        attributes.put( "sn", sn );
-        attributes.put( "description", cn + " is a person." );
+        Attributes attributes = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: person",
+            "cn", cn,
+            "sn", sn,
+            "description", cn + " is a person." );
 
         return attributes;
     }
@@ -85,15 +86,13 @@ public class ModifyRdnIT
     /**
      * Create attributes for a organizational unit entry.
      */
-    private Attributes getOrganizationalUnitAttributes( String ou )
+    private Attributes getOrganizationalUnitAttributes( String ou ) throws Exception
     {
-        Attributes attributes = new BasicAttributes( true );
-        Attribute attribute = new BasicAttribute( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "organizationalUnit" );
-        attributes.put( attribute );
-        attributes.put( "ou", ou );
-        attributes.put( "description", ou + " is an organizational unit." );
+        Attributes attributes = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: organizationalUnit",
+            "ou", ou,
+            "description", ou + " is an organizational unit." );
 
         return attributes;
     }
@@ -465,7 +464,7 @@ public class ModifyRdnIT
         String cnVal = "Tori Amos";
         String snVal = "Amos";
         String oldRdn = "cn=" + cnVal;
-        Attributes attributes = this.getPersonAttributes( snVal, cnVal );
+        Attributes attributes = getPersonAttributes( snVal, cnVal );
         ctx.createSubcontext( oldRdn, attributes );
 
         // modify Rdn from cn=Tori Amos to cn=<a Umlaut>\+
@@ -607,7 +606,7 @@ public class ModifyRdnIT
     public void testModifyMultiValuedRdnVariant2() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
-        
+
         Attributes attributes = createPerson( "cn" );
         String oldRdn = getRdn( attributes, "cn" );
         String newRdn = getRdn( attributes, "cn", "sn" );
@@ -1025,14 +1024,12 @@ public class ModifyRdnIT
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
-        Attributes attributes = new BasicAttributes( true );
-        Attribute attribute = new BasicAttribute( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "person" );
-        attributes.put( attribute );
-        attributes.put( "cn", "Tori Amos" );
-        attributes.put( "sn", "Amos" );
-        attributes.put( "description", "Tori Amos is a person." );
+        Attributes attributes = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: person",
+            "cn: Tori Amos",
+            "sn: Amos",
+            "description: Tori Amos is a person." );
 
         String rdn = getRdn( attributes, rdnTypes );
 

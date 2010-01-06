@@ -20,21 +20,13 @@
 package org.apache.directory.server.core.jndi;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
-import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
-import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -44,6 +36,17 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 
 /**
  * Tests the methods on JNDI contexts that are analogous to entry modify
@@ -52,11 +55,10 @@ import javax.naming.ldap.LdapContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-public class ModifyContextIT
+@RunWith ( FrameworkRunner.class )
+@CreateDS( factory=DefaultDirectoryServiceFactory.class, name="ModifyContextIT-class" )
+public class ModifyContextIT extends AbstractLdapTestUnit
 {
-    public static DirectoryService service;
-
 
     /**
      * @todo put this into an ldif annotation
@@ -67,7 +69,7 @@ public class ModifyContextIT
     {
         LdifEntry akarasulu = getUserAddLdif();
         service.getAdminSession().add( 
-            new DefaultServerEntry( service.getRegistries(), akarasulu.getEntry() ) ); 
+            new DefaultServerEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
 
         LdapContext sysRoot = getSystemContext( service );
 

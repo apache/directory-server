@@ -35,7 +35,6 @@ import javax.naming.NoPermissionException;
 import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.SearchControls;
 
-import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
@@ -43,6 +42,7 @@ import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerBinaryValue;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.filtering.EntryFilter;
@@ -50,22 +50,14 @@ import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
-import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.ObjectClassRegistry;
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
@@ -79,7 +71,6 @@ import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.filter.ApproximateNode;
@@ -96,17 +87,20 @@ import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.CascadeControl;
-import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
+import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
-import org.apache.directory.shared.ldap.schema.SchemaUtils;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
-import org.apache.directory.shared.ldap.schema.syntaxes.AcceptAllSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
+import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,7 +121,10 @@ public class SchemaInterceptor extends BaseInterceptor
     private static Logger LOG = LoggerFactory.getLogger( SchemaInterceptor.class );
 
     private static final String[] SCHEMA_SUBENTRY_RETURN_ATTRIBUTES = new String[]
-        { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES };
+        { 
+            SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, 
+            SchemaConstants.ALL_USER_ATTRIBUTES 
+        };
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
@@ -146,17 +143,11 @@ public class SchemaInterceptor extends BaseInterceptor
 
     private List<EntryFilter> filters = new ArrayList<EntryFilter>();
 
-    /**
-     * the global schema object registries
-     */
-    private Registries registries;
+    /** the global schema object SchemaManager */
+    private SchemaManager schemaManager;
 
     /** A global reference to the ObjectClass attributeType */
     private AttributeType OBJECT_CLASS;
-    /**
-     * the global attributeType registry
-     */
-    private AttributeTypeRegistry atRegistry;
 
     /** A normalized form for the SubschemaSubentry DN */
     private String subschemaSubentryDnNorm;
@@ -169,11 +160,12 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private LdapDN schemaModificationAttributesDN;
 
-    private SchemaOperationControl schemaManager;
+    /** The schema manager */
+    private SchemaSubentryManager schemaSubEntryManager;
 
     private SchemaService schemaService;
 
-    // the base DN (normalized) of the schema partition
+    /** the base DN (normalized) of the schema partition */
     private LdapDN schemaBaseDN;
 
     /** A map used to store all the objectClasses superiors */
@@ -188,6 +180,8 @@ public class SchemaInterceptor extends BaseInterceptor
     /** A map used to store all the objectClasses allowed attributes (may + must) */
     private Map<String, List<AttributeType>> allowed;
 
+    private static AttributeType MODIFIERS_NAME_ATTRIBUTE_TYPE;
+    private static AttributeType MODIFY_TIMESTAMP_ATTRIBUTE_TYPE;
 
     /**
      * Initialize the Schema Service
@@ -203,30 +197,35 @@ public class SchemaInterceptor extends BaseInterceptor
         }
 
         nexus = directoryService.getPartitionNexus();
-        registries = directoryService.getRegistries();
-        atRegistry = registries.getAttributeTypeRegistry();
-        OBJECT_CLASS = atRegistry.lookup( SchemaConstants.OBJECT_CLASS_AT );
+        schemaManager = directoryService.getSchemaManager();
+        OBJECT_CLASS = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
         binaryAttributeFilter = new BinaryAttributeFilter();
         topFilter = new TopFilter();
         filters.add( binaryAttributeFilter );
         filters.add( topFilter );
 
-        schemaBaseDN = new LdapDN( ServerDNConstants.OU_SCHEMA_DN );
-        schemaBaseDN.normalize( atRegistry.getNormalizerMapping() );
+        schemaBaseDN = new LdapDN( SchemaConstants.OU_SCHEMA );
+        schemaBaseDN.normalize( schemaManager.getNormalizerMapping() );
         schemaService = directoryService.getSchemaService();
-        schemaManager = directoryService.getSchemaService().getSchemaControl();
 
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemaSubentryDn = new LdapDN( subschemaSubentry.getString() );
-        subschemaSubentryDn.normalize( atRegistry.getNormalizerMapping() );
+        subschemaSubentryDn.normalize( schemaManager.getNormalizerMapping() );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
-        schemaModificationAttributesDN = new LdapDN( ServerDNConstants.SCHEMA_TIMESTAMP_ENTRY_DN );
-        schemaModificationAttributesDN.normalize( atRegistry.getNormalizerMapping() );
+        schemaModificationAttributesDN = new LdapDN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
+        schemaModificationAttributesDN.normalize( schemaManager.getNormalizerMapping() );
 
         computeSuperiors();
+        
+        // Initialize the schema manager
+        SchemaLoader loader = schemaService.getSchemaPartition().getSchemaManager().getLoader();
+        schemaSubEntryManager = new SchemaSubentryManager( schemaManager, loader );
 
+        MODIFIERS_NAME_ATTRIBUTE_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.MODIFIERS_NAME_AT );
+        MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.MODIFY_TIMESTAMP_AT );
+        
         if ( IS_DEBUG )
         {
             LOG.debug( "SchemaInterceptor Initialized !" );
@@ -255,9 +254,9 @@ public class SchemaInterceptor extends BaseInterceptor
 
         for ( ObjectClass parent : parents )
         {
-            AttributeType[] mustParent = parent.getMustList();
+            List<AttributeType> mustParent = parent.getMustAttributeTypes();
 
-            if ( ( mustParent != null ) && ( mustParent.length != 0 ) )
+            if ( ( mustParent != null ) && ( mustParent.size() != 0 ) )
             {
                 for ( AttributeType attributeType : mustParent )
                 {
@@ -298,9 +297,9 @@ public class SchemaInterceptor extends BaseInterceptor
 
         for ( ObjectClass parent : parents )
         {
-            AttributeType[] mustParent = parent.getMustList();
+            List<AttributeType> mustParent = parent.getMustAttributeTypes();
 
-            if ( ( mustParent != null ) && ( mustParent.length != 0 ) )
+            if ( ( mustParent != null ) && ( mustParent.size() != 0 ) )
             {
                 for ( AttributeType attributeType : mustParent )
                 {
@@ -333,10 +332,10 @@ public class SchemaInterceptor extends BaseInterceptor
     private void computeOCSuperiors( ObjectClass objectClass, List<ObjectClass> superiors, Set<String> ocSeen )
         throws Exception
     {
-        ObjectClass[] parents = objectClass.getSuperClasses();
+        List<ObjectClass> parents = objectClass.getSuperiors();
 
         // Loop on all the objectClass superiors
-        if ( ( parents != null ) && ( parents.length != 0 ) )
+        if ( ( parents != null ) && ( parents.size() != 0 ) )
         {
             for ( ObjectClass parent : parents )
             {
@@ -387,7 +386,7 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private void computeSuperiors() throws Exception
     {
-        Iterator<ObjectClass> objectClasses = registries.getObjectClassRegistry().iterator();
+        Iterator<ObjectClass> objectClasses = schemaManager.getObjectClassRegistry().iterator();
         superiors = new ConcurrentHashMap<String, List<ObjectClass>>();
         allMust = new ConcurrentHashMap<String, List<AttributeType>>();
         allMay = new ConcurrentHashMap<String, List<AttributeType>>();
@@ -463,12 +462,12 @@ public class SchemaInterceptor extends BaseInterceptor
             try
             {
                 // Check that the attribute is declared
-                if ( registries.getOidRegistry().hasOid( attribute ) )
+                if ( schemaManager.getAttributeTypeRegistry().contains( attribute ) )
                 {
-                    String oid = registries.getOidRegistry().getOid( attribute );
+                    String oid = schemaManager.getAttributeTypeRegistry().getOidByName( attribute );
 
                     // The attribute must be an AttributeType
-                    if ( atRegistry.hasAttributeType( oid ) )
+                    if ( schemaManager.getAttributeTypeRegistry().contains( oid ) )
                     {
                         if ( !filteredAttrs.containsKey( oid ) )
                         {
@@ -523,7 +522,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
     private Value<?> convert( String id, Object value ) throws Exception
     {
-        AttributeType at = atRegistry.lookup( id );
+        AttributeType at = schemaManager.lookupAttributeTypeRegistry( id );
 
         if ( at.getSyntax().isHumanReadable() )
         {
@@ -594,7 +593,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 SubstringNode node = ( ( SubstringNode ) filter );
 
-                if ( !atRegistry.lookup( node.getAttribute() ).getSyntax().isHumanReadable() )
+                if ( !schemaManager.lookupAttributeTypeRegistry( node.getAttribute() ).getSyntax().isHumanReadable() )
                 {
                     String message = "A Substring filter should be used only on Human Readable attributes";
                     LOG.error( message );
@@ -634,7 +633,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 ExtensibleNode node = ( ( ExtensibleNode ) filter );
 
-                if ( !atRegistry.lookup( node.getAttribute() ).getSyntax().isHumanReadable() )
+                if ( !schemaManager.lookupAttributeTypeRegistry( node.getAttribute() ).getSyntax().isHumanReadable() )
                 {
                     String message = "A Extensible filter should be used only on Human Readable attributes";
                     LOG.error( message );
@@ -731,16 +730,16 @@ public class SchemaInterceptor extends BaseInterceptor
 
                 String objectClassOid = null;
 
-                if ( registries.getObjectClassRegistry().hasObjectClass( objectClass ) )
+                if ( schemaManager.getObjectClassRegistry().contains( objectClass ) )
                 {
-                    objectClassOid = registries.getObjectClassRegistry().lookup( objectClass ).getOid();
+                    objectClassOid = schemaManager.getObjectClassRegistry().lookup( objectClass ).getOid();
                 }
                 else
                 {
                     return new BaseEntryFilteringCursor( new EmptyCursor<ServerEntry>(), opContext );
                 }
 
-                String nodeOid = registries.getOidRegistry().getOid( node.getAttribute() );
+                String nodeOid = schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() );
 
                 // see if node attribute is objectClass
                 if ( nodeOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID )
@@ -801,7 +800,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
     private void getSuperiors( ObjectClass oc, Set<String> ocSeen, List<ObjectClass> result ) throws Exception
     {
-        for ( ObjectClass parent : oc.getSuperClasses() )
+        for ( ObjectClass parent : oc.getSuperiors() )
         {
             // Skip 'top'
             if ( SchemaConstants.TOP_OC.equals( parent.getName() ) )
@@ -832,21 +831,20 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private boolean isRequired( String attrId, EntryAttribute objectClasses ) throws Exception
     {
-        OidRegistry oidRegistry = registries.getOidRegistry();
-        ObjectClassRegistry registry = registries.getObjectClassRegistry();
+        OidRegistry oidRegistry = schemaManager.getGlobalOidRegistry();
 
-        if ( !oidRegistry.hasOid( attrId ) )
+        if ( !oidRegistry.contains( attrId ) )
         {
             return false;
         }
 
-        String attrOid = oidRegistry.getOid( attrId );
+        String attrOid = schemaManager.getAttributeTypeRegistry().getOidByName( attrId );
 
         for ( Value<?> objectClass : objectClasses )
         {
-            ObjectClass ocSpec = registry.lookup( objectClass.getString() );
+            ObjectClass ocSpec = schemaManager.getObjectClassRegistry().lookup( objectClass.getString() );
 
-            for ( AttributeType must : ocSpec.getMustList() )
+            for ( AttributeType must : ocSpec.getMustAttributeTypes() )
             {
                 if ( must.getOid().equals( attrOid ) )
                 {
@@ -859,28 +857,6 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    /**
-     * A helper method which tells if a schema is disabled
-     */
-    private  boolean isDisabled( String schemaName )
-    {
-        Schema schema = registries.getLoadedSchemas().get( schemaName );
-        
-        return ( schema == null ) || ( schema.isDisabled() );
-    }
-    
-    
-    /**
-     * A helper method which tells if a schema is enabled
-     */
-    private boolean isEnabled( String schemaName )
-    {
-        Schema schema = registries.getLoadedSchemas().get( schemaName );
-        
-        return ( schema != null ) && ( !schema.isDisabled() );
-    }
-    
-    
     /**
      * Checks to see if removing a set of attributes from an entry completely removes
      * that attribute's values.  If change has zero size then all attributes are
@@ -974,7 +950,6 @@ public class SchemaInterceptor extends BaseInterceptor
     private boolean getObjectClasses( EntryAttribute objectClasses, List<ObjectClass> result ) throws Exception
     {
         Set<String> ocSeen = new HashSet<String>();
-        ObjectClassRegistry registry = registries.getObjectClassRegistry();
 
         // We must select all the ObjectClasses, except 'top',
         // but including all the inherited ObjectClasses
@@ -994,7 +969,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 hasExtensibleObject = true;
             }
 
-            ObjectClass oc = registry.lookup( objectClassName );
+            ObjectClass oc = schemaManager.getObjectClassRegistry().lookup( objectClassName );
 
             // Add all unseen objectClasses to the list, except 'top'
             if ( !ocSeen.contains( oc.getOid() ) )
@@ -1019,12 +994,12 @@ public class SchemaInterceptor extends BaseInterceptor
         for ( Value<?> value : objectClasses )
         {
             String ocName = value.getString();
-            ObjectClass oc = registries.getObjectClassRegistry().lookup( ocName );
+            ObjectClass oc = schemaManager.getObjectClassRegistry().lookup( ocName );
 
-            AttributeType[] types = oc.getMustList();
+            List<AttributeType> types = oc.getMustAttributeTypes();
 
             // For each objectClass, loop on all MUST attributeTypes, if any
-            if ( ( types != null ) && ( types.length > 0 ) )
+            if ( ( types != null ) && ( types.size() > 0 ) )
             {
                 for ( AttributeType type : types )
                 {
@@ -1042,18 +1017,18 @@ public class SchemaInterceptor extends BaseInterceptor
         Set<String> allowed = new HashSet<String>( must );
 
         // Add the 'ObjectClass' attribute ID
-        allowed.add( registries.getOidRegistry().getOid( SchemaConstants.OBJECT_CLASS_AT ) );
+        allowed.add( schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.OBJECT_CLASS_AT ) );
 
         // Loop on all objectclasses
         for ( Value<?> objectClass : objectClasses )
         {
             String ocName = objectClass.getString();
-            ObjectClass oc = registries.getObjectClassRegistry().lookup( ocName );
+            ObjectClass oc = schemaManager.getObjectClassRegistry().lookup( ocName );
 
-            AttributeType[] types = oc.getMayList();
+            List<AttributeType> types = oc.getMayAttributeTypes();
 
             // For each objectClass, loop on all MAY attributeTypes, if any
-            if ( ( types != null ) && ( types.length > 0 ) )
+            if ( ( types != null ) && ( types.size() > 0 ) )
             {
                 for ( AttributeType type : types )
                 {
@@ -1095,7 +1070,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 String ocLowerName = ocName.toLowerCase();
 
-                ObjectClass objectClass = registries.getObjectClassRegistry().lookup( ocLowerName );
+                ObjectClass objectClass = schemaManager.getObjectClassRegistry().lookup( ocLowerName );
 
                 if ( !objectClasses.contains( ocLowerName ) )
                 {
@@ -1129,429 +1104,64 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws Exception
-    {
-        LdapDN oriChildName = opContext.getDn();
-
-        ClonedServerEntry entry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
-
-        if ( oriChildName.startsWith( schemaBaseDN ) )
-        {
-            schemaManager.move( opContext, entry, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
-        }
-
-        next.moveAndRename( opContext );
-    }
-
-
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
-    {
-        LdapDN oriChildName = opContext.getDn();
-
-        ClonedServerEntry entry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
-
-        if ( oriChildName.startsWith( schemaBaseDN ) )
-        {
-            schemaManager.replace( opContext, entry, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
-        }
-
-        next.move( opContext );
-    }
-
-
     public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
     {
-        LdapDN name = opContext.getDn();
+        LdapDN oldDn = opContext.getDn();
         Rdn newRdn = opContext.getNewRdn();
         boolean deleteOldRn = opContext.getDelOldDn();
-        ServerEntry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
+        ServerEntry entry =  (ServerEntry)opContext.getEntry().getClonedEntry();
 
         /*
          *  Note: This is only a consistency checks, to the ensure that all
          *  mandatory attributes are available after deleting the old RDN.
-         *  The real modification is done in the JdbmStore class.
+         *  The real modification is done in the XdbmStore class.
          *  - TODO: this check is missing in the moveAndRename() method
          */
         if ( deleteOldRn )
         {
             ServerEntry tmpEntry = ( ServerEntry ) entry.clone();
-            Rdn oldRDN = name.getRdn();
+            Rdn oldRDN = oldDn.getRdn();
 
             // Delete the old RDN means we remove some attributes and values.
             // We must make sure that after this operation all must attributes
             // are still present in the entry.
-            for ( AttributeTypeAndValue atav : oldRDN )
+            for ( AVA atav : oldRDN )
             {
-                AttributeType type = atRegistry.lookup( atav.getUpType() );
-                String value = ( String ) atav.getNormValue().getString();
-                tmpEntry.remove( type, value );
+                AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
+                tmpEntry.remove( type, atav.getUpValue() );
             }
-            for ( AttributeTypeAndValue atav : newRdn )
+            
+            for ( AVA atav : newRdn )
             {
-                AttributeType type = atRegistry.lookup( atav.getUpType() );
-                String value = ( String ) atav.getNormValue().getString();
-                if ( !tmpEntry.contains( type, value ) )
+                AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
+
+                if ( !tmpEntry.contains( type, atav.getNormValue() ) )
                 {
-                    tmpEntry.add( new DefaultServerAttribute( type, value ) );
+                    tmpEntry.add( new DefaultServerAttribute( type, atav.getUpValue() ) );
                 }
             }
 
             // Substitute the RDN and check if the new entry is correct
-            LdapDN newDn = ( LdapDN ) name.clone();
-            newDn.remove( name.size() - 1 );
-            newDn.add( newRdn );
+            tmpEntry.setDn( opContext.getNewDn() );
 
-            tmpEntry.setDn( newDn );
-            check( name, tmpEntry );
+            check( opContext.getNewDn(), tmpEntry );
 
             // Check that no operational attributes are removed
-            for ( AttributeTypeAndValue atav : oldRDN )
+            for ( AVA atav : oldRDN )
             {
-                AttributeType attributeType = atRegistry.lookup( atav.getUpType() );
+                AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
 
-                if ( !attributeType.isCanUserModify() )
+                if ( !attributeType.isUserModifiable() )
                 {
                     throw new NoPermissionException( "Cannot modify the attribute '" + atav.getUpType() + "'" );
                 }
             }
         }
 
-        if ( name.startsWith( schemaBaseDN ) )
-        {
-            schemaManager.modifyRn( opContext, entry, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
-        }
-
         next.rename( opContext );
     }
 
 
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
-    {
-        ServerEntry entry;
-        LdapDN name = opContext.getDn();
-        List<Modification> mods = opContext.getModItems();
-
-        // handle operations against the schema subentry in the schema service
-        // and never try to look it up in the nexus below
-        if ( name.getNormName().equalsIgnoreCase( subschemaSubentryDnNorm ) )
-        {
-            entry = schemaService.getSubschemaEntry( SCHEMA_SUBENTRY_RETURN_ATTRIBUTES );
-            entry.setDn( name );
-        }
-        else
-        {
-            // Get the entry we already read at the beginning
-            entry = opContext.getEntry();
-        }
-        
-        boolean schemaModification = name.startsWith( schemaBaseDN );
-        boolean subSchemaModification = subschemaSubentryDnNorm.equals( name.getNormName() );
-
-        // First, we get the entry from the backend. If it does not exist, then we throw an exception
-        ServerEntry targetEntry = (ServerEntry)SchemaUtils.getTargetEntry( mods , entry );
-
-        if ( entry == null )
-        {
-            LOG.error( "No entry with this name :{}", name );
-            throw new LdapNameNotFoundException( "The entry which name is " + name + " is not found." );
-        }
-
-        // We will use this temporary entry to check that the modifications
-        // can be applied as atomic operations
-        ServerEntry tmpEntry = ( ServerEntry ) entry.clone();
-
-        Set<String> modset = new HashSet<String>();
-        Modification objectClassMod = null;
-
-        // Check that we don't have two times the same modification.
-        // This is somehow useless, as modification operations are supposed to
-        // be atomic, so we may have a sucession of Add, DEL, ADD operations
-        // for the same attribute, and this will be legal.
-        // @TODO : check if we can remove this test.
-        for ( Modification mod : mods )
-        {
-            if ( mod.getAttribute().getId().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
-            {
-                objectClassMod = mod;
-            }
-
-            // Freak out under some weird cases
-            if ( mod.getAttribute().size() == 0 )
-            {
-                // not ok for add but ok for replace and delete
-                if ( mod.getOperation() == ModificationOperation.ADD_ATTRIBUTE )
-                {
-                    throw new LdapInvalidAttributeValueException( "No value is not a valid value for an attribute.",
-                        ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
-                }
-            }
-
-            StringBuffer keybuf = new StringBuffer();
-            keybuf.append( mod.getOperation() );
-            keybuf.append( mod.getAttribute().getId() );
-
-            for ( Value<?> value : ( ServerAttribute ) mod.getAttribute() )
-            {
-                keybuf.append( value.getString() );
-            }
-
-            if ( !modset.add( keybuf.toString() ) && ( mod.getOperation() == ModificationOperation.ADD_ATTRIBUTE ) )
-            {
-                throw new LdapAttributeInUseException( "found two copies of the following modification item: " + mod );
-            }
-        }
-
-        // Get the objectClass attribute.
-        EntryAttribute objectClass;
-
-        if ( objectClassMod == null )
-        {
-            objectClass = entry.get( SchemaConstants.OBJECT_CLASS_AT );
-
-            if ( objectClass == null )
-            {
-                objectClass = new DefaultServerAttribute( SchemaConstants.OBJECT_CLASS_AT, OBJECT_CLASS );
-            }
-        }
-        else
-        {
-            objectClass = getResultantObjectClasses( objectClassMod.getOperation(), objectClassMod.getAttribute(),
-                tmpEntry.get( SchemaConstants.OBJECT_CLASS_AT ).clone() );
-        }
-
-        ObjectClassRegistry ocRegistry = this.registries.getObjectClassRegistry();
-
-        // Now, apply the modifications on the cloned entry before applying it on the
-        // real object.
-        for ( Modification mod : mods )
-        {
-            ModificationOperation modOp = mod.getOperation();
-            ServerAttribute change = ( ServerAttribute ) mod.getAttribute();
-
-            // TODO/ handle http://issues.apache.org/jira/browse/DIRSERVER-1198
-            if ( ( change.getAttributeType() == null ) && !atRegistry.hasAttributeType( change.getUpId() )
-                && !objectClass.contains( SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
-            {
-                throw new LdapInvalidAttributeIdentifierException();
-            }
-
-            // We will forbid modification of operational attributes which are not
-            // user modifiable.
-            AttributeType attributeType = change.getAttributeType();
-            
-            if ( attributeType == null )
-            {
-                attributeType = atRegistry.lookup( change.getUpId() );
-            }
-
-            if ( !attributeType.isCanUserModify() )
-            {
-                throw new NoPermissionException( "Cannot modify the attribute '" + change.getUpId() + "'" );
-            }
-
-            switch ( modOp )
-            {
-                case ADD_ATTRIBUTE:
-                    EntryAttribute attr = tmpEntry.get( attributeType.getName() );
-
-                    if ( attr != null )
-                    {
-                        for ( Value<?> value : change )
-                        {
-                            attr.add( value );
-                        }
-                    }
-                    else
-                    {
-                        attr = new DefaultServerAttribute( change.getUpId(), attributeType );
-
-                        for ( Value<?> value : change )
-                        {
-                            attr.add( value );
-                        }
-
-                        tmpEntry.put( attr );
-                    }
-
-                    break;
-
-                case REMOVE_ATTRIBUTE:
-                    if ( tmpEntry.get( change.getId() ) == null )
-                    {
-                        LOG.error( "Trying to remove an non-existant attribute: " + change.getUpId() );
-                        throw new LdapNoSuchAttributeException();
-                    }
-
-                    // We may have to remove the attribute or only some values
-                    if ( change.size() == 0 )
-                    {
-                        // No value : we have to remove the entire attribute
-                        // Check that we aren't removing a MUST attribute
-                        if ( isRequired( change.getUpId(), objectClass ) )
-                        {
-                            LOG.error( "Trying to remove a required attribute: " + change.getUpId() );
-                            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
-                        }
-                        
-                        attr = tmpEntry.get( change.getUpId() );
-                        if ( attr != null )
-                        {
-                            tmpEntry.removeAttributes( change.getUpId() );
-                        }
-                    }
-                    else
-                    {
-                        // for required attributes we need to check if all values are removed
-                        // if so then we have a schema violation that must be thrown
-                        if ( isRequired( change.getUpId(), objectClass ) && isCompleteRemoval( change, entry ) )
-                        {
-                            LOG.error( "Trying to remove a required attribute: " + change.getUpId() );
-                            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
-                        }
-
-                        // Now remove the attribute and all its values
-                        EntryAttribute modified = tmpEntry.removeAttributes( change.getId() ).get( 0 );
-
-                        // And inject back the values except the ones to remove
-                        for ( Value<?> value : change )
-                        {
-                            if ( modified.contains( value ) )
-                            {
-                                modified.remove( value );
-                            }
-                            else if ( !subSchemaModification )
-                            {
-                                // We are trying to remove an not existing value : error
-                                throw new LdapNoSuchAttributeException( "Value " + value + " does not exist in the " + modified + " AT" );
-                            }
-                        }
-
-                        // ok, done. Last check : if the attribute does not content any more value;
-                        // and if it's a MUST one, we should thow an exception
-                        if ( ( modified.size() == 0 ) && isRequired( change.getId(), objectClass ) )
-                        {
-                            LOG.error( "Trying to remove a required attribute: " + change.getUpId() );
-                            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
-                        }
-
-                        // Put back the attribute in the entry only if it has values left in it
-                        if ( modified.size() > 0 )
-                        {
-                            tmpEntry.put( modified );
-                        }
-                    }
-
-                    SchemaChecker
-                        .preventRdnChangeOnModifyRemove( name, modOp, change, this.registries.getOidRegistry() );
-                    SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, modOp, change,
-                        objectClass );
-                    break;
-
-                case REPLACE_ATTRIBUTE:
-                    SchemaChecker.preventRdnChangeOnModifyReplace( name, modOp, change, registries.getOidRegistry() );
-                    SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, modOp, change );
-
-                    attr = tmpEntry.get( change.getUpId() );
-
-                    if ( attr != null )
-                    {
-                        tmpEntry.removeAttributes( change.getUpId() );
-                    }
-
-                    attr = new DefaultServerAttribute( change.getUpId(), attributeType );
-
-                    if ( change.size() != 0 )
-                    {
-                        for ( Value<?> value : change )
-                        {
-                            attr.add( value );
-                        }
-
-                        tmpEntry.put( attr );
-                    }
-
-                    break;
-            }
-        }
-
-        check( name, tmpEntry );
-
-        // let's figure out if we need to add or take away from mods to maintain 
-        // the objectClass attribute with it's hierarchy of ancestors 
-        if ( objectClassMod != null )
-        {
-            ServerAttribute alteredObjectClass = ( ServerAttribute ) objectClass.clone();
-            alterObjectClasses( alteredObjectClass );
-
-            if ( !alteredObjectClass.equals( objectClass ) )
-            {
-                ServerAttribute ocMods = ( ServerAttribute ) objectClassMod.getAttribute();
-
-                switch ( objectClassMod.getOperation() )
-                {
-                    case ADD_ATTRIBUTE:
-                        if ( ocMods.contains( SchemaConstants.TOP_OC ) )
-                        {
-                            ocMods.remove( SchemaConstants.TOP_OC );
-                        }
-
-                        for ( Value<?> value : alteredObjectClass )
-                        {
-                            if ( !objectClass.contains( value ) )
-                            {
-                                ocMods.add( value );
-                            }
-                        }
-
-                        break;
-
-                    case REMOVE_ATTRIBUTE:
-                        for ( Value<?> value : alteredObjectClass )
-                        {
-                            if ( !objectClass.contains( value ) )
-                            {
-                                ocMods.remove( value );
-                            }
-                        }
-
-                        break;
-
-                    case REPLACE_ATTRIBUTE:
-                        for ( Value<?> value : alteredObjectClass )
-                        {
-                            if ( !objectClass.contains( value ) )
-                            {
-                                ocMods.add( value );
-                            }
-                        }
-
-                        break;
-
-                    default:
-                }
-            }
-        }
-
-        if ( schemaModification )
-        {
-            LOG.debug( "Modification attempt on schema partition {}: \n{}", name, opContext );
-
-            schemaManager.modify( opContext, entry, targetEntry, opContext
-                .hasRequestControl( CascadeControl.CONTROL_OID ) );
-        }
-        else if ( subSchemaModification )
-        {
-            LOG.debug( "Modification attempt on schema subentry {}: \n{}", name, opContext );
-
-            schemaManager.modifySchemaSubentry( opContext, entry, targetEntry, opContext
-                .hasRequestControl( CascadeControl.CONTROL_OID ) );
-            return;
-        }
-
-        next.modify( opContext );
-    }
-
-    
     /**
      * Create a new attribute using the given values
      */
@@ -1572,12 +1182,12 @@ public class SchemaInterceptor extends BaseInterceptor
     
     
     /**
-     * Modify an entry, applying the given modifications.
+     * Modify an entry, applying the given modifications, and check if it's OK
      */
-    private ServerEntry modifyEntry( LdapDN dn, ServerEntry currentEntry, List<Modification> mods ) throws Exception
+    private void checkModifyEntry( LdapDN dn, ServerEntry currentEntry, List<Modification> mods ) throws Exception
     {
         // The first step is to check that the modifications are valid :
-        // - the AT are present in the schema
+        // - the ATs are present in the schema
         // - The value is syntaxically correct
         //
         // While doing that, we will apply the modification to a copy of the current entry
@@ -1590,26 +1200,30 @@ public class SchemaInterceptor extends BaseInterceptor
             AttributeType attributeType = attribute.getAttributeType();
             
             // We don't allow modification of operational attributes
-            if ( !attributeType.isCanUserModify() )
+            if ( !attributeType.isUserModifiable() )
             {
-                String msg = "Cannot modify the attribute : " + attributeType;
-                LOG.error( msg );
-                throw new NoPermissionException( msg );
+                if ( !attributeType.equals( MODIFIERS_NAME_ATTRIBUTE_TYPE ) &&
+                     !attributeType.equals( MODIFY_TIMESTAMP_ATTRIBUTE_TYPE ) )
+                {
+                    String msg = "Cannot modify the attribute : " + attributeType;
+                    LOG.error( msg );
+                    throw new NoPermissionException( msg );
+                }
             }
             
-            // Check the syntax here
-            if ( !attribute.isValid() )
-            {
-                // The value syntax is incorrect : this is an error
-                String msg = "The new Attribute or one of its value is incorrect : " + attributeType;
-                LOG.error( msg );
-                throw new LdapInvalidAttributeValueException( msg, 
-                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
-            }
-
             switch ( mod.getOperation() )
             {
                 case ADD_ATTRIBUTE :
+                    // Check the syntax here
+                    if ( !attribute.isValid() )
+                    {
+                        // The value syntax is incorrect : this is an error
+                        String msg = "The new Attribute or one of its value is incorrect : " + attributeType;
+                        LOG.error( msg );
+                        throw new LdapInvalidAttributeValueException( msg, 
+                            ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                    }
+
                     EntryAttribute currentAttribute = tempEntry.get( attributeType );
                     
                     // First check if the added Attribute is already present in the entry
@@ -1679,6 +1293,7 @@ public class SchemaInterceptor extends BaseInterceptor
                                 throw new LdapNoSuchAttributeException( msg );
                             }
                         }
+
                         
                         // If the current attribute is empty, we have to remove
                         // it from the entry
@@ -1741,49 +1356,64 @@ public class SchemaInterceptor extends BaseInterceptor
         // - all the MUST are present
         // - all the attribute are in MUST and MAY, except fo the extensibleObeject OC
         // is present
+        // - We haven't removed a part of the RDN
         check( dn, tempEntry );
-        
-        return tempEntry;
     }
 
     
     /**
      * {@inheritDoc}
      */
-    public void modifyNew( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
+        // A modification on a simple entry will be done in three steps :
+        // - get the original entry (it should already been in the context)
+        // - apply the modification on it
+        // - check that the entry is still correct
+        // - add the operational attributes (modifiersName/modifyTimeStamp)
+        // - store the modified entry on the backend.
+        //
+        // A modification done on the schema is a bit different, as there is two more
+        // steps
+        // - We have to update the registries
+        // - We have to modify the ou=schemaModifications entry
+        //
+        
         // First, check that the entry is either a subschemaSubentry or a schema element.
         // This is the case if it's a child of cn=schema or ou=schema
         LdapDN dn = opContext.getDn();
-        ServerEntry targetEntry = null;
         
+        // Gets the stored entry on which the modification must be applied
         if ( dn.equals( subschemaSubentryDn ) )
         {
-            ServerEntry currentEntry = schemaService.getSubschemaEntry( SCHEMA_SUBENTRY_RETURN_ATTRIBUTES );
-            targetEntry = modifyEntry( dn, currentEntry, opContext.getModItems() );
-        }
-        else
-        {
-            targetEntry = modifyEntry( dn, opContext.getEntry(), opContext.getModItems() );
-        }
-        
-        if ( dn.startsWith( schemaBaseDN ) )
-        {
-            LOG.debug( "Modification attempt on schema partition {}: \n{}", dn, opContext );
-
-            schemaManager.modify( opContext, opContext.getEntry(), targetEntry, opContext
-                .hasRequestControl( CascadeControl.CONTROL_OID ) );
-        }
-        else if ( dn.equals( subschemaSubentryDn ) )
-        {
             LOG.debug( "Modification attempt on schema subentry {}: \n{}", dn, opContext );
-
-            schemaManager.modifySchemaSubentry( opContext, opContext.getEntry(), targetEntry, opContext
-                .hasRequestControl( CascadeControl.CONTROL_OID ) );
+            
+            // We can get rid of the modifiersName and modifyTimestamp, they are useless.
+            List<Modification> mods = opContext.getModItems();
+            List<Modification> cleanMods = new ArrayList<Modification>(); 
+            
+            for ( Modification mod:mods )
+            {
+                AttributeType at = ((ServerAttribute)( (ServerModification)mod).getAttribute()).getAttributeType();
+                
+                if ( !MODIFIERS_NAME_ATTRIBUTE_TYPE.equals( at ) && !MODIFY_TIMESTAMP_ATTRIBUTE_TYPE.equals( at ) ) 
+                {
+                    cleanMods.add( mod );
+                }
+            }
+            
+            opContext.setModItems( cleanMods );
+            
+            // Now that the entry has been modified, update the SSSE
+            schemaSubEntryManager.modifySchemaSubentry(  opContext, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
+            
             return;
         }
 
-        // We are golden ! Let's apply the change then.
+        ServerEntry entry = opContext.getEntry();
+        List<Modification> modifications = opContext.getModItems();
+        checkModifyEntry( dn, entry, modifications );
+        
         next.modify( opContext );
     }
     
@@ -1924,7 +1554,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         for ( AttributeType attributeType : entry.getAttributeTypes() )
         {
-            if ( !atRegistry.hasAttributeType( attributeType.getName() ) )
+            if ( !schemaManager.getAttributeTypeRegistry().contains( attributeType.getName() ) )
             {
                 throw new LdapInvalidAttributeIdentifierException( attributeType.getName()
                     + " not found in attribute registry!" );
@@ -1975,13 +1605,13 @@ public class SchemaInterceptor extends BaseInterceptor
 
         // Now check the syntaxes
         assertSyntaxes( entry );
+        
+        assertRdn ( dn, entry );
     }
 
 
     private void checkOcSuperior( ServerEntry entry ) throws Exception
     {
-        ObjectClassRegistry ocRegistry = registries.getObjectClassRegistry();
-        
         // handle the m-supObjectClass meta attribute
         EntryAttribute supOC = entry.get( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT );
         
@@ -2003,7 +1633,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     String supName = sup.getString();
                     
-                    ObjectClass superior = ocRegistry.lookup( supName );
+                    ObjectClass superior = schemaManager.getObjectClassRegistry().lookup( supName );
 
                     switch ( ocType )
                     {
@@ -2056,17 +1686,14 @@ public class SchemaInterceptor extends BaseInterceptor
         // Special checks for the MetaSchema branch
         if ( name.startsWith( schemaBaseDN ) )
         {
-            schemaManager.add( addContext );
-            
+            // get the schema name
+            String schemaName = getSchemaName( name );
+
             if ( entry.contains( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.META_SCHEMA_OC ) )
             {
-                // This is a schema addition
-                // We have to check if the schema is enabled or disabled
-                String schema = entry.get( SchemaConstants.CN_AT ).getString();
-                
                 next.add( addContext );
 
-                if ( isEnabled( schema ) )
+                if ( schemaManager.isSchemaLoaded( schemaName ) )
                 {
                     // Update the OC superiors for each added ObjectClass
                     computeSuperiors();
@@ -2080,17 +1707,18 @@ public class SchemaInterceptor extends BaseInterceptor
                 next.add( addContext );
 
                 // Update the structures now that the schema element has been added
-                String schemaName = MetaSchemaUtils.getSchemaName( name );
+                Schema schema = schemaManager.getLoadedSchema( schemaName );
                 
-                if ( isEnabled( schemaName ) )
+                if ( ( schema != null ) && schema.isEnabled() )
                 {
                     String ocName = entry.get( MetaSchemaConstants.M_NAME_AT ).getString();
-                    ObjectClass addedOC = registries.getObjectClassRegistry().lookup( ocName );
+                    ObjectClass addedOC = schemaManager.getObjectClassRegistry().lookup( ocName );
                     computeSuperior( addedOC );
                 }
             }
             else if ( entry.contains( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.META_ATTRIBUTE_TYPE_OC ) )
             {
+                
                 // This is an AttributeType addition
                 next.add( addContext );
             }
@@ -2104,6 +1732,18 @@ public class SchemaInterceptor extends BaseInterceptor
         {
             next.add( addContext );
         }
+    }
+    
+    
+    private String getSchemaName( LdapDN dn ) throws NamingException
+    {
+        if ( dn.size() < 2 )
+        {
+            throw new NamingException( "At least two name components are expected for the dn" );
+        }
+        
+        Rdn rdn = dn.getRdn( 1 );
+        return ( String ) rdn.getNormValue();
     }
 
 
@@ -2136,25 +1776,11 @@ public class SchemaInterceptor extends BaseInterceptor
                 if ( !allowed.contains( attrOid ) )
                 {
                     throw new LdapSchemaViolationException( "Attribute " + attribute.getUpId()
-                        + " not declared in objectClasses of entry " + dn.getUpName(),
+                        + " not declared in objectClasses of entry " + dn.getName(),
                         ResultCodeEnum.OBJECT_CLASS_VIOLATION );
                 }
             }
         }
-    }
-
-
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
-    {
-        LdapDN name = opContext.getDn();
-
-        if ( name.startsWith( schemaBaseDN ) )
-        {
-            ClonedServerEntry entry = nexus.lookup( opContext.newLookupContext( name ) );
-            schemaManager.delete( opContext, entry, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
-        }
-
-        next.delete( opContext );
     }
 
 
@@ -2176,7 +1802,7 @@ public class SchemaInterceptor extends BaseInterceptor
     private void assertNumberOfAttributeValuesValid( EntryAttribute attribute ) throws InvalidAttributeValueException,
         Exception
     {
-        if ( attribute.size() > 1 && ( ( ServerAttribute ) attribute ).getAttributeType().isSingleValue() )
+        if ( attribute.size() > 1 && ( ( ServerAttribute ) attribute ).getAttributeType().isSingleValued() )
         {
             throw new LdapInvalidAttributeValueException( "More than one value has been provided "
                 + "for the single-valued attribute: " + attribute.getUpId(), ResultCodeEnum.CONSTRAINT_VIOLATION );
@@ -2197,7 +1823,7 @@ public class SchemaInterceptor extends BaseInterceptor
         if ( must.size() != 0 )
         {
             throw new LdapSchemaViolationException( "Required attributes " + must + " not found within entry "
-                + dn.getUpName(), ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+                + dn.getName(), ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
     }
 
@@ -2254,9 +1880,9 @@ public class SchemaInterceptor extends BaseInterceptor
         
         for ( ObjectClass oc : structuralObjectClasses )
         {
-            if ( oc.getSuperClasses() != null )
+            if ( oc.getSuperiors() != null )
             {
-                for ( ObjectClass superClass : oc.getSuperClasses() )
+                for ( ObjectClass superClass : oc.getSuperiors() )
                 {
                     if ( superClass.isStructural() )
                     {
@@ -2287,7 +1913,7 @@ public class SchemaInterceptor extends BaseInterceptor
             AttributeType attributeType = ( ( ServerAttribute ) attribute ).getAttributeType();
             SyntaxChecker syntaxChecker = attributeType.getSyntax().getSyntaxChecker();
 
-            if ( syntaxChecker instanceof AcceptAllSyntaxChecker )
+            if ( syntaxChecker instanceof OctetStringSyntaxChecker )
             {
                 // This is a speedup : no need to check the syntax of any value
                 // if all the syntaxes are accepted...
@@ -2309,6 +1935,22 @@ public class SchemaInterceptor extends BaseInterceptor
 
                     throw new LdapInvalidAttributeValueException( message, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 }
+            }
+        }
+    }
+    
+    
+    private void assertRdn( LdapDN dn, ServerEntry entry ) throws Exception
+    {
+        for ( AVA atav : dn.getRdn() )
+        {
+            EntryAttribute attribute = entry.get( atav.getNormType() );
+            
+            if ( ( attribute == null ) || ( !attribute.contains( atav.getNormValue() ) ) )
+            {
+                String message = "Entry " + dn + " does not have the " + atav.getUpType() + " attributeType, which is part of the RDN";
+                LOG.error( message );
+                throw new LdapSchemaViolationException( message, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
             }
         }
     }

@@ -23,10 +23,10 @@ package org.apache.directory.server.core.operations.modify;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -37,9 +37,9 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
@@ -53,103 +53,101 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 770988 $
  */
-@RunWith ( CiRunner.class )
+@RunWith ( FrameworkRunner.class )
 @ApplyLdifs(
     {
-        "dn: m-oid=2.2.0, ou=attributeTypes, cn=apachemeta, ou=schema\n" +
-        "objectclass: metaAttributeType\n" +
-        "objectclass: metaTop\n" +
-        "objectclass: top\n" +
-        "m-oid: 2.2.0\n" +
-        "m-name: integerAttribute\n" +
-        "m-description: the precursor for all integer attributes\n" +
-        "m-equality: integerMatch\n" +
-        "m-ordering: integerOrderingMatch\n" +
-        "m-syntax: 1.3.6.1.4.1.1466.115.121.1.27\n" +
-        "m-length: 0\n" +
-        "\n" +
-        "dn: ou=testing00,ou=system\n" +
-        "objectClass: top\n" +
-        "objectClass: organizationalUnit\n" +
-        "objectClass: extensibleObject\n" +
-        "ou: testing00\n" +
-        "integerAttribute: 0\n" +
-        "\n" +
-        "dn: ou=testing01,ou=system\n" +
-        "objectClass: top\n" +
-        "objectClass: organizationalUnit\n" +
-        "objectClass: extensibleObject\n" +
-        "ou: testing01\n" +
-        "integerAttribute: 1\n" +
-        "\n" +
-        "dn: ou=testing02,ou=system\n" +
-        "objectClass: top\n" +
-        "objectClass: organizationalUnit\n" +
-        "objectClass: extensibleObject\n" +
-        "ou: testing02\n" +
-        "integerAttribute: 2\n" +
-        "c: FR\n" +
-        "\n" +
-        "dn: ou=testing03,ou=system\n" +
-        "objectClass: top\n" +
-        "objectClass: organizationalUnit\n" +
-        "objectClass: extensibleObject\n" +
-        "ou: testing03\n" +
-        "integerAttribute: 3\n" +
-        "\n" +
-        "dn: ou=testing04,ou=system\n" +
-        "objectClass: top\n" +
-        "objectClass: organizationalUnit\n" +
-        "objectClass: extensibleObject\n" +
-        "ou: testing04\n" +
-        "integerAttribute: 4\n" +
-        "\n" +
-        "dn: ou=testing05,ou=system\n" +
-        "objectClass: top\n" +
-        "objectClass: organizationalUnit\n" +
-        "objectClass: extensibleObject\n" +
-        "ou: testing05\n" +
-        "integerAttribute: 5\n" +
-        "\n" +
-        "dn: ou=subtest,ou=testing01,ou=system\n" +
-        "objectClass: top\n" +
-        "objectClass: organizationalUnit\n" +
-        "ou: subtest\n" +
-        "\n" +
-        "dn: cn=Heather Nova, ou=system\n" +
-        "objectClass: top\n" +
-        "objectClass: person\n" +
-        "cn: Heather Nova\n" +
-        "sn: Nova\n" +
-        "telephoneNumber: 1 801 555 1212 \n" +
-        "description: an American singer-songwriter\n" +
-        "\n" +
-        "dn: cn=Kim Wilde, ou=system\n" +
-        "objectClass: top\n" +
-        "objectClass: person\n" +
-        "cn: Kim Wilde\n" +
-        "sn: Wilde\n" +
-        "telephoneNumber: 1 801 555 1212 \n" +
-        "description: an American singer-songwriter\n" +
-        "description: She has blond hair\n" +
-        "\n" +
-        "dn: cn=with-dn, ou=system\n" +
-        "objectClass: top\n" +
-        "objectClass: person\n" +
-        "objectClass: organizationalPerson\n" +
-        "objectClass: inetorgPerson\n" +
-        "cn: singer\n" +
-        "sn: manager\n" +
-        "telephoneNumber: 1 801 555 1212 \n" +
-        "manager: cn=Heather Nova, ou=system\n"
+        "dn: m-oid=2.2.0, ou=attributeTypes, cn=apachemeta, ou=schema",
+        "objectclass: metaAttributeType",
+        "objectclass: metaTop",
+        "objectclass: top",
+        "m-oid: 2.2.0",
+        "m-name: integerAttribute",
+        "m-description: the precursor for all integer attributes",
+        "m-equality: integerMatch",
+        "m-ordering: integerOrderingMatch",
+        "m-syntax: 1.3.6.1.4.1.1466.115.121.1.27",
+        "m-length: 0",
+        "",
+        "dn: ou=testing00,ou=system",
+        "objectClass: top",
+        "objectClass: organizationalUnit",
+        "objectClass: extensibleObject",
+        "ou: testing00",
+        "integerAttribute: 0",
+        "",
+        "dn: ou=testing01,ou=system",
+        "objectClass: top",
+        "objectClass: organizationalUnit",
+        "objectClass: extensibleObject",
+        "ou: testing01",
+        "integerAttribute: 1",
+        "",
+        "dn: ou=testing02,ou=system",
+        "objectClass: top",
+        "objectClass: organizationalUnit",
+        "objectClass: extensibleObject",
+        "ou: testing02",
+        "integerAttribute: 2",
+        "c: FR",
+        "",
+        "dn: ou=testing03,ou=system",
+        "objectClass: top",
+        "objectClass: organizationalUnit",
+        "objectClass: extensibleObject",
+        "ou: testing03",
+        "integerAttribute: 3",
+        "",
+        "dn: ou=testing04,ou=system",
+        "objectClass: top",
+        "objectClass: organizationalUnit",
+        "objectClass: extensibleObject",
+        "ou: testing04",
+        "integerAttribute: 4",
+        "",
+        "dn: ou=testing05,ou=system",
+        "objectClass: top",
+        "objectClass: organizationalUnit",
+        "objectClass: extensibleObject",
+        "ou: testing05",
+        "integerAttribute: 5",
+        "",
+        "dn: ou=subtest,ou=testing01,ou=system",
+        "objectClass: top",
+        "objectClass: organizationalUnit",
+        "ou: subtest",
+        "",
+        "dn: cn=Heather Nova, ou=system",
+        "objectClass: top",
+        "objectClass: person",
+        "cn: Heather Nova",
+        "sn: Nova",
+        "telephoneNumber: 1 801 555 1212 ",
+        "description: an American singer-songwriter",
+        "",
+        "dn: cn=Kim Wilde, ou=system",
+        "objectClass: top",
+        "objectClass: person",
+        "cn: Kim Wilde",
+        "sn: Wilde",
+        "telephoneNumber: 1 801 555 1212 ",
+        "description: an American singer-songwriter",
+        "description: She has blond hair",
+        "",
+        "dn: cn=with-dn, ou=system",
+        "objectClass: top",
+        "objectClass: person",
+        "objectClass: organizationalPerson",
+        "objectClass: inetorgPerson",
+        "cn: singer",
+        "sn: manager",
+        "telephoneNumber: 1 801 555 1212 ",
+        "manager: cn=Heather Nova, ou=system"
     }
 )
-public class ModifyDelIT
+public class ModifyDelIT extends AbstractLdapTestUnit
 {
     private static final String RDN_HEATHER_NOVA = "cn=Heather Nova";
     private static final String RDN_KIM_WILDE = "cn=kim wilde";
-
-    public static DirectoryService service;
 
     
     /**

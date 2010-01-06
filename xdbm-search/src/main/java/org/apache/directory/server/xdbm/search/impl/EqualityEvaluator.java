@@ -20,28 +20,26 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import java.util.Comparator;
+import java.util.Iterator;
+
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
 import org.apache.directory.shared.ldap.schema.comparators.StringComparator;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
-import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
-import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.server.core.entry.ServerBinaryValue;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerAttribute;
-import org.apache.directory.server.core.entry.ServerStringValue;
-
-import java.util.Iterator;
-import java.util.Comparator;
 
 
 /**
@@ -55,28 +53,28 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
 {
     private final EqualityNode<T> node;
     private final Store<ServerEntry> db;
-    private final Registries registries;
+    private final SchemaManager schemaManager;
     private final AttributeType type;
     private final Normalizer normalizer;
     
     /** The comparator to use */
-    private final Comparator comparator;
+    private final LdapComparator<?> comparator;
     
     /** The default byte[] comparator if no comparator has been defined */
-    private static final Comparator<byte[]> BINARY_COMPARATOR = ByteArrayComparator.INSTANCE;
+    private static final Comparator<byte[]> BINARY_COMPARATOR = new ByteArrayComparator( null );
     
     /** The default String comparator if no comparator has been defined */
-    private static final Comparator<String> STRING_COMPARATOR = StringComparator.INSTANCE;
+    private static final Comparator<String> STRING_COMPARATOR = new StringComparator( null );
     
     private final Index<T,ServerEntry> idx;
 
 
-    public EqualityEvaluator( EqualityNode<T> node, Store<ServerEntry> db, Registries registries )
+    public EqualityEvaluator( EqualityNode<T> node, Store<ServerEntry> db, SchemaManager schemaManager )
         throws Exception
     {
         this.db = db;
         this.node = node;
-        this.registries = registries;
+        this.schemaManager = schemaManager;
 
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
@@ -89,19 +87,19 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
         else
         {
             idx = null;
-            type = registries.getAttributeTypeRegistry().lookup( node.getAttribute() );
+            type = schemaManager.lookupAttributeTypeRegistry( node.getAttribute() );
 
             MatchingRule mr = type.getEquality();
 
             if ( mr == null )
             {
-                normalizer = NoOpNormalizer.INSTANCE;
+                normalizer = new NoOpNormalizer( type.getOid() );
                 comparator = null;
             }
             else
             {
                 normalizer = mr.getNormalizer();
-                comparator = mr.getComparator();
+                comparator = mr.getLdapComparator();
             }
         }
     }
@@ -147,13 +145,13 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
         // If we do not have the attribute, loop through the sub classes of
         // the attributeType.  Perhaps the entry has an attribute value of a
         // subtype (descendant) that will produce a match
-        if ( registries.getAttributeTypeRegistry().hasDescendants( node.getAttribute() ) )
+        if ( schemaManager.getAttributeTypeRegistry().hasDescendants( node.getAttribute() ) )
         {
             // TODO check to see if descendant handling is necessary for the
             // index so we can match properly even when for example a name
             // attribute is used instead of more specific commonName
             Iterator<AttributeType> descendants =
-                registries.getAttributeTypeRegistry().descendants( node.getAttribute() );
+                schemaManager.getAttributeTypeRegistry().descendants( node.getAttribute() );
 
             while ( descendants.hasNext() )
             {
@@ -207,7 +205,7 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
                 
                 if ( comparator != null )
                 {
-                    if ( ( comparator.compare( serverValue, nodeValue ) == 0 ) )
+                    if ( ( ((LdapComparator<byte[]>)comparator).compare( serverValue, nodeValue ) == 0 ) )
                     {
                         return true;
                     }
@@ -237,7 +235,7 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
                 
                 if ( comparator != null )
                 {
-                    if ( comparator.compare( serverValue, nodeValue ) == 0 )
+                    if ( ((LdapComparator<String>)comparator).compare( serverValue, nodeValue ) == 0 )
                     {
                         return true;
                     }

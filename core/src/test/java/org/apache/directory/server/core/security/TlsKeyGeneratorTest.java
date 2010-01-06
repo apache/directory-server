@@ -17,32 +17,26 @@
  *   under the License.
  *
  */
-
 package org.apache.directory.server.core.security;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.security.KeyPair;
 import java.security.cert.X509Certificate;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.schema.bootstrap.ApacheSchema;
-import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
-import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.directory.server.schema.bootstrap.CoreSchema;
-import org.apache.directory.server.schema.bootstrap.CosineSchema;
-import org.apache.directory.server.schema.bootstrap.InetorgpersonSchema;
-import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.bootstrap.SystemSchema;
-import org.apache.directory.server.schema.registries.DefaultOidRegistry;
-import org.apache.directory.server.schema.registries.DefaultRegistries;
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
+import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -58,9 +52,8 @@ import org.slf4j.LoggerFactory;
 public class TlsKeyGeneratorTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( TlsKeyGeneratorTest.class );
-    private static BootstrapSchemaLoader loader;
-    private static Registries registries;
-    private static OidRegistry oidRegistry;
+    private static LdifSchemaLoader loader;
+    private static SchemaManager schemaManager;
     
 
     /**
@@ -69,20 +62,27 @@ public class TlsKeyGeneratorTest
     @BeforeClass
     public static void setup() throws Exception
     {
-        loader = new BootstrapSchemaLoader();
-        oidRegistry = new DefaultOidRegistry();
-        registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
-        
-        // load essential bootstrap schemas 
-        Set<Schema> bootstrapSchemas = new HashSet<Schema>();
-        bootstrapSchemas.add( new ApachemetaSchema() );
-        bootstrapSchemas.add( new ApacheSchema() );
-        bootstrapSchemas.add( new CoreSchema() );
-        bootstrapSchemas.add( new SystemSchema() );
-        bootstrapSchemas.add( new InetorgpersonSchema() );
-        bootstrapSchemas.add( new CosineSchema() );
-        loader.loadWithDependencies( bootstrapSchemas, registries );
-        
+    	String workingDirectory = System.getProperty( "workingDirectory" );
+
+        if ( workingDirectory == null )
+        {
+            String path = TlsKeyGeneratorTest.class.getResource( "" ).getPath();
+            int targetPos = path.indexOf( "target" );
+            workingDirectory = path.substring( 0, targetPos + 6 );
+        }
+
+        File schemaRepository = new File( workingDirectory, "schema" );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+        extractor.extractOrCopy( true );
+        loader = new LdifSchemaLoader( schemaRepository );
+        schemaManager = new DefaultSchemaManager( loader );
+
+        boolean loaded = schemaManager.loadAllEnabled();
+
+        if ( !loaded )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
+        }
     }
     
     
@@ -92,7 +92,7 @@ public class TlsKeyGeneratorTest
     @Test
     public void testAll() throws Exception
     {
-        DefaultServerEntry entry = new DefaultServerEntry( registries, new LdapDN() );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, new LdapDN() );
         TlsKeyGenerator.addKeyPair( entry );
         LOG.debug( "Entry: {}", entry );
         assertTrue( entry.contains( SchemaConstants.OBJECT_CLASS_AT, TlsKeyGenerator.TLS_KEY_INFO_OC ) );

@@ -25,9 +25,7 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
@@ -41,6 +39,7 @@ import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * might make some partition implementations choke.  To avoid this problem we clean up branch
  * nodes that don't make sense.  For example all BranchNodes without children are just
  * removed.  An AND and OR BranchNode with a single child is replaced with it's child for
- * all but the topmost branchnode which we cannot replace.  So again the top most branch
+ * all but the topmost branch node which we cannot replace.  So again the top most branch
  * node must be inspected by code outside of this visitor.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -71,8 +70,8 @@ public class FilterNormalizingVisitor implements FilterVisitor
     private final NameComponentNormalizer ncn;
 
     /** the global registries used to resolve OIDs for attributeType ids */
-    private final Registries registries;
-
+    private final SchemaManager schemaManager;
+    
 
     /**
      * Chars which need to be escaped in a filter
@@ -118,10 +117,10 @@ public class FilterNormalizingVisitor implements FilterVisitor
      * @param ncn The name component normalizer to use
      * @param registries The global registries
      */
-    public FilterNormalizingVisitor( NameComponentNormalizer ncn, Registries registries )
+    public FilterNormalizingVisitor( NameComponentNormalizer ncn, SchemaManager schemaManager )
     {
         this.ncn = ncn;
-        this.registries = registries;
+        this.schemaManager = schemaManager;
     }
 
 
@@ -141,7 +140,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
         {
             Value<?> normalized = null;
 
-            AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( attribute );
+            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( attribute );
 
             if ( attributeType.getSyntax().isHumanReadable() )
             {
@@ -170,18 +169,10 @@ public class FilterNormalizingVisitor implements FilterVisitor
      * @param node the node to visit
      * @return The visited node
      */
-    private ExprNode visitPresenceNode( PresenceNode node )
+    private ExprNode visitPresenceNode( PresenceNode node ) throws NamingException
     {
-        try
-        {
-            node.setAttribute( registries.getOidRegistry().getOid( node.getAttribute() ) );
-            return node;
-        }
-        catch ( NamingException ne )
-        {
-            log.warn( "Failed to normalize filter node attribute: {}, error: {}", node.getAttribute(), ne.getMessage() );
-            return null;
-        }
+        node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
+        return node;
     }
 
 
@@ -196,7 +187,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
      * @param node the node to visit
      * @return the visited node
      */
-    private ExprNode visitSimpleNode( SimpleNode node )
+    private ExprNode visitSimpleNode( SimpleNode node ) throws NamingException
     {
         // still need this check here in case the top level is a leaf node
         // with an undefined attributeType for its attribute
@@ -212,17 +203,10 @@ public class FilterNormalizingVisitor implements FilterVisitor
             return null;
         }
 
-        try
-        {
-            node.setAttribute( registries.getOidRegistry().getOid( node.getAttribute() ) );
-            node.setValue( normalized );
-            return node;
-        }
-        catch ( NamingException ne )
-        {
-            log.warn( "Failed to normalize filter node attribute: {}, error: {}", node.getAttribute(), ne.getMessage() );
-            return null;
-        }
+        node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
+        node.setValue( normalized );
+        
+        return node;
     }
 
 
@@ -235,7 +219,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
      * @param node the node to visit
      * @return the visited node
      */
-    private ExprNode visitSubstringNode( SubstringNode node )
+    private ExprNode visitSubstringNode( SubstringNode node ) throws NamingException
     {
         // still need this check here in case the top level is a leaf node
         // with an undefined attributeType for its attribute
@@ -290,37 +274,29 @@ public class FilterNormalizingVisitor implements FilterVisitor
             }
         }
 
-        try
+        node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
+
+        if ( normInitial != null )
         {
-            node.setAttribute( registries.getOidRegistry().getOid( node.getAttribute() ) );
-
-            if ( normInitial != null )
-            {
-                node.setInitial( normInitial.getString() );
-            }
-            else
-            {
-                node.setInitial( null );
-            }
-
-            node.setAny( normAnys );
-
-            if ( normFinal != null )
-            {
-                node.setFinal( normFinal.getString() );
-            }
-            else
-            {
-                node.setFinal( null );
-            }
-
-            return node;
+            node.setInitial( normInitial.getString() );
         }
-        catch ( NamingException ne )
+        else
         {
-            log.warn( "Failed to normalize filter node attribute: {}, error: {}", node.getAttribute(), ne.getMessage() );
-            return null;
+            node.setInitial( null );
         }
+
+        node.setAny( normAnys );
+
+        if ( normFinal != null )
+        {
+            node.setFinal( normFinal.getString() );
+        }
+        else
+        {
+            node.setFinal( null );
+        }
+
+        return node;
     }
 
 
@@ -333,18 +309,11 @@ public class FilterNormalizingVisitor implements FilterVisitor
      * @param node the node to visit
      * @return the visited node
      */
-    private ExprNode visitExtensibleNode( ExtensibleNode node )
+    private ExprNode visitExtensibleNode( ExtensibleNode node ) throws NamingException
     {
-        try
-        {
-            node.setAttribute( registries.getOidRegistry().getOid( node.getAttribute() ) );
-            return node;
-        }
-        catch ( NamingException ne )
-        {
-            log.warn( "Failed to normalize filter node attribute: {}, error: {}", node.getAttribute(), ne.getMessage() );
-            return null;
-        }
+        node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
+
+        return node;
     }
 
 
@@ -459,47 +428,54 @@ public class FilterNormalizingVisitor implements FilterVisitor
      * @param node the node to visit
      * @return the visited node
      */
-    public Object visit( ExprNode node )
+    public Object visit( ExprNode node ) 
     {
-        // -------------------------------------------------------------------
-        // Handle PresenceNodes
-        // -------------------------------------------------------------------
-
-        if ( node instanceof PresenceNode )
-        {
-            return visitPresenceNode( ( PresenceNode ) node );
-        }
-
-        // -------------------------------------------------------------------
-        // Handle BranchNodes (AndNode, NotNode and OrNode)
-        // -------------------------------------------------------------------
-
-        else if ( node instanceof BranchNode )
-        {
-            return visitBranchNode( ( BranchNode ) node );
-        }
-
-        // -------------------------------------------------------------------
-        // Handle SimpleNodes (ApproximateNode, EqualityNode, GreaterEqNode,
-        // and LesserEqNode) 
-        // -------------------------------------------------------------------
-
-        else if ( node instanceof SimpleNode )
-        {
-            return visitSimpleNode( ( SimpleNode ) node );
-        }
-        else if ( node instanceof ExtensibleNode )
-        {
-            return visitExtensibleNode( ( ExtensibleNode ) node );
-        }
-        else if ( node instanceof SubstringNode )
-        {
-            return visitSubstringNode( ( SubstringNode ) node );
-        }
-        else
-        {
-            return null;
-        }
+    	try
+    	{
+	        // -------------------------------------------------------------------
+	        // Handle PresenceNodes
+	        // -------------------------------------------------------------------
+	
+	        if ( node instanceof PresenceNode )
+	        {
+	            return visitPresenceNode( ( PresenceNode ) node );
+	        }
+	
+	        // -------------------------------------------------------------------
+	        // Handle BranchNodes (AndNode, NotNode and OrNode)
+	        // -------------------------------------------------------------------
+	
+	        else if ( node instanceof BranchNode )
+	        {
+	            return visitBranchNode( ( BranchNode ) node );
+	        }
+	
+	        // -------------------------------------------------------------------
+	        // Handle SimpleNodes (ApproximateNode, EqualityNode, GreaterEqNode,
+	        // and LesserEqNode) 
+	        // -------------------------------------------------------------------
+	
+	        else if ( node instanceof SimpleNode )
+	        {
+	            return visitSimpleNode( ( SimpleNode ) node );
+	        }
+	        else if ( node instanceof ExtensibleNode )
+	        {
+	            return visitExtensibleNode( ( ExtensibleNode ) node );
+	        }
+	        else if ( node instanceof SubstringNode )
+	        {
+	            return visitSubstringNode( ( SubstringNode ) node );
+	        }
+	        else
+	        {
+	            return null;
+	        }
+    	}
+    	catch( NamingException e )
+    	{
+    		throw new RuntimeException( e );
+    	}
     }
 
 

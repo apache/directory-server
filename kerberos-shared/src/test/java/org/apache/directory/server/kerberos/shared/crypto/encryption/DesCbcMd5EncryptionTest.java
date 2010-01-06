@@ -23,10 +23,10 @@ package org.apache.directory.server.kerberos.shared.crypto.encryption;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -35,7 +35,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DesCbcMd5EncryptionTest extends TestCase
+public class DesCbcMd5EncryptionTest
 {
     private static final char[] PASSWORD = "password".toCharArray();
 
@@ -45,6 +45,7 @@ public class DesCbcMd5EncryptionTest extends TestCase
      *
      * @throws Exception
      */
+    @Test
     public void testPlainTextSizeLessThanBlockSize() throws Exception
     {
         KerberosKey key = new KerberosKey( new KerberosPrincipal( "hnelson@EXAMPLE.COM" ), PASSWORD, "DES" );
@@ -68,6 +69,7 @@ public class DesCbcMd5EncryptionTest extends TestCase
      *
      * @throws Exception
      */
+    @Test
     public void testPlainTextSizeEqualsBlockSize() throws Exception
     {
         KerberosKey key = new KerberosKey( new KerberosPrincipal( "hnelson@EXAMPLE.COM" ), PASSWORD, "DES" );
@@ -91,6 +93,7 @@ public class DesCbcMd5EncryptionTest extends TestCase
      *
      * @throws Exception
      */
+    @Test
     public void testPlainTextSizeGreaterThanBlockSize() throws Exception
     {
         KerberosKey key = new KerberosKey( new KerberosPrincipal( "hnelson@EXAMPLE.COM" ), PASSWORD, "DES" );

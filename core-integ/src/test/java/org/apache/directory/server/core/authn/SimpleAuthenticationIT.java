@@ -20,23 +20,11 @@
 package org.apache.directory.server.core.authn;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.jndi.ServerLdapContext;
-
-import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
 import static org.apache.directory.server.core.integ.IntegrationUtils.apply;
-
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.ArrayUtils;
-import org.apache.directory.shared.ldap.util.StringTools;
-
-import static org.junit.Assert.assertTrue;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -46,6 +34,15 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.jndi.ServerLdapContext;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.ArrayUtils;
+import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 
 /**
  * A set of simple tests to make sure simple authentication is working as it
@@ -54,12 +51,9 @@ import javax.naming.ldap.LdapContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith( CiRunner.class )
-public class SimpleAuthenticationIT
+@RunWith( FrameworkRunner.class )
+public class SimpleAuthenticationIT extends AbstractLdapTestUnit
 {
-    public static DirectoryService service;
-
-
     /**
      * Checks all attributes of the admin account entry minus the userPassword
      * attribute.

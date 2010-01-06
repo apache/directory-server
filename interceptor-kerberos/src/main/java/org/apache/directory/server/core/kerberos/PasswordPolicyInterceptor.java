@@ -71,7 +71,7 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
 
         ServerEntry entry = addContext.getEntry();
 
-        log.debug( "Adding the entry '{}' for DN '{}'.", entry, normName.getUpName() );
+        log.debug( "Adding the entry '{}' for DN '{}'.", entry, normName.getName() );
 
         if ( entry.get( SchemaConstants.USER_PASSWORD_AT ) != null )
         {
@@ -170,13 +170,13 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
                     }
 
                     // if userPassword fails checks, throw new NamingException.
-                    check( name.getUpName(), pwd );
+                    check( name.getName(), pwd );
                 }
             }
 
             if ( log.isDebugEnabled() )
             {
-                log.debug( operation + " for entry '" + name.getUpName() + "' the attribute " + mod.getAttribute() );
+                log.debug( operation + " for entry '" + name.getName() + "' the attribute " + mod.getAttribute() );
             }
         }
 

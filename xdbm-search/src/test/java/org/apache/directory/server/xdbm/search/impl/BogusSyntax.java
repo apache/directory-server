@@ -20,11 +20,9 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntaxes.AcceptAllSyntaxChecker;
-
-import javax.naming.NamingException;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
 
 
 /**
@@ -33,66 +31,23 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class BogusSyntax implements Syntax
+public class BogusSyntax extends LdapSyntax
 {
     private static final long serialVersionUID = 1L;
 
-
-    public boolean isHumanReadable()
+    protected BogusSyntax( int oidVal )
     {
-        return false;
+        super( "1.3.6.1.4.1.18060.0.4.1.1.100000." + oidVal );
+        setHumanReadable( false );
+        setObsolete( false );
+        addName( "bogus" );
+        setDescription( "bogus" );
+        setSchemaName( "other" );
     }
 
 
-    public SyntaxChecker getSyntaxChecker() throws NamingException
+    public SyntaxChecker getSyntaxChecker()
     {
-        return new AcceptAllSyntaxChecker( getOid() );
-    }
-
-
-    public boolean isObsolete()
-    {
-        return false;
-    }
-
-
-    public String getOid()
-    {
-        return "1.3.6.1.4.1.18060.0.4.1.1.100000";
-    }
-
-
-    public String[] getNames()
-    {
-        return new String[] { "bogus" };
-    }
-
-
-    public String getName()
-    {
-        return "bogus";
-    }
-
-
-    public String getDescription()
-    {
-        return "bogus";
-    }
-
-
-    public String getSchema()
-    {
-        return "bogus";
-    }
-
-
-    public void setSchema( String schemaName )
-    {
-    }
-
-
-    public String[] getNamesRef()
-    {
-        return new String[] { "bogus" };
+        return new OctetStringSyntaxChecker();
     }
 }

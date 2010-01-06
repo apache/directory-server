@@ -20,16 +20,17 @@
 package org.apache.directory.server.core.prefs;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.junit.Assert.assertTrue;
 
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -38,11 +39,9 @@ import java.util.prefs.Preferences;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-public class PreferencesIT
+@RunWith ( FrameworkRunner.class )
+public class PreferencesIT extends AbstractLdapTestUnit
 {
-    public static DirectoryService service;
-
 
     @Test
     public void testSystemRoot()

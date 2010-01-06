@@ -66,16 +66,14 @@ import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.schema.registries.Registries;
-
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.StringTools;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,8 +116,8 @@ public class PartitionFrame extends JFrame
     private EntryNode root;
 
     
-    /** A handle on the global registries */
-    private Registries registries;
+    /** A handle on the global schemaManager */
+    private SchemaManager schemaManager;
 
     /**
      * Creates new form JFrame
@@ -127,10 +125,10 @@ public class PartitionFrame extends JFrame
      * @param db the partition to view
      * @throws NamingException if there are problems accessing the partition
      */
-    public PartitionFrame( BTreePartition db, Registries registries ) throws Exception
+    public PartitionFrame( BTreePartition db, SchemaManager schemaManager ) throws Exception
     {
         partition = db;
-        this.registries = registries;
+        this.schemaManager = schemaManager;
 
         initialize();
         buildIndicesMenu( partition );
@@ -168,7 +166,7 @@ public class PartitionFrame extends JFrame
         content.add( mainPnl, java.awt.BorderLayout.NORTH );
         getContentPane().add( content, BorderLayout.CENTER );
         // set title
-        setTitle( "Partition: " + this.partition.getSuffixDn().toString() );
+        setTitle( "Partition: " + this.partition.getSuffixDn().getName() );
         // add status bar
         getContentPane().add( statusBar, BorderLayout.SOUTH );
         // add menu bar
@@ -376,7 +374,7 @@ public class PartitionFrame extends JFrame
         try
         {
             TreePath path = tree.getSelectionModel().getSelectionPath();
-            String parentDn = partition.getSuffixDn().toString();
+            String parentDn = partition.getSuffixDn().getName();
 
             if ( null != path )
             {
@@ -394,7 +392,7 @@ public class PartitionFrame extends JFrame
                 return;
             }
 
-            AddEntryDialog dialog = new AddEntryDialog( this, false, registries );
+            AddEntryDialog dialog = new AddEntryDialog( this, false, schemaManager );
             dialog.setParentDn( parentDn );
 
             centerOnScreen( dialog );
@@ -421,7 +419,7 @@ public class PartitionFrame extends JFrame
 
         if ( null == path )
         {
-            return partition.getSuffixDn().toString();
+            return partition.getSuffixDn().getName();
         }
 
         Object last = path.getLastPathComponent();
@@ -440,7 +438,7 @@ public class PartitionFrame extends JFrame
         }
         else
         {
-            base = partition.getSuffixDn().toString();
+            base = partition.getSuffixDn().getName();
         }
 
         return base;
@@ -465,11 +463,11 @@ public class PartitionFrame extends JFrame
 
             for ( LdifEntry entry:new LdifReader( in ) )
             {
-                String updn = entry.getDn().getUpName();
+                String updn = entry.getDn().getName();
                 
                 LdapDN ndn = new LdapDN( StringTools.deepTrimToLower( updn ) );
 
-                ServerEntry attrs = new DefaultServerEntry( registries, entry.getEntry() );
+                ServerEntry attrs = new DefaultServerEntry( schemaManager, entry.getEntry() );
 
                 if ( null == partition.getEntryId( ndn.toString() ) )
                 {
@@ -572,7 +570,7 @@ public class PartitionFrame extends JFrame
         }
         else
         {
-            dialog.setBase( partition.getSuffixDn().toString() );
+            dialog.setBase( partition.getSuffixDn().getName() );
         }
 
         dialog.addActionListener( new ActionListener()
@@ -887,7 +885,7 @@ public class PartitionFrame extends JFrame
         nodes = new HashMap<Long, EntryNode>();
 
         ServerEntry suffix = partition.lookup( partition.getEntryId( partition.getSuffixDn().toNormName() ) );
-        Long id = partition.getEntryId( partition.getSuffixDn().toString() );
+        Long id = partition.getEntryId( partition.getSuffixDn().getName() );
         root = new EntryNode( id, null, partition, suffix, nodes );
 
         /*

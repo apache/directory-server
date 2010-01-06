@@ -24,16 +24,18 @@ import java.util.List;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.KerberosUtils;
-
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test the KerberosUtils class
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KerberosUtilsTest extends TestCase
+public class KerberosUtilsTest
 {
+    @Before
     public void setUp()
     {
         // First setup a default realm
@@ -42,6 +44,7 @@ public class KerberosUtilsTest extends TestCase
     }
 
     
+    @Test
     public void testKerberosNameSimple() throws Exception
     {
         KerberosPrincipal kp = new KerberosPrincipal( "abc" );
@@ -66,6 +69,7 @@ public class KerberosUtilsTest extends TestCase
     */
 
 
+    @Test
     public void testKerberosNameSimpleWithRealm() throws Exception
     {
         KerberosPrincipal kp = new KerberosPrincipal( "abc@APACHE.ORG" );
@@ -75,6 +79,7 @@ public class KerberosUtilsTest extends TestCase
         assertEquals( "abc", names.get( 0 ) );
     }
     
+    @Test
     public void testKerberosNameThree() throws Exception
     {
         KerberosPrincipal kp = new KerberosPrincipal( "abc/def/ghi" );
@@ -86,6 +91,7 @@ public class KerberosUtilsTest extends TestCase
         assertEquals( "ghi", names.get( 2 ) );
     }
 
+    @Test
     public void testKerberosNameThreeWithRealm() throws Exception
     {
         KerberosPrincipal kp = new KerberosPrincipal( "abc/def/ghi@APACHE.ORG" );

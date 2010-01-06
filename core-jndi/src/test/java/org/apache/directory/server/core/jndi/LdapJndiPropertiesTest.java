@@ -29,9 +29,11 @@ import org.apache.directory.server.core.jndi.LdapJndiProperties;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the LdapJndiProperties.
@@ -39,8 +41,9 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class LdapJndiPropertiesTest extends TestCase
+public class LdapJndiPropertiesTest
 {
+    @Test
     public void testEmptyEnv() throws Exception
     {
         try
@@ -54,6 +57,7 @@ public class LdapJndiPropertiesTest extends TestCase
     }
 
 
+    @Test
     public void testNullEnv() throws Exception
     {
         try
@@ -67,6 +71,7 @@ public class LdapJndiPropertiesTest extends TestCase
     }
 
 
+    @Test
     public void testNoAuthWithCredsEnv() throws Exception
     {
         Hashtable<String,Object> env = new Hashtable<String,Object>();
@@ -79,6 +84,7 @@ public class LdapJndiPropertiesTest extends TestCase
     }
 
 
+    @Test
     public void testNoAuthWithNoCredsEnv() throws Exception
     {
         Hashtable<String,Object> env = new Hashtable<String,Object>();
@@ -90,6 +96,7 @@ public class LdapJndiPropertiesTest extends TestCase
     }
 
 
+    @Test
     public void testAuthWithNoCredsEnv() throws Exception
     {
         Hashtable<String,Object> env = new Hashtable<String,Object>();
@@ -106,6 +113,7 @@ public class LdapJndiPropertiesTest extends TestCase
     }
 
 
+    @Test
     public void testAuthWithNoCredsStrong() throws Exception
     {
         Hashtable<String,Object> env = new Hashtable<String,Object>();
@@ -118,6 +126,7 @@ public class LdapJndiPropertiesTest extends TestCase
     }
 
 
+    @Test
     public void testAuthWithCredsStrong() throws Exception
     {
         Hashtable<String,Object> env = new Hashtable<String,Object>();

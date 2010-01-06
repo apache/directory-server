@@ -23,8 +23,6 @@ package org.apache.directory.server.ntp;
 import java.net.InetAddress;
 import java.util.concurrent.Executors;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
 import org.apache.commons.net.ntp.NTPUDPClient;
 import org.apache.commons.net.ntp.TimeInfo;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
@@ -35,7 +33,7 @@ import org.apache.mina.util.AvailablePortFinder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
+import static org.junit.Assert.assertTrue;
 
 /**
  * An {@link AbstractServerTest} testing the Network Time Protocol (NTP).
@@ -43,7 +41,7 @@ import org.junit.Test;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class NtpITest extends TestCase
+public class NtpITest
 {
     private NtpServer ntpConfig;
     private int port;
@@ -84,12 +82,12 @@ public class NtpITest extends TestCase
 
         TimeInfo timeInfo = ntp.getTime( host, port );
         long returnTime = timeInfo.getReturnTime();
-        Assert.assertTrue( currentTime - returnTime < 1000 );
+        assertTrue( currentTime - returnTime < 1000 );
 
         timeInfo.computeDetails();
 
-        Assert.assertTrue( 0 < timeInfo.getOffset() && timeInfo.getOffset() < 1000 );
-        Assert.assertTrue( 0 < timeInfo.getDelay() && timeInfo.getDelay() < 1000 );
+        assertTrue( 0 < timeInfo.getOffset() && timeInfo.getOffset() < 1000 );
+        assertTrue( 0 < timeInfo.getDelay() && timeInfo.getDelay() < 1000 );
     }
 
 

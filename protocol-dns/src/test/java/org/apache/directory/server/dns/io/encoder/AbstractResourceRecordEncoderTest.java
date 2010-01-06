@@ -24,14 +24,14 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.server.dns.messages.RecordClass;
 import org.apache.directory.server.dns.messages.RecordType;
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResourceRecordImpl;
 import org.apache.mina.core.buffer.IoBuffer;
-
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 /**
  * A base class for testing different types of ResourceRecordEncoders.  It 
@@ -41,7 +41,7 @@ import org.apache.mina.core.buffer.IoBuffer;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 501160 $, $Date: 2007-01-29 12:41:33 -0700 (Mon, 29 Jan 2007) $
  */
-public abstract class AbstractResourceRecordEncoderTest extends TestCase
+public abstract class AbstractResourceRecordEncoderTest
 {
     IoBuffer expectedData;
     String domainName = "herse.apache.org";
@@ -50,6 +50,7 @@ public abstract class AbstractResourceRecordEncoderTest extends TestCase
     ResourceRecord record;
 
 
+    @Before
     public void setUp() throws UnknownHostException
     {
         setUpResourceData();
@@ -71,6 +72,7 @@ public abstract class AbstractResourceRecordEncoderTest extends TestCase
     }
 
 
+    @Test
     public void testEncode() throws IOException
     {
         IoBuffer outBuffer = IoBuffer.allocate( 128 );

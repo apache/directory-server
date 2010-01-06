@@ -28,7 +28,7 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.authz.support.ACITupleFilter;
-import org.apache.directory.server.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 
 
 /**
@@ -38,7 +38,7 @@ import org.apache.directory.server.schema.registries.OidRegistry;
  * @version $Rev$, $Date$
  *
  */
-class DummyOidRegistry implements OidRegistry
+class DummyOidRegistry extends OidRegistry
 {
     public String getOid( String name ) throws NamingException
     {

@@ -26,8 +26,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
 
 import org.apache.directory.server.core.authz.support.MicroOperationFilter;
 import org.apache.directory.server.core.authz.support.OperationScope;
@@ -36,6 +35,7 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.junit.Test;
 
 
 /**
@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MicroOperationFilterTest extends TestCase
+public class MicroOperationFilterTest
 {
     private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ACITuple>() );
     private static final Collection<UserClass> EMPTY_USER_CLASS_COLLECTION = Collections.unmodifiableCollection( new ArrayList<UserClass>() );
@@ -66,15 +66,17 @@ public class MicroOperationFilterTest extends TestCase
     }
 
 
+    @Test
     public void testZeroTuple() throws Exception
     {
         MicroOperationFilter filter = new MicroOperationFilter();
 
-        Assert.assertEquals( 0, filter.filter( null, EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, 
+        assertEquals( 0, filter.filter( null, EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, 
             null, null, null, null, null, null, null, null, null, null, null ).size() );
     }
 
 
+    @Test
     public void testOneTuple() throws Exception
     {
         MicroOperationFilter filter = new MicroOperationFilter();
@@ -83,9 +85,9 @@ public class MicroOperationFilterTest extends TestCase
         tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, 
             TUPLE_OPERATIONS, true, 0 ) );
 
-        Assert.assertEquals( 1, filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null, null,
+        assertEquals( 1, filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null, null,
             null, null, USER_OPERATIONS_A, null ).size() );
-        Assert.assertEquals( 0, filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null, null,
+        assertEquals( 0, filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null, null,
             null, null, USER_OPERATIONS_B, null ).size() );
     }
 }

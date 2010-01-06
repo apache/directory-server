@@ -29,8 +29,7 @@ import javax.naming.NamingException;
 import javax.naming.ldap.Control;
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.DefaultDirectoryService.LogChange;
-import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.changelog.LogChange;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerBinaryValue;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -57,8 +56,8 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.message.InternalAddRequest;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.message.InternalAddRequest;
 import org.apache.directory.shared.ldap.message.InternalCompareRequest;
 import org.apache.directory.shared.ldap.message.InternalDeleteRequest;
 import org.apache.directory.shared.ldap.message.InternalModifyDnRequest;
@@ -189,7 +188,7 @@ public class DefaultCoreSession implements CoreSession
     {
         Value<?> val = null;
         
-        AttributeType attributeType = directoryService.getRegistries().getAttributeTypeRegistry().lookup( oid );
+        AttributeType attributeType = directoryService.getSchemaManager().lookupAttributeTypeRegistry( oid );
         
         // make sure we add the request controls to operation
         if ( attributeType.getSyntax().isHumanReadable() )
@@ -508,7 +507,7 @@ public class DefaultCoreSession implements CoreSession
         
         for ( Modification mod:mods )
         {
-            serverModifications.add( new ServerModification( directoryService.getRegistries(), mod ) );
+            serverModifications.add( new ServerModification( directoryService.getSchemaManager(), mod ) );
         }
         
         ModifyOperationContext opContext = new ModifyOperationContext( this, dn, serverModifications );
@@ -543,7 +542,7 @@ public class DefaultCoreSession implements CoreSession
         
         for ( Modification mod:mods )
         {
-            serverModifications.add( new ServerModification( directoryService.getRegistries(), mod ) );
+            serverModifications.add( new ServerModification( directoryService.getSchemaManager(), mod ) );
         }
 
         ModifyOperationContext opContext = new ModifyOperationContext( this, dn, serverModifications );
@@ -670,6 +669,7 @@ public class DefaultCoreSession implements CoreSession
         opContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
+        
         operationManager.rename( opContext );
     }
 

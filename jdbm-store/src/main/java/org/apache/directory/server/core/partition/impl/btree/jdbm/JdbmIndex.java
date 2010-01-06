@@ -20,6 +20,11 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
+import java.io.File;
+import java.io.IOException;
+
+import javax.naming.NamingException;
+
 import jdbm.RecordManager;
 import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
@@ -27,21 +32,18 @@ import jdbm.recman.CacheRecordManager;
 
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
-import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.NamingException;
-import java.io.File;
-import java.io.IOException;
 
 
 /** 
@@ -114,7 +116,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
     /** whether or not this index has been initialized */
     protected boolean initialized;
     
-    /** a customm working directory path when specified in configuration */
+    /** a custom working directory path when specified in configuration */
     protected File wkDirPath;
 
 
@@ -153,7 +155,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
     }
 
 
-    public void init( AttributeType attributeType, File wkDirPath ) throws IOException
+    public void init( SchemaManager schemaManager, AttributeType attributeType, File wkDirPath ) throws IOException
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
         
@@ -178,7 +180,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
 
         try
         {
-            initTables();
+            initTables( schemaManager );
         }
         catch ( IOException e )
         {
@@ -196,30 +198,31 @@ public class JdbmIndex<K,O> implements Index<K,O>
      * 
      * @throws IOException if we cannot initialize the forward and reverse
      * tables
+     * @throws NamingException 
      */
-    private void initTables() throws IOException
+    private void initTables( SchemaManager schemaManager ) throws IOException
     {
         SerializableComparator<K> comp;
 
-        try
+        MatchingRule mr = attribute.getEquality();
+        
+        if ( mr == null )
         {
-            MatchingRule mr = attribute.getEquality();
-            
-            comp = new SerializableComparator<K>( mr.getOid() );
+            throw new IOException( "No Equality MatchingRule available for attribute " + attribute.getName() );
         }
-        catch ( NamingException e )
-        {
-            IOException ioe = new IOException( "Failed to find an equality matching rule for attribute type" );
-            ioe.initCause( e );
-            throw ioe;
-        }
+        
+        comp = new SerializableComparator<K>( mr.getOid() );
 
         /*
          * The forward key/value map stores attribute values to master table 
          * primary keys.  A value for an attribute can occur several times in
          * different entries so the forward map can have more than one value.
          */
+        LongComparator.INSTANCE.setSchemaManager( schemaManager );
+        comp.setSchemaManager( schemaManager );
+        
         forward = new JdbmTable<K, Long>(
+            schemaManager,
             attribute.getName() + FORWARD_BTREE, 
             numDupLimit,
             recMan, 
@@ -232,9 +235,10 @@ public class JdbmIndex<K,O> implements Index<K,O>
          * is single valued according to its specification based on a schema 
          * then duplicate keys should not be allowed within the reverse table.
          */
-        if ( attribute.isSingleValue() )
+        if ( attribute.isSingleValued() )
         {
             reverse = new JdbmTable<Long,K>(
+                schemaManager,
                 attribute.getName() + REVERSE_BTREE,
                 recMan,
                 LongComparator.INSTANCE,
@@ -244,6 +248,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
         else
         {
             reverse = new JdbmTable<Long,K>(
+                schemaManager,
                 attribute.getName() + REVERSE_BTREE,
                 numDupLimit,
                 recMan,

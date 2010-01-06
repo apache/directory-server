@@ -20,45 +20,33 @@
 package org.apache.directory.server.core.jndi;
 
 
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getContext;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.Factory;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.name.LdapDN;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
-import java.util.HashSet;
-import java.util.Set;
+
+import org.apache.directory.server.core.annotations.ContextEntry;
+import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.annotations.CreateIndex;
+import org.apache.directory.server.core.annotations.CreatePartition;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -67,52 +55,31 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-@CleanupLevel ( Level.CLASS )
-@Factory ( MixedCaseITest.MyFactory.class )
-public class MixedCaseITest
+@RunWith(FrameworkRunner.class)
+@CreateDS(name = "MixedCaseITest-class",
+    partitions =
+        {
+            @CreatePartition(
+                name = "apache",
+                suffix = "dc=Apache,dc=Org",
+                contextEntry = @ContextEntry( 
+                    entryLdif =
+                        "dn: dc=Apache,dc=Org\n" +
+                        "dc: Apache\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n" ),
+                indexes = 
+                {
+                    @CreateIndex( attribute = "objectClass" ),
+                    @CreateIndex( attribute = "ou" ),
+                    @CreateIndex( attribute = "uid" )
+                } )
+        } )
+public class MixedCaseITest extends AbstractLdapTestUnit
 {
-    public static DirectoryService service;
 
     private static final String SUFFIX_DN = "dc=Apache,dc=Org";
 
-
-    public static class MyFactory implements DirectoryServiceFactory
-    {
-        public DirectoryService newInstance() throws NamingException
-        {
-            DirectoryService service = new DefaultDirectoryService();
-            service.getChangeLog().setEnabled( true );
-
-            JdbmPartition partition = new JdbmPartition();
-            partition.setId( "apache" );
-            partition.setSuffix( SUFFIX_DN );
-
-            HashSet<Index<?, ServerEntry>> indexedAttributes = new HashSet<Index<?, ServerEntry>>();
-            indexedAttributes.add( new JdbmIndex<String,ServerEntry>( "objectClass" ) );
-            indexedAttributes.add( new JdbmIndex<String,ServerEntry>( "ou" ) );
-            indexedAttributes.add( new JdbmIndex<String,ServerEntry>( "uid" ) );
-            partition.setIndexedAttributes( indexedAttributes );
-
-            Set<Partition> partitions = new HashSet<Partition>();
-            partitions.add( partition );
-
-            service.setPartitions( partitions );
-            return service;
-        }
-    }
-
-    
-    @Before
-    public void setUp() throws Exception
-    {
-        LdapDN dn = new LdapDN( "dc=Apache,dc=Org" );
-        ServerEntry entry = service.newEntry( dn );
-        entry.add( "objectClass", "top", "domain", "extensibleObject" );
-        entry.add( "dc", "Apache" );
-        service.getAdminSession().add( entry );
-    }
-    
     
     @Test
     public void testSearch() throws Exception
@@ -138,12 +105,8 @@ public class MixedCaseITest
 
         String dn = "ou=Test";
 
-        Attributes attributes = new BasicAttributes( true );
-        Attribute attribute = new BasicAttribute( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "organizationalUnit" );
-        attributes.put( attribute );
-        attributes.put( "ou", "Test" );
+        Attributes attributes = AttributeUtils.createAttributes( "objectClass: top", "objectClass: organizationalUnit",
+            "ou: Test" );
 
         DirContext ctx = ctxRoot.createSubcontext( dn, attributes );
         assertNotNull( ctx );
@@ -168,13 +131,8 @@ public class MixedCaseITest
         String dn = "ou=Test";
         String description = "New Value";
 
-        Attributes attributes = new BasicAttributes( true );
-        Attribute attribute = new BasicAttribute( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "organizationalUnit" );
-        attributes.put( attribute );
-        attributes.put( "ou", "Test" );
-        attributes.put( "description", "Old Value" );
+        Attributes attributes = AttributeUtils.createAttributes( "objectClass: top", "objectClass: organizationalUnit",
+            "ou: Test", "description: Old Value" );
 
         DirContext ctx = ctxRoot.createSubcontext( dn, attributes );
         assertNotNull( ctx );
@@ -194,7 +152,7 @@ public class MixedCaseITest
         assertEquals( "The entry returned should be the entry added earlier.", dn + "," + SUFFIX_DN, sr.getName() );
 
         attributes = sr.getAttributes();
-        attribute = attributes.get( "description" );
+        Attribute attribute = attributes.get( "description" );
 
         assertEquals( "The description attribute should contain the new value.", description, attribute.get() );
         assertFalse( "Search should return no more entries.", ne.hasMore() );
@@ -208,12 +166,8 @@ public class MixedCaseITest
 
         String dn = "ou=Test";
 
-        Attributes attributes = new BasicAttributes( true );
-        Attribute attribute = new BasicAttribute( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "organizationalUnit" );
-        attributes.put( attribute );
-        attributes.put( "ou", "Test" );
+        Attributes attributes = AttributeUtils.createAttributes( "objectClass: top", "objectClass: organizationalUnit",
+            "ou: Test" );
 
         DirContext ctx = ctxRoot.createSubcontext( dn, attributes );
         assertNotNull( ctx );

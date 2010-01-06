@@ -19,16 +19,17 @@
 package org.apache.directory.server.core.entry;
 
 
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -42,18 +43,7 @@ import java.util.Set;
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
 
-import org.apache.directory.server.schema.bootstrap.ApacheSchema;
-import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
-import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.directory.server.schema.bootstrap.CoreSchema;
-import org.apache.directory.server.schema.bootstrap.CosineSchema;
-import org.apache.directory.server.schema.bootstrap.InetorgpersonSchema;
-import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.bootstrap.SystemSchema;
-import org.apache.directory.server.schema.registries.DefaultOidRegistry;
-import org.apache.directory.server.schema.registries.DefaultRegistries;
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.commons.io.FileUtils;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientAttribute;
@@ -61,8 +51,13 @@ import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
+import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -75,9 +70,7 @@ import org.junit.Test;
  */
 public class DefaultServerAttributeTest
 {
-    private static BootstrapSchemaLoader loader;
-    private static Registries registries;
-    private static OidRegistry oidRegistry;
+    private static LdifSchemaLoader loader;
     
     private static AttributeType atCN;
     private static AttributeType atSN;
@@ -105,30 +98,46 @@ public class DefaultServerAttributeTest
     private static final ClientBinaryValue BIN_VALUE3 = new ClientBinaryValue( BYTES3 );
     private static final ClientBinaryValue BIN_VALUE4 = new ClientBinaryValue( BYTES4 );
 
+        
     /**
      * Initialize the registries once for the whole test suite
      */
     @BeforeClass
     public static void setup() throws Exception
     {
-        loader = new BootstrapSchemaLoader();
-        oidRegistry = new DefaultOidRegistry();
-        registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
+    	String workingDirectory = System.getProperty( "workingDirectory" );
+    	
+    	if ( workingDirectory == null )
+    	{
+    	    String path = DefaultServerAttributeTest.class.getResource( "" ).getPath();
+    	    int targetPos = path.indexOf( "target" );
+            workingDirectory = path.substring( 0, targetPos + 6 );
+    	}
+    	
+        // Cleanup the target directory
+        File schemaRepository = new File( workingDirectory, "schema" );
+        FileUtils.deleteDirectory( schemaRepository );
+    	
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+        extractor.extractOrCopy( true );
+    	loader = new LdifSchemaLoader( schemaRepository );
+        SchemaManager schemaManager = new DefaultSchemaManager( loader );
+
+        schemaManager.loadAllEnabled();
         
-        // load essential bootstrap schemas 
-        Set<Schema> bootstrapSchemas = new HashSet<Schema>();
-        bootstrapSchemas.add( new ApachemetaSchema() );
-        bootstrapSchemas.add( new ApacheSchema() );
-        bootstrapSchemas.add( new CoreSchema() );
-        bootstrapSchemas.add( new SystemSchema() );
-        bootstrapSchemas.add( new InetorgpersonSchema() );
-        bootstrapSchemas.add( new CosineSchema() );
-        loader.loadWithDependencies( bootstrapSchemas, registries );
+        List<Throwable> errors = schemaManager.getErrors();
         
-        atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
-        atC = registries.getAttributeTypeRegistry().lookup( "c" );
-        atSN = registries.getAttributeTypeRegistry().lookup( "sn" );
-        atPwd = registries.getAttributeTypeRegistry().lookup( "userpassword" );
+        if ( errors.size() != 0 )
+        {
+            // We have inconsistencies : log them and exit.
+            throw new RuntimeException( "Inconsistent schemas : " + 
+                ExceptionUtils.printErrors( errors ) );
+        }
+        
+        atCN = schemaManager.lookupAttributeTypeRegistry( "cn" );
+        atC = schemaManager.lookupAttributeTypeRegistry( "c" );
+        atSN = schemaManager.lookupAttributeTypeRegistry( "sn" );
+        atPwd = schemaManager.lookupAttributeTypeRegistry( "userpassword" );
     }
 
     /**
@@ -573,8 +582,8 @@ public class DefaultServerAttributeTest
     {
         ServerAttribute attr = new DefaultServerAttribute( atCN );
         
-        // No value, this should be valid
-        assertTrue( attr.isValid() );
+        // No value, this should not be valid
+        assertFalse( attr.isValid() );
         
         attr.add( "test", "test2", "A123\\;" );
         assertTrue( attr.isValid() );
@@ -2097,7 +2106,7 @@ public class DefaultServerAttributeTest
         assertEquals( "cn", dsaSer.getUpId() );
         assertEquals( 0, dsaSer.size() );
         assertTrue( dsaSer.isHR() );
-        assertTrue( dsaSer.isValid() );
+        assertFalse( dsaSer.isValid() );
     }
     
     

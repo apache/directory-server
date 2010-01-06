@@ -32,6 +32,7 @@ import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
@@ -53,7 +54,7 @@ public class ServerBinaryValue extends ClientBinaryValue
 {
     /** Used for serialization */
     private static final long serialVersionUID = 2L;
-    
+
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( ServerBinaryValue.class );
 
@@ -73,38 +74,31 @@ public class ServerBinaryValue extends ClientBinaryValue
      */
     protected String logAssert( String message )
     {
-        LOG.error(  message );
+        LOG.error( message );
         return message;
     }
 
-    
+
     /**
      *  Check the attributeType member. It should not be null, 
      *  and it should contains a syntax.
      */
     protected String checkAttributeType( AttributeType attributeType )
     {
-        try
+        if ( attributeType == null )
         {
-            if ( attributeType == null )
-            {
-                return "The AttributeType parameter should not be null";
-            }
-            
-            if ( attributeType.getSyntax() == null )
-            {
-                return "There is no Syntax associated with this attributeType";
-            }
+            return "The AttributeType parameter should not be null";
+        }
 
-            return null;
-        }
-        catch ( NamingException ne )
+        if ( attributeType.getSyntax() == null )
         {
-            return "This AttributeType is incorrect";
+            return "There is no Syntax associated with this attributeType";
         }
+
+        return null;
     }
 
-    
+
     // -----------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------
@@ -116,27 +110,20 @@ public class ServerBinaryValue extends ClientBinaryValue
     public ServerBinaryValue( AttributeType attributeType )
     {
         super();
-        
+
         if ( attributeType == null )
         {
             throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
         }
 
-        try
+        if ( attributeType.getSyntax() == null )
         {
-            if ( attributeType.getSyntax() == null )
-            {
-                throw new IllegalArgumentException( "There is no Syntax associated with this attributeType" );
-            }
-
-            if ( attributeType.getSyntax().isHumanReadable() )
-            {
-                LOG.warn( "Treating a value of a human readible attribute {} as binary: ", attributeType.getName() );
-            }
+            throw new IllegalArgumentException( "There is no Syntax associated with this attributeType" );
         }
-        catch( NamingException e )
+
+        if ( attributeType.getSyntax().isHumanReadable() )
         {
-            LOG.error( "Failed to resolve syntax for attributeType {}", attributeType, e );
+            LOG.warn( "Treating a value of a human readible attribute {} as binary: ", attributeType.getName() );
         }
 
         this.attributeType = attributeType;
@@ -164,7 +151,7 @@ public class ServerBinaryValue extends ClientBinaryValue
      * @param wrapped the value to wrap which can be null
      * @param normalizedValue the normalized value
      */
-    /** No protection */ 
+    /** No protection */
     ServerBinaryValue( AttributeType attributeType, byte[] wrapped, byte[] normalizedValue, boolean same, boolean valid )
     {
         super( wrapped );
@@ -187,11 +174,11 @@ public class ServerBinaryValue extends ClientBinaryValue
             // Bypass the normalization if it has already been done. 
             return;
         }
-        
+
         if ( wrapped != null )
         {
             Normalizer normalizer = getNormalizer();
-    
+
             if ( normalizer == null )
             {
                 normalizedValue = wrapped;
@@ -213,9 +200,9 @@ public class ServerBinaryValue extends ClientBinaryValue
         }
     }
 
-    
+
     /**
-     * Gets the normalized (cannonical) representation for the wrapped string.
+     * Gets the normalized (canonical) representation for the wrapped string.
      * If the wrapped String is null, null is returned, otherwise the normalized
      * form is returned.  If no the normalizedValue is null, then this method
      * will attempt to generate it from the wrapped value: repeated calls to
@@ -259,7 +246,7 @@ public class ServerBinaryValue extends ClientBinaryValue
      *
      * @return gets the normalized value
      */
-    public byte[] getNormalizedValue() 
+    public byte[] getNormalizedValue()
     {
         if ( isNull() )
         {
@@ -315,7 +302,7 @@ public class ServerBinaryValue extends ClientBinaryValue
 
         if ( normalizedValue != null )
         {
-            byte[] copy = new byte[ normalizedValue.length ];
+            byte[] copy = new byte[normalizedValue.length];
             System.arraycopy( normalizedValue, 0, copy, 0, normalizedValue.length );
             return copy;
         }
@@ -342,20 +329,11 @@ public class ServerBinaryValue extends ClientBinaryValue
             return valid;
         }
 
-        try
-        {
-            valid = attributeType.getSyntax().getSyntaxChecker().isValidSyntax( getReference() );
-        }
-        catch ( NamingException ne )
-        {
-            String message = "Cannot check the syntax : " + ne.getMessage();
-            LOG.error( message );
-            valid = false;
-        }
-        
+        valid = attributeType.getSyntax().getSyntaxChecker().isValidSyntax( getReference() );
+
         return valid;
     }
-    
+
 
     /**
      *
@@ -378,7 +356,7 @@ public class ServerBinaryValue extends ClientBinaryValue
         }
         else
         {
-            if ( ( value == null ) || value.isNull() ) 
+            if ( ( value == null ) || value.isNull() )
             {
                 return 1;
             }
@@ -390,29 +368,30 @@ public class ServerBinaryValue extends ClientBinaryValue
 
             try
             {
-                Comparator<? super Value<byte[]>> comparator = getComparator();
-                
+                Comparator<? super byte[]> comparator = getLdapComparator();
+
                 if ( comparator != null )
                 {
-                    return getComparator().compare( getNormalizedValueReference(), binaryValue.getNormalizedValueReference() );
+                    return comparator
+                        .compare( getNormalizedValueReference(), binaryValue.getNormalizedValueReference() );
                 }
                 else
                 {
-                    return ByteArrayComparator.INSTANCE.compare( getNormalizedValueReference(), 
-                        binaryValue.getNormalizedValueReference() );
+                    return new ByteArrayComparator( null ).compare( getNormalizedValueReference(), binaryValue
+                        .getNormalizedValueReference() );
                 }
             }
             catch ( NamingException e )
             {
-                String msg = "Failed to compare normalized values for " + Arrays.toString( getReference() )
-                        + " and " + value;
+                String msg = "Failed to compare normalized values for " + Arrays.toString( getReference() ) + " and "
+                    + value;
                 LOG.error( msg, e );
                 throw new IllegalStateException( msg, e );
             }
         }
 
-        String message = "I don't really know how to compare anything other " +
-        "than ServerBinaryValues at this point in time.";
+        String message = "I don't really know how to compare anything other "
+            + "than ServerBinaryValues at this point in time.";
         LOG.error( message );
         throw new NotImplementedException( message );
     }
@@ -485,18 +464,18 @@ public class ServerBinaryValue extends ClientBinaryValue
             return true;
         }
 
-        if ( ! ( obj instanceof ServerBinaryValue ) )
+        if ( !( obj instanceof ServerBinaryValue ) )
         {
             return false;
         }
 
         ServerBinaryValue other = ( ServerBinaryValue ) obj;
-        
+
         if ( !attributeType.equals( other.attributeType ) )
         {
             return false;
         }
-        
+
         if ( isNull() )
         {
             return other.isNull();
@@ -512,7 +491,7 @@ public class ServerBinaryValue extends ClientBinaryValue
         {
             try
             {
-                Comparator<byte[]> comparator = getComparator();
+                LdapComparator<? super byte[]> comparator = getLdapComparator();
 
                 // Compare normalized values
                 if ( comparator == null )
@@ -555,7 +534,7 @@ public class ServerBinaryValue extends ClientBinaryValue
 
         if ( mr == null )
         {
-            mr = attributeType.getSubstr();
+            mr = attributeType.getSubstring();
         }
 
         return mr;
@@ -589,7 +568,7 @@ public class ServerBinaryValue extends ClientBinaryValue
      * @return a comparator associated with the attributeType or null if one cannot be found
      * @throws NamingException if resolution of schema entities fail
      */
-    private Comparator getComparator() throws NamingException
+    private LdapComparator<? super Object> getLdapComparator() throws NamingException
     {
         MatchingRule mr = getMatchingRule();
 
@@ -598,23 +577,23 @@ public class ServerBinaryValue extends ClientBinaryValue
             return null;
         }
 
-        return mr.getComparator();
+        return mr.getLdapComparator();
     }
-    
-    
+
+
     /**
      * @return a copy of the current value
      */
     public ServerBinaryValue clone()
     {
-        ServerBinaryValue clone = (ServerBinaryValue)super.clone();
-        
+        ServerBinaryValue clone = ( ServerBinaryValue ) super.clone();
+
         if ( normalizedValue != null )
         {
-            clone.normalizedValue = new byte[ normalizedValue.length ];
+            clone.normalizedValue = new byte[normalizedValue.length];
             System.arraycopy( normalizedValue, 0, clone.normalizedValue, 0, normalizedValue.length );
         }
-        
+
         return clone;
     }
 
@@ -624,13 +603,13 @@ public class ServerBinaryValue extends ClientBinaryValue
      * 
      * We can't use this method for a ServerBinaryValue, as we have to feed the value
      * with an AttributeType object
-     */ 
+     */
     public void writeExternal( ObjectOutput out ) throws IOException
     {
         throw new IllegalStateException( "Cannot use standard serialization for a ServerStringValue" );
     }
-    
-    
+
+
     /**
      * We will write the value and the normalized value, only
      * if the normalized value is different.
@@ -655,18 +634,18 @@ public class ServerBinaryValue extends ClientBinaryValue
         {
             // write a the wrapped length
             out.writeInt( wrapped.length );
-            
+
             // Write the data if not empty
             if ( wrapped.length > 0 )
             {
                 // The data
                 out.write( wrapped );
-                
+
                 // Normalize the data
                 try
                 {
                     normalize();
-                    
+
                     if ( !normalized )
                     {
                         // We may not have a normalizer. Just get out
@@ -677,7 +656,7 @@ public class ServerBinaryValue extends ClientBinaryValue
                     {
                         // Write a flag indicating that the data has been normalized
                         out.writeBoolean( true );
-                        
+
                         if ( Arrays.equals( getReference(), normalizedValue ) )
                         {
                             // Write the 'same = true' flag
@@ -687,10 +666,10 @@ public class ServerBinaryValue extends ClientBinaryValue
                         {
                             // Write the 'same = false' flag
                             out.writeBoolean( false );
-                            
+
                             // Write the normalized value length
-                            out.write( normalizedValue.length );
-                            
+                            out.writeInt( normalizedValue.length );
+
                             if ( normalizedValue.length > 0 )
                             {
                                 // Write the normalized value if not empty
@@ -715,7 +694,7 @@ public class ServerBinaryValue extends ClientBinaryValue
         }
     }
 
-    
+
     /**
      * @see Externalizable#readExternal(ObjectInput)
      * 
@@ -726,7 +705,7 @@ public class ServerBinaryValue extends ClientBinaryValue
     {
         throw new IllegalStateException( "Cannot use standard serialization for a ServerStringValue" );
     }
-    
+
 
     /**
      * 
@@ -740,7 +719,7 @@ public class ServerBinaryValue extends ClientBinaryValue
     {
         // The UP value length
         int wrappedLength = in.readInt();
-        
+
         if ( wrappedLength == -1 )
         {
             // If the value is null, the length will be set to -1
@@ -749,35 +728,35 @@ public class ServerBinaryValue extends ClientBinaryValue
         }
         else if ( wrappedLength == 0 )
         {
-             wrapped = StringTools.EMPTY_BYTES;
-             same = true;
-             normalized = true;
-             normalizedValue = wrapped;
+            wrapped = StringTools.EMPTY_BYTES;
+            same = true;
+            normalized = true;
+            normalizedValue = wrapped;
         }
         else
         {
             wrapped = new byte[wrappedLength];
-            
+
             // Read the data
             in.readFully( wrapped );
-            
+
             // Check if we have a normalized value
             normalized = in.readBoolean();
-            
+
             if ( normalized )
             {
                 // Read the 'same' flag
                 same = in.readBoolean();
-                
+
                 if ( !same )
                 {
                     // Read the normalizedvalue length
                     int normalizedLength = in.readInt();
-                
+
                     if ( normalizedLength > 0 )
                     {
                         normalizedValue = new byte[normalizedLength];
-                        
+
                         // Read the normalized value
                         in.read( normalizedValue, 0, normalizedLength );
                     }

@@ -20,14 +20,9 @@
 package org.apache.directory.server.core.authz;
 
 
-import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.server.core.subtree.SubentryInterceptor;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.name.LdapDN;
+
+import java.util.Hashtable;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
@@ -38,7 +33,12 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.ldap.LdapContext;
-import java.util.Hashtable;
+
+import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.subtree.SubentryInterceptor;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -51,33 +51,6 @@ import java.util.Hashtable;
 public class AutzIntegUtils
 {
     public static DirectoryService service;
-
-
-    public static class ServiceFactory implements DirectoryServiceFactory
-    {
-        public DirectoryService newInstance() 
-        {
-            DefaultDirectoryService service = new DefaultDirectoryService();
-            service.setAccessControlEnabled( true );
-            service.getChangeLog().setEnabled( true );
-            AutzIntegUtils.service = service;
-            return service;
-        }
-    }
-
-
-    public static class DefaultServiceFactory implements DirectoryServiceFactory
-    {
-        public DirectoryService newInstance() 
-        {
-            DefaultDirectoryService service = new DefaultDirectoryService();
-            service.setAccessControlEnabled( false );
-            service.getChangeLog().setEnabled( true );
-            AutzIntegUtils.service = service;
-            return service;
-        }
-    }
-
 
     // -----------------------------------------------------------------------
     // Utility methods used by subclasses
@@ -108,7 +81,7 @@ public class AutzIntegUtils
     public static DirContext getContextAsAdmin( String dn ) throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-        Hashtable<String,Object> env = ( Hashtable<String,Object> ) sysRoot.getEnvironment().clone();
+        Hashtable<String, Object> env = ( Hashtable<String, Object> ) sysRoot.getEnvironment().clone();
         env.put( DirContext.PROVIDER_URL, dn );
         env.put( DirContext.SECURITY_AUTHENTICATION, "simple" );
         env.put( DirContext.SECURITY_PRINCIPAL, "uid=admin, ou=system" );
@@ -202,7 +175,7 @@ public class AutzIntegUtils
         group.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "groupOfUniqueNames" );
-        
+
         // TODO might be ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED
         group.put( "uniqueMember", "uid=admin, ou=system" );
         adminCtx.createSubcontext( "cn=" + groupName + ",ou=groups", group );
@@ -268,7 +241,7 @@ public class AutzIntegUtils
     public static DirContext getContextAs( Name user, String password, String dn ) throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-        Hashtable<String,Object> env = ( Hashtable<String,Object> ) sysRoot.getEnvironment().clone();
+        Hashtable<String, Object> env = ( Hashtable<String, Object> ) sysRoot.getEnvironment().clone();
         env.put( DirContext.PROVIDER_URL, dn );
         env.put( DirContext.SECURITY_AUTHENTICATION, "simple" );
         env.put( DirContext.SECURITY_PRINCIPAL, user.toString() );
@@ -368,8 +341,8 @@ public class AutzIntegUtils
         Attributes changes = new BasicAttributes( "subentryACI", aciItem, true );
         adminCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
     }
-    
-    
+
+
     /**
      * Replaces values of an prescriptiveACI attribute of a subentry subordinate
      * to ou=system.
@@ -384,7 +357,8 @@ public class AutzIntegUtils
         Attributes changes = new BasicAttributes( "prescriptiveACI", aciItem, true );
         adminCtx.modifyAttributes( "cn=" + cn, DirContext.REPLACE_ATTRIBUTE, changes );
     }
-    
+
+
     public static void addPrescriptiveACI( String cn, String aciItem ) throws Exception
     {
         DirContext adminCtx = getContextAsAdmin();

@@ -41,8 +41,8 @@ import javax.swing.JTextField;
 
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,10 +82,10 @@ public class AddEntryDialog extends JDialog implements ActionListener
      * @param parent the parent frame
      * @param modal whether or not to go modal on the dialog
      */
-    public AddEntryDialog(Frame parent, boolean modal, Registries registries )
+    public AddEntryDialog(Frame parent, boolean modal, SchemaManager schemaManager )
     {
         super( parent, modal );
-        childEntry = new DefaultServerEntry( registries );
+        childEntry = new DefaultServerEntry( schemaManager );
         childEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
         initGUI();
     }

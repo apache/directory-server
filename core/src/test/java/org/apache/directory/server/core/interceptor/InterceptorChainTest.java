@@ -20,34 +20,8 @@
 package org.apache.directory.server.core.interceptor;
 
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
 
-import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.DefaultCoreSession;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.OperationManager;
-import org.apache.directory.server.core.ReferralManager;
-import org.apache.directory.server.core.authn.LdapPrincipal;
-import org.apache.directory.server.core.changelog.ChangeLog;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.event.EventService;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.journal.Journal;
-import org.apache.directory.server.core.partition.ByPassConstants;
-import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.replication.ReplicationConfiguration;
-import org.apache.directory.server.core.schema.SchemaOperationControl;
-import org.apache.directory.server.core.schema.SchemaService;
-import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.csn.Csn;
-import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.name.LdapDN;
-
-import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,6 +29,36 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
+
+import javax.naming.NamingException;
+import javax.naming.ldap.LdapContext;
+
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DefaultCoreSession;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.LdapPrincipal;
+import org.apache.directory.server.core.OperationManager;
+import org.apache.directory.server.core.ReferralManager;
+import org.apache.directory.server.core.changelog.ChangeLog;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.event.EventService;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.invocation.InvocationStack;
+import org.apache.directory.server.core.journal.Journal;
+import org.apache.directory.server.core.partition.ByPassConstants;
+import org.apache.directory.server.core.partition.DefaultPartitionNexus;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.replication.ReplicationConfiguration;
+import org.apache.directory.server.core.schema.SchemaService;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.csn.Csn;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 
 /**
@@ -64,7 +68,7 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class InterceptorChainTest extends TestCase
+public class InterceptorChainTest
 {
     private static final int INTERCEPTOR_COUNT = 5;
     private InterceptorChain chain;
@@ -76,7 +80,8 @@ public class InterceptorChainTest extends TestCase
     }
     
     
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         chain = new InterceptorChain();
 
@@ -91,13 +96,15 @@ public class InterceptorChainTest extends TestCase
     }
 
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         chain = null;
         interceptors.clear();
     }
 
 
+    @Test
     public void testNoBypass() throws Exception
     {
         LdapDN dn = new LdapDN( "ou=system" );
@@ -123,6 +130,7 @@ public class InterceptorChainTest extends TestCase
     }
 
 
+    @Test
     public void testSingleBypass() throws Exception
     {
         LdapDN dn = new LdapDN( "ou=system" );
@@ -149,6 +157,7 @@ public class InterceptorChainTest extends TestCase
     }
 
 
+    @Test
     public void testAdjacentDoubleBypass() throws Exception
     {
         LdapDN dn = new LdapDN( "ou=system" );
@@ -178,6 +187,7 @@ public class InterceptorChainTest extends TestCase
     }
 
 
+    @Test
     public void testFrontAndBackDoubleBypass() throws Exception
     {
         LdapDN dn = new LdapDN( "ou=system" );
@@ -206,6 +216,7 @@ public class InterceptorChainTest extends TestCase
     }
 
 
+    @Test
     public void testDoubleBypass() throws Exception
     {
         LdapDN dn = new LdapDN( "ou=system" );
@@ -234,6 +245,7 @@ public class InterceptorChainTest extends TestCase
     }
 
 
+    @Test
     public void testCompleteBypass() throws Exception
     {
         LdapDN dn = new LdapDN( "ou=system" );
@@ -281,7 +293,7 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public PartitionNexus getPartitionNexus()
+        public DefaultPartitionNexus getPartitionNexus()
         {
             return null;
         }
@@ -314,7 +326,7 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public Registries getRegistries()
+        public SchemaManager getSchemaManager()
         {
             return null;
         }
@@ -334,17 +346,6 @@ public class InterceptorChainTest extends TestCase
         public void setSchemaService( SchemaService schemaService )
         {
 
-        }
-
-
-        public SchemaOperationControl getSchemaManager()
-        {
-            return null;
-        }
-
-
-        public void setSchemaManager( SchemaOperationControl schemaManager )
-        {
         }
 
 
@@ -640,7 +641,7 @@ public class InterceptorChainTest extends TestCase
         }
         
         
-        public void setPassordHidden( boolean passwordHidden )
+        public void setPasswordHidden( boolean passwordHidden )
         {
         }
 
@@ -699,6 +700,13 @@ public class InterceptorChainTest extends TestCase
         {
             // TODO Auto-generated method stub
             return null;
+        }
+
+
+        public void setSchemaManager( SchemaManager schemaManager )
+        {
+            // TODO Auto-generated method stub
+            
         }
     }
 }

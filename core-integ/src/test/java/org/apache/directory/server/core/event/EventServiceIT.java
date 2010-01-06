@@ -20,18 +20,15 @@
 package org.apache.directory.server.core.event;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.junit.Assert.assertEquals;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
+import java.util.EventObject;
+import java.util.List;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.event.EventDirContext;
 import javax.naming.event.NamespaceChangeListener;
@@ -39,9 +36,11 @@ import javax.naming.event.NamingEvent;
 import javax.naming.event.NamingExceptionEvent;
 import javax.naming.event.ObjectChangeListener;
 
-import java.util.ArrayList;
-import java.util.EventObject;
-import java.util.List;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -50,12 +49,9 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-public class EventServiceIT
+@RunWith ( FrameworkRunner.class )
+public class EventServiceIT extends AbstractLdapTestUnit
 {
-    public static DirectoryService service;
-
-
     /**
      * Test to make sure NamingListener's are no longer registered
      * after they are removed via the EventContex.removeNamingListener method.
@@ -68,10 +64,12 @@ public class EventServiceIT
         TestListener listener = new TestListener();
         EventDirContext ctx = ( EventDirContext ) getSystemContext( service ).lookup( "" );
         ctx.addNamingListener( "", SearchControls.SUBTREE_SCOPE, listener );
-        Attributes testEntry = new BasicAttributes( "ou", "testentry", true );
-        Attribute objectClass = new BasicAttribute( "objectClass", "top" );
-        objectClass.add( "organizationalUnit" );
-        testEntry.put( objectClass );
+
+        Attributes testEntry = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: organizationalUnit",
+            "ou", "testentry" );
+
         ctx.createSubcontext( "ou=testentry", testEntry );
 
         //  Wait 1 second, as the process is asynchronous
@@ -118,10 +116,12 @@ public class EventServiceIT
         TestListener listener = new TestListener();
         EventDirContext ctx = ( EventDirContext ) getSystemContext( service ).lookup( "" );
         ctx.addNamingListener( "", SearchControls.SUBTREE_SCOPE, listener );
-        Attributes testEntry = new BasicAttributes( "ou", "testentry", true );
-        Attribute objectClass = new BasicAttribute( "objectClass", "top" );
-        objectClass.add( "organizationalUnit" );
-        testEntry.put( objectClass );
+
+        Attributes testEntry = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: organizationalUnit",
+            "ou", "testentry" );
+
         ctx.createSubcontext( "ou=testentry", testEntry );
 
         //  Wait 1 second, as the process is asynchronous

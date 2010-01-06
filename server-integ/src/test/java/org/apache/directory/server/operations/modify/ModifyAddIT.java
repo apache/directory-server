@@ -20,6 +20,13 @@
 package org.apache.directory.server.operations.modify;
 
 
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.Arrays;
 
 import javax.naming.NamingEnumeration;
@@ -38,21 +45,15 @@ import javax.naming.directory.NoSuchAttributeException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.integ.SiRunner;
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -63,52 +64,53 @@ import static org.junit.Assert.assertNotNull;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.SUITE )
+@RunWith ( FrameworkRunner.class ) 
 @ApplyLdifs( {
     // Entry # 1
-    "dn: cn=Tori Amos,ou=system\n" +
-    "objectClass: inetOrgPerson\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "description: an American singer-songwriter\n" +
-    "cn: Tori Amos\n" +
-    "sn: Amos\n\n" + 
+    "dn: cn=Tori Amos,ou=system",
+    "objectClass: inetOrgPerson",
+    "objectClass: organizationalPerson",
+    "objectClass: person",
+    "objectClass: top",
+    "description: an American singer-songwriter",
+    "cn: Tori Amos",
+    "sn: Amos", 
     // Entry # 2
-    "dn: cn=Debbie Harry,ou=system\n" +
-    "objectClass: inetOrgPerson\n" +
-    "objectClass: organizationalPerson\n" +
-    "objectClass: person\n" +
-    "objectClass: top\n" +
-    "cn: Debbie Harry\n" +
-    "sn: Harry\n\n" 
+    "dn: cn=Debbie Harry,ou=system",
+    "objectClass: inetOrgPerson",
+    "objectClass: organizationalPerson",
+    "objectClass: person",
+    "objectClass: top",
+    "cn: Debbie Harry",
+    "sn: Harry" 
     }
 )
-public class ModifyAddIT 
+//@CreateDS( allowAnonAccess=true, name="BindIT-class")
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" )
+    })
+public class ModifyAddIT  extends AbstractLdapTestUnit
 {
     private static final String BASE = "ou=system";
     private static final String RDN_TORI_AMOS = "cn=Tori Amos";
     private static final String PERSON_DESCRIPTION = "an American singer-songwriter";
     private static final String RDN_DEBBIE_HARRY = "cn=Debbie Harry";
-
-    public static LdapServer ldapServer;
     
 
     /**
      * Creation of required attributes of a person entry.
      */
-    protected Attributes getPersonAttributes( String sn, String cn )
+    protected Attributes getPersonAttributes( String sn, String cn ) throws NamingException
     {
-        Attributes attributes = new BasicAttributes( true );
-        Attribute attribute = new BasicAttribute( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "person" );
-        attribute.add( "organizationalperson" );
-        attribute.add( "inetorgperson" );
-        attributes.put( attribute );
-        attributes.put( "cn", cn );
-        attributes.put( "sn", sn );
+        Attributes attributes = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: person",
+            "objectClass: organizationalperson",
+            "objectClass: inetorgperson",
+            "cn", cn,
+            "sn", sn );
 
         return attributes;
     }
@@ -493,9 +495,9 @@ public class ModifyAddIT
      * A JIRA has been created for this bug : DIRSERVER_687
      */
     @Test
-     public void testDNAttributeMemberMofificationDIRSERVER_687() throws Exception 
-     {
-         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+    public void testDNAttributeMemberModificationDIRSERVER_687() throws Exception 
+    {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
          
         // Create a person entry
         Attributes attrs = getPersonAttributes("Bush", "Kate Bush");

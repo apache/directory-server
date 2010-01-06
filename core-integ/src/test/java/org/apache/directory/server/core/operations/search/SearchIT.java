@@ -38,7 +38,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidSearchFilterException;
 import javax.naming.directory.ModificationItem;
@@ -46,13 +45,16 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
 import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,100 +66,105 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
+@RunWith ( FrameworkRunner.class )
+@CreateDS( name="SearchDS" )
 @ApplyLdifs(
     {
-        "dn: m-oid=2.2.0, ou=attributeTypes, cn=apachemeta, ou=schema\n" +
-        "objectclass: metaAttributeType\n" +
-        "objectclass: metaTop\n" +
-        "objectclass: top\n" +
-        "m-oid: 2.2.0\n" +
-        "m-name: integerAttribute\n" +
-        "m-description: the precursor for all integer attributes\n" +
-        "m-equality: integerMatch\n" +
-        "m-ordering: integerOrderingMatch\n" +
-        "m-syntax: 1.3.6.1.4.1.1466.115.121.1.27\n" +
-        "m-length: 0\n" +
-        "\n" +
-        "dn: ou=testing00,ou=system\n" +
-        "objectClass: top\n" +
-        "objectClass: organizationalUnit\n" +
-        "objectClass: extensibleObject\n" +
-        "ou: testing00\n" +
-        "integerAttribute: 0\n" +
-        "\n" +
-        "dn: ou=testing01,ou=system\n" +
-        "objectClass: top\n" +
-        "objectClass: organizationalUnit\n" +
-        "objectClass: extensibleObject\n" +
-        "ou: testing01\n" +
-        "integerAttribute: 1\n" +
-        "\n" +
-        "dn: ou=testing02,ou=system\n" +
-        "objectClass: top\n" +
-        "objectClass: organizationalUnit\n" +
-        "objectClass: extensibleObject\n" +
-        "ou: testing02\n" +
-        "integerAttribute: 2\n" +
-        "\n" +
-        "dn: ou=testing03,ou=system\n" +
-        "objectClass: top\n" +
-        "objectClass: organizationalUnit\n" +
-        "objectClass: extensibleObject\n" +
-        "ou: testing03\n" +
-        "integerAttribute: 3\n" +
-        "\n" +
-        "dn: ou=testing04,ou=system\n" +
-        "objectClass: top\n" +
-        "objectClass: organizationalUnit\n" +
-        "objectClass: extensibleObject\n" +
-        "ou: testing04\n" +
-        "integerAttribute: 4\n" +
-        "\n" +
-        "dn: ou=testing05,ou=system\n" +
-        "objectClass: top\n" +
-        "objectClass: organizationalUnit\n" +
-        "objectClass: extensibleObject\n" +
-        "ou: testing05\n" +
-        "integerAttribute: 5\n" +
-        "\n" +
-        "dn: ou=subtest,ou=testing01,ou=system\n" +
-        "objectClass: top\n" +
-        "objectClass: organizationalUnit\n" +
-        "ou: subtest\n" +
-        "\n" +
-        "dn: cn=Heather Nova, ou=system\n" +
-        "objectClass: top\n" +
-        "objectClass: person\n" +
-        "cn: Heather Nova\n" +
-        "sn: Nova\n" +
-        "telephoneNumber: 1 801 555 1212 \n" +
-        "\n" +
-        "dn: cn=with-dn, ou=system\n" +
-        "objectClass: top\n" +
-        "objectClass: person\n" +
-        "objectClass: organizationalPerson\n" +
-        "objectClass: inetorgPerson\n" +
-        "cn: singer\n" +
-        "sn: manager\n" +
-        "telephoneNumber: 1 801 555 1212 \n" +
-        "manager: cn=Heather Nova, ou=system\n"
+        "dn: m-oid=2.2.0, ou=attributeTypes, cn=apachemeta, ou=schema",
+        "objectclass: metaAttributeType",
+        "objectclass: metaTop",
+        "objectclass: top",
+        "m-oid: 2.2.0",
+        "m-name: integerAttribute",
+        "m-description: the precursor for all integer attributes",
+        "m-equality: integerMatch",
+        "m-ordering: integerOrderingMatch",
+        "m-syntax: 1.3.6.1.4.1.1466.115.121.1.27",
+        "m-length: 0",
+        "",
+        "dn: ou=testing00,ou=system",
+        "objectClass: top",
+        "objectClass: organizationalUnit",
+        "objectClass: extensibleObject",
+        "ou: testing00",
+        "integerAttribute: 0",
+        "",
+        "dn: ou=testing01,ou=system",
+        "objectClass: top",
+        "objectClass: organizationalUnit",
+        "objectClass: extensibleObject",
+        "ou: testing01",
+        "integerAttribute: 1",
+        "",
+        "dn: ou=testing02,ou=system",
+        "objectClass: top",
+        "objectClass: organizationalUnit",
+        "objectClass: extensibleObject",
+        "ou: testing02",
+        "integerAttribute: 2",
+        "",
+        "dn: ou=testing03,ou=system",
+        "objectClass: top",
+        "objectClass: organizationalUnit",
+        "objectClass: extensibleObject",
+        "ou: testing03",
+        "integerAttribute: 3",
+        "",
+        "dn: ou=testing04,ou=system",
+        "objectClass: top",
+        "objectClass: organizationalUnit",
+        "objectClass: extensibleObject",
+        "ou: testing04",
+        "integerAttribute: 4",
+        "",
+        "dn: ou=testing05,ou=system",
+        "objectClass: top",
+        "objectClass: organizationalUnit",
+        "objectClass: extensibleObject",
+        "ou: testing05",
+        "integerAttribute: 5",
+        "",
+        "dn: ou=subtest,ou=testing01,ou=system",
+        "objectClass: top",
+        "objectClass: organizationalUnit",
+        "ou: subtest",
+        "",
+        "dn: cn=Heather Nova, ou=system",
+        "objectClass: top",
+        "objectClass: person",
+        "cn: Heather Nova",
+        "sn: Nova",
+        "telephoneNumber: 1 801 555 1212 ",
+        "",
+        "dn: cn=with-dn, ou=system",
+        "objectClass: top",
+        "objectClass: person",
+        "objectClass: organizationalPerson",
+        "objectClass: inetorgPerson",
+        "cn: singer",
+        "sn: manager",
+        "telephoneNumber: 1 801 555 1212 ",
+        "manager: cn=Heather Nova, ou=system"
     }
 )
-public class SearchIT
+public class SearchIT extends AbstractLdapTestUnit
 {
     private static final String RDN = "cn=Heather Nova";
     private static final String FILTER = "(objectclass=*)";
 
-    public static DirectoryService service;
+    public static LdapContext sysRoot;
 
-    
     /**
      * @param sysRoot the system root to add entries to
      * @throws NamingException on errors
      */
-    protected void createData( LdapContext sysRoot ) throws Exception
+    @Before
+    public void createData() throws Exception
     {
+        service.getSchemaManager().enable( "nis" );
+
+        sysRoot = getSystemContext( service ); 
+            
         /*
          * Check ou=testing00,ou=system
          */
@@ -258,12 +265,14 @@ public class SearchIT
     /**
      * Create a NIS group
      */
-    private DirContext addNisPosixGroup( String name, int gid ) throws Exception
+    private static DirContext addNisPosixGroup( String name, int gid ) throws Exception
     {
-        Attributes attrs = new BasicAttributes( "objectClass", "top", true );
-        attrs.get( "objectClass" ).add( "posixGroup" );
-        attrs.put( "cn", name );
-        attrs.put( "gidNumber", String.valueOf( gid ) );
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top", 
+            "objectClass: posixGroup",
+            "cn", name,
+            "gidNumber", String.valueOf( gid ) );
+        
         return getSystemContext( service ).createSubcontext( "cn="+name+",ou=groups", attrs );
     }
 
@@ -271,9 +280,6 @@ public class SearchIT
     @Test
     public void testSearchOneLevel() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -299,9 +305,6 @@ public class SearchIT
     @Test
     public void testSearchSubTreeLevel() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -329,9 +332,6 @@ public class SearchIT
     @Test
     public void testSearchSubTreeLevelNoAttributes() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -360,9 +360,6 @@ public class SearchIT
     @Test
     public void testSearchSubstringSubTreeLevel() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -406,7 +403,6 @@ public class SearchIT
         boolean oldSetAllowAnnonymousAccess = service.isAllowAnonymousAccess();
         service.setAllowAnonymousAccess( true );
 
-        LdapContext sysRoot = getSystemContext( service );
         SearchControls cons = new SearchControls();
         NamingEnumeration<SearchResult> e = sysRoot.search( "", "(bogusAttribute=abc123)", cons );
         assertNotNull( e );
@@ -437,9 +433,6 @@ public class SearchIT
     @Test
     public void testSearchFilterArgs() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -466,9 +459,6 @@ public class SearchIT
     @Ignore ( "TODO - fix me" )
     public void testSearchSizeLimit() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -500,9 +490,6 @@ public class SearchIT
     @Ignore ( "TODO - fix me" )
     public void testSearchTimeLimit() throws Exception, InterruptedException
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -537,9 +524,6 @@ public class SearchIT
     @Test
     public void testFilterExpansion0() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -563,9 +547,6 @@ public class SearchIT
     @Test
     public void testFilterExpansion1() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -601,9 +582,6 @@ public class SearchIT
     @Test
     public void testFilterExpansion2() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -628,9 +606,6 @@ public class SearchIT
     @Test
     public void testFilterExpansion4() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -659,9 +634,6 @@ public class SearchIT
     @Test
     public void testFilterExpansion5() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -695,9 +667,6 @@ public class SearchIT
     @Test
     public void testOpAttrDenormalizationOff() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -725,9 +694,6 @@ public class SearchIT
     @Test
     public void testOpAttrDenormalizationOn() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         service.setDenormalizeOpAttrsEnabled( true );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -760,15 +726,14 @@ public class SearchIT
      * @param sn the surName of the person
      * @return the attributes of a new person entry
      */
-    protected Attributes getPersonAttributes( String sn, String cn )
+    protected Attributes getPersonAttributes( String sn, String cn ) throws NamingException
     {
-        Attributes attributes = new BasicAttributes( true );
-        Attribute attribute = new BasicAttribute( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "person" );
-        attributes.put( attribute );
-        attributes.put( "cn", cn );
-        attributes.put( "sn", sn );
+        Attributes attributes = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: top",
+            "objectClass: person",
+            "cn", cn,
+            "sn", sn );
 
         return attributes;
     }
@@ -777,9 +742,6 @@ public class SearchIT
     @Test
     public void testBinaryAttributesInFilter() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         byte[] certData = new byte[] { 0x34, 0x56, 0x4e, 0x5f };
         
         // First let's add a some binary data representing a userCertificate
@@ -813,9 +775,6 @@ public class SearchIT
     @Test
     public void testSearchOperationalAttr() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -846,9 +805,6 @@ public class SearchIT
     @Test
     public void testSearchUserAttr() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -879,9 +835,6 @@ public class SearchIT
     @Test
     public void testSearchUserAttrAndOpAttr() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -912,9 +865,6 @@ public class SearchIT
     @Test
     public void testSearchUserAttrAndNoAttr() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -945,9 +895,6 @@ public class SearchIT
     @Test
     public void testSearchNoAttr() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -978,9 +925,6 @@ public class SearchIT
     @Test
     public void testSearchAllAttr() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -1016,9 +960,6 @@ public class SearchIT
     @Test
     public void testSearchFetchNonExistingAttributeOption() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
         ctls.setReturningAttributes( new String[]
@@ -1054,9 +995,6 @@ public class SearchIT
     @Test
     public void testSearchFetchTwiceSameAttribute() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
         ctls.setReturningAttributes( new String[]
@@ -1216,9 +1154,6 @@ public class SearchIT
     @Test
     public void testSetup() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         Set<String> results = searchGroups( "(objectClass=posixGroup)" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
@@ -1232,9 +1167,6 @@ public class SearchIT
     @Test
     public void testLessThanSearch() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         Set<String> results = searchGroups( "(gidNumber<=5)" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
@@ -1280,9 +1212,6 @@ public class SearchIT
     @Test
     public void testGreaterThanSearch() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         Set<String> results = searchGroups( "(gidNumber>=0)" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
@@ -1320,9 +1249,6 @@ public class SearchIT
     @Test
     public void testNotOperator() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         Set<String> results = searchGroups( "(!(gidNumber=4))" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
@@ -1336,9 +1262,6 @@ public class SearchIT
     @Test
     public void testNotOperatorSubtree() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
@@ -1355,17 +1278,14 @@ public class SearchIT
     @Test
     public void testSearchWithEscapedCharsInFilter() throws Exception
     {
-        // Create an entry with special chars in the description attribute
-        LdapContext sysRoot = getSystemContext( service );
         // Create entry cn=Sid Vicious, ou=system
-        Attributes vicious = new BasicAttributes( true );
-        Attribute ocls = new BasicAttribute( "objectClass" );
-        ocls.add( "top" );
-        ocls.add( "person" );
-        vicious.put( ocls );
-        vicious.put( "cn", "Sid Vicious" );
-        vicious.put( "sn", "Vicious" );
-        vicious.put( "description", "(sex*pis\\tols)" );
+        Attributes vicious = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: person",
+            "cn", "Sid Vicious",
+            "sn", "Vicious",
+            "description", "(sex*pis\\tols)" );
+
         DirContext ctx = sysRoot.createSubcontext( "cn=Sid Vicious", vicious );
         assertNotNull( ctx );
 
@@ -1408,17 +1328,14 @@ public class SearchIT
     @Test
     public void testSubstringSearchWithEscapedCharsInFilter() throws Exception
     {
-        // Create an entry with special chars in the description attribute
-        LdapContext sysRoot = getSystemContext( service );
         // Create entry cn=Sid Vicious, ou=system
-        Attributes vicious = new BasicAttributes( true );
-        Attribute ocls = new BasicAttribute( "objectClass" );
-        ocls.add( "top" );
-        ocls.add( "person" );
-        vicious.put( ocls );
-        vicious.put( "cn", "Sid Vicious" );
-        vicious.put( "sn", "Vicious" );
-        vicious.put( "description", "(sex*pis\\tols)" );
+        Attributes vicious = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: person",
+            "cn", "Sid Vicious",
+            "sn", "Vicious",
+            "description", "(sex*pis\\tols)" );
+
         DirContext ctx = sysRoot.createSubcontext( "cn=Sid Vicious", vicious );
         assertNotNull( ctx );
 
@@ -1464,15 +1381,13 @@ public class SearchIT
     @Test
     public void testSubstringSearchWithEscapedAsterisksInFilter_DIRSERVER_1181() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        Attributes vicious = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: person",
+            "cn", "x*y*z*",
+            "sn", "x*y*z*",
+            "description", "(sex*pis\\tols)" );
 
-        Attributes vicious = new BasicAttributes( true );
-        Attribute ocls = new BasicAttribute( "objectClass" );
-        ocls.add( "top" );
-        ocls.add( "person" );
-        vicious.put( ocls );
-        vicious.put( "cn", "x*y*z*" );
-        vicious.put( "sn", "x*y*z*" );
         sysRoot.createSubcontext( "cn=x*y*z*", vicious );
 
         SearchControls controls = new SearchControls();
@@ -1500,9 +1415,6 @@ public class SearchIT
     @Test
     public void testBadFilter() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        createData( sysRoot );
-
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -1569,9 +1481,6 @@ public class SearchIT
     */
    @Test
    public void testIntegerComparison() throws Exception {
-       LdapContext sysRoot = getSystemContext(service);
-       createData(sysRoot);
-       
        Set<String> results = searchUnits("(&(objectClass=organizationalUnit)(integerAttribute<=2))",null);
        assertTrue(results.contains("ou=testing00,ou=system"));
        assertTrue(results.contains("ou=testing01,ou=system"));
@@ -1591,8 +1500,6 @@ public class SearchIT
     */
    @Test
    public void testIntegerComparison2() throws Exception {
-       LdapContext sysRoot = getSystemContext(service);
-       createData(sysRoot);
        Set<String> results = searchUnits("(&(objectClass=organizationalUnit)(integerAttribute>=3))",null);
        assertFalse(results.contains("ou=testing00,ou=system"));
        assertFalse(results.contains("ou=testing01,ou=system"));
@@ -1612,9 +1519,6 @@ public class SearchIT
     */
    @Test
    public void testIntegerComparison3() throws Exception {
-       LdapContext sysRoot = getSystemContext(service);
-       createData(sysRoot);
-       
        Set<String> results = searchUnits("(&(objectClass=organizationalUnit)(integerAttribute<=42))",null);
        assertTrue(results.contains("ou=testing00,ou=system"));
        assertTrue(results.contains("ou=testing01,ou=system"));
@@ -1633,9 +1537,6 @@ public class SearchIT
     */
    @Test
    public void testIntegerComparison4() throws Exception {
-       LdapContext sysRoot = getSystemContext(service);
-       createData(sysRoot);
-       
        Set<String> results = searchUnits("(&(objectClass=organizationalUnit)(|(integerAttribute<=1)(integerAttribute>=5)))",null);
        assertTrue(results.contains("ou=testing00,ou=system"));
        assertTrue(results.contains("ou=testing01,ou=system"));
@@ -1649,9 +1550,6 @@ public class SearchIT
    @Test
    public void testSearchTelephoneNumber() throws Exception
    {
-       LdapContext sysRoot = getSystemContext( service );
-       createData( sysRoot );
-
        SearchControls controls = new SearchControls();
        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
 
@@ -1673,9 +1571,6 @@ public class SearchIT
    @Test
    public void testSearchDN() throws Exception
    {
-       LdapContext sysRoot = getSystemContext( service );
-       createData( sysRoot );
-
        SearchControls controls = new SearchControls();
        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
        controls.setDerefLinkFlag( false );
@@ -1700,9 +1595,6 @@ public class SearchIT
    @Test
    public void testComplexFilter() throws Exception
    {
-       LdapContext sysRoot = getSystemContext( service );
-       createData( sysRoot );
-
        SearchControls controls = new SearchControls();
        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
        controls.setDerefLinkFlag( false );
@@ -1710,10 +1602,12 @@ public class SearchIT
                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
        
        // Create an entry which does not match
-       Attributes attrs = new BasicAttributes( "objectClass", "top", true );
-       attrs.get( "objectClass" ).add( "groupOfUniqueNames" );
-       attrs.put( "cn", "testGroup3" );
-       attrs.put( "uniqueMember", "uid=admin,ou=system" );
+       Attributes attrs = AttributeUtils.createAttributes( 
+           "objectClass: top",
+           "objectClass: groupOfUniqueNames",
+           "cn", "testGroup3",
+           "uniqueMember", "uid=admin,ou=system" );
+
        getSystemContext( service ).createSubcontext( "cn=testGroup3,ou=groups", attrs );
        
        

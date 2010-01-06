@@ -27,11 +27,11 @@ import static org.junit.Assert.assertTrue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.client.api.LdapConnection;
 import org.apache.directory.shared.ldap.client.api.exception.LdapException;
 import org.apache.directory.shared.ldap.client.api.listeners.SearchListener;
@@ -60,12 +60,15 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-@RunWith(SiRunner.class)
-@CleanupLevel(Level.CLASS)
-public class ClientAbandonRequestTest
+@RunWith(FrameworkRunner.class)
+@CreateLdapServer ( 
+    transports = 
+    {
+        @CreateTransport( protocol = "LDAP" ), 
+        @CreateTransport( protocol = "LDAPS" ) 
+    })
+public class ClientAbandonRequestTest extends AbstractLdapTestUnit
 {
-    /** The server instance */
-    public static LdapServer ldapServer;
 
     private LdapConnection connection;
 
@@ -80,7 +83,7 @@ public class ClientAbandonRequestTest
         connection = new LdapConnection( "localhost", ldapServer.getPort() );
         LdapDN bindDn = new LdapDN( "uid=admin,ou=system" );
         connection.setTimeOut( 0L );
-        connection.bind( bindDn.getUpName(), "secret" );
+        connection.bind( bindDn.getName(), "secret" );
 
         session = ldapServer.getDirectoryService().getSession();
     }

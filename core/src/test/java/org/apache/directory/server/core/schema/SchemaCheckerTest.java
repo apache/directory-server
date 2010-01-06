@@ -20,7 +20,14 @@
 package org.apache.directory.server.core.schema;
 
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.naming.NamingException;
 
@@ -28,34 +35,23 @@ import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.schema.SchemaChecker;
-import org.apache.directory.server.schema.bootstrap.ApacheSchema;
-import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.directory.server.schema.bootstrap.CoreSchema;
-import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.bootstrap.SystemSchema;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.DefaultOidRegistry;
-import org.apache.directory.server.schema.registries.DefaultRegistries;
-import org.apache.directory.server.schema.registries.ObjectClassRegistry;
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
+import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
 
 
 /**
@@ -64,30 +60,34 @@ import java.util.HashSet;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class SchemaCheckerTest extends TestCase
+public class SchemaCheckerTest
 {
-    static Registries registries;
+    static SchemaManager schemaManager;
 
 
     @BeforeClass
-    protected void setUp() throws Exception
+    public static void setUp() throws Exception
     {
-        BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        registries = new DefaultRegistries( "bootstrap", loader, new DefaultOidRegistry() );
+    	String workingDirectory = System.getProperty( "workingDirectory" );
 
-        Set<Schema> schemas = new HashSet<Schema>();
-        schemas.add( new SystemSchema() );
-        schemas.add( new ApacheSchema() );
-        schemas.add( new CoreSchema() );
-        loader.loadWithDependencies( schemas,registries );
-
-        List<Throwable> errors = registries.checkRefInteg();
-        
-        if ( !errors.isEmpty() )
+        if ( workingDirectory == null )
         {
-            NamingException e = new NamingException();
-            e.setRootCause( ( Throwable ) errors.get( 0 ) );
-            throw e;
+            String path = SchemaCheckerTest.class.getResource( "" ).getPath();
+            int targetPos = path.indexOf( "target" );
+            workingDirectory = path.substring( 0, targetPos + 6 );
+        }
+
+        File schemaRepository = new File( workingDirectory, "schema" );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+        extractor.extractOrCopy( true );
+        LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
+        schemaManager = new DefaultSchemaManager( loader );
+
+        boolean loaded = schemaManager.loadAllEnabled();
+
+        if ( !loaded )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
     }
 
@@ -101,23 +101,21 @@ public class SchemaCheckerTest extends TestCase
     {
         LdapDN name = new LdapDN( "uid=akarasulu,ou=users,dc=example,dc=com" );
         ModificationOperation mod = ModificationOperation.REPLACE_ATTRIBUTE;
-        ServerEntry modifyAttributes = new DefaultServerEntry( registries );
-        AttributeType atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
+        ServerEntry modifyAttributes = new DefaultServerEntry( schemaManager );
+        AttributeType atCN = schemaManager.lookupAttributeTypeRegistry( "cn" );
         modifyAttributes.put( new DefaultServerAttribute( atCN ) );
 
-        ObjectClassRegistry ocRegistry = registries.getObjectClassRegistry();
-
         // this should pass
-        SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, mod, modifyAttributes );
+        SchemaChecker.preventStructuralClassRemovalOnModifyReplace( schemaManager.getObjectClassRegistry(), name, mod, modifyAttributes );
 
         // this should succeed since person is still in replaced set and is structural
         modifyAttributes.removeAttributes( atCN );
-        AttributeType atOC = registries.getAttributeTypeRegistry().lookup( "objectClass" );
+        AttributeType atOC = schemaManager.lookupAttributeTypeRegistry( "objectClass" );
         EntryAttribute objectClassesReplaced = new DefaultServerAttribute( atOC );
         objectClassesReplaced.add( "top" );
         objectClassesReplaced.add( "person" );
         modifyAttributes.put( objectClassesReplaced );
-        SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, mod, modifyAttributes );
+        SchemaChecker.preventStructuralClassRemovalOnModifyReplace( schemaManager.getObjectClassRegistry(), name, mod, modifyAttributes );
 
         // this should fail since only top is left
         objectClassesReplaced = new DefaultServerAttribute( atOC );
@@ -125,7 +123,7 @@ public class SchemaCheckerTest extends TestCase
         modifyAttributes.put( objectClassesReplaced );
         try
         {
-            SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, mod, modifyAttributes );
+            SchemaChecker.preventStructuralClassRemovalOnModifyReplace( schemaManager.getObjectClassRegistry(), name, mod, modifyAttributes );
             fail( "should never get here due to an LdapSchemaViolationException" );
         }
         catch ( LdapSchemaViolationException e )
@@ -140,7 +138,7 @@ public class SchemaCheckerTest extends TestCase
         modifyAttributes.put( objectClassesReplaced );
         try
         {
-            SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, mod, modifyAttributes );
+            SchemaChecker.preventStructuralClassRemovalOnModifyReplace( schemaManager.getObjectClassRegistry(), name, mod, modifyAttributes );
             fail( "should never get here due to an LdapSchemaViolationException" );
         }
         catch ( LdapSchemaViolationException e )
@@ -223,19 +221,19 @@ public class SchemaCheckerTest extends TestCase
     {
         ModificationOperation mod = ModificationOperation.REMOVE_ATTRIBUTE;
         LdapDN name = new LdapDN( "ou=user,dc=example,dc=com" );
-        ServerEntry attributes = new DefaultServerEntry( registries, name );
+        ServerEntry attributes = new DefaultServerEntry( schemaManager, name );
         attributes.put( "cn", "does not matter" );
 
         // postive test which should pass
-        SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, registries.getOidRegistry() );
+        SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, schemaManager );
 
         // test should fail since we are removing the ou attribute
-        AttributeType OU_AT = registries.getAttributeTypeRegistry().lookup( "ou" );
+        AttributeType OU_AT = schemaManager.lookupAttributeTypeRegistry( "ou" );
         attributes.put( new DefaultServerAttribute( "ou", OU_AT ) );
 
         try
         {
-            SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, registries.getOidRegistry() );
+            SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, schemaManager );
             fail( "should never get here due to a LdapSchemaViolationException being thrown" );
         }
         catch ( LdapSchemaViolationException e )
@@ -245,17 +243,17 @@ public class SchemaCheckerTest extends TestCase
 
         // test success using more than one attribute for the Rdn but not modifying rdn attribute
         name = new LdapDN( "ou=users+cn=system users,dc=example,dc=com" );
-        attributes = new DefaultServerEntry( registries, name );
+        attributes = new DefaultServerEntry( schemaManager, name );
         attributes.put( "sn", "does not matter" );
-        SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, registries.getOidRegistry() );
+        SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, schemaManager );
 
         // test for failure when modifying Rdn attribute in multi attribute Rdn
-        AttributeType CN_AT = registries.getAttributeTypeRegistry().lookup( "cn" );
+        AttributeType CN_AT = schemaManager.lookupAttributeTypeRegistry( "cn" );
         attributes.put( new DefaultServerAttribute( "cn", CN_AT ) );
         
         try
         {
-            SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, registries.getOidRegistry() );
+            SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, schemaManager );
             fail( "should never get here due to a LdapSchemaViolationException being thrown" );
         }
         catch ( LdapSchemaViolationException e )
@@ -265,16 +263,16 @@ public class SchemaCheckerTest extends TestCase
 
         // should succeed since the value being deleted from the rdn attribute is
         // is not used when composing the Rdn
-        attributes = new DefaultServerEntry( registries, name );
+        attributes = new DefaultServerEntry( schemaManager, name );
         attributes.put( "ou", "container" );
-        SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, registries.getOidRegistry() );
+        SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, schemaManager );
 
         // now let's make it fail again just by providing the right value for ou (users)
-        attributes = new DefaultServerEntry( registries, name );
+        attributes = new DefaultServerEntry( schemaManager, name );
         attributes.put( "ou", "users" );
         try
         {
-            SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, registries.getOidRegistry() );
+            SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, schemaManager );
             fail( "should never get here due to a LdapSchemaViolationException being thrown" );
         }
         catch ( LdapSchemaViolationException e )
@@ -293,18 +291,18 @@ public class SchemaCheckerTest extends TestCase
     {
         ModificationOperation mod = ModificationOperation.REPLACE_ATTRIBUTE;
         LdapDN name = new LdapDN( "ou=user,dc=example,dc=com" );
-        ServerEntry attributes = new DefaultServerEntry( registries, name );
+        ServerEntry attributes = new DefaultServerEntry( schemaManager, name );
         attributes.put( "cn", "does not matter" );
 
         // postive test which should pass
-        SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, registries.getOidRegistry() );
+        SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, schemaManager );
 
         // test should fail since we are removing the ou attribute
         attributes.put( "ou", (String)null );
         
         try
         {
-            SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, registries.getOidRegistry() );
+            SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, schemaManager );
             fail( "should never get here due to a LdapSchemaViolationException being thrown" );
         }
         catch ( LdapSchemaViolationException e )
@@ -314,16 +312,16 @@ public class SchemaCheckerTest extends TestCase
 
         // test success using more than one attribute for the Rdn but not modifying rdn attribute
         name = new LdapDN( "ou=users+cn=system users,dc=example,dc=com" );
-        attributes = new DefaultServerEntry( registries, name );
+        attributes = new DefaultServerEntry( schemaManager, name );
         attributes.put( "sn", "does not matter" );
-        SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, registries.getOidRegistry() );
+        SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, schemaManager );
 
         // test for failure when modifying Rdn attribute in multi attribute Rdn
         attributes.put("cn", (String)null );
         
         try
         {
-            SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, registries.getOidRegistry() );
+            SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, schemaManager );
             fail( "should never get here due to a LdapSchemaViolationException being thrown" );
         }
         catch ( LdapSchemaViolationException e )
@@ -333,17 +331,17 @@ public class SchemaCheckerTest extends TestCase
 
         // should succeed since the values being replaced from the rdn attribute is
         // is includes the old Rdn attribute value
-        attributes = new DefaultServerEntry( registries, name );
+        attributes = new DefaultServerEntry( schemaManager, name );
         attributes.put( "ou", "container" );
         attributes.put( "ou", "users" );
-        SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, registries.getOidRegistry() );
+        SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, schemaManager );
 
         // now let's make it fail by not including the old value for ou (users)
-        attributes = new DefaultServerEntry( registries, name );
+        attributes = new DefaultServerEntry( schemaManager, name );
         attributes.put( "ou", "container" );
         try
         {
-            SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, registries.getOidRegistry() );
+            SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, schemaManager );
             fail( "should never get here due to a LdapSchemaViolationException being thrown" );
         }
         catch ( LdapSchemaViolationException e )
@@ -364,27 +362,26 @@ public class SchemaCheckerTest extends TestCase
     @Test
     public void testPreventStructuralClassRemovalOnModifyReplaceAttribute() throws Exception
     {
-        ObjectClassRegistry ocRegistry = registries.getObjectClassRegistry();
-        AttributeType OBJECT_CLASS = registries.getAttributeTypeRegistry().lookup( "objectClass" );
-        AttributeType CN_AT = registries.getAttributeTypeRegistry().lookup( "cn" );
+        AttributeType OBJECT_CLASS = schemaManager.lookupAttributeTypeRegistry( "objectClass" );
+        AttributeType CN_AT = schemaManager.lookupAttributeTypeRegistry( "cn" );
 
         // this should pass
         LdapDN name = new LdapDN( "uid=akarasulu,ou=users,dc=example,dc=com" );
         ModificationOperation mod = ModificationOperation.REPLACE_ATTRIBUTE;
-        SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, mod, new DefaultServerAttribute( "cn", CN_AT ) );
+        SchemaChecker.preventStructuralClassRemovalOnModifyReplace( schemaManager, name, mod, new DefaultServerAttribute( "cn", CN_AT ) );
 
         // this should succeed since person is still in replaced set and is structural
         ServerAttribute objectClassesReplaced = new DefaultServerAttribute( "objectClass", OBJECT_CLASS );
         objectClassesReplaced.add( "top" );
         objectClassesReplaced.add( "person" );
-        SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, mod, objectClassesReplaced );
+        SchemaChecker.preventStructuralClassRemovalOnModifyReplace( schemaManager, name, mod, objectClassesReplaced );
 
         // this should fail since only top is left
         objectClassesReplaced = new DefaultServerAttribute( "objectClass", OBJECT_CLASS );
         objectClassesReplaced.add( "top" );
         try
         {
-            SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, mod, objectClassesReplaced );
+            SchemaChecker.preventStructuralClassRemovalOnModifyReplace( schemaManager, name, mod, objectClassesReplaced );
             fail( "should never get here due to an LdapSchemaViolationException" );
         }
         catch ( LdapSchemaViolationException e )
@@ -397,7 +394,7 @@ public class SchemaCheckerTest extends TestCase
         objectClassesReplaced = new DefaultServerAttribute( "objectClass", OBJECT_CLASS );
         try
         {
-            SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, mod, objectClassesReplaced );
+            SchemaChecker.preventStructuralClassRemovalOnModifyReplace( schemaManager, name, mod, objectClassesReplaced );
             fail( "should never get here due to an LdapSchemaViolationException" );
         }
         catch ( LdapSchemaViolationException e )
@@ -414,29 +411,26 @@ public class SchemaCheckerTest extends TestCase
     @Test
     public void testPreventStructuralClassRemovalOnModifyRemoveAttribute() throws Exception
     {
-        AttributeTypeRegistry atReg = registries.getAttributeTypeRegistry();
         LdapDN name = new LdapDN( "uid=akarasulu,ou=users,dc=example,dc=com" );
         ModificationOperation mod = ModificationOperation.REMOVE_ATTRIBUTE;
-        AttributeType ocAt = atReg.lookup( "objectClass" );
+        AttributeType ocAt = schemaManager.lookupAttributeTypeRegistry( "objectClass" );
         
         ServerAttribute entryObjectClasses = new DefaultServerAttribute( "objectClass", ocAt );
         entryObjectClasses.add( "top", "person", "organizationalPerson" );
 
-        ObjectClassRegistry ocRegistry = registries.getObjectClassRegistry();
-
         // this should pass
         SchemaChecker.preventStructuralClassRemovalOnModifyRemove( 
-            ocRegistry, 
+            schemaManager, 
             name, 
             mod, 
-            new DefaultServerAttribute( "cn", atReg.lookup( "cn" ) ),
+            new DefaultServerAttribute( "cn", schemaManager.lookupAttributeTypeRegistry( "cn" ) ),
             entryObjectClasses );
 
         // this should succeed since person is left and is structural
         ServerAttribute objectClassesRemoved = new DefaultServerAttribute( 
             "objectClass", ocAt );
         objectClassesRemoved.add( "person" );
-        SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, mod, objectClassesRemoved,
+        SchemaChecker.preventStructuralClassRemovalOnModifyRemove( schemaManager, name, mod, objectClassesRemoved,
             entryObjectClasses );
 
         // this should fail since only top is left
@@ -445,7 +439,7 @@ public class SchemaCheckerTest extends TestCase
         
         try
         {
-            SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, mod, objectClassesRemoved,
+            SchemaChecker.preventStructuralClassRemovalOnModifyRemove( schemaManager, name, mod, objectClassesRemoved,
                 entryObjectClasses );
             fail( "should never get here due to an LdapSchemaViolationException" );
         }
@@ -460,7 +454,7 @@ public class SchemaCheckerTest extends TestCase
 
         try
         {
-            SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, mod, objectClassesRemoved,
+            SchemaChecker.preventStructuralClassRemovalOnModifyRemove( schemaManager, name, mod, objectClassesRemoved,
                 entryObjectClasses );
             fail( "should never get here due to an LdapSchemaViolationException" );
         }
@@ -478,22 +472,22 @@ public class SchemaCheckerTest extends TestCase
     @Test
     public void testPreventRdnChangeOnModifyRemoveAttribute() throws Exception
     {
-        OidRegistry registry = new MockOidRegistry();
+        Map<String, OidNormalizer> oidNormalizers = schemaManager.getAttributeTypeRegistry().getNormalizerMapping();
         ModificationOperation mod = ModificationOperation.REMOVE_ATTRIBUTE;
-        LdapDN name = new LdapDN( "ou=user,dc=example,dc=com" );
-        AttributeType cnAt = registries.getAttributeTypeRegistry().lookup( "cn" );
-        AttributeType ouAt = registries.getAttributeTypeRegistry().lookup( "ou" );
-        AttributeType snAt = registries.getAttributeTypeRegistry().lookup( "sn" );
+        LdapDN name = new LdapDN( "ou=user,dc=example,dc=com" ).normalize( oidNormalizers );
+        AttributeType cnAt = schemaManager.lookupAttributeTypeRegistry( "cn" );
+        AttributeType ouAt = schemaManager.lookupAttributeTypeRegistry( "ou" );
+        AttributeType snAt = schemaManager.lookupAttributeTypeRegistry( "sn" );
 
         // postive test which should pass
         SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, 
-            new DefaultServerAttribute( "cn", cnAt, "does not matter" ), registry );
+            new DefaultServerAttribute( "cn", cnAt, "does not matter" ), schemaManager );
 
         // test should fail since we are removing the ou attribute
         try
         {
             SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, 
-                new DefaultServerAttribute( "ou", ouAt ), registry );
+                new DefaultServerAttribute( "ou", ouAt ), schemaManager );
             fail( "should never get here due to a LdapSchemaViolationException being thrown" );
         }
         catch ( LdapSchemaViolationException e )
@@ -503,14 +497,15 @@ public class SchemaCheckerTest extends TestCase
 
         // test success using more than one attribute for the Rdn but not modifying rdn attribute
         name = new LdapDN( "ou=users+cn=system users,dc=example,dc=com" );
+        name.normalize( oidNormalizers );
         SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, 
-            new DefaultServerAttribute( "sn", snAt, "does not matter" ), registry );
+            new DefaultServerAttribute( "sn", snAt, "does not matter" ), schemaManager );
 
         // test for failure when modifying Rdn attribute in multi attribute Rdn
         try
         {
             SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, 
-                new DefaultServerAttribute( "cn", cnAt ), registry );
+                new DefaultServerAttribute( "cn", cnAt ), schemaManager );
             fail( "should never get here due to a LdapSchemaViolationException being thrown" );
         }
         catch ( LdapSchemaViolationException e )
@@ -521,13 +516,13 @@ public class SchemaCheckerTest extends TestCase
         // should succeed since the value being deleted from the rdn attribute is
         // is not used when composing the Rdn
         SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, 
-            new DefaultServerAttribute( "ou", ouAt, "container" ), registry );
+            new DefaultServerAttribute( "ou", ouAt, "container" ), schemaManager );
 
         // now let's make it fail again just by providing the right value for ou (users)
         try
         {
             SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, 
-                new DefaultServerAttribute( "ou", ouAt, "users" ), registry );
+                new DefaultServerAttribute( "ou", ouAt, "users" ), schemaManager );
             fail( "should never get here due to a LdapSchemaViolationException being thrown" );
         }
         catch ( LdapSchemaViolationException e )
@@ -597,7 +592,7 @@ public class SchemaCheckerTest extends TestCase
 //    }
 
 
-    class MockOidRegistry implements OidRegistry
+    class MockOidRegistry extends OidRegistry
     {
         public String getOid( String name ) throws NamingException
         {
@@ -614,12 +609,12 @@ public class SchemaCheckerTest extends TestCase
             return oid;
         }
 
-        public List getNameSet( String oid ) throws NamingException
+        public List<String> getNameSet( String oid ) throws NamingException
         {
             return Collections.singletonList( oid );
         }
 
-        public Iterator list()
+        public Iterator<String> list()
         {
             return Collections.EMPTY_LIST.iterator();
         }

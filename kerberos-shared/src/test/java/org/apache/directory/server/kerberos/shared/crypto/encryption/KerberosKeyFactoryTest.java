@@ -28,9 +28,10 @@ import java.util.Set;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -40,11 +41,12 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class KerberosKeyFactoryTest extends TestCase
+public class KerberosKeyFactoryTest
 {
     /**
      * Tests that key derivation can be performed for a DES key.
      */
+    @Test
     public void testDesKerberosKey()
     {
         KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
@@ -57,6 +59,7 @@ public class KerberosKeyFactoryTest extends TestCase
     /**
      * Tests that key derivation can be performed for a Triple-DES key.
      */
+    @Test
     public void testTripleDesKerberosKey()
     {
         KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
@@ -70,6 +73,7 @@ public class KerberosKeyFactoryTest extends TestCase
     /**
      * Tests that key derivation can be performed for an RC4-HMAC key.
      */
+    @Test
     public void testArcFourHmacKerberosKey()
     {
         if ( !VendorHelper.isArcFourHmacSupported() )
@@ -89,6 +93,7 @@ public class KerberosKeyFactoryTest extends TestCase
      *
      * @throws Exception
      */
+    @Test
     public void testAes128KerberosKey() throws Exception
     {
         KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
@@ -101,6 +106,7 @@ public class KerberosKeyFactoryTest extends TestCase
     /**
      * Tests that key derivation can be performed for an AES-256 key.
      */
+    @Test
     public void testAes256KerberosKey()
     {
         try
@@ -119,6 +125,7 @@ public class KerberosKeyFactoryTest extends TestCase
     /**
      * Tests that key derivation can be performed by the factory for the des-cbc-md5 encryption type.
      */
+    @Test
     public void testKerberosKeyFactoryOnlyDes()
     {
         String principalName = "hnelson@EXAMPLE.COM";
@@ -150,6 +157,7 @@ public class KerberosKeyFactoryTest extends TestCase
     /**
      * Tests that key derivation can be performed by the factory for the des3-cbc-sha1-kd encryption type.
      */
+    @Test
     public void testKerberosKeyFactoryOnlyTripleDes()
     {
         if ( !VendorHelper.isTripleDesSupported() )
@@ -188,6 +196,7 @@ public class KerberosKeyFactoryTest extends TestCase
     /**
      * Tests that key derivation can be performed by the factory for the rc4-hmac encryption type.
      */
+    @Test
     public void testKerberosKeyFactoryOnlyArcFourHmac()
     {
         if ( !VendorHelper.isArcFourHmacSupported() )
@@ -225,6 +234,7 @@ public class KerberosKeyFactoryTest extends TestCase
     /**
      * Tests that key derivation can be performed by the factory for the aes128-cts-hmac-sha1-96 encryption type.
      */
+    @Test
     public void testKerberosKeyFactoryOnlyAes128()
     {
         if ( VendorHelper.isIbm() )
@@ -263,6 +273,7 @@ public class KerberosKeyFactoryTest extends TestCase
     /**
      * Tests that key derivation can be performed by the factory for the aes256-cts-hmac-sha1-96 encryption type.
      */
+    @Test
     public void testKerberosKeyFactoryOnlyAes256()
     {
         if ( VendorHelper.isIbm() )
@@ -306,6 +317,7 @@ public class KerberosKeyFactoryTest extends TestCase
     /**
      * Tests that key derivation can be performed by the factory for multiple encryption types.
      */
+    @Test
     public void testKerberosKeyFactory()
     {
         if ( VendorHelper.isIbm() )

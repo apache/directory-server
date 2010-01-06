@@ -20,6 +20,11 @@
 package org.apache.directory.server.core.collective;
 
 
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.naming.NamingException;
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
@@ -37,15 +42,12 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-
-import java.util.HashSet;
-import java.util.Set;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -62,8 +64,8 @@ import java.util.Set;
  */
 public class CollectiveAttributeInterceptor extends BaseInterceptor
 {
-    /** The attributeType registry */
-    private AttributeTypeRegistry atRegistry;
+    /** The SchemaManager */
+    private SchemaManager schemaManager;
     
     private PartitionNexus nexus;
     
@@ -82,7 +84,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
             
             if ( name.isNormalized() == false )
             {
-                name = LdapDN.normalize( name, atRegistry.getNormalizerMapping() );
+                name = LdapDN.normalize( name, schemaManager.getNormalizerMapping() );
             }
             
             String[] retAttrs = operation.getSearchControls().getReturningAttributes();
@@ -94,9 +96,9 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     public void init( DirectoryService directoryService ) throws Exception
     {
         super.init( directoryService );
+        schemaManager = directoryService.getSchemaManager();
         nexus = directoryService.getPartitionNexus();
-        atRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
-        collectiveAttributesSchemaChecker = new CollectiveAttributesSchemaChecker( nexus, atRegistry );
+        collectiveAttributesSchemaChecker = new CollectiveAttributesSchemaChecker( nexus, schemaManager );
     }
 
 
@@ -154,7 +156,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
             
             for ( Value<?> value:collectiveExclusions )
             {
-                AttributeType attrType = atRegistry.lookup( value.getString() );
+                AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( value.getString() );
                 exclusions.add( attrType.getOid() );
             }
         }
@@ -183,7 +185,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
             }
             else
             {
-                retIdsSet.add( atRegistry.lookup( retAttr ).getOid() );
+                retIdsSet.add( schemaManager.lookupAttributeTypeRegistry( retAttr ).getOid() );
             }
         }
 
@@ -233,11 +235,11 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                         continue;
                     }
 
-                    AttributeType retType = atRegistry.lookup( retId );
+                    AttributeType retType = schemaManager.lookupAttributeTypeRegistry( retId );
 
                     if ( allSuperTypes.contains( retType ) )
                     {
-                        retIdsSet.add( atRegistry.lookup( attrId ).getOid() );
+                        retIdsSet.add( schemaManager.lookupAttributeTypeRegistry( attrId ).getOid() );
                         break;
                     }
                 }
@@ -247,7 +249,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                  * then bypass the inclusion process.
                  */
                 if ( !( retIdsSet.contains( SchemaConstants.ALL_USER_ATTRIBUTES ) || 
-                    retIdsSet.contains( atRegistry.lookup( attrId ).getOid() ) ) )
+                    retIdsSet.contains( schemaManager.lookupAttributeTypeRegistry( attrId ).getOid() ) ) )
                 {
                     continue;
                 }
@@ -260,7 +262,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                  */
                 if ( entryColAttr == null )
                 {
-                    entryColAttr = new DefaultServerAttribute( attrId, atRegistry.lookup( attrId ) );
+                    entryColAttr = new DefaultServerAttribute( attrId, schemaManager.lookupAttributeTypeRegistry( attrId ) );
                     entry.put( entryColAttr );
                 }
 

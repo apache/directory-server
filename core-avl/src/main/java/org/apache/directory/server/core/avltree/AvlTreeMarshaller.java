@@ -27,12 +27,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Comparator;
 
-import org.apache.directory.shared.ldap.util.StringTools;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import sun.reflect.Reflection;
-
 
 /**
  * Class to serialize the AvlTree node data.
@@ -43,9 +37,6 @@ import sun.reflect.Reflection;
 @SuppressWarnings("unchecked")
 public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
 {
-    /** static logger */
-    private static final Logger LOG = LoggerFactory.getLogger( AvlTreeMarshaller.class );
-
     /** used for serialized form of an empty AvlTree */
     private static final byte[] EMPTY_TREE = new byte[1];
 
@@ -113,18 +104,6 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
             writeTree( tree.getRoot(), out );
             out.flush();
             data = byteStream.toByteArray();
-            
-            // Try to deserialize, just to see
-            try
-            {
-                deserialize( data );
-            }
-            catch (NullPointerException npe )
-            {
-                System.out.println( "Bad serialization, tree : [" + StringTools.dumpBytes( data ) + "]");
-                throw npe;
-            }
-
             out.close();
         }
         catch( IOException e )
@@ -185,59 +164,52 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
      */
     public AvlTree<E> deserialize( byte[] data ) throws IOException
     {
-        LOG.debug( "Deserializing the tree, called by {}", Reflection.getCallerClass( 2 ).getSimpleName() );
+        if ( data == null || data.length == 0 )
+        {
+            throw new IOException( "Null or empty data array is invalid." );
+        }
 
-        try
+        if ( data.length == 1 && data[0] == 0 )
         {
-            if ( data == null || data.length == 0 )
-            {
-                throw new IOException( "Null or empty data array is invalid." );
-            }
-    
-            if ( data.length == 1 && data[0] == 0 )
-            {
-                return new AvlTree<E>( comparator );
-            }
-    
-            ByteArrayInputStream bin = new ByteArrayInputStream( data );
-            DataInputStream din = new DataInputStream( bin );
-            
-            byte startByte = din.readByte();
-            
-            if( startByte != 0 )
-            {
-                throw new IOException("wrong AvlTree serialized data format");
-            }
-            
-            int size = din.readInt();
-            
-            LinkedAvlNode[] nodes = new LinkedAvlNode[ size ];
-            LinkedAvlNode<E> root = readTree( din, null, nodes );
-            
-            AvlTree<E> tree = new AvlTree<E>( comparator );
-            
-            tree.setRoot( root );
-            
-            tree.setFirst( nodes[0] );
-            
-            if( nodes.length >= 1 )
-            {
-                tree.setLast( nodes[ nodes.length - 1 ] );
-            }
-            
-            for( int i = 0; i < nodes.length - 1; i++ )
-            {
-                nodes[ i ].setNext( nodes[ i + 1] );
-                nodes[ i + 1].setPrevious( nodes[ i ] );
-            }
-    
-            return tree;
+            return new AvlTreeImpl<E>( comparator );
         }
-        catch (NullPointerException npe )
+
+        ByteArrayInputStream bin = new ByteArrayInputStream( data );
+        DataInputStream din = new DataInputStream( bin );
+        
+        byte startByte = din.readByte();
+        
+        if( startByte != 0 )
         {
-            System.out.println( "Bad tree : [" + StringTools.dumpBytes( data ) + "]");
-            throw npe;
+            throw new IOException("wrong AvlTree serialized data format");
         }
+        
+        int size = din.readInt();
+        
+        LinkedAvlNode[] nodes = new LinkedAvlNode[ size ];
+        LinkedAvlNode<E> root = readTree( din, null, nodes );
+        
+        AvlTreeImpl<E> tree = new AvlTreeImpl<E>( comparator );
+        
+        tree.setRoot( root );
+        
+        tree.setFirst( nodes[0] );
+        
+        // Update the size
+        tree.setSize( size );
+        
+        if( nodes.length >= 1 )
+        {
+            tree.setLast( nodes[ nodes.length - 1 ] );
+        }
+        
+        for( int i = 0; i < nodes.length - 1; i++ )
+        {
+            nodes[ i ].setNext( nodes[ i + 1] );
+            nodes[ i + 1].setPrevious( nodes[ i ] );
+        }
+
+        return tree;
     }
 
     

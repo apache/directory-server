@@ -20,6 +20,8 @@
 package org.apache.directory.server.ntp;
 
 
+import java.io.IOException;
+
 import org.apache.directory.server.ntp.protocol.NtpProtocolCodecFactory;
 import org.apache.directory.server.ntp.protocol.NtpProtocolHandler;
 import org.apache.directory.server.protocol.shared.AbstractProtocolService;
@@ -34,8 +36,6 @@ import org.apache.mina.transport.socket.DatagramSessionConfig;
 import org.apache.mina.transport.socket.SocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 
 /**
@@ -87,7 +87,7 @@ public class NtpServer extends AbstractProtocolService
         DefaultIoFilterChainBuilder ntpChain = new DefaultIoFilterChainBuilder();
         ntpChain.addLast( "codec", new ProtocolCodecFilter( NtpProtocolCodecFactory.getInstance() ) );
         
-        if ( ( transports == null ) || ( transports.length == 0 ) )
+        if ( ( transports == null ) || ( transports.size() == 0 ) )
         {
             // Default to UDP with port 123
             // We have to create a DatagramAcceptor

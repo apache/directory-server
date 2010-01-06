@@ -21,13 +21,13 @@
 package org.apache.directory.server.dns.io.encoder;
 
 
-import junit.framework.TestCase;
-
 import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.RecordClass;
 import org.apache.directory.server.dns.messages.RecordType;
 import org.apache.mina.core.buffer.IoBuffer;
-
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Tests for the Question record encoder.
@@ -35,7 +35,7 @@ import org.apache.mina.core.buffer.IoBuffer;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 501160 $, $Date: 2007-01-29 12:41:33 -0700 (Mon, 29 Jan 2007) $
  */
-public class QuestionRecordEncoderTest extends TestCase
+public class QuestionRecordEncoderTest
 {
     IoBuffer expectedData;
 
@@ -49,6 +49,7 @@ public class QuestionRecordEncoderTest extends TestCase
     QuestionRecord record = new QuestionRecord( name, type, rClass );
 
 
+    @Before
     public void setUp()
     {
         encoder = new QuestionRecordEncoder();
@@ -66,6 +67,7 @@ public class QuestionRecordEncoderTest extends TestCase
     }
 
 
+    @Test
     public void testEncode()
     {
         IoBuffer out = IoBuffer.allocate( 128 );

@@ -35,15 +35,15 @@ import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -195,14 +195,14 @@ public class ServerEntryUtils
      * 
      * @throws InvalidAttributeIdentifierException If we get an invalid attribute
      */
-    public static ServerEntry toServerEntry( Attributes attributes, LdapDN dn, Registries registries ) 
+    public static ServerEntry toServerEntry( Attributes attributes, LdapDN dn, SchemaManager schemaManager ) 
             throws InvalidAttributeIdentifierException
     {
         if ( attributes instanceof BasicAttributes )
         {
             try 
             {
-                ServerEntry entry = new DefaultServerEntry( registries, dn );
+                ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
     
                 for ( NamingEnumeration<? extends Attribute> attrs = attributes.getAll(); attrs.hasMoreElements(); )
                 {
@@ -212,7 +212,7 @@ public class ServerEntryUtils
                     String id = SchemaUtils.stripOptions( attributeId );
                     Set<String> options = SchemaUtils.getOptions( attributeId );
                     // TODO : handle options.
-                    AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( id );
+                    AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( id );
                     ServerAttribute serverAttribute = ServerEntryUtils.toServerAttribute( attr, attributeType );
                     
                     if ( serverAttribute != null )
@@ -244,12 +244,12 @@ public class ServerEntryUtils
      * @return the resultant entry after the modification has taken place
      * @throws NamingException if there are problems accessing attributes
      */
-    public static ServerEntry getTargetEntry( Modification mod, ServerEntry entry, Registries registries ) throws NamingException
+    public static ServerEntry getTargetEntry( Modification mod, ServerEntry entry, SchemaManager schemaManager ) throws NamingException
     {
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
         ModificationOperation modOp = mod.getOperation();
         String id = mod.getAttribute().getId();
-        AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( id );
+        AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( id );
         
         switch ( modOp )
         {
@@ -397,7 +397,7 @@ public class ServerEntryUtils
      * @throws NamingException
      */
     public static List<Modification> convertToServerModification( List<ModificationItem> modificationItems, 
-        AttributeTypeRegistry atRegistry ) throws NamingException
+        SchemaManager schemaManager ) throws NamingException
     {
         if ( modificationItems != null )
         {
@@ -405,7 +405,7 @@ public class ServerEntryUtils
 
             for ( ModificationItem modificationItem: modificationItems )
             {
-                AttributeType attributeType = atRegistry.lookup( modificationItem.getAttribute().getID() );
+                AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( modificationItem.getAttribute().getID() );
                 modifications.add( toServerModification( modificationItem, attributeType ) );
             }
         
@@ -442,7 +442,7 @@ public class ServerEntryUtils
 
     
     public static List<Modification> toServerModification( Modification[] modifications, 
-        AttributeTypeRegistry atRegistry ) throws NamingException
+        SchemaManager schemaManager ) throws NamingException
     {
         if ( modifications != null )
         {
@@ -459,25 +459,21 @@ public class ServerEntryUtils
                 // DIRSERVER-646 Fix: Replacing an unknown attribute with no values 
                 // (deletion) causes an error
                 // -------------------------------------------------------------------
-                
-                // TODO - after removing JNDI we need to make the server handle 
-                // this in the codec
-                
-                if ( ! atRegistry.hasAttributeType( id ) 
+                if ( ! schemaManager.getAttributeTypeRegistry().contains( id ) 
                      && modification.getAttribute().size() == 0 
                      && modification.getOperation() == ModificationOperation.REPLACE_ATTRIBUTE )
                 {
-                    continue;
+                    // The attributeType does not exist in the schema.
+                    // It's an error
+                    String message = "The AttributeType '" + id + "' does not exist in the schema";
+                    throw new LdapInvalidAttributeIdentifierException( message );
                 }
-
-                // -------------------------------------------------------------------
-                // END DIRSERVER-646 Fix
-                // -------------------------------------------------------------------
-                
-                
-                // TODO : handle options
-                AttributeType attributeType = atRegistry.lookup( id );
-                modificationsList.add( toServerModification( modification, attributeType ) );
+                else
+                {
+                    // TODO : handle options
+                    AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( id );
+                    modificationsList.add( toServerModification( modification, attributeType ) );
+                }
             }
         
             return modificationsList;
@@ -490,7 +486,7 @@ public class ServerEntryUtils
 
 
     public static List<Modification> toServerModification( ModificationItem[] modifications, 
-        AttributeTypeRegistry atRegistry ) throws NamingException
+        SchemaManager schemaManager ) throws NamingException
     {
         if ( modifications != null )
         {
@@ -510,7 +506,7 @@ public class ServerEntryUtils
                 // TODO - after removing JNDI we need to make the server handle 
                 // this in the codec
                 
-                if ( ! atRegistry.hasAttributeType( id ) 
+                if ( ! schemaManager.getAttributeTypeRegistry().contains( id ) 
                      && modification.getAttribute().size() == 0 
                      && modification.getModificationOp() == DirContext.REPLACE_ATTRIBUTE )
                 {
@@ -523,7 +519,7 @@ public class ServerEntryUtils
                 
                 
                 // TODO : handle options
-                AttributeType attributeType = atRegistry.lookup( id );
+                AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( id );
                 modificationsList.add( toServerModification( (ModificationItem)modification, attributeType ) );
             }
         
@@ -616,7 +612,7 @@ public class ServerEntryUtils
                 ServerSearchResult rec = result.next();
                 
                 SearchResult searchResult = new SearchResult( 
-                        rec.getDn().getUpName(), 
+                        rec.getDn().getName(), 
                         rec.getObject(), 
                         toBasicAttributes( rec.getServerEntry() ), 
                         rec.isRelative() );
@@ -644,7 +640,7 @@ public class ServerEntryUtils
                     ServerSearchResult rec = result.next();
     
                     SearchResult searchResult = new SearchResult( 
-                            rec.getDn().getUpName(), 
+                            rec.getDn().getName(), 
                             rec.getObject(), 
                             toBasicAttributes( rec.getServerEntry() ), 
                             rec.isRelative() );

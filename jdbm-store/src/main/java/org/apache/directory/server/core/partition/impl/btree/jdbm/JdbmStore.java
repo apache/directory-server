@@ -39,12 +39,7 @@ import jdbm.recman.CacheRecordManager;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
-import org.apache.directory.server.core.entry.ServerBinaryValue;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerStringValue;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -61,11 +56,12 @@ import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
+import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -145,11 +141,8 @@ public class JdbmStore<E> implements Store<E>
     private static AttributeType ENTRY_UUID_AT;
     private static AttributeType ALIASED_OBJECT_NAME_AT;
 
-    /** A pointer on the AT registry */
-    private AttributeTypeRegistry attributeTypeRegistry;
-
-    /** A pointer on the OID registry */
-    private OidRegistry oidRegistry;
+    /** A pointer on the schemaManager */
+    private SchemaManager schemaManager;
 
     private String suffixDn;
     private int cacheSize = DEFAULT_CACHE_SIZE;
@@ -251,22 +244,21 @@ public class JdbmStore<E> implements Store<E>
     /**
      * Initialize the JDBM storage system.
      *
-     * @param registries the schema registries
-     * @throws Exception on failure to lookup elements in registries or create database files
+     * @param schemaManager the schema manager
+     * @throws Exception on failure to lookup elements in schemaManager or create database files
      */
-    public synchronized void init( Registries registries ) throws Exception
+    public synchronized void init( SchemaManager schemaManager ) throws Exception
     {
-        this.oidRegistry = registries.getOidRegistry();
-        this.attributeTypeRegistry = registries.getAttributeTypeRegistry();
+        this.schemaManager = schemaManager;
 
         // Initialize Attribute types used all over this method
-        OBJECT_CLASS_AT = attributeTypeRegistry.lookup( SchemaConstants.OBJECT_CLASS_AT );
-        ALIASED_OBJECT_NAME_AT = attributeTypeRegistry.lookup( SchemaConstants.ALIASED_OBJECT_NAME_AT );
-        ENTRY_CSN_AT = attributeTypeRegistry.lookup( SchemaConstants.ENTRY_CSN_AT );
-        ENTRY_UUID_AT = attributeTypeRegistry.lookup( SchemaConstants.ENTRY_UUID_AT );
+        OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
+        ALIASED_OBJECT_NAME_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ALIASED_OBJECT_NAME_AT );
+        ENTRY_CSN_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT );
+        ENTRY_UUID_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_UUID_AT );
 
         this.upSuffix = new LdapDN( suffixDn );
-        this.normSuffix = LdapDN.normalize( upSuffix, attributeTypeRegistry.getNormalizerMapping() );
+        this.normSuffix = LdapDN.normalize( upSuffix, schemaManager.getNormalizerMapping() );
         workingDirectory.mkdirs();
 
         // First, check if the file storing the data exists
@@ -288,7 +280,7 @@ public class JdbmStore<E> implements Store<E>
         recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
 
         // Create the master table (the table containing all the entries)
-        master = new JdbmMasterTable<ServerEntry>( recMan, registries );
+        master = new JdbmMasterTable<ServerEntry>( recMan, schemaManager );
 
         // -------------------------------------------------------------------
         // Initializes the user and system indices
@@ -311,9 +303,9 @@ public class JdbmStore<E> implements Store<E>
             
             for ( Index<?,E> index : systemIndices.values() )
             {
-                String oid = oidRegistry.getOid( index.getAttributeId() );
+                String oid = schemaManager.getAttributeTypeRegistry().getOidByName( index.getAttributeId() );
                 tmp.put( oid, index );
-                ( ( JdbmIndex ) index ).init( attributeTypeRegistry.lookup( oid ), workingDirectory );
+                ( ( JdbmIndex ) index ).init( schemaManager, schemaManager.lookupAttributeTypeRegistry( oid ), workingDirectory );
             }
             systemIndices = tmp;
         }
@@ -323,7 +315,7 @@ public class JdbmStore<E> implements Store<E>
             ndnIdx = new JdbmIndex<String,E>();
             ndnIdx.setAttributeId( ApacheSchemaConstants.APACHE_N_DN_AT_OID );
             systemIndices.put( ApacheSchemaConstants.APACHE_N_DN_AT_OID, ndnIdx );
-            ndnIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_N_DN_AT_OID ), workingDirectory );
+            ndnIdx.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_N_DN_AT_OID ), workingDirectory );
         }
 
         if ( updnIdx == null )
@@ -331,7 +323,7 @@ public class JdbmStore<E> implements Store<E>
             updnIdx = new JdbmIndex<String,E>();
             updnIdx.setAttributeId( ApacheSchemaConstants.APACHE_UP_DN_AT_OID );
             systemIndices.put( ApacheSchemaConstants.APACHE_UP_DN_AT_OID, updnIdx );
-            updnIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_UP_DN_AT_OID ), workingDirectory );
+            updnIdx.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_UP_DN_AT_OID ), workingDirectory );
         }
 
         if ( presenceIdx == null )
@@ -339,7 +331,7 @@ public class JdbmStore<E> implements Store<E>
             presenceIdx = new JdbmIndex<String,E>();
             presenceIdx.setAttributeId( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID );
             systemIndices.put( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID, presenceIdx );
-            presenceIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ), workingDirectory );
+            presenceIdx.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ), workingDirectory );
         }
 
         if ( oneLevelIdx == null )
@@ -347,7 +339,7 @@ public class JdbmStore<E> implements Store<E>
             oneLevelIdx = new JdbmIndex<Long,E>();
             oneLevelIdx.setAttributeId( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
             systemIndices.put( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID, oneLevelIdx );
-            oneLevelIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ), workingDirectory );
+            oneLevelIdx.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ), workingDirectory );
         }
 
         if ( oneAliasIdx == null )
@@ -355,7 +347,7 @@ public class JdbmStore<E> implements Store<E>
             oneAliasIdx = new JdbmIndex<Long,E>();
             oneAliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
             systemIndices.put( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, oneAliasIdx );
-            oneAliasIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ), workingDirectory );
+            oneAliasIdx.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ), workingDirectory );
         }
 
         if ( subAliasIdx == null )
@@ -363,7 +355,7 @@ public class JdbmStore<E> implements Store<E>
             subAliasIdx = new JdbmIndex<Long,E>();
             subAliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
             systemIndices.put( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, subAliasIdx );
-            subAliasIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ), workingDirectory );
+            subAliasIdx.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ), workingDirectory );
         }
 
         if ( aliasIdx == null )
@@ -371,7 +363,7 @@ public class JdbmStore<E> implements Store<E>
             aliasIdx = new JdbmIndex<String,E>();
             aliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
             systemIndices.put( ApacheSchemaConstants.APACHE_ALIAS_AT_OID, aliasIdx );
-            aliasIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ), workingDirectory );
+            aliasIdx.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ), workingDirectory );
         }
         
         if ( subLevelIdx == null )
@@ -379,7 +371,7 @@ public class JdbmStore<E> implements Store<E>
             subLevelIdx = new JdbmIndex<Long, E>();
             subLevelIdx.setAttributeId( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
             systemIndices.put( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID, subLevelIdx );
-            subLevelIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ), workingDirectory );
+            subLevelIdx.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ), workingDirectory );
         }
         
         if ( entryCsnIdx == null )
@@ -387,7 +379,7 @@ public class JdbmStore<E> implements Store<E>
             entryCsnIdx = new JdbmIndex<String, E>();
             entryCsnIdx.setAttributeId( SchemaConstants.ENTRY_CSN_AT_OID );
             systemIndices.put( SchemaConstants.ENTRY_CSN_AT_OID, entryCsnIdx );
-            entryCsnIdx.init( attributeTypeRegistry.lookup( SchemaConstants.ENTRY_CSN_AT_OID ), workingDirectory );
+            entryCsnIdx.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT_OID ), workingDirectory );
         }
         
         if ( entryUuidIdx == null )
@@ -395,7 +387,7 @@ public class JdbmStore<E> implements Store<E>
             entryUuidIdx = new JdbmIndex<byte[], E>();
             entryUuidIdx.setAttributeId( SchemaConstants.ENTRY_UUID_AT_OID );
             systemIndices.put( SchemaConstants.ENTRY_UUID_AT_OID, entryUuidIdx );
-            entryUuidIdx.init( attributeTypeRegistry.lookup( SchemaConstants.ENTRY_UUID_AT_OID ), workingDirectory );
+            entryUuidIdx.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_UUID_AT_OID ), workingDirectory );
         }
         
         if ( objectClassIdx == null )
@@ -403,7 +395,7 @@ public class JdbmStore<E> implements Store<E>
             objectClassIdx = new JdbmIndex<String, E>();
             objectClassIdx.setAttributeId( SchemaConstants.OBJECT_CLASS_AT_OID );
             systemIndices.put( SchemaConstants.OBJECT_CLASS_AT_OID, objectClassIdx );
-            objectClassIdx.init( attributeTypeRegistry.lookup( SchemaConstants.OBJECT_CLASS_AT_OID ), workingDirectory );
+            objectClassIdx.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT_OID ), workingDirectory );
         }
     }
 
@@ -417,7 +409,7 @@ public class JdbmStore<E> implements Store<E>
             
             for ( Index<?,E> index : userIndices.values() )
             {
-                String oid = oidRegistry.getOid( index.getAttributeId() );
+                String oid = schemaManager.getAttributeTypeRegistry().getOidByName( index.getAttributeId() );
 
                 if ( systemIndices.containsKey( oid ) )
                 {
@@ -425,14 +417,14 @@ public class JdbmStore<E> implements Store<E>
                     // present in the SystemIndices
                     continue;
                 }
-                AttributeType attributeType = attributeTypeRegistry.lookup( oid );
+                AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
                 
                 // Check that the attributeType has an EQUALITY matchingRule
                 MatchingRule mr = attributeType.getEquality();
                 
                 if ( mr != null )
                 {
-                    ( ( JdbmIndex ) index ).init( attributeTypeRegistry.lookup( oid ), workingDirectory );
+                    ( ( JdbmIndex ) index ).init( schemaManager, schemaManager.lookupAttributeTypeRegistry( oid ), workingDirectory );
                     tmp.put( oid, index );
                 }
                 else
@@ -845,13 +837,13 @@ public class JdbmStore<E> implements Store<E>
 
     public boolean hasUserIndexOn( String id ) throws NamingException
     {
-        return userIndices.containsKey( oidRegistry.getOid( id ) );
+        return userIndices.containsKey( schemaManager.getAttributeTypeRegistry().getOidByName( id ) );
     }
 
 
     public boolean hasSystemIndexOn( String id ) throws NamingException
     {
-        return systemIndices.containsKey( oidRegistry.getOid( id ) );
+        return systemIndices.containsKey( schemaManager.getAttributeTypeRegistry().getOidByName( id ) );
     }
 
 
@@ -859,7 +851,7 @@ public class JdbmStore<E> implements Store<E>
     {
         try
         {
-            id = oidRegistry.getOid( id );
+            id = schemaManager.getAttributeTypeRegistry().getOidByName( id );
         }
         catch ( NamingException e )
         {
@@ -881,7 +873,7 @@ public class JdbmStore<E> implements Store<E>
     {
         try
         {
-            id = oidRegistry.getOid( id );
+            id = schemaManager.getAttributeTypeRegistry().getOidByName( id );
         }
         catch ( NamingException e )
         {
@@ -1021,7 +1013,7 @@ public class JdbmStore<E> implements Store<E>
 
         // Access aliasedObjectName, normalize it and generate the Name 
         normalizedAliasTargetDn = new LdapDN( aliasTarget );
-        normalizedAliasTargetDn.normalize( attributeTypeRegistry.getNormalizerMapping() );
+        normalizedAliasTargetDn.normalize( schemaManager.getNormalizerMapping() );
 
         /*
          * Check For Cycles
@@ -1064,7 +1056,7 @@ public class JdbmStore<E> implements Store<E>
         if ( !normalizedAliasTargetDn.startsWith( normSuffix ) )
         {
             String msg = "[36] aliasDereferencingProblem - "
-                + " the alias points to an entry outside of the " + upSuffix.getUpName()
+                + " the alias points to an entry outside of the " + upSuffix.getName()
                 + " namingContext to an object whose existence cannot be determined.";
             ResultCodeEnum rc = ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
             LdapNamingException e = new LdapNamingException( msg, rc );
@@ -1085,7 +1077,7 @@ public class JdbmStore<E> implements Store<E>
         {
             // Complain about target not existing
             String msg = "[33] aliasProblem - "
-                + "the alias '" + aliasDn.getUpName() + "' when dereferenced would not name a known object."
+                + "the alias '" + aliasDn.getName() + "' when dereferenced would not name a known object."
                 + "The aliased ObjectName '" + aliasTarget + "' must be set to a valid existing entry.";
             ResultCodeEnum rc = ResultCodeEnum.ALIAS_PROBLEM;
             LdapNamingException e = new LdapNamingException( msg, rc );
@@ -1204,7 +1196,7 @@ public class JdbmStore<E> implements Store<E>
 
         if ( objectClass == null )
         {
-            String msg = "Entry " + entryDn.getUpName() + " contains no objectClass attribute: " + entry;
+            String msg = "Entry " + entryDn.getName() + " contains no objectClass attribute: " + entry;
             ResultCodeEnum rc = ResultCodeEnum.OBJECT_CLASS_VIOLATION;
             NamingException e = new LdapSchemaViolationException( msg, rc );
             e.setResolvedName( entryDn );
@@ -1232,7 +1224,7 @@ public class JdbmStore<E> implements Store<E>
         }
 
         ndnIdx.add( entryDn.toNormName(), id );
-        updnIdx.add( entryDn.getUpName(), id );
+        updnIdx.add( entryDn.getName(), id );
         oneLevelIdx.add( parentId, id );
 
         // Update the EntryCsn index
@@ -1240,7 +1232,7 @@ public class JdbmStore<E> implements Store<E>
 
         if ( entryCsn == null )
         {
-            String msg = "Entry " + entryDn.getUpName() + " contains no entryCsn attribute: " + entry;
+            String msg = "Entry " + entryDn.getName() + " contains no entryCsn attribute: " + entry;
             throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
         
@@ -1251,7 +1243,7 @@ public class JdbmStore<E> implements Store<E>
 
         if ( entryUuid == null )
         {
-            String msg = "Entry " + entryDn.getUpName() + " contains no entryUuid attribute: " + entry;
+            String msg = "Entry " + entryDn.getName() + " contains no entryUuid attribute: " + entry;
             throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
         
@@ -1433,7 +1425,7 @@ public class JdbmStore<E> implements Store<E>
             throw new Exception( "Cannot store a ClonedServerEntry" );
         }
         
-        String modsOid = oidRegistry.getOid( mods.getId() );
+        String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
 
         // Special case for the ObjectClass index
         if ( modsOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
@@ -1460,7 +1452,7 @@ public class JdbmStore<E> implements Store<E>
         }
 
         // add all the values in mods to the same attribute in the entry
-        AttributeType type = attributeTypeRegistry.lookup( modsOid );
+        AttributeType type = schemaManager.lookupAttributeTypeRegistry( modsOid );
 
         for ( Value<?> value : mods )
         {
@@ -1496,7 +1488,7 @@ public class JdbmStore<E> implements Store<E>
             throw new Exception( "Cannot store a ClonedServerEntry" );
         }
         
-        String modsOid = oidRegistry.getOid( mods.getId() );
+        String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
         
         // Special case for the ObjectClass index
         if ( modsOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
@@ -1525,7 +1517,7 @@ public class JdbmStore<E> implements Store<E>
             }
         }
 
-        AttributeType attrType = attributeTypeRegistry.lookup( modsOid );
+        AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( modsOid );
         /*
          * If there are no attribute values in the modifications then this 
          * implies the compelete removal of the attribute from the entry. Else
@@ -1590,7 +1582,7 @@ public class JdbmStore<E> implements Store<E>
             throw new Exception( "Cannot store a ClonedServerEntry" );
         }
         
-        String modsOid = oidRegistry.getOid( mods.getId() );
+        String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
 
         // Special case for the ObjectClass index
         if ( modsOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
@@ -1633,7 +1625,7 @@ public class JdbmStore<E> implements Store<E>
             }
         }
 
-        String aliasAttributeOid = oidRegistry.getOid( SchemaConstants.ALIASED_OBJECT_NAME_AT );
+        String aliasAttributeOid = schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.ALIASED_OBJECT_NAME_AT );
 
         if ( modsOid.equals( aliasAttributeOid ) )
         {
@@ -1771,28 +1763,13 @@ public class JdbmStore<E> implements Store<E>
          * new Rdn attribute within this entry.
          */
 
-        for ( AttributeTypeAndValue newAtav : newRdn )
+        for ( AVA newAtav : newRdn )
         {
             String newNormType = newAtav.getNormType();
-            String newNormValue = newAtav.getNormValue().getString();
-            AttributeType newRdnAttrType = attributeTypeRegistry.lookup( newNormType );
+            Object newNormValue = newAtav.getNormValue().get();
+            AttributeType newRdnAttrType = schemaManager.lookupAttributeTypeRegistry( newNormType );
             
-            Object unEscapedRdn = Rdn.unescapeValue( newAtav.getUpValue().getString() );
-            
-            Value<?> value = null;
-            
-            if ( unEscapedRdn instanceof String )
-            {
-                value = new ServerStringValue( newRdnAttrType, (String)unEscapedRdn );
-            }
-            else
-            {
-                value = new ServerBinaryValue( newRdnAttrType, (byte[])unEscapedRdn );
-            }
-            
-            value.normalize();
-            
-            entry.add( newRdnAttrType, value );
+            entry.add( newRdnAttrType, newAtav.getUpValue() );
 
             if ( hasUserIndexOn( newNormType ) )
             {
@@ -1827,12 +1804,12 @@ public class JdbmStore<E> implements Store<E>
         if ( deleteOldRdn )
         {
             Rdn oldRdn = updn.getRdn();
-            for ( AttributeTypeAndValue oldAtav : oldRdn )
+            for ( AVA oldAtav : oldRdn )
             {
                 // check if the new ATAV is part of the old Rdn
                 // if that is the case we do not remove the ATAV
                 boolean mustRemove = true;
-                for ( AttributeTypeAndValue newAtav : newRdn )
+                for ( AVA newAtav : newRdn )
                 {
                     if ( oldAtav.equals( newAtav ) )
                     {
@@ -1845,7 +1822,7 @@ public class JdbmStore<E> implements Store<E>
                 {
                     String oldNormType = oldAtav.getNormType();
                     String oldNormValue = oldAtav.getNormValue().getString();
-                    AttributeType oldRdnAttrType = attributeTypeRegistry.lookup( oldNormType );
+                    AttributeType oldRdnAttrType = schemaManager.lookupAttributeTypeRegistry( oldNormType );
                     entry.remove( oldRdnAttrType, oldNormValue );
 
                     if ( hasUserIndexOn( oldNormType ) )
@@ -1882,7 +1859,7 @@ public class JdbmStore<E> implements Store<E>
         newUpdn.add( newRdn.getUpName() ); // add da new upRdn
 
         // gotta normalize cuz this thang is cloned and not normalized by default
-        newUpdn.normalize( attributeTypeRegistry.getNormalizerMapping() );
+        newUpdn.normalize( schemaManager.getNormalizerMapping() );
 
         modifyDn( id, newUpdn, false ); // propagate dn changes
 
@@ -1923,14 +1900,14 @@ public class JdbmStore<E> implements Store<E>
         
         if ( !updn.isNormalized() )
         {
-            updn.normalize( attributeTypeRegistry.getNormalizerMapping() );
+            updn.normalize( schemaManager.getNormalizerMapping() );
         }
         
         ndnIdx.add( updn.toNormName(), id );
         
         // update user provided DN index
         updnIdx.drop( id );
-        updnIdx.add( updn.getUpName(), id );
+        updnIdx.add( updn.getName(), id );
 
         /* 
          * Read Alias Index Tuples
@@ -1969,7 +1946,7 @@ public class JdbmStore<E> implements Store<E>
 
             String rdn = oldUpdn.get( oldUpdn.size() - 1 );
             LdapDN rdnDN = new LdapDN( rdn );
-            rdnDN.normalize( attributeTypeRegistry.getNormalizerMapping() );
+            rdnDN.normalize( schemaManager.getNormalizerMapping() );
             childUpdn.add( rdnDN.getRdn() );
 
             // Modify the child
@@ -2228,9 +2205,17 @@ public class JdbmStore<E> implements Store<E>
     }
 
 
-    public void initRegistries( Registries registries )
+    public void initSchemaManager( SchemaManager schemaManager )
     {
-        this.attributeTypeRegistry = registries.getAttributeTypeRegistry();
-        this.oidRegistry = registries.getOidRegistry();
+        this.schemaManager = schemaManager;
+    }
+
+
+    /**
+     * @param schemaManager the schemaManager to set
+     */
+    public void setSchemaManager( SchemaManager schemaManager )
+    {
+        this.schemaManager = schemaManager;
     }
 }

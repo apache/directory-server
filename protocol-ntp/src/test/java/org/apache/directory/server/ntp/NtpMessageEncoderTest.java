@@ -22,8 +22,6 @@ package org.apache.directory.server.ntp;
 
 import java.nio.ByteBuffer;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.server.ntp.io.NtpMessageDecoder;
 import org.apache.directory.server.ntp.io.NtpMessageEncoder;
 import org.apache.directory.server.ntp.messages.LeapIndicatorType;
@@ -33,6 +31,7 @@ import org.apache.directory.server.ntp.messages.NtpMessageModifier;
 import org.apache.directory.server.ntp.messages.NtpTimeStamp;
 import org.apache.directory.server.ntp.messages.ReferenceIdentifier;
 import org.apache.directory.server.ntp.messages.StratumType;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class NtpMessageEncoderTest extends TestCase
+public class NtpMessageEncoderTest
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( NtpMessageEncoderTest.class );
@@ -52,6 +51,7 @@ public class NtpMessageEncoderTest extends TestCase
      *
      * @throws Exception
      */
+    @Test
     public void testEncodeMessage() throws Exception
     {
         NtpMessageModifier modifier = new NtpMessageModifier();

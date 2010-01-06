@@ -20,22 +20,17 @@
 package org.apache.directory.server.core.schema;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescription;
-import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -48,8 +43,14 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -59,13 +60,12 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith(CiRunner.class)
-public class SchemaPersistenceIT
+@RunWith(FrameworkRunner.class)
+@CreateDS( name="SchemaPersistenceIT-class" )
+public class SchemaPersistenceIT extends AbstractLdapTestUnit
 {
     private static final String SUBSCHEMA_SUBENTRY = "subschemaSubentry";
     private static final AttributeTypeDescriptionSchemaParser ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER = new AttributeTypeDescriptionSchemaParser();
-
-    public static DirectoryService service;
 
 
     /**
@@ -86,13 +86,25 @@ public class SchemaPersistenceIT
             // test successful add with everything
             // -------------------------------------------------------------------
 
-            descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 NAME 'type0' " + "OBSOLETE SUP 2.5.4.41 "
-                + "EQUALITY caseExactIA5Match " + "ORDERING octetStringOrderingMatch "
-                + "SUBSTR caseExactIA5SubstringsMatch COLLECTIVE " + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 "
-                + "SINGLE-VALUE USAGE userApplications X-SCHEMA 'nis' )" );
-            descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 NAME ( 'type1' 'altName' ) "
-                + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 2.5.4.41 "
-                + "NO-USER-MODIFICATION USAGE directoryOperation X-SCHEMA 'nis' )" );
+            descriptions.add( 
+                "( 1.3.6.1.4.1.18060.0.4.1.2.10000 " +
+                "  NAME 'type0' " + 
+                "  OBSOLETE SUP 2.5.4.41 " +
+                "  EQUALITY caseExactIA5Match " + 
+                "  ORDERING octetStringOrderingMatch " +
+                "  SUBSTR caseExactIA5SubstringsMatch " +
+                "  COLLECTIVE " + 
+                "  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 " +
+                "  SINGLE-VALUE USAGE userApplications " +
+                "  X-SCHEMA 'nis' )" );
+            
+            descriptions.add( 
+                "( 1.3.6.1.4.1.18060.0.4.1.2.10001 " +
+                "  NAME ( 'type1' 'altName' ) " +
+                "  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 " + 
+                "  SUP 2.5.4.41 " +
+                "  USAGE userApplications " +
+                "  X-SCHEMA 'nis' )" );
 
             modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
 
@@ -200,13 +212,15 @@ public class SchemaPersistenceIT
 
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "attributeTypes" );
-        AttributeTypeDescription attributeTypeDescription = null;
+        AttributeType attributeType = null;
+        
         for ( int ii = 0; ii < attrTypes.size(); ii++ )
         {
             String desc = ( String ) attrTypes.get( ii );
+            
             if ( desc.indexOf( oid ) != -1 )
             {
-                attributeTypeDescription = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER
+                attributeType = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER
                     .parseAttributeTypeDescription( desc );
                 break;
             }
@@ -214,12 +228,12 @@ public class SchemaPersistenceIT
 
         if ( isPresent )
         {
-            assertNotNull( attributeTypeDescription );
-            assertEquals( oid, attributeTypeDescription.getNumericOid() );
+            assertNotNull( attributeType );
+            assertEquals( oid, attributeType.getOid() );
         }
         else
         {
-            assertNull( attributeTypeDescription );
+            assertNull( attributeType );
         }
 
         // -------------------------------------------------------------------
@@ -254,11 +268,11 @@ public class SchemaPersistenceIT
 
         if ( isPresent )
         {
-            assertTrue( service.getRegistries().getAttributeTypeRegistry().hasAttributeType( oid ) );
+            assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( oid ) );
         }
         else
         {
-            assertFalse( service.getRegistries().getAttributeTypeRegistry().hasAttributeType( oid ) );
+            assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( oid ) );
         }
     }
 }

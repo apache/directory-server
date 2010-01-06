@@ -54,17 +54,34 @@
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-schema-extras</artifactId>
+      <artifactId>apacheds-jdbm-partition</artifactId>
       <version>${pom.version}</version>
-      <scope>test</scope>
+      <!--scope>test</scope-->
     </dependency>  
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-bootstrap-partition</artifactId>
+      <artifactId>apacheds-avl-partition</artifactId>
       <version>${pom.version}</version>
-      <scope>test</scope>
-    </dependency>
+    </dependency>  
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-ldif-partition</artifactId>
+      <version>${pom.version}</version>
+    </dependency>  
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-test-framework</artifactId>
+      <version>${pom.version}</version>
+    </dependency>  
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-avl-partition</artifactId>
+      <version>${pom.version}</version>
+    </dependency>  
   </dependencies>
 
   <profiles>

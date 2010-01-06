@@ -109,7 +109,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
              * before() method of the userIdxCursor.
              */
             //noinspection unchecked
-            int compareValue = lessEqEvaluator.getComparator().compare( value,
+            int compareValue = lessEqEvaluator.getLdapComparator().compare( value,
                  lessEqEvaluator.getExpression().getValue().get() );
 
             if ( compareValue > 0 )
@@ -135,7 +135,6 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     }
 
 
-    @SuppressWarnings("unchecked")
     public void before( IndexEntry<V, ServerEntry> element ) throws Exception
     {
         checkNotClosed( "before()" );
@@ -154,7 +153,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
              * If the element's value is smaller, then we delegate to the
              * before() method of the userIdxCursor.
              */
-            int compareValue = lessEqEvaluator.getComparator().compare( element.getValue(),
+            int compareValue = lessEqEvaluator.getLdapComparator().compare( element.getValue(),
                  lessEqEvaluator.getExpression().getValue().get() );
 
             if ( compareValue > 0 )
@@ -180,13 +179,12 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     }
 
 
-    @SuppressWarnings("unchecked")
     public void afterValue( Long id, V value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
         if ( userIdxCursor != null )
         {
-            int comparedValue = lessEqEvaluator.getComparator().compare( value,
+            int comparedValue = lessEqEvaluator.getLdapComparator().compare( value,
                  lessEqEvaluator.getExpression().getValue().get() );
 
             /*
@@ -217,13 +215,12 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     }
 
 
-    @SuppressWarnings("unchecked")
     public void after( IndexEntry<V, ServerEntry> element ) throws Exception
     {
         checkNotClosed( "after()" );
         if ( userIdxCursor != null )
         {
-            int comparedValue = lessEqEvaluator.getComparator().compare( element.getValue(),
+            int comparedValue = lessEqEvaluator.getLdapComparator().compare( element.getValue(),
                  lessEqEvaluator.getExpression().getValue().get() );
 
             /*
@@ -337,7 +334,6 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     }
 
 
-    @SuppressWarnings("unchecked")
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
@@ -353,7 +349,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
             {
                 checkNotClosed( "next()" );
                 IndexEntry<?,ServerEntry> candidate = userIdxCursor.get();
-                if ( lessEqEvaluator.getComparator().compare( candidate.getValue(),
+                if ( lessEqEvaluator.getLdapComparator().compare( candidate.getValue(),
                      lessEqEvaluator.getExpression().getValue().get() ) <= 0 )
                 {
                     return available = true;

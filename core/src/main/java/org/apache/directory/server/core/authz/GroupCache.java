@@ -20,14 +20,14 @@
 package org.apache.directory.server.core.authz;
 
 
-import javax.naming.directory.SearchControls;
-import javax.naming.NamingException;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.naming.NamingException;
+import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
@@ -36,8 +36,6 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -50,6 +48,7 @@ import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,13 +99,11 @@ public class GroupCache
      */
     public GroupCache( CoreSession session ) throws Exception
     {
-        normalizerMap = session.getDirectoryService().getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
+        SchemaManager schemaManager = session.getDirectoryService().getSchemaManager();
+        normalizerMap = schemaManager.getNormalizerMapping();
         nexus = session.getDirectoryService().getPartitionNexus();
-        AttributeTypeRegistry attributeTypeRegistry = session.getDirectoryService()
-            .getRegistries().getAttributeTypeRegistry();
-
-        memberAT = attributeTypeRegistry.lookup( SchemaConstants.MEMBER_AT_OID );
-        uniqueMemberAT = attributeTypeRegistry.lookup( SchemaConstants.UNIQUE_MEMBER_AT_OID );
+        memberAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.MEMBER_AT_OID );
+        uniqueMemberAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.UNIQUE_MEMBER_AT_OID );
 
         // stuff for dealing with the admin group
         administratorsGroupDn = parseNormalized( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
@@ -138,7 +135,7 @@ public class GroupCache
 
         for ( String suffix:suffixes )
         {
-            LdapDN baseDn = new LdapDN( suffix );
+            LdapDN baseDn = new LdapDN( suffix ).normalize( normalizerMap );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             
@@ -160,7 +157,7 @@ public class GroupCache
                 }
                 else
                 {
-                    LOG.warn( "Found group '{}' without any member or uniqueMember attributes", groupDn.getUpName() );
+                    LOG.warn( "Found group '{}' without any member or uniqueMember attributes", groupDn.getName() );
                 }
             }
 
@@ -299,7 +296,7 @@ public class GroupCache
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents after adding '{}' :\n {}", name.getUpName(), groups );
+            LOG.debug( "group cache contents after adding '{}' :\n {}", name.getName(), groups );
         }
     }
 
@@ -324,7 +321,7 @@ public class GroupCache
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents after deleting '{}' :\n {}", name.getUpName(), groups );
+            LOG.debug( "group cache contents after deleting '{}' :\n {}", name.getName(), groups );
         }
     }
 
@@ -376,7 +373,7 @@ public class GroupCache
      * @param entry the group entry being modified
      * @throws NamingException if there are problems accessing attribute  values
      */
-    public void groupModified( LdapDN name, List<Modification> mods, ServerEntry entry, Registries registries )
+    public void groupModified( LdapDN name, List<Modification> mods, ServerEntry entry, SchemaManager schemaManager )
         throws NamingException
     {
         EntryAttribute members = null;
@@ -417,7 +414,7 @@ public class GroupCache
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getUpName(), groups );
+            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getName(), groups );
         }
     }
 
@@ -449,7 +446,7 @@ public class GroupCache
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getUpName(), groups );
+            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getName(), groups );
         }
     }
 
@@ -546,7 +543,7 @@ public class GroupCache
 
             if ( IS_DEBUG )
             {
-                LOG.debug( "group cache contents after renaming '{}' :\n{}", oldName.getUpName(), groups );
+                LOG.debug( "group cache contents after renaming '{}' :\n{}", oldName.getName(), groups );
             }
 
             return true;

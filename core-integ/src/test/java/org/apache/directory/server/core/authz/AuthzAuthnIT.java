@@ -20,19 +20,19 @@
 package org.apache.directory.server.core.authz;
 
 
-import junit.framework.Assert;
-import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.annotations.*;
-import org.apache.directory.server.core.DirectoryService;
-import org.junit.runner.RunWith;
-
-import static org.junit.Assert.fail;
-import org.junit.Test;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAs;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
+import static org.junit.Assert.fail;
+import junit.framework.Assert;
+
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -41,13 +41,16 @@ import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccess
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-@Factory ( AutzIntegUtils.ServiceFactory.class )
-public class AuthzAuthnIT
+@RunWith ( FrameworkRunner.class )
+public class AuthzAuthnIT extends AbstractLdapTestUnit
 {
-    public static DirectoryService service;
 
-
+    @Before
+    public void setService()
+    {
+       AutzIntegUtils.service = service;
+    }
+    
     /**
      * Checks to make sure a user can authenticate with RootDSE as the
      * provider URL without need of any access control permissions.

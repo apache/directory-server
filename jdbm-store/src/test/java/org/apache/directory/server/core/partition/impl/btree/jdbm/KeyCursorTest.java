@@ -19,7 +19,6 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import org.junit.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -27,6 +26,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 import static org.junit.Assert.assertNull;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +69,7 @@ public class KeyCursorTest
     public void createCursor() throws Exception
     {
         File tmpDir = null;
+        
         if ( System.getProperty( TEST_OUTPUT_PATH, null ) != null )
         {
             tmpDir = new File( System.getProperty( TEST_OUTPUT_PATH ) );

@@ -20,6 +20,13 @@
 package org.apache.directory.server.core.entry;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -32,18 +39,12 @@ import javax.naming.NamingException;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
-import org.apache.directory.shared.ldap.schema.syntaxes.AcceptAllSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -63,9 +64,9 @@ import org.junit.Test;
  */
 public class ServerBinaryValueTest
 {
-    private TestServerEntryUtils.S s;
-    private TestServerEntryUtils.AT at;
-    private TestServerEntryUtils.MR mr;
+    private LdapSyntax s;
+    private AttributeType at;
+    private MatchingRule mr;
     
     private static final byte[] BYTES1 = new byte[]{0x01, 0x02, 0x03, 0x04};
     private static final byte[] BYTES2 = new byte[]{(byte)0x81, (byte)0x82, (byte)0x83, (byte)0x84};
@@ -76,12 +77,13 @@ public class ServerBinaryValueTest
      */
     @Before public void initAT()
     {
-        s = new TestServerEntryUtils.S( "1.1.1.1", false );
-        s.setSyntaxChecker( new AcceptAllSyntaxChecker( "1.1.1.1" ) );
-        mr = new TestServerEntryUtils.MR( "1.1.2.1" );
-        mr.syntax = s;
-        mr.comparator = new ByteArrayComparator();
-        mr.normalizer = new Normalizer()
+        s = TestServerEntryUtils.syntaxFactory( "1.1.1.1", false );
+        s.setSyntaxChecker( new OctetStringSyntaxChecker() );
+        mr = TestServerEntryUtils.matchingRuleFactory( "1.1.2.1" );
+        mr.setSyntax( s );
+        
+        mr.setLdapComparator( new ByteArrayComparator( "1.1.1" ) );
+        mr.setNormalizer( new Normalizer( "1.1.1" )
         {
             private static final long serialVersionUID = 1L;
             
@@ -110,11 +112,12 @@ public class ServerBinaryValueTest
             {
                 throw new IllegalStateException( "expected byte[] to normalize" );
             }
-        };
-        at = new TestServerEntryUtils.AT( "1.1.3.1" );
+        });
+        
+        at = new AttributeType( "1.1.3.1" );
         at.setEquality( mr );
         at.setOrdering( mr );
-        at.setSubstr( mr );
+        at.setSubstring( mr );
         at.setSyntax( s );
     }
     
@@ -210,7 +213,7 @@ public class ServerBinaryValueTest
         }
         
         // create a AT without any syntax
-        AttributeType attribute = new TestServerEntryUtils.AT( "1.1.3.1" );
+        AttributeType attribute = new AttributeType( "1.1.3.1" );
         
         try
         {

@@ -20,14 +20,11 @@
 package org.apache.directory.server.core.jndi;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.util.Hashtable;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -41,7 +38,12 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
-import java.util.Hashtable;
+
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -50,11 +52,9 @@ import java.util.Hashtable;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-public class DIRSERVER169IT
+@RunWith ( FrameworkRunner.class )
+public class DIRSERVER169IT extends AbstractLdapTestUnit
 {
-    public static DirectoryService service;
-
 
     /**
      * @todo replace this later with an Ldif tag
