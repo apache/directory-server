@@ -72,7 +72,7 @@ public class AuthRequestDsml extends AbstractRequestDsml
         BindRequestCodec request = ( BindRequestCodec ) instance;
 
         // AbandonID
-        String name = request.getName().getUpName();
+        String name = request.getName().getName();
         if ( ( name != null ) && ( !"".equals( name ) ) )
         {
             element.addAttribute( "principal", name );

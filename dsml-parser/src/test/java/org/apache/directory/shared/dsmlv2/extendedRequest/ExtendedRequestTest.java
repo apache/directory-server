@@ -26,7 +26,12 @@ import org.apache.directory.shared.dsmlv2.Dsmlv2Parser;
 import org.apache.directory.shared.ldap.codec.ControlCodec;
 import org.apache.directory.shared.ldap.codec.extended.ExtendedRequestCodec;
 import org.apache.directory.shared.ldap.util.StringTools;
-
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
 /**
  * Tests for the Extended Request parsing
@@ -39,6 +44,7 @@ public class ExtendedRequestTest extends AbstractTest
     /**
      * Test parsing of a request with the (optional) requestID attribute
      */
+    @Test
     public void testRequestWithRequestId()
     {
         Dsmlv2Parser parser = null;
@@ -65,6 +71,7 @@ public class ExtendedRequestTest extends AbstractTest
     /**
      * Test parsing of a request with the (optional) requestID attribute equals to 0
      */
+    @Test
     public void testRequestWithRequestIdEquals0()
     {
         testParsingFail( ExtendedRequestTest.class, "request_with_requestID_equals_0.xml" );
@@ -74,6 +81,7 @@ public class ExtendedRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a (optional) Control element
      */
+    @Test
     public void testRequestWith1Control()
     {
         Dsmlv2Parser parser = null;
@@ -104,6 +112,7 @@ public class ExtendedRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a (optional) Control element with Base64 value
      */
+    @Test
     public void testRequestWith1ControlBase64Value()
     {
         Dsmlv2Parser parser = null;
@@ -134,6 +143,7 @@ public class ExtendedRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a (optional) Control element with empty value
      */
+    @Test
     public void testRequestWith1ControlEmptyValue()
     {
         Dsmlv2Parser parser = null;
@@ -164,6 +174,7 @@ public class ExtendedRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 2 (optional) Control elements
      */
+    @Test
     public void testRequestWith2Controls()
     {
         Dsmlv2Parser parser = null;
@@ -194,6 +205,7 @@ public class ExtendedRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 3 (optional) Control elements without value
      */
+    @Test
     public void testRequestWith3ControlsWithoutValue()
     {
         Dsmlv2Parser parser = null;
@@ -224,6 +236,7 @@ public class ExtendedRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a RequestValue element
      */
+    @Test
     public void testRequestWithRequestValue()
     {
         Dsmlv2Parser parser = null;
@@ -250,6 +263,7 @@ public class ExtendedRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a RequestValue element with Base64 value
      */
+    @Test
     public void testRequestWithBase64RequestValue()
     {
         Dsmlv2Parser parser = null;
@@ -276,6 +290,7 @@ public class ExtendedRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 2 requestValue Elements
      */
+    @Test
     public void testRequestWith2RequestValue()
     {
         testParsingFail( ExtendedRequestTest.class, "request_with_2_requestValue.xml" );
@@ -285,6 +300,7 @@ public class ExtendedRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 2 requestName Elements
      */
+    @Test
     public void testRequestWith2RequestName()
     {
         testParsingFail( ExtendedRequestTest.class, "request_with_2_requestName.xml" );
@@ -294,6 +310,7 @@ public class ExtendedRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an empty requestName
      */
+    @Test
     public void testRequestWithEmptyRequestName()
     {
         testParsingFail( ExtendedRequestTest.class, "request_with_empty_requestName.xml" );
@@ -303,6 +320,7 @@ public class ExtendedRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an empty RequestValue
      */
+    @Test
     public void testRequestWithEmptyRequestValue()
     {
         Dsmlv2Parser parser = null;
@@ -330,6 +348,7 @@ public class ExtendedRequestTest extends AbstractTest
      * 
      * DIRSTUDIO-1
      */
+    @Test
     public void testRequestWithNeededRequestId()
     {
         testParsingFail( ExtendedRequestTest.class, "request_with_needed_requestID.xml" );

@@ -34,7 +34,11 @@ import org.apache.directory.shared.ldap.codec.modify.ModifyRequestCodec;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.util.StringTools;
-
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Tests for the Modify Request parsing
@@ -47,6 +51,7 @@ public class ModifyRequestTest extends AbstractTest
     /**
      * Test parsing of a request with the (optional) requestID attribute
      */
+    @Test
     public void testRequestWithRequestId()
     {
         Dsmlv2Parser parser = null;
@@ -73,6 +78,7 @@ public class ModifyRequestTest extends AbstractTest
     /**
      * Test parsing of a request with the (optional) requestID attribute equals to 0
      */
+    @Test
     public void testRequestWithRequestIdEquals0()
     {
         testParsingFail( ModifyRequestTest.class, "request_with_requestID_equals_0.xml" );
@@ -82,6 +88,7 @@ public class ModifyRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a (optional) Control element
      */
+    @Test
     public void testRequestWith1Control()
     {
         Dsmlv2Parser parser = null;
@@ -111,6 +118,7 @@ public class ModifyRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a (optional) Control element with Base64 Value
      */
+    @Test
     public void testRequestWith1ControlBase64Value()
     {
         Dsmlv2Parser parser = null;
@@ -141,6 +149,7 @@ public class ModifyRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a (optional) Control element with empty value
      */
+    @Test
     public void testRequestWith1ControlEmptyValue()
     {
         Dsmlv2Parser parser = null;
@@ -171,6 +180,7 @@ public class ModifyRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 2 (optional) Control elements
      */
+    @Test
     public void testRequestWith2Controls()
     {
         Dsmlv2Parser parser = null;
@@ -201,6 +211,7 @@ public class ModifyRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 3 (optional) Control elements without value
      */
+    @Test
     public void testRequestWith3ControlsWithoutValue()
     {
         Dsmlv2Parser parser = null;
@@ -231,6 +242,7 @@ public class ModifyRequestTest extends AbstractTest
     /**
      * Test parsing of a request without dn attribute
      */
+    @Test
     public void testRequestWithoutDnAttribute()
     {
         testParsingFail( ModifyRequestTest.class, "request_without_dn_attribute.xml" );
@@ -241,6 +253,7 @@ public class ModifyRequestTest extends AbstractTest
      * Test parsing of a request with a Modification element
      * @throws NamingException 
      */
+    @Test
     public void testRequestWith1Modification() throws NamingException
     {
         Dsmlv2Parser parser = null;
@@ -281,6 +294,7 @@ public class ModifyRequestTest extends AbstractTest
      * @throws NamingException 
      * @throws UnsupportedEncodingException 
      */
+    @Test
     public void testRequestWith1ModificationBase64Value() throws NamingException, UnsupportedEncodingException
     {
         Dsmlv2Parser parser = null;
@@ -325,6 +339,7 @@ public class ModifyRequestTest extends AbstractTest
      * Test parsing of a request with 2 Modification elements
      * @throws NamingException 
      */
+    @Test
     public void testRequestWith2Modifications() throws NamingException
     {
         Dsmlv2Parser parser = null;
@@ -363,6 +378,7 @@ public class ModifyRequestTest extends AbstractTest
     /**
      * Test parsing of a request without name attribute to the Modification element
      */
+    @Test
     public void testRequestWithoutNameAttribute()
     {
         testParsingFail( ModifyRequestTest.class, "request_without_name_attribute.xml" );
@@ -372,6 +388,7 @@ public class ModifyRequestTest extends AbstractTest
     /**
      * Test parsing of a request without operation attribute to the Modification element
      */
+    @Test
     public void testRequestWithoutOperationAttribute()
     {
         testParsingFail( ModifyRequestTest.class, "request_without_operation_attribute.xml" );
@@ -382,6 +399,7 @@ public class ModifyRequestTest extends AbstractTest
      * Test parsing of a request with operation attribute to Add value
      * @throws NamingException 
      */
+    @Test
     public void testRequestWithOperationAdd() throws NamingException
     {
         Dsmlv2Parser parser = null;
@@ -409,6 +427,7 @@ public class ModifyRequestTest extends AbstractTest
      * Test parsing of a request with operation attribute to Delete value
      * @throws NamingException 
      */
+    @Test
     public void testRequestWithOperationDelete() throws NamingException
     {
         Dsmlv2Parser parser = null;
@@ -436,6 +455,7 @@ public class ModifyRequestTest extends AbstractTest
      * Test parsing of a request with operation attribute to Replace value
      * @throws NamingException 
      */
+    @Test
     public void testRequestWithOperationReplace() throws NamingException
     {
         Dsmlv2Parser parser = null;
@@ -462,6 +482,7 @@ public class ModifyRequestTest extends AbstractTest
     /**
      * Test parsing of a request without operation attribute to the Modification element
      */
+    @Test
     public void testRequestWithOperationError()
     {
         testParsingFail( ModifyRequestTest.class, "request_with_operation_error.xml" );
@@ -472,6 +493,7 @@ public class ModifyRequestTest extends AbstractTest
      * Test parsing of a request with a Modification element without Value element
      * @throws NamingException 
      */
+    @Test
     public void testRequestWithModificationWithoutValue() throws NamingException
     {
         Dsmlv2Parser parser = null;
@@ -509,6 +531,7 @@ public class ModifyRequestTest extends AbstractTest
      * Test parsing of a request with a Modification element
      * @throws NamingException 
      */
+    @Test
     public void testRequestWithModificationWith2Values() throws NamingException
     {
         Dsmlv2Parser parser = null;
@@ -550,6 +573,7 @@ public class ModifyRequestTest extends AbstractTest
      * Test parsing of a request with a Modification element with an empty value
      * @throws NamingException 
      */
+    @Test
     public void testRequestWithModificationWithEmptyValue() throws NamingException
     {
         Dsmlv2Parser parser = null;
@@ -591,6 +615,7 @@ public class ModifyRequestTest extends AbstractTest
      * 
      * DIRSTUDIO-1
      */
+    @Test
     public void testRequestWithNeededRequestId()
     {
         testParsingFail( ModifyRequestTest.class, "request_with_needed_requestID.xml" );

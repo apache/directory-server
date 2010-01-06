@@ -26,7 +26,11 @@ import org.apache.directory.shared.dsmlv2.Dsmlv2Parser;
 import org.apache.directory.shared.ldap.codec.ControlCodec;
 import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNRequestCodec;
 import org.apache.directory.shared.ldap.util.StringTools;
-
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Tests for the Modify DN Request parsing
@@ -39,6 +43,7 @@ public class ModifyDNRequestTest extends AbstractTest
     /**
      * Test parsing of a request with the (optional) requestID attribute
      */
+    @Test
     public void testRequestWithRequestId()
     {
         Dsmlv2Parser parser = null;
@@ -65,6 +70,7 @@ public class ModifyDNRequestTest extends AbstractTest
     /**
      * Test parsing of a request with the (optional) requestID attribute equals to 0
      */
+    @Test
     public void testRequestWithRequestIdEquals0()
     {
         testParsingFail( ModifyDNRequestTest.class, "request_with_requestID_equals_0.xml" );
@@ -74,6 +80,7 @@ public class ModifyDNRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a (optional) Control element
      */
+    @Test
     public void testRequestWith1Control()
     {
         Dsmlv2Parser parser = null;
@@ -104,6 +111,7 @@ public class ModifyDNRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a (optional) Control element with Base64 Value
      */
+    @Test
     public void testRequestWith1ControlBase64Value()
     {
         Dsmlv2Parser parser = null;
@@ -134,6 +142,7 @@ public class ModifyDNRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a (optional) Control element with empty value
      */
+    @Test
     public void testRequestWith1ControlEmptyValue()
     {
         Dsmlv2Parser parser = null;
@@ -164,6 +173,7 @@ public class ModifyDNRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 2 (optional) Control elements
      */
+    @Test
     public void testRequestWith2Controls()
     {
         Dsmlv2Parser parser = null;
@@ -194,6 +204,7 @@ public class ModifyDNRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 3 (optional) Control elements without value
      */
+    @Test
     public void testRequestWith3ControlsWithoutValue()
     {
         Dsmlv2Parser parser = null;
@@ -224,6 +235,7 @@ public class ModifyDNRequestTest extends AbstractTest
     /**
      * Test parsing of a request without dn attribute
      */
+    @Test
     public void testRequestWithoutDnAttribute()
     {
         testParsingFail( ModifyDNRequestTest.class, "request_without_dn_attribute.xml" );
@@ -233,6 +245,7 @@ public class ModifyDNRequestTest extends AbstractTest
     /**
      * Test parsing of a request without newrdn attribute
      */
+    @Test
     public void testRequestWithoutNewRdnAttribute()
     {
         testParsingFail( ModifyDNRequestTest.class, "request_without_newrdn_attribute.xml" );
@@ -242,6 +255,7 @@ public class ModifyDNRequestTest extends AbstractTest
     /**
      * Test parsing of a request without dn and newrdn attributes
      */
+    @Test
     public void testRequestWithDnAndNewRdnAttributes()
     {
         Dsmlv2Parser parser = null;
@@ -270,6 +284,7 @@ public class ModifyDNRequestTest extends AbstractTest
     /**
      * Test parsing of a request with deleteoldrdn to true
      */
+    @Test
     public void testRequestWithDeleteOldRdnTrue()
     {
         Dsmlv2Parser parser = null;
@@ -296,6 +311,7 @@ public class ModifyDNRequestTest extends AbstractTest
     /**
      * Test parsing of a request with deleteoldrdn to 1
      */
+    @Test
     public void testRequestWithDeleteOldRdn1()
     {
         Dsmlv2Parser parser = null;
@@ -322,6 +338,7 @@ public class ModifyDNRequestTest extends AbstractTest
     /**
      * Test parsing of a request with deleteoldrdn to false
      */
+    @Test
     public void testRequestWithDeleteOldRdnFalse()
     {
         Dsmlv2Parser parser = null;
@@ -348,6 +365,7 @@ public class ModifyDNRequestTest extends AbstractTest
     /**
      * Test parsing of a request with deleteoldrdn to 0
      */
+    @Test
     public void testRequestWithDeleteOldRdn0()
     {
         Dsmlv2Parser parser = null;
@@ -374,6 +392,7 @@ public class ModifyDNRequestTest extends AbstractTest
     /**
      * Test parsing of a request with deleteoldrdn to an error value
      */
+    @Test
     public void testRequestWithDeleteOldRdnError()
     {
         testParsingFail( ModifyDNRequestTest.class, "request_with_deleteoldrdn_error.xml" );
@@ -383,6 +402,7 @@ public class ModifyDNRequestTest extends AbstractTest
     /**
      * Test parsing of a request with newSuperior attribute
      */
+    @Test
     public void testRequestWithNewSuperior()
     {
         Dsmlv2Parser parser = null;
@@ -411,6 +431,7 @@ public class ModifyDNRequestTest extends AbstractTest
      * 
      * DIRSTUDIO-1
      */
+    @Test
     public void testRequestWithNeededRequestId()
     {
         testParsingFail( ModifyDNRequestTest.class, "request_with_needed_requestID.xml" );

@@ -91,7 +91,7 @@ public class SearchRequestDsml extends AbstractRequestDsml
         // DN
         if ( request.getBaseObject() != null )
         {
-            element.addAttribute( "dn", request.getBaseObject().getUpName() );
+            element.addAttribute( "dn", request.getBaseObject().getName() );
         }
 
         // Scope

@@ -32,6 +32,12 @@ import org.apache.directory.shared.ldap.codec.LdapResultCodec;
 import org.apache.directory.shared.ldap.codec.bind.BindResponseCodec;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
 import com.sun.jndi.ldap.LdapURL;
 
@@ -48,6 +54,7 @@ public class AuthResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the (optional) requestID attribute
      */
+    @Test
     public void testResponseWithRequestId()
     {
         Dsmlv2ResponseParser parser = null;
@@ -74,6 +81,7 @@ public class AuthResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the (optional) requestID attribute equals 0
      */
+    @Test
     public void testResponseWithRequestIdEquals0()
     {
         testParsingFail( AuthResponseTest.class, "response_with_requestID_equals_0.xml" );
@@ -83,6 +91,7 @@ public class AuthResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with a (optional) Control element
      */
+    @Test
     public void testResponseWith1Control()
     {
         Dsmlv2ResponseParser parser = null;
@@ -116,6 +125,7 @@ public class AuthResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with a (optional) Control element with empty value
      */
+    @Test
     public void testResponseWith1ControlEmptyValue()
     {
         Dsmlv2ResponseParser parser = null;
@@ -146,6 +156,7 @@ public class AuthResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with 2 (optional) Control elements
      */
+    @Test
     public void testResponseWith2Controls()
     {
         Dsmlv2ResponseParser parser = null;
@@ -180,6 +191,7 @@ public class AuthResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with 3 (optional) Control elements without value
      */
+    @Test
     public void testResponseWith3ControlsWithoutValue()
     {
         Dsmlv2ResponseParser parser = null;
@@ -214,6 +226,7 @@ public class AuthResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response without Result Code element
      */
+    @Test
     public void testResponseWithoutResultCode()
     {
         testParsingFail( AuthResponseTest.class, "response_without_result_code.xml" );
@@ -223,6 +236,7 @@ public class AuthResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with Result Code element but a not integer value
      */
+    @Test
     public void testResponseWithResultCodeNotInteger()
     {
         testParsingFail( AuthResponseTest.class, "response_with_result_code_not_integer.xml" );
@@ -232,6 +246,7 @@ public class AuthResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with Result Code 
      */
+    @Test
     public void testResponseWithResultCode()
     {
         Dsmlv2ResponseParser parser = null;
@@ -260,6 +275,7 @@ public class AuthResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with Error Message
      */
+    @Test
     public void testResponseWithErrorMessage()
     {
         Dsmlv2ResponseParser parser = null;
@@ -289,6 +305,7 @@ public class AuthResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with Empty Error Message
      */
+    @Test
     public void testResponseWithEmptyErrorMessage()
     {
         Dsmlv2ResponseParser parser = null;
@@ -317,6 +334,7 @@ public class AuthResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with a Referral
      */
+    @Test
     public void testResponseWith1Referral()
     {
         Dsmlv2ResponseParser parser = null;
@@ -338,7 +356,7 @@ public class AuthResponseTest extends AbstractResponseTest
 
         LdapResultCodec ldapResult = bindResponse.getLdapResult();
 
-        List referrals = ldapResult.getReferrals();
+        List<org.apache.directory.shared.ldap.util.LdapURL> referrals = ldapResult.getReferrals();
 
         assertEquals( 1, referrals.size() );
 
@@ -358,6 +376,7 @@ public class AuthResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with an empty Referral
      */
+    @Test
     public void testResponseWith1EmptyReferral()
     {
         Dsmlv2ResponseParser parser = null;
@@ -379,7 +398,7 @@ public class AuthResponseTest extends AbstractResponseTest
 
         LdapResultCodec ldapResult = bindResponse.getLdapResult();
 
-        List referrals = ldapResult.getReferrals();
+        List<org.apache.directory.shared.ldap.util.LdapURL> referrals = ldapResult.getReferrals();
 
         assertEquals( 0, referrals.size() );
     }
@@ -388,6 +407,7 @@ public class AuthResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with 2 Referral elements
      */
+    @Test
     public void testResponseWith2Referrals()
     {
         Dsmlv2ResponseParser parser = null;
@@ -409,7 +429,7 @@ public class AuthResponseTest extends AbstractResponseTest
 
         LdapResultCodec ldapResult = bindResponse.getLdapResult();
 
-        List referrals = ldapResult.getReferrals();
+        List<org.apache.directory.shared.ldap.util.LdapURL> referrals = ldapResult.getReferrals();
 
         assertEquals( 2, referrals.size() );
 
@@ -440,6 +460,7 @@ public class AuthResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with a Referral and an Error Message
      */
+    @Test
     public void testResponseWith1ReferralAndAnErrorMessage()
     {
         Dsmlv2ResponseParser parser = null;
@@ -461,7 +482,7 @@ public class AuthResponseTest extends AbstractResponseTest
 
         LdapResultCodec ldapResult = bindResponse.getLdapResult();
 
-        List referrals = ldapResult.getReferrals();
+        List<org.apache.directory.shared.ldap.util.LdapURL> referrals = ldapResult.getReferrals();
 
         assertEquals( 1, referrals.size() );
 
@@ -481,6 +502,7 @@ public class AuthResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with MatchedDN attribute
      */
+    @Test
     public void testResponseWithMatchedDNAttribute()
     {
         Dsmlv2ResponseParser parser = null;
@@ -509,6 +531,7 @@ public class AuthResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with wrong matched DN
      */
+    @Test
     public void testResponseWithWrongMatchedDN()
     {
         testParsingFail( AuthResponseTest.class, "response_with_wrong_matchedDN_attribute.xml" );
@@ -518,6 +541,7 @@ public class AuthResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with wrong Descr attribute
      */
+    @Test
     public void testResponseWithWrongDescr()
     {
         testParsingFail( AuthResponseTest.class, "response_with_wrong_matchedDN_attribute.xml" );

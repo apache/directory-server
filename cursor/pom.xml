@@ -24,10 +24,10 @@
     <version>0.9.18-SNAPSHOT</version>
   </parent>
   <artifactId>shared-cursor</artifactId>
-  <name>Cursor implementation</name>
+  <name>Apache Directory Shared Cursor</name>
 
   <description>
-    Cursor interfaces
+    Shared Cursor interfaces.
   </description>
   
   <packaging>jar</packaging>

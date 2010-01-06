@@ -25,7 +25,10 @@ import org.apache.directory.shared.dsmlv2.AbstractResponseTest;
 import org.apache.directory.shared.dsmlv2.Dsmlv2ResponseParser;
 import org.apache.directory.shared.dsmlv2.reponse.ErrorResponse;
 import org.apache.directory.shared.dsmlv2.reponse.ErrorResponse.ErrorResponseType;
-
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNull;
 
 /**
  * Tests for the Error Response parsing
@@ -39,6 +42,7 @@ public class ErrorResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the (optional) requestID attribute
      */
+    @Test
     public void testResponseWithRequestId()
     {
         Dsmlv2ResponseParser parser = null;
@@ -65,6 +69,7 @@ public class ErrorResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the (optional) requestID attribute equals 0
      */
+    @Test
     public void testResponseWithRequestIdEquals0()
     {
         testParsingFail( ErrorResponseTest.class, "response_with_requestID_equals_0.xml" );
@@ -74,6 +79,7 @@ public class ErrorResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response without Type attribute
      */
+    @Test
     public void testResponseWithoutType()
     {
         testParsingFail( ErrorResponseTest.class, "response_without_type.xml" );
@@ -83,6 +89,7 @@ public class ErrorResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with type == notAttempted
      */
+    @Test
     public void testResponseWithTypeNotAttempted()
     {
         Dsmlv2ResponseParser parser = null;
@@ -109,6 +116,7 @@ public class ErrorResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with type == couldNotConnect
      */
+    @Test
     public void testResponseWithTypeCouldNotConnect()
     {
         Dsmlv2ResponseParser parser = null;
@@ -135,6 +143,7 @@ public class ErrorResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with type == connectionClosed
      */
+    @Test
     public void testResponseWithTypeConnectionClosed()
     {
         Dsmlv2ResponseParser parser = null;
@@ -161,6 +170,7 @@ public class ErrorResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with type == malformedRequest
      */
+    @Test
     public void testResponseWithTypeMalformedRequest()
     {
         Dsmlv2ResponseParser parser = null;
@@ -187,6 +197,7 @@ public class ErrorResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with type == gatewayInternalError
      */
+    @Test
     public void testResponseWithTypeGatewayInternalError()
     {
         Dsmlv2ResponseParser parser = null;
@@ -213,6 +224,7 @@ public class ErrorResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with type == authenticationFailed
      */
+    @Test
     public void testResponseWithTypeAuthenticationFailed()
     {
         Dsmlv2ResponseParser parser = null;
@@ -239,6 +251,7 @@ public class ErrorResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with type == unresolvableURI
      */
+    @Test
     public void testResponseWithTypeUnresolvableURI()
     {
         Dsmlv2ResponseParser parser = null;
@@ -265,6 +278,7 @@ public class ErrorResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with type == other
      */
+    @Test
     public void testResponseWithTypeOther()
     {
         Dsmlv2ResponseParser parser = null;
@@ -291,6 +305,7 @@ public class ErrorResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with type in error
      */
+    @Test
     public void testResponseWithTypeError()
     {
         testParsingFail( ErrorResponseTest.class, "response_with_type_inError.xml" );
@@ -300,6 +315,7 @@ public class ErrorResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with Message
      */
+    @Test
     public void testResponseWithMessage()
     {
         Dsmlv2ResponseParser parser = null;
@@ -325,6 +341,7 @@ public class ErrorResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with empty Message
      */
+    @Test
     public void testResponseWithEmptyMessage()
     {
         Dsmlv2ResponseParser parser = null;

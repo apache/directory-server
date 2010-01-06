@@ -83,7 +83,7 @@ public class AddRequestDsml extends AbstractRequestDsml
         // DN
         if ( request.getEntry() != null )
         {
-            element.addAttribute( "dn", request.getEntry().getDn().getUpName() );
+            element.addAttribute( "dn", request.getEntry().getDn().getName() );
         }
 
         // Attributes

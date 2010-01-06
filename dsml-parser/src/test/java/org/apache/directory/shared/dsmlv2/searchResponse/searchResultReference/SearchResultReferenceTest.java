@@ -31,7 +31,11 @@ import org.apache.directory.shared.ldap.codec.search.SearchResultReferenceCodec;
 import org.apache.directory.shared.ldap.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.util.StringTools;
-
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Tests for the Search Result Reference Response parsing
@@ -44,6 +48,7 @@ public class SearchResultReferenceTest extends AbstractResponseTest
     /**
      * Test parsing of a response with a (optional) Control element
      */
+    @Test
     public void testResponseWith1Control()
     {
         Dsmlv2ResponseParser parser = null;
@@ -79,6 +84,7 @@ public class SearchResultReferenceTest extends AbstractResponseTest
     /**
      * Test parsing of a response with a (optional) Control element with empty value
      */
+    @Test
     public void testResponseWith1ControlEmptyValue()
     {
         Dsmlv2ResponseParser parser = null;
@@ -114,6 +120,7 @@ public class SearchResultReferenceTest extends AbstractResponseTest
     /**
      * Test parsing of a response with 2 (optional) Control elements
      */
+    @Test
     public void testResponseWith2Controls()
     {
         Dsmlv2ResponseParser parser = null;
@@ -149,6 +156,7 @@ public class SearchResultReferenceTest extends AbstractResponseTest
     /**
      * Test parsing of a response with 3 (optional) Control elements without value
      */
+    @Test
     public void testResponseWith3ControlsWithoutValue()
     {
         Dsmlv2ResponseParser parser = null;
@@ -184,6 +192,7 @@ public class SearchResultReferenceTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the (optional) requestID attribute
      */
+    @Test
     public void testResponseWithRequestId()
     {
         Dsmlv2ResponseParser parser = null;
@@ -211,6 +220,7 @@ public class SearchResultReferenceTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the (optional) requestID attribute equals 0
      */
+    @Test
     public void testResponseWithRequestIdEquals0()
     {
         testParsingFail( SearchResultReferenceTest.class, "response_with_requestID_equals_0.xml" );
@@ -220,6 +230,7 @@ public class SearchResultReferenceTest extends AbstractResponseTest
     /**
      * Test parsing of a response with 0 Ref
      */
+    @Test
     public void testResponseWith0Ref()
     {
         testParsingFail( SearchResultReferenceTest.class, "response_with_0_ref.xml" );
@@ -229,6 +240,7 @@ public class SearchResultReferenceTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with 1 Ref
      */
+    @Test
     public void testResponseWith1Ref()
     {
         Dsmlv2ResponseParser parser = null;
@@ -249,7 +261,7 @@ public class SearchResultReferenceTest extends AbstractResponseTest
         SearchResultReferenceCodec searchResultReference = ( ( SearchResponse ) parser.getBatchResponse()
             .getCurrentResponse() ).getCurrentSearchResultReference();
 
-        List references = searchResultReference.getSearchResultReferences();
+        List<org.apache.directory.shared.ldap.util.LdapURL> references = searchResultReference.getSearchResultReferences();
 
         assertEquals( 1, references.size() );
 
@@ -267,6 +279,7 @@ public class SearchResultReferenceTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with 1 Ref
      */
+    @Test
     public void testResponseWith1EmptyRef()
     {
         Dsmlv2ResponseParser parser = null;
@@ -287,7 +300,7 @@ public class SearchResultReferenceTest extends AbstractResponseTest
         SearchResultReferenceCodec searchResultReference = ( ( SearchResponse ) parser.getBatchResponse()
             .getCurrentResponse() ).getCurrentSearchResultReference();
 
-        List references = searchResultReference.getSearchResultReferences();
+        List<org.apache.directory.shared.ldap.util.LdapURL> references = searchResultReference.getSearchResultReferences();
 
         assertEquals( 0, references.size() );
     }
@@ -296,6 +309,7 @@ public class SearchResultReferenceTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with 2 Ref
      */
+    @Test
     public void testResponseWith2Ref()
     {
         Dsmlv2ResponseParser parser = null;
@@ -316,7 +330,7 @@ public class SearchResultReferenceTest extends AbstractResponseTest
         SearchResultReferenceCodec searchResultReference = ( ( SearchResponse ) parser.getBatchResponse()
             .getCurrentResponse() ).getCurrentSearchResultReference();
 
-        List references = searchResultReference.getSearchResultReferences();
+        List<org.apache.directory.shared.ldap.util.LdapURL> references = searchResultReference.getSearchResultReferences();
 
         assertEquals( 2, references.size() );
 
@@ -343,6 +357,7 @@ public class SearchResultReferenceTest extends AbstractResponseTest
     /**
      * Test parsing of a response with 1 wrong Ref
      */
+    @Test
     public void testResponseWith1WrongRef()
     {
         testParsingFail( SearchResultReferenceTest.class, "response_with_1_wrong_ref.xml" );

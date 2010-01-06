@@ -26,7 +26,12 @@ import org.apache.directory.shared.dsmlv2.Dsmlv2Parser;
 import org.apache.directory.shared.ldap.codec.ControlCodec;
 import org.apache.directory.shared.ldap.codec.compare.CompareRequestCodec;
 import org.apache.directory.shared.ldap.util.StringTools;
-
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
 /**
  * Tests for the Compare Request parsing
@@ -39,6 +44,7 @@ public class CompareRequestTest extends AbstractTest
     /**
      * Test parsing of a request without the dn attribute
      */
+    @Test
     public void testRequestWithoutDn()
     {
         testParsingFail( CompareRequestTest.class, "request_without_dn_attribute.xml" );
@@ -48,6 +54,7 @@ public class CompareRequestTest extends AbstractTest
     /**
      * Test parsing of a request with the dn attribute
      */
+    @Test
     public void testRequestWithDn()
     {
         Dsmlv2Parser parser = null;
@@ -74,6 +81,7 @@ public class CompareRequestTest extends AbstractTest
     /**
      * Test parsing of a request with the (optional) requestID attribute
      */
+    @Test
     public void testRequestWithRequestId()
     {
         Dsmlv2Parser parser = null;
@@ -100,6 +108,7 @@ public class CompareRequestTest extends AbstractTest
     /**
      * Test parsing of a request with the (optional) requestID attribute equals to 0
      */
+    @Test
     public void testRequestWithRequestIdEquals0()
     {
         testParsingFail( CompareRequestTest.class, "request_with_requestID_equals_0.xml" );
@@ -109,6 +118,7 @@ public class CompareRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a (optional) Control element
      */
+    @Test
     public void testRequestWith1Control()
     {
         Dsmlv2Parser parser = null;
@@ -143,6 +153,7 @@ public class CompareRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a (optional) Control element with Base64 value
      */
+    @Test
     public void testRequestWith1ControlBase64Value()
     {
         Dsmlv2Parser parser = null;
@@ -177,6 +188,7 @@ public class CompareRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a (optional) Control element with empty value
      */
+    @Test
     public void testRequestWith1ControlEmptyValue()
     {
         Dsmlv2Parser parser = null;
@@ -211,6 +223,7 @@ public class CompareRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 2 (optional) Control elements
      */
+    @Test
     public void testRequestWith2Controls()
     {
         Dsmlv2Parser parser = null;
@@ -245,6 +258,7 @@ public class CompareRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 3 (optional) Control elements without value
      */
+    @Test
     public void testRequestWith3ControlsWithoutValue()
     {
         Dsmlv2Parser parser = null;
@@ -279,6 +293,7 @@ public class CompareRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an Attr elements with value
      */
+    @Test
     public void testRequestWith1CompleteAssertion()
     {
         Dsmlv2Parser parser = null;
@@ -309,6 +324,7 @@ public class CompareRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a complete assertion with base64 value
      */
+    @Test
     public void testRequestWith1CompleteAssertionBase64Value()
     {
         Dsmlv2Parser parser = null;
@@ -339,6 +355,7 @@ public class CompareRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an Attr elements with empty value
      */
+    @Test
     public void testRequestWith1AssertionEmptyValue()
     {
         Dsmlv2Parser parser = null;
@@ -369,6 +386,7 @@ public class CompareRequestTest extends AbstractTest
     /**
      * Test parsing of a request without the Assertion element
      */
+    @Test
     public void testRequestWithoutAssertion()
     {
         testParsingFail( CompareRequestTest.class, "request_without_assertion.xml" );
@@ -378,6 +396,7 @@ public class CompareRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 2 complete Assertion element
      */
+    @Test
     public void testRequestWith2CompleteAssertions()
     {
         testParsingFail( CompareRequestTest.class, "request_with_2_complete_assertions.xml" );
@@ -387,6 +406,7 @@ public class CompareRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 1 Assertion element without the name attribute
      */
+    @Test
     public void testRequestWith1AssertionWithoutNameAttribute()
     {
         testParsingFail( CompareRequestTest.class, "request_with_1_assertion_without_name_attribute.xml" );
@@ -396,6 +416,7 @@ public class CompareRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 1 Assertion element without the Value element
      */
+    @Test
     public void testRequestWith1AssertionWithoutValue()
     {
         testParsingFail( CompareRequestTest.class, "request_with_1_assertion_without_value.xml" );
@@ -405,6 +426,7 @@ public class CompareRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 1 Assertion element with 2 Value elements
      */
+    @Test
     public void testRequestWith1AssertionWith2Value()
     {
         testParsingFail( CompareRequestTest.class, "request_with_1_assertion_with_2_values.xml" );
@@ -416,6 +438,7 @@ public class CompareRequestTest extends AbstractTest
      * 
      * DIRSTUDIO-1
      */
+    @Test
     public void testRequestWithNeededRequestId()
     {
         testParsingFail( CompareRequestTest.class, "request_with_needed_requestID.xml" );

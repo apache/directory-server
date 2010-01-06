@@ -21,11 +21,10 @@
 package org.apache.directory.shared.dsmlv2;
 
 
-import junit.framework.TestCase;
-
 import org.apache.directory.shared.dsmlv2.Dsmlv2ResponseParser;
 import org.xmlpull.v1.XmlPullParserException;
-
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * This class had to be used to create a Response TestCase
@@ -33,7 +32,7 @@ import org.xmlpull.v1.XmlPullParserException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class AbstractResponseTest extends TestCase
+public abstract class AbstractResponseTest
 {
     /**
      * Asserts that parsing throws a correct XmlPullParserException due to an incorrect file
@@ -43,7 +42,7 @@ public abstract class AbstractResponseTest extends TestCase
      * @param filename
      *      the path of the xml file to parse 
      */
-    public void testParsingFail( Class testClass, String filename )
+    public void testParsingFail( Class<?> testClass, String filename )
     {
         try
         {

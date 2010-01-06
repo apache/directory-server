@@ -21,9 +21,6 @@
 package org.apache.directory.shared.dsmlv2;
 
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.directory.shared.dsmlv2.abandonRequest.AbandonRequestTest;
 import org.apache.directory.shared.dsmlv2.addRequest.AddRequestTest;
 import org.apache.directory.shared.dsmlv2.addResponse.AddResponseTest;
@@ -47,6 +44,8 @@ import org.apache.directory.shared.dsmlv2.searchResponse.SearchResponseTest;
 import org.apache.directory.shared.dsmlv2.searchResponse.searchResultDone.SearchResultDoneTest;
 import org.apache.directory.shared.dsmlv2.searchResponse.searchResultEntry.SearchResultEntryTest;
 import org.apache.directory.shared.dsmlv2.searchResponse.searchResultReference.SearchResultReferenceTest;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 
 /**
@@ -55,42 +54,33 @@ import org.apache.directory.shared.dsmlv2.searchResponse.searchResultReference.S
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+    AbandonRequestTest.class,
+    AddRequestTest.class,
+    AddResponseTest.class,
+    AuthRequestTest.class,
+    AuthResponseTest.class,
+    BatchRequestTest.class,
+    BatchResponseTest.class,
+    CompareRequestTest.class,
+    CompareResponseTest.class,
+    DelRequestTest.class,
+    DelResponseTest.class,
+    ErrorResponseTest.class,
+    ExtendedRequestTest.class,
+    ExtendedResponseTest.class,
+    ModifyDNRequestTest.class,
+    ModifyDNResponseTest.class,
+    ModifyRequestTest.class,
+    ModifyResponseTest.class,
+    SearchRequestTest.class,
+    SearchResponseTest.class,
+    SearchResultDoneTest.class,
+    SearchResultEntryTest.class,
+    SearchResultReferenceTest.class
+})
+
 public class AllTests
 {
-    /**
-     * Lauches the Test Suite
-     * 
-     * @return
-     *      the test
-     */
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite( "Test for org.apache.directory.shared.dsmlv2.addRequest" );
-        //$JUnit-BEGIN$
-        suite.addTestSuite( AbandonRequestTest.class );
-        suite.addTestSuite( AddRequestTest.class );
-        suite.addTestSuite( AddResponseTest.class );
-        suite.addTestSuite( AuthRequestTest.class );
-        suite.addTestSuite( AuthResponseTest.class );
-        suite.addTestSuite( BatchRequestTest.class );
-        suite.addTestSuite( BatchResponseTest.class );
-        suite.addTestSuite( CompareRequestTest.class );
-        suite.addTestSuite( CompareResponseTest.class );
-        suite.addTestSuite( DelRequestTest.class );
-        suite.addTestSuite( DelResponseTest.class );
-        suite.addTestSuite( ErrorResponseTest.class );
-        suite.addTestSuite( ExtendedRequestTest.class );
-        suite.addTestSuite( ExtendedResponseTest.class );
-        suite.addTestSuite( ModifyDNRequestTest.class );
-        suite.addTestSuite( ModifyDNResponseTest.class );
-        suite.addTestSuite( ModifyRequestTest.class );
-        suite.addTestSuite( ModifyResponseTest.class );
-        suite.addTestSuite( SearchRequestTest.class );
-        suite.addTestSuite( SearchResponseTest.class );
-        suite.addTestSuite( SearchResultDoneTest.class );
-        suite.addTestSuite( SearchResultEntryTest.class );
-        suite.addTestSuite( SearchResultReferenceTest.class );
-        //$JUnit-END$
-        return suite;
-    }
 }

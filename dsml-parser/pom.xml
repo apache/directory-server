@@ -28,7 +28,7 @@
   </parent>
 
   <artifactId>shared-dsml-parser</artifactId>
-  <name>Apache Directory DSML Parser</name>
+  <name>Apache Directory Shared DSML Parser</name>
   <packaging>jar</packaging>
 
   <description />

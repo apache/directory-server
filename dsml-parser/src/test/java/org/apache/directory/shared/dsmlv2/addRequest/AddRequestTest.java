@@ -31,7 +31,11 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.util.StringTools;
-
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Tests for the Add Request parsing
@@ -44,6 +48,7 @@ public class AddRequestTest extends AbstractTest
     /**
      * Test parsing of a request without the dn attribute
      */
+    @Test
     public void testRequestWithoutDn()
     {
         testParsingFail( AddRequestTest.class, "request_without_dn_attribute.xml" );
@@ -53,6 +58,7 @@ public class AddRequestTest extends AbstractTest
     /**
      * Test parsing of a request with the dn attribute
      */
+    @Test
     public void testRequestWithDn()
     {
         Dsmlv2Parser parser = null;
@@ -78,6 +84,7 @@ public class AddRequestTest extends AbstractTest
     /**
      * Test parsing of a request with the (optional) requestID attribute
      */
+    @Test
     public void testRequestWithRequestId()
     {
         Dsmlv2Parser parser = null;
@@ -104,6 +111,7 @@ public class AddRequestTest extends AbstractTest
     /**
      * Test parsing of a request with the (optional) requestID attribute equals to 0
      */
+    @Test
     public void testRequestWithRequestIdEquals0()
     {
         testParsingFail( AddRequestTest.class, "request_with_requestID_equals_0.xml" );
@@ -113,6 +121,7 @@ public class AddRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a (optional) Control element
      */
+    @Test
     public void testRequestWith1Control()
     {
         Dsmlv2Parser parser = null;
@@ -146,6 +155,7 @@ public class AddRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a (optional) Control element with Base64 value
      */
+    @Test
     public void testRequestWith1ControlBase64Value()
     {
         Dsmlv2Parser parser = null;
@@ -176,6 +186,7 @@ public class AddRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a (optional) Control element with empty value
      */
+    @Test
     public void testRequestWith1ControlEmptyValue()
     {
         Dsmlv2Parser parser = null;
@@ -206,6 +217,7 @@ public class AddRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 2 (optional) Control elements
      */
+    @Test
     public void testRequestWith2Controls()
     {
         Dsmlv2Parser parser = null;
@@ -235,6 +247,7 @@ public class AddRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 3 (optional) Control elements without value
      */
+    @Test
     public void testRequestWith3ControlsWithoutValue()
     {
         Dsmlv2Parser parser = null;
@@ -265,6 +278,7 @@ public class AddRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an Attr elements with value
      */
+    @Test
     public void testRequestWith1AttrWithoutValue()
     {
         Dsmlv2Parser parser = null;
@@ -301,6 +315,7 @@ public class AddRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an Attr elements with empty value
      */
+    @Test
     public void testRequestWith1AttrEmptyValue()
     {
         Dsmlv2Parser parser = null;
@@ -337,6 +352,7 @@ public class AddRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an Attr elements with value
      */
+    @Test
     public void testRequestWith1AttrWithValue()
     {
         Dsmlv2Parser parser = null;
@@ -375,6 +391,7 @@ public class AddRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an Attr elements with value
      */
+    @Test
     public void testRequestWith1AttrWithBase64Value()
     {
         Dsmlv2Parser parser = null;
@@ -414,6 +431,7 @@ public class AddRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 2 Attr elements with value
      */
+    @Test
     public void testRequestWith2AttrWithValue()
     {
         Dsmlv2Parser parser = null;
@@ -456,6 +474,7 @@ public class AddRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 1 Attr element without attribute value
      */
+    @Test
     public void testRequestWith1AttrWithoutNameAttribute()
     {
         testParsingFail( AddRequestTest.class, "request_with_1_attr_without_name_attribute.xml" );
@@ -465,6 +484,7 @@ public class AddRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 1 Attr element with 2 Values
      */
+    @Test
     public void testRequestWith1AttrWith2Values()
     {
         Dsmlv2Parser parser = null;
@@ -509,6 +529,7 @@ public class AddRequestTest extends AbstractTest
      * 
      * DIRSTUDIO-1
      */
+    @Test
     public void testRequestWithNeededRequestId()
     {
         testParsingFail( AddRequestTest.class, "request_with_needed_requestID.xml" );

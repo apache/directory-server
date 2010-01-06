@@ -34,7 +34,10 @@ import org.apache.directory.shared.ldap.codec.del.DelResponseCodec;
 import org.apache.directory.shared.ldap.codec.extended.ExtendedResponseCodec;
 import org.apache.directory.shared.ldap.codec.modify.ModifyResponseCodec;
 import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNResponseCodec;
-
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Tests for the Compare Response parsing
@@ -47,6 +50,7 @@ public class BatchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the (optional) requestID attribute
      */
+    @Test
     public void testResponseWithRequestId()
     {
         Dsmlv2ResponseParser parser = null;
@@ -73,6 +77,7 @@ public class BatchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the (optional) requestID attribute equals 0
      */
+    @Test
     public void testResponseWithRequestIdEquals0()
     {
         testParsingFail( BatchResponseTest.class, "response_with_requestID_equals_0.xml" );
@@ -82,6 +87,7 @@ public class BatchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with 0 Response
      */
+    @Test
     public void testResponseWith0Reponse()
     {
         Dsmlv2ResponseParser parser = null;
@@ -108,6 +114,7 @@ public class BatchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the 1 AddResponse
      */
+    @Test
     public void testResponseWith1AddResponse()
     {
         Dsmlv2ResponseParser parser = null;
@@ -145,6 +152,7 @@ public class BatchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the 1 AuthResponse
      */
+    @Test
     public void testResponseWith1AuthResponse()
     {
         Dsmlv2ResponseParser parser = null;
@@ -182,6 +190,7 @@ public class BatchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the 1 CompareResponse
      */
+    @Test
     public void testResponseWith1CompareResponse()
     {
         Dsmlv2ResponseParser parser = null;
@@ -219,6 +228,7 @@ public class BatchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the 1 DelResponse
      */
+    @Test
     public void testResponseWith1DelResponse()
     {
         Dsmlv2ResponseParser parser = null;
@@ -256,6 +266,7 @@ public class BatchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the 1 ErrorResponse
      */
+    @Test
     public void testResponseWith1ErrorResponse()
     {
         Dsmlv2ResponseParser parser = null;
@@ -293,6 +304,7 @@ public class BatchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the 1 ExtendedResponse
      */
+    @Test
     public void testResponseWith1ExtendedResponse()
     {
         Dsmlv2ResponseParser parser = null;
@@ -330,6 +342,7 @@ public class BatchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the 1 ModDNResponse
      */
+    @Test
     public void testResponseWith1ModDNResponse()
     {
         Dsmlv2ResponseParser parser = null;
@@ -367,6 +380,7 @@ public class BatchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the 1 ModifyResponse
      */
+    @Test
     public void testResponseWith1ModifyResponse()
     {
         Dsmlv2ResponseParser parser = null;
@@ -404,6 +418,7 @@ public class BatchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the 1 SearchResponse
      */
+    @Test
     public void testResponseWith1SearchResponse()
     {
         Dsmlv2ResponseParser parser = null;
@@ -441,6 +456,7 @@ public class BatchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the 2 AddResponse
      */
+    @Test
     public void testResponseWith2AddResponse()
     {
         Dsmlv2ResponseParser parser = null;
@@ -478,6 +494,7 @@ public class BatchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the 2 AuthResponse
      */
+    @Test
     public void testResponseWith2AuthResponse()
     {
         Dsmlv2ResponseParser parser = null;
@@ -515,6 +532,7 @@ public class BatchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the 2 CompareResponse
      */
+    @Test
     public void testResponseWith2CompareResponse()
     {
         Dsmlv2ResponseParser parser = null;
@@ -552,6 +570,7 @@ public class BatchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the 2 DelResponse
      */
+    @Test
     public void testResponseWith2DelResponse()
     {
         Dsmlv2ResponseParser parser = null;
@@ -589,6 +608,7 @@ public class BatchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the 2 ErrorResponse
      */
+    @Test
     public void testResponseWith2ErrorResponse()
     {
         Dsmlv2ResponseParser parser = null;
@@ -626,6 +646,7 @@ public class BatchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the 2 ExtendedResponse
      */
+    @Test
     public void testResponseWith2ExtendedResponse()
     {
         Dsmlv2ResponseParser parser = null;
@@ -663,6 +684,7 @@ public class BatchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the 2 ModDNResponse
      */
+    @Test
     public void testResponseWith2ModDNResponse()
     {
         Dsmlv2ResponseParser parser = null;
@@ -700,6 +722,7 @@ public class BatchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the 2 ModifyResponse
      */
+    @Test
     public void testResponseWith2ModifyResponse()
     {
         Dsmlv2ResponseParser parser = null;
@@ -737,6 +760,7 @@ public class BatchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the 2 SearchResponse
      */
+    @Test
     public void testResponseWith2SearchResponse()
     {
         Dsmlv2ResponseParser parser = null;

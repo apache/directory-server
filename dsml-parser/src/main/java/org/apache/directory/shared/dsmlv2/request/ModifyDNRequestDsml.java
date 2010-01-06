@@ -76,7 +76,7 @@ public class ModifyDNRequestDsml extends AbstractRequestDsml
         // DN
         if ( request.getEntry() != null )
         {
-            element.addAttribute( "dn", request.getEntry().getUpName() );
+            element.addAttribute( "dn", request.getEntry().getName() );
         }
 
         // NewRDN
@@ -91,7 +91,7 @@ public class ModifyDNRequestDsml extends AbstractRequestDsml
         // NewSuperior
         if ( request.getNewRDN() != null )
         {
-            element.addAttribute( "newSuperior", request.getNewSuperior().getUpName() );
+            element.addAttribute( "newSuperior", request.getNewSuperior().getName() );
         }
 
         return element;

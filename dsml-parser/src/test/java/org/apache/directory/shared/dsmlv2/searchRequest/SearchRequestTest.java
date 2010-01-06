@@ -40,10 +40,14 @@ import org.apache.directory.shared.ldap.codec.search.PresentFilter;
 import org.apache.directory.shared.ldap.codec.search.SearchRequestCodec;
 import org.apache.directory.shared.ldap.codec.search.SubstringFilter;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.util.StringTools;
-
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
 /**
  * Tests for the Del Request parsing
@@ -56,6 +60,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request without the dn attribute
      */
+    @Test
     public void testRequestWithoutDn()
     {
         testParsingFail( SearchRequestTest.class, "request_without_dn_attribute.xml" );
@@ -65,6 +70,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with the dn attribute
      */
+    @Test
     public void testRequestWithDn()
     {
         Dsmlv2Parser parser = null;
@@ -91,6 +97,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with the (optional) requestID attribute
      */
+    @Test
     public void testRequestWithRequestId()
     {
         Dsmlv2Parser parser = null;
@@ -117,6 +124,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with the (optional) requestID attribute equals to 0
      */
+    @Test
     public void testRequestWithRequestIdEquals0()
     {
         testParsingFail( SearchRequestTest.class, "request_with_requestID_equals_0.xml" );
@@ -126,6 +134,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a (optional) Control element
      */
+    @Test
     public void testRequestWith1Control()
     {
         Dsmlv2Parser parser = null;
@@ -155,6 +164,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a (optional) Control element with Base64 value
      */
+    @Test
     public void testRequestWith1ControlBase64Value()
     {
         Dsmlv2Parser parser = null;
@@ -185,6 +195,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a (optional) Control element with empty value
      */
+    @Test
     public void testRequestWith1ControlEmptyValue()
     {
         Dsmlv2Parser parser = null;
@@ -215,6 +226,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 2 (optional) Control elements
      */
+    @Test
     public void testRequestWith2Controls()
     {
         Dsmlv2Parser parser = null;
@@ -245,6 +257,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 3 (optional) Control elements without value
      */
+    @Test
     public void testRequestWith3ControlsWithoutValue()
     {
         Dsmlv2Parser parser = null;
@@ -275,6 +288,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request without the Filter element
      */
+    @Test
     public void testRequestWithoutFilter()
     {
         testParsingFail( SearchRequestTest.class, "request_without_filter.xml" );
@@ -284,6 +298,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request without scope attribute
      */
+    @Test
     public void testRequestWithoutScopeAttribute()
     {
         testParsingFail( SearchRequestTest.class, "request_without_scope_attribute.xml" );
@@ -294,6 +309,7 @@ public class SearchRequestTest extends AbstractTest
      * Test parsing of a request with scope attribute to BaseObject value
      * @throws NamingException 
      */
+    @Test
     public void testRequestWithScopeBaseObject()
     {
         Dsmlv2Parser parser = null;
@@ -321,6 +337,7 @@ public class SearchRequestTest extends AbstractTest
      * Test parsing of a request with scope attribute to SingleLevel value
      * @throws NamingException 
      */
+    @Test
     public void testRequestWithScopeSingleLevel()
     {
         Dsmlv2Parser parser = null;
@@ -348,6 +365,7 @@ public class SearchRequestTest extends AbstractTest
      * Test parsing of a request with scope attribute to WholeSubtree value
      * @throws NamingException 
      */
+    @Test
     public void testRequestWithScopeWholeSubtree()
     {
         Dsmlv2Parser parser = null;
@@ -374,6 +392,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with scope attribute to Error value
      */
+    @Test
     public void testRequestWithScopeError()
     {
         testParsingFail( SearchRequestTest.class, "request_with_scope_error.xml" );
@@ -383,6 +402,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request without derefAliases attribute
      */
+    @Test
     public void testRequestWithoutDerefAliasesAttribute()
     {
         testParsingFail( SearchRequestTest.class, "request_without_derefAliases_attribute.xml" );
@@ -393,6 +413,7 @@ public class SearchRequestTest extends AbstractTest
      * Test parsing of a request with derefAliases attribute to derefAlways value
      * @throws NamingException 
      */
+    @Test
     public void testRequestWithDerefAliasesDerefAlways()
     {
         Dsmlv2Parser parser = null;
@@ -420,6 +441,7 @@ public class SearchRequestTest extends AbstractTest
      * Test parsing of a request with derefAliases attribute to derefFindingBaseObj value
      * @throws NamingException 
      */
+    @Test
     public void testRequestWithDerefAliasesDerefFindingBaseObj()
     {
         Dsmlv2Parser parser = null;
@@ -447,6 +469,7 @@ public class SearchRequestTest extends AbstractTest
      * Test parsing of a request with derefAliases attribute to derefinSearching value
      * @throws NamingException 
      */
+    @Test
     public void testRequestWithDerefAliasesDerefinSearching()
     {
         Dsmlv2Parser parser = null;
@@ -474,6 +497,7 @@ public class SearchRequestTest extends AbstractTest
      * Test parsing of a request with derefAliases attribute to neverDerefAliases value
      * @throws NamingException 
      */
+    @Test
     public void testRequestWithDerefAliasesNeverDerefAliases()
     {
         Dsmlv2Parser parser = null;
@@ -501,6 +525,7 @@ public class SearchRequestTest extends AbstractTest
      * Test parsing of a request with derefAliases attribute to Error value
      * @throws NamingException 
      */
+    @Test
     public void testRequestWithDerefAliasesError()
     {
         testParsingFail( SearchRequestTest.class, "request_with_derefAliases_error.xml" );
@@ -511,6 +536,7 @@ public class SearchRequestTest extends AbstractTest
      * Test parsing of a request with the sizeLimit (optional) attribute
      * @throws NamingException 
      */
+    @Test
     public void testRequestWithSizeLimitAttribute()
     {
         Dsmlv2Parser parser = null;
@@ -538,6 +564,7 @@ public class SearchRequestTest extends AbstractTest
      * Test parsing of a request with sizeLimit attribute to Error value
      * @throws NamingException 
      */
+    @Test
     public void testRequestWithSizeLimitError()
     {
         testParsingFail( SearchRequestTest.class, "request_with_sizeLimit_error.xml" );
@@ -548,6 +575,7 @@ public class SearchRequestTest extends AbstractTest
      * Test parsing of a request with the timeLimit (optional) attribute
      * @throws NamingException 
      */
+    @Test
     public void testRequestWithTimeLimitAttribute()
     {
         Dsmlv2Parser parser = null;
@@ -575,6 +603,7 @@ public class SearchRequestTest extends AbstractTest
      * Test parsing of a request with timeLimit attribute to Error value
      * @throws NamingException 
      */
+    @Test
     public void testRequestWithTimeLimitError()
     {
         testParsingFail( SearchRequestTest.class, "request_with_timeLimit_error.xml" );
@@ -584,6 +613,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with typesOnly to true
      */
+    @Test
     public void testRequestWithTypesOnlyTrue()
     {
         Dsmlv2Parser parser = null;
@@ -610,6 +640,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with typesOnly to 1
      */
+    @Test
     public void testRequestWithTypesOnly1()
     {
         Dsmlv2Parser parser = null;
@@ -636,6 +667,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with typesOnly to false
      */
+    @Test
     public void testRequestWithTypesOnlyFalse()
     {
         Dsmlv2Parser parser = null;
@@ -662,6 +694,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with typesOnly to 0
      */
+    @Test
     public void testRequestWithTypesOnlyRdn0()
     {
         Dsmlv2Parser parser = null;
@@ -688,6 +721,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with typesOnly to an error value
      */
+    @Test
     public void testRequestWithTypesOnlyError()
     {
         testParsingFail( SearchRequestTest.class, "request_with_typesOnly_error.xml" );
@@ -697,6 +731,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 2 Filter elements
      */
+    @Test
     public void testRequestWith2Filters()
     {
         testParsingFail( SearchRequestTest.class, "request_with_2_filters.xml" );
@@ -706,6 +741,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with Attibutes Element but not any Attribute element
      */
+    @Test
     public void testRequestWithAttributesButNoAttribute()
     {
         Dsmlv2Parser parser = null;
@@ -730,6 +766,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 2 Attributes elements
      */
+    @Test
     public void testRequestWith2AttributesElements()
     {
         testParsingFail( SearchRequestTest.class, "request_with_2_attributes_elements.xml" );
@@ -740,6 +777,7 @@ public class SearchRequestTest extends AbstractTest
      * Test parsing of a request with an Attributes element with 1 Attribute element
      * @throws NamingException 
      */
+    @Test
     public void testRequestWithAttributes1Attribute() throws NamingException
     {
         Dsmlv2Parser parser = null;
@@ -771,6 +809,7 @@ public class SearchRequestTest extends AbstractTest
      * Test parsing of a request with an Attributes element with 2 Attribute elements
      * @throws NamingException 
      */
+    @Test
     public void testRequestWithAttributes2Attribute() throws NamingException
     {
         Dsmlv2Parser parser = null;
@@ -804,6 +843,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 1 Attribute without name attribute
      */
+    @Test
     public void testRequestWithAttributeWithoutNameAttribute()
     {
         testParsingFail( SearchRequestTest.class, "request_with_attribute_without_name_attribute.xml" );
@@ -813,6 +853,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with empty Filter element
      */
+    @Test
     public void testRequestWithEmptyFilter()
     {
         testParsingFail( SearchRequestTest.class, "request_with_empty_filter.xml" );
@@ -822,6 +863,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an And Filter
      */
+    @Test
     public void testRequestWithAndFilter()
     {
         Dsmlv2Parser parser = null;
@@ -850,6 +892,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an Or Filter
      */
+    @Test
     public void testRequestWithOrFilter()
     {
         Dsmlv2Parser parser = null;
@@ -878,6 +921,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an Or Filter
      */
+    @Test
     public void testRequestWithNotFilter()
     {
         Dsmlv2Parser parser = null;
@@ -906,6 +950,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with empty Filter element
      */
+    @Test
     public void testRequestWithNotFilterWith2Children()
     {
         testParsingFail( SearchRequestTest.class, "filters/request_with_not_with_2_children.xml" );
@@ -915,6 +960,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an approxMatch Filter
      */
+    @Test
     public void testRequestWithApproxMatchFilter()
     {
         Dsmlv2Parser parser = null;
@@ -953,6 +999,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an approxMatch Filter with base64 value
      */
+    @Test
     public void testRequestWithApproxMatchFilterBase64Value()
     {
         Dsmlv2Parser parser = null;
@@ -991,6 +1038,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an approxMatch Filter with empty value
      */
+    @Test
     public void testRequestWithApproxMatchFilterEmptyValue()
     {
         Dsmlv2Parser parser = null;
@@ -1029,6 +1077,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with approxMatch Filter but no name attribute
      */
+    @Test
     public void testRequestWithApproxMatchFilterWithoutName()
     {
         testParsingFail( SearchRequestTest.class, "filters/request_with_approxMatch_without_name.xml" );
@@ -1038,6 +1087,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with approxMatch Filter but no value element
      */
+    @Test
     public void testRequestWithApproxMatchFilterWithoutValue()
     {
         testParsingFail( SearchRequestTest.class, "filters/request_with_approxMatch_without_value.xml" );
@@ -1047,6 +1097,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with approxMatch Filter with 2 Value elements
      */
+    @Test
     public void testRequestWithApproxMatchFilterWith2Values()
     {
         testParsingFail( SearchRequestTest.class, "filters/request_with_approxMatch_with_2_values.xml" );
@@ -1056,6 +1107,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an greaterOrEqual Filter
      */
+    @Test
     public void testRequestWithGreaterOrEqualFilter()
     {
         Dsmlv2Parser parser = null;
@@ -1094,6 +1146,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an greaterOrEqual Filter with base64 value
      */
+    @Test
     public void testRequestWithGreaterOrEqualFilterBase64Value()
     {
         Dsmlv2Parser parser = null;
@@ -1132,6 +1185,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an greaterOrEqual Filter with an empty value
      */
+    @Test
     public void testRequestWithGreaterOrEqualFilterEmptyValue()
     {
         Dsmlv2Parser parser = null;
@@ -1170,6 +1224,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with greaterOrEqual Filter but no name attribute
      */
+    @Test
     public void testRequestWithGreaterOrEqualFilterWithoutName()
     {
         testParsingFail( SearchRequestTest.class, "filters/request_with_greaterOrEqual_without_name.xml" );
@@ -1179,6 +1234,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with greaterOrEqual Filter but no value element
      */
+    @Test
     public void testRequestWithGreaterOrEqualFilterWithoutValue()
     {
         testParsingFail( SearchRequestTest.class, "filters/request_with_greaterOrEqual_without_value.xml" );
@@ -1188,6 +1244,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with greaterOrEqual Filter with 2 Value elements
      */
+    @Test
     public void testRequestWithGreaterOrEqualFilterWith2Values()
     {
         testParsingFail( SearchRequestTest.class, "filters/request_with_greaterOrEqual_with_2_values.xml" );
@@ -1197,6 +1254,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an lessOrEqual Filter
      */
+    @Test
     public void testRequestWithLessOrEqualFilter()
     {
         Dsmlv2Parser parser = null;
@@ -1235,6 +1293,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an lessOrEqual Filter with Base64 value
      */
+    @Test
     public void testRequestWithLessOrEqualFilterBase64Value()
     {
         Dsmlv2Parser parser = null;
@@ -1273,6 +1332,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an lessOrEqual Filter
      */
+    @Test
     public void testRequestWithLessOrEqualFilterEmptyValue()
     {
         Dsmlv2Parser parser = null;
@@ -1311,6 +1371,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with lessOrEqual Filter but no name attribute
      */
+    @Test
     public void testRequestWithLessOrEqualFilterWithoutName()
     {
         testParsingFail( SearchRequestTest.class, "filters/request_with_lessOrEqual_without_name.xml" );
@@ -1320,6 +1381,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with lessOrEqual Filter but no value element
      */
+    @Test
     public void testRequestWithLessOrEqualFilterWithoutValue()
     {
         testParsingFail( SearchRequestTest.class, "filters/request_with_lessOrEqual_without_value.xml" );
@@ -1329,6 +1391,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with lessOrEqual Filter with 2 Value elements
      */
+    @Test
     public void testRequestWithLessOrEqualFilterWith2Values()
     {
         testParsingFail( SearchRequestTest.class, "filters/request_with_lessOrEqual_with_2_values.xml" );
@@ -1338,6 +1401,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an Equality Filter
      */
+    @Test
     public void testRequestWithEqualityMatchFilter()
     {
         Dsmlv2Parser parser = null;
@@ -1376,6 +1440,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an Equality Filter with base64 value
      */
+    @Test
     public void testRequestWithEqualityMatchFilterBase64Value()
     {
         Dsmlv2Parser parser = null;
@@ -1414,6 +1479,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an Equality Filter with an empty value
      */
+    @Test
     public void testRequestWithEqualityMatchFilterWithEmptyValue()
     {
         Dsmlv2Parser parser = null;
@@ -1452,6 +1518,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with EqualityMatch Filter but no name attribute
      */
+    @Test
     public void testRequestWithEqualityMatchFilterWithoutName()
     {
         testParsingFail( SearchRequestTest.class, "filters/request_with_equalityMatch_without_name.xml" );
@@ -1461,6 +1528,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with EqualityMatch Filter but no value element
      */
+    @Test
     public void testRequestWithEqualityMatchFilterWithoutValue()
     {
         testParsingFail( SearchRequestTest.class, "filters/request_with_equalityMatch_without_value.xml" );
@@ -1470,6 +1538,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with EqualityMatch Filter with 2 Value elements
      */
+    @Test
     public void testRequestWithEqualityMatchFilterWith2Values()
     {
         testParsingFail( SearchRequestTest.class, "filters/request_with_equalityMatch_with_2_values.xml" );
@@ -1479,6 +1548,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an Present Filter
      */
+    @Test
     public void testRequestWithPresentFilter()
     {
         Dsmlv2Parser parser = null;
@@ -1511,6 +1581,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with Present Filter without name attribute
      */
+    @Test
     public void testRequestWithPresentWithoutName()
     {
         testParsingFail( SearchRequestTest.class, "filters/request_with_present_without_name.xml" );
@@ -1520,6 +1591,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an ExtensibleMatch Filter
      */
+    @Test
     public void testRequestWithExtensibleMatchFilter()
     {
         Dsmlv2Parser parser = null;
@@ -1554,6 +1626,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an ExtensibleMatch Filter
      */
+    @Test
     public void testRequestWithExtensibleMatchFilterBase64Value()
     {
         Dsmlv2Parser parser = null;
@@ -1588,6 +1661,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an ExtensibleMatch Filter with empty value
      */
+    @Test
     public void testRequestWithExtensibleMatchWithEmptyValue()
     {
         Dsmlv2Parser parser = null;
@@ -1622,6 +1696,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with ExtensibleMatch Filter without Value element
      */
+    @Test
     public void testRequestWithExtensibleMatchWithoutValue()
     {
         testParsingFail( SearchRequestTest.class, "filters/request_with_extensibleMatch_without_value.xml" );
@@ -1631,6 +1706,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with ExtensibleMatch Filter with 2 Value elements
      */
+    @Test
     public void testRequestWithExtensibleMatchWith2Values()
     {
         testParsingFail( SearchRequestTest.class, "filters/request_with_extensibleMatch_with_2_values.xml" );
@@ -1640,6 +1716,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with typesOnly to true
      */
+    @Test
     public void testRequestWithExtensibleMatchWithDnAttributesTrue()
     {
         Dsmlv2Parser parser = null;
@@ -1672,6 +1749,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with typesOnly to 1
      */
+    @Test
     public void testRequestWithExtensibleMatchWithDnAttributes1()
     {
         Dsmlv2Parser parser = null;
@@ -1704,6 +1782,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with typesOnly to false
      */
+    @Test
     public void testRequestWithExtensibleMatchWithDnAttributesFalse()
     {
         Dsmlv2Parser parser = null;
@@ -1736,6 +1815,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with typesOnly to 0
      */
+    @Test
     public void testRequestWithExtensibleMatchWithDnAttributes0()
     {
         Dsmlv2Parser parser = null;
@@ -1768,6 +1848,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with typesOnly to an error value
      */
+    @Test
     public void testRequestWithExtensibleMatchWithDnAttributesError()
     {
         testParsingFail( SearchRequestTest.class, "filters/request_with_extensibleMatch_with_dnAttributes_error.xml" );
@@ -1777,6 +1858,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a matchingRule attribute
      */
+    @Test
     public void testRequestWithExtensibleMatchWithMatchingRule()
     {
         Dsmlv2Parser parser = null;
@@ -1809,6 +1891,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a name attribute
      */
+    @Test
     public void testRequestWithExtensibleMatchWithName()
     {
         Dsmlv2Parser parser = null;
@@ -1841,6 +1924,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with an Substrings Filter
      */
+    @Test
     public void testRequestWithSubstringsFilter()
     {
         Dsmlv2Parser parser = null;
@@ -1873,6 +1957,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with Substrings Filter without name
      */
+    @Test
     public void testRequestWithSubstringsWithoutName()
     {
         testParsingFail( SearchRequestTest.class, "filters/request_with_substrings_without_name.xml" );
@@ -1882,6 +1967,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a Substrings Filter with 1 Initial element
      */
+    @Test
     public void testRequestWithSubstrings1Initial()
     {
         Dsmlv2Parser parser = null;
@@ -1914,6 +2000,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a Substrings Filter with 1 Initial element with Base64 value
      */
+    @Test
     public void testRequestWithSubstrings1Base64Initial()
     {
         Dsmlv2Parser parser = null;
@@ -1946,6 +2033,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a Substrings Filter with 1 emptyInitial element
      */
+    @Test
     public void testRequestWithSubstrings1EmptyInitial()
     {
         Dsmlv2Parser parser = null;
@@ -1978,6 +2066,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a Substrings Filter with 1 Initial and 1 Any elements
      */
+    @Test
     public void testRequestWithSubstrings1Initial1Any()
     {
         Dsmlv2Parser parser = null;
@@ -2016,6 +2105,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a Substrings Filter with 1 Initial and 1 Final elements
      */
+    @Test
     public void testRequestWithSubstrings1Initial1Final()
     {
         Dsmlv2Parser parser = null;
@@ -2050,6 +2140,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a Substrings Filter with 1 Any element
      */
+    @Test
     public void testRequestWithSubstrings1Any()
     {
         Dsmlv2Parser parser = null;
@@ -2085,6 +2176,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a Substrings Filter with 1 Any element
      */
+    @Test
     public void testRequestWithSubstrings1Base64Any()
     {
         Dsmlv2Parser parser = null;
@@ -2120,6 +2212,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a Substrings Filter with 1 empty Any element
      */
+    @Test
     public void testRequestWithSubstrings1EmptyAny()
     {
         Dsmlv2Parser parser = null;
@@ -2154,6 +2247,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a Substrings Filter with 1 Any element
      */
+    @Test
     public void testRequestWithSubstrings2Any()
     {
         Dsmlv2Parser parser = null;
@@ -2192,6 +2286,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a Substrings Filter with 1 Any and 1 Final elements
      */
+    @Test
     public void testRequestWithSubstrings1Any1Final()
     {
         Dsmlv2Parser parser = null;
@@ -2230,6 +2325,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a Substrings Filter with 1 Final element
      */
+    @Test
     public void testRequestWithSubstrings1Final()
     {
         Dsmlv2Parser parser = null;
@@ -2262,6 +2358,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a Substrings Filter with 1 Final element
      */
+    @Test
     public void testRequestWithSubstrings1Base64Final()
     {
         Dsmlv2Parser parser = null;
@@ -2294,6 +2391,7 @@ public class SearchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with a Substrings Filter with 1 empty Final element
      */
+    @Test
     public void testRequestWithSubstrings1EmptyFinal()
     {
         Dsmlv2Parser parser = null;
@@ -2328,6 +2426,7 @@ public class SearchRequestTest extends AbstractTest
      * 
      * DIRSTUDIO-1
      */
+    @Test
     public void testRequestWithNeededRequestId()
     {
         testParsingFail( SearchRequestTest.class, "request_with_needed_requestID.xml" );

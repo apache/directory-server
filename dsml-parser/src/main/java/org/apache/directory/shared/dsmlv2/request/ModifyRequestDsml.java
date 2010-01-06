@@ -83,7 +83,7 @@ public class ModifyRequestDsml extends AbstractRequestDsml
         // DN
         if ( request.getObject() != null )
         {
-            element.addAttribute( "dn", request.getObject().getUpName() );
+            element.addAttribute( "dn", request.getObject().getName() );
         }
 
         // Modifications

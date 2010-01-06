@@ -33,7 +33,11 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.util.StringTools;
-
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Tests for the Search Result Entry Response parsing
@@ -46,6 +50,7 @@ public class SearchResultEntryTest extends AbstractResponseTest
     /**
      * Test parsing of a response with a (optional) Control element
      */
+    @Test
     public void testResponseWith1Control()
     {
         Dsmlv2ResponseParser parser = null;
@@ -81,6 +86,7 @@ public class SearchResultEntryTest extends AbstractResponseTest
     /**
      * Test parsing of a response with a (optional) Control element with empty value
      */
+    @Test
     public void testResponseWith1ControlEmptyValue()
     {
         Dsmlv2ResponseParser parser = null;
@@ -112,6 +118,7 @@ public class SearchResultEntryTest extends AbstractResponseTest
     /**
      * Test parsing of a response with 2 (optional) Control elements
      */
+    @Test
     public void testResponseWith2Controls()
     {
         Dsmlv2ResponseParser parser = null;
@@ -147,6 +154,7 @@ public class SearchResultEntryTest extends AbstractResponseTest
     /**
      * Test parsing of a response with 3 (optional) Control elements without value
      */
+    @Test
     public void testResponseWith3ControlsWithoutValue()
     {
         Dsmlv2ResponseParser parser = null;
@@ -182,6 +190,7 @@ public class SearchResultEntryTest extends AbstractResponseTest
     /**
      * Test parsing of a response without dn Attribute
      */
+    @Test
     public void testResponseWithoutDnAttribute()
     {
         testParsingFail( SearchResultEntryTest.class, "response_without_dn_attribute.xml" );
@@ -191,6 +200,7 @@ public class SearchResultEntryTest extends AbstractResponseTest
     /**
      * Test parsing of a response with wrong dn Attribute
      */
+    @Test
     public void testResponseWithWrongDnAttribute()
     {
         testParsingFail( SearchResultEntryTest.class, "response_with_wrong_dn_attribute.xml" );
@@ -200,6 +210,7 @@ public class SearchResultEntryTest extends AbstractResponseTest
     /**
      * Test parsing of a response with dn Attribute
      */
+    @Test
     public void testResponseWithDnAttribute()
     {
         Dsmlv2ResponseParser parser = null;
@@ -227,6 +238,7 @@ public class SearchResultEntryTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the (optional) requestID attribute
      */
+    @Test
     public void testResponseWithRequestId()
     {
         Dsmlv2ResponseParser parser = null;
@@ -254,6 +266,7 @@ public class SearchResultEntryTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the (optional) requestID attribute equals 0
      */
+    @Test
     public void testResponseWithRequestIdEquals0()
     {
         testParsingFail( SearchResultEntryTest.class, "response_with_requestID_equals_0.xml" );
@@ -263,6 +276,7 @@ public class SearchResultEntryTest extends AbstractResponseTest
     /**
      * Test parsing of a response with 0 Attr
      */
+    @Test
     public void testResponseWith0Attr()
     {
         Dsmlv2ResponseParser parser = null;
@@ -287,6 +301,7 @@ public class SearchResultEntryTest extends AbstractResponseTest
     /**
      * Test parsing of a response with 1 Attr 0 Value
      */
+    @Test
     public void testResponseWith1Attr0Value()
     {
         Dsmlv2ResponseParser parser = null;
@@ -319,6 +334,7 @@ public class SearchResultEntryTest extends AbstractResponseTest
     /**
      * Test parsing of a response with 1 Attr 1 Value
      */
+    @Test
     public void testResponseWith1Attr1Value()
     {
         Dsmlv2ResponseParser parser = null;
@@ -357,6 +373,7 @@ public class SearchResultEntryTest extends AbstractResponseTest
      * Test parsing of a response with 1 Attr 1 Base64 Value
      * @throws UnsupportedEncodingException 
      */
+    @Test
     public void testResponseWith1Attr1Base64Value() throws UnsupportedEncodingException
     {
         Dsmlv2ResponseParser parser = null;
@@ -399,6 +416,7 @@ public class SearchResultEntryTest extends AbstractResponseTest
     /**
      * Test parsing of a response with 1 Attr 1 empty Value
      */
+    @Test
     public void testResponseWith1Attr1EmptyValue()
     {
         Dsmlv2ResponseParser parser = null;
@@ -437,6 +455,7 @@ public class SearchResultEntryTest extends AbstractResponseTest
     /**
      * Test parsing of a response with 1 Attr 2 Value
      */
+    @Test
     public void testResponseWith1Attr2Value()
     {
         Dsmlv2ResponseParser parser = null;
@@ -479,6 +498,7 @@ public class SearchResultEntryTest extends AbstractResponseTest
     /**
      * Test parsing of a response with 2 Attr 1 Value
      */
+    @Test
     public void testResponseWith2Attr1Value()
     {
         Dsmlv2ResponseParser parser = null;
@@ -525,6 +545,7 @@ public class SearchResultEntryTest extends AbstractResponseTest
     /**
      * Test parsing of a response with 1 Attr without name Attribute
      */
+    @Test
     public void testResponseWith1AttrWithoutNameAttribute()
     {
         testParsingFail( SearchResultEntryTest.class, "response_with_1_attr_without_name_attribute.xml" );

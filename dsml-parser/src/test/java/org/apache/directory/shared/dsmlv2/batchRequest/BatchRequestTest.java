@@ -36,7 +36,10 @@ import org.apache.directory.shared.ldap.codec.extended.ExtendedRequestCodec;
 import org.apache.directory.shared.ldap.codec.modify.ModifyRequestCodec;
 import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNRequestCodec;
 import org.apache.directory.shared.ldap.codec.search.SearchRequestCodec;
-
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Tests for the Compare Response parsing
@@ -49,6 +52,7 @@ public class BatchRequestTest extends AbstractTest
     /**
      * Test parsing of a Request with the (optional) requestID attribute
      */
+    @Test
     public void testResponseWithRequestId()
     {
         Dsmlv2Parser parser = null;
@@ -75,6 +79,7 @@ public class BatchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with the (optional) requestID attribute equals to 0
      */
+    @Test
     public void testRequestWithRequestIdEquals0()
     {
         testParsingFail( BatchRequestTest.class, "request_with_requestID_equals_0.xml" );
@@ -84,6 +89,7 @@ public class BatchRequestTest extends AbstractTest
     /**
      * Test parsing of a Request with the (optional) requestID attribute
      */
+    @Test
     public void testResponseWith0Request()
     {
         Dsmlv2Parser parser = null;
@@ -110,6 +116,7 @@ public class BatchRequestTest extends AbstractTest
     /**
      * Test parsing of a Request with 1 AuthRequest
      */
+    @Test
     public void testResponseWith1AuthRequest()
     {
         Dsmlv2Parser parser = null;
@@ -147,6 +154,7 @@ public class BatchRequestTest extends AbstractTest
     /**
      * Test parsing of a Request with 1 AddRequest
      */
+    @Test
     public void testResponseWith1AddRequest()
     {
         Dsmlv2Parser parser = null;
@@ -184,6 +192,7 @@ public class BatchRequestTest extends AbstractTest
     /**
      * Test parsing of a Request with 1 CompareRequest
      */
+    @Test
     public void testResponseWith1CompareRequest()
     {
         Dsmlv2Parser parser = null;
@@ -221,6 +230,7 @@ public class BatchRequestTest extends AbstractTest
     /**
      * Test parsing of a Request with 1 AbandonRequest
      */
+    @Test
     public void testResponseWith1AbandonRequest()
     {
         Dsmlv2Parser parser = null;
@@ -258,6 +268,7 @@ public class BatchRequestTest extends AbstractTest
     /**
      * Test parsing of a Request with 1 DelRequest
      */
+    @Test
     public void testResponseWith1DelRequest()
     {
         Dsmlv2Parser parser = null;
@@ -295,6 +306,7 @@ public class BatchRequestTest extends AbstractTest
     /**
      * Test parsing of a Request with 1 ExtendedRequest
      */
+    @Test
     public void testResponseWith1ExtendedRequest()
     {
         Dsmlv2Parser parser = null;
@@ -332,6 +344,7 @@ public class BatchRequestTest extends AbstractTest
     /**
      * Test parsing of a Request with 1 ModDNRequest
      */
+    @Test
     public void testResponseWith1ModDNRequest()
     {
         Dsmlv2Parser parser = null;
@@ -369,6 +382,7 @@ public class BatchRequestTest extends AbstractTest
     /**
      * Test parsing of a Request with 1 ModifyRequest
      */
+    @Test
     public void testResponseWith1ModifyRequest()
     {
         Dsmlv2Parser parser = null;
@@ -406,6 +420,7 @@ public class BatchRequestTest extends AbstractTest
     /**
      * Test parsing of a Request with 1 SearchRequest
      */
+    @Test
     public void testResponseWith1SearchRequest()
     {
         Dsmlv2Parser parser = null;
@@ -443,6 +458,7 @@ public class BatchRequestTest extends AbstractTest
     /**
      * Test parsing of a Request with 2 AddRequest
      */
+    @Test
     public void testResponseWith2AddRequest()
     {
         Dsmlv2Parser parser = null;
@@ -480,6 +496,7 @@ public class BatchRequestTest extends AbstractTest
     /**
      * Test parsing of a Request with 2 CompareRequest
      */
+    @Test
     public void testResponseWith2CompareRequest()
     {
         Dsmlv2Parser parser = null;
@@ -517,6 +534,7 @@ public class BatchRequestTest extends AbstractTest
     /**
      * Test parsing of a Request with 2 AbandonRequest
      */
+    @Test
     public void testResponseWith2AbandonRequest()
     {
         Dsmlv2Parser parser = null;
@@ -554,6 +572,7 @@ public class BatchRequestTest extends AbstractTest
     /**
      * Test parsing of a Request with 2 DelRequest
      */
+    @Test
     public void testResponseWith2DelRequest()
     {
         Dsmlv2Parser parser = null;
@@ -591,6 +610,7 @@ public class BatchRequestTest extends AbstractTest
     /**
      * Test parsing of a Request with 2 ExtendedRequest
      */
+    @Test
     public void testResponseWith2ExtendedRequest()
     {
         Dsmlv2Parser parser = null;
@@ -628,6 +648,7 @@ public class BatchRequestTest extends AbstractTest
     /**
      * Test parsing of a Request with 2 ModDNRequest
      */
+    @Test
     public void testResponseWith2ModDNRequest()
     {
         Dsmlv2Parser parser = null;
@@ -665,6 +686,7 @@ public class BatchRequestTest extends AbstractTest
     /**
      * Test parsing of a Request with 2 ModifyRequest
      */
+    @Test
     public void testResponseWith2ModifyRequest()
     {
         Dsmlv2Parser parser = null;
@@ -702,6 +724,7 @@ public class BatchRequestTest extends AbstractTest
     /**
      * Test parsing of a Request with 2 SearchRequest
      */
+    @Test
     public void testResponseWith2SearchRequest()
     {
         Dsmlv2Parser parser = null;
@@ -739,6 +762,7 @@ public class BatchRequestTest extends AbstractTest
     /**
      * Test parsing of a Request with 1 AuthRequest and 1 AddRequest
      */
+    @Test
     public void testResponseWith1AuthRequestAnd1AddRequest()
     {
         Dsmlv2Parser parser = null;
@@ -789,6 +813,7 @@ public class BatchRequestTest extends AbstractTest
     /**
      * Test parsing of a request with 1 wrong placed AuthRequest
      */
+    @Test
     public void testRequestWithWrongPlacedAuthRequest()
     {
         testParsingFail( BatchRequestTest.class, "request_with_wrong_placed_AuthRequest.xml" );

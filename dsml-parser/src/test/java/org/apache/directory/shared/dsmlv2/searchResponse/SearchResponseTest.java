@@ -24,7 +24,10 @@ package org.apache.directory.shared.dsmlv2.searchResponse;
 import org.apache.directory.shared.dsmlv2.AbstractResponseTest;
 import org.apache.directory.shared.dsmlv2.Dsmlv2ResponseParser;
 import org.apache.directory.shared.dsmlv2.reponse.SearchResponse;
-
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Tests for the Search Result Done Response parsing
@@ -37,6 +40,7 @@ public class SearchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the (optional) requestID attribute
      */
+    @Test
     public void testResponseWithRequestId()
     {
         Dsmlv2ResponseParser parser = null;
@@ -63,6 +67,7 @@ public class SearchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with the (optional) requestID attribute equals 0
      */
+    @Test
     public void testResponseWithRequestIdEquals0()
     {
         testParsingFail( SearchResponseTest.class, "response_with_requestID_equals_0.xml" );
@@ -72,6 +77,7 @@ public class SearchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with a Search Result Done
      */
+    @Test
     public void testResponseWithSRD()
     {
         Dsmlv2ResponseParser parser = null;
@@ -97,6 +103,7 @@ public class SearchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with 1 Search Result Entry and a Search Result Done
      */
+    @Test
     public void testResponseWith1SRE1SRD()
     {
         Dsmlv2ResponseParser parser = null;
@@ -125,6 +132,7 @@ public class SearchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with 1 Search Result Reference and a Search Result Done
      */
+    @Test
     public void testResponseWith1SRR1SRD()
     {
         Dsmlv2ResponseParser parser = null;
@@ -153,6 +161,7 @@ public class SearchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with 1 Search Result Entry, 1 Search Result Reference and a Search Result Done
      */
+    @Test
     public void testResponseWith1SRE1SRR1SRD()
     {
         Dsmlv2ResponseParser parser = null;
@@ -183,6 +192,7 @@ public class SearchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with 2 Search Result Entry and a Search Result Done
      */
+    @Test
     public void testResponseWith2SRE1SRD()
     {
         Dsmlv2ResponseParser parser = null;
@@ -211,6 +221,7 @@ public class SearchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with 2 Search Result Reference and a Search Result Done
      */
+    @Test
     public void testResponseWith2SRR1SRD()
     {
         Dsmlv2ResponseParser parser = null;
@@ -239,6 +250,7 @@ public class SearchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a Response with 2 Search Result Entry, 2 Search Result Reference and a Search Result Done
      */
+    @Test
     public void testResponseWith2SRE2SRR1SRD()
     {
         Dsmlv2ResponseParser parser = null;
@@ -269,6 +281,7 @@ public class SearchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with no Search Result Done
      */
+    @Test
     public void testResponseWith0SRD()
     {
         testParsingFail( SearchResponseTest.class, "response_with_0_SRD.xml" );
@@ -278,6 +291,7 @@ public class SearchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with 1 Search Result Entry but no Search Result Done
      */
+    @Test
     public void testResponseWith1SRE0SRD()
     {
         testParsingFail( SearchResponseTest.class, "response_with_1_SRE_0_SRD.xml" );
@@ -287,6 +301,7 @@ public class SearchResponseTest extends AbstractResponseTest
     /**
      * Test parsing of a response with 1 Search Result Reference but no Search Result Done
      */
+    @Test
     public void testResponseWith1SRR0SRD()
     {
         testParsingFail( SearchResponseTest.class, "response_with_1_SRR_0_SRD.xml" );
