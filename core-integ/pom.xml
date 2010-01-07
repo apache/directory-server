@@ -76,12 +76,6 @@
       <artifactId>apacheds-test-framework</artifactId>
       <version>${pom.version}</version>
     </dependency>  
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-avl-partition</artifactId>
-      <version>${pom.version}</version>
-    </dependency>  
   </dependencies>
 
   <profiles>
