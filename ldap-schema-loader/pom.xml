@@ -43,16 +43,22 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
       <artifactId>shared-ldap-schema</artifactId>
       <groupId>${pom.groupId}</groupId>
       <version>${pom.version}</version>
     </dependency> 
+
+    <dependency>
+      <artifactId>shared-asn1</artifactId>
+      <groupId>${pom.groupId}</groupId>
+      <version>${pom.version}</version>
+    </dependency> 
+
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
