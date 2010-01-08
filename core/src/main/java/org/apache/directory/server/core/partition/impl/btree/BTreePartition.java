@@ -524,13 +524,31 @@ public abstract class BTreePartition implements Partition
      */
     public abstract void setSubAliasIndexOn( Index<Long,ServerEntry> index ) throws Exception;
 
-    
+
     /**
      * {@inheritDoc}
      */
     public void setSuffix( String suffix ) throws InvalidNameException
     {
         this.suffix = new LdapDN( suffix );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getSuffix()
+    {
+        return suffix.getName();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public LdapDN getSuffixDn()
+    {
+        return suffix;
     }
 
 

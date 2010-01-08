@@ -483,18 +483,6 @@ public class AvlPartition extends BTreePartition
     }
 
 
-    public LdapDN getSuffixDn()
-    {
-        return suffix;
-    }
-    
-    
-    public String getSuffix()
-    {
-        return suffix.getName();
-    }
-
-
     public void bind( BindOperationContext opContext ) throws Exception
     {
         throw new UnsupportedOperationException( "bind is not supported at the partition level" );

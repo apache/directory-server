@@ -82,12 +82,6 @@ public class JdbmPartition extends BTreePartition
     // ------------------------------------------------------------------------
 
 
-    public LdapDN getSuffixDn()
-    {
-        return suffix;
-    }
-
-
     public boolean isOptimizerEnabled()
     {
         return optimizerEnabled;
@@ -470,12 +464,6 @@ public class JdbmPartition extends BTreePartition
     public final int getChildCount( Long id ) throws Exception
     {
         return store.getChildCount( id );
-    }
-
-    
-    public final String getSuffix()
-    {
-        return store.getSuffixDn();
     }
 
 

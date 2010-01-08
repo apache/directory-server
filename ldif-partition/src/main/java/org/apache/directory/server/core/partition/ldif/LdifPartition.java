@@ -1003,18 +1003,6 @@ public class LdifPartition extends BTreePartition
     }
 
 
-    public String getSuffix()
-    {
-        return wrappedPartition.getSuffix();
-    }
-    
-
-    public LdapDN getSuffixDn()
-    {
-        return suffix;
-    }
-
-
     public void unbind( UnbindOperationContext unbindContext ) throws Exception
     {
         wrappedPartition.unbind( unbindContext );
