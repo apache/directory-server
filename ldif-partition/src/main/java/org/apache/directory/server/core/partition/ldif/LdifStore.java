@@ -436,12 +436,6 @@ public class LdifStore<E> implements Store<E>
     }
 
 
-    public void initSchemaManager( SchemaManager schemaManager )
-    {
-        wrappedStore.initSchemaManager( schemaManager );
-    }
-
-
     public boolean isInitialized()
     {
         return wrappedStore.isInitialized();

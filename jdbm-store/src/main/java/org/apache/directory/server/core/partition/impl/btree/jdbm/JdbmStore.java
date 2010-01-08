@@ -2205,12 +2205,6 @@ public class JdbmStore<E> implements Store<E>
     }
 
 
-    public void initSchemaManager( SchemaManager schemaManager )
-    {
-        this.schemaManager = schemaManager;
-    }
-
-
     /**
      * @param schemaManager the schemaManager to set
      */

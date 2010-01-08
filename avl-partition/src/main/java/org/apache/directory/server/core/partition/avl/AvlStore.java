@@ -667,7 +667,7 @@ public class AvlStore<E> implements Store<E>
      */
     public void init( SchemaManager schemaManager ) throws Exception
     {
-        initSchemaManager( schemaManager );
+        this.schemaManager = schemaManager;
 
         OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
         ALIASED_OBJECT_NAME_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ALIASED_OBJECT_NAME_AT );
@@ -826,15 +826,6 @@ public class AvlStore<E> implements Store<E>
         {
             userIndices = new HashMap<String, AvlIndex<?, E>>();
         }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void initSchemaManager( SchemaManager schemaManager )
-    {
-        this.schemaManager = schemaManager;
     }
 
 

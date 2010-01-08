@@ -517,7 +517,4 @@ public interface Store<E>
 
 
     void move( LdapDN oldChildDn, LdapDN newParentDn ) throws Exception;
-
-
-    void initSchemaManager( SchemaManager schemaManager );
 }
