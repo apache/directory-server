@@ -1,0 +1,12 @@
+dn: cn=adsconfig,ou=schema
+createtimestamp: 20100108131217Z
+entryuuid:: 8h42HGpkQh+BW6Vdf5cztQ==
+cn: adsconfig
+entrycsn: 20100108131217.807000Z#000000#000#000000
+objectclass: metaSchema
+objectclass: top
+m-dependencies: system
+m-dependencies: core
+creatorsname: uid=admin,ou=system
+m-disabled: TRUE
+
