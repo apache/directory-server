@@ -86,23 +86,27 @@ public class DSAnnotationProcessor
             for ( CreatePartition createPartition : dsBuilder.partitions() )
             {
                 // Create the partition
-                Partition partition = new JdbmPartition();
+                Partition partition = createPartition.type().newInstance();
                 partition.setId( createPartition.name() );
                 partition.setSuffix( createPartition.suffix() );
                 partition.setSchemaManager( service.getSchemaManager() );
-                ( ( JdbmPartition ) partition ).setCacheSize( createPartition.cacheSize() );
-                ( ( JdbmPartition ) partition ).setPartitionDir( 
-                    new File( service.getWorkingDirectory(), createPartition.name() ) );
-                
-                // Process the indexes if any
-                CreateIndex[] indexes = createPartition.indexes();
 
-                for ( CreateIndex createIndex : indexes )
+                if ( partition instanceof JdbmPartition )
                 {
-                    Index<String, ServerEntry> index = new JdbmIndex<String, ServerEntry>( createIndex.attribute() );
-                    index.setCacheSize( createIndex.cacheSize() );
-                    
-                    ( ( JdbmPartition ) partition ).addIndexedAttributes( index );
+                    JdbmPartition jdbmPartition = ( JdbmPartition ) partition;
+                    jdbmPartition.setCacheSize( createPartition.cacheSize() );
+                    jdbmPartition.setPartitionDir( new File( service.getWorkingDirectory(), createPartition.name() ) );
+
+                    // Process the indexes if any
+                    CreateIndex[] indexes = createPartition.indexes();
+
+                    for ( CreateIndex createIndex : indexes )
+                    {
+                        Index<String, ServerEntry> index = new JdbmIndex<String, ServerEntry>( createIndex.attribute() );
+                        index.setCacheSize( createIndex.cacheSize() );
+
+                        jdbmPartition.addIndexedAttributes( index );
+                    }
                 }
                 
                 partition.setSchemaManager( service.getSchemaManager() );

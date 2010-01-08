@@ -23,6 +23,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+
 /**
  * An annotation for the Partition creation. A partition is defined by
  * a name and a suffix, plus some other characteristics. Here is an example :
@@ -51,6 +54,9 @@ import java.lang.annotation.Target;
 @Target( {ElementType.METHOD, ElementType.TYPE } )
 public @interface CreatePartition
 {
+    /** The partition implementation class */
+    Class<? extends Partition> type() default JdbmPartition.class;
+    
     /** The partition name */
     String name();
     
@@ -58,7 +64,7 @@ public @interface CreatePartition
     String suffix();
     
     /** The context entry */
-    ContextEntry contextEntry();
+    ContextEntry contextEntry() default @ContextEntry( entryLdif = "" );
     
     /** The associated indexes */
     CreateIndex[] indexes() default {};
