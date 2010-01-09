@@ -31,8 +31,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sun.reflect.Reflection;
-
 
 /**
  * Class to serialize the Array data.
@@ -150,7 +148,7 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
      */
     public ArrayTree<E> deserialize( byte[] data ) throws IOException
     {
-        LOG.debug( "Deserializing the tree, called by {}", Reflection.getCallerClass( 2 ).getSimpleName() );
+        //LOG.debug( "Deserializing the tree, called by {}", Reflection.getCallerClass( 2 ).getSimpleName() );
 
         try
         {
