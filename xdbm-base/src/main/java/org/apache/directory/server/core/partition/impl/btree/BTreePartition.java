@@ -45,7 +45,6 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.impl.btree.gui.PartitionViewer;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.Optimizer;
@@ -356,13 +355,6 @@ public abstract class BTreePartition implements Partition
 
 
     public abstract boolean isInitialized();
-
-
-    public void inspect() throws Exception
-    {
-        PartitionViewer viewer = new PartitionViewer( this, schemaManager );
-        viewer.execute();
-    }
 
 
     ////////////////////

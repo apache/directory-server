@@ -43,7 +43,7 @@
 
     <dependency>
       <groupId>${pom.groupId}</groupId>
-      <artifactId>apacheds-core-entry</artifactId>
+      <artifactId>apacheds-core-api</artifactId>
       <version>${pom.version}</version>
     </dependency>
   </dependencies>
