@@ -39,8 +39,6 @@ import javax.naming.InvalidNameException;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 
-import com.sun.org.apache.regexp.internal.RESyntaxException;
-
 
 /**
  * Various string manipulation methods that are more efficient then chaining
@@ -800,7 +798,7 @@ public class StringTools
      * @param finalPattern
      *            the final fragment after last wildcard if any
      * @return the regular expression for the substring match filter
-     * @throws RESyntaxException
+     * @throws PatternSyntaxException
      *             if a syntactically correct regular expression cannot be
      *             compiled
      */
@@ -842,7 +840,7 @@ public class StringTools
      * @param ldapRegex
      *            the substring match expression
      * @return the regular expression for the substring match filter
-     * @throws RESyntaxException
+     * @throws PatternSyntaxException
      *             if a syntactically correct regular expression cannot be
      *             compiled
      */
