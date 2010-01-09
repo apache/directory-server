@@ -21,26 +21,24 @@
 package org.apache.directory.shared.dsmlv2.addResponse;
 
 
-import java.util.List;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import javax.naming.NamingException;
+import java.util.List;
 
 import org.apache.directory.shared.dsmlv2.AbstractResponseTest;
 import org.apache.directory.shared.dsmlv2.Dsmlv2ResponseParser;
 import org.apache.directory.shared.ldap.codec.ControlCodec;
 import org.apache.directory.shared.ldap.codec.LdapResultCodec;
 import org.apache.directory.shared.ldap.codec.add.AddResponseCodec;
+import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.util.LdapURL;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
-
-import com.sun.jndi.ldap.LdapURL;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 
 
 /**
@@ -365,7 +363,7 @@ public class AddResponseTest extends AbstractResponseTest
         {
             assertEquals( new LdapURL( "ldap://www.apache.org/" ).toString(), referral.toString() );
         }
-        catch ( NamingException e )
+        catch ( LdapURLEncodingException e )
         {
             fail();
         }
@@ -438,7 +436,7 @@ public class AddResponseTest extends AbstractResponseTest
         {
             assertEquals( new LdapURL( "ldap://www.apache.org/" ).toString(), referral.toString() );
         }
-        catch ( NamingException e )
+        catch ( LdapURLEncodingException e )
         {
             fail();
         }
@@ -449,7 +447,7 @@ public class AddResponseTest extends AbstractResponseTest
         {
             assertEquals( new LdapURL( "ldap://www.apple.com/" ).toString(), referral2.toString() );
         }
-        catch ( NamingException e )
+        catch ( LdapURLEncodingException e )
         {
             fail();
         }
@@ -491,7 +489,7 @@ public class AddResponseTest extends AbstractResponseTest
         {
             assertEquals( new LdapURL( "ldap://www.apache.org/" ).toString(), referral.toString() );
         }
-        catch ( NamingException e )
+        catch ( LdapURLEncodingException e )
         {
             fail();
         }
