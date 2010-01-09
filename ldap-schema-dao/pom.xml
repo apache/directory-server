@@ -34,26 +34,6 @@
     File based schema data access object for managing schema data.
   </description>
   
-  <dependencies>
-    <dependency>
-      <artifactId>shared-ldap</artifactId>
-      <groupId>${pom.groupId}</groupId>
-      <version>${pom.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <artifactId>shared-ldap-schema-loader</artifactId>
-      <groupId>${pom.groupId}</groupId>
-      <version>${pom.version}</version>
-    </dependency> 
-  </dependencies>
-
   <build>
     <plugins>
       <plugin>

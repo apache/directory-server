@@ -41,28 +41,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-asn1</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-constants</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
-    
-    <dependency>
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap</artifactId>
       <version>${pom.version}</version>
@@ -74,11 +52,6 @@
       <version>${pom.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>antlr</groupId>
-      <artifactId>antlr</artifactId>
-    </dependency>
-    
     <dependency>
       <groupId>commons-pool</groupId>
       <artifactId>commons-pool</artifactId>

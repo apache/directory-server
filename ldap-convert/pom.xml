@@ -45,11 +45,6 @@
       <artifactId>shared-ldap</artifactId>
       <version>${pom.version}</version>
     </dependency>
-
-    <dependency>
-      <groupId>antlr</groupId>
-      <artifactId>antlr</artifactId>
-    </dependency>
   </dependencies>
 
   <build>
