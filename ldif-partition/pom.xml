@@ -37,18 +37,6 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-core-entry</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-core-avl</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-avl-partition</artifactId>
       <version>${pom.version}</version>
     </dependency>
@@ -58,51 +46,6 @@
       <artifactId>apacheds-core-mock</artifactId>
       <version>${pom.version}</version>
     </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-core-constants</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-core</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-xdbm-base</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-xdbm-search</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap</artifactId>
-      <version>${org.apache.directory.shared.version}</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-constants</artifactId>
-      <version>${org.apache.directory.shared.version}</version>
-    </dependency>    
-
-   <!-- this dependency exists only for using the DitToLdifWriter class.
-        should be dropped once the ldif partition moves into its own module -->
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-client-api</artifactId>
-      <version>${org.apache.directory.shared.version}</version>
-    </dependency>    
-
   </dependencies>
 
   <build>

@@ -28,7 +28,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.directory.server.http</groupId>
   <artifactId>apacheds-http-integration</artifactId>
-  <name>ApacheDS jetty http server integration</name>
+  <name>ApacheDS Jetty HTTP Server Integration</name>
   <version>1.5.6-SNAPSHOT</version>
   
   <properties>

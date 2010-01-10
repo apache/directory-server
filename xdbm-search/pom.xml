@@ -36,12 +36,6 @@
       <artifactId>apacheds-xdbm-base</artifactId>
       <version>${pom.version}</version>
     </dependency>
-
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>1.4</version>
-    </dependency>
     
     <dependency>
       <groupId>org.apache.directory.server</groupId>
@@ -54,20 +48,6 @@
       <groupId>${pom.groupId}</groupId>
       <artifactId>apacheds-xdbm-tools</artifactId>
       <version>${pom.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-schema</artifactId>
-      <version>${org.apache.directory.shared.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-schema-manager</artifactId>
-      <version>${org.apache.directory.shared.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

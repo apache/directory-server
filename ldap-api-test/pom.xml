@@ -42,51 +42,17 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
       <groupId>commons-net</groupId>
       <artifactId>commons-net</artifactId>
       <scope>test</scope>
     </dependency>
-
+    
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-server-jndi</artifactId>
+      <artifactId>apacheds-test-framework</artifactId>
       <version>${pom.version}</version>
       <scope>test</scope>
-    </dependency>  
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-server-integ</artifactId>
-      <version>${pom.version}</version>
-      <scope>test</scope>
-    </dependency>  
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-interceptor-kerberos</artifactId>
-      <version>${pom.version}</version>
-      <scope>test</scope>
-    </dependency>  
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-core-integ</artifactId>
-      <version>${pom.version}</version>
-      <scope>test</scope>
-    </dependency>  
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-client-api</artifactId>
-      <version>${org.apache.directory.shared.version}</version>
-      <scope>test</scope>
-    </dependency>  
+    </dependency>      
   </dependencies>
 
   <build>

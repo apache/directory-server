@@ -38,50 +38,8 @@
 
   <dependencies>
     <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-xdbm-search</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core-api</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-schema</artifactId>
-      <version>${org.apache.directory.shared.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-schema-manager</artifactId>
-      <version>${org.apache.directory.shared.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-xdbm-tools</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-core-entry</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-core-constants</artifactId>
       <version>${pom.version}</version>
     </dependency>
 
@@ -89,24 +47,6 @@
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-utils</artifactId>
       <version>${pom.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-jdbm-store</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-xdbm-base</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <version>${org.apache.directory.shared.version}</version>
-      <artifactId>shared-cursor</artifactId>
     </dependency>
 
     <dependency>

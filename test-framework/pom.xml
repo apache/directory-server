@@ -7,7 +7,7 @@
     <version>1.5.6-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-test-framework</artifactId>
-  <name>ApacheDS test framework</name>
+  <name>ApacheDS Test Framework</name>
   <packaging>jar</packaging>
   
   <description>
@@ -28,43 +28,7 @@
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-core-jndi</artifactId>
-      <version>${pom.version}</version>
-    </dependency>  
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-core-annotations</artifactId>
-      <version>${pom.version}</version>
-    </dependency>  
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-server-annotations</artifactId>
-      <version>${pom.version}</version>
-    </dependency>  
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-jdbm-partition</artifactId>
-      <version>${pom.version}</version>
-    </dependency>  
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-avl-partition</artifactId>
-      <version>${pom.version}</version>
-    </dependency>  
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-ldif-partition</artifactId>
-      <version>${pom.version}</version>
-    </dependency>  
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-protocol-shared</artifactId>
       <version>${pom.version}</version>
     </dependency>  
   </dependencies>

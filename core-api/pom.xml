@@ -42,18 +42,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-cursor</artifactId>
-      <version>${org.apache.directory.shared.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-schema-loader</artifactId>
-      <version>${org.apache.directory.shared.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core-constants</artifactId>
       <version>${pom.version}</version>

@@ -38,48 +38,9 @@
   <packaging>jar</packaging>  
 
   <dependencies>
-<!--
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-protocol-changepw</artifactId>
-      <version>${pom.version}</version>
-    </dependency>  
--->
-
-<!--
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-protocol-ntp</artifactId>
-      <version>${pom.version}</version>
-    </dependency>  
--->
-
-<!--
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-protocol-kerberos</artifactId>
-      <version>${pom.version}</version>
-    </dependency>  
--->
-
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-protocol-ldap</artifactId>
-      <version>${pom.version}</version>
-    </dependency>  
-
-<!--
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-protocol-dns</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
--->
-
-    <!-- TODO remove dependency on JNDI core -->
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-core-jndi</artifactId>
       <version>${pom.version}</version>
     </dependency>  
   </dependencies>

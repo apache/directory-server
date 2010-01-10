@@ -25,7 +25,6 @@ import jdbm.helper.LongSerializer;
 import jdbm.helper.Serializer;
 import jdbm.helper.StringComparator;
 
-import org.apache.directory.server.core.entry.ServerEntrySerializer;
 import org.apache.directory.server.xdbm.MasterTable;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;

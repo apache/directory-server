@@ -37,7 +37,17 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-jdbm-store</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-xdbm-search</artifactId>
       <version>${pom.version}</version>
     </dependency>
   </dependencies>

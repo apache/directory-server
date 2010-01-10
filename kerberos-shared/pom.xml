@@ -36,11 +36,6 @@
   <packaging>jar</packaging>  
 
   <dependencies>
-    <dependency>
-      <groupId>org.apache.mina</groupId>
-      <artifactId>mina-core</artifactId>
-    </dependency>
-
     <!-- TODO remove dependency on JNDI core -->
     <dependency>
       <groupId>org.apache.directory.server</groupId>

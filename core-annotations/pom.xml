@@ -9,7 +9,7 @@
   <artifactId>apacheds-core-annotations</artifactId>
   <packaging>jar</packaging>
   <version>1.5.6-SNAPSHOT</version>
-  <name>apacheds-core-annotations</name>
+  <name>ApacheDS Core Annotations</name>
   <description>Annotations used to define a DirectoryService</description>
   <dependencies>
     <dependency>
@@ -32,12 +32,6 @@
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-jdbm-partition</artifactId>
-      <version>${pom.version}</version>
-    </dependency>  
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-avl-partition</artifactId>
       <version>${pom.version}</version>
     </dependency>  
 

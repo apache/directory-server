@@ -42,21 +42,10 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>commons-net</groupId>
       <artifactId>commons-net</artifactId>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-server-jndi</artifactId>
-      <version>${pom.version}</version>
-    </dependency>  
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>
@@ -68,19 +57,6 @@
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core-integ</artifactId>
       <version>${pom.version}</version>
-    </dependency>  
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-test-framework</artifactId>
-      <version>${pom.version}</version>
-    </dependency>  
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-jdbm-partition</artifactId>
-      <version>${pom.version}</version>
-      <scope>test</scope>
     </dependency>  
 
     <dependency>

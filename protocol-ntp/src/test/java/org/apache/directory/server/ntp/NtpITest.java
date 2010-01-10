@@ -27,7 +27,6 @@ import org.apache.commons.net.ntp.NTPUDPClient;
 import org.apache.commons.net.ntp.TimeInfo;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
-import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.After;
@@ -36,7 +35,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
 /**
- * An {@link AbstractServerTest} testing the Network Time Protocol (NTP).
+ * An test testing the Network Time Protocol (NTP).
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$

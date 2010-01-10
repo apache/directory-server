@@ -34,12 +34,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <version>${org.apache.directory.shared.version}</version>
-      <artifactId>shared-cursor</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.directory.server</groupId>
       <version>${pom.version}</version>
       <artifactId>apacheds-xdbm-base</artifactId>
