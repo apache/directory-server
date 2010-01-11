@@ -227,9 +227,16 @@
         <configuration>
           <minmemory>512m</minmemory>
           <maxmemory>1g</maxmemory>
-          <aggregate>true</aggregate>
           <linksource>true</linksource>
         </configuration>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>aggregate</report>
+              <report>test-aggregate</report>
+            </reports>
+          </reportSet>
+        </reportSets>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
