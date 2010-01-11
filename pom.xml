@@ -420,7 +420,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
-          <aggregate>true</aggregate>
           <linksource>true</linksource>
           <tags>
             <tag>
@@ -455,6 +454,14 @@
             </tag>
           </tags>
         </configuration>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>aggregate</report>
+              <report>test-aggregate</report>
+            </reports>
+          </reportSet>
+        </reportSets>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
