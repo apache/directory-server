@@ -1,0 +1,42 @@
+dn: ou=config
+objectClass: organizationalUnit
+objectClass: extensibleObject
+objectClass: top
+ou: config
+
+dn: ou=directoryService,ou=config
+objectClass: organizationalUnit
+objectClass: top
+ou: directoryService
+
+dn: ou=interceptors,ou=directoryService,ou=config
+objectClass: organizationalUnit
+objectClass: top
+ou: interceptors
+
+dn: ou=partitions,ou=directoryService,ou=config
+objectClass: organizationalUnit
+objectClass: top
+ou: partitions
+
+dn: ads-partitionId=system,ou=partitions,ou=directoryService,ou=config
+objectClass: ads-partition
+objectClass: ads-jdbmPartition
+objectClass: top
+ads-partitionId: system
+ads-partitionIndexedAttributes: ou=system
+ads-partitionSuffix: ou=system
+
+dn: ou=indexes,ads-partitionId=system,ou=partitions,ou=directoryService,ou=c
+ onfig
+objectClass: organizationalUnit
+objectClass: top
+ou: indexes
+
+dn: ads-indexAttributeId=ou,ou=indexes,ads-partitionId=system,ou=partitions,
+ ou=directoryService,ou=config
+objectClass: ads-jdbmIndex
+objectClass: ads-index
+objectClass: top
+ads-indexAttributeId: ou
+
