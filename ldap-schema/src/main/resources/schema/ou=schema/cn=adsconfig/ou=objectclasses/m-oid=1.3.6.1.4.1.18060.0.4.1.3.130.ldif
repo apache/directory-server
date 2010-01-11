@@ -1,14 +1,16 @@
 dn: m-oid=1.3.6.1.4.1.18060.0.4.1.3.130, ou=objectClasses, cn=adsconfig, ou=sche
  ma
-createtimestamp: 20100107184950Z
-entryuuid:: 0Zbvv71OEC1EQO+/vdq477+9W0Qyew==
+createtimestamp: 20100111145217Z
+m-must: ads-interceptorId
+m-must: ads-interceptorOrder
+m-must: ads-interceptorClassName
+entryuuid:: Om9CMu+/vRNIOe+/vQQeEO+/vXLvv70=
 m-oid: 1.3.6.1.4.1.18060.0.4.1.3.130
-entrycsn: 20100108001950.144000Z#000000#000#000000
+entrycsn: 20100111202217.914000Z#000000#000#000000
 m-description: The Interceptor ObjectClass
 objectclass: metaObjectClass
 objectclass: metaTop
 objectclass: top
 m-name: ads-interceptor
 creatorsname: 0.9.2342.19200300.100.1.1=admin,2.5.4.11=system
-m-may: ads-changeLogEnabled
-m-may: ads-changeLogExposed
+m-may: ads-enabled

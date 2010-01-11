@@ -1,9 +1,9 @@
 dn: m-oid=1.3.6.1.4.1.18060.0.4.1.3.800, ou=objectClasses, cn=adsconfig, ou=sche
  ma
-createtimestamp: 20100107184950Z
-entryuuid:: Ru+/ve+/vVJ3BE9H77+977+977+9de+/ve+/vVXvv70=
+createtimestamp: 20100111145218Z
+entryuuid:: QiPvv71677+977+9Q1bvv71p77+9Zu+/vV/vv71S
 m-oid: 1.3.6.1.4.1.18060.0.4.1.3.800
-entrycsn: 20100108001950.779000Z#000000#000#000000
+entrycsn: 20100111202218.281000Z#000000#000#000000
 m-supobjectclass: ads-catalogBasedServer
 m-description: The ChangePassword ObjectClass
 objectclass: metaObjectClass

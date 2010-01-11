@@ -1,9 +1,9 @@
 dn: m-oid=1.3.6.1.4.1.18060.0.4.1.3.300, ou=objectClasses, cn=adsconfig, ou=sche
  ma
-createtimestamp: 20100107184950Z
-entryuuid:: 77+9BATvv73vv70iTjDvv70vFO+/vQ==
+createtimestamp: 20100111145218Z
+entryuuid:: HjYYVk01Sk/vv70C77+9dxvvv71XfQ==
 m-oid: 1.3.6.1.4.1.18060.0.4.1.3.300
-entrycsn: 20100108001950.493000Z#000000#000#000000
+entrycsn: 20100111202218.120000Z#000000#000#000000
 m-supobjectclass: ads-catalogBasedServer
 m-description: The LdapServer ObjectClass
 objectclass: metaObjectClass

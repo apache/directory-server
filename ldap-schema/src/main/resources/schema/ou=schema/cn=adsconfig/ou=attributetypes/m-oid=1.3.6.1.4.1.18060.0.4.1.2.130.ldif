@@ -1,13 +1,13 @@
 dn: m-oid=1.3.6.1.4.1.18060.0.4.1.2.130, ou=attributeTypes, cn=adsconfig, ou=sch
  ema
-createtimestamp: 20100107184947Z
+createtimestamp: 20100111145215Z
 m-singlevalue: TRUE
-entryuuid:: 77+9Ju+/ve+/vcOwQe+/ve+/ve+/vcu5Le+/ve+/vQ==
+entryuuid:: UO+/vXDvv70BBkM+77+94bqk77+94aG3
 m-description: The Interceptor identifier
 creatorsname: 0.9.2342.19200300.100.1.1=admin,2.5.4.11=system
 m-ordering: caseExactOrderingMatch
 m-oid: 1.3.6.1.4.1.18060.0.4.1.2.130
-entrycsn: 20100108001947.605000Z#000000#000#000000
+entrycsn: 20100111202215.800000Z#000000#000#000000
 m-substr: caseExactSubstringsMatch
 m-syntax: 1.3.6.1.4.1.1466.115.121.1.44
 objectclass: metaTop

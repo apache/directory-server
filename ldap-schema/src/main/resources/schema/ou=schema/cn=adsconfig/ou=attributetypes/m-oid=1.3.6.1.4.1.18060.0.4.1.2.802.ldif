@@ -1,13 +1,13 @@
 dn: m-oid=1.3.6.1.4.1.18060.0.4.1.2.802, ou=attributeTypes, cn=adsconfig, ou=sch
  ema
-createtimestamp: 20100107184949Z
+createtimestamp: 20100111145217Z
 m-singlevalue: TRUE
-entryuuid:: aRrPo2ZAQV7vv70e77+92anvv73vv71a
+entryuuid:: 77+9eO+/ve+/vVHvv71IJe+/vSXvv70sIO+/vXU0
 m-description: The policy token size
 creatorsname: 0.9.2342.19200300.100.1.1=admin,2.5.4.11=system
 m-ordering: integerOrderingMatch
 m-oid: 1.3.6.1.4.1.18060.0.4.1.2.802
-entrycsn: 20100108001949.507000Z#000000#000#000000
+entrycsn: 20100111202217.232000Z#000000#000#000000
 m-syntax: 1.3.6.1.4.1.1466.115.121.1.27
 objectclass: metaTop
 objectclass: metaAttributeType

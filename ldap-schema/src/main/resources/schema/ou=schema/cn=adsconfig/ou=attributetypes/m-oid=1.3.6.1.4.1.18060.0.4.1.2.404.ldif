@@ -1,10 +1,10 @@
 dn: m-oid=1.3.6.1.4.1.18060.0.4.1.2.404, ou=attributeTypes, cn=adsconfig, ou=sch
  ema
-createtimestamp: 20100107184949Z
+createtimestamp: 20100111145216Z
 m-singlevalue: TRUE
-entryuuid:: 77+977+9Ke+/vUhMQcaYdu+/vTYT77+9AA0=
+entryuuid:: 77+977+977+977+977+9SB7vv73vv73vv70IU++/vcWP
 m-oid: 1.3.6.1.4.1.18060.0.4.1.2.404
-entrycsn: 20100108001949.031000Z#000000#000#000000
+entrycsn: 20100111202216.889000Z#000000#000#000000
 m-description: Whether pre-authentication by encrypted timestamp is required
 m-syntax: 1.3.6.1.4.1.1466.115.121.1.7
 objectclass: metaTop

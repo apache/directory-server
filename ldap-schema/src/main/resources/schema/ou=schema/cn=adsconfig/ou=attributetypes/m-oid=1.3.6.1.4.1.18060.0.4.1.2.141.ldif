@@ -1,13 +1,13 @@
 dn: m-oid=1.3.6.1.4.1.18060.0.4.1.2.141, ou=attributeTypes, cn=adsconfig, ou=sch
  ema
-createtimestamp: 20100107184947Z
+createtimestamp: 20100111145215Z
 m-singlevalue: TRUE
-entryuuid:: Rzfvv73vv71zdUXvv71pbGYx77+9QO+/vQ==
+entryuuid:: QkVYUu+/vVtF77+977+977+9Ec2C77+977+9
 m-description: The size before a journal rotation occurs.
 creatorsname: 0.9.2342.19200300.100.1.1=admin,2.5.4.11=system
 m-ordering: integerOrderingMatch
 m-oid: 1.3.6.1.4.1.18060.0.4.1.2.141
-entrycsn: 20100108001947.805000Z#000000#000#000000
+entrycsn: 20100111202215.890000Z#000000#000#000000
 m-syntax: 1.3.6.1.4.1.1466.115.121.1.27
 objectclass: metaTop
 objectclass: metaAttributeType

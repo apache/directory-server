@@ -1,10 +1,10 @@
 dn: m-oid=1.3.6.1.4.1.18060.0.4.1.2.104, ou=attributeTypes, cn=adsconfig, ou=sch
  ema
-createtimestamp: 20100107184946Z
+createtimestamp: 20100111145215Z
 m-singlevalue: TRUE
-entryuuid:: TW/vv73vv73vv70+TCbvv70jYzECEAoJ
+entryuuid:: 77+9AEjvv70ATkbKoe+/ve+/vd2o77+9XA==
 m-oid: 1.3.6.1.4.1.18060.0.4.1.2.104
-entrycsn: 20100108001946.915000Z#000000#000#000000
+entrycsn: 20100111202215.273000Z#000000#000#000000
 m-description: Tells if the password is stored encrypted even for PLAIN authenti
  cation
 m-syntax: 1.3.6.1.4.1.1466.115.121.1.7

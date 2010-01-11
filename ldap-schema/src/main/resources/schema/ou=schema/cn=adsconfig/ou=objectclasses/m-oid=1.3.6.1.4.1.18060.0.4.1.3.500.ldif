@@ -1,9 +1,9 @@
 dn: m-oid=1.3.6.1.4.1.18060.0.4.1.3.500, ou=objectClasses, cn=adsconfig, ou=sche
  ma
-createtimestamp: 20100107184950Z
-entryuuid:: MzPvv73vv73vv70+S0nvv73vv702P++/vQfvv70=
+createtimestamp: 20100111145218Z
+entryuuid:: PT9SFFPvv71K77+9B++/vUHvv71xXkI=
 m-oid: 1.3.6.1.4.1.18060.0.4.1.3.500
-entrycsn: 20100108001950.594000Z#000000#000#000000
+entrycsn: 20100111202218.190000Z#000000#000#000000
 m-supobjectclass: ads-catalogBasedServer
 m-description: The DnsServer ObjectClass
 objectclass: metaObjectClass
