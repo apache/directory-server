@@ -21,12 +21,18 @@
 package org.apache.directory.server.core.factory;
 
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
@@ -117,7 +123,9 @@ public class ConfigPartitionReader
         // MUST attributes
         dirService.setInstanceId( getString( "ads-directoryServiceId", dsEntry ) );
         dirService.setReplicaId( getInt( "ads-dsReplicaId", dsEntry ) );
-        // dirService.setInterceptors( interceptors );
+
+        List<Interceptor> interceptors = getInterceptors( new LdapDN( dsEntry.get( "ads-dsInterceptors" ).getString() ) );
+        dirService.setInterceptors( interceptors );
 
         // MAY attributes
         EntryAttribute acEnabledAttr = dsEntry.get( "ads-dsAccessControlEnabled" );
@@ -192,11 +200,116 @@ public class ConfigPartitionReader
                 // decide which one to use based on this flag
             }
         }
+    }
 
-        LdapDN interceptorsDN = new LdapDN( dsEntry.get( "ads-dsInterceptors" ).getString() );
-        filter = new PresenceNode( "ads-interceptorId" );
+
+    /**
+     * reads the Interceptor configuration and instantiates them in the order specified
+     *
+     * @param interceptorsDN the DN under which interceptors are configured
+     * @return a list of instatiated Interceptor objects
+     * @throws Exception
+     */
+    private List<Interceptor> getInterceptors( LdapDN interceptorsDN ) throws Exception
+    {
+        PresenceNode filter = new PresenceNode( "ads-interceptorId" );
+        SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        cursor = se.cursor( interceptorsDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
+        IndexCursor cursor = se.cursor( interceptorsDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
+
+        Set<InterceptorConfig> set = new TreeSet<InterceptorConfig>();
+
+        while ( cursor.next() )
+        {
+            ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor.get();
+            ServerEntry interceptorEntry = configPartition.lookup( forwardEntry.getValue() );
+
+            String id = getString( "ads-interceptorId", interceptorEntry );
+            String fqcn = getString( "ads-interceptorClassName", interceptorEntry );
+            int order = getInt( "ads-interceptorOrder", interceptorEntry );
+
+            InterceptorConfig intConfig = new InterceptorConfig( id, fqcn, order );
+            set.add( intConfig );
+        }
+    
+        cursor.close();
+        
+        List<Interceptor> interceptors = new ArrayList<Interceptor>();
+
+        for( InterceptorConfig iconfig : set )
+        {
+            try
+            {
+                LOG.debug( "loading the interceptor class {} and instantiating", iconfig.getFqcn() );
+                Interceptor ic = ( Interceptor ) Class.forName( iconfig.getFqcn() ).newInstance();
+                interceptors.add( ic );
+            }
+            catch( Exception e )
+            {
+                throw e;
+            }
+        }
+        
+        return interceptors;
+    }
+
+    
+    /**
+     * internal class used for holding the Interceptor classname and order configuration
+     */
+    private class InterceptorConfig implements Comparable<InterceptorConfig>
+    {
+
+        private String id;
+        private String fqcn;
+        private int order;
+
+
+        public InterceptorConfig( String id, String fqcn, int order )
+        {
+            if( order < 1 )
+            {
+                throw new IllegalArgumentException( "Invalid interceptor order" );
+            }
+            
+            this.id = id;
+            this.fqcn = fqcn;
+            this.order = order;
+        }
+
+
+        public int compareTo( InterceptorConfig o )
+        {
+            if ( order > o.order )
+            {
+                return 1;
+            }
+            else if ( order < o.order )
+            {
+                return -1;
+            }
+
+            return 0;
+        }
+
+
+        /**
+         * @return the fqcn
+         */
+        public String getFqcn()
+        {
+            return fqcn;
+        }
+
+
+        /**
+         * @return the id
+         */
+        public String getId()
+        {
+            return id;
+        }
+
     }
 
 
