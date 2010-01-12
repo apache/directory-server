@@ -79,6 +79,8 @@ public class ClientBindRequestTest extends AbstractLdapTestUnit
             BindResponse bindResponse = connection.bind( "uid=admin,ou=system", "secret" );
             
             assertNotNull( bindResponse );
+            assertNotNull( bindResponse.getLdapResult() );
+            assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
             
             connection.unBind();
         }
@@ -114,7 +116,6 @@ public class ClientBindRequestTest extends AbstractLdapTestUnit
 
         try
         {
-            long t0 = System.currentTimeMillis();
             lock.acquire();
             
             for ( ; i < nbLoop; i++)
@@ -125,14 +126,12 @@ public class ClientBindRequestTest extends AbstractLdapTestUnit
                 bindRequest.setName( "uid=admin,ou=system" );
                 bindRequest.setCredentials( "secret" );
                 
-    
                 connection.bind( bindRequest, new BindListener()
                 {
                     public void bindCompleted( LdapConnection connection, BindResponse bindResponse ) throws LdapException
                     {
                         assertNotNull( bindResponse );
                         assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
-                        //System.out.println( "Bound" );
                         lock.release();
                     }
                 } );
@@ -140,15 +139,7 @@ public class ClientBindRequestTest extends AbstractLdapTestUnit
                 lock.acquire();
                 lock.release();
                 connection.unBind();
-                
-                if ( i % 100 == 0 )
-                {
-                    System.out.println( i );
-                }
             }
-            
-            long t1 = System.currentTimeMillis();
-            System.out.println( (t1 - t0) );
         }
         catch ( LdapException le )
         {
