@@ -1,5 +1,4 @@
-dn: m-oid=1.3.6.1.4.1.18060.0.4.1.3.18, ou=objectClasses, cn=adsconfig, ou=schem
- a
+dn: m-oid=1.3.6.1.4.1.18060.0.4.1.3.18, ou=objectClasses, cn=adsconfig, ou=schema
 createtimestamp: 20100111145218Z
 m-must: ads-transportId
 m-must: ipServicePort
