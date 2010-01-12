@@ -21,8 +21,12 @@
 package org.apache.directory.server.core.factory;
 
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -34,15 +38,20 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
+import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.SearchEngine;
+import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +72,10 @@ public class ConfigPartitionReader
     /** the search engine of the partition */
     private SearchEngine<ServerEntry> se;
 
+    private SchemaManager schemaManager;
+    
+    private File workDir;
+    
     private static final Logger LOG = LoggerFactory.getLogger( ConfigPartitionReader.class );
 
 
@@ -86,6 +99,8 @@ public class ConfigPartitionReader
 
         this.configPartition = configPartition;
         se = configPartition.getSearchEngine();
+        this.schemaManager = configPartition.getSchemaManager();
+        workDir = configPartition.getPartitionDir().getParentFile();        
     }
 
 
@@ -96,7 +111,7 @@ public class ConfigPartitionReader
      * @throws Exception
      */
     @SuppressWarnings("unchecked")
-    public void getDirectoryService() throws Exception
+    public DirectoryService getDirectoryService() throws Exception
     {
 
         PresenceNode filter = new PresenceNode( "ads-directoryServiceId" );
@@ -115,7 +130,7 @@ public class ConfigPartitionReader
         ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor.get();
         cursor.close();
 
-        ClonedServerEntry dsEntry = configPartition.lookup( forwardEntry.getValue() );
+        ClonedServerEntry dsEntry = configPartition.lookup( forwardEntry.getId() );
 
         LOG.debug( "dirServiceEntry {}", dsEntry );
 
@@ -124,9 +139,21 @@ public class ConfigPartitionReader
         dirService.setInstanceId( getString( "ads-directoryServiceId", dsEntry ) );
         dirService.setReplicaId( getInt( "ads-dsReplicaId", dsEntry ) );
 
-        List<Interceptor> interceptors = getInterceptors( new LdapDN( dsEntry.get( "ads-dsInterceptors" ).getString() ) );
+        LdapDN interceptorsDN = new LdapDN( dsEntry.get( "ads-dsInterceptors" ).getString() );
+        interceptorsDN.normalize( configPartition.getSchemaManager().getNormalizerMapping() );
+        List<Interceptor> interceptors = getInterceptors( interceptorsDN );
         dirService.setInterceptors( interceptors );
 
+        LdapDN partitionsDN = new LdapDN( dsEntry.get( "ads-dsPartitions" ).getString() );
+        partitionsDN.normalize( configPartition.getSchemaManager().getNormalizerMapping() );
+        
+        Map<String, Partition> partitions = getPartitions( partitionsDN );
+
+        Partition system = partitions.remove( "system" );
+        dirService.setSystemPartition( system );
+        
+        dirService.setPartitions( new HashSet( partitions.values() ) );
+        
         // MAY attributes
         EntryAttribute acEnabledAttr = dsEntry.get( "ads-dsAccessControlEnabled" );
         if ( acEnabledAttr != null )
@@ -189,17 +216,14 @@ public class ConfigPartitionReader
             //process the test entries, should this be a FS location?
         }
 
-        EntryAttribute enabledAttr = dsEntry.get( "ads-enabled" );
-        if ( enabledAttr != null )
+        if ( !isEnabled( dsEntry ) )
         {
-            boolean enabled = Boolean.parseBoolean( enabledAttr.getString() );
-            if ( !enabled )
-            {
-                // will only be useful if we ever allow more than one DS to be configured and
-                // switch between them
-                // decide which one to use based on this flag
-            }
+            // will only be useful if we ever allow more than one DS to be configured and
+            // switch between them
+            // decide which one to use based on this flag
         }
+        
+        return dirService;
     }
 
 
@@ -207,7 +231,7 @@ public class ConfigPartitionReader
      * reads the Interceptor configuration and instantiates them in the order specified
      *
      * @param interceptorsDN the DN under which interceptors are configured
-     * @return a list of instatiated Interceptor objects
+     * @return a list of instantiated Interceptor objects
      * @throws Exception
      */
     private List<Interceptor> getInterceptors( LdapDN interceptorsDN ) throws Exception
@@ -222,7 +246,7 @@ public class ConfigPartitionReader
         while ( cursor.next() )
         {
             ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor.get();
-            ServerEntry interceptorEntry = configPartition.lookup( forwardEntry.getValue() );
+            ServerEntry interceptorEntry = configPartition.lookup( forwardEntry.getId() );
 
             String id = getString( "ads-interceptorId", interceptorEntry );
             String fqcn = getString( "ads-interceptorClassName", interceptorEntry );
@@ -253,6 +277,127 @@ public class ConfigPartitionReader
         return interceptors;
     }
 
+
+    private Map<String,Partition> getPartitions( LdapDN partitionsDN ) throws Exception
+    {
+        PresenceNode filter = new PresenceNode( "ads-partitionId" );
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        IndexCursor cursor = se.cursor( partitionsDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
+        
+        Map<String,Partition> partitions = new HashMap<String,Partition>();
+        
+        while( cursor.next() )
+        {
+            ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor.get();
+            ServerEntry partitionEntry = configPartition.lookup( forwardEntry.getId() );
+
+            System.out.println( partitionsDN );
+            if( !isEnabled( partitionEntry ) )
+            {
+                continue;
+            }
+            EntryAttribute ocAttr = partitionEntry.get( "objectClass" );
+            if( ocAttr.contains( "ads-jdbmPartition" ) )
+            {
+                JdbmPartition partition = getJdbmPartition( partitionEntry );
+                partitions.put( partition.getId(), partition );
+            }
+            else
+            {
+                throw new NotImplementedException( "yet to implement" );
+            }
+        }
+        
+        cursor.close();
+        
+        return partitions;
+    }
+    
+    
+    private JdbmPartition getJdbmPartition( ServerEntry partitionEntry ) throws Exception
+    {
+        JdbmPartition partition = new JdbmPartition();
+        partition.setSchemaManager( schemaManager );
+        
+        partition.setId( getString( "ads-partitionId", partitionEntry ) );
+        partition.setPartitionDir( new File( workDir, partition.getId() ) );
+        
+        partition.setSuffix( getString( "ads-partitionSuffix", partitionEntry ) );
+        
+        EntryAttribute cacheAttr = partitionEntry.get( "ads-partitionCacheSize" );
+        if( cacheAttr != null )
+        {
+            partition.setCacheSize( Integer.parseInt( cacheAttr.getString() ) );
+        }
+        
+        EntryAttribute optimizerAttr = partitionEntry.get( "ads-jdbmPartitionOptimizerEnabled" );
+        if( optimizerAttr != null )
+        {
+            partition.setOptimizerEnabled( Boolean.parseBoolean( optimizerAttr.getString() ) );
+        }
+        
+        EntryAttribute syncAttr = partitionEntry.get( "ads-partitionSyncOnWrite" );
+        if( syncAttr != null )
+        {
+            partition.setSyncOnWrite( Boolean.parseBoolean( syncAttr.getString() ) );
+        }
+
+        String indexesDN = partitionEntry.get( "ads-partitionIndexedAttributes" ).getString();
+        
+        Set<Index<?,ServerEntry>> indexedAttributes = getIndexes( new LdapDN( indexesDN ) );
+        partition.setIndexedAttributes( indexedAttributes );
+
+        return partition;
+    }
+    
+
+    private Set<Index<?,ServerEntry>> getIndexes( LdapDN indexesDN ) throws Exception
+    {
+        PresenceNode filter = new PresenceNode( "ads-indexAttributeId" );
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        IndexCursor cursor = se.cursor( indexesDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
+        
+        Set<Index<?,ServerEntry>> indexes = new HashSet<Index<?,ServerEntry>>();
+        
+        while( cursor.next() )
+        {
+            ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor.get();
+            ServerEntry indexEntry = configPartition.lookup( forwardEntry.getId() );
+            if( !isEnabled( indexEntry ) )
+            {
+                continue;
+            }
+            
+            EntryAttribute ocAttr = indexEntry.get( "objectClass" );
+            if( ocAttr.contains( "ads-jdbmIndex" ) )
+            {
+                indexes.add( getJdbmIndex( indexEntry ) );
+            }
+            else
+            {
+                throw new NotImplementedException( "yet to implement" );
+            }
+        }
+        
+        return indexes;
+    }
+    
+    
+    private JdbmIndex<?, ServerEntry> getJdbmIndex( ServerEntry indexEntry ) throws Exception
+    {
+        JdbmIndex<?, ServerEntry> index = new JdbmIndex();
+        index.setAttributeId( getString( "ads-indexAttributeId", indexEntry ) );
+        EntryAttribute cacheAttr = indexEntry.get( "ads-indexCacheSize" );
+        if( cacheAttr != null )
+        {
+            index.setCacheSize( Integer.parseInt( cacheAttr.getString() ) );
+        }
+        
+        return index;
+    }
+    
     
     /**
      * internal class used for holding the Interceptor classname and order configuration
@@ -330,4 +475,18 @@ public class ConfigPartitionReader
         return Integer.parseInt( entry.get( attrName ).getString() );
     }
 
+    
+    private boolean isEnabled( Entry entry ) throws Exception
+    {
+        EntryAttribute enabledAttr = entry.get( "ads-enabled" );
+        if( enabledAttr != null )
+        {
+            return Boolean.parseBoolean( enabledAttr.getString() );
+        }
+        else
+        {
+            return true;
+        }
+        
+    }
 }
