@@ -143,8 +143,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
- *  Describe the methods to be implemented by the LdapConnection class.
+ * This class is the base for every operations sent or received to and
+ * from a LDAP server.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -991,7 +991,7 @@ public class LdapConnection  extends IoHandlerAdapter
         bindRequest.setName( name );
         bindRequest.setCredentials( credentials );
         
-        BindResponse response = bind( bindRequest, null );
+        BindResponse response = bind( bindRequest );
 
         if ( LOG.isDebugEnabled() )
         {
@@ -1018,7 +1018,49 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     public BindResponse bind( BindRequest bindRequest ) throws LdapException
     {
-        return bind( bindRequest, null );
+        ResponseFuture responseFuture = bind( bindRequest, null );
+        
+        // Get the result from the future
+        try
+        {
+            // Read the response, waiting for it if not available immediately
+            long timeout = getTimeout( bindRequest.getTimeout() );
+            
+            // Get the response, blocking
+            BindResponse bindResponse = (BindResponse)responseFuture.get( timeout, TimeUnit.MILLISECONDS );
+
+            // Everything is fine, return the response
+            LOG.debug( "Bind successful : {}", bindResponse );
+            
+            return bindResponse;
+        }
+        catch ( TimeoutException te )
+        {
+            // Send an abandon request
+            if( !responseFuture.isCancelled() )
+            {
+                abandon( bindRequest.getMessageId() );
+            }
+            
+            // We didn't received anything : this is an error
+            LOG.error( "Bind failed : timeout occured" );
+            throw new LdapException( TIME_OUT_ERROR );
+        }
+        catch ( Exception ie )
+        {
+            // Catch all other exceptions
+            LOG.error( NO_RESPONSE_ERROR, ie );
+            LdapException ldapException = new LdapException( NO_RESPONSE_ERROR );
+            ldapException.initCause( ie );
+            
+            // Send an abandon request
+            if( !responseFuture.isCancelled() )
+            {
+                abandon( bindRequest.getMessageId() );
+            }
+            
+            throw ldapException;
+        }
     }
         
 
@@ -1027,8 +1069,9 @@ public class LdapConnection  extends IoHandlerAdapter
      *
      * @param bindRequest The BindRequest to send
      * @param listener The listener 
+     * @return ResponseFuture A future
      */
-    public BindResponse bind( BindRequest bindRequest, BindListener bindListener ) throws LdapException 
+    public ResponseFuture bind( BindRequest bindRequest, BindListener bindListener ) throws LdapException 
     {
         // First try to connect, if we aren't already connected.
         connect();
@@ -1041,12 +1084,16 @@ public class LdapConnection  extends IoHandlerAdapter
 
         // Creates the messageID and stores it into the 
         // initial message and the transmitted message.
+        // As it's a Bind request, qe reset the MessageId 
+        // value to zero.
+        messageId.set( 0 );
         int newId = messageId.incrementAndGet();
         bindRequest.setMessageId( newId );
         bindMessage.setMessageId( newId );
         
         if( bindListener != null )
         {
+            // This is an asynchronous bind
             listenerMap.put( newId, bindListener );
         }
         
@@ -1101,62 +1148,21 @@ public class LdapConnection  extends IoHandlerAdapter
         LOG.debug( "-----------------------------------------------------------------" );
         LOG.debug( "Sending request \n{}", bindMessage );
 
+        // Create a future for this Bind opeation
         ResponseFuture responseFuture = new ResponseFuture( bindResponseQueue );
         futureMap.put( newId, responseFuture );
 
         // Send the request to the server
         ldapSession.write( bindMessage );
         
-        if ( bindListener == null )
+        if ( bindListener != null )
         {
-            // And get the result
-            try
-            {
-                // Read the response, waiting for it if not available immediately
-                long timeout = getTimeout( bindRequest.getTimeout() );
-                
-                // Get the response, blocking
-                BindResponse bindResponse = (BindResponse)responseFuture.get( timeout, TimeUnit.MILLISECONDS );
-    
-                // Everything is fine, return the response
-                LOG.debug( "Bind successful : {}", bindResponse );
-                
-                return bindResponse;
-            }
-            catch ( TimeoutException te )
-            {
-                // Send an abandon request
-                if( !responseFuture.isCancelled() )
-                {
-                    abandon( bindRequest.getMessageId() );
-                }
-                
-                // We didn't received anything : this is an error
-                LOG.error( "Bind failed : timeout occured" );
-                throw new LdapException( TIME_OUT_ERROR );
-            }
-            catch ( Exception ie )
-            {
-                // Catch all other exceptions
-                LOG.error( NO_RESPONSE_ERROR, ie );
-                LdapException ldapException = new LdapException( NO_RESPONSE_ERROR );
-                ldapException.initCause( ie );
-                
-                // Send an abandon request
-                if( !responseFuture.isCancelled() )
-                {
-                    abandon( bindRequest.getMessageId() );
-                }
-                
-                throw ldapException;
-            }
-        }
-        else
-        {
-            // Return null.
+            // If this is an asynchronous operation, associate the ID
+            // with the operation listener
             listenerMap.put( newId, bindListener );
-            return null;
         }
+        
+        return responseFuture;
     }
     
     
