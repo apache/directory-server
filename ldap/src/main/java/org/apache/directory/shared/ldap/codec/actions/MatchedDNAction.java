@@ -33,7 +33,6 @@ import org.apache.directory.shared.ldap.codec.LdapResultCodec;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,15 +89,16 @@ public class MatchedDNAction extends GrammarAction
                 case INVALID_DN_SYNTAX :
                 case ALIAS_DEREFERENCING_PROBLEM :
                     byte[] dnBytes = tlv.getValue().getData();
+                    String dnStr = StringTools.utf8ToString( dnBytes );
                     
                     try
                     {
-                        ldapResult.setMatchedDN( new LdapDN( dnBytes ) );
+                        ldapResult.setMatchedDN( new LdapDN( dnStr ) );
                     }
                     catch ( InvalidNameException ine )
                     {
                         // This is for the client side. We will never decode LdapResult on the server
-                        String msg = "Incorrect DN given : " + StringTools.utf8ToString( dnBytes ) + 
+                        String msg = "Incorrect DN given : " + dnStr + 
                             " (" + StringTools.dumpBytes( dnBytes )
                             + ") is invalid";
                         log.error( "{} : {}", msg, ine.getMessage() );

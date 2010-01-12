@@ -1630,36 +1630,6 @@ public class LdapDNTest
 
 
     /**
-     * Class to test for void LdapName(List)
-     */
-    @Test
-    public void testLdapNameList() throws InvalidNameException
-    {
-        List<String> list = new ArrayList<String>();
-        list.add( "ou=People" );
-        list.add( "dc=example" );
-        list.add( "dc=com" );
-        Name name = new LdapDN( list );
-        assertTrue( name.toString().equals( "ou=People,dc=example,dc=com" ) );
-    }
-
-
-    /**
-     * Class to test for void LdapName(Iterator)
-     */
-    @Test
-    public void testLdapNameIterator() throws InvalidNameException
-    {
-        List<String> list = new ArrayList<String>();
-        list.add( "ou=People" );
-        list.add( "dc=example" );
-        list.add( "dc=com" );
-        Name name = new LdapDN( list.iterator() );
-        assertTrue( name.toString().equals( "ou=People,dc=example,dc=com" ) );
-    }
-
-
-    /**
      * Class to test for Object clone()
      *
      * @throws Exception
@@ -2507,11 +2477,7 @@ public class LdapDNTest
     @Test
     public void testLdapNameToName() throws Exception
     {
-        List<String> list = new ArrayList<String>();
-        list.add( "ou= Some   People   " );
-        list.add( "dc = eXample" );
-        list.add( "dc= cOm" );
-        LdapDN name = new LdapDN( list.iterator() );
+        LdapDN name = new LdapDN( "ou= Some   People   ", "dc = eXample", "dc= cOm" );
 
         assertTrue( name.getName().equals( "ou= Some   People   ,dc = eXample,dc= cOm" ) );
 
@@ -2524,11 +2490,7 @@ public class LdapDNTest
     @Test
     public void testRdnGetTypeUpName() throws Exception
     {
-        List<String> list = new ArrayList<String>();
-        list.add( "ou= Some   People   " );
-        list.add( "dc = eXample" );
-        list.add( "dc= cOm" );
-        LdapDN name = new LdapDN( list.iterator() );
+        LdapDN name = new LdapDN( "ou= Some   People   ", "dc = eXample", "dc= cOm" );
 
         assertTrue( name.getName().equals( "ou= Some   People   ,dc = eXample,dc= cOm" ) );
 

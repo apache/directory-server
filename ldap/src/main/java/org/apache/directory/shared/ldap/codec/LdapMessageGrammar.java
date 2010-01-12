@@ -369,14 +369,15 @@ public class LdapMessageGrammar extends AbstractGrammar
                     else
                     {
                         byte[] dnBytes = tlv.getValue().getData();
+                        String dnStr = StringTools.utf8ToString( dnBytes );
 
                         try
                         {
-                            entry = new LdapDN( dnBytes );
+                            entry = new LdapDN( dnStr );
                         }
                         catch ( InvalidNameException ine )
                         {
-                            String msg = "The DN to delete : " + StringTools.utf8ToString( dnBytes ) + " ("
+                            String msg = "The DN to delete : " + dnStr + " ("
                                 + StringTools.dumpBytes( dnBytes ) + ") is invalid";
                             log.error( "{} : {}", msg, ine.getMessage() );
 
@@ -598,15 +599,16 @@ public class LdapMessageGrammar extends AbstractGrammar
                     else
                     {
                         byte[] dnBytes = tlv.getValue().getData();
+                        String dnStr = StringTools.utf8ToString( dnBytes );
 
                         try
                         {
-                            LdapDN dn = new LdapDN( dnBytes );
+                            LdapDN dn = new LdapDN( dnStr );
                             bindRequestMessage.setName( dn );
                         }
                         catch ( InvalidNameException ine )
                         {
-                            String msg = "Incorrect DN given : " + StringTools.utf8ToString( dnBytes ) + " ("
+                            String msg = "Incorrect DN given : " + dnStr + " ("
                                 + StringTools.dumpBytes( dnBytes ) + ") is invalid";
                             log.error( "{} : {}", msg, ine.getMessage() );
 
@@ -1179,10 +1181,11 @@ public class LdapMessageGrammar extends AbstractGrammar
                     else
                     {
                         byte[] dnBytes = tlv.getValue().getData();
+                        String dnStr = StringTools.utf8ToString( dnBytes );
 
                         try
                         {
-                            objectName = new LdapDN( dnBytes );
+                            objectName = new LdapDN( dnStr );
                         }
                         catch ( InvalidNameException ine )
                         {
@@ -1487,14 +1490,15 @@ public class LdapMessageGrammar extends AbstractGrammar
                     else
                     {
                         byte[] dnBytes = tlv.getValue().getData();
+                        String dnStr = StringTools.utf8ToString( dnBytes );
 
                         try
                         {
-                            object = new LdapDN( dnBytes );
+                            object = new LdapDN( dnStr );
                         }
                         catch ( InvalidNameException ine )
                         {
-                            String msg = "Invalid DN given : " + StringTools.utf8ToString( dnBytes ) + " ("
+                            String msg = "Invalid DN given : " + dnStr + " ("
                                 + StringTools.dumpBytes( dnBytes ) + ") is invalid";
                             log.error( "{} : {}", msg, ine.getMessage() );
 
@@ -1933,14 +1937,15 @@ public class LdapMessageGrammar extends AbstractGrammar
                     {
                         LdapDN entryDn = null;
                         byte[] dnBytes = tlv.getValue().getData();
+                        String dnStr = StringTools.utf8ToString( dnBytes );
 
                         try
                         {
-                            entryDn = new LdapDN( dnBytes );
+                            entryDn = new LdapDN( dnStr );
                         }
                         catch ( InvalidNameException ine )
                         {
-                            String msg = "Invalid DN given : " + StringTools.utf8ToString( dnBytes ) + " ("
+                            String msg = "Invalid DN given : " + dnStr + " ("
                                 + StringTools.dumpBytes( dnBytes ) + ") is invalid";
                             log.error( "{} : {}", msg, ine.getMessage() );
 
@@ -2251,14 +2256,15 @@ public class LdapMessageGrammar extends AbstractGrammar
                     else
                     {
                         byte[] dnBytes = tlv.getValue().getData();
+                        String dnStr = StringTools.utf8ToString( dnBytes );
 
                         try
                         {
-                            entry = new LdapDN( dnBytes );
+                            entry = new LdapDN( dnStr );
                         }
                         catch ( InvalidNameException ine )
                         {
-                            String msg = "Invalid DN given : " + StringTools.utf8ToString( dnBytes ) + " ("
+                            String msg = "Invalid DN given : " + dnStr + " ("
                                 + StringTools.dumpBytes( dnBytes ) + ") is invalid";
                             log.error( "{} : {}", msg, ine.getMessage() );
 
@@ -2321,15 +2327,16 @@ public class LdapMessageGrammar extends AbstractGrammar
                     else
                     {
                         byte[] dnBytes = tlv.getValue().getData();
+                        String dnStr = StringTools.utf8ToString( dnBytes );
 
                         try
                         {
-                            LdapDN dn = new LdapDN( dnBytes );
+                            LdapDN dn = new LdapDN( dnStr );
                             newRdn = dn.getRdn( 0 );
                         }
                         catch ( InvalidNameException ine )
                         {
-                            String msg = "Invalid new RDN given : " + StringTools.utf8ToString( dnBytes ) + " ("
+                            String msg = "Invalid new RDN given : " + dnStr + " ("
                                 + StringTools.dumpBytes( dnBytes ) + ") is invalid";
                             log.error( "{} : {}", msg, ine.getMessage() );
 
@@ -2457,14 +2464,15 @@ public class LdapMessageGrammar extends AbstractGrammar
                     else
                     {
                         byte[] dnBytes = tlv.getValue().getData();
+                        String dnStr = StringTools.utf8ToString( dnBytes );
 
                         try
                         {
-                            newSuperior = new LdapDN( dnBytes );
+                            newSuperior = new LdapDN( dnStr );
                         }
                         catch ( InvalidNameException ine )
                         {
-                            String msg = "Invalid new superior DN given : " + StringTools.utf8ToString( dnBytes )
+                            String msg = "Invalid new superior DN given : " + dnStr
                                 + " (" + StringTools.dumpBytes( dnBytes ) + ") is invalid";
                             log.error( "{} : {}", msg, ine.getMessage() );
 
@@ -2612,14 +2620,15 @@ public class LdapMessageGrammar extends AbstractGrammar
                     else
                     {
                         byte[] dnBytes = tlv.getValue().getData();
+                        String dnStr = StringTools.utf8ToString( dnBytes );
 
                         try
                         {
-                            entry = new LdapDN( dnBytes );
+                            entry = new LdapDN( dnStr );
                         }
                         catch ( InvalidNameException ine )
                         {
-                            String msg = "Invalid DN given : " + StringTools.utf8ToString( dnBytes ) + " ("
+                            String msg = "Invalid DN given : " + dnStr + " ("
                                 + StringTools.dumpBytes( dnBytes ) + ") is invalid";
                             log.error( "{} : {}", msg, ine.getMessage() );
 
@@ -3722,14 +3731,15 @@ public class LdapMessageGrammar extends AbstractGrammar
                     if ( tlv.getLength() != 0 )
                     {
                         byte[] dnBytes = tlv.getValue().getData();
+                        String dnStr = StringTools.utf8ToString( dnBytes );
 
                         try
                         {
-                            baseObject = new LdapDN( dnBytes );
+                            baseObject = new LdapDN( dnStr );
                         }
                         catch ( InvalidNameException ine )
                         {
-                            String msg = "Invalid root DN given : " + StringTools.utf8ToString( dnBytes ) + " ("
+                            String msg = "Invalid root DN given : " + dnStr + " ("
                                 + StringTools.dumpBytes( dnBytes ) + ") is invalid";
                             log.error( "{} : {}", msg, ine.getMessage() );
 

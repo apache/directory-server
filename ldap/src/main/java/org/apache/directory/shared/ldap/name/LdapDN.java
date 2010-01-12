@@ -27,7 +27,6 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -143,49 +142,6 @@ public class LdapDN implements Name, Externalizable
 
 
     /**
-     * Creates an ldap name using a list of NameComponents. Each NameComponent
-     * is a String
-     *
-     * @param list of String name components.
-     * @throws InvalidNameException If the nameComponent is incorrect
-     */
-    public LdapDN( List<String> list ) throws InvalidNameException
-    {
-        if ( ( list != null ) && ( list.size() != 0 ) )
-        {
-            for ( String nameComponent : list )
-            {
-                add( 0, nameComponent );
-            }
-        }
-
-        normalized = false;
-
-    }
-
-
-    /**
-     * Creates an ldap name using a list of name components.
-     *
-     * @param nameComponents List of String name components.
-     * @throws InvalidNameException If the nameComponent is incorrect
-     */
-    public LdapDN( Iterator<String> nameComponents ) throws InvalidNameException
-    {
-        if ( nameComponents != null )
-        {
-            while ( nameComponents.hasNext() )
-            {
-                String nameComponent = nameComponents.next();
-                add( 0, nameComponent );
-            }
-        }
-
-        normalized = false;
-    }
-
-
-    /**
      * Parse a String and checks that it is a valid DN <br>
      * <p>
      * &lt;distinguishedName&gt; ::= &lt;name&gt; | e <br>
@@ -233,13 +189,13 @@ public class LdapDN implements Name, Externalizable
      * @param upNames
      * @throws InvalidNameException
      */
-    public LdapDN( String... upNames ) throws InvalidNameException
+    public LdapDN( String... upRdns ) throws InvalidNameException
     {
         StringBuilder sb = new StringBuilder();
         boolean valueExpected = false;
         boolean isFirst = true;
         
-        for ( String upName : upNames )
+        for ( String upRdn : upRdns )
         {
             if ( isFirst )
             {
@@ -252,16 +208,16 @@ public class LdapDN implements Name, Externalizable
             
             if ( !valueExpected )
             {
-                sb.append( upName );
+                sb.append( upRdn );
                 
-                if ( upName.indexOf( '=' ) == -1 )
+                if ( upRdn.indexOf( '=' ) == -1 )
                 {
                     valueExpected = true;
                 }
             }
             else
             {
-                sb.append( "=" ).append( upName );
+                sb.append( "=" ).append( upRdn );
                 
                 valueExpected = false;
             }
@@ -339,27 +295,6 @@ public class LdapDN implements Name, Externalizable
         {
             throw new InvalidNameException( ne.getMessage() );
         }
-    }
-
-
-    /**
-     * Parse a buffer and checks that it is a valid DN <br>
-     * <p>
-     * &lt;distinguishedName&gt; ::= &lt;name&gt; | e <br>
-     * &lt;name&gt; ::= &lt;name-component&gt; &lt;name-components&gt; <br>
-     * &lt;name-components&gt; ::= &lt;spaces&gt; &lt;separator&gt;
-     * &lt;spaces&gt; &lt;name-component&gt; &lt;name-components&gt; | e <br>
-     * </p>
-     *
-     * @param bytes The byte buffer that contains the DN.
-     * @throws InvalidNameException if the buffer does not contains a valid DN.
-     */
-    public LdapDN( byte[] bytes ) throws InvalidNameException
-    {
-        upName = StringTools.utf8ToString( bytes );
-        LdapDnParser.parseInternal( upName, rdns );
-        this.normName = toNormName();
-        normalized = false;
     }
 
 
