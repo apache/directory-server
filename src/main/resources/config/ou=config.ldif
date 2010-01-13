@@ -1,0 +1,4 @@
+dn: ou=config
+objectClass: organizationalUnit
+objectClass: top
+ou: config
