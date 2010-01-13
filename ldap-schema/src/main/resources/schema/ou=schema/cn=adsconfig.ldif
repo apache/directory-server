@@ -8,5 +8,3 @@ objectclass: top
 m-dependencies: system
 m-dependencies: core
 creatorsname: uid=admin,ou=system
-m-disabled: TRUE
-
