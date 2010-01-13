@@ -18,7 +18,7 @@
  *
  */
 
-package org.apache.directory.server.core.factory;
+package org.apache.directory.server.config;
 
 
 import java.io.File;
@@ -292,7 +292,6 @@ public class ConfigPartitionReader
             ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor.get();
             ServerEntry partitionEntry = configPartition.lookup( forwardEntry.getId() );
 
-            System.out.println( partitionsDN );
             if( !isEnabled( partitionEntry ) )
             {
                 continue;

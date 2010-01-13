@@ -18,16 +18,24 @@
  *
  */
 
-package org.apache.directory.server.core.factory;
+package org.apache.directory.server.config;
 
 import java.io.File;
 import java.util.List;
-import java.util.UUID;
 
+import javax.naming.directory.SearchControls;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.core.schema.SchemaPartition;
+import org.apache.directory.server.xdbm.ForwardIndexEntry;
+import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.xdbm.search.SearchEngine;
+import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
@@ -44,12 +52,15 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class CiDITDirectoryServiceFactory implements DirectoryServiceFactory
+public class CiDITDirectoryServiceFactory
 {
 
     private DirectoryService directoryService;
+
+    private File workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work" );
     
     private static final Logger LOG = LoggerFactory.getLogger( CiDITDirectoryServiceFactory.class );
+    
     
     /* default access */ CiDITDirectoryServiceFactory()
     {
@@ -66,6 +77,7 @@ public class CiDITDirectoryServiceFactory implements DirectoryServiceFactory
         }
     }
 
+    
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.factory.DirectoryServiceFactory#getDirectoryService()
      */
@@ -80,38 +92,26 @@ public class CiDITDirectoryServiceFactory implements DirectoryServiceFactory
      */
     public void init( String name ) throws Exception
     {
-        File schemaTempDir = initSchema();
-        initConfigPartition();
+        initSchemaNConfig();
     }
 
     
-    private void initConfigPartition()
-    {
-        // TODO create a LdifConfigLoader
-        LdifPartition configPartition = new LdifPartition();
-    }
     
-    
-    private File initSchema() throws Exception
+    private void initSchemaNConfig() throws Exception
     {
-        SchemaPartition schemaPartition = directoryService.getSchemaService().getSchemaPartition();
+        workDir.mkdir();
+        LOG.warn( "schemaTempDir {}", workDir );
 
-        // Init the LdifPartition
-        LdifPartition ldifPartition = new LdifPartition();
-        File schemaTempDir = new File( System.getProperty( "java.io.tmpdir" ) + "/schema-" + UUID.randomUUID().toString() );
-        schemaTempDir.mkdir();
-        
-        LOG.warn( "schemaTempDir {}", schemaTempDir );
-        
-        String workingDirectory = schemaTempDir.getPath();
-        ldifPartition.setWorkingDirectory( workingDirectory );
-
+        String workingDirectory = workDir.getPath();
         // Extract the schema on disk (a brand new one) and load the registries
         File schemaRepository = new File( workingDirectory, "schema" );
+        if( schemaRepository.exists() )
+        {
+            FileUtils.deleteDirectory( schemaRepository );
+        }
+        
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
-
-        schemaPartition.setWrappedPartition( ldifPartition );
 
         SchemaLoader loader = new LdifSchemaLoader( schemaRepository );
         SchemaManager schemaManager = new DefaultSchemaManager( loader );
@@ -121,8 +121,6 @@ public class CiDITDirectoryServiceFactory implements DirectoryServiceFactory
         // to initialize the Partitions, as we won't be able to parse 
         // and normalize their suffix DN
         schemaManager.loadAllEnabled();
-        
-        schemaPartition.setSchemaManager( schemaManager );
 
         List<Throwable> errors = schemaManager.getErrors();
 
@@ -131,9 +129,39 @@ public class CiDITDirectoryServiceFactory implements DirectoryServiceFactory
             throw new Exception( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
         }
         
-        return schemaTempDir;
+        LdifConfigExtractor.extract( workDir, false );
+        
+        LdifPartition configPartition = new LdifPartition();
+        configPartition.setId( "config" );
+        configPartition.setSuffix( "ou=config" );
+        configPartition.setSchemaManager( schemaManager );
+        configPartition.setWorkingDirectory( workingDirectory + "/config" );
+        configPartition.setPartitionDir( new File( configPartition.getWorkingDirectory() ) );
+        
+        configPartition.initialize();
+
+        ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
+        DirectoryService dirService = cpReader.getDirectoryService();
+        
+        SchemaPartition schemaPartition = dirService.getSchemaService().getSchemaPartition();
+
+        // Init the LdifPartition
+        LdifPartition ldifPartition = new LdifPartition();
+        ldifPartition.setWorkingDirectory( new File( workDir, schemaPartition.getId() ).getAbsolutePath() );
+        schemaPartition.setWrappedPartition( ldifPartition );
+        schemaPartition.setSchemaManager( schemaManager );
+
+        dirService.setWorkingDirectory( workDir );
+        dirService.setSchemaManager( schemaManager );
+        dirService.startup();
+        
+        System.out.println( dirService.isStarted() );
+        
+        dirService.shutdown();
+        System.out.println( dirService.isStarted() );
     }
 
+    
     public static void main( String[] args ) throws Exception
     {
         CiDITDirectoryServiceFactory ciditDSFactory = new CiDITDirectoryServiceFactory();
