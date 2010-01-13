@@ -23,19 +23,12 @@ package org.apache.directory.server.config;
 import java.io.File;
 import java.util.List;
 
-import javax.naming.directory.SearchControls;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.core.schema.SchemaPartition;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexCursor;
-import org.apache.directory.server.xdbm.search.SearchEngine;
-import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
@@ -129,7 +122,7 @@ public class CiDITDirectoryServiceFactory
             throw new Exception( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
         }
         
-        LdifConfigExtractor.extract( workDir, false );
+        LdifConfigExtractor.extract( workDir, true );
         
         LdifPartition configPartition = new LdifPartition();
         configPartition.setId( "config" );
@@ -155,13 +148,22 @@ public class CiDITDirectoryServiceFactory
         dirService.setSchemaManager( schemaManager );
         dirService.startup();
         
-        System.out.println( dirService.isStarted() );
+        System.out.println( "started dirservice " + dirService.isStarted() );
         
-        dirService.shutdown();
-        System.out.println( dirService.isStarted() );
+        LdapServer server = cpReader.getLdapServer();
+        server.setDirectoryService( dirService );
+        
+        server.start();
+        
+        System.out.println( "started LDAP server " + server.isStarted() );
+        
+        // wait for 10 min to test conecting from studio
+        Thread.sleep( 10 * 60 * 1000 );
+        
+        server.stop();
     }
 
-    
+
     public static void main( String[] args ) throws Exception
     {
         CiDITDirectoryServiceFactory ciditDSFactory = new CiDITDirectoryServiceFactory();
