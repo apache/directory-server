@@ -41,6 +41,10 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
+import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.protocol.shared.transport.TcpTransport;
+import org.apache.directory.server.protocol.shared.transport.Transport;
+import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
@@ -48,6 +52,8 @@ import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
+import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -103,7 +109,49 @@ public class ConfigPartitionReader
         workDir = configPartition.getPartitionDir().getParentFile();        
     }
 
+    
+    /**
+     * reads the LDAP server configuration and instantiates without setting a DirectoryService 
+     *
+     * @return the LdapServer instance without a DirectoryService
+     * @throws Exception
+     */
+    public LdapServer getLdapServer() throws Exception
+    {
+        EqualityNode filter = new EqualityNode( "objectClass", new ClientStringValue( "ads-ldapServer" ) );
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
+        IndexCursor cursor = se.cursor( configPartition.getSuffixDn(), AliasDerefMode.NEVER_DEREF_ALIASES, filter,
+            controls );
+
+        if ( !cursor.next() )
+        {
+            throw new Exception( "No LDAP server was configured under the DN " + configPartition.getSuffixDn() );
+        }
+
+        ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor.get();
+        cursor.close();
+
+        ClonedServerEntry ldapServerEntry = configPartition.lookup( forwardEntry.getId() );
+        LOG.debug( "LDAP Server Entry {}", ldapServerEntry );
+        if( !isEnabled( ldapServerEntry ) )
+        {
+            return null;
+        }
+        
+        LdapServer server = new LdapServer();
+        server.setServiceId( getString( "ads-serverId", ldapServerEntry ) );
+        
+        LdapDN transportsDN = new LdapDN( getString( "ads-transports", ldapServerEntry ) );
+        transportsDN.normalize( schemaManager.getNormalizerMapping() );
+        Transport[] transports = getTransports( transportsDN );
+        server.setTransports( transports );
+
+        return server;
+    }
+
+    
     /**
      * 
      * instantiates a DirectoryService based on the configuration present in the partition 
@@ -214,6 +262,7 @@ public class ConfigPartitionReader
         if ( testEntryAttr != null )
         {
             //process the test entries, should this be a FS location?
+            //dirService.setTestEntries( testEntries );
         }
 
         if ( !isEnabled( dsEntry ) )
@@ -395,6 +444,79 @@ public class ConfigPartitionReader
         }
         
         return index;
+    }
+    
+    
+    private Transport[] getTransports( LdapDN transportsDN ) throws Exception
+    {
+        PresenceNode filter = new PresenceNode( "ads-transportId" );
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        IndexCursor cursor = se.cursor( transportsDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
+        
+        List<Transport> transports = new ArrayList<Transport>();
+        
+        while( cursor.next() )
+        {
+            ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor.get();
+            ServerEntry transportEntry = configPartition.lookup( forwardEntry.getId() );
+            if( !isEnabled( transportEntry ) )
+            {
+                continue;
+            }
+            
+            transports.add( getTransport( transportEntry ) );
+        }
+        
+        return transports.toArray( new Transport[]{} );
+    }
+    
+    
+    
+    private Transport getTransport( Entry transportEntry ) throws Exception
+    {
+        Transport transport = null;
+     
+        EntryAttribute ocAttr = transportEntry.get( "objectClass" );
+        if( ocAttr.contains( "ads-tcpTransport" ) )
+        {
+            transport = new TcpTransport();
+        }
+        else if( ocAttr.contains( "ads-udpTransport" ) )
+        {
+            transport = new UdpTransport();
+        }
+        
+        transport.setPort( getInt( "ads-systemPort", transportEntry ) );
+        EntryAttribute addressAttr = transportEntry.get( "ads-transportAddress" );
+        if( addressAttr != null )
+        {
+            transport.setAddress( addressAttr.getString() );
+        }
+        else
+        {
+            transport.setAddress( "0.0.0.0" );
+        }
+        
+        EntryAttribute backlogAttr = transportEntry.get( "ads-transportBacklog" );
+        if( backlogAttr != null )
+        {
+            transport.setBackLog( Integer.parseInt( backlogAttr.getString() ) );
+        }
+        
+        EntryAttribute sslAttr = transportEntry.get( "ads-transportEnableSSL" );
+        if( sslAttr != null )
+        {
+            transport.setEnableSSL( Boolean.parseBoolean( sslAttr.getString() ) );
+        }
+        
+        EntryAttribute nbThreadsAttr = transportEntry.get( "ads-transportNbThreads" );
+        if( nbThreadsAttr != null )
+        {
+            transport.setNbThreads( Integer.parseInt( nbThreadsAttr.getString() ) );
+        }
+
+        return transport;
     }
     
     
