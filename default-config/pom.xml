@@ -38,5 +38,11 @@
       <artifactId>apacheds-ldif-partition</artifactId>
       <version>${pom.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-protocol-ldap</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
   </dependencies>
 </project>
