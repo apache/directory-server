@@ -1,6 +1,6 @@
 dn: ads-serverId=ldapServer,ou=servers,ou=config
-ads-serverds: ou=directoryService,ou=config
-createtimestamp: 20100111145239Z
+ads-serverds: ads-directoryServiceId=default,ou=directoryService,ou=config
+createtimestamp: 20100113140203Z
 ads-serverid: ldapServer
 entryuuid:: 77+91YdqLe+/vUlY77+9WmVjGk/vv71y
 ads-transports: ou=transports,ads-serverId=ldapServer,ou=servers,ou=config
