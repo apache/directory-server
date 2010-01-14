@@ -81,7 +81,11 @@ public class DefaultJournal implements Journal
     {
         LOG.debug( "Starting the journal" );
 
-        store = new DefaultJournalStore();
+        if( store == null )
+        {
+            store = new DefaultJournalStore();
+        }
+
         store.init( directoryService );
 
         LOG.debug( "The Journal service has been initialized" );
@@ -144,12 +148,12 @@ public class DefaultJournal implements Journal
     
     public void setEnabled( boolean enabled )
     {
-        // TODO Auto-generated method stub
+        this.enabled = enabled; 
     }
 
 
     public void setJournalStore( JournalStore store )
     {
-        // TODO Auto-generated method stub
+        this.store = store;
     }
 }
