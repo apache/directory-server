@@ -34,9 +34,13 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.changelog.ChangeLog;
+import org.apache.directory.server.core.changelog.DefaultChangeLog;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.Interceptor;
+import org.apache.directory.server.core.journal.DefaultJournal;
+import org.apache.directory.server.core.journal.Journal;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
@@ -73,13 +77,15 @@ public class ConfigPartitionReader
 {
 
     /** the partition which holds the configuration data */
-    private Partition configPartition;
+    private LdifPartition configPartition;
 
     /** the search engine of the partition */
     private SearchEngine<ServerEntry> se;
 
+    /** the schema manager set in the config partition */
     private SchemaManager schemaManager;
     
+    /** the parent directory of the config partition's working directory */
     private File workDir;
     
     private static final Logger LOG = LoggerFactory.getLogger( ConfigPartitionReader.class );
@@ -158,7 +164,6 @@ public class ConfigPartitionReader
      *
      * @throws Exception
      */
-    @SuppressWarnings("unchecked")
     public DirectoryService getDirectoryService() throws Exception
     {
 
@@ -180,7 +185,7 @@ public class ConfigPartitionReader
 
         ClonedServerEntry dsEntry = configPartition.lookup( forwardEntry.getId() );
 
-        LOG.debug( "dirServiceEntry {}", dsEntry );
+        LOG.debug( "directory service entry {}", dsEntry );
 
         DirectoryService dirService = new DefaultDirectoryService();
         // MUST attributes
@@ -197,9 +202,13 @@ public class ConfigPartitionReader
         
         Map<String, Partition> partitions = getPartitions( partitionsDN );
 
-        Partition system = partitions.remove( "system" );
-        dirService.setSystemPartition( system );
-        
+        Partition systemPartition = partitions.remove( "system" );
+        if( systemPartition == null )
+        {
+            throw new Exception( "system partition doesn't exist" );
+        }
+
+        dirService.setSystemPartition( systemPartition );
         dirService.setPartitions( new HashSet( partitions.values() ) );
         
         // MAY attributes
@@ -218,7 +227,10 @@ public class ConfigPartitionReader
         EntryAttribute changeLogAttr = dsEntry.get( "ads-dsChangeLog" );
         if ( changeLogAttr != null )
         {
-            // configure CL
+            LdapDN clDN = new LdapDN( changeLogAttr.getString() );
+            clDN.normalize( schemaManager.getNormalizerMapping() );
+            ChangeLog cl = getChangeLog( clDN );
+            dirService.setChangeLog( cl );
         }
 
         EntryAttribute denormAttr = dsEntry.get( "ads-dsDenormalizeOpAttrsEnabled" );
@@ -230,7 +242,9 @@ public class ConfigPartitionReader
         EntryAttribute journalAttr = dsEntry.get( "ads-dsJournal" );
         if ( journalAttr != null )
         {
-            // dirService.setJournal(  );
+            LdapDN journalDN = new LdapDN( journalAttr.getString() );
+            journalDN.normalize( schemaManager.getNormalizerMapping() );
+            dirService.setJournal( getJournal( journalDN ) );
         }
 
         EntryAttribute maxPduAttr = dsEntry.get( "ads-dsMaxPDUSize" );
@@ -519,6 +533,60 @@ public class ConfigPartitionReader
         return transport;
     }
     
+
+    private ChangeLog getChangeLog( LdapDN changelogDN ) throws Exception
+    {
+        Long id = configPartition.getEntryId( changelogDN.getNormName() );
+        Entry clEntry = configPartition.lookup( id );
+        
+        ChangeLog cl = new DefaultChangeLog();
+        EntryAttribute clEnabledAttr =clEntry.get( "ads-changeLogEnabled" );
+        if( clEnabledAttr != null )
+        {
+            cl.setEnabled( Boolean.parseBoolean( clEnabledAttr.getString() ) );
+        }
+        
+        EntryAttribute clExpAttr = clEntry.get( "ads-changeLogExposed" );
+        if( clExpAttr != null )
+        {
+            cl.setExposed( Boolean.parseBoolean( clExpAttr.getString() ) );
+        }
+        
+        return cl;
+    }
+    
+    
+    private Journal getJournal( LdapDN journalDN ) throws Exception
+    {
+        Long id = configPartition.getEntryId( journalDN.getNormName() );
+        Entry jlEntry = configPartition.lookup( id );
+
+        Journal journal = new DefaultJournal();
+        //FIXME the setFileName is part of the JournalStore API
+        // but there is currently no way to set the JournalStore in Journal
+        //jl.setFileName( getString( "ads-journalFileName", jlEntry ) );
+        
+        EntryAttribute jlWorkDirAttr = jlEntry.get( "ads-journalWorkingDir" );
+        if( jlWorkDirAttr != null )
+        {
+            //jl.setWorkDir( jlWorkDirAttr.getString() );
+        }
+        
+        EntryAttribute jlRotAttr = jlEntry.get( "ads-journalRotation" );
+        if( jlRotAttr != null )
+        {
+            journal.setRotation( Integer.parseInt( jlRotAttr.getString() ) );
+        }
+        
+        EntryAttribute jlEnabledAttr = jlEntry.get( "ads-journalEnabled" );
+        if( jlEnabledAttr != null )
+        {
+            journal.setEnabled( Boolean.parseBoolean( jlEnabledAttr.getString() ) );
+        }
+        
+        return journal;
+    }
+    
     
     /**
      * internal class used for holding the Interceptor classname and order configuration
@@ -567,21 +635,6 @@ public class ConfigPartitionReader
             return fqcn;
         }
 
-
-        /**
-         * @return the id
-         */
-        public String getId()
-        {
-            return id;
-        }
-
-    }
-
-
-    private boolean getBoolean( String attrName, Entry entry ) throws Exception
-    {
-        return Boolean.parseBoolean( entry.get( attrName ).getString() );
     }
 
 
