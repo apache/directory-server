@@ -22,6 +22,7 @@ package org.apache.directory.server.config;
 
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,6 +62,8 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
+import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -89,7 +92,21 @@ public class ConfigPartitionReader
     
     /** the parent directory of the config partition's working directory */
     private File workDir;
-    
+
+    /** LDIF file filter */
+    private FilenameFilter ldifFilter = new FilenameFilter()
+    {
+        public boolean accept( File file, String name )
+        {
+            if( file.isDirectory() )
+            {
+                return true;
+            }
+            
+            return file.getName().toLowerCase().endsWith( ".ldif" );
+        }
+    };
+
     private static final Logger LOG = LoggerFactory.getLogger( ConfigPartitionReader.class );
 
 
@@ -277,8 +294,8 @@ public class ConfigPartitionReader
         EntryAttribute testEntryAttr = dsEntry.get( "ads-dsTestEntries" );
         if ( testEntryAttr != null )
         {
-            //process the test entries, should this be a FS location?
-            //dirService.setTestEntries( testEntries );
+            String entryFilePath = testEntryAttr.getString();
+            dirService.setTestEntries( getTestEntries( entryFilePath ) );
         }
 
         if ( !isEnabled( dsEntry ) )
@@ -588,6 +605,44 @@ public class ConfigPartitionReader
         
         journal.setJournalStore( store );
         return journal;
+    }
+    
+
+    private List<LdifEntry> getTestEntries( String entryFilePath ) throws Exception
+    {
+        List<LdifEntry> entries = new ArrayList<LdifEntry>();
+        
+        File file = new File( entryFilePath );
+        if( !file.exists() )
+        {
+            LOG.warn( "LDIF test entry file path doesn't exist {}", entryFilePath );
+        }
+        else
+        {
+            LOG.info( "parsing the LDIF file(s) present at the path {}", entryFilePath );
+            loadEntries( file, entries );
+        }
+        
+        return entries;
+    }
+    
+    
+    private void loadEntries( File ldifFile, List<LdifEntry> entries ) throws Exception
+    {
+        if( ldifFile.isDirectory() )
+        {
+            File[] files = ldifFile.listFiles( ldifFilter );
+            for( File f : files )
+            {
+                loadEntries( f, entries );
+            }
+        }
+        else
+        {
+            LdifReader reader = new LdifReader();
+            entries.addAll( reader.parseLdifFile( ldifFile.getAbsolutePath() ) );
+            reader.close();
+        }
     }
     
     
