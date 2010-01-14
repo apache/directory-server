@@ -20,11 +20,13 @@
 
 package org.apache.directory.server.config;
 
+
+import static org.junit.Assert.*;
+
 import java.io.File;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.core.schema.SchemaPartition;
@@ -36,79 +38,46 @@ import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 
 /**
- * TODO CiDITDirectoryServiceFactory.
+ * Test class for ConfigPartitionReader
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class CiDITDirectoryServiceFactory
+public class ConfigPartitionReaderTest
 {
 
-    private DirectoryService directoryService;
+    private static DirectoryService dirService;
 
-    private File workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work" );
-    
-    private static final Logger LOG = LoggerFactory.getLogger( CiDITDirectoryServiceFactory.class );
-    
-    
-    /* default access */ CiDITDirectoryServiceFactory()
+    private static LdapServer server;
+
+    private static SchemaManager schemaManager;
+
+
+    @BeforeClass
+    public static void readConfig() throws Exception
     {
-        try
-        {
-            // creating the instance here so that
-            // we we can set some properties like accesscontrol, anon access
-            // before starting up the service
-            directoryService = new DefaultDirectoryService();
-        }
-        catch( Exception e )
-        {
-            throw new RuntimeException( e );
-        }
-    }
-
-    
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.factory.DirectoryServiceFactory#getDirectoryService()
-     */
-    public DirectoryService getDirectoryService() throws Exception
-    {
-        return directoryService;
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.factory.DirectoryServiceFactory#init(java.lang.String)
-     */
-    public void init( String name ) throws Exception
-    {
-        initSchemaNConfig();
-    }
-
-    
-    
-    private void initSchemaNConfig() throws Exception
-    {
+        File workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work" );
         workDir.mkdir();
-        LOG.warn( "schemaTempDir {}", workDir );
 
         String workingDirectory = workDir.getPath();
         // Extract the schema on disk (a brand new one) and load the registries
         File schemaRepository = new File( workingDirectory, "schema" );
-        if( schemaRepository.exists() )
+        if ( schemaRepository.exists() )
         {
             FileUtils.deleteDirectory( schemaRepository );
         }
-        
+
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
 
         SchemaLoader loader = new LdifSchemaLoader( schemaRepository );
-        SchemaManager schemaManager = new DefaultSchemaManager( loader );
-        directoryService.setSchemaManager( schemaManager );
+        schemaManager = new DefaultSchemaManager( loader );
 
         // We have to load the schema now, otherwise we won't be able
         // to initialize the Partitions, as we won't be able to parse 
@@ -121,52 +90,60 @@ public class CiDITDirectoryServiceFactory
         {
             throw new Exception( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
         }
-        
+
         LdifConfigExtractor.extract( workDir, true );
-        
+
         LdifPartition configPartition = new LdifPartition();
         configPartition.setId( "config" );
         configPartition.setSuffix( "ou=config" );
         configPartition.setSchemaManager( schemaManager );
         configPartition.setWorkingDirectory( workingDirectory + "/config" );
         configPartition.setPartitionDir( new File( configPartition.getWorkingDirectory() ) );
-        
+
         configPartition.initialize();
 
         ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
-        DirectoryService dirService = cpReader.getDirectoryService();
-        
+        dirService = cpReader.getDirectoryService();
+
         SchemaPartition schemaPartition = dirService.getSchemaService().getSchemaPartition();
 
-        // Init the LdifPartition
-        LdifPartition ldifPartition = new LdifPartition();
-        ldifPartition.setWorkingDirectory( new File( workDir, schemaPartition.getId() ).getAbsolutePath() );
-        schemaPartition.setWrappedPartition( ldifPartition );
+        // Init the schema partition's wrapped LdifPartition
+        LdifPartition wrappedPartition = new LdifPartition();
+        wrappedPartition.setWorkingDirectory( new File( workDir, schemaPartition.getId() ).getAbsolutePath() );
+        schemaPartition.setWrappedPartition( wrappedPartition );
         schemaPartition.setSchemaManager( schemaManager );
 
         dirService.setWorkingDirectory( workDir );
         dirService.setSchemaManager( schemaManager );
         dirService.startup();
-        
-        System.out.println( "started dirservice " + dirService.isStarted() );
-        
-        LdapServer server = cpReader.getLdapServer();
+
+        server = cpReader.getLdapServer();
         server.setDirectoryService( dirService );
-        
+
         server.start();
-        
-        System.out.println( "started LDAP server " + server.isStarted() );
-        
-        // wait for 10 min to test conecting from studio
-        Thread.sleep( 10 * 60 * 1000 );
-        
-        server.stop();
     }
 
 
-    public static void main( String[] args ) throws Exception
+    @AfterClass
+    public static void cleanup() throws Exception
     {
-        CiDITDirectoryServiceFactory ciditDSFactory = new CiDITDirectoryServiceFactory();
-        ciditDSFactory.init( null );
+        server.stop();
+        dirService.shutdown();
+    }
+
+
+    @Test
+    public void testDirService()
+    {
+        assertTrue( dirService.isStarted() );
+        assertEquals( "default", dirService.getInstanceId() );
+    }
+    
+    
+    @Test
+    public void testLdapServer()
+    {
+        assertTrue( server.isStarted() );
+        assertEquals( dirService, server.getDirectoryService() );
     }
 }
