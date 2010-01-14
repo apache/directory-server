@@ -40,7 +40,9 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.journal.DefaultJournal;
+import org.apache.directory.server.core.journal.DefaultJournalStore;
 import org.apache.directory.server.core.journal.Journal;
+import org.apache.directory.server.core.journal.JournalStore;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
@@ -562,14 +564,14 @@ public class ConfigPartitionReader
         Entry jlEntry = configPartition.lookup( id );
 
         Journal journal = new DefaultJournal();
-        //FIXME the setFileName is part of the JournalStore API
-        // but there is currently no way to set the JournalStore in Journal
-        //jl.setFileName( getString( "ads-journalFileName", jlEntry ) );
+        JournalStore store = new DefaultJournalStore();
+        
+        store.setFileName( getString( "ads-journalFileName", jlEntry ) );
         
         EntryAttribute jlWorkDirAttr = jlEntry.get( "ads-journalWorkingDir" );
         if( jlWorkDirAttr != null )
         {
-            //jl.setWorkDir( jlWorkDirAttr.getString() );
+            store.setWorkingDirectory( jlWorkDirAttr.getString() );
         }
         
         EntryAttribute jlRotAttr = jlEntry.get( "ads-journalRotation" );
@@ -584,6 +586,7 @@ public class ConfigPartitionReader
             journal.setEnabled( Boolean.parseBoolean( jlEnabledAttr.getString() ) );
         }
         
+        journal.setJournalStore( store );
         return journal;
     }
     
