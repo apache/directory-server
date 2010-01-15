@@ -349,7 +349,8 @@ public class ConfigPartitionReader
     }
     
 
-    public DhcpService getDhcpServer() throws Exception
+    //TODO making this method invisible cause there is no DhcpServer exists as of now
+    private DhcpService getDhcpServer() throws Exception
     {
         EqualityNode filter = new EqualityNode( "objectClass", new ClientStringValue( "ads-dhcpServer" ) );
         SearchControls controls = new SearchControls();
