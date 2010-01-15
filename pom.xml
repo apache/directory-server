@@ -33,7 +33,7 @@
   <properties>
     <projectName>ApacheDS-Shared</projectName>
     <distMgmtSiteUrl>scpexe://people.apache.org/www/directory.apache.org/shared/gen-docs/${version}/</distMgmtSiteUrl>
-    <skin.version>1.0.0</skin.version>
+    <skin.version>1.0.1</skin.version>
     <org.apache.directory.shared.version>0.9.18-SNAPSHOT</org.apache.directory.shared.version>
   </properties>
   
