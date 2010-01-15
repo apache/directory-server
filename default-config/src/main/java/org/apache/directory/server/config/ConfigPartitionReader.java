@@ -26,6 +26,7 @@ import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,7 +49,15 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
+import org.apache.directory.server.dhcp.service.DhcpService;
+import org.apache.directory.server.dhcp.service.StoreBasedDhcpService;
+import org.apache.directory.server.dhcp.store.DhcpStore;
+import org.apache.directory.server.dhcp.store.SimpleDhcpStore;
+import org.apache.directory.server.dns.DnsServer;
+import org.apache.directory.server.kerberos.kdc.KdcServer;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ntp.NtpServer;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
@@ -59,6 +68,7 @@ import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
@@ -174,6 +184,236 @@ public class ConfigPartitionReader
         server.setTransports( transports );
 
         return server;
+    }
+
+
+    public KdcServer getKdcServer() throws Exception
+    {
+        EqualityNode filter = new EqualityNode( "objectClass", new ClientStringValue( "ads-kerberosServer" ) );
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+
+        IndexCursor cursor = se.cursor( configPartition.getSuffixDn(), AliasDerefMode.NEVER_DEREF_ALIASES, filter,
+            controls );
+
+        if ( !cursor.next() )
+        {
+            throw new Exception( "No kerberos server was configured under the DN " + configPartition.getSuffixDn() );
+        }
+
+        ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor.get();
+        cursor.close();
+
+        ClonedServerEntry kdcEntry = configPartition.lookup( forwardEntry.getId() );
+        LOG.debug( "kerberos server entry {}", kdcEntry );
+        if( !isEnabled( kdcEntry ) )
+        {
+            return null;
+        }
+        
+        KdcServer kdcServer = new KdcServer();
+        
+        kdcServer.setServiceId( getString( "ads-serverId", kdcEntry ) );
+
+        LdapDN transportsDN = new LdapDN( getString( "ads-transports", kdcEntry ) );
+        transportsDN.normalize( schemaManager.getNormalizerMapping() );
+        Transport[] transports = getTransports( transportsDN );
+        kdcServer.setTransports( transports );
+        
+        // MAY attributes
+        EntryAttribute clockSkewAttr = kdcEntry.get( "ads-krbAllowableClockSkew" );
+        if( clockSkewAttr != null )
+        {
+            kdcServer.setAllowableClockSkew( Long.parseLong( clockSkewAttr.getString() ) );
+        }
+        
+        EntryAttribute encryptionTypeAttr = kdcEntry.get( "ads-krbEncryptionTypes" );
+        if( encryptionTypeAttr != null )
+        {
+            EncryptionType[] encryptionTypes = new EncryptionType[ encryptionTypeAttr.size() ];
+            Iterator<Value<?>> itr = encryptionTypeAttr.getAll();
+            int count = 0;
+            while( itr.hasNext() )
+            {
+                Value<?> val = itr.next();
+                encryptionTypes[count++] = EncryptionType.getByName( val.getString() ); 
+            }
+            
+            kdcServer.setEncryptionTypes( encryptionTypes );
+        }
+        
+        EntryAttribute emptyAddrAttr = kdcEntry.get( "ads-krbEmptyAddressesAllowed" );
+        if( emptyAddrAttr != null )
+        {
+            kdcServer.setEmptyAddressesAllowed( Boolean.parseBoolean( emptyAddrAttr.getString() ) );
+        }
+        
+        EntryAttribute fwdAllowedAttr = kdcEntry.get( "ads-krbForwardableAllowed" );
+        if( fwdAllowedAttr != null )
+        {
+            kdcServer.setForwardableAllowed( Boolean.parseBoolean( fwdAllowedAttr.getString() ) );
+        }
+
+        EntryAttribute paEncTmstpAttr = kdcEntry.get( "ads-krbPaEncTimestampRequired" );
+        if( paEncTmstpAttr != null )
+        {
+            kdcServer.setPaEncTimestampRequired( Boolean.parseBoolean( paEncTmstpAttr.getString() ) );
+        }
+        
+        EntryAttribute posdtAllowedAttr = kdcEntry.get( "ads-krbPostdatedAllowed" );
+        if( posdtAllowedAttr != null )
+        {
+            kdcServer.setPostdatedAllowed( Boolean.parseBoolean( posdtAllowedAttr.getString() ) );
+        }
+        
+        EntryAttribute prxyAllowedAttr = kdcEntry.get( "ads-krbProxiableAllowed" );
+        if( prxyAllowedAttr != null )
+        {
+            kdcServer.setProxiableAllowed( Boolean.parseBoolean( prxyAllowedAttr.getString() ) );
+        }
+        
+        EntryAttribute rnwAllowedAttr = kdcEntry.get( "ads-krbRenewableAllowed" );
+        if( rnwAllowedAttr != null )
+        {
+            kdcServer.setRenewableAllowed( Boolean.parseBoolean( rnwAllowedAttr.getString() ) );
+        }
+        
+        EntryAttribute kdcPrncplAttr = kdcEntry.get( "ads-krbKdcPrincipal" );
+        if( kdcPrncplAttr != null )
+        {
+            kdcServer.setKdcPrincipal( kdcPrncplAttr.getString() );
+        }
+        
+        EntryAttribute maxRnwLfTimeAttr = kdcEntry.get( "ads-krbMaximumRenewableLifetime" );
+        if( maxRnwLfTimeAttr != null )
+        {
+            kdcServer.setMaximumRenewableLifetime( Long.parseLong( maxRnwLfTimeAttr.getString() ) );
+        }
+        
+        EntryAttribute maxTcktLfTimeAttr = kdcEntry.get( "ads-krbMaximumTicketLifetime" );
+        if( maxTcktLfTimeAttr != null )
+        {
+            kdcServer.setMaximumTicketLifetime( Long.parseLong( maxTcktLfTimeAttr.getString() ) );
+        }
+        
+        EntryAttribute prmRealmAttr = kdcEntry.get( "ads-krbPrimaryRealm" );
+        if( prmRealmAttr != null )
+        {
+            kdcServer.setPrimaryRealm( prmRealmAttr.getString() );
+        }
+        
+        EntryAttribute bdyCkhsmVerifyAttr = kdcEntry.get( "ads-krbBodyChecksumVerified" );
+        if( bdyCkhsmVerifyAttr != null )
+        {
+            kdcServer.setBodyChecksumVerified( Boolean.parseBoolean( bdyCkhsmVerifyAttr.getString() ) );
+        }
+        
+        return kdcServer;
+    }
+    
+    
+    public DnsServer getDnsServer() throws Exception
+    {
+        EqualityNode filter = new EqualityNode( "objectClass", new ClientStringValue( "ads-dnsServer" ) );
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+
+        IndexCursor cursor = se.cursor( configPartition.getSuffixDn(), AliasDerefMode.NEVER_DEREF_ALIASES, filter,
+            controls );
+
+        if ( !cursor.next() )
+        {
+            throw new Exception( "No DNS server was configured under the DN " + configPartition.getSuffixDn() );
+        }
+
+        ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor.get();
+        cursor.close();
+
+        ClonedServerEntry dnsEntry = configPartition.lookup( forwardEntry.getId() );
+        LOG.debug( "DNS server entry {}", dnsEntry );
+        if( !isEnabled( dnsEntry ) )
+        {
+            return null;
+        }
+
+        DnsServer dnsServer = new DnsServer();
+        
+        dnsServer.setServiceId( getString( "ads-serverId", dnsEntry ) );
+
+        LdapDN transportsDN = new LdapDN( getString( "ads-transports", dnsEntry ) );
+        transportsDN.normalize( schemaManager.getNormalizerMapping() );
+        Transport[] transports = getTransports( transportsDN );
+        dnsServer.setTransports( transports );
+        
+        return dnsServer;
+    }
+    
+
+    public DhcpService getDhcpServer() throws Exception
+    {
+        EqualityNode filter = new EqualityNode( "objectClass", new ClientStringValue( "ads-dhcpServer" ) );
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+
+        IndexCursor cursor = se.cursor( configPartition.getSuffixDn(), AliasDerefMode.NEVER_DEREF_ALIASES, filter,
+            controls );
+
+        if ( !cursor.next() )
+        {
+            throw new Exception( "No DHCP server was configured under the DN " + configPartition.getSuffixDn() );
+        }
+
+        ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor.get();
+        cursor.close();
+
+        ClonedServerEntry dhcpEntry = configPartition.lookup( forwardEntry.getId() );
+        LOG.debug( "DHCP server entry {}", dhcpEntry );
+        if( !isEnabled( dhcpEntry ) )
+        {
+            return null;
+        }
+        
+        DhcpStore dhcpStore = new SimpleDhcpStore();
+        DhcpService dhcpService = new StoreBasedDhcpService( dhcpStore );
+
+        return dhcpService;
+    }
+
+    
+    public NtpServer getNtpServer() throws Exception
+    {
+        EqualityNode filter = new EqualityNode( "objectClass", new ClientStringValue( "ads-ntpServer" ) );
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+
+        IndexCursor cursor = se.cursor( configPartition.getSuffixDn(), AliasDerefMode.NEVER_DEREF_ALIASES, filter,
+            controls );
+
+        if ( !cursor.next() )
+        {
+            throw new Exception( "No NTP server was configured under the DN " + configPartition.getSuffixDn() );
+        }
+
+        ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor.get();
+        cursor.close();
+
+        ClonedServerEntry ntpEntry = configPartition.lookup( forwardEntry.getId() );
+        LOG.debug( "NTP server entry {}", ntpEntry );
+        if( !isEnabled( ntpEntry ) )
+        {
+            return null;
+        }
+        
+        NtpServer ntpServer = new NtpServer();
+
+        ntpServer.setServiceId( getString( "ads-serverId", ntpEntry ) );
+
+        LdapDN transportsDN = new LdapDN( getString( "ads-transports", ntpEntry ) );
+        transportsDN.normalize( schemaManager.getNormalizerMapping() );
+        Transport[] transports = getTransports( transportsDN );
+        ntpServer.setTransports( transports );
+        
+        return ntpServer;
     }
 
     
