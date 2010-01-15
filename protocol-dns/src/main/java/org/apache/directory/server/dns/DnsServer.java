@@ -69,7 +69,6 @@ public class DnsServer extends DirectoryBackedService
     {
         super.setServiceId( SERVICE_PID_DEFAULT );
         super.setServiceName( SERVICE_NAME_DEFAULT );
-        setTransports( new TcpTransport( DEFAULT_IP_PORT ), new UdpTransport( DEFAULT_IP_PORT ) );
     }
 
 
