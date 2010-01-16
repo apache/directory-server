@@ -54,6 +54,8 @@ import org.apache.directory.server.dhcp.service.StoreBasedDhcpService;
 import org.apache.directory.server.dhcp.store.DhcpStore;
 import org.apache.directory.server.dhcp.store.SimpleDhcpStore;
 import org.apache.directory.server.dns.DnsServer;
+import org.apache.directory.server.integration.http.HttpServer;
+import org.apache.directory.server.integration.http.WebApp;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.ldap.LdapServer;
@@ -417,6 +419,58 @@ public class ConfigPartitionReader
         return ntpServer;
     }
 
+    
+    public HttpServer getHttpServer() throws Exception
+    {
+        EqualityNode filter = new EqualityNode( "objectClass", new ClientStringValue( "ads-httpServer" ) );
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+
+        IndexCursor cursor = se.cursor( configPartition.getSuffixDn(), AliasDerefMode.NEVER_DEREF_ALIASES, filter,
+            controls );
+
+        if ( !cursor.next() )
+        {
+            throw new Exception( "No HTTP server was configured under the DN " + configPartition.getSuffixDn() );
+        }
+
+        ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor.get();
+        cursor.close();
+
+        ClonedServerEntry httpEntry = configPartition.lookup( forwardEntry.getId() );
+        LOG.debug( "HTTP server entry {}", httpEntry );
+        if( !isEnabled( httpEntry ) )
+        {
+            return null;
+        }
+        
+        HttpServer httpServer = new HttpServer();
+        
+        EntryAttribute portAttr = httpEntry.get( "ads-systemPort" );
+        if( portAttr != null )
+        {
+            httpServer.setPort( Integer.parseInt( portAttr.getString() ) );
+        }
+        
+        EntryAttribute confFileAttr = httpEntry.get( "ads-httpConfFile" );
+        if( confFileAttr != null )
+        {
+            httpServer.setConfFile( confFileAttr.getString() );
+        }
+        
+        EntryAttribute webAppsAttr = httpEntry.get( "ads-httpWebApps" );
+        if( webAppsAttr != null )
+        {
+            LdapDN webAppsDN = new LdapDN( webAppsAttr.getString() );
+            webAppsDN.normalize( schemaManager.getNormalizerMapping() );
+         
+            Set<WebApp> webApps = getWebApps( webAppsDN );
+            httpServer.setWebApps( webApps );
+        }
+        
+        return httpServer;
+    }
+    
     
     /**
      * 
@@ -884,6 +938,36 @@ public class ConfigPartitionReader
             entries.addAll( reader.parseLdifFile( ldifFile.getAbsolutePath() ) );
             reader.close();
         }
+    }
+    
+    
+    private Set<WebApp> getWebApps( LdapDN webAppsDN ) throws Exception
+    {
+        PresenceNode filter = new PresenceNode( "ads-httpWarFile" );
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        IndexCursor cursor = se.cursor( webAppsDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
+        
+        Set<WebApp> webApps = new HashSet<WebApp>();
+        
+        while( cursor.next() )
+        {
+            ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor.get();
+            ServerEntry webAppEntry = configPartition.lookup( forwardEntry.getId() );
+            
+            WebApp app = new WebApp();
+            app.setWarFile( getString( "ads-httpWarFile", webAppEntry ) );
+            
+            EntryAttribute ctxPathAttr = webAppEntry.get( "ads-httpAppCtxPath" );
+            if( ctxPathAttr != null )
+            {
+                app.setContextPath( ctxPathAttr.getString() );
+            }
+            
+            webApps.add( app );
+        }
+        
+        return webApps;
     }
     
     

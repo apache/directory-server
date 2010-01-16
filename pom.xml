@@ -68,5 +68,11 @@
       <artifactId>apacheds-protocol-ntp</artifactId>
       <version>${pom.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server.http</groupId>
+      <artifactId>apacheds-http-integration</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
   </dependencies>
 </project>
