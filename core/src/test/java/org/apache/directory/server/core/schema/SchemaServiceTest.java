@@ -93,7 +93,7 @@ public class SchemaServiceTest
             nameAttrs.add( type.getName() );
         }
         
-        // We should only have 13 AT
+        // We should only have 17 AT
         String[] expectedNames = new String[]
         {
             "sn", 
@@ -112,7 +112,11 @@ public class SchemaServiceTest
             "c-o", 
             "apacheExistence", 
             "st", 
-            "c-l"
+            "c-l",
+            "ads-serverId", 
+            "ads-indexAttributeId", 
+            "ads-transportId", 
+            "ads-directoryServiceId"
         };
         
         for ( String name : expectedNames )
