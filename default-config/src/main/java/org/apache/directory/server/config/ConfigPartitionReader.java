@@ -164,7 +164,8 @@ public class ConfigPartitionReader
 
         if ( !cursor.next() )
         {
-            throw new Exception( "No LDAP server was configured under the DN " + configPartition.getSuffixDn() );
+            LOG.warn( "No LDAP server was configured under the DN {}", configPartition.getSuffixDn() );
+            return null;
         }
 
         ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor.get();
@@ -200,7 +201,8 @@ public class ConfigPartitionReader
 
         if ( !cursor.next() )
         {
-            throw new Exception( "No kerberos server was configured under the DN " + configPartition.getSuffixDn() );
+            LOG.warn( "No kerberos server was configured under the DN {}", configPartition.getSuffixDn() );
+            return null;
         }
 
         ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor.get();
@@ -325,7 +327,8 @@ public class ConfigPartitionReader
 
         if ( !cursor.next() )
         {
-            throw new Exception( "No DNS server was configured under the DN " + configPartition.getSuffixDn() );
+            LOG.warn( "No DNS server was configured under the DN {}", configPartition.getSuffixDn() );
+            return null;
         }
 
         ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor.get();
@@ -363,7 +366,8 @@ public class ConfigPartitionReader
 
         if ( !cursor.next() )
         {
-            throw new Exception( "No DHCP server was configured under the DN " + configPartition.getSuffixDn() );
+            LOG.warn( "No DHCP server was configured under the DN {}", configPartition.getSuffixDn() );
+            return null;
         }
 
         ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor.get();
@@ -394,7 +398,8 @@ public class ConfigPartitionReader
 
         if ( !cursor.next() )
         {
-            throw new Exception( "No NTP server was configured under the DN " + configPartition.getSuffixDn() );
+            LOG.warn( "No NTP server was configured under the DN {}", configPartition.getSuffixDn() );
+            return null;
         }
 
         ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor.get();
@@ -431,7 +436,8 @@ public class ConfigPartitionReader
 
         if ( !cursor.next() )
         {
-            throw new Exception( "No HTTP server was configured under the DN " + configPartition.getSuffixDn() );
+            LOG.warn( "No HTTP server was configured under the DN {}", configPartition.getSuffixDn() );
+            return null;
         }
 
         ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor.get();
@@ -490,6 +496,7 @@ public class ConfigPartitionReader
 
         if ( !cursor.next() )
         {
+            // the DirectoryService is mandatory so throwing exception
             throw new Exception( "No directoryService instance was configured under the DN "
                 + configPartition.getSuffixDn() );
         }
