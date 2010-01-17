@@ -5,10 +5,12 @@
     <version>1.5.6-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
+
   <groupId>org.apache.directory.server.config</groupId>
   <artifactId>apacheds-default-config</artifactId>
   <name>apacheds-default-config</name>
   <version>1.5.6-SNAPSHOT</version>
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
