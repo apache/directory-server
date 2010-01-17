@@ -137,6 +137,7 @@ public class TcpTransport extends AbstractTransport
     private IoAcceptor createAcceptor( String address, int port, int nbThreads, int backLog )
     {
         NioSocketAcceptor acceptor = new NioSocketAcceptor( nbThreads );
+        acceptor.setReuseAddress( true );
         acceptor.setBacklog( backLog );
         
         InetSocketAddress socketAddress = null;
