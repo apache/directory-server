@@ -90,6 +90,7 @@ public class LdifConfigExtractor
         Map<String, Boolean> list = ResourceMap.getResources( pattern );
 
         System.out.println( list );
+        
         for ( Entry<String, Boolean> entry : list.entrySet() )
         {
             if ( entry.getValue() )
@@ -179,7 +180,8 @@ public class LdifConfigExtractor
                     out.write( buf, 0, readCount );
                 }
                 out.flush();
-            } finally
+            } 
+            finally
             {
                 out.close();
             }

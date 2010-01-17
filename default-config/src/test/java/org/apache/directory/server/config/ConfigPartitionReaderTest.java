@@ -21,7 +21,8 @@
 package org.apache.directory.server.config;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.List;
@@ -68,6 +69,7 @@ public class ConfigPartitionReaderTest
         String workingDirectory = workDir.getPath();
         // Extract the schema on disk (a brand new one) and load the registries
         File schemaRepository = new File( workingDirectory, "schema" );
+        
         if ( schemaRepository.exists() )
         {
             FileUtils.deleteDirectory( schemaRepository );
