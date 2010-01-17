@@ -1,8 +1,9 @@
+version: 1
 dn: ou=indexes,ads-partitionId=system,ou=partitions,ads-directoryServiceId=defau
  lt,ou=directoryService,ou=config
 createtimestamp: 20100111145238Z
 ou: indexes
-entryuuid:: 77+9FO+/vTxOa++/ve+/vTrvv70EAWvvv70=
+entryuuid:: LCHErKYVRMuE/m54nvLrHw==
 entrycsn: 20100111202238.711000Z#000000#000#000000
 objectclass: organizationalUnit
 objectclass: top

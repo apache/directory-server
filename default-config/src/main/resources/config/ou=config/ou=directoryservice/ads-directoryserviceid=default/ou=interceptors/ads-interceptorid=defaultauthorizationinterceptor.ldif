@@ -1,8 +1,9 @@
+version: 1
 dn: ads-interceptorId=defaultAuthorizationInterceptor,ou=interceptors,ads-direct
  oryServiceId=default,ou=directoryService,ou=config
 createtimestamp: 20100111145238Z
 ads-interceptororder: 5
-entryuuid:: 77+9ae+/ve+/vRcqQ++/ve+/ve+/vW/vv71rDkzvv70=
+entryuuid:: uetZQFQ/Q0qk2ULvSWbSGw==
 entrycsn: 20100111202238.516000Z#000000#000#000000
 ads-interceptorclassname: org.apache.directory.server.core.authz.DefaultAuthoriz
  ationInterceptor

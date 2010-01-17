@@ -1,8 +1,9 @@
+version: 1
 dn: ads-interceptorId=collectiveAttributeInterceptor,ou=interceptors,ads-directo
  ryServiceId=default,ou=directoryService,ou=config
 createtimestamp: 20100111145238Z
 ads-interceptororder: 10
-entryuuid:: 77+9AC/vv70177+9RFXvv70LJO+/vUDvv73vv73vv70=
+entryuuid:: 8Lc8q1+nRKC5WnoyWoep2A==
 entrycsn: 20100111202238.619000Z#000000#000#000000
 ads-interceptorclassname: org.apache.directory.server.core.collective.Collective
  AttributeInterceptor

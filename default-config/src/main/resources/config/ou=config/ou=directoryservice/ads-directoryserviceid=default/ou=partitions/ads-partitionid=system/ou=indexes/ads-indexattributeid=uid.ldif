@@ -1,8 +1,9 @@
+version: 1
 dn: ads-indexAttributeId=uid,ou=indexes,ads-partitionId=system,ou=partitions,ads
  -directoryServiceId=default,ou=directoryService,ou=config
 createtimestamp: 20100111145238Z
 ads-indexattributeid: uid
-entryuuid:: WTTvv73vv70O77+9RtKM77+977+9Ie+/ve+/ve+/ve+/vQ==
+entryuuid:: YwiRDLoVS1S2h8dXBALNrw==
 entrycsn: 20100111202238.857000Z#000000#000#000000
 ads-indexcachesize: 100
 objectclass: ads-index

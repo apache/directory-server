@@ -1,8 +1,9 @@
+version: 1
 dn: ads-interceptorId=schemaInterceptor,ou=interceptors,ads-directoryServiceId=d
  efault,ou=directoryService,ou=config
 createtimestamp: 20100111145238Z
 ads-interceptororder: 8
-entryuuid:: 77+9TiXvv73vv70NTCzvv71gFTQL77+9Bho=
+entryuuid:: aU6Bq5A3RO+ZnuGlJFYoVQ==
 entrycsn: 20100111202238.595000Z#000000#000#000000
 ads-interceptorclassname: org.apache.directory.server.core.schema.SchemaIntercep
  tor

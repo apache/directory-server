@@ -1,8 +1,9 @@
+version: 1
 dn: ads-interceptorId=normalizationInterceptor,ou=interceptors,ads-directoryServ
  iceId=default,ou=directoryService,ou=config
 createtimestamp: 20100111145238Z
 ads-interceptororder: 1
-entryuuid:: AipwP++/ve+/vUhu77+977+977+9IO+/vQ==
+entryuuid:: opaQW1RlQXOvJODkB+K6ww==
 entrycsn: 20100111202238.458000Z#000000#000#000000
 ads-interceptorclassname: org.apache.directory.server.core.normalization.Normali
  zationInterceptor

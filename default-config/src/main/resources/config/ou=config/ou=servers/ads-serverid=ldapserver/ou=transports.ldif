@@ -1,7 +1,8 @@
+version: 1
 dn: ou=transports,ads-serverId=ldapServer,ou=servers,ou=config
 createtimestamp: 20100111145239Z
 ou: transports
-entryuuid:: U++/vTo8bVlHb++/vSFSIO+/ve+/vRMU
+entryuuid:: Zy4Stz2BSii143y9sa3nFA==
 entrycsn: 20100111202239.197000Z#000000#000#000000
 objectclass: organizationalUnit
 objectclass: top

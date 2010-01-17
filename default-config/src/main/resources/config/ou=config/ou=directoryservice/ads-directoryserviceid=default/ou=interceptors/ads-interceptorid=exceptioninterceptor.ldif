@@ -1,8 +1,9 @@
+version: 1
 dn: ads-interceptorId=exceptionInterceptor,ou=interceptors,ads-directoryServiceI
  d=default,ou=directoryService,ou=config
 createtimestamp: 20100111145238Z
 ads-interceptororder: 6
-entryuuid:: BHTvv73vv73vv717Sk7vv71zXRvvv73vv70vJw==
+entryuuid:: 8RxsYOdSTqKLq4jHG5/LqA==
 entrycsn: 20100111202238.543000Z#000000#000#000000
 ads-interceptorclassname: org.apache.directory.server.core.exception.ExceptionIn
  terceptor
