@@ -1,7 +1,8 @@
+version: 1
 dn: ou=partitions,ads-directoryServiceId=default,ou=directoryService,ou=config
 createtimestamp: 20100111145238Z
 ou: partitions
-entryuuid:: 3ILvv70LEkVM5JCp77+977+977+9
+entryuuid:: 13tibscXQJus+Y5IqnAsaQ==
 entrycsn: 20100111202238.684000Z#000000#000#000000
 objectclass: organizationalUnit
 objectclass: top

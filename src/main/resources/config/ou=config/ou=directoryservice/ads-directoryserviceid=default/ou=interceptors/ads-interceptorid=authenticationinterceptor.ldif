@@ -1,8 +1,9 @@
+version: 1
 dn: ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directorySer
  viceId=default,ou=directoryService,ou=config
 createtimestamp: 20100111145238Z
 ads-interceptororder: 2
-entryuuid:: 77+9Je+/vSHvv71jTey2t3Pvv73vv73vv73vv70=
+entryuuid:: qzc0LK0TSiy99X71uCrO9A==
 entrycsn: 20100111202238.469000Z#000000#000#000000
 ads-interceptorclassname: org.apache.directory.server.core.authn.AuthenticationI
  nterceptor

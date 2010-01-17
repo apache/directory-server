@@ -1,9 +1,10 @@
+version: 1
 dn: ads-indexAttributeId=1.3.6.1.4.1.18060.0.4.1.2.7,ou=indexes,ads-partitionId=
  system,ou=partitions,ads-directoryServiceId=default,ou=directoryService,ou=conf
  ig
 createtimestamp: 20100111145238Z
 ads-indexattributeid: 1.3.6.1.4.1.18060.0.4.1.2.7
-entryuuid:: 77+977+9K++/ve+/vXtL77+977+9NQHvv73vv71LO0I=
+entryuuid:: WdGJCy4HS3yzRaUxcFZuEg==
 entrycsn: 20100111202238.830000Z#000000#000#000000
 ads-indexcachesize: 100
 objectclass: ads-index

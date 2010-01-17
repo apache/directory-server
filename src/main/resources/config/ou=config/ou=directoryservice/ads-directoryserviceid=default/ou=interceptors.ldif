@@ -1,7 +1,8 @@
+version: 1
 dn: ou=interceptors,ads-directoryServiceId=default,ou=directoryService,ou=config
 createtimestamp: 20100111145238Z
 ou: interceptors
-entryuuid:: 77+9FEdv77+977+9R1Hvv73Yge+/ve+/vVkeeQ==
+entryuuid:: svuqo2CPTomPsu61LAGebQ==
 entrycsn: 20100111202238.448000Z#000000#000#000000
 objectclass: organizationalUnit
 objectclass: top

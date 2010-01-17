@@ -1,8 +1,9 @@
+version: 1
 dn: ads-interceptorId=eventInterceptor,ou=interceptors,ads-directoryServiceId=de
  fault,ou=directoryService,ou=config
 createtimestamp: 20100111145238Z
 ads-interceptororder: 11
-entryuuid:: 77+9Le+/ve+/vRpmS3Lvv716Yu+/ve+/vShP77+9
+entryuuid:: r996bNJXTa6OI5x65+ZwFQ==
 entrycsn: 20100111202238.633000Z#000000#000#000000
 ads-interceptorclassname: org.apache.directory.server.core.event.EventIntercepto
  r

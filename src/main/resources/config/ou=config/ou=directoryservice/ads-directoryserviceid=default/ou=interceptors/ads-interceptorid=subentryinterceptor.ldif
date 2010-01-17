@@ -1,8 +1,9 @@
+version: 1
 dn: ads-interceptorId=subentryInterceptor,ou=interceptors,ads-directoryServiceId
  =default,ou=directoryService,ou=config
 createtimestamp: 20100111145238Z
 ads-interceptororder: 9
-entryuuid:: U++/vTNw77+9Z0Nd77+977+977+9eu+/ve+/vSor
+entryuuid:: o11ao9ERQe2uivYGjug2cw==
 entrycsn: 20100111202238.607000Z#000000#000#000000
 ads-interceptorclassname: org.apache.directory.server.core.subtree.SubentryInter
  ceptor
