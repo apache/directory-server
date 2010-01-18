@@ -26,6 +26,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -35,15 +38,32 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.partition.ldif.LdifPartition;
+import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
+import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
+import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
+import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.mina.util.AvailablePortFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +103,7 @@ public class SyncreplRunnerUI implements ActionListener
 
     private String provServerHost = "localhost";
     private int provServerPort = 389;
-    private String provServerBindDn = "cn=admin,dc=nodomain";
+    private String provServerBindDn = "cn=Manager,dc=my-domain,dc=com";
     private String provServerPwd = "secret";
 
     private boolean connected;
@@ -94,9 +114,9 @@ public class SyncreplRunnerUI implements ActionListener
         config = new SyncreplConfiguration();
         config.setProviderHost( "localhost" );
         config.setPort( 389 );
-        config.setBindDn( "cn=admin,dc=nodomain" );
+        config.setBindDn( "uid=admin,ou=system" );
         config.setCredentials( "secret" );
-        config.setBaseDn( "dc=test,dc=nodomain" );
+        config.setBaseDn( "dc=my-domain,dc=com" );
         config.setFilter( "(objectclass=*)" );
         config.setAttributes( "*,+" );
         config.setSearchScope( SearchScope.SUBTREE.getJndiScope() );
@@ -116,7 +136,7 @@ public class SyncreplRunnerUI implements ActionListener
                 workDir.mkdirs();
             }
 
-            dirService = startEmbeddedServer( workDir );
+            startEmbeddedServer( workDir );
             agent.init( dirService );
             agent.bind();
 
@@ -181,41 +201,51 @@ public class SyncreplRunnerUI implements ActionListener
     }
 
 
-    private DirectoryService startEmbeddedServer( File workDir )
+    private void startEmbeddedServer( File workDir )
     {
         try
         {
-            DefaultDirectoryService dirService = new DefaultDirectoryService();
+            dirService = new DefaultDirectoryService();
             dirService.setShutdownHookEnabled( false );
             dirService.setWorkingDirectory( workDir );
             int consumerPort = AvailablePortFinder.getNextAvailable( 1024 );
+
+            initSchema();
+            initSystemPartition();
+
             ldapServer = new LdapServer();
             ldapServer.setTransports( new TcpTransport( consumerPort ) );
             ldapServer.setDirectoryService( dirService );
 
             LdapDN suffix = new LdapDN( config.getBaseDn() );
             JdbmPartition partition = new JdbmPartition();
-            partition.setSuffix( suffix.getUpName() );
+            partition.setSuffix( suffix.getName() );
             partition.setId( "syncrepl" );
+            partition.setPartitionDir( new File( workDir, partition.getId() ) );
             partition.setSyncOnWrite( true );
-            partition.init( dirService );
+            partition.setSchemaManager( dirService.getSchemaManager() );
+            partition.initialize();
 
             dirService.addPartition( partition );
 
+            String ldif = "dn: " + config.getBaseDn() + "\n" +
+                          "objectClass: top \n" +
+                          "objectClass: domain \n" +
+                          "dc: my-domain\n";
+            LdifReader reader = new LdifReader();
+            List<LdifEntry> testEntries = reader.parseLdif( ldif ); 
+            dirService.setTestEntries( testEntries );
             dirService.startup();
 
             ldapServer.addExtendedOperationHandler( new StartTlsHandler() );
             ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
 
             ldapServer.start();
-            return dirService;
         }
         catch ( Exception e )
         {
             e.printStackTrace();
         }
-
-        return null;
     }
 
 
@@ -245,7 +275,7 @@ public class SyncreplRunnerUI implements ActionListener
         entryInjector.enable( false );
         entryInjector.setBorder( new TitledBorder( "Entry Injector" ) );
         entryInjector.setConfig( config );
-        
+
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
         frame.setTitle( "Syncrepl consumer UI" );
@@ -311,6 +341,65 @@ public class SyncreplRunnerUI implements ActionListener
             } );
             btnStop.setEnabled( true );
         }
+    }
+
+
+    private void initSchema() throws Exception
+    {
+        SchemaPartition schemaPartition = dirService.getSchemaService().getSchemaPartition();
+
+        // Init the LdifPartition
+        LdifPartition ldifPartition = new LdifPartition();
+        String workingDirectory = dirService.getWorkingDirectory().getPath();
+        ldifPartition.setWorkingDirectory( workingDirectory + "/schema" );
+
+        // Extract the schema on disk (a brand new one) and load the registries
+        File schemaRepository = new File( workingDirectory, "schema" );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+        extractor.extractOrCopy( true );
+
+        schemaPartition.setWrappedPartition( ldifPartition );
+
+        SchemaLoader loader = new LdifSchemaLoader( schemaRepository );
+        SchemaManager schemaManager = new DefaultSchemaManager( loader );
+        dirService.setSchemaManager( schemaManager );
+
+        // We have to load the schema now, otherwise we won't be able
+        // to initialize the Partitions, as we won't be able to parse 
+        // and normalize their suffix DN
+        schemaManager.loadAllEnabled();
+
+        schemaPartition.setSchemaManager( schemaManager );
+
+        List<Throwable> errors = schemaManager.getErrors();
+
+        if ( errors.size() != 0 )
+        {
+            throw new Exception( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+        }
+    }
+
+
+    private void initSystemPartition() throws Exception
+    {
+        // change the working directory to something that is unique
+        // on the system and somewhere either under target directory
+        // or somewhere in a temp area of the machine.
+
+        // Inject the System Partition
+        Partition systemPartition = new JdbmPartition();
+        systemPartition.setId( "system" );
+        ( ( JdbmPartition ) systemPartition ).setCacheSize( 500 );
+        systemPartition.setSuffix( ServerDNConstants.SYSTEM_DN );
+        systemPartition.setSchemaManager( dirService.getSchemaManager() );
+        ( ( JdbmPartition ) systemPartition ).setPartitionDir( new File( dirService.getWorkingDirectory(), "system" ) );
+
+        // Add objectClass attribute for the system partition
+        Set<Index<?, ServerEntry>> indexedAttrs = new HashSet<Index<?, ServerEntry>>();
+        indexedAttrs.add( new JdbmIndex<Object, ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
+        ( ( JdbmPartition ) systemPartition ).setIndexedAttributes( indexedAttrs );
+
+        dirService.setSystemPartition( systemPartition );
     }
 
 

@@ -66,6 +66,7 @@ import org.apache.directory.shared.ldap.message.control.replication.SyncRequestV
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateValueControl;
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationModeEnum;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,6 +105,9 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
     /** a reference to the directoryService */
     private DirectoryService directoryService;
 
+    /** the schema manager */
+    private SchemaManager schemaManager;
+    
     /** the decoder for syncinfovalue control */
     private SyncInfoValueControlDecoder decoder = new SyncInfoValueControlDecoder();
 
@@ -157,6 +161,8 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
         cookieFile = new File( cookieDir, String.valueOf( config.getReplicaId() ) );
         
         session = directoryService.getAdminSession();
+        
+        schemaManager = directoryservice.getSchemaManager();
     }
 
 
@@ -367,9 +373,9 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
                 case ADD :
                     if ( !session.exists( remoteEntry.getDn() ) )
                     {
-                        LOG.debug( "adding entry with dn {}", remoteEntry.getDn().getUpName() );
+                        LOG.debug( "adding entry with dn {}", remoteEntry.getDn().getName() );
                         LOG.debug( remoteEntry.toString() );
-                        session.add( new DefaultServerEntry( directoryService.getRegistries(), remoteEntry ) );
+                        session.add( new DefaultServerEntry( schemaManager, remoteEntry ) );
                     }
 
                     break;
@@ -379,7 +385,7 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
                     break;
 
                 case DELETE :
-                    LOG.debug( "deleting entry with dn {}", remoteEntry.getDn().getUpName() );
+                    LOG.debug( "deleting entry with dn {}", remoteEntry.getDn().getName() );
                     session.delete( remoteEntry.getDn() );
                     break;
             }
