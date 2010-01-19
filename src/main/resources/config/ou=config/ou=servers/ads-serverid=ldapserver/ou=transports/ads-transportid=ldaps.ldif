@@ -4,7 +4,6 @@ dn: ads-transportid=ldaps,ou=transports,ads-serverId=ldapServer,ou=servers,ou=co
 ads-systemport: 10686
 ads-transportenablessl: true
 createtimestamp: 20100111145239Z
-entryuuid:: Z5z7vzCFSui+Vo4HU1wC8Q==
 entrycsn: 20100111202239.213000Z#000000#000#000000
 ads-transportaddress: localhost
 ads-transportid: ldaps
