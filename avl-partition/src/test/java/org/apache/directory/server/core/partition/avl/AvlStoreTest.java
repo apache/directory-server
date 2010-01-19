@@ -360,7 +360,7 @@ public class AvlStoreTest
         entry.add( "commonName",  "Jack Daniels");
         entry.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
+        entry.add( "entryUUID", UUID.randomUUID().toString() );
         store.add( entry );
         
         store.delete( 12L ); // drops the alias indices
@@ -408,7 +408,7 @@ public class AvlStoreTest
       entry.add( "ou", "Sales" );
       entry.add( "cn",  "Martin King");
       entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-      entry.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
+      entry.add( "entryUUID", UUID.randomUUID().toString() );
       store.add( entry );
       
       cursor = idx.forwardCursor( 2L);
@@ -432,7 +432,7 @@ public class AvlStoreTest
       entry.add( "objectClass", "top", "organizationalUnit" );
       entry.add( "ou", "Marketing" );
       entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-      entry.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
+      entry.add( "entryUUID", UUID.randomUUID().toString() );
       store.add( entry );
 
       // dn id 14
@@ -443,7 +443,7 @@ public class AvlStoreTest
       entry.add( "ou", "Marketing" );
       entry.add( "cn",  "Jimmy Wales");
       entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-      entry.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
+      entry.add( "entryUUID", UUID.randomUUID().toString() );
       store.add( entry );
       
       store.move( marketingDn, newParentDn );
@@ -726,7 +726,7 @@ public class AvlStoreTest
         entry.add( "ou", "Engineering" );
         entry.add( "cn",  "Private Ryan");
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
+        entry.add( "entryUUID", UUID.randomUUID().toString() );
 
         store.add( entry );
         
@@ -746,7 +746,7 @@ public class AvlStoreTest
         entry.add( "ou", "Engineering" );
         entry.add( "cn",  "Private Ryan");
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
+        entry.add( "entryUUID", UUID.randomUUID().toString() );
         
         store.add( entry );
         
@@ -773,7 +773,7 @@ public class AvlStoreTest
         childEntry.add( "ou", "Engineering" );
         childEntry.add( "cn",  "Private Ryan");
         childEntry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        childEntry.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
+        childEntry.add( "entryUUID", UUID.randomUUID().toString() );
 
         store.add( childEntry );
 
@@ -906,7 +906,7 @@ public class AvlStoreTest
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "cn", "Tim B");
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
+        entry.add( "entryUUID", UUID.randomUUID().toString() );
         
         store.add( entry );
         

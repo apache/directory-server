@@ -239,7 +239,7 @@ public class LdifPartition extends BTreePartition
 
             if ( contextEntry.get( SchemaConstants.ENTRY_UUID_AT ) == null )
             {
-                byte[] uuid = SchemaUtils.uuidToBytes( UUID.randomUUID() );
+                String uuid = UUID.randomUUID().toString();
                 contextEntry.add( SchemaConstants.ENTRY_UUID_AT, uuid );
             }
             
@@ -489,7 +489,7 @@ public class LdifPartition extends BTreePartition
                     
                     if ( !serverEntry.containsAttribute( SchemaConstants.ENTRY_UUID_AT ) )
                     {
-                        serverEntry.put( SchemaConstants.ENTRY_UUID_AT, SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
+                        serverEntry.put( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
                     }
 
                     // call add on the wrapped partition not on the self

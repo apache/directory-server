@@ -646,7 +646,7 @@ public class SubtreeScopeTest
         attrs.add( "cn", "jd" );
         attrs.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
         attrs.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        attrs.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
+        attrs.add( "entryUUID", UUID.randomUUID().toString() );
         store.add( attrs );
 
         dn = new LdapDN(
@@ -661,7 +661,7 @@ public class SubtreeScopeTest
         attrs.add( "cn", "jdoe" );
         attrs.add( "sn", "doe" );
         attrs.add( "entryCSN", new CsnFactory( 1  ).newInstance().toString() );
-        attrs.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
+        attrs.add( "entryUUID", UUID.randomUUID().toString() );
         store.add( attrs );
 
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING,

@@ -165,7 +165,7 @@ public class LdifPartitionTest
         ServerEntry entry = new DefaultServerEntry( schemaManager );
         entry.setDn( new LdapDN( dn ).normalize( schemaManager.getNormalizerMapping() ) );
         entry.put( SchemaConstants.ENTRY_CSN_AT, defaultCSNFactory.newInstance().toString() );
-        entry.add( SchemaConstants.ENTRY_UUID_AT, SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
+        entry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
         
         ClonedServerEntry clonedEntry = new ClonedServerEntry( entry );
 

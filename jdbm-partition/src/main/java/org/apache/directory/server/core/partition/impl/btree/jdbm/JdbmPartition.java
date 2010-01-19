@@ -148,7 +148,7 @@ public class JdbmPartition extends AbstractXdbmPartition
                 }
                 else if ( oid.equals( SchemaConstants.ENTRY_UUID_AT_OID ) )
                 {
-                    store.setEntryUuidIndex( ( Index<byte[],ServerEntry> ) index );
+                    store.setEntryUuidIndex( ( Index<String,ServerEntry> ) index );
                 }
                 else
                 {
@@ -179,7 +179,7 @@ public class JdbmPartition extends AbstractXdbmPartition
     }
 
     
-    public Index<byte[], ServerEntry> getEntryUuidIndex()
+    public Index<String, ServerEntry> getEntryUuidIndex()
     {
         return store.getEntryUuidIndex();
     }

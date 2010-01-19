@@ -217,7 +217,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         }
         else
         {
-            entry.put( SchemaConstants.ENTRY_UUID_AT, SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
+            entry.put( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
         }
             
         if ( entry.containsAttribute( SchemaConstants.ENTRY_CSN_AT ) )

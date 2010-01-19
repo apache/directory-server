@@ -133,7 +133,7 @@ public class JdbmStore<E> implements Store<E>
     private JdbmIndex<String,E> entryCsnIdx;
 
     /** a system index on entryUUID attribute */
-    private JdbmIndex<byte[],E> entryUuidIdx;
+    private JdbmIndex<String,E> entryUuidIdx;
     
     /** Static declarations to avoid lookup all over the code */
     private static AttributeType OBJECT_CLASS_AT;
@@ -384,7 +384,7 @@ public class JdbmStore<E> implements Store<E>
         
         if ( entryUuidIdx == null )
         {
-            entryUuidIdx = new JdbmIndex<byte[], E>();
+            entryUuidIdx = new JdbmIndex<String, E>();
             entryUuidIdx.setAttributeId( SchemaConstants.ENTRY_UUID_AT_OID );
             systemIndices.put( SchemaConstants.ENTRY_UUID_AT_OID, entryUuidIdx );
             entryUuidIdx.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_UUID_AT_OID ), workingDirectory );
@@ -786,7 +786,7 @@ public class JdbmStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public Index<byte[],E> getEntryUuidIndex()
+    public Index<String,E> getEntryUuidIndex()
     {
         return entryUuidIdx;
     }
@@ -795,7 +795,7 @@ public class JdbmStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public void setEntryUuidIndex( Index<byte[],E> index ) throws NamingException
+    public void setEntryUuidIndex( Index<String,E> index ) throws NamingException
     {
         protect( "entryUuidIndex" );
         entryUuidIdx = convertIndex( index );
@@ -1247,7 +1247,7 @@ public class JdbmStore<E> implements Store<E>
             throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
         
-        entryUuidIdx.add( entryUuid.getBytes(), id );
+        entryUuidIdx.add( entryUuid.getString(), id );
         
         Long tempId = parentId;
         

@@ -316,7 +316,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         systemEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
         systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         systemEntry.add( SchemaConstants.ENTRY_CSN_AT, directoryService.getCSN().toString() );
-        systemEntry.add( SchemaConstants.ENTRY_UUID_AT, SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
+        systemEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
         systemEntry.put( NamespaceTools.getRdnAttribute( ServerDNConstants.SYSTEM_DN ),
             NamespaceTools.getRdnValue( ServerDNConstants.SYSTEM_DN ) );
         LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );

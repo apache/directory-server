@@ -1241,7 +1241,7 @@ public class AddIT extends AbstractLdapTestUnit
         attrs.add( new LDAPAttribute( "description", descr ) );
 
         UUID uuid = UUID.randomUUID();
-        attrs.add( new LDAPAttribute( SchemaConstants.ENTRY_UUID_AT, SchemaUtils.uuidToBytes( uuid ) ) );
+        attrs.add( new LDAPAttribute( SchemaConstants.ENTRY_UUID_AT, uuid.toString() ) );
 
         CsnFactory csnFac = new CsnFactory( 0 );
         Csn csn = csnFac.newInstance();
@@ -1259,7 +1259,7 @@ public class AddIT extends AbstractLdapTestUnit
         LDAPAttribute attr = addedEntry.getAttribute( SchemaConstants.ENTRY_UUID_AT );
         assertNotNull( attr );
         
-        assertEquals( uuid, getUUIDFromBytes( attr.getByteValueArray()[0] ) );
+        assertEquals( uuid.toString(), attr.getStringValueArray()[0] );
 
         attr = addedEntry.getAttribute( SchemaConstants.ENTRY_CSN_AT );
         assertNotNull( attr );

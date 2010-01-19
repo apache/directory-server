@@ -116,7 +116,7 @@ public class AvlStore<E> implements Store<E>
     private AvlIndex<String, E> entryCsnIdx;
 
     /** a system index on entryUUID attribute */
-    private AvlIndex<byte[], E> entryUuidIdx;
+    private AvlIndex<String, E> entryUuidIdx;
 
     /** a map of attributeType numeric ID to user userIndices */
     private Map<String, AvlIndex<?, E>> userIndices = new HashMap<String, AvlIndex<?, E>>();
@@ -236,7 +236,7 @@ public class AvlStore<E> implements Store<E>
             throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
         
-        entryUuidIdx.add( entryUuid.getBytes(), id );
+        entryUuidIdx.add( entryUuid.getString(), id );
 
         Long tempId = parentId;
         while ( tempId != null && tempId != 0 && tempId != 1 )
@@ -776,7 +776,7 @@ public class AvlStore<E> implements Store<E>
         if ( entryUuidIdx == null )
         {
             AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_UUID_AT_OID );
-            entryUuidIdx = new AvlIndex<byte[], E>();
+            entryUuidIdx = new AvlIndex<String, E>();
             entryUuidIdx.setAttributeId( SchemaConstants.ENTRY_UUID_AT_OID );
             entryUuidIdx.initialize( attributeType );
             systemIndices.put( SchemaConstants.ENTRY_UUID_AT_OID, entryUuidIdx );
@@ -2068,7 +2068,7 @@ public class AvlStore<E> implements Store<E>
     }
 
 
-    public Index<byte[], E> getEntryUuidIndex()
+    public Index<String, E> getEntryUuidIndex()
     {
         return entryUuidIdx;
     }
@@ -2144,12 +2144,12 @@ public class AvlStore<E> implements Store<E>
     }
 
 
-    public void setEntryUuidIndex( Index<byte[], E> index ) throws NamingException
+    public void setEntryUuidIndex( Index<String, E> index ) throws NamingException
     {
         protect( "entryUuidIndex" );
         if( index instanceof AvlIndex )
         {
-            this.entryUuidIdx = ( AvlIndex<byte[], E> ) index;
+            this.entryUuidIdx = ( AvlIndex<String, E> ) index;
         }
         else
         {

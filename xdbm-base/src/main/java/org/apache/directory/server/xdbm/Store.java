@@ -335,14 +335,14 @@ public interface Store<E>
     /**
      * @return The EntryUUID system index
      */
-    Index<byte[],E> getEntryUuidIndex();
+    Index<String,E> getEntryUuidIndex();
 
     /**
      * Set the EntryUUID index
      * @param index The EntryUUID index
      * @throws Exception If the addition failed
      */
-    void setEntryUuidIndex( Index<byte[],E> index ) throws Exception;
+    void setEntryUuidIndex( Index<String,E> index ) throws Exception;
 
     
     /**

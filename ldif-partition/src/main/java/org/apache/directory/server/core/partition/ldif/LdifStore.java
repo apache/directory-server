@@ -539,7 +539,7 @@ public class LdifStore<E> implements Store<E>
     }
 
 
-    public Index<byte[], E> getEntryUuidIndex()
+    public Index<String, E> getEntryUuidIndex()
     {
         return wrappedStore.getEntryUuidIndex();
     }
@@ -593,7 +593,7 @@ public class LdifStore<E> implements Store<E>
     }
 
     
-    public void setEntryUuidIndex( Index<byte[], E> index ) throws Exception
+    public void setEntryUuidIndex( Index<String, E> index ) throws Exception
     {
         wrappedStore.setEntryUuidIndex( index );
     }
