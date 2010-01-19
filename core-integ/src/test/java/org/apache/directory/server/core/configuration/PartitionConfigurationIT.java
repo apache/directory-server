@@ -72,7 +72,7 @@ public class PartitionConfigurationIT extends AbstractLdapTestUnit
         ctxEntry.get( "objectClass" ).add( "organizationalUnit" );
         ctxEntry.put( "ou", "removable" );
         ctxEntry.put( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        ctxEntry.put( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
+        ctxEntry.put( "entryUUID", UUID.randomUUID().toString() );
         partition.add( new AddOperationContext( service.getAdminSession(), ctxEntry ) );
         
         Hashtable<String,Object> env = new Hashtable<String,Object>();
