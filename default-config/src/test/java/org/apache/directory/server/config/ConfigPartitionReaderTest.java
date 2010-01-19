@@ -32,6 +32,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
@@ -39,6 +40,7 @@ import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.mina.util.AvailablePortFinder;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -121,6 +123,18 @@ public class ConfigPartitionReaderTest
 
         server = cpReader.getLdapServer();
         server.setDirectoryService( dirService );
+
+        // this is a hack to use a different port than the one
+        // configured in the actual configuration data
+        // in case the configured port is already in use during the test run
+        Transport[] transports = server.getTransports();
+        for( Transport t : transports )
+        {
+            int port = t.getPort();
+            port = AvailablePortFinder.getNextAvailable( port );
+            t.setPort( port );
+            t.init();
+        }
 
         server.start();
     }
