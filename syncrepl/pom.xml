@@ -48,7 +48,7 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-client-api</artifactId>
+      <artifactId>shared-ldap-client-api</artifactId>
       <version>${org.apache.directory.shared.version}</version>
     </dependency>
 

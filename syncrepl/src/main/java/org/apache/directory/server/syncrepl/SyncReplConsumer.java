@@ -91,7 +91,7 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
     private byte[] syncCookie;
 
     /** the logger */
-    private static final Logger LOG = LoggerFactory.getLogger( SyncReplConsumer.class );
+    private static final Logger LOG = LoggerFactory.getLogger( SyncReplConsumer.class.getSimpleName() );
 
     /** conection to the syncrepl provider */
     private LdapConnection connection;
@@ -123,6 +123,11 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
     private SyncDoneValueControlDecoder syncDoneControlDecoder = new SyncDoneValueControlDecoder();
     
     private SyncStateValueControlDecoder syncStateControlDecoder = new SyncStateValueControlDecoder();
+
+    /** attributes on which modification should be ignored */
+    private static final String[] MOD_IGNORE_AT = new String[]{ "entryUUID", "entryCSN"}; //{ "1.3.6.1.1.16.4", "1.3.6.1.4.1.4203.666.1.7" };
+    
+    
     /**
      * @return the config
      */
@@ -231,17 +236,15 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
         searchRequest.setScope( SearchScope.getSearchScope( config.getSearchScope() ) );
         searchRequest.setTypesOnly( false );
 
-        String attributes = config.getAttributes();
+        String[] attributes = config.getAttributes();
         
-        if ( StringTools.isEmpty( attributes ) )
+        if ( attributes == null )
         {
             searchRequest.addAttributes( SchemaConstants.ALL_USER_ATTRIBUTES );
         }
         else
         {
-            String[] attrs = attributes.trim().split( "," );
-            
-            searchRequest.addAttributes( attrs );
+            searchRequest.addAttributes( attributes );
         }
 
         syncReq = new SyncRequestValueControl();
@@ -365,8 +368,7 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
 
             LOG.debug( "state name {}", state.name() );
 
-            EntryAttribute entryUUID = remoteEntry.get( "entryUUID" );
-            LOG.debug( "entryUUID = {}", ( entryUUID == null ? null : entryUUID.getString() ) );
+            LOG.debug( "entryUUID = {}", StringTools.uuidToString( syncStateCtrl.getEntryUUID() ) );
 
             switch ( state )
             {
@@ -701,10 +703,12 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
     
     private void modify( Entry remoteEntry ) throws Exception 
     {
-        LOG.debug( "modifying entry with dn {}", remoteEntry.getDn().getUpName() );
+        LOG.debug( "modifying entry with dn {}", remoteEntry.getDn().getName() );
         
         Entry localEntry = session.lookup( remoteEntry.getDn() );
         
+        remoteEntry.removeAttributes( MOD_IGNORE_AT );
+
         List<Modification> mods = new ArrayList<Modification>();
         Iterator<EntryAttribute> itr = localEntry.iterator();
      
@@ -714,6 +718,7 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
             String attrId = localAttr.getId();
             Modification mod;
             EntryAttribute remoteAttr = remoteEntry.get( attrId );
+            
             
             if (  remoteAttr != null ) // would be better if we compare the values also? or will it consume more time?
             {

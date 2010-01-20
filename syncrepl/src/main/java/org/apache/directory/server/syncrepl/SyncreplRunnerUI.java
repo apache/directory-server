@@ -54,8 +54,6 @@ import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
@@ -90,7 +88,7 @@ public class SyncreplRunnerUI implements ActionListener
 
     private LdapServer ldapServer;
 
-    private static final Logger LOG = LoggerFactory.getLogger( SyncreplRunnerUI.class );
+    private static final Logger LOG = LoggerFactory.getLogger( SyncreplRunnerUI.class.getSimpleName() );
 
     // UI components
     private JButton btnStart;
@@ -112,13 +110,13 @@ public class SyncreplRunnerUI implements ActionListener
     public SyncreplRunnerUI()
     {
         config = new SyncreplConfiguration();
-        config.setProviderHost( "localhost" );
-        config.setPort( 389 );
-        config.setBindDn( "uid=admin,ou=system" );
-        config.setCredentials( "secret" );
+        config.setProviderHost( provServerHost );
+        config.setPort( provServerPort );
+        config.setBindDn( provServerBindDn );
+        config.setCredentials( provServerPwd );
         config.setBaseDn( "dc=my-domain,dc=com" );
         config.setFilter( "(objectclass=*)" );
-        config.setAttributes( "*,+" );
+        config.setAttributes( "*,entryUUID,entryCSN" );
         config.setSearchScope( SearchScope.SUBTREE.getJndiScope() );
         config.setReplicaId( 1 );
         agent.setConfig( config );
@@ -228,13 +226,6 @@ public class SyncreplRunnerUI implements ActionListener
 
             dirService.addPartition( partition );
 
-            String ldif = "dn: " + config.getBaseDn() + "\n" +
-                          "objectClass: top \n" +
-                          "objectClass: domain \n" +
-                          "dc: my-domain\n";
-            LdifReader reader = new LdifReader();
-            List<LdifEntry> testEntries = reader.parseLdif( ldif ); 
-            dirService.setTestEntries( testEntries );
             dirService.startup();
 
             ldapServer.addExtendedOperationHandler( new StartTlsHandler() );

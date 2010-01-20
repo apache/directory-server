@@ -19,7 +19,9 @@
  */
 package org.apache.directory.server.syncrepl;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 /**
  * 
@@ -58,8 +60,10 @@ public class SyncreplConfiguration
     private String filter;
 
     /** a comma separated string of attribute names */
-    private String attributes;
+    private String attributesString;
 
+    private String[] attrs;
+    
     /** the numer for setting the limit on numer of search results to be fteched
      * default value is 0 (i.e no limit) */
     private int searchSizeLimit = 0;
@@ -205,9 +209,19 @@ public class SyncreplConfiguration
     /**
      * @return the attributes
      */
-    public String getAttributes()
+    public String[] getAttributes()
     {
-        return attributes;
+        if( attrs == null )
+        {
+            if ( StringTools.isEmpty( attributesString ) )
+            {
+                attributesString = SchemaConstants.ALL_USER_ATTRIBUTES;
+            }
+
+            attrs = attributesString.trim().split( "," );
+        }
+
+        return attrs;
     }
 
     /**
@@ -215,7 +229,7 @@ public class SyncreplConfiguration
      */
     public void setAttributes( String attributes )
     {
-        this.attributes = attributes;
+        this.attributesString = attributes;
     }
 
     /**
