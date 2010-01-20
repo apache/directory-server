@@ -119,6 +119,8 @@ public class SyncreplRunnerUI implements ActionListener
         config.setAttributes( "*,entryUUID,entryCSN" );
         config.setSearchScope( SearchScope.SUBTREE.getJndiScope() );
         config.setReplicaId( 1 );
+        config.setRefreshPersist( false );
+        config.setConsumerInterval( 60 * 1000 );
         agent.setConfig( config );
 
         workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/syncrepl-work" );
