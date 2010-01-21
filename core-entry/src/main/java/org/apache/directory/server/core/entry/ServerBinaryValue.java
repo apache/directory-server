@@ -369,7 +369,7 @@ public class ServerBinaryValue extends ClientBinaryValue
 
             try
             {
-                Comparator<? super byte[]> comparator = getLdapComparator();
+                Comparator<byte[]> comparator = (Comparator<byte[]>)getLdapComparator();
 
                 if ( comparator != null )
                 {
@@ -490,7 +490,7 @@ public class ServerBinaryValue extends ClientBinaryValue
         {
             try
             {
-                LdapComparator<? super byte[]> comparator = getLdapComparator();
+                Comparator<byte[]> comparator = (Comparator<byte[]>)getLdapComparator();
 
                 // Compare normalized values
                 if ( comparator == null )
@@ -567,7 +567,7 @@ public class ServerBinaryValue extends ClientBinaryValue
      * @return a comparator associated with the attributeType or null if one cannot be found
      * @throws NamingException if resolution of schema entities fail
      */
-    private LdapComparator<? super Object> getLdapComparator() throws NamingException
+    private LdapComparator<?> getLdapComparator() throws NamingException
     {
         MatchingRule mr = getMatchingRule();
 
