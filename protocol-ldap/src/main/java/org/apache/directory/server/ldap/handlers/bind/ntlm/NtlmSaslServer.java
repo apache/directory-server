@@ -169,7 +169,7 @@ public class NtlmSaslServer extends AbstractSaslServer
 
                 if ( ! result )
                 {
-                    throw new SaslException( "Authentication occurred but the credentials were invalid." );
+                    throw new SaslException( "Authentication attempted but the credentials were invalid.." );
                 }
                 
                 break;
