@@ -24,6 +24,7 @@ import java.io.File;
 
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.Tuple;
@@ -81,7 +82,7 @@ public class AvlIndex<K,O> implements Index<K, O>
         
         if ( normalizer == null )
         {
-            throw new Exception( "No Normalizer present for attribute type " + attributeType );
+            throw new Exception( I18n.err( I18n.ERR_212, attributeType ) );
         }
 
         LdapComparator comp = mr.getLdapComparator();
@@ -446,7 +447,7 @@ public class AvlIndex<K,O> implements Index<K, O>
      */
     public void setWkDirPath( File wkDirPath )
     {
-        throw new UnsupportedOperationException( "in memory index cannot store the data on disk" );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_213 ) );
     }
 
     
@@ -464,7 +465,7 @@ public class AvlIndex<K,O> implements Index<K, O>
      */
     public void setCacheSize( int cacheSize )
     {
-        throw new UnsupportedOperationException( "in memory index doesn't support explicit caching" );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_214 ) );
     }
 
     

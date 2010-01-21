@@ -151,7 +151,7 @@ public class AvlStore<E> implements Store<E>
     {
         if ( entry instanceof ClonedServerEntry )
         {
-            throw new Exception( "Cannot store a ClonedServerEntry" );
+            throw new Exception( I18n.err( I18n.ERR_215 ) );
         }
 
         LdapDN normName = entry.getDn();
@@ -183,14 +183,14 @@ public class AvlStore<E> implements Store<E>
         // don't keep going if we cannot find the parent Id
         if ( parentId == null )
         {
-            throw new LdapNameNotFoundException( "Id for parent '" + parentDn + "' not found!" );
+            throw new LdapNameNotFoundException( I18n.err( I18n.ERR_216, parentDn ) );
         }
 
         EntryAttribute objectClass = entry.get( OBJECT_CLASS_AT );
 
         if ( objectClass == null )
         {
-            String msg = "Entry " + normName.getName() + " contains no objectClass attribute: " + entry;
+            String msg = I18n.err( I18n.ERR_217, normName.getName(), entry );
             throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
 
@@ -210,7 +210,7 @@ public class AvlStore<E> implements Store<E>
 
         if ( !Character.isDigit( normName.toNormName().charAt( 0 ) ) )
         {
-            throw new IllegalStateException( "Not a normalized name: " + normName.toNormName() );
+            throw new IllegalStateException( I18n.err( I18n.ERR_218, normName.toNormName() ) );
         }
 
         ndnIdx.add( normName.toNormName(), id );
@@ -222,7 +222,7 @@ public class AvlStore<E> implements Store<E>
 
         if ( entryCsn == null )
         {
-            String msg = "Entry " + normName.getName() + " contains no entryCsn attribute: " + entry;
+            String msg = I18n.err( I18n.ERR_219, normName.getName(), entry );
             throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
 
@@ -233,7 +233,7 @@ public class AvlStore<E> implements Store<E>
 
         if ( entryUuid == null )
         {
-            String msg = "Entry " + normName.getName() + " contains no entryUuid attribute: " + entry;
+            String msg = I18n.err( I18n.ERR_220, normName.getName(), entry );
             throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
 
@@ -958,7 +958,7 @@ public class AvlStore<E> implements Store<E>
     {
         if ( entry instanceof ClonedServerEntry )
         {
-            throw new Exception( "Cannot store a ClonedServerEntry" );
+            throw new Exception( I18n.err( I18n.ERR_215 ) );
         }
 
         String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
@@ -1021,7 +1021,7 @@ public class AvlStore<E> implements Store<E>
     {
         if ( entry instanceof ClonedServerEntry )
         {
-            throw new Exception( "Cannot store a ClonedServerEntry" );
+            throw new Exception( I18n.err( I18n.ERR_215 ) );
         }
 
         String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
@@ -1112,7 +1112,7 @@ public class AvlStore<E> implements Store<E>
     {
         if ( entry instanceof ClonedServerEntry )
         {
-            throw new Exception( "Cannot store a ClonedServerEntry" );
+            throw new Exception( I18n.err( I18n.ERR_215 ) );
         }
 
         String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
@@ -1187,7 +1187,7 @@ public class AvlStore<E> implements Store<E>
     {
         if ( mods instanceof ClonedServerEntry )
         {
-            throw new Exception( "Cannot store a ClonedServerEntry" );
+            throw new Exception( I18n.err( I18n.ERR_215 ) );
         }
 
         Long id = getEntryId( dn.toString() );
@@ -1213,7 +1213,7 @@ public class AvlStore<E> implements Store<E>
                     break;
 
                 default:
-                    throw new Exception( "Unidentified modification operation" );
+                    throw new Exception( I18n.err( I18n.ERR_221 ) );
             }
         }
 
@@ -1251,7 +1251,7 @@ public class AvlStore<E> implements Store<E>
                     break;
 
                 default:
-                    throw new Exception( "Unidentified modification operation" );
+                    throw new Exception( I18n.err( I18n.ERR_221 ) );
             }
         }
 
@@ -1704,7 +1704,7 @@ public class AvlStore<E> implements Store<E>
     {
         if ( initialized )
         {
-            throw new IllegalStateException( "Cannot call store method: " + method );
+            throw new IllegalStateException( I18n.err( I18n.ERR_222, method ) );
         }
     }
 
@@ -1763,12 +1763,10 @@ public class AvlStore<E> implements Store<E>
         {
             if ( aliasDn.equals( normalizedAliasTargetDn ) )
             {
-                throw new Exception( "[36] aliasDereferencingProblem - " + "attempt to create alias to itself." );
+                throw new Exception( I18n.err( I18n.ERR_223 ) );
             }
 
-            throw new Exception( "[36] aliasDereferencingProblem - "
-                + "attempt to create alias with cycle to relative " + aliasTarget
-                + " not allowed from descendent alias " + aliasDn );
+            throw new Exception( I18n.err( I18n.ERR_224, aliasTarget, aliasDn ) );
         }
 
         /*
@@ -1782,8 +1780,7 @@ public class AvlStore<E> implements Store<E>
         if ( !normalizedAliasTargetDn.startsWith( suffixDn ) )
         {
             // Complain specifically about aliases to outside naming contexts
-            throw new Exception( "[36] aliasDereferencingProblem -" + " the alias points to an entry outside of the "
-                + suffixDn.getName() + " namingContext to an object whose existance cannot be" + " determined." );
+            throw new Exception( I18n.err( I18n.ERR_225, suffixDn.getName() ) );
         }
 
         // L O O K U P   T A R G E T   I D
@@ -1798,8 +1795,7 @@ public class AvlStore<E> implements Store<E>
         if ( null == targetId )
         {
             // Complain about target not existing
-            throw new Exception( "[33] aliasProblem - " + "the alias when dereferenced would not name a known object "
-                + "the aliasedObjectName must be set to a valid existing " + "entry." );
+            throw new Exception( I18n.err( I18n.ERR_226 ) );
         }
 
         /*
@@ -1815,8 +1811,7 @@ public class AvlStore<E> implements Store<E>
         if ( null != aliasIdx.reverseLookup( targetId ) )
         {
             // Complain about illegal alias chain
-            throw new Exception( "[36] aliasDereferencingProblem -"
-                + " the alias points to another alias.  Alias chaining is" + " not supported by this backend." );
+            throw new Exception( I18n.err( I18n.ERR_227 ) );
         }
 
         // Add the alias to the simple alias index
