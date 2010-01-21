@@ -229,7 +229,7 @@ public class DSAnnotationProcessor
         }
         else
         {
-            String message = "Unsupported changetype found in LDIF: " + entry.getChangeType();
+            String message = I18n.err( I18n.ERR_318, entry.getChangeType() );
             throw new NamingException( message );
         }
     }

@@ -34,6 +34,7 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.core.schema.SchemaPartition;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -135,7 +136,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
 
         if ( errors.size() != 0 )
         {
-            throw new Exception( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+            throw new Exception( I18n.err( I18n.ERR_317, ExceptionUtils.printErrors( errors ) ) );
         }
     }
     
