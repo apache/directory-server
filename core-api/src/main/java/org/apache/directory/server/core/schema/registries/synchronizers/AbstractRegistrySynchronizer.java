@@ -29,6 +29,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -152,7 +153,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         if ( dn.size() < 2 )
         {
-            throw new NamingException( "At least two name components are expected for the dn" );
+            throw new NamingException( I18n.err( I18n.ERR_334 ) );
         }
         
         RDN rdn = dn.getRdn( 1 );
@@ -166,7 +167,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
         if ( schemaManager.getGlobalOidRegistry().contains( oid ) )
         {
-            throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.",
+            throw new LdapNamingException( I18n.err( I18n.ERR_335, oid ),
                 ResultCodeEnum.OTHER );
         }
     }
@@ -186,7 +187,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         }
         else
         {
-            throw new LdapSchemaViolationException( "Oid " + oid + " for new schema entity does not exist.",
+            throw new LdapSchemaViolationException( I18n.err( I18n.ERR_336, oid ),
                 ResultCodeEnum.OTHER );
         }
     }
@@ -199,24 +200,20 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         if ( newParent.size() != 3 )
         {
-            throw new LdapInvalidNameException( 
-                "The parent dn of a attributeType should be at most 3 name components in length.", 
-                ResultCodeEnum.NAMING_VIOLATION );
+            throw new LdapInvalidNameException( I18n.err( I18n.ERR_337 ), ResultCodeEnum.NAMING_VIOLATION );
         }
         
         RDN rdn = newParent.getRdn();
         
         if ( ! schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
         {
-            throw new LdapInvalidNameException( "The parent entry of a " + objectType + " should be an organizationalUnit.", 
+            throw new LdapInvalidNameException( I18n.err( I18n.ERR_338, objectType ), 
                 ResultCodeEnum.NAMING_VIOLATION );
         }
         
         if ( ! ( ( String ) rdn.getNormValue() ).equalsIgnoreCase( OBJECT_TYPE_TO_PATH.get( objectType ) ) )
         {
-            throw new LdapInvalidNameException( 
-                "The parent entry of a " + objectType + " should have a relative name of ou=" + 
-                OBJECT_TYPE_TO_PATH.get( objectType ) + ".", 
+            throw new LdapInvalidNameException( I18n.err( I18n.ERR_339, objectType,  OBJECT_TYPE_TO_PATH.get( objectType ) ), 
                 ResultCodeEnum.NAMING_VIOLATION );
         }
     }
@@ -227,7 +224,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
         if ( schemaManager.getGlobalOidRegistry().contains( oid ) )
         {
-            throw new LdapSchemaViolationException( "Oid " + oid + " for new schema entity is not unique.",
+            throw new LdapSchemaViolationException( I18n.err( I18n.ERR_340, oid ),
                 ResultCodeEnum.OTHER );
         }
     }
@@ -237,7 +234,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         if ( schemaManager.getGlobalOidRegistry().contains( oid ) )
         {
-            throw new LdapSchemaViolationException( "Oid " + oid + " for new schema entity is not unique.",
+            throw new LdapSchemaViolationException( I18n.err( I18n.ERR_340, oid ),
                 ResultCodeEnum.OTHER );
         }
     }
@@ -264,8 +261,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
             
             if ( schemaObjects.contains( schemaObjectWrapper ) )
             {
-                String msg = "Cannot inject " + schemaObject.getName() + " into " + schemaName + 
-                " as this schema already contains this element";
+                String msg = I18n.err( I18n.ERR_341, schemaObject.getName(), schemaName );
                 LOG.warn( msg );
             
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
@@ -276,8 +272,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         }
         else
         {
-            String msg = "Cannot inject " + schemaObject.getName() + " into " + schemaName + 
-            " as this schema is not loaded";
+            String msg = I18n.err( I18n.ERR_342, schemaObject.getName(), schemaName );
             LOG.warn( msg );
         
             throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
@@ -301,8 +296,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
             
             if ( !schemaObjects.contains( schemaObjectWrapper ) )
             {
-                String msg = "Cannot remove " + schemaObject.getName() + " from " + schemaName + 
-                " as this schema does not contain this element";
+                String msg = I18n.err( I18n.ERR_343, schemaObject.getName(), schemaName );
                 LOG.warn( msg );
             
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
@@ -313,8 +307,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         }
         else
         {
-            String msg = "Cannot inject " + schemaObject.getName() + " into " + schemaName + 
-            " as this schema is not loaded";
+            String msg = I18n.err( I18n.ERR_344, schemaObject.getName(), schemaName );
             LOG.warn( msg );
         
             throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );

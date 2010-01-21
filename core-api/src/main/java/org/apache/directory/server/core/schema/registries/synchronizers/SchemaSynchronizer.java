@@ -189,8 +189,8 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
         if ( !parentDn.equals( ouSchemaDN ) )
         {
-            throw new LdapInvalidNameException( "The parent dn of a schema should be " + ouSchemaDN.getName() + " and not: "
-                + parentDn.toNormName(), ResultCodeEnum.NAMING_VIOLATION );
+            throw new LdapInvalidNameException( I18n.err( I18n.ERR_380, ouSchemaDN.getName(),
+                parentDn.toNormName() ), ResultCodeEnum.NAMING_VIOLATION );
         }
 
         // check if the new schema is enabled or disabled
@@ -261,7 +261,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         
         if ( ( dependents != null ) && ! dependents.isEmpty() )
         {
-            String msg = "Cannot delete schema that has dependents: " + dependents; 
+            String msg = I18n.err( I18n.ERR_381, dependents ); 
             LOG.warn( msg );
             throw new LdapOperationNotSupportedException(
                 msg,
@@ -291,9 +291,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
         if ( ! rdnAttributeOid.equals( cnAT.getOid() ) )
         {
-            throw new LdapOperationNotSupportedException( 
-                "Cannot allow rename with rdnAttribute set to " 
-                + rdnAttribute + ": cn must be used instead." ,
+            throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_382, rdnAttribute ),
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
@@ -371,7 +369,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, 
         ServerEntry entry, boolean cascade ) throws NamingException
     {
-        throw new LdapOperationNotSupportedException( "Moving around schemas is not allowed.",
+        throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_383 ),
             ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
 
@@ -383,7 +381,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     public void move( LdapDN oriChildName, LdapDN newParentName, 
         ServerEntry entry, boolean cascade ) throws NamingException
     {
-        throw new LdapOperationNotSupportedException( "Moving around schemas is not allowed.",
+        throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_383 ),
             ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
 
@@ -492,7 +490,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
                 break;
                 
             default:
-                throw new IllegalArgumentException( "Unknown modify operation type: " + modOp );
+                throw new IllegalArgumentException( I18n.err( I18n.ERR_384, modOp ) );
         }
         
         return SCHEMA_UNCHANGED;
@@ -707,8 +705,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
                 
                 if ( schemaManager.getLoadedSchema( StringTools.toLowerCase( dependency ) ) == null )
                 {
-                    throw new LdapOperationNotSupportedException( 
-                        "Unwilling to perform operation on schema with missing dependencies: " + dependency, 
+                    throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_385, dependency ), 
                         ResultCodeEnum.UNWILLING_TO_PERFORM );
                 }
             }

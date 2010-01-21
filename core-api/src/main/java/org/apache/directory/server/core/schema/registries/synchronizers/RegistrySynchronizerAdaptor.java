@@ -242,9 +242,7 @@ public class RegistrySynchronizerAdaptor
         {
             if ( opContext.getDn().size() != 3 )
             {
-                throw new LdapNamingException( 
-                    "Only schema entity containers of objectClass organizationalUnit with 3 name components in length" +
-                    " can be deleted.", ResultCodeEnum.UNWILLING_TO_PERFORM );
+                throw new LdapNamingException( I18n.err( I18n.ERR_378 ), ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
             
             String ouValue = ( String ) opContext.getDn().getRdn().getNormValue();
@@ -252,9 +250,8 @@ public class RegistrySynchronizerAdaptor
             
             if ( ! VALID_OU_VALUES.contains( ouValue ) )
             {
-                throw new LdapInvalidNameException( 
-                    "Can only delete organizationalUnit entity containers with one of the following names: " 
-                    + VALID_OU_VALUES, ResultCodeEnum.NAMING_VIOLATION );
+                throw new LdapInvalidNameException( I18n.err( I18n.ERR_379, VALID_OU_VALUES ),
+                    ResultCodeEnum.NAMING_VIOLATION );
             }
             
             return;

@@ -24,6 +24,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
@@ -123,9 +124,8 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // We have some error : reject the addition and get out
-                String msg = "Cannot add the ObjectClass " + entry.getDn().getName() + " into the registries, "
-                    + "the resulting registries would be inconsistent :" + 
-                    StringTools.listToString( schemaManager.getErrors() );
+                String msg = I18n.err( I18n.ERR_373, entry.getDn().getName(), 
+                    StringTools.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
@@ -177,9 +177,8 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // We have some error : reject the deletion and get out
-                String msg = "Cannot delete the ObjectClass " + entry.getDn().getName() + " from the registries, "
-                    + "the resulting registries would be inconsistent :" + 
-                    StringTools.listToString( schemaManager.getErrors() );
+                String msg = I18n.err( I18n.ERR_374, entry.getDn().getName(),
+                    StringTools.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
@@ -228,8 +227,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
             // Check that the entry has no descendant
             if ( schemaManager.getObjectClassRegistry().hasDescendants( oldOc.getOid() ) )
             {
-                String msg = "Cannot rename " + entry.getDn().getName() + " to " + newDn
-                    + " as the later has descendants' ObjectClasses";
+                String msg = I18n.err( I18n.ERR_375, entry.getDn().getName(), newDn );
 
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
@@ -345,14 +343,13 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         if ( !schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals(
             SchemaConstants.OU_AT_OID ) )
         {
-            throw new LdapInvalidNameException( "The parent entry of a objectClass should be an organizationalUnit.",
+            throw new LdapInvalidNameException( I18n.err( I18n.ERR_376 ),
                 ResultCodeEnum.NAMING_VIOLATION );
         }
 
         if ( !( ( String ) rdn.getNormValue() ).equalsIgnoreCase( SchemaConstants.OBJECT_CLASSES_AT ) )
         {
-            throw new LdapInvalidNameException(
-                "The parent entry of a attributeType should have a relative name of ou=objectClasses.",
+            throw new LdapInvalidNameException( I18n.err( I18n.ERR_377 ),
                 ResultCodeEnum.NAMING_VIOLATION );
         }
     }

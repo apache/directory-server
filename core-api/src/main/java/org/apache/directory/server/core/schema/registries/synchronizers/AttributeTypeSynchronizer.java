@@ -22,6 +22,7 @@ package org.apache.directory.server.core.schema.registries.synchronizers;
 
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
@@ -96,9 +97,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // We have some error : reject the addition and get out
-                String msg = "Cannot add the AttributeType " + entry.getDn().getName() + " into the registries, "
-                    + "the resulting registries would be inconsistent :" + 
-                    StringTools.listToString( schemaManager.getErrors() );
+                String msg = I18n.err( I18n.ERR_345, entry.getDn().getName(), StringTools.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
@@ -178,9 +177,8 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // We have some error : reject the deletion and get out
-                String msg = "Cannot delete the AttributeType " + entry.getDn().getName() + " from the registries, "
-                    + "the resulting registries would be inconsistent :" + 
-                    StringTools.listToString( schemaManager.getErrors() );
+                String msg = I18n.err( I18n.ERR_346, entry.getDn().getName(), 
+                    StringTools.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
@@ -221,8 +219,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             // Check that the entry has no descendant
             if ( schemaManager.getAttributeTypeRegistry().hasDescendants( oldAt.getOid() ) )
             {
-                String msg = "Cannot rename " + entry.getDn().getName() + " to " + newDn
-                    + " as the later has descendants' AttributeTypes";
+                String msg = I18n.err( I18n.ERR_347, entry.getDn().getName(), newDn );
 
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
@@ -255,14 +252,14 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
 
         if ( !isSchemaLoaded( oldSchemaName ) )
         {
-            String msg = "Cannot move a schemaObject from a not loaded schema " + oldSchemaName;
+            String msg = I18n.err( I18n.ERR_348, oldSchemaName );
             LOG.warn( msg );
             throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
         if ( !isSchemaLoaded( newSchemaName ) )
         {
-            String msg = "Cannot move a schemaObject to a not loaded schema " + newSchemaName;
+            String msg = I18n.err( I18n.ERR_349, newSchemaName );
             LOG.warn( msg );
             throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
@@ -309,7 +306,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
 
         if ( !isSchemaLoaded( newSchemaName ) )
         {
-            String msg = "Cannot move a schemaObject to a not loaded schema " + newSchemaName;
+            String msg = I18n.err( I18n.ERR_349, newSchemaName );
             LOG.warn( msg );
             throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
         }

@@ -24,6 +24,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
@@ -128,9 +129,8 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
             }
             else
             {
-                String msg = "Cannot delete the SyntaxChecker " + entry.getDn().getName() + " into the registries, "
-                    + "the resulting registries would be inconsistent :" + 
-                    StringTools.listToString( schemaManager.getErrors() );
+                String msg = I18n.err( I18n.ERR_386, entry.getDn().getName(),
+                    StringTools.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
@@ -191,8 +191,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // Ok, definitively an error
-                String msg = "Cannot delete the SyntaxChecker " + entry.getDn().getName() + " as it "
-                    + "does not exist in any schema";
+                String msg = I18n.err( I18n.ERR_387, entry.getDn().getName() );
                 LOG.info( msg );
                 throw new LdapSchemaViolationException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
@@ -206,9 +205,8 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
             }
             else
             {
-                String msg = "Cannot delete the syntaxChecker " + entry.getDn().getName() + " into the registries, "
-                    + "the resulting registries would be inconsistent :" + 
-                    StringTools.listToString( schemaManager.getErrors() );
+                String msg = I18n.err( I18n.ERR_388, entry.getDn().getName(),
+                    StringTools.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
@@ -230,8 +228,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getLdapSyntaxRegistry().contains( oldOid ) )
         {
-            throw new LdapOperationNotSupportedException( "The syntaxChecker with OID " + oldOid
-                + " cannot have it's OID changed until all " + "syntaxes using that syntaxChecker have been deleted.",
+            throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_389, oldOid ),
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
@@ -240,7 +237,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getSyntaxCheckerRegistry().contains( newOid ) )
         {
-            throw new LdapNamingException( "Oid " + newOid + " for new schema syntaxChecker is not unique.",
+            throw new LdapNamingException( I18n.err( I18n.ERR_390, newOid ),
                 ResultCodeEnum.OTHER );
         }
 
@@ -266,8 +263,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getLdapSyntaxRegistry().contains( oldOid ) )
         {
-            throw new LdapOperationNotSupportedException( "The syntaxChecker with OID " + oldOid
-                + " cannot have it's OID changed until all " + "syntaxes using that syntaxChecker have been deleted.",
+            throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_391, oldOid ),
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
@@ -277,7 +273,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getSyntaxCheckerRegistry().contains( newOid ) )
         {
-            throw new LdapNamingException( "Oid " + newOid + " for new schema syntaxChecker is not unique.",
+            throw new LdapNamingException( I18n.err( I18n.ERR_392, newOid ),
                 ResultCodeEnum.OTHER );
         }
 
@@ -306,9 +302,8 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getLdapSyntaxRegistry().contains( oid ) )
         {
-            throw new LdapOperationNotSupportedException( "The syntaxChecker with OID " + oid
-                + " cannot be moved to another schema until all "
-                + "syntax using that syntaxChecker have been deleted.", ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_393, oid ),
+                ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
         SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, entry, schemaManager.getRegistries(),
@@ -332,7 +327,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getNormalizerRegistry().contains( oid ) )
         {
-            throw new LdapNamingException( "Oid " + oid + " for new schema SyntaxChecker is not unique.",
+            throw new LdapNamingException( I18n.err( I18n.ERR_394, oid ),
                 ResultCodeEnum.OTHER );
         }
     }
@@ -352,7 +347,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         }
         else
         {
-            throw new LdapSchemaViolationException( "Oid " + oid + " for new schema entity does not exist.",
+            throw new LdapSchemaViolationException( I18n.err( I18n.ERR_395, oid ),
                 ResultCodeEnum.OTHER );
         }
     }
@@ -362,8 +357,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     {
         if ( newParent.size() != 3 )
         {
-            throw new LdapInvalidNameException(
-                "The parent dn of a syntaxChecker should be at most 3 name components in length.",
+            throw new LdapInvalidNameException( I18n.err( I18n.ERR_396 ),
                 ResultCodeEnum.NAMING_VIOLATION );
         }
 
@@ -371,14 +365,13 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         if ( !schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals(
             SchemaConstants.OU_AT_OID ) )
         {
-            throw new LdapInvalidNameException( "The parent entry of a syntaxChecker should be an organizationalUnit.",
+            throw new LdapInvalidNameException( I18n.err( I18n.ERR_397 ),
                 ResultCodeEnum.NAMING_VIOLATION );
         }
 
         if ( !( ( String ) rdn.getNormValue() ).equalsIgnoreCase( SchemaConstants.SYNTAX_CHECKERS_AT ) )
         {
-            throw new LdapInvalidNameException(
-                "The parent entry of a normalizer should have a relative name of ou=syntaxCheckers.",
+            throw new LdapInvalidNameException( I18n.err( I18n.ERR_398 ),
                 ResultCodeEnum.NAMING_VIOLATION );
         }
     }

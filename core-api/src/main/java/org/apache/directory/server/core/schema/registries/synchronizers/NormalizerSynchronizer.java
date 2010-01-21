@@ -27,6 +27,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
@@ -128,8 +129,8 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
             }
             else
             {
-                String msg = "Cannot delete the Normalizer " + entry.getDn().getName() + " into the registries, "
-                    + "the resulting registries would be inconsistent :" + StringTools.listToString( errors );
+                String msg = I18n.err( I18n.ERR_364, entry.getDn().getName(), 
+                    StringTools.listToString( errors ) );
                 LOG.info( msg );
             throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
@@ -141,8 +142,8 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
 
             if ( !errors.isEmpty() )
             {
-                String msg = "Cannot add the Normalizer " + entry.getDn().getName() + " into the registries, "
-                    + "we have got some errors :" + StringTools.listToString( errors );
+                String msg = I18n.err( I18n.ERR_365, entry.getDn().getName(),
+                    StringTools.listToString( errors ) );
 
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
@@ -174,8 +175,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         {
             if ( schemaManager.getRegistries().isReferenced( normalizer ) )
             {
-                String msg = "Cannot delete " + entry.getDn().getName() + ", as there are some "
-                    + " dependant SchemaObjects :\n" + getReferenced( normalizer );
+                String msg = I18n.err( I18n.ERR_366, entry.getDn().getName(), getReferenced( normalizer ) );
                 LOG.warn( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
@@ -207,9 +207,8 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getMatchingRuleRegistry().contains( oldOid ) )
         {
-            throw new LdapOperationNotSupportedException(
-                "The normalizer with OID " + oldOid + " cannot have it's OID changed until all "
-                    + "matchingRules using that normalizer have been deleted.", ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_367, oldOid ),
+                ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
         String newOid = ( String ) newRdn.getNormValue();
@@ -245,9 +244,8 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getMatchingRuleRegistry().contains( oldOid ) )
         {
-            throw new LdapOperationNotSupportedException(
-                "The normalizer with OID " + oldOid + " cannot have it's OID changed until all "
-                    + "matchingRules using that normalizer have been deleted.", ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_367, oldOid ),
+                ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
         String oid = ( String ) newRdn.getNormValue();
@@ -276,9 +274,8 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getMatchingRuleRegistry().contains( oid ) )
         {
-            throw new LdapOperationNotSupportedException( "The normalizer with OID " + oid
-                + " cannot be moved to another schema until all "
-                + "matchingRules using that normalizer have been deleted.", ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_368, oid ),
+                ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
         Normalizer normalizer = factory.getNormalizer( schemaManager, entry, schemaManager.getRegistries(),
@@ -300,7 +297,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     {
         if ( schemaManager.getNormalizerRegistry().contains( oid ) )
         {
-            throw new LdapNamingException( "Oid " + oid + " for new schema normalizer is not unique.",
+            throw new LdapNamingException( I18n.err( I18n.ERR_369, oid ),
                 ResultCodeEnum.OTHER );
         }
     }
@@ -312,7 +309,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getNormalizerRegistry().contains( oid ) )
         {
-            throw new LdapNamingException( "Oid " + oid + " for new schema normalizer is not unique.",
+            throw new LdapNamingException( I18n.err( I18n.ERR_369, oid ),
                 ResultCodeEnum.OTHER );
         }
     }
@@ -322,9 +319,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     {
         if ( newParent.size() != 3 )
         {
-            throw new LdapInvalidNameException(
-                "The parent dn of a normalizer should be at most 3 name components in length.",
-                ResultCodeEnum.NAMING_VIOLATION );
+            throw new LdapInvalidNameException( I18n.err( I18n.ERR_370 ), ResultCodeEnum.NAMING_VIOLATION );
         }
 
         RDN rdn = newParent.getRdn();
@@ -332,15 +327,12 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         if ( !schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals(
             SchemaConstants.OU_AT_OID ) )
         {
-            throw new LdapInvalidNameException( "The parent entry of a normalizer should be an organizationalUnit.",
-                ResultCodeEnum.NAMING_VIOLATION );
+            throw new LdapInvalidNameException( I18n.err( I18n.ERR_371 ), ResultCodeEnum.NAMING_VIOLATION );
         }
 
         if ( !( ( String ) rdn.getNormValue() ).equalsIgnoreCase( SchemaConstants.NORMALIZERS_AT ) )
         {
-            throw new LdapInvalidNameException(
-                "The parent entry of a normalizer should have a relative name of ou=normalizers.",
-                ResultCodeEnum.NAMING_VIOLATION );
+            throw new LdapInvalidNameException( I18n.err( I18n.ERR_372 ), ResultCodeEnum.NAMING_VIOLATION );
         }
     }
 }

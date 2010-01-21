@@ -34,6 +34,7 @@ import org.apache.directory.server.core.ReferralHandlingMode;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
@@ -524,7 +525,7 @@ public class BindOperationContext implements OperationContext
      */
     public void throwReferral()
     {
-        throw new NotImplementedException( " The throwReferral method is not implemented for a Bind operation" );
+        throw new NotImplementedException( I18n.err( I18n.ERR_320 ) );
     }
     
     
@@ -533,7 +534,7 @@ public class BindOperationContext implements OperationContext
      */
     public boolean isReferralThrown()
     {
-        throw new NotImplementedException( " The isReferralThrown method is not implemented for a Bind operation" );
+        throw new NotImplementedException( I18n.err( I18n.ERR_321 ) );
     }
 
 
@@ -542,7 +543,7 @@ public class BindOperationContext implements OperationContext
      */
     public void ignoreReferral()
     {
-        throw new NotImplementedException( " The ignoreReferral method is not implemented for a Bind operation" );
+        throw new NotImplementedException( I18n.err( I18n.ERR_322 ) );
     }
 
 
@@ -551,6 +552,6 @@ public class BindOperationContext implements OperationContext
      */
     public boolean isReferralIgnored()
     {
-        throw new NotImplementedException( " The isReferralIgnored method is not implemented for a Bind operation" );
+        throw new NotImplementedException( I18n.err( I18n.ERR_323 ) );
     }
 }

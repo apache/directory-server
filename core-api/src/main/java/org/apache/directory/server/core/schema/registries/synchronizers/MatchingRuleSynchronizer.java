@@ -24,6 +24,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
@@ -127,9 +128,8 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // We have some error : reject the addition and get out
-                String msg = "Cannot add the MatchingRule " + entry.getDn().getName() + " into the registries, "
-                    + "the resulting registries would be inconsistent :" + 
-                    StringTools.listToString( schemaManager.getErrors() );
+                String msg = I18n.err( I18n.ERR_360, entry.getDn().getName(), 
+                    StringTools.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
@@ -181,9 +181,8 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
             {
                 // We have some error : reject the deletion and get out
                 // The schema is disabled. We still have to update the backend
-                String msg = "Cannot delete the MatchingRule " + entry.getDn().getName() + " into the registries, "
-                    + "the resulting registries would be inconsistent :" + 
-                    StringTools.listToString( schemaManager.getErrors() );
+                String msg = I18n.err( I18n.ERR_360, entry.getDn().getName(), 
+                    StringTools.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
@@ -293,8 +292,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
     {
         if ( newParent.size() != 3 )
         {
-            throw new LdapInvalidNameException(
-                "The parent dn of a matchingRule should be at most 3 name components in length.",
+            throw new LdapInvalidNameException( I18n.err( I18n.ERR_361 ),
                 ResultCodeEnum.NAMING_VIOLATION );
         }
 
@@ -303,14 +301,13 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         if ( !schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals(
             SchemaConstants.OU_AT_OID ) )
         {
-            throw new LdapInvalidNameException( "The parent entry of a matchingRule should be an organizationalUnit.",
+            throw new LdapInvalidNameException( I18n.err( I18n.ERR_362 ),
                 ResultCodeEnum.NAMING_VIOLATION );
         }
 
         if ( !( ( String ) rdn.getNormValue() ).equalsIgnoreCase( SchemaConstants.MATCHING_RULES_AT ) )
         {
-            throw new LdapInvalidNameException(
-                "The parent entry of a syntax should have a relative name of ou=matchingRules.",
+            throw new LdapInvalidNameException( I18n.err( I18n.ERR_363 ),
                 ResultCodeEnum.NAMING_VIOLATION );
         }
     }

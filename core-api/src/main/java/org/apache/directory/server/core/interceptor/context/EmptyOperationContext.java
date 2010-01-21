@@ -21,6 +21,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -54,8 +55,7 @@ public abstract class EmptyOperationContext extends AbstractOperationContext
             return;
         }
         
-        throw new UnsupportedOperationException( 
-            "Cannot set the empty operation context to anything other than the EmptyDN" );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_324 ) );
     }
 
     

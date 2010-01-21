@@ -21,6 +21,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.InternalModifyDnRequest;
 import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
@@ -66,14 +67,14 @@ public class MoveOperationContext extends AbstractChangeOperationContext
         
         if ( parent == null )
         {
-            throw new IllegalArgumentException( "The new superior cannot be null for " + modifyDnRequest );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_326, modifyDnRequest ) );
         }
         
         this.requestControls = modifyDnRequest.getControls();
         
         if ( modifyDnRequest.getNewRdn() != null )
         {
-            throw new IllegalArgumentException( modifyDnRequest + " represents a move and rename operation." );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_327, modifyDnRequest ) );
         }
         
         if ( requestControls.containsKey( ManageDsaITControl.CONTROL_OID ) )

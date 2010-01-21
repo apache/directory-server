@@ -55,6 +55,7 @@ import org.apache.directory.server.core.interceptor.context.UnbindOperationConte
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
@@ -268,7 +269,7 @@ public class InterceptorChain
             }
             else
             {
-                throw new InterceptorException( null, "Failed to initialize interceptor chain.", t );
+                throw new InterceptorException( null, I18n.err( I18n.ERR_329 ), t );
             }
         }
     }
@@ -361,7 +362,7 @@ public class InterceptorChain
         Entry e = name2entry.get( nextInterceptorName );
         if ( e == null )
         {
-            throw new ConfigurationException( "Interceptor not found: " + nextInterceptorName );
+            throw new ConfigurationException( I18n.err( I18n.ERR_330, nextInterceptorName ) );
         }
         register0( interceptor, e );
     }
@@ -379,7 +380,7 @@ public class InterceptorChain
         Entry e = name2entry.get( prevInterceptorName );
         if ( e == null )
         {
-            throw new ConfigurationException( "Interceptor not found: " + prevInterceptorName );
+            throw new ConfigurationException( I18n.err( I18n.ERR_330, prevInterceptorName ) );
         }
         register0( interceptor, e.nextEntry );
     }
@@ -476,7 +477,7 @@ public class InterceptorChain
 
         if ( e == null )
         {
-            throw new ConfigurationException( "Unknown interceptor name:" + name );
+            throw new ConfigurationException( I18n.err( I18n.ERR_331, name ) );
         }
 
         return e;
@@ -492,7 +493,7 @@ public class InterceptorChain
     {
         if ( name2entry.containsKey( interceptor.getName() ) )
         {
-            throw new ConfigurationException( "Other interceptor is using name '" + interceptor.getName() + "'" );
+            throw new ConfigurationException( I18n.err( I18n.ERR_332, interceptor.getName() ) );
         }
     }
 
@@ -1459,6 +1460,6 @@ public class InterceptorChain
 
     private static void throwInterceptorException( Interceptor interceptor, Throwable e ) throws InterceptorException
     {
-        throw new InterceptorException( interceptor, "Unexpected exception.", e );
+        throw new InterceptorException( interceptor, I18n.err( I18n.ERR_333 ), e );
     }
 }

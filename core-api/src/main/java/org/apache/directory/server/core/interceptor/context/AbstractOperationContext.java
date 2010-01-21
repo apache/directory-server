@@ -32,6 +32,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -332,7 +333,7 @@ public abstract class AbstractOperationContext implements OperationContext
     {
         if ( opContext != next )
         {
-            throw new IllegalStateException( "Cannot execute indirect lookup if it is not the next operation." );
+            throw new IllegalStateException( I18n.err( I18n.ERR_319 ) );
         }
         return session.getDirectoryService().getOperationManager().lookup( opContext );
     }
