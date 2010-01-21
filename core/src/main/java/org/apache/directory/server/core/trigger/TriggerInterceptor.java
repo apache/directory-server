@@ -52,7 +52,7 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
@@ -357,7 +357,7 @@ public class TriggerInterceptor extends BaseInterceptor
     public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws Exception
     {
         LdapDN name = renameContext.getDn();
-        Rdn newRdn = renameContext.getNewRdn();
+        RDN newRdn = renameContext.getNewRdn();
         boolean deleteOldRn = renameContext.getDelOldDn();
         
         // Bypass trigger handling if the service is disabled.
@@ -404,7 +404,7 @@ public class TriggerInterceptor extends BaseInterceptor
     {
         LdapDN oriChildName = opContext.getDn();
         LdapDN parent = opContext.getParent();
-        Rdn newRdn = opContext.getNewRdn();
+        RDN newRdn = opContext.getNewRdn();
         boolean deleteOldRn = opContext.getDelOldDn();
 
         // Bypass trigger handling if the service is disabled.
@@ -492,7 +492,7 @@ public class TriggerInterceptor extends BaseInterceptor
         ClonedServerEntry movedEntry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
         
         LdapDN oldRDN = new LdapDN( oriChildName.getRdn().getUpName() );
-        Rdn newRDN = new Rdn( oriChildName.getRdn().getUpName() );
+        RDN newRDN = new RDN( oriChildName.getRdn().getUpName() );
         LdapDN oldSuperiorDN = ( LdapDN ) oriChildName.clone();
         oldSuperiorDN.remove( oldSuperiorDN.size() - 1 );
         LdapDN newSuperiorDN = ( LdapDN ) newParentName.clone();

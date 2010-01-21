@@ -24,7 +24,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.message.InternalModifyDnRequest;
 import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 
 
 /**
@@ -59,7 +59,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
      * @param newRdn the new rdn to use for the target once renamed
      * @param delOldRdn true if the old rdn value is deleted, false otherwise
      */
-    public MoveAndRenameOperationContext( CoreSession session, LdapDN oldDn, LdapDN parent, Rdn newRdn, boolean delOldRdn )
+    public MoveAndRenameOperationContext( CoreSession session, LdapDN oldDn, LdapDN parent, RDN newRdn, boolean delOldRdn )
     {
         super( session, oldDn, newRdn, delOldRdn );
         this.parent = parent;

@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -216,13 +216,13 @@ public class IntegrationUtils
                 
             case( ChangeType.MODDN_ORDINAL ):
             case( ChangeType.MODRDN_ORDINAL ):
-                Rdn newRdn = new Rdn( entry.getNewRdn() );
+                RDN newRdn = new RDN( entry.getNewRdn() );
             
                 if ( entry.getNewSuperior() != null )
                 {
                     // It's a move. The superior have changed
                     // Let's see if it's a rename too
-                    Rdn oldRdn = dn.getRdn();
+                    RDN oldRdn = dn.getRdn();
                     LdapDN newSuperior = new LdapDN( entry.getNewSuperior() );
                     
                     if ( dn.size() == 0 )

@@ -69,7 +69,7 @@ import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -487,7 +487,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         }
 
         LdapDN target = buildTarget( name );
-        Rdn rdn = target.getRdn( target.size() - 1 );
+        RDN rdn = target.getRdn( target.size() - 1 );
 
         attrs = AttributeUtils.toCaseInsensitive( attrs );
         Attributes attributes = ( Attributes ) attrs.clone();
@@ -497,7 +497,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             String rdnAttribute = rdn.getUpType();
             String rdnValue = ( String ) rdn.getNormValue();
 
-            // Add the Rdn attribute
+            // Add the RDN attribute
             boolean doRdnPut = attributes.get( rdnAttribute ) == null;
             doRdnPut = doRdnPut || attributes.get( rdnAttribute ).size() == 0;
 
@@ -515,7 +515,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             {
                 AVA atav = ii.next();
 
-                // Add the Rdn attribute
+                // Add the RDN attribute
                 boolean doRdnPut = attributes.get( atav.getNormType() ) == null;
                 doRdnPut = doRdnPut || attributes.get( atav.getNormType() ).size() == 0;
 

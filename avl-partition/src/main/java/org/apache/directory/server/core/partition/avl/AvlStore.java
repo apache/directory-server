@@ -54,7 +54,7 @@ import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -913,7 +913,7 @@ public class AvlStore<E> implements Store<E>
 
             /* 
              * Calculate the DN for the child's new name by copying the parents
-             * new name and adding the child's old upRdn to new name as its Rdn
+             * new name and adding the child's old upRdn to new name as its RDN
              */
             LdapDN childUpdn = ( LdapDN ) updn.clone();
             LdapDN oldUpdn = new LdapDN( getEntryUpdn( childId ) );
@@ -1252,7 +1252,7 @@ public class AvlStore<E> implements Store<E>
     }
 
 
-    public void move( LdapDN oldChildDn, LdapDN newParentDn, Rdn newRdn, boolean deleteOldRdn ) throws Exception
+    public void move( LdapDN oldChildDn, LdapDN newParentDn, RDN newRdn, boolean deleteOldRdn ) throws Exception
     {
         Long childId = getEntryId( oldChildDn.toString() );
         rename( oldChildDn, newRdn, deleteOldRdn );
@@ -1335,22 +1335,22 @@ public class AvlStore<E> implements Store<E>
 
     /**
      * Changes the relative distinguished name of an entry specified by a 
-     * distinguished name with the optional removal of the old Rdn attribute
+     * distinguished name with the optional removal of the old RDN attribute
      * value from the entry.  Name changes propagate down as dn changes to the 
-     * descendants of the entry where the Rdn changed. 
+     * descendants of the entry where the RDN changed. 
      * 
-     * An Rdn change operation does not change parent child relationships.  It 
-     * merely propagates a name change at a point in the DIT where the Rdn is 
+     * An RDN change operation does not change parent child relationships.  It 
+     * merely propagates a name change at a point in the DIT where the RDN is 
      * changed. The change propagates down the subtree rooted at the 
      * distinguished name specified.
      *
      * @param dn the normalized distinguished name of the entry to alter
-     * @param newRdn the new Rdn to set
-     * @param deleteOldRdn whether or not to remove the old Rdn attr/val
+     * @param newRdn the new RDN to set
+     * @param deleteOldRdn whether or not to remove the old RDN attr/val
      * @throws Exception if there are any errors propagating the name changes
      */
     @SuppressWarnings("unchecked")
-    public void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn ) throws Exception
+    public void rename( LdapDN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception
     {
         Long id = getEntryId( dn.getNormName() );
         ServerEntry entry = lookup( id );
@@ -1359,10 +1359,10 @@ public class AvlStore<E> implements Store<E>
         /* 
          * H A N D L E   N E W   R D N
          * ====================================================================
-         * Add the new Rdn attribute to the entry.  If an index exists on the 
-         * new Rdn attribute we add the index for this attribute value pair.
+         * Add the new RDN attribute to the entry.  If an index exists on the 
+         * new RDN attribute we add the index for this attribute value pair.
          * Also we make sure that the existance index shows the existance of the
-         * new Rdn attribute within this entry.
+         * new RDN attribute within this entry.
          */
 
         for ( AVA newAtav : newRdn )
@@ -1389,26 +1389,26 @@ public class AvlStore<E> implements Store<E>
         /*
          * H A N D L E   O L D   R D N
          * ====================================================================
-         * If the old Rdn is to be removed we need to get the attribute and 
-         * value for it.  Keep in mind the old Rdn need not be based on the 
-         * same attr as the new one.  We remove the Rdn value from the entry
-         * and remove the value/id tuple from the index on the old Rdn attr
-         * if any.  We also test if the delete of the old Rdn index tuple 
-         * removed all the attribute values of the old Rdn using a reverse
+         * If the old RDN is to be removed we need to get the attribute and 
+         * value for it.  Keep in mind the old RDN need not be based on the 
+         * same attr as the new one.  We remove the RDN value from the entry
+         * and remove the value/id tuple from the index on the old RDN attr
+         * if any.  We also test if the delete of the old RDN index tuple 
+         * removed all the attribute values of the old RDN using a reverse
          * lookup.  If so that means we blew away the last value of the old 
-         * Rdn attribute.  In this case we need to remove the attrName/id 
+         * RDN attribute.  In this case we need to remove the attrName/id 
          * tuple from the existance index.
          * 
-         * We only remove an ATAV of the old Rdn if it is not included in the
-         * new Rdn.
+         * We only remove an ATAV of the old RDN if it is not included in the
+         * new RDN.
          */
 
         if ( deleteOldRdn )
         {
-            Rdn oldRdn = updn.getRdn();
+            RDN oldRdn = updn.getRdn();
             for ( AVA oldAtav : oldRdn )
             {
-                // check if the new ATAV is part of the old Rdn
+                // check if the new ATAV is part of the old RDN
                 // if that is the case we do not remove the ATAV
                 boolean mustRemove = true;
                 for ( AVA newAtav : newRdn )

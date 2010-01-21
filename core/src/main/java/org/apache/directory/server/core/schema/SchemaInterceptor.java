@@ -89,7 +89,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.CascadeControl;
 import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
@@ -1107,7 +1107,7 @@ public class SchemaInterceptor extends BaseInterceptor
     public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
     {
         LdapDN oldDn = opContext.getDn();
-        Rdn newRdn = opContext.getNewRdn();
+        RDN newRdn = opContext.getNewRdn();
         boolean deleteOldRn = opContext.getDelOldDn();
         ServerEntry entry =  (ServerEntry)opContext.getEntry().getClonedEntry();
 
@@ -1120,7 +1120,7 @@ public class SchemaInterceptor extends BaseInterceptor
         if ( deleteOldRn )
         {
             ServerEntry tmpEntry = ( ServerEntry ) entry.clone();
-            Rdn oldRDN = oldDn.getRdn();
+            RDN oldRDN = oldDn.getRdn();
 
             // Delete the old RDN means we remove some attributes and values.
             // We must make sure that after this operation all must attributes
@@ -1742,7 +1742,7 @@ public class SchemaInterceptor extends BaseInterceptor
             throw new NamingException( "At least two name components are expected for the dn" );
         }
         
-        Rdn rdn = dn.getRdn( 1 );
+        RDN rdn = dn.getRdn( 1 );
         return ( String ) rdn.getNormValue();
     }
 

@@ -26,7 +26,7 @@ import org.apache.directory.shared.ldap.message.InternalModifyDnRequest;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 
 
 /**
@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.name.Rdn;
 public class RenameOperationContext extends AbstractChangeOperationContext
 {
     /** The new RDN */
-    private Rdn newRdn;
+    private RDN newRdn;
 
     /** Cached copy of the new DN */
     private LdapDN newDn;
@@ -69,7 +69,7 @@ public class RenameOperationContext extends AbstractChangeOperationContext
      * @param newRdn the new RDN to use for the target
      * @param delOldDn true if we delete the old RDN value
      */
-    public RenameOperationContext( CoreSession session, LdapDN oldDn, Rdn newRdn, boolean delOldDn )
+    public RenameOperationContext( CoreSession session, LdapDN oldDn, RDN newRdn, boolean delOldDn )
     {
         super( session, oldDn );
         this.newRdn = newRdn;
@@ -132,7 +132,7 @@ public class RenameOperationContext extends AbstractChangeOperationContext
     /**
      * @return The new RDN
      */
-    public Rdn getNewRdn()
+    public RDN getNewRdn()
     {
         return newRdn;
     }
@@ -142,7 +142,7 @@ public class RenameOperationContext extends AbstractChangeOperationContext
      * Set the new RDN
      * @param newRdn The new RDN
      */
-    public void setNewRdn( Rdn newRdn )
+    public void setNewRdn( RDN newRdn )
     {
         this.newRdn = newRdn;
     }
@@ -169,7 +169,7 @@ public class RenameOperationContext extends AbstractChangeOperationContext
     
     /**
      * Returns the entry after it has been renamed and potentially changed for 
-     * Rdn alterations.
+     * RDN alterations.
      *
      * @return the new renamed entry
      */

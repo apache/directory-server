@@ -58,10 +58,9 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
@@ -752,7 +751,7 @@ public class JdbmStoreTest
 
         store.add( entry );
         
-        Rdn rdn = new Rdn("sn=James");
+        RDN rdn = new RDN("sn=James");
         
         store.rename( dn, rdn, true );
     }
@@ -772,7 +771,7 @@ public class JdbmStoreTest
         
         store.add( entry );
         
-        Rdn rdn = new Rdn("sn=Ja\\+es");
+        RDN rdn = new RDN("sn=Ja\\+es");
         
         store.rename( dn, rdn, true );
         
@@ -802,7 +801,7 @@ public class JdbmStoreTest
         LdapDN parentDn = new LdapDN( "ou=Sales,o=Good Times Co." );
         parentDn.normalize( schemaManager.getNormalizerMapping() );
 
-        Rdn rdn = new Rdn("cn=Ryan");
+        RDN rdn = new RDN("cn=Ryan");
 
         store.move( childDn, parentDn, rdn, true );
 

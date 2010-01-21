@@ -20,20 +20,21 @@
 package org.apache.directory.server.core.trigger;
 
 
-import org.apache.directory.server.core.interceptor.context.OperationContext;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
-import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
+import java.util.Map;
 
 import javax.naming.NamingException;
-import java.util.Map;
+
+import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 
 
 public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
     private boolean deleteOldRn;
     private LdapDN oldRDN;
-    private Rdn newRDN;
+    private RDN newRDN;
     private LdapDN oldSuperiorDN;
     private LdapDN newSuperiorDN;
     private LdapDN oldDN;
@@ -41,7 +42,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
 
 
     public ModifyDNStoredProcedureParameterInjector( OperationContext opContext, boolean deleteOldRn,
-        LdapDN oldRDN, Rdn newRDN, LdapDN oldSuperiorDN, LdapDN newSuperiorDN, LdapDN oldDN, LdapDN newDN)
+        LdapDN oldRDN, RDN newRDN, LdapDN oldSuperiorDN, LdapDN newSuperiorDN, LdapDN oldDN, LdapDN newDN)
     {
         super( opContext );
         this.deleteOldRn = deleteOldRn;

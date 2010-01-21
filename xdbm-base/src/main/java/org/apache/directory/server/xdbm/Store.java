@@ -29,7 +29,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -496,24 +496,24 @@ public interface Store<E>
 
     /**
      * Changes the relative distinguished name of an entry specified by a
-     * distinguished name with the optional removal of the old Rdn attribute
+     * distinguished name with the optional removal of the old RDN attribute
      * value from the entry.  Name changes propagate down as dn changes to the
-     * descendants of the entry where the Rdn changed.
+     * descendants of the entry where the RDN changed.
      *
-     * An Rdn change operation does not change parent child relationships.  It
-     * merely propagates a name change at a point in the DIT where the Rdn is
+     * An RDN change operation does not change parent child relationships.  It
+     * merely propagates a name change at a point in the DIT where the RDN is
      * changed. The change propagates down the subtree rooted at the
      * distinguished name specified.
      *
      * @param dn the normalized distinguished name of the entry to alter
-     * @param newRdn the new Rdn to set
-     * @param deleteOldRdn whether or not to remove the old Rdn attr/val
+     * @param newRdn the new RDN to set
+     * @param deleteOldRdn whether or not to remove the old RDN attr/val
      * @throws Exception if there are any errors propagating the name changes
      */
-    void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn ) throws Exception;
+    void rename( LdapDN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception;
 
 
-    void move( LdapDN oldChildDn, LdapDN newParentDn, Rdn newRdn, boolean deleteOldRdn ) throws Exception;
+    void move( LdapDN oldChildDn, LdapDN newParentDn, RDN newRdn, boolean deleteOldRdn ) throws Exception;
 
 
     void move( LdapDN oldChildDn, LdapDN newParentDn ) throws Exception;

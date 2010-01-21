@@ -51,7 +51,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
@@ -354,7 +354,7 @@ public class NormalizationInterceptor extends BaseInterceptor
             return;
         }
 
-        Rdn rdn = dn.getRdn();
+        RDN rdn = dn.getRdn();
 
         // Loop on all the AVAs
         for ( AVA ava : rdn )

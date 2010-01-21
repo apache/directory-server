@@ -65,7 +65,7 @@ import org.apache.directory.shared.ldap.message.InternalModifyRequest;
 import org.apache.directory.shared.ldap.message.InternalSearchRequest;
 import org.apache.directory.shared.ldap.message.InternalUnbindRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -605,7 +605,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void moveAndRename( LdapDN dn, LdapDN newParent, Rdn newRdn, boolean deleteOldRdn ) throws Exception
+    public void moveAndRename( LdapDN dn, LdapDN newParent, RDN newRdn, boolean deleteOldRdn ) throws Exception
     {
         moveAndRename( dn, newParent, newRdn, deleteOldRdn, LogChange.TRUE );
     }
@@ -614,7 +614,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void moveAndRename( LdapDN dn, LdapDN newParent, Rdn newRdn, boolean deleteOldRdn, LogChange log ) throws Exception
+    public void moveAndRename( LdapDN dn, LdapDN newParent, RDN newRdn, boolean deleteOldRdn, LogChange log ) throws Exception
     {
         MoveAndRenameOperationContext opContext = 
             new MoveAndRenameOperationContext( this, dn, newParent, newRdn, deleteOldRdn );
@@ -629,7 +629,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void moveAndRename( LdapDN dn, LdapDN newParent, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral ) throws Exception
+    public void moveAndRename( LdapDN dn, LdapDN newParent, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral ) throws Exception
     {
         moveAndRename( dn, newParent, newRdn, deleteOldRdn, ignoreReferral, LogChange.TRUE );
     }
@@ -638,7 +638,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void moveAndRename( LdapDN dn, LdapDN newParent, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log ) throws Exception
+    public void moveAndRename( LdapDN dn, LdapDN newParent, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log ) throws Exception
     {
         OperationManager operationManager = directoryService.getOperationManager();
         MoveAndRenameOperationContext opContext = new MoveAndRenameOperationContext( this, dn, newParent, newRdn, deleteOldRdn );
@@ -653,7 +653,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn ) throws Exception
+    public void rename( LdapDN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception
     {
         rename( dn, newRdn, deleteOldRdn, LogChange.TRUE );
     }
@@ -662,7 +662,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn, LogChange log ) throws Exception
+    public void rename( LdapDN dn, RDN newRdn, boolean deleteOldRdn, LogChange log ) throws Exception
     {
         RenameOperationContext opContext = new RenameOperationContext( this, dn, newRdn, deleteOldRdn );
         
@@ -677,7 +677,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral ) throws Exception
+    public void rename( LdapDN dn, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral ) throws Exception
     {
         rename( dn, newRdn, deleteOldRdn, ignoreReferral, LogChange.TRUE );
     }
@@ -686,7 +686,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log ) throws Exception
+    public void rename( LdapDN dn, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log ) throws Exception
     {
         OperationManager operationManager = directoryService.getOperationManager();
         RenameOperationContext opContext = new RenameOperationContext( this, dn, newRdn, deleteOldRdn );

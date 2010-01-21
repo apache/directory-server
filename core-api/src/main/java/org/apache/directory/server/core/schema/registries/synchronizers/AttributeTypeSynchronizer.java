@@ -27,7 +27,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
@@ -195,7 +195,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void rename( ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
+    public void rename( ServerEntry entry, RDN newRdn, boolean cascade ) throws Exception
     {
         String schemaName = getSchemaName( entry.getDn() );
         AttributeType oldAt = factory
@@ -238,7 +238,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn,
+    public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, RDN newRn, boolean deleteOldRn,
         ServerEntry entry, boolean cascade ) throws Exception
     {
         checkParent( newParentName, schemaManager, SchemaConstants.ATTRIBUTE_TYPE );

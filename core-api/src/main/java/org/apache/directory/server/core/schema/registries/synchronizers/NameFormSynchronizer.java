@@ -25,7 +25,7 @@ import javax.naming.NamingException;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
@@ -82,9 +82,9 @@ public class NameFormSynchronizer extends AbstractRegistrySynchronizer
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaChangeHandler#move(
      * org.apache.directory.shared.ldap.name.LdapDN, org.apache.directory.shared.ldap.name.LdapDN, 
-     * Rdn, boolean, javax.naming.directory.Attributes)
+     * RDN, boolean, javax.naming.directory.Attributes)
      */
-    public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, Rdn newRn,
+    public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, RDN newRn,
         boolean deleteOldRn, ServerEntry entry, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
@@ -106,7 +106,7 @@ public class NameFormSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void rename( ServerEntry entry, Rdn newRdn, boolean cascade ) throws NamingException
+    public void rename( ServerEntry entry, RDN newRdn, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
     }

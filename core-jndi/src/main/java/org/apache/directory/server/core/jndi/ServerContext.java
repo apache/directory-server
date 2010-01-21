@@ -86,7 +86,7 @@ import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -484,11 +484,11 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after moveAndRename operations.
      */
-    protected void doMoveAndRenameOperation( LdapDN oldDn, LdapDN parent, Rdn newRdn, boolean delOldDn )
+    protected void doMoveAndRenameOperation( LdapDN oldDn, LdapDN parent, RDN newRdn, boolean delOldDn )
         throws Exception
     {
         // setup the op context and populate with request controls
-        MoveAndRenameOperationContext opCtx = new MoveAndRenameOperationContext( session, oldDn, parent, new Rdn(
+        MoveAndRenameOperationContext opCtx = new MoveAndRenameOperationContext( session, oldDn, parent, new RDN(
             newRdn ), delOldDn );
         opCtx.addRequestControls( requestControls );
 
@@ -552,7 +552,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after rename operations.
      */
-    protected void doRename( LdapDN oldDn, Rdn newRdn, boolean delOldRdn ) throws Exception
+    protected void doRename( LdapDN oldDn, RDN newRdn, boolean delOldRdn ) throws Exception
     {
         // setup the op context and populate with request controls
         RenameOperationContext opCtx = new RenameOperationContext( session, oldDn, newRdn, delOldRdn );
@@ -704,7 +704,7 @@ public abstract class ServerContext implements EventContext
         serverEntry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, JavaLdapSupport.JCONTAINER_ATTR );
 
         // Now add the CN attribute, which is mandatory
-        Rdn rdn = target.getRdn();
+        RDN rdn = target.getRdn();
 
         if ( rdn != null )
         {
@@ -803,7 +803,7 @@ public abstract class ServerContext implements EventContext
     private void injectRdnAttributeValues( LdapDN target, ServerEntry serverEntry ) throws NamingException
     {
         // Add all the RDN attributes and their values to this entry
-        Rdn rdn = target.getRdn( target.size() - 1 );
+        RDN rdn = target.getRdn( target.size() - 1 );
 
         if ( rdn.size() == 1 )
         {
@@ -954,8 +954,8 @@ public abstract class ServerContext implements EventContext
         LdapDN newParent = ( LdapDN ) newDn.clone();
         newParent.remove( newDn.size() - 1 );
 
-        Rdn oldRdn = oldDn.getRdn();
-        Rdn newRdn = newDn.getRdn();
+        RDN oldRdn = oldDn.getRdn();
+        RDN newRdn = newDn.getRdn();
         boolean delOldRdn = true;
 
         /*

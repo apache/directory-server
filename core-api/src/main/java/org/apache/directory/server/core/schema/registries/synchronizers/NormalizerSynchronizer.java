@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
@@ -200,7 +200,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void rename( ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
+    public void rename( ServerEntry entry, RDN newRdn, boolean cascade ) throws Exception
     {
         String oldOid = getOid( entry );
         String schemaName = getSchemaName( entry.getDn() );
@@ -235,7 +235,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn,
+    public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, RDN newRdn, boolean deleteOldRn,
         ServerEntry entry, boolean cascade ) throws Exception
     {
         checkNewParent( newParentName );
@@ -327,7 +327,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
                 ResultCodeEnum.NAMING_VIOLATION );
         }
 
-        Rdn rdn = newParent.getRdn();
+        RDN rdn = newParent.getRdn();
 
         if ( !schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals(
             SchemaConstants.OU_AT_OID ) )

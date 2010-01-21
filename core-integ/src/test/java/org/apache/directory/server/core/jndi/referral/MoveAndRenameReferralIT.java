@@ -48,7 +48,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -239,7 +239,7 @@ public class MoveAndRenameReferralIT extends AbstractLdapTestUnit
         CoreSession coreSession = service.getAdminSession();
         LdapDN dn = new LdapDN( "cn=Emmanuel Lecharny,ou=apache,ou=Roles,o=MNN,c=WW,ou=system" );
         LdapDN newParent = new LdapDN( "o=PNN,c=WW,ou=system" );
-        Rdn newRdn = new Rdn( "cn=Alex" );
+        RDN newRdn = new RDN( "cn=Alex" );
         
         try
         {
@@ -276,7 +276,7 @@ public class MoveAndRenameReferralIT extends AbstractLdapTestUnit
         CoreSession coreSession = service.getAdminSession();
         LdapDN dn = new LdapDN( "cn=Emmanuel Lecharny,ou=apache,ou=Roles,o=MNN,c=WW,ou=system" );
         LdapDN newParent = new LdapDN( "o=PNN,c=WW,ou=system" ); 
-        Rdn newRdn = new Rdn( "cn=Alex" );
+        RDN newRdn = new RDN( "cn=Alex" );
         
         try
         {
@@ -427,7 +427,7 @@ public class MoveAndRenameReferralIT extends AbstractLdapTestUnit
         CoreSession coreSession = service.getAdminSession();
         LdapDN dn = new LdapDN( "cn=Emmanuel Lecharny,ou=Roles,o=MNN,c=WW,ou=system" );
         LdapDN newParent = new LdapDN( "o=PNN,c=WW,ou=system" );
-        Rdn newRdn = new Rdn( "cn=Alex" );
+        RDN newRdn = new RDN( "cn=Alex" );
         
         try
         {
@@ -464,7 +464,7 @@ public class MoveAndRenameReferralIT extends AbstractLdapTestUnit
         CoreSession coreSession = service.getAdminSession();
         LdapDN dn = new LdapDN( "cn=Emmanuel Lecharny,ou=apache,ou=Roles,o=MNN,c=WW,ou=system" );
         LdapDN newParent = new LdapDN( "o=PNN,c=WW,ou=system" ); 
-        Rdn newRdn = new Rdn( "cn=Alex" );
+        RDN newRdn = new RDN( "cn=Alex" );
         
         try
         {

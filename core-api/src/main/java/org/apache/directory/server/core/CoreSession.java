@@ -28,7 +28,6 @@ import javax.naming.ldap.Control;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.changelog.LogChange;
-import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -37,8 +36,8 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.message.InternalAddRequest;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.message.InternalAddRequest;
 import org.apache.directory.shared.ldap.message.InternalCompareRequest;
 import org.apache.directory.shared.ldap.message.InternalDeleteRequest;
 import org.apache.directory.shared.ldap.message.InternalModifyDnRequest;
@@ -46,7 +45,7 @@ import org.apache.directory.shared.ldap.message.InternalModifyRequest;
 import org.apache.directory.shared.ldap.message.InternalSearchRequest;
 import org.apache.directory.shared.ldap.message.InternalUnbindRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 
 
@@ -514,7 +513,7 @@ public interface CoreSession
      * @exception if there are failures while moving and renaming the entry
      * or branch
      */
-    void moveAndRename( LdapDN dn, LdapDN newParent, Rdn newRdn, boolean deleteOldRdn ) throws Exception;
+    void moveAndRename( LdapDN dn, LdapDN newParent, RDN newRdn, boolean deleteOldRdn ) throws Exception;
     
     
     /**
@@ -530,7 +529,7 @@ public interface CoreSession
      * @exception if there are failures while moving and renaming the entry
      * or branch
      */
-    void moveAndRename( LdapDN dn, LdapDN newParent, Rdn newRdn, boolean deleteOldRdn, LogChange log ) throws Exception;
+    void moveAndRename( LdapDN dn, LdapDN newParent, RDN newRdn, boolean deleteOldRdn, LogChange log ) throws Exception;
     
     
     /**
@@ -546,7 +545,7 @@ public interface CoreSession
      * @exception if there are failures while moving and renaming the entry
      * or branch
      */
-    void moveAndRename( LdapDN dn, LdapDN newParent, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral ) throws Exception;
+    void moveAndRename( LdapDN dn, LdapDN newParent, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral ) throws Exception;
     
     
     /**
@@ -563,7 +562,7 @@ public interface CoreSession
      * @exception if there are failures while moving and renaming the entry
      * or branch
      */
-    void moveAndRename( LdapDN dn, LdapDN newParent, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log ) throws Exception;
+    void moveAndRename( LdapDN dn, LdapDN newParent, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log ) throws Exception;
     
     
     /**
@@ -599,7 +598,7 @@ public interface CoreSession
      * distinguished name is to be deleted from the entry
      * @throws Exception if there are failures while renaming the entry
      */
-    void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn ) throws Exception;
+    void rename( LdapDN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception;
     
     
     /**
@@ -615,7 +614,7 @@ public interface CoreSession
      * @param log a flag set if the added entry should be stored in the changeLog
      * @throws Exception if there are failures while renaming the entry
      */
-    void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn, LogChange log ) throws Exception;
+    void rename( LdapDN dn, RDN newRdn, boolean deleteOldRdn, LogChange log ) throws Exception;
     
     
     /**
@@ -631,7 +630,7 @@ public interface CoreSession
      * @param ignoreReferral a flag to tell the server to ignore referrals
      * @throws Exception if there are failures while renaming the entry
      */
-    void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral ) throws Exception;
+    void rename( LdapDN dn, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral ) throws Exception;
     
     
     /**
@@ -648,7 +647,7 @@ public interface CoreSession
      * @param log a flag set if the added entry should be stored in the changeLog
      * @throws Exception if there are failures while renaming the entry
      */
-    void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log ) throws Exception;
+    void rename( LdapDN dn, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log ) throws Exception;
     
     
     /**

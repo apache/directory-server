@@ -55,7 +55,7 @@ import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -478,7 +478,8 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
             return null;
         }
 
-        Rdn rdn = dn.getRdn( 1 );
+        RDN rdn = dn.getRdn( 1 );
+        
         if ( !rdn.getNormType().equalsIgnoreCase( CN_OID ) )
         {
             throw new NamingException( "Attribute of second rdn in dn '" + dn.toNormName()

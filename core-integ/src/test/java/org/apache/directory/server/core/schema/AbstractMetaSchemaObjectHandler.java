@@ -24,7 +24,7 @@ import java.util.Enumeration;
 
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Before;
 
@@ -56,7 +56,7 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
         
         sb.append( workingDir ).append( '/' ).append( service.getSchemaService().getSchemaPartition().getId() ).append( '/' ).append( "ou=schema" );
         
-        Enumeration<Rdn> rdns = dn.getAllRdn();
+        Enumeration<RDN> rdns = dn.getAllRdn();
         
         while ( rdns.hasMoreElements() )
         {

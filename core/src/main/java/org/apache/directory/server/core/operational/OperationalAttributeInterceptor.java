@@ -58,10 +58,9 @@ import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.slf4j.Logger;
@@ -557,17 +556,17 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         
         for ( int ii = 0; ii < dn.size(); ii++ )
         {
-            Rdn rdn = dn.getRdn( ii );
+            RDN rdn = dn.getRdn( ii );
             if ( rdn.size() == 0 )
             {
-                newDn.add( new Rdn() );
+                newDn.add( new RDN() );
                 continue;
             }
             else if ( rdn.size() == 1 )
             {
                 String name = schemaManager.lookupAttributeTypeRegistry( rdn.getNormType() ).getName();
                 String value = rdn.getAtav().getNormValue().getString(); 
-                newDn.add( new Rdn( name, name, value, value ) );
+                newDn.add( new RDN( name, name, value, value ) );
                 continue;
             }
 
@@ -586,7 +585,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 }
             }
             
-            newDn.add( new Rdn(buf.toString()) );
+            newDn.add( new RDN(buf.toString()) );
         }
         
         return newDn;

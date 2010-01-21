@@ -57,9 +57,8 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
@@ -434,7 +433,7 @@ public class LdifPartitionTest
         LdapDN childDn1 = new LdapDN( "dc=child1,ou=test,ou=system" );
         childDn1.normalize( schemaManager.getNormalizerMapping() );
         
-        Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "renamedChild1" );
+        RDN newRdn = new RDN( SchemaConstants.DC_AT + "=" + "renamedChild1" );
         RenameOperationContext renameOpCtx = new RenameOperationContext( session, childDn1, newRdn, true );
         partition.rename( renameOpCtx );
         
@@ -460,7 +459,7 @@ public class LdifPartitionTest
         LdapDN childDn1 = new LdapDN( "dc=child1,ou=test,ou=system" );
         childDn1.normalize( schemaManager.getNormalizerMapping() );
         
-        Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "renamedChild1" );
+        RDN newRdn = new RDN( SchemaConstants.DC_AT + "=" + "renamedChild1" );
         RenameOperationContext renameOpCtx = new RenameOperationContext( session, childDn1, newRdn, false );
         partition.rename( renameOpCtx );
         
@@ -489,7 +488,7 @@ public class LdifPartitionTest
         LdapDN childDn2 = new LdapDN( "dc=child2,ou=test,ou=system" );
         childDn2.normalize( schemaManager.getNormalizerMapping() );
 
-        Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "movedChild1" );
+        RDN newRdn = new RDN( SchemaConstants.DC_AT + "=" + "movedChild1" );
         MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( session, childDn1, childDn2, newRdn, true );
         partition.moveAndRename( moveAndRenameOpCtx );
         
@@ -518,7 +517,7 @@ public class LdifPartitionTest
         LdapDN childDn2 = new LdapDN( "dc=child2,ou=test,ou=system" );
         childDn2.normalize( schemaManager.getNormalizerMapping() );
 
-        Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "movedChild1" );
+        RDN newRdn = new RDN( SchemaConstants.DC_AT + "=" + "movedChild1" );
         MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( session, childDn1, childDn2, newRdn, false );
         partition.moveAndRename( moveAndRenameOpCtx );
         

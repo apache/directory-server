@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
@@ -167,7 +167,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     }
 
 
-    public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn, ServerEntry entry, boolean cascaded ) throws NamingException
+    public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, RDN newRn, boolean deleteOldRn, ServerEntry entry, boolean cascaded ) throws NamingException
     {
 
     }
@@ -283,7 +283,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * @param entry the entry of the metaSchema object before the rename
      * @param newRdn the new commonName of the metaSchema object
      */
-    public void rename( ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
+    public void rename( ServerEntry entry, RDN newRdn, boolean cascade ) throws Exception
     {
         String rdnAttribute = newRdn.getUpType();
         String rdnAttributeOid = registries.getAttributeTypeRegistry().getOidByName( rdnAttribute );

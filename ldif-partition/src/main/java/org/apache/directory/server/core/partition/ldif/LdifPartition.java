@@ -54,10 +54,9 @@ import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.ldap.util.SystemUtils;
 import org.slf4j.Logger;
@@ -563,7 +562,7 @@ public class LdifPartition extends BTreePartition
      * 
      * We don't allow filename which length is > 255 chars.
      */
-    private String getFileName( Rdn rdn ) throws NamingException
+    private String getFileName( RDN rdn ) throws NamingException
     {
         // First, get the AT name, or OID
         String normAT = rdn.getAtav().getNormType();
@@ -591,7 +590,7 @@ public class LdifPartition extends BTreePartition
         StringBuilder sb = new StringBuilder();
         boolean isFirst = true;
         
-        for ( Rdn rdn : dn.getRdns() )
+        for ( RDN rdn : dn.getRdns() )
         {
             // First, get the AT name, or OID
             String normAT = rdn.getAtav().getNormType();

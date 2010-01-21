@@ -50,7 +50,7 @@ import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -108,7 +108,7 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
         {
             service.getAdminSession().rename( 
                 new LdapDN( "uid=admin,ou=system" ), 
-                new Rdn( "uid=alex" ),
+                new RDN( "uid=alex" ),
                 false );
             fail( "admin should not be able to rename his account" );
         }

@@ -45,7 +45,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -230,7 +230,7 @@ public class RenameReferralIT extends AbstractLdapTestUnit
         try
         {
             LdapDN dn = new LdapDN( "cn=Emmanuel Lecharny,ou=apache,ou=roles,o=MNN,c=WW,ou=system" );
-            Rdn newRdn = new Rdn( "cn=Alex Karasulu" );
+            RDN newRdn = new RDN( "cn=Alex Karasulu" );
             session.rename( dn, newRdn, false, false );
             fail();
         }
@@ -265,7 +265,7 @@ public class RenameReferralIT extends AbstractLdapTestUnit
         try
         {
             LdapDN dn = new LdapDN( "cn=Emmanuel Lecharny,ou=apache,ou=roles,o=MNN,c=WW,ou=system" );
-            Rdn newRdn = new Rdn( "cn=Alex Karasulu" );
+            RDN newRdn = new RDN( "cn=Alex Karasulu" );
             session.rename( dn, newRdn, false, true );
             fail();
         }
@@ -405,7 +405,7 @@ public class RenameReferralIT extends AbstractLdapTestUnit
         try
         {
             LdapDN dn = new LdapDN( "ou=roles,o=MNN,c=WW,ou=system" );
-            Rdn newRdn = new Rdn( "cn=Alex Karasulu" );
+            RDN newRdn = new RDN( "cn=Alex Karasulu" );
             session.rename( dn, newRdn, false, false );
             fail();
         }
@@ -439,7 +439,7 @@ public class RenameReferralIT extends AbstractLdapTestUnit
         CoreSession session = service.getAdminSession();
         LdapDN dnRoles = new LdapDN( "ou=Roles,o=MNN,c=WW,ou=system" );
         LdapDN dnGroups = new LdapDN( "ou=Groups,o=MNN,c=WW,ou=system" );
-        Rdn newRdn = new Rdn( "ou=Groups" );
+        RDN newRdn = new RDN( "ou=Groups" );
 
         // First check that the object exists
         ServerEntry renamed = session.lookup( dnRoles );
@@ -556,7 +556,7 @@ public class RenameReferralIT extends AbstractLdapTestUnit
     {
         CoreSession session = service.getAdminSession();
         LdapDN dn = new LdapDN( "ou=Roles,o=MNN,c=WW,ou=system" );
-        Rdn newRdn = new Rdn( "ou=People" );
+        RDN newRdn = new RDN( "ou=People" );
 
         try
         {
@@ -592,7 +592,7 @@ public class RenameReferralIT extends AbstractLdapTestUnit
     {
         CoreSession session = service.getAdminSession();
         LdapDN dn = new LdapDN( "ou=Roles,o=MNN,c=WW,ou=system" );
-        Rdn newRdn = new Rdn( "ou=People" );
+        RDN newRdn = new RDN( "ou=People" );
 
         try
         {

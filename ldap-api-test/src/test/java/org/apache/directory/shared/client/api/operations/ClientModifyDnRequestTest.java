@@ -42,7 +42,7 @@ import org.apache.directory.shared.ldap.client.api.messages.ModifyDnResponse;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -108,7 +108,7 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
         Entry entry = session.lookup( new LdapDN( "cn=modifyDnWithString,ou=system" ) );
         assertNotNull( entry );
         
-        Rdn oldRdn = oldDn.getRdn();
+        RDN oldRdn = oldDn.getRdn();
         assertTrue( entry.contains( oldRdn.getUpType(), ( String ) oldRdn.getNormValue() ) );
     }
     
@@ -133,7 +133,7 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
     {
         ModifyDnRequest modDnReq = new ModifyDnRequest();
         modDnReq.setEntryDn( new LdapDN( dn ) );
-        modDnReq.setNewRdn( new Rdn( "cn=modifyDnWithString" ) );
+        modDnReq.setNewRdn( new RDN( "cn=modifyDnWithString" ) );
         modDnReq.setDeleteOldRdn( true );
 
         final Semaphore lock = new Semaphore(1);

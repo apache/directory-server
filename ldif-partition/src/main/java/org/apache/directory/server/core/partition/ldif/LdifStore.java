@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -243,7 +243,7 @@ public class LdifStore<E> implements Store<E>
     }
 
 
-    public void move( LdapDN oldChildDn, LdapDN newParentDn, Rdn newRdn, boolean deleteOldRdn ) throws Exception
+    public void move( LdapDN oldChildDn, LdapDN newParentDn, RDN newRdn, boolean deleteOldRdn ) throws Exception
     {
         wrappedStore.move( oldChildDn, newParentDn, newRdn, deleteOldRdn );
     }
@@ -255,7 +255,7 @@ public class LdifStore<E> implements Store<E>
     }
 
 
-    public void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn ) throws Exception
+    public void rename( LdapDN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception
     {
         wrappedStore.rename( dn, newRdn, deleteOldRdn );
     }

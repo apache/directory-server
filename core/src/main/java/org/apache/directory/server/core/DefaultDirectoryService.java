@@ -89,9 +89,8 @@ import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.DateUtils;
@@ -738,8 +737,8 @@ public class DefaultDirectoryService implements DirectoryService
         newBase.remove( newDn.size() - 1 );
 
         // Compute the RDN for each of the DN
-        Rdn newRdn = newDn.getRdn( newDn.size() - 1 );
-        Rdn oldRdn = oldDn.getRdn( oldDn.size() - 1 );
+        RDN newRdn = newDn.getRdn( newDn.size() - 1 );
+        RDN oldRdn = oldDn.getRdn( oldDn.size() - 1 );
 
         /*
          * We need to determine if this rename operation corresponds to a simple
@@ -764,7 +763,7 @@ public class DefaultDirectoryService implements DirectoryService
             }
             else
             {
-                adminSession.moveAndRename( oldDn, target, new Rdn( newRdn ), delOldRdn );
+                adminSession.moveAndRename( oldDn, target, new RDN( newRdn ), delOldRdn );
             }
         }
     }

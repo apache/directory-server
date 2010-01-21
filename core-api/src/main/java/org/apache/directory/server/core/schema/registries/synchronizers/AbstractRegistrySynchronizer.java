@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedExcep
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
@@ -155,7 +155,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
             throw new NamingException( "At least two name components are expected for the dn" );
         }
         
-        Rdn rdn = dn.getRdn( 1 );
+        RDN rdn = dn.getRdn( 1 );
         return ( String ) rdn.getNormValue();
     }
 
@@ -204,7 +204,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
                 ResultCodeEnum.NAMING_VIOLATION );
         }
         
-        Rdn rdn = newParent.getRdn();
+        RDN rdn = newParent.getRdn();
         
         if ( ! schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
         {

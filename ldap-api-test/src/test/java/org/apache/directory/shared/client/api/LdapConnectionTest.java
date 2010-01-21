@@ -75,6 +75,10 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
         {
             fail();
         }
+        catch ( IOException ioe )
+        {
+            fail();
+        }
         finally
         {
             try

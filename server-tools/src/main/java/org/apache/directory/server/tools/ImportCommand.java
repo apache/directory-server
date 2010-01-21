@@ -63,7 +63,7 @@ import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -360,7 +360,7 @@ public class ImportCommand extends ToolCommand
 
         modifyDNRequest.setEntry( new LdapDN( dn ) );
         modifyDNRequest.setDeleteOldRDN( entry.isDeleteOldRdn() );
-        modifyDNRequest.setNewRDN( new Rdn( entry.getNewRdn() ) );
+        modifyDNRequest.setNewRDN( new RDN( entry.getNewRdn() ) );
 
         if ( StringTools.isEmpty( entry.getNewSuperior() ) == false )
         {
