@@ -59,7 +59,7 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
      * @throws IOException
      */
     @Test
-    public void testBindRequest()
+    public void testBindRequest() throws Exception
     {
         LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
         
