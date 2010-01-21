@@ -34,6 +34,7 @@ import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResponseCode;
 import org.apache.directory.server.dns.store.RecordStore;
+import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +85,7 @@ public class DomainNameService
         catch ( Exception e )
         {
             // This is a monitor.  No exceptions should bubble up.
-            LOG.error( "Error in request monitor", e );
+            LOG.error( I18n.err( I18n.ERR_153 ), e );
         }
     }
     
@@ -146,7 +147,7 @@ public class DomainNameService
         catch ( Exception e )
         {
             // This is a monitor.  No exceptions should bubble up.
-            LOG.error( "Error in context monitor", e );
+            LOG.error( I18n.err( I18n.ERR_154 ), e );
         }
     }
     
@@ -188,7 +189,7 @@ public class DomainNameService
         catch ( Exception e )
         {
             // This is a monitor.  No exceptions should bubble up.
-            LOG.error( "Error in reply monitor", e );
+            LOG.error( I18n.err( I18n.ERR_155 ), e );
         }
     }
     

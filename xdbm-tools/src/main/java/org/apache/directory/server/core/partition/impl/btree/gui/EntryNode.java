@@ -199,7 +199,7 @@ public class EntryNode implements TreeNode
         }
         catch ( Exception e )
         {
-            buf.append( "ERROR: " + e.getMessage() );
+            buf.append( "ERROR: " + e.getLocalizedMessage() );
         }
 
         if ( children.size() > 0 )

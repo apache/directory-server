@@ -61,6 +61,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.aci.ACITuple;
@@ -233,17 +234,14 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         if ( dn.isEmpty() )
         {
-            String msg = "The rootDSE cannot be deleted, moved or renamed!";
+            String msg = I18n.err( I18n.ERR_8 );
             LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
 
         if ( isTheAdministrator( dn ) )
         {
-            String msg = "User '" + principalDn.getName();
-            msg += "' does not have permission to move or rename the admin";
-            msg += " account.  No one not even the admin can del, move or";
-            msg += " rename " + dn.getName() + "!";
+            String msg = I18n.err( I18n.ERR_9, principalDn.getName(), dn.getName() );
             LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
@@ -337,7 +335,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             }
             catch ( ParseException e )
             {
-                String msg = "failed to parse entryACI: " + aciString;
+                String msg = I18n.err( I18n.ERR_10, aciString );
                 LOG.error( msg, e );
                 throw new LdapNamingException( msg, ResultCodeEnum.OPERATIONS_ERROR );
             }
@@ -390,7 +388,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             }
             catch ( ParseException e )
             {
-                String msg = "failed to parse subentryACI: " + aciString;
+                String msg = I18n.err( I18n.ERR_11, aciString );
                 LOG.error( msg, e );
                 throw new LdapNamingException( msg, ResultCodeEnum.OPERATIONS_ERROR );
             }

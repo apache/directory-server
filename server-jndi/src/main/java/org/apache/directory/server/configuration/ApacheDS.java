@@ -35,6 +35,7 @@ import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
@@ -276,7 +277,7 @@ public class ApacheDS
         }
         catch ( IOException e )
         {
-            LOG.error( "could not get canonical path", e );
+            LOG.error( I18n.err( I18n.ERR_179 ), e );
             return null;
         }
 
@@ -364,9 +365,7 @@ public class ApacheDS
             {
                 // If the file can't be read, log the error, and stop
                 // loading LDIFs.
-                LOG.error( "Cannot load the ldif file '{}', error : ",
-                    ldifDirectory.getAbsolutePath(), 
-                    ne.getMessage() );
+                LOG.error( I18n.err( I18n.ERR_180, ldifDirectory.getAbsolutePath(), ne.getLocalizedMessage() ) );
                 throw ne;
             }
         }
@@ -402,9 +401,7 @@ public class ApacheDS
                 {
                     // If the file can't be read, log the error, and stop
                     // loading LDIFs.
-                    LOG.error( "Cannot load the ldif file '{}', error : {}", 
-                        ldifFile.getAbsolutePath(), 
-                        ne.getMessage() );
+                    LOG.error( I18n.err( I18n.ERR_180, ldifFile.getAbsolutePath(), ne.getLocalizedMessage() ) );
                     throw ne;
                 }
             }

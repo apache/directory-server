@@ -23,6 +23,7 @@ package org.apache.directory.server.kerberos.shared.messages.value;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
 import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
@@ -228,9 +229,9 @@ public class PaData extends AbstractAsn1Object
         }
         catch ( BufferOverflowException boe )
         {
-            log.error( "Cannot encode the PreAuthenticationData object, the PDU size is {} when only {} bytes has been allocated", 1
-                + TLV.getNbBytes( preAuthenticationDataSeqLength ) + preAuthenticationDataSeqLength, buffer.capacity() );
-            throw new EncoderException( "The PDU buffer size is too small !" );
+            log.error( I18n.err( I18n.ERR_145, 1 + TLV.getNbBytes( preAuthenticationDataSeqLength )
+                + preAuthenticationDataSeqLength, buffer.capacity() ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
         }
 
         if ( IS_DEBUG )

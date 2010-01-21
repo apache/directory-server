@@ -26,6 +26,7 @@ import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.directory.daemon.InstanceLayout;
+import org.apache.directory.server.i18n.I18n;
 
 
 /**
@@ -47,7 +48,7 @@ public class ApachedsTools
 
         if ( args.length == 0 )
         {
-            System.err.println( "Type " + tools.getProductCommand() + " help for usage." );
+            System.err.println( I18n.err( I18n.ERR_184, tools.getProductCommand() ) );
             System.exit( 1 );
         }
 
@@ -76,8 +77,8 @@ public class ApachedsTools
         ToolCommand cmd = ( ToolCommand ) tools.getCommands().get( command );
         if ( cmd == null )
         {
-            System.err.println( "Unknown command: " + args[0] );
-            System.err.println( "Type " + tools.getProductCommand() + " help for usage." );
+            System.err.println( I18n.err( I18n.ERR_185, args[0] ) );
+            System.err.println( I18n.err( I18n.ERR_184, tools.getProductCommand() ) );
             System.exit( 1 );
         }
 
@@ -100,7 +101,7 @@ public class ApachedsTools
         }
         else if ( cmdline.hasOption( 'c' ) )
         {
-            System.err.println( "forced configuration load (-c) requires the -i option" );
+            System.err.println( I18n.err( I18n.ERR_186 ) );
             System.exit( 1 );
         }
 

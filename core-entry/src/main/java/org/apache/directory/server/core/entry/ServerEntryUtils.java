@@ -225,7 +225,7 @@ public class ServerEntryUtils
             }
             catch ( NamingException ne )
             {
-                throw new InvalidAttributeIdentifierException( ne.getMessage() );
+                throw new InvalidAttributeIdentifierException( ne.getLocalizedMessage() );
             }
         }
         else

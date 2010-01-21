@@ -26,6 +26,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -217,7 +218,7 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
             }
             catch ( LdapURLEncodingException e )
             {
-                LOG.error( "Bad URL ({}) for ref in {}.  Reference will be ignored.", ref, referralAncestor );
+                LOG.error( I18n.err( I18n.ERR_165, ref, referralAncestor ) );
             }
             
             LdapDN urlDn = new LdapDN( ldapUrl.getDn().getName() );
@@ -316,7 +317,7 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
             }
             catch ( LdapURLEncodingException e )
             {
-                LOG.error( "Bad URL ({}) for ref in {}.  Reference will be ignored.", ref, referralAncestor );
+                LOG.error( I18n.err( I18n.ERR_165, ref, referralAncestor ) );
             }
             
             // Normalize the DN to check for same dn
@@ -388,7 +389,7 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
          * exception into the message if we are in debug mode.  Note we 
          * embed the result code name into the message.
          */
-        String msg = code.toString() + ": failed for " + req + ": " + e.getMessage();
+        String msg = code.toString() + ": failed for " + req + ": " + e.getLocalizedMessage();
         LOG.debug( msg, e );
         
         if ( IS_DEBUG )

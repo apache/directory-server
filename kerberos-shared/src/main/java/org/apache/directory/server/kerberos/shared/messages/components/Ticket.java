@@ -26,6 +26,7 @@ import java.text.ParseException;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.KerberosConstants;
 import org.apache.directory.server.kerberos.shared.KerberosUtils;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
@@ -198,8 +199,8 @@ public class Ticket extends AbstractAsn1Object
         }
         catch ( ParseException pe )
         {
-            LOG.error( "Cannot create a ticket for the {} KerberosPrincipal, error : {}", serverPrincipal, pe.getMessage() );
-            throw new InvalidTicketException( ErrorType.KRB_ERR_GENERIC, "Cannot create a ticket : " + pe.getMessage() );
+            LOG.error( I18n.err( I18n.ERR_135, serverPrincipal, pe.getLocalizedMessage() ) );
+            throw new InvalidTicketException( ErrorType.KRB_ERR_GENERIC, I18n.err( I18n.ERR_136, pe.getLocalizedMessage() ) );
         }
     }
     
@@ -520,9 +521,9 @@ public class Ticket extends AbstractAsn1Object
         }
         catch ( BufferOverflowException boe )
         {
-            LOG.error( "Cannot encode the Ticket object, the PDU size is {} when only {} bytes has been allocated", 1
-                + TLV.getNbBytes( ticketLength ) + ticketLength, buffer.capacity() );
-            throw new EncoderException( "The PDU buffer size is too small !" );
+            LOG.error( I18n.err( I18n.ERR_137, 1 + TLV.getNbBytes( ticketLength ) + ticketLength, 
+                buffer.capacity() ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
         }
 
         if ( IS_DEBUG )

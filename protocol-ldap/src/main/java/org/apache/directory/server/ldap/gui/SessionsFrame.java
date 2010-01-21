@@ -45,6 +45,7 @@ import javax.swing.JMenuItem;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.extended.GracefulShutdownHandler;
@@ -837,8 +838,8 @@ public class SessionsFrame extends JFrame
                     }
                     catch ( IOException e1 )
                     {
-                        LOG.error( "failed to rebind ldap service", e1 );
-                        JOptionPane.showMessageDialog( SessionsFrame.this, e1.getMessage(), "Error encountered!",
+                        LOG.error( I18n.err( I18n.ERR_158 ), e1 );
+                        JOptionPane.showMessageDialog( SessionsFrame.this, e1.getLocalizedMessage(), "Error encountered!",
                             JOptionPane.ERROR_MESSAGE );
                     }
                 }

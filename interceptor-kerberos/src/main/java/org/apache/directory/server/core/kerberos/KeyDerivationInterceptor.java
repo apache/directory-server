@@ -57,6 +57,7 @@ import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
@@ -411,7 +412,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             }
             catch ( IOException ioe )
             {
-                log.error( "Error encoding EncryptionKey.", ioe );
+                log.error( I18n.err( I18n.ERR_122 ), ioe );
             }
         }
 
@@ -430,7 +431,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             }
             catch ( KerberosException ke )
             {
-                log.debug( ke.getMessage(), ke );
+                log.debug( ke.getLocalizedMessage(), ke );
                 return null;
             }
         }

@@ -26,6 +26,7 @@ import java.io.ObjectOutput;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
@@ -229,7 +230,7 @@ public class ServerStringValue extends ClientStringValue
             }
             catch ( NamingException ne )
             {
-                String message = "Cannot normalize the value :" + ne.getMessage();
+                String message = "Cannot normalize the value :" + ne.getLocalizedMessage();
                 LOG.warn( message );
                 normalized = false;
             }
@@ -295,7 +296,7 @@ public class ServerStringValue extends ClientStringValue
             }
             catch ( NamingException ne )
             {
-                String message = "Cannot normalize the wrapped value " + stringValue; 
+                String message = I18n.err( I18n.ERR_112, stringValue ); 
                 LOG.error( message );
             }
             
@@ -306,7 +307,7 @@ public class ServerStringValue extends ClientStringValue
             }
             catch ( NamingException ne )
             {
-                String message = "Cannot normalize the wrapped value " + this;
+                String message = I18n.err( I18n.ERR_112, this );
                 LOG.error( message );
             }
 
@@ -317,13 +318,13 @@ public class ServerStringValue extends ClientStringValue
             }
             catch ( NamingException e )
             {
-                String msg = "Failed to compare normalized values for " + this + " and " + value;
+                String msg = I18n.err( I18n.ERR_113, this, value );
                 LOG.error( msg, e );
                 throw new IllegalStateException( msg, e );
             }
         }
 
-        String message = "I don't know what to do if value is not a ServerStringValue";
+        String message = I18n.err( I18n.ERR_114 );
         LOG.error( message );
         throw new NotImplementedException( message );
     }

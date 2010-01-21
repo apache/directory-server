@@ -227,7 +227,7 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
          * exception into the message if we are in debug mode.  Note we 
          * embed the result code name into the message.
          */
-        String msg = code.toString() + ": failed for " + req + ": " + e.getMessage();
+        String msg = code.toString() + ": failed for " + req + ": " + e.getLocalizedMessage();
 
         if ( LOG.isDebugEnabled() )
         {

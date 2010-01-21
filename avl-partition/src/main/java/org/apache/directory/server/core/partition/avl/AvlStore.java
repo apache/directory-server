@@ -38,6 +38,7 @@ import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -87,25 +88,25 @@ public class AvlStore<E> implements Store<E>
 
     /** the normalized distinguished name index */
     private AvlIndex<String, E> ndnIdx;
-    
+
     /** the user provided distinguished name index */
     private AvlIndex<String, E> updnIdx;
-    
+
     /** the attribute existence index */
     private AvlIndex<String, E> existenceIdx;
-    
+
     /** a system index on aliasedObjectName attribute */
     private AvlIndex<String, E> aliasIdx;
-    
+
     /** a system index on the entries of descendants of root DN*/
     private AvlIndex<Long, E> subLevelIdx;
-    
+
     /** the parent child relationship index */
     private AvlIndex<Long, E> oneLevelIdx;
-    
+
     /** the one level scope alias index */
     private AvlIndex<Long, E> oneAliasIdx;
-    
+
     /** the subtree scope alias index */
     private AvlIndex<Long, E> subAliasIdx;
 
@@ -126,7 +127,7 @@ public class AvlStore<E> implements Store<E>
 
     /** true if initialized */
     private boolean initialized;
-    
+
     /** A pointer on the schemaManager */
     private SchemaManager schemaManager;
 
@@ -224,9 +225,9 @@ public class AvlStore<E> implements Store<E>
             String msg = "Entry " + normName.getName() + " contains no entryCsn attribute: " + entry;
             throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
-        
+
         entryCsnIdx.add( entryCsn.getString(), id );
-        
+
         // Update the EntryUuid index
         EntryAttribute entryUuid = entry.get( SchemaConstants.ENTRY_UUID_AT );
 
@@ -235,7 +236,7 @@ public class AvlStore<E> implements Store<E>
             String msg = "Entry " + normName.getName() + " contains no entryUuid attribute: " + entry;
             throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
-        
+
         entryUuidIdx.add( entryUuid.getString(), id );
 
         Long tempId = parentId;
@@ -520,11 +521,11 @@ public class AvlStore<E> implements Store<E>
      */
     public LdapDN getSuffix()
     {
-        if( suffixDn == null )
+        if ( suffixDn == null )
         {
             return null;
         }
-        
+
         try
         {
             return new LdapDN( suffixDn.getNormName() );
@@ -544,11 +545,11 @@ public class AvlStore<E> implements Store<E>
      */
     public LdapDN getUpSuffix()
     {
-        if( suffixDn == null )
+        if ( suffixDn == null )
         {
             return null;
         }
-        
+
         try
         {
             return new LdapDN( suffixDn.getName() );
@@ -565,11 +566,11 @@ public class AvlStore<E> implements Store<E>
 
     public String getSuffixDn()
     {
-        if( suffixDn == null )
+        if ( suffixDn == null )
         {
             return null;
         }
-        
+
         return suffixDn.getName();
     }
 
@@ -585,8 +586,8 @@ public class AvlStore<E> implements Store<E>
         }
         catch ( NamingException e )
         {
-            LOG.error( "Failed to identify OID for: " + id, e );
-            throw new IndexNotFoundException( "Failed to identify OID for: " + id, id, e );
+            LOG.error( I18n.err( I18n.ERR_1, id ), e.getLocalizedMessage() );
+            throw new IndexNotFoundException( I18n.err( I18n.ERR_1, id ), id, e );
         }
 
         if ( systemIndices.containsKey( id ) )
@@ -594,8 +595,7 @@ public class AvlStore<E> implements Store<E>
             return systemIndices.get( id );
         }
 
-        throw new IndexNotFoundException( "A system index on attribute " + id + " ("
-            + name + ") does not exist!" );
+        throw new IndexNotFoundException( I18n.err( I18n.ERR_2, id, name ) );
 
     }
 
@@ -620,8 +620,8 @@ public class AvlStore<E> implements Store<E>
         }
         catch ( NamingException e )
         {
-            LOG.error( "Failed to identify OID for: " + id, e );
-            throw new IndexNotFoundException( "Failed to identify OID for: " + id, id, e );
+            LOG.error( I18n.err( I18n.ERR_1, id ), e.getLocalizedMessage() );
+            throw new IndexNotFoundException( I18n.err( I18n.ERR_1, id ), id, e );
         }
 
         if ( userIndices.containsKey( id ) )
@@ -629,8 +629,7 @@ public class AvlStore<E> implements Store<E>
             return userIndices.get( id );
         }
 
-        throw new IndexNotFoundException( "A user index on attribute " + id + " ("
-            + name + ") does not exist!" );
+        throw new IndexNotFoundException( I18n.err( I18n.ERR_3, id, name ) );
     }
 
 
@@ -694,7 +693,8 @@ public class AvlStore<E> implements Store<E>
 
         if ( ndnIdx == null )
         {
-            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_N_DN_AT_OID );
+            AttributeType attributeType = schemaManager
+                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_N_DN_AT_OID );
             ndnIdx = new AvlIndex<String, E>();
             ndnIdx.setAttributeId( ApacheSchemaConstants.APACHE_N_DN_AT_OID );
             ndnIdx.initialize( attributeType );
@@ -703,7 +703,8 @@ public class AvlStore<E> implements Store<E>
 
         if ( updnIdx == null )
         {
-            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_UP_DN_AT_OID );
+            AttributeType attributeType = schemaManager
+                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_UP_DN_AT_OID );
             updnIdx = new AvlIndex<String, E>();
             updnIdx.setAttributeId( ApacheSchemaConstants.APACHE_UP_DN_AT_OID );
             updnIdx.initialize( attributeType );
@@ -712,7 +713,8 @@ public class AvlStore<E> implements Store<E>
 
         if ( existenceIdx == null )
         {
-            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID );
+            AttributeType attributeType = schemaManager
+                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID );
             existenceIdx = new AvlIndex<String, E>();
             existenceIdx.setAttributeId( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID );
             existenceIdx.initialize( attributeType );
@@ -721,7 +723,8 @@ public class AvlStore<E> implements Store<E>
 
         if ( oneLevelIdx == null )
         {
-            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
+            AttributeType attributeType = schemaManager
+                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
             oneLevelIdx = new AvlIndex<Long, E>();
             oneLevelIdx.setAttributeId( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
             oneLevelIdx.initialize( attributeType );
@@ -730,7 +733,8 @@ public class AvlStore<E> implements Store<E>
 
         if ( oneAliasIdx == null )
         {
-            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
+            AttributeType attributeType = schemaManager
+                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
             oneAliasIdx = new AvlIndex<Long, E>();
             oneAliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
             oneAliasIdx.initialize( attributeType );
@@ -739,7 +743,8 @@ public class AvlStore<E> implements Store<E>
 
         if ( subAliasIdx == null )
         {
-            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
+            AttributeType attributeType = schemaManager
+                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
             subAliasIdx = new AvlIndex<Long, E>();
             subAliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
             subAliasIdx.initialize( attributeType );
@@ -748,7 +753,8 @@ public class AvlStore<E> implements Store<E>
 
         if ( aliasIdx == null )
         {
-            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+            AttributeType attributeType = schemaManager
+                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
             aliasIdx = new AvlIndex<String, E>();
             aliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
             aliasIdx.initialize( attributeType );
@@ -757,7 +763,8 @@ public class AvlStore<E> implements Store<E>
 
         if ( subLevelIdx == null )
         {
-            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
+            AttributeType attributeType = schemaManager
+                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
             subLevelIdx = new AvlIndex<Long, E>();
             subLevelIdx.setAttributeId( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
             subLevelIdx.initialize( attributeType );
@@ -766,7 +773,7 @@ public class AvlStore<E> implements Store<E>
 
         if ( entryCsnIdx == null )
         {
-            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT_OID ); 
+            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT_OID );
             entryCsnIdx = new AvlIndex<String, E>();
             entryCsnIdx.setAttributeId( SchemaConstants.ENTRY_CSN_AT_OID );
             entryCsnIdx.initialize( attributeType );
@@ -784,7 +791,8 @@ public class AvlStore<E> implements Store<E>
 
         if ( objectClassIdx == null )
         {
-            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT_OID );
+            AttributeType attributeType = schemaManager
+                .lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT_OID );
             objectClassIdx = new AvlIndex<String, E>();
             objectClassIdx.setAttributeId( SchemaConstants.OBJECT_CLASS_AT_OID );
             objectClassIdx.initialize( attributeType );
@@ -815,8 +823,7 @@ public class AvlStore<E> implements Store<E>
                 }
                 else
                 {
-                    LOG.error( "Cannot build an index for attribute '{}', no EQUALITY MatchingRule defined",
-                        attributeType.getName() );
+                    LOG.error( I18n.err( I18n.ERR_4, attributeType.getName() )   );
                 }
             }
 
@@ -1115,11 +1122,11 @@ public class AvlStore<E> implements Store<E>
         {
             // if the id exists in the index drop all existing attribute 
             // value index entries and add new ones
-            if( objectClassIdx.reverse( id ) )
+            if ( objectClassIdx.reverse( id ) )
             {
                 objectClassIdx.drop( id );
             }
-            
+
             for ( Value<?> value : mods )
             {
                 objectClassIdx.add( value.getString(), id );
@@ -1485,7 +1492,7 @@ public class AvlStore<E> implements Store<E>
         {
             this.aliasIdx = ( AvlIndex<String, E> ) convert( index );
         }
-        
+
         // FIXME is this attribute ID or its OID
         systemIndices.put( index.getAttributeId(), aliasIdx );
     }
@@ -1515,7 +1522,7 @@ public class AvlStore<E> implements Store<E>
         {
             this.ndnIdx = ( AvlIndex<String, E> ) convert( index );
         }
-        
+
         systemIndices.put( index.getAttributeId(), ndnIdx );
     }
 
@@ -1534,7 +1541,7 @@ public class AvlStore<E> implements Store<E>
         {
             this.oneAliasIdx = ( AvlIndex<Long, E> ) convert( index );
         }
-        
+
         systemIndices.put( index.getAttributeId(), oneAliasIdx );
     }
 
@@ -1553,7 +1560,7 @@ public class AvlStore<E> implements Store<E>
         {
             this.oneLevelIdx = ( AvlIndex<Long, E> ) convert( index );
         }
-        
+
         systemIndices.put( index.getAttributeId(), oneLevelIdx );
     }
 
@@ -1600,7 +1607,7 @@ public class AvlStore<E> implements Store<E>
         {
             this.subAliasIdx = ( AvlIndex<Long, E> ) convert( index );
         }
-        
+
         systemIndices.put( index.getAttributeId(), subAliasIdx );
     }
 
@@ -1619,7 +1626,7 @@ public class AvlStore<E> implements Store<E>
         {
             this.subLevelIdx = ( AvlIndex<Long, E> ) convert( index );
         }
-        
+
         systemIndices.put( index.getAttributeId(), subLevelIdx );
     }
 
@@ -1655,7 +1662,7 @@ public class AvlStore<E> implements Store<E>
         {
             this.updnIdx = ( AvlIndex<String, E> ) convert( index );
         }
-        
+
         systemIndices.put( index.getAttributeId(), updnIdx );
     }
 
@@ -2083,8 +2090,8 @@ public class AvlStore<E> implements Store<E>
     public void setEntryCsnIndex( Index<String, E> index ) throws Exception
     {
         protect( "entryCsnIndex" );
-        
-        if( index instanceof AvlIndex )
+
+        if ( index instanceof AvlIndex )
         {
             this.entryCsnIdx = ( AvlIndex<String, E> ) index;
         }
@@ -2092,7 +2099,7 @@ public class AvlStore<E> implements Store<E>
         {
             this.entryCsnIdx = ( AvlIndex<String, E> ) convert( index );
         }
-        
+
         systemIndices.put( index.getAttributeId(), entryCsnIdx );
     }
 
@@ -2131,7 +2138,7 @@ public class AvlStore<E> implements Store<E>
     public void setObjectClassIndex( Index<String, E> index ) throws NamingException
     {
         protect( "objectClassIndex" );
-        if( index instanceof AvlIndex )
+        if ( index instanceof AvlIndex )
         {
             this.objectClassIdx = ( AvlIndex<String, E> ) index;
         }
@@ -2139,7 +2146,7 @@ public class AvlStore<E> implements Store<E>
         {
             objectClassIdx = convert( index );
         }
-        
+
         systemIndices.put( index.getAttributeId(), objectClassIdx );
     }
 
@@ -2147,7 +2154,7 @@ public class AvlStore<E> implements Store<E>
     public void setEntryUuidIndex( Index<String, E> index ) throws NamingException
     {
         protect( "entryUuidIndex" );
-        if( index instanceof AvlIndex )
+        if ( index instanceof AvlIndex )
         {
             this.entryUuidIdx = ( AvlIndex<String, E> ) index;
         }

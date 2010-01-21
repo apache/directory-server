@@ -27,6 +27,7 @@ import java.io.ObjectOutput;
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -179,7 +180,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
     {
         if ( attributeType == null ) 
         {
-            String message = "The AttributeType parameter should not be null";
+            String message = I18n.err( I18n.ERR_92 );
             LOG.error( message );
             throw new IllegalArgumentException( message );
         }
@@ -337,7 +338,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 catch( NamingException ne )
                 {
                     // The value can't be normalized : we don't add it.
-                    LOG.error( "The value '" + val + "' can't be normalized, it hasn't been added" );
+                    LOG.error( I18n.err( I18n.ERR_93, val ) );
                     return 0;
                 }
                 
@@ -347,7 +348,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 }
                 else
                 {
-                    LOG.error( "The value '" + val + "' is incorrect, it hasn't been added" );
+                    LOG.error( I18n.err( I18n.ERR_94, val ) );
                 }
             }
             
@@ -396,7 +397,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                     }
                     else
                     {
-                        LOG.error( "The value '" + val + "' is incorrect, it hasn't been added" );
+                        LOG.error( I18n.err( I18n.ERR_94, val ) );
                     }
                 }
             }
@@ -459,7 +460,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 }
                 else
                 {
-                    String message = "The value must be a String, as its AttributeType is H/R";
+                    String message = I18n.err( I18n.ERR_95 );
                     LOG.error( message );
                 }
             }
@@ -499,7 +500,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 }
                 else
                 {
-                    String message = "The value must be a byte[], as its AttributeType is not H/R";
+                    String message = I18n.err( I18n.ERR_96 );
                     LOG.error( message );
                 }
             }
@@ -1115,8 +1116,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 }
                 else
                 {
-                    String message = "The upID (" + upId + ") is not an OID or is different from the AttributeType OID (" + 
-                                        attributeType.getOid() + ")";
+                    String message = I18n.err( I18n.ERR_97, upId, attributeType.getOid() );
                     // Not a valid OID : use the AttributeTypes OID name instead
                     LOG.error( message );
                     throw new IllegalArgumentException( message );

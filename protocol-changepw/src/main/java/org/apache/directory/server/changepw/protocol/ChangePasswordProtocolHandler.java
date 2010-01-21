@@ -35,6 +35,7 @@ import org.apache.directory.server.changepw.messages.ChangePasswordErrorModifier
 import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.changepw.service.ChangePasswordContext;
 import org.apache.directory.server.changepw.service.ChangePasswordService;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessageModifier;
@@ -143,11 +144,11 @@ public class ChangePasswordProtocolHandler implements IoHandler
         {
             if ( log.isDebugEnabled() )
             {
-                log.warn( ke.getMessage(), ke );
+                log.warn( ke.getLocalizedMessage(), ke );
             }
             else
             {
-                log.warn( ke.getMessage() );
+                log.warn( ke.getLocalizedMessage() );
             }
 
             ErrorMessage errorMessage = getErrorMessage( config.getServicePrincipal(), ke );
@@ -159,7 +160,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
         }
         catch ( Exception e )
         {
-            log.error( "Unexpected exception:  " + e.getMessage(), e );
+            log.error( I18n.err( I18n.ERR_152, e.getLocalizedMessage() ), e );
 
             session.write( getErrorMessage( config.getServicePrincipal(), new ChangePasswordException(
                 ErrorType.KRB5_KPASSWD_UNKNOWN_ERROR ) ) );
@@ -189,7 +190,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
         KerberosTime now = new KerberosTime();
 
         modifier.setErrorCode( exception.getErrorCode() );
-        modifier.setExplanatoryText( exception.getMessage() );
+        modifier.setExplanatoryText( exception.getLocalizedMessage() );
         modifier.setServerPrincipal( principal );
         modifier.setServerTime( now );
         modifier.setServerMicroSecond( 0 );
@@ -210,11 +211,11 @@ public class ChangePasswordProtocolHandler implements IoHandler
         {
             try
             {
-                resultString = exception.getMessage().getBytes( "UTF-8" );
+                resultString = exception.getLocalizedMessage().getBytes( "UTF-8" );
             }
             catch ( UnsupportedEncodingException uee )
             {
-                log.error( uee.getMessage() );
+                log.error( uee.getLocalizedMessage() );
             }
         }
         else

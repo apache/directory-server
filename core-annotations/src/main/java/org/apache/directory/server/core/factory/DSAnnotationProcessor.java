@@ -37,6 +37,7 @@ import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
@@ -260,7 +261,7 @@ public class DSAnnotationProcessor
                 }
                 catch ( Exception e )
                 {
-                    LOG.error( "Cannot inject the following entry : {}. Error : {}.", ldifFile, e.getMessage() );
+                    LOG.error( I18n.err( I18n.ERR_80, ldifFile, e.getLocalizedMessage() ) );
                 }
             }
         }

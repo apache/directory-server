@@ -25,6 +25,7 @@ import java.net.UnknownHostException;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.messages.value.types.HostAddrType;
 import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
@@ -263,10 +264,9 @@ public class HostAddress extends AbstractAsn1Object
         }
         catch ( BufferOverflowException boe )
         {
-            LOG.error(
-                "Cannot encode the HostAddress object, the PDU size is {} when only {} bytes has been allocated", 1
-                    + TLV.getNbBytes( hostAddressLength ) + hostAddressLength, buffer.capacity() );
-            throw new EncoderException( "The PDU buffer size is too small !" );
+            LOG.error( I18n.err( I18n.ERR_143, 1 + TLV.getNbBytes( hostAddressLength )
+                + hostAddressLength, buffer.capacity() ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
         }
 
         if ( IS_DEBUG )

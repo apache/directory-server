@@ -32,6 +32,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
@@ -199,7 +200,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
                 result.setResultCode( code );
             }
 
-            String msg = code.toString() + ": Bind failed: " + e.getMessage();
+            String msg = code.toString() + ": Bind failed: " + e.getLocalizedMessage();
 
             if ( LOG.isDebugEnabled() )
             {
@@ -235,8 +236,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
         // Guard clause:  Reject unsupported SASL mechanisms.
         if ( !ldapServer.getSupportedMechanisms().contains( saslMechanism ) )
         {
-            LOG.error( "Bind error : {} mechanism not supported. Please check the server.xml "
-                + "configuration file (supportedMechanisms field)", saslMechanism );
+            LOG.error( I18n.err( I18n.ERR_160, saslMechanism ) );
 
             return false;
         }
@@ -370,7 +370,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
 
         if ( e != null )
         {
-            message = ResultCodeEnum.INVALID_CREDENTIALS + ": " + e.getMessage();
+            message = ResultCodeEnum.INVALID_CREDENTIALS + ": " + e.getLocalizedMessage();
         }
         else
         {
@@ -445,7 +445,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
 
         if ( mechanismHandler == null )
         {
-            String message = "Handler unavailable for " + saslMechanism;
+            String message = I18n.err( I18n.ERR_161, saslMechanism );
 
             // Clear the saslProperties, and move to the anonymous state
             ldapSession.clearSaslProperties();
@@ -576,10 +576,10 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
         // Guard clause:  LDAP version 3
         if ( !bindRequest.getVersion3() )
         {
-            LOG.error( "Bind error : Only LDAP v3 is supported." );
+            LOG.error( I18n.err( I18n.ERR_162 ) );
             InternalLdapResult bindResult = bindRequest.getResultResponse().getLdapResult();
             bindResult.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
-            bindResult.setErrorMessage( "Only LDAP v3 is supported." );
+            bindResult.setErrorMessage( I18n.err( I18n.ERR_163 ) );
             ldapSession.getIoSession().write( bindRequest.getResultResponse() );
             return;
         }

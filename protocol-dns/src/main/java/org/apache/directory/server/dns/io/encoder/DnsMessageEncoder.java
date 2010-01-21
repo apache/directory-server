@@ -152,7 +152,7 @@ public class DnsMessageEncoder
             }
             catch ( IOException ioe )
             {
-                log.error( ioe.getMessage(), ioe );
+                log.error( ioe.getLocalizedMessage(), ioe );
             }
         }
     }

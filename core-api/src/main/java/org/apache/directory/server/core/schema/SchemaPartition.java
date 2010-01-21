@@ -50,6 +50,7 @@ import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.NullPartition;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.schema.registries.synchronizers.RegistrySynchronizerAdaptor;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
@@ -240,7 +241,7 @@ public final class SchemaPartition extends AbstractPartition
         }
         catch ( Exception e )
         {
-            LOG.error( "Failed to initialize wrapped partition.", e );
+            LOG.error( I18n.err( I18n.ERR_90 ), e );
             throw new RuntimeException( e );
         }
 
@@ -258,7 +259,7 @@ public final class SchemaPartition extends AbstractPartition
         }
         catch ( Exception e )
         {
-            LOG.error( "Attempt to destroy wrapped partition failed.", e );
+            LOG.error( I18n.err( I18n.ERR_91 ), e );
             throw new RuntimeException( e );
         }
     }

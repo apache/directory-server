@@ -44,6 +44,7 @@ import org.apache.directory.server.core.interceptor.context.UnbindOperationConte
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.avl.AvlPartition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -178,7 +179,7 @@ public class LdifPartition extends BTreePartition
         // of the workingDirectory followed by the suffix
         if ( ( suffix == null ) || ( suffix.isEmpty() ) )
         {
-            String msg = "Cannot initialize a partition without a valid suffix";
+            String msg = I18n.err( I18n.ERR_150 );
             LOG.error( msg );
             throw new InvalidNameException( msg );
         }
@@ -206,7 +207,7 @@ public class LdifPartition extends BTreePartition
             }
             catch ( SecurityException se )
             {
-                String msg = "The " + suffixDirectory.getAbsolutePath() + " can't be created : " + se.getMessage(); 
+                String msg = I18n.err( I18n.ERR_151, suffixDirectory.getAbsolutePath(), se.getLocalizedMessage() ); 
                 LOG.error( msg );
                 throw se;
             }

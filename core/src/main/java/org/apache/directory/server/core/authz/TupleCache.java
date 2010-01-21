@@ -37,6 +37,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.aci.ACITuple;
@@ -198,10 +199,7 @@ public class TupleCache
             }
             catch ( ParseException e )
             {
-                String msg = "ACIItem parser failure on \n'" + item + "'\ndue to syntax error. "
-                    + "Cannnot add ACITuples to TupleCache.\n"
-                    + "Check that the syntax of the ACI item is correct. \nUntil this error "
-                    + "is fixed your security settings will not be as expected.";
+                String msg = I18n.err( I18n.ERR_28, item );
                 LOG.error( msg, e );
 
                 // do not process this ACI Item because it will be null

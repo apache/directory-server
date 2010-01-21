@@ -48,6 +48,7 @@ import org.apache.directory.server.core.operational.OperationalAttributeIntercep
 import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -612,8 +613,8 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
         catch ( Exception cause )
         {
-            LOG.error( "Authentication error : " + cause.getMessage() );
-            LdapAuthenticationException e = new LdapAuthenticationException( cause.getMessage() );
+            LOG.error( I18n.err( I18n.ERR_6, cause.getLocalizedMessage() ) );
+            LdapAuthenticationException e = new LdapAuthenticationException( cause.getLocalizedMessage() );
             e.setRootCause( e );
             throw e;
         }
@@ -723,8 +724,8 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
         catch ( NoSuchAlgorithmException nsae )
         {
-            LOG.error( "Cannot create a digested password for algorithm '{}'", algorithm );
-            throw new IllegalArgumentException( nsae.getMessage() );
+            LOG.error( I18n.err( I18n.ERR_7, algorithm ) );
+            throw new IllegalArgumentException( nsae.getLocalizedMessage() );
         }
     }
 

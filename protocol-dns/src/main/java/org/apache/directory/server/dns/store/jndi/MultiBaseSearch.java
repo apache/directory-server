@@ -28,6 +28,7 @@ import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResponseCode;
 import org.apache.directory.server.dns.store.jndi.operations.GetRecords;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.server.protocol.shared.catalog.Catalog;
 import org.apache.directory.server.protocol.shared.catalog.GetCatalog;
@@ -70,8 +71,8 @@ public class MultiBaseSearch implements SearchStrategy
         }
         catch ( Exception e )
         {
-            LOG.error( e.getMessage(), e );
-            String message = "Failed to get catalog context " + catalogBaseDn;
+            LOG.error( e.getLocalizedMessage(), e );
+            String message = I18n.err( I18n.ERR_156, catalogBaseDn );
             throw new ServiceConfigurationException( message, e );
         }
     }
@@ -95,8 +96,8 @@ public class MultiBaseSearch implements SearchStrategy
         }
         catch ( NamingException ne )
         {
-            LOG.error( ne.getMessage(), ne );
-            String message = "Failed to get initial context " + question.getDomainName();
+            LOG.error( ne.getLocalizedMessage(), ne );
+            String message = I18n.err( I18n.ERR_157, question.getDomainName() );
             throw new ServiceConfigurationException( message, ne );
         }
         catch ( Exception e )

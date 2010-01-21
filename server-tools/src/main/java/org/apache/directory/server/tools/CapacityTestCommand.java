@@ -37,6 +37,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.directory.daemon.AvailablePortFinder;
+import org.apache.directory.server.i18n.I18n;
 
 
 /**
@@ -198,20 +199,18 @@ public class CapacityTestCommand extends ToolCommand
             }
             catch ( NumberFormatException e )
             {
-                System.err.println( "port value of '" + val + "' is not a number" );
+                System.err.println( I18n.err( I18n.ERR_193, val ) );
                 System.exit( 1 );
             }
 
             if ( port > AvailablePortFinder.MAX_PORT_NUMBER )
             {
-                System.err.println( "port value of '" + val + "' is larger than max port number: "
-                    + AvailablePortFinder.MAX_PORT_NUMBER );
+                System.err.println( I18n.err( I18n.ERR_194, val, AvailablePortFinder.MAX_PORT_NUMBER ) );
                 System.exit( 1 );
             }
             else if ( port < AvailablePortFinder.MIN_PORT_NUMBER )
             {
-                System.err.println( "port value of '" + val + "' is smaller than the minimum port number: "
-                    + AvailablePortFinder.MIN_PORT_NUMBER );
+                System.err.println( I18n.err( I18n.ERR_195, val, AvailablePortFinder.MIN_PORT_NUMBER ) );
                 System.exit( 1 );
             }
 

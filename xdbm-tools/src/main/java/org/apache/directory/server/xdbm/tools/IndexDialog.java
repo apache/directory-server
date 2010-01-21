@@ -48,6 +48,7 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.NotImplementedException;
@@ -391,8 +392,7 @@ public class IndexDialog<K,O> extends JDialog
                 msg = msg.substring( 0, 1024 ) + "\n. . . TRUNCATED . . .";
             }
 
-            msg = "Error while scanning index " + "on attribute " + index.getAttribute() + " using a " + scanType
-                + " cursor type with a key constraint of '" + key + "':\n" + msg;
+            msg = I18n.err( I18n.ERR_183, index.getAttribute(), scanType, key, msg );
 
             LOG.error( msg, e );
             JTextArea area = new JTextArea();

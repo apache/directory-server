@@ -23,6 +23,7 @@ package org.apache.directory.server.kerberos.shared.messages.value;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.messages.value.types.TransitedEncodingType;
 import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
@@ -202,7 +203,7 @@ public class TransitedEncoding extends AbstractAsn1Object
     {
         if ( buffer == null )
         {
-            throw new EncoderException( "Cannot put a PDU in a null buffer !" );
+            throw new EncoderException( I18n.err( I18n.ERR_148 ) );
         }
 
         try
@@ -223,10 +224,9 @@ public class TransitedEncoding extends AbstractAsn1Object
         }
         catch ( BufferOverflowException boe )
         {
-            log.error(
-                "Cannot encode the TransitedEncoding object, the PDU size is {} when only {} bytes has been allocated",
-                1 + TLV.getNbBytes( transitedEncodingLength ) + transitedEncodingLength, buffer.capacity() );
-            throw new EncoderException( "The PDU buffer size is too small !" );
+            log.error( I18n.err( I18n.ERR_147, 1 + TLV.getNbBytes( transitedEncodingLength )
+                + transitedEncodingLength, buffer.capacity() ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
         }
 
         if ( IS_DEBUG )

@@ -94,7 +94,7 @@ public class WrappedRuntimeException
      */
     public WrappedRuntimeException( Exception except )
     {
-        super( except == null || except.getMessage() == null ? "No message available" : except.getMessage() );
+        super( except == null || except.getLocalizedMessage() == null ? "No message available" : except.getLocalizedMessage() );
 
         if ( except instanceof WrappedRuntimeException &&
              ( (WrappedRuntimeException) except )._except != null )

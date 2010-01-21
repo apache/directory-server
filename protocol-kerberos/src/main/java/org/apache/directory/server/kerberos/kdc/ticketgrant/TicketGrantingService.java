@@ -28,6 +28,7 @@ import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.kdc.KdcContext;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.KerberosConstants;
@@ -160,7 +161,7 @@ public class TicketGrantingService
         catch ( Exception e )
         {
             // This is a monitor.  No exceptions should bubble up.
-            LOG.error( "Error in request monitor", e );
+            LOG.error( I18n.err( I18n.ERR_153 ), e );
         }
     }
     
@@ -484,7 +485,7 @@ public class TicketGrantingService
         catch ( Exception e )
         {
             // This is a monitor.  No exceptions should bubble up.
-            LOG.error( "Error in context monitor", e );
+            LOG.error( I18n.err( I18n.ERR_154 ), e );
         }
     }
 
@@ -520,7 +521,7 @@ public class TicketGrantingService
             catch ( Exception e )
             {
                 // This is a monitor.  No exceptions should bubble up.
-                LOG.error( "Error in reply monitor", e );
+                LOG.error( I18n.err( I18n.ERR_155 ), e );
             }
         }
     }

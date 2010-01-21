@@ -30,6 +30,7 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
 import org.apache.directory.shared.ldap.message.AbandonListener;
@@ -101,7 +102,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
         }
         catch ( NamingException e )
         {
-            LOG.error( "failed to properly abandon this persistent search", e );
+            LOG.error( I18n.err( I18n.ERR_164 ), e );
         }
     }
     

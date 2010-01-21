@@ -35,6 +35,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.directory.daemon.AvailablePortFinder;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.tlv.TLVStateEnum;
@@ -270,8 +271,7 @@ public class ImportCommand extends ToolCommand
         }
         else
         {
-            System.err.println( "Add of entry " + entry.getDn()
-                + " failed for the following reasons provided by the server:\n" + result.getErrorMessage() );
+            System.err.println( I18n.err( I18n.ERR_203, entry.getDn(), result.getErrorMessage() ) );
 
             return IMPORT_ERROR;
         }
@@ -330,8 +330,7 @@ public class ImportCommand extends ToolCommand
         }
         else
         {
-            System.err.println( "Delete of entry " + entry.getDn()
-                + " failed for the following reasons provided by the server:\n" + result.getErrorMessage() );
+            System.err.println( I18n.err( I18n.ERR_204, entry.getDn(), result.getErrorMessage() ) );
             return IMPORT_ERROR;
         }
     }
@@ -396,8 +395,7 @@ public class ImportCommand extends ToolCommand
         }
         else
         {
-            System.err.println( "ModifyDn of entry " + entry.getDn()
-                + " failed for the following reasons provided by the server:\n" + result.getErrorMessage() );
+            System.err.println( I18n.err( I18n.ERR_205, entry.getDn(), result.getErrorMessage() ) );
             return IMPORT_ERROR;
         }
     }
@@ -465,8 +463,7 @@ public class ImportCommand extends ToolCommand
         }
         else
         {
-            System.err.println( "Modify of entry " + entry.getDn()
-                + " failed for the following reasons provided by the server:\n" + result.getErrorMessage() );
+            System.err.println( I18n.err( I18n.ERR_206, entry.getDn(), result.getErrorMessage() ) );
             return IMPORT_ERROR;
         }
     }
@@ -553,8 +550,7 @@ public class ImportCommand extends ToolCommand
         }
         else
         {
-            System.err.println( "Binding of user " + user
-                + " failed for the following reasons provided by the server:\n" + result.getErrorMessage() );
+            System.err.println( I18n.err( I18n.ERR_207, user, result.getErrorMessage() ) );
             System.exit( 1 );
         }
     }
@@ -634,13 +630,13 @@ public class ImportCommand extends ToolCommand
                 if ( ldifReader.hasError() )
                 {
                     System.err
-                        .println( "Found an error while persing an entry : " + ldifReader.getError().getMessage() );
+                        .println( "Found an error while persing an entry : " + ldifReader.getError().getLocalizedMessage() );
 
                     if ( ignoreErrors == false )
                     {
                         unbind( messageId );
 
-                        System.err.println( "Import failed..." );
+                        System.err.println( I18n.err( I18n.ERR_208 ) );
                         System.exit( 1 );
                     }
                 }
@@ -649,7 +645,7 @@ public class ImportCommand extends ToolCommand
                 {
                     unbind( messageId );
 
-                    System.err.println( "Import failed..." );
+                    System.err.println( I18n.err( I18n.ERR_208 ) );
                     System.exit( 1 );
                 }
 
@@ -683,13 +679,13 @@ public class ImportCommand extends ToolCommand
                 if ( ldifReader.hasError() )
                 {
                     System.err
-                        .println( "Found an error while persing an entry : " + ldifReader.getError().getMessage() );
+                        .println( "Found an error while persing an entry : " + ldifReader.getError().getLocalizedMessage() );
 
                     if ( ignoreErrors == false )
                     {
                         unbind( messageId );
 
-                        System.err.println( "Import failed..." );
+                        System.err.println( I18n.err( I18n.ERR_208 ) );
                         System.exit( 1 );
                     }
                 }
@@ -698,7 +694,7 @@ public class ImportCommand extends ToolCommand
                 {
                     unbind( messageId );
 
-                    System.err.println( "Import failed..." );
+                    System.err.println( I18n.err( I18n.ERR_208 ) );
                     System.exit( 1 );
                 }
 
@@ -777,20 +773,18 @@ public class ImportCommand extends ToolCommand
             }
             catch ( NumberFormatException e )
             {
-                System.err.println( "port value of '" + val + "' is not a number" );
+                System.err.println( I18n.err( I18n.ERR_193, val ) );
                 System.exit( 1 );
             }
 
             if ( port > AvailablePortFinder.MAX_PORT_NUMBER )
             {
-                System.err.println( "port value of '" + val + "' is larger than max port number: "
-                    + AvailablePortFinder.MAX_PORT_NUMBER );
+                System.err.println( I18n.err( I18n.ERR_194, val, AvailablePortFinder.MAX_PORT_NUMBER ) );
                 System.exit( 1 );
             }
             else if ( port < AvailablePortFinder.MIN_PORT_NUMBER )
             {
-                System.err.println( "port value of '" + val + "' is smaller than the minimum port number: "
-                    + AvailablePortFinder.MIN_PORT_NUMBER );
+                System.err.println( I18n.err( I18n.ERR_195, val, AvailablePortFinder.MIN_PORT_NUMBER ) );
                 System.exit( 1 );
             }
 
@@ -897,13 +891,13 @@ public class ImportCommand extends ToolCommand
 
             if ( ldifFile.exists() == false )
             {
-                System.err.println( "ldif file '" + ldifFileName + "' does not exist" );
+                System.err.println( I18n.err( I18n.ERR_209, ldifFileName ) );
                 System.exit( 1 );
             }
 
             if ( ldifFile.canRead() == false )
             {
-                System.err.println( "ldif file '" + ldifFileName + "' can't be read" );
+                System.err.println( I18n.err( I18n.ERR_210, ldifFileName ) );
                 System.exit( 1 );
             }
 
@@ -921,7 +915,7 @@ public class ImportCommand extends ToolCommand
         }
         else
         {
-            System.err.println( "ldif file name must be provided" );
+            System.err.println( I18n.err( I18n.ERR_211 ) );
             System.exit( 1 );
         }
     }

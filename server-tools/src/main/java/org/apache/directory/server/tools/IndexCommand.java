@@ -36,6 +36,7 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmMasterTable;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.server.xdbm.tools.IndexUtils;
 import org.apache.directory.shared.ldap.cursor.Cursor;
@@ -116,7 +117,7 @@ public class IndexCommand extends ToolCommand
     {
         if ( !partitionDirectory.exists() )
         {
-            System.err.println( "Partition directory " + partitionDirectory + " does not exist!" );
+            System.err.println( I18n.err( I18n.ERR_196, partitionDirectory ) );
             System.exit( 1 );
         }
 

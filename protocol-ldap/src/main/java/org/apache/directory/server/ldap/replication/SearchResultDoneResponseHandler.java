@@ -20,6 +20,7 @@
 package org.apache.directory.server.ldap.replication;
 
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.codec.ControlCodec;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlCodec;
@@ -93,7 +94,7 @@ public class SearchResultDoneResponseHandler<T extends InternalSearchResponseDon
             }
             catch( Exception e )
             {
-                LOG.error( "Failed to send a search request with RefreshAndPersist mode", e );
+                LOG.error( I18n.err( I18n.ERR_170 ), e );
             }
         }
     }

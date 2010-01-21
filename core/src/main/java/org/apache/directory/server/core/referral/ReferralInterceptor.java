@@ -40,6 +40,7 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -98,35 +99,35 @@ public class ReferralInterceptor extends BaseInterceptor
             // This is the default value if we don't have any scope
             // Let's assume that it's incorrect if we get something
             // else in the LdapURL
-            String message = "An LDAPURL should not contains a scope";
+            String message = I18n.err( I18n.ERR_36 );
             LOG.error( message );
             throw new NamingException( message );
         }
 
         if ( !StringTools.isEmpty( ldapUrl.getFilter() ) )
         {
-            String message = "An LDAPURL should not contains filters";
+            String message = I18n.err( I18n.ERR_37 );
             LOG.error( message );
             throw new NamingException( message );
         }
 
         if ( ( ldapUrl.getAttributes() != null ) && ( ldapUrl.getAttributes().size() != 0 ) )
         {
-            String message = "An LDAPURL should not contains any description attribute list";
+            String message = I18n.err( I18n.ERR_38 );
             LOG.error( message );
             throw new NamingException( message );
         }
 
         if ( ( ldapUrl.getExtensions() != null ) && ( ldapUrl.getExtensions().size() != 0 ) )
         {
-            String message = "An LDAPURL should not contains any extension";
+            String message = I18n.err( I18n.ERR_39 );
             LOG.error( message );
             throw new NamingException( message );
         }
 
         if ( ( ldapUrl.getExtensions() != null ) && ( ldapUrl.getExtensions().size() != 0 ) )
         {
-            String message = "An LDAPURL should not contains any critical extension";
+            String message = I18n.err( I18n.ERR_40 );
             LOG.error( message );
             throw new NamingException( message );
         }
@@ -135,7 +136,7 @@ public class ReferralInterceptor extends BaseInterceptor
 
         if ( ( dn == null ) || dn.isEmpty() )
         {
-            String message = "An LDAPURL should contains a non-empty DN";
+            String message = I18n.err( I18n.ERR_41 );
             LOG.error( message );
             throw new NamingException( message );
         }
@@ -175,7 +176,7 @@ public class ReferralInterceptor extends BaseInterceptor
             if ( refAttr == null )
             {
                 // very unlikely, as we have already checked the entry in SchemaInterceptor
-                String message = "An entry with a 'referral' ObjectClass must contains a 'ref' Attribute";
+                String message = I18n.err( I18n.ERR_42 );
                 LOG.error( message );
                 throw new NamingException( message );
             }

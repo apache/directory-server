@@ -224,7 +224,7 @@ public class CacheRecordManager
                 _cache.put( id, new CacheEntry( recid, obj, serializer, true ) );
             }
         } catch ( CacheEvictionException except ) {
-            throw new IOException( except.getMessage() );
+            throw new IOException( except.getLocalizedMessage() );
         }
     }
 

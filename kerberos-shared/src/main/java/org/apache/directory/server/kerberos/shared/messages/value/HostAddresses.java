@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
@@ -236,10 +237,9 @@ public class HostAddresses extends AbstractAsn1Object
         }
         catch ( BufferOverflowException boe )
         {
-            LOG.error(
-                "Cannot encode the HostAddresses object, the PDU size is {} when only {} bytes has been allocated", 1
-                    + TLV.getNbBytes( addressesLength ) + addressesLength, buffer.capacity() );
-            throw new EncoderException( "The PDU buffer size is too small !" );
+            LOG.error( I18n.err( I18n.ERR_144, 1 + TLV.getNbBytes( addressesLength )
+                + addressesLength, buffer.capacity() ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
         }
 
         if ( IS_DEBUG )

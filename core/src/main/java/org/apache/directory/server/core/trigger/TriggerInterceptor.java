@@ -46,6 +46,7 @@ import org.apache.directory.server.core.sp.StoredProcEngineConfig;
 import org.apache.directory.server.core.sp.StoredProcExecutionManager;
 import org.apache.directory.server.core.sp.java.JavaStoredProcEngineConfig;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -177,7 +178,7 @@ public class TriggerInterceptor extends BaseInterceptor
             }
             catch ( ParseException e )
             {
-                String msg = "failed to parse entryTrigger: " + triggerString;
+                String msg = I18n.err( I18n.ERR_72, triggerString );
                 LOG.error( msg, e );
                 throw new LdapNamingException( msg, ResultCodeEnum.OPERATIONS_ERROR );
             }

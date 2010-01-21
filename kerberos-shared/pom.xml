@@ -36,6 +36,12 @@
   <packaging>jar</packaging>  
 
   <dependencies>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-i18n</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
     <!-- TODO remove dependency on JNDI core -->
     <dependency>
       <groupId>org.apache.directory.server</groupId>

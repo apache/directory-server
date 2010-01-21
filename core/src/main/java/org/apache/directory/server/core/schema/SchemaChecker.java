@@ -29,6 +29,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
@@ -685,8 +686,8 @@ public class SchemaChecker
 
         if ( idOid == null )
         {
-            log.error( "The id {} does not have any OID. It should be a wrong AttributeType.", id);
-            throw new NamingException( "Wrong AttributeType, does not have an associated OID : " + id );
+            log.error( I18n.err( I18n.ERR_43, id ) );
+            throw new NamingException( I18n.err( I18n.ERR_44, id ) );
         }
 
         String[] comps = NamespaceTools.getCompositeComponents( name.get( name.size() - 1 ) );
@@ -700,8 +701,8 @@ public class SchemaChecker
 
             if ( rdnAttrOid == null )
             {
-                log.error( "The id {} does not have any OID. It should be a wrong AttributeType.", rdnAttrOid);
-                throw new NamingException( "Wrong AttributeType, does not have an associated OID : " + rdnAttrOid );
+                log.error( I18n.err( I18n.ERR_44, rdnAttrOid ) );
+                throw new NamingException( I18n.err( I18n.ERR_45, rdnAttrOid ) );
             }
 
             if ( rdnAttrOid.equalsIgnoreCase( idOid ) )

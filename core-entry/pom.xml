@@ -35,6 +35,14 @@
 
   <packaging>jar</packaging>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-i18n</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+  </dependencies>
+
   <build>
     <plugins>
       <plugin>

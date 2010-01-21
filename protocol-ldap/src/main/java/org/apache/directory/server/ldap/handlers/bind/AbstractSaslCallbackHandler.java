@@ -256,7 +256,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
                 result.setResultCode( code );
             }
 
-            String msg = "Bind failed: " + e.getMessage();
+            String msg = "Bind failed: " + e.getLocalizedMessage();
 
             if ( LOG.isDebugEnabled() )
             {

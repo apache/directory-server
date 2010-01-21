@@ -33,6 +33,7 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -186,7 +187,7 @@ public class RegistrySynchronizerAdaptor
         {
             if ( opContext.getDn().size() != 3 )
             {
-                String msg = "Schema entity containers of objectClass organizationalUnit should be 3 name components in length.";
+                String msg = I18n.err( I18n.ERR_81 );
                 LOG.error( msg );
                 throw new LdapInvalidNameException( msg, ResultCodeEnum.NAMING_VIOLATION );
             }
@@ -196,14 +197,14 @@ public class RegistrySynchronizerAdaptor
             
             if ( ! VALID_OU_VALUES.contains( ouValue ) )
             {
-                String msg = "Expecting organizationalUnit with one of the following names: " + VALID_OU_VALUES;
+                String msg = I18n.err( I18n.ERR_82, VALID_OU_VALUES );
                 LOG.error( msg );
                 throw new LdapInvalidNameException( msg, ResultCodeEnum.NAMING_VIOLATION );
             }
         }
 
         
-        String msg = "Cannot add an entry on " + opContext.getDn();
+        String msg = I18n.err( I18n.ERR_83, opContext.getDn() );
         LOG.error( msg );
         throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
@@ -299,7 +300,7 @@ public class RegistrySynchronizerAdaptor
             return false;
         }
         
-        LOG.error( String.format( "Unwilling to perform modify on %s:\n\nEntry:\n%s\n\nModifications:\n%s", 
+        LOG.error( String.format( I18n.err( I18n.ERR_84 ), 
             opContext.getDn(), entry, opContext.getModItems() ) );
         throw new LdapOperationNotSupportedException( ResultCodeEnum.UNWILLING_TO_PERFORM );
     }

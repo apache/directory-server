@@ -74,6 +74,7 @@ import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -268,7 +269,7 @@ public class DefaultDirectoryService implements DirectoryService
                 }
                 catch ( Exception e )
                 {
-                    LOG.error( "SynchWorker failed to synch directory.", e );
+                    LOG.error( I18n.err( I18n.ERR_74 ), e );
                 }
             }
         }
@@ -844,17 +845,15 @@ public class DefaultDirectoryService implements DirectoryService
                             break;
                             
                         default:
-                            LOG.error( "ChangeType unknown" );
-                            throw new NotImplementedException( "Reverts of change type " + reverse.getChangeType()
-                                    + " has not yet been implemented!");
+                            LOG.error( I18n.err( I18n.ERR_75 ) );
+                            throw new NotImplementedException( I18n.err( I18n.ERR_76, reverse.getChangeType() ) );
                     }
                 }
             }
         }
         catch ( IOException e )
         {
-            String message = "Encountered a failure while trying to revert to a previous revision: "
-                + revision;
+            String message = I18n.err( I18n.ERR_77, revision );
             LOG.error( message );
             throw new NamingException( message );
         }
@@ -1566,7 +1565,7 @@ public class DefaultDirectoryService implements DirectoryService
         }
         catch ( Exception e )
         {
-            LOG.error( "Cannot build an entry for '{}' and this DN :'{}'", ldif, dn );
+            LOG.error( I18n.err( I18n.ERR_78, ldif, dn ) );
             // do nothing
             return null;
         }
@@ -1671,7 +1670,7 @@ public class DefaultDirectoryService implements DirectoryService
     {
         if ( ( replicaId < 0 ) || ( replicaId > 999 ) )
         {
-            LOG.error( "The replicaId must be in [0, 999]" );
+            LOG.error( I18n.err( I18n.ERR_79 ) );
             this.replicaId = 0;
         }
         else

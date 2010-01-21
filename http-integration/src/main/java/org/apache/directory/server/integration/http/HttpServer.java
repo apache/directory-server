@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.server.i18n.I18n;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
@@ -99,7 +100,7 @@ public class HttpServer
             }
             catch ( Exception e )
             {
-                LOG.error( "Failed to configure the jetty http server" );
+                LOG.error( I18n.err( I18n.ERR_120 ) );
                 throw e;
             }
         }
@@ -150,7 +151,7 @@ public class HttpServer
         }
         catch ( Exception e )
         {
-            LOG.error( "Failed to configure the web application(s)", e );
+            LOG.error( I18n.err( I18n.ERR_121 ), e );
         }
 
     }

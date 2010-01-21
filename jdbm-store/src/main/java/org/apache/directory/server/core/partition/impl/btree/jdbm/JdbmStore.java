@@ -40,6 +40,7 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -429,8 +430,7 @@ public class JdbmStore<E> implements Store<E>
                 }
                 else
                 {
-                    LOG.error( "Cannot build an index for attribute '{}', no EQUALITY MatchingRule defined",
-                        attributeType.getName() );
+                    LOG.error( I18n.err( I18n.ERR_123, attributeType.getName() ) );
                 }
             }
             
@@ -472,7 +472,7 @@ public class JdbmStore<E> implements Store<E>
             }
             catch ( Throwable t )
             {
-                LOG.error( "Failed to close an index.", t );
+                LOG.error( I18n.err( I18n.ERR_124 ), t );
                 errors.addThrowable( t );
             }
         }
@@ -480,11 +480,11 @@ public class JdbmStore<E> implements Store<E>
         try
         {
             master.close();
-            LOG.debug( "Closed master table for {} partition.", suffixDn );
+            LOG.debug( I18n.err( I18n.ERR_125, suffixDn ) );
         }
         catch ( Throwable t )
         {
-            LOG.error( "Failed to close the master.", t );
+            LOG.error( I18n.err( I18n.ERR_126 ), t );
             errors.addThrowable( t );
         }
 
@@ -495,7 +495,7 @@ public class JdbmStore<E> implements Store<E>
         }
         catch ( Throwable t )
         {
-            LOG.error( "Failed to close the record manager", t );
+            LOG.error( I18n.err( I18n.ERR_127 ), t );
             errors.addThrowable( t );
         }
 
@@ -855,8 +855,9 @@ public class JdbmStore<E> implements Store<E>
         }
         catch ( NamingException e )
         {
-            LOG.error( "Failed to identify OID for: " + id, e );
-            throw new IndexNotFoundException( "Failed to identify OID for: " + id, id, e );
+            String msg = I18n.err( I18n.ERR_128, id );
+            LOG.error( msg, e );
+            throw new IndexNotFoundException( msg, id, e );
         }
 
         if ( userIndices.containsKey( id ) )
@@ -864,8 +865,7 @@ public class JdbmStore<E> implements Store<E>
             return userIndices.get( id );
         }
 
-        throw new IndexNotFoundException( "A user index on attribute " + id + " ("
-            + name + ") does not exist!" );
+        throw new IndexNotFoundException( I18n.err( I18n.ERR_129, id, name ) );
     }
 
 
@@ -877,8 +877,9 @@ public class JdbmStore<E> implements Store<E>
         }
         catch ( NamingException e )
         {
-            LOG.error( "Failed to identify OID for: " + id, e );
-            throw new IndexNotFoundException( "Failed to identify OID for: " + id, id, e );
+            String msg = I18n.err( I18n.ERR_128, id );
+            LOG.error( msg, e );
+            throw new IndexNotFoundException( msg, id, e );
         }
 
         if ( systemIndices.containsKey( id ) )
@@ -886,8 +887,7 @@ public class JdbmStore<E> implements Store<E>
             return systemIndices.get( id );
         }
 
-        throw new IndexNotFoundException( "A system index on attribute " + id + " ("
-            + name + ") does not exist!" );
+        throw new IndexNotFoundException( I18n.err( I18n.ERR_130, id, name ) );
     }
 
 

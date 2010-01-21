@@ -23,6 +23,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.io.encoder.EncryptionKeyEncoder;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
@@ -137,8 +138,7 @@ public class StoreUtils
                 
                 while ( cursor.next() )
                 {
-                    LOG.error( "More than one server entry found for kerberos principal name {}: ", 
-                        principal, cursor.next() );
+                    LOG.error( I18n.err( I18n.ERR_149, principal, cursor.next() ) );
                 }
                 
                 return entry;

@@ -38,6 +38,7 @@ import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.server.core.event.NotificationCriteria;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
@@ -187,8 +188,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
                 if ( hasRootDSE )
                 {
                     // This is an error ! We should never find more than one rootDSE !
-                    LOG.error( "Got back more than one entry for search on RootDSE which means " +
-                            "Cursor is not functioning properly!" );
+                    LOG.error( I18n.err( I18n.ERR_167 ) );
                 }
                 else
                 {
@@ -212,7 +212,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
                 }
                 catch ( NamingException e )
                 {
-                    LOG.error( "failed on list.close()", e );
+                    LOG.error( I18n.err( I18n.ERR_168 ), e );
                 }
             }
         }
@@ -577,7 +577,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
                     }
                     catch ( NamingException e )
                     {
-                        LOG.error( "failed on list.close()", e );
+                        LOG.error( I18n.err( I18n.ERR_168 ), e );
                     }
                 }
                 
@@ -670,7 +670,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
                 }
                 catch ( NamingException ne )
                 {
-                    LOG.error( "failed on list.close()", ne );
+                    LOG.error( I18n.err( I18n.ERR_168 ), ne );
                 }
             }
         }
@@ -742,7 +742,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
                 }
                 catch ( NamingException e )
                 {
-                    LOG.error( "failed on list.close()", e );
+                    LOG.error( I18n.err( I18n.ERR_168 ), e );
                 }
             }
         }
@@ -792,7 +792,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
                 }
                 catch ( LdapURLEncodingException e )
                 {
-                    LOG.error( "Bad URL ({}) for ref in {}.  Reference will be ignored.", url, entry );
+                    LOG.error( I18n.err( I18n.ERR_165, url, entry ) );
                 }
 
                 switch( req.getScope() )
@@ -1175,7 +1175,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
             }
             catch ( LdapURLEncodingException e )
             {
-                LOG.error( "Bad URL ({}) for ref in {}.  Reference will be ignored.", refstr, entry );
+                LOG.error( I18n.err( I18n.ERR_165, refstr, entry ) );
                 continue;
             }
             

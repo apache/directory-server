@@ -108,7 +108,7 @@ public final class RecordManagerFactory
             throw new IllegalArgumentException( "Invalid record manager provider: "
                                                 + provider
                                                 + "\n[" + except.getClass().getName()
-                                                + ": " + except.getMessage()
+                                                + ": " + except.getLocalizedMessage()
                                                 + "]" );
         }
         return factory.createRecordManager( name, options );

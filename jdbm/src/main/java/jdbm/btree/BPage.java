@@ -985,7 +985,7 @@ public final class BPage
                 }
             }
         } catch ( ClassNotFoundException except ) {
-            throw new IOException( except.getMessage() );
+            throw new IOException( except.getLocalizedMessage() );
         }
         
         if ( bpage._isLeaf ) {
@@ -1002,7 +1002,7 @@ public final class BPage
                     }
                 }
             } catch ( ClassNotFoundException except ) {
-                throw new IOException( except.getMessage() );
+                throw new IOException( except.getLocalizedMessage() );
             }
         } else {
             bpage._children = new long[ _btree._pageSize ];

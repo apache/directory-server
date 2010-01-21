@@ -25,6 +25,7 @@ import java.io.ObjectOutput;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
@@ -103,7 +104,7 @@ public class ServerModification implements Modification
         catch ( NamingException ne )
         {
             // The attributeType is incorrect. Log, but do nothing otherwise.
-            LOG.error( "The attribute '" + modAttribute.getId() + "' is incorrect" );
+            LOG.error( I18n.err( I18n.ERR_111, modAttribute.getId() ) );
         }
     }
     

@@ -53,6 +53,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
@@ -416,8 +417,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
         if ( operation.getSession().isAnonymous() && !directoryService.isAllowAnonymousAccess() 
             && !operation.getDn().isEmpty() )
         {
-            LOG.error( "Attempted operation {} by unauthenticated caller.", operation.getName() );
-            throw new LdapNoPermissionException( "Attempted operation by unauthenticated caller." );
+            LOG.error( I18n.err( I18n.ERR_5, operation.getName() ) );
+            throw new LdapNoPermissionException( I18n.err( I18n.ERR_5, operation.getName() ) );
         }
     }
 

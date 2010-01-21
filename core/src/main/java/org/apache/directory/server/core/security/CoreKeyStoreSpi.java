@@ -42,6 +42,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.SingletonEnumeration;
@@ -141,7 +142,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
             }
             catch ( Exception e )
             {
-                LOG.error( "Failed to access certificate in DIT.", e );
+                LOG.error( I18n.err( I18n.ERR_65 ), e );
             }
         }
         
@@ -177,7 +178,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
         }
         catch ( Exception e )
         {
-            LOG.error( "Failed on attempt to compare certificate bytes to determine alias.", e );
+            LOG.error( I18n.err( I18n.ERR_66 ), e );
         }
         
         return null;
@@ -199,7 +200,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
         }
         catch ( Exception e )
         {
-            LOG.error( "Failed on attempt to compare certificate bytes to determine alias.", e );
+            LOG.error( I18n.err( I18n.ERR_67 ), e );
         }
         
         return new Certificate[0];
@@ -233,7 +234,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
         }
         catch ( Exception e )
         {
-            LOG.error( "Failed on attempt to extract key.", e );
+            LOG.error( I18n.err( I18n.ERR_68 ), e );
         }
         
         return null;

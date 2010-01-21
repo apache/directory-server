@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
 import org.apache.directory.shared.ldap.message.InternalAbandonableRequest;
 import org.apache.directory.shared.ldap.message.BindStatus;
@@ -408,7 +409,7 @@ public class LdapSession
                     }
                     catch ( Exception e )
                     {
-                        LOG.error( "Failing on cursor close : {}", e.getMessage() );
+                        LOG.error( I18n.err( I18n.ERR_172, e.getLocalizedMessage() ) );
                     }
                 }
             }

@@ -30,6 +30,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.directory.daemon.AvailablePortFinder;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.message.extended.GracefulShutdownRequest;
 
 
@@ -115,7 +116,7 @@ public class GracefulShutdownCommand extends ToolCommand
             {
                 new InitialLdapContext( env, null );
                 isSuccess = false;
-                System.err.print( "shutdown request failed with error: " + t.getMessage() );
+                System.err.print( "shutdown request failed with error: " + t.getLocalizedMessage() );
             }
             catch ( CommunicationException e )
             {
@@ -198,20 +199,18 @@ public class GracefulShutdownCommand extends ToolCommand
             }
             catch ( NumberFormatException e )
             {
-                System.err.println( "port value of '" + val + "' is not a number" );
+                System.err.println( I18n.err( I18n.ERR_193, val ) );
                 System.exit( 1 );
             }
 
             if ( port > AvailablePortFinder.MAX_PORT_NUMBER )
             {
-                System.err.println( "port value of '" + val + "' is larger than max port number: "
-                    + AvailablePortFinder.MAX_PORT_NUMBER );
+                System.err.println( I18n.err( I18n.ERR_194, val, AvailablePortFinder.MAX_PORT_NUMBER ) );
                 System.exit( 1 );
             }
             else if ( port < AvailablePortFinder.MIN_PORT_NUMBER )
             {
-                System.err.println( "port value of '" + val + "' is smaller than the minimum port number: "
-                    + AvailablePortFinder.MIN_PORT_NUMBER );
+                System.err.println( I18n.err( I18n.ERR_195, val, AvailablePortFinder.MIN_PORT_NUMBER ) );
                 System.exit( 1 );
             }
 
@@ -283,19 +282,18 @@ public class GracefulShutdownCommand extends ToolCommand
             }
             catch ( NumberFormatException e )
             {
-                System.err.println( "delay value of '" + val + "' is not a number" );
+                System.err.println( I18n.err( I18n.ERR_197, val ) );
                 System.exit( 1 );
             }
 
             if ( delay > DELAY_MAX )
             {
-                System.err.println( "delay value of '" + val + "' is larger than max delay (seconds) allowed: "
-                    + DELAY_MAX );
+                System.err.println( I18n.err( I18n.ERR_198, val, DELAY_MAX ) );
                 System.exit( 1 );
             }
             else if ( delay < 0 )
             {
-                System.err.println( "delay value of '" + val + "' is less than zero and makes no sense" );
+                System.err.println( I18n.err( I18n.ERR_199, val ) );
                 System.exit( 1 );
             }
 
@@ -322,19 +320,18 @@ public class GracefulShutdownCommand extends ToolCommand
             }
             catch ( NumberFormatException e )
             {
-                System.err.println( "timeOffline value of '" + val + "' is not a number" );
+                System.err.println( I18n.err( I18n.ERR_200, val ) );
                 System.exit( 1 );
             }
 
             if ( timeOffline > TIME_OFFLINE_MAX )
             {
-                System.err.println( "timeOffline value of '" + val
-                    + "' is larger than max timeOffline (minutes) allowed: " + TIME_OFFLINE_MAX );
+                System.err.println( I18n.err( I18n.ERR_201, val, TIME_OFFLINE_MAX ) );
                 System.exit( 1 );
             }
             else if ( timeOffline < 0 )
             {
-                System.err.println( "timeOffline value of '" + val + "' is less than zero and makes no sense" );
+                System.err.println( I18n.err( I18n.ERR_202, val ) );
                 System.exit( 1 );
             }
 

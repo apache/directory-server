@@ -20,6 +20,7 @@
 package org.apache.directory.server.ldap.handlers;
 
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.InternalUnbindRequest;
 
@@ -51,7 +52,7 @@ public class UnbindHandler extends LdapRequestHandler<InternalUnbindRequest>
         }
         catch ( Throwable t )
         {
-            LOG.error( "failed to unbind session properly", t );
+            LOG.error( I18n.err( I18n.ERR_169 ), t );
         }
     }
 }

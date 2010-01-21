@@ -57,6 +57,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -1038,7 +1039,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
             catch ( Exception e )
             {
-                String msg = "failed to parse the new subtreeSpecification";
+                String msg = I18n.err( I18n.ERR_71 );
                 LOG.error( msg, e );
                 throw new LdapInvalidAttributeValueException( msg, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
             }

@@ -95,6 +95,7 @@ import java.util.List;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.KerberosUtils;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PrincipalNameType;
 import org.apache.directory.shared.asn1.AbstractAsn1Object;
@@ -423,10 +424,9 @@ public class PrincipalName extends AbstractAsn1Object
         }
         catch ( BufferOverflowException boe )
         {
-            LOG.error(
-                "Cannot encode the principalName object, the PDU size is {} when only {} bytes has been allocated", 1
-                    + TLV.getNbBytes( principalNameSeqLength ) + principalNameSeqLength, buffer.capacity() );
-            throw new EncoderException( "The PDU buffer size is too small !" );
+            LOG.error( I18n.err( I18n.ERR_146, 1 + TLV.getNbBytes( principalNameSeqLength )
+                + principalNameSeqLength, buffer.capacity() ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
         }
 
         if ( IS_DEBUG )

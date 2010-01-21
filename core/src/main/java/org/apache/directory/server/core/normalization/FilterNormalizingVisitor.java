@@ -156,7 +156,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
         }
         catch ( NamingException ne )
         {
-            log.warn( "Failed to normalize filter value: {}", ne.getMessage(), ne );
+            log.warn( "Failed to normalize filter value: {}", ne.getLocalizedMessage(), ne );
             return null;
         }
     }

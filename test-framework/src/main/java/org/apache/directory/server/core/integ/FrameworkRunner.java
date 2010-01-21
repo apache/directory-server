@@ -30,6 +30,7 @@ import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.factory.DirectoryServiceFactory;
 import org.apache.directory.server.factory.ServerAnnotationProcessor;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.transport.Transport;
@@ -247,8 +248,8 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
         }
         catch ( Exception e )
         {
-            LOG.error( "Failed to run the class {}", getTestClass().getName() );
-            LOG.error( e.getMessage() );
+            LOG.error( I18n.err( I18n.ERR_181, getTestClass().getName() ) );
+            LOG.error( e.getLocalizedMessage() );
             e.printStackTrace();
         }
     }
@@ -379,7 +380,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
         }
         catch ( Exception e )
         {
-            LOG.error( "Failed to run the method {}", method );
+            LOG.error( I18n.err( I18n.ERR_182, method ) );
             LOG.error( "", e );
             e.printStackTrace();
         }

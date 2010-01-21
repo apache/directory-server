@@ -93,7 +93,7 @@ class JavaLdapSupport
         catch ( Exception e )
         {
             NamingException ne = new NamingException( "De-serialization of '" + className + "' instance failed:\n"
-                + e.getMessage() );
+                + e.getLocalizedMessage() );
             ne.setRootCause( e );
             throw ne;
         }
@@ -135,7 +135,7 @@ class JavaLdapSupport
         }
         catch ( Exception e )
         {
-            NamingException ne = new NamingException( "Serialization of '" + obj + "' failed:\n" + e.getMessage() );
+            NamingException ne = new NamingException( "Serialization of '" + obj + "' failed:\n" + e.getLocalizedMessage() );
             ne.setRootCause( e );
             throw ne;
         }

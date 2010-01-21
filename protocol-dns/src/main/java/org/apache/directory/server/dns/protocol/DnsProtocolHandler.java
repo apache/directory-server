@@ -132,7 +132,7 @@ public class DnsProtocolHandler implements IoHandler
         }
         catch ( Exception e )
         {
-            LOG.error( e.getMessage(), e );
+            LOG.error( e.getLocalizedMessage(), e );
 
             DnsMessage request = ( DnsMessage ) message;
             DnsException de = ( DnsException ) e;

@@ -102,7 +102,7 @@ public class SimpleMechanismHandler implements MechanismHandler
                 result.setResultCode( code );
             }
 
-            String msg = "Bind failed: " + e.getMessage();
+            String msg = "Bind failed: " + e.getLocalizedMessage();
 
             if ( LOG.isDebugEnabled() )
             {

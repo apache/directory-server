@@ -66,6 +66,7 @@ import org.apache.directory.server.core.interceptor.context.RemoveContextPartiti
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.MultiException;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
@@ -198,7 +199,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         }
         catch ( IOException e )
         {
-            LOG.error( "failed to LOG version properties" );
+            LOG.error( I18n.err( I18n.ERR_33 ) );
         }
 
         rootDSE.put( SchemaConstants.VENDOR_VERSION_AT, props.getProperty( "apacheds.version", "UNKNOWN" ) );
@@ -923,7 +924,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         
         if ( partition == null )
         {
-            String msg = "No partition with suffix: " + key;
+            String msg = I18n.err( I18n.ERR_34, key );
             LOG.error( msg );
             throw new NameNotFoundException( msg );
         }
@@ -942,8 +943,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
             }
             else
             {
-                String msg = "No partition with suffix '" + key + 
-                                    "' can be found in the NamingContexts";
+                String msg = I18n.err( I18n.ERR_35, key );
                 LOG.error( msg );
                 throw new NameNotFoundException( msg );
             }

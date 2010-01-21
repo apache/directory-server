@@ -57,6 +57,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
@@ -534,7 +535,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 }
                 catch ( UnsupportedEncodingException uee )
                 {
-                    String message = "The value stored in an Human Readable attribute as a byte[] should be convertible to a String";
+                    String message = I18n.err( I18n.ERR_47 );
                     LOG.error( message );
                     throw new NamingException( message );
                 }
@@ -550,7 +551,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 }
                 catch ( UnsupportedEncodingException uee )
                 {
-                    String message = "The value stored in a non Human Readable attribute as a String should be convertible to a byte[]";
+                    String message = I18n.err( I18n.ERR_48 );
                     LOG.error( message );
                     throw new NamingException( message );
                 }
@@ -570,7 +571,7 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         if ( filter == null )
         {
-            String message = "A filter should not be null";
+            String message = I18n.err( I18n.ERR_49 );
             LOG.error( message );
             throw new NamingException( message );
         }
@@ -595,7 +596,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
                 if ( !schemaManager.lookupAttributeTypeRegistry( node.getAttribute() ).getSyntax().isHumanReadable() )
                 {
-                    String message = "A Substring filter should be used only on Human Readable attributes";
+                    String message = I18n.err( I18n.ERR_50 );
                     LOG.error( message );
                     throw new NamingException( message );
                 }
@@ -635,7 +636,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
                 if ( !schemaManager.lookupAttributeTypeRegistry( node.getAttribute() ).getSyntax().isHumanReadable() )
                 {
-                    String message = "A Extensible filter should be used only on Human Readable attributes";
+                    String message = I18n.err( I18n.ERR_51 );
                     LOG.error( message );
                     throw new NamingException( message );
                 }
@@ -1205,7 +1206,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 if ( !attributeType.equals( MODIFIERS_NAME_ATTRIBUTE_TYPE ) &&
                      !attributeType.equals( MODIFY_TIMESTAMP_ATTRIBUTE_TYPE ) )
                 {
-                    String msg = "Cannot modify the attribute : " + attributeType;
+                    String msg = I18n.err( I18n.ERR_52, attributeType );
                     LOG.error( msg );
                     throw new NoPermissionException( msg );
                 }
@@ -1218,7 +1219,7 @@ public class SchemaInterceptor extends BaseInterceptor
                     if ( !attribute.isValid() )
                     {
                         // The value syntax is incorrect : this is an error
-                        String msg = "The new Attribute or one of its value is incorrect : " + attributeType;
+                        String msg = I18n.err( I18n.ERR_53, attributeType );
                         LOG.error( msg );
                         throw new LdapInvalidAttributeValueException( msg, 
                             ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
@@ -1238,8 +1239,7 @@ public class SchemaInterceptor extends BaseInterceptor
                             if ( currentAttribute.contains( value ))
                             {
                                 // This is an error. 
-                                String msg = "Cannot add a value which is already present : " +
-                                    value;
+                                String msg = I18n.err( I18n.ERR_54, value );
                                 LOG.error( msg );
                                 throw new LdapAttributeInUseException( msg );
                             }
@@ -1263,7 +1263,7 @@ public class SchemaInterceptor extends BaseInterceptor
                     // First check that the removed attribute exists
                     if ( !tempEntry.containsAttribute( attributeType ) )
                     {
-                        String msg = "Trying to remove an non-existant attribute: " + attributeType;
+                        String msg = I18n.err( I18n.ERR_55, attributeType );
                         LOG.error( msg );
                         throw new LdapNoSuchAttributeException( msg );
                     }
@@ -1288,7 +1288,7 @@ public class SchemaInterceptor extends BaseInterceptor
                             }
                             else
                             {
-                                String msg = "Cannot remove an absent value from attribute : " + attributeType;
+                                String msg = I18n.err( I18n.ERR_56, attributeType );
                                 LOG.error( msg );
                                 throw new LdapNoSuchAttributeException( msg );
                             }
@@ -1640,7 +1640,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         case ABSTRACT :
                             if ( !superior.isAbstract() )
                             {
-                                String message = "An ABSTRACT ObjectClass cannot inherit from an objectClass which is not ABSTRACT";
+                                String message = I18n.err( I18n.ERR_57 );
                                 LOG.error( message );
                                 throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
                             }
@@ -1650,7 +1650,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         case AUXILIARY :
                             if ( !superior.isAbstract() && ! superior.isAuxiliary() )
                             {
-                                String message = "An AUXILiARY ObjectClass cannot inherit from an objectClass which is not ABSTRACT or AUXILIARY";
+                                String message = I18n.err( I18n.ERR_58 );
                                 LOG.error( message );
                                 throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
                             }
@@ -1664,7 +1664,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 catch ( NamingException ne )
                 {
                     // The superior OC does not exist : this is an error
-                    String message = "Cannot have a superior which does not exist";
+                    String message = I18n.err( I18n.ERR_59 );
                     LOG.error( message );
                     throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
                 }
@@ -1863,7 +1863,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         if ( structuralObjectClasses.isEmpty() )
         {
-            String message = "Entry " + dn + " does not contain a STRUCTURAL ObjectClass";
+            String message = I18n.err( I18n.ERR_60, dn );
             LOG.error( message );
             throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
@@ -1895,7 +1895,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Like the highlander there can only be one :).
         if ( remaining.size() > 1 )
         {
-            String message = "Entry " + dn + " contains more than one STRUCTURAL ObjectClass: " + remaining;
+            String message = I18n.err( I18n.ERR_61, dn, remaining );
             LOG.error( message );
             throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
@@ -1948,7 +1948,7 @@ public class SchemaInterceptor extends BaseInterceptor
             
             if ( ( attribute == null ) || ( !attribute.contains( atav.getNormValue() ) ) )
             {
-                String message = "Entry " + dn + " does not have the " + atav.getUpType() + " attributeType, which is part of the RDN";
+                String message = I18n.err( I18n.ERR_62, dn, atav.getUpType() );
                 LOG.error( message );
                 throw new LdapSchemaViolationException( message, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
             }
@@ -2028,14 +2028,14 @@ public class SchemaInterceptor extends BaseInterceptor
                 }
                 catch ( UnsupportedEncodingException uee )
                 {
-                    String message = "The value stored in a not Human Readable attribute as a String should be convertible to a byte[]";
+                    String message = I18n.err( I18n.ERR_63 );
                     LOG.error( message );
                     throw new NamingException( message );
                 }
             }
             else
             {
-                String message = "The value is not valid. It should be a String or a byte[]";
+                String message = I18n.err( I18n.ERR_64 );
                 LOG.error( message );
                 throw new NamingException( message );
             }

@@ -37,6 +37,7 @@ import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -574,7 +575,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         if ( schema == null )
         {
             // This is not possible. We can't enable a schema which is not loaded.
-            String msg = "Unwilling to enable a not loaded schema: " + schemaName;
+            String msg = I18n.err( I18n.ERR_85, schemaName );
             LOG.error( msg );
             throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
         }

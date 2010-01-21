@@ -623,7 +623,7 @@ public class PartitionFrame extends JFrame
         {
             e.printStackTrace();
             JTextArea text = new JTextArea();
-            String msg = e.getMessage();
+            String msg = e.getLocalizedMessage();
 
             if ( msg.length() > 1024 )
             {
@@ -764,7 +764,7 @@ public class PartitionFrame extends JFrame
         catch ( Exception e )
         {
             JTextArea text = new JTextArea();
-            String msg = e.getMessage();
+            String msg = e.getLocalizedMessage();
 
             if ( msg.length() > 1024 )
             {

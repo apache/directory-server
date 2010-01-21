@@ -36,6 +36,7 @@ import org.apache.directory.server.changepw.messages.ChangePasswordReplyModifier
 import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.changepw.value.ChangePasswordData;
 import org.apache.directory.server.changepw.value.ChangePasswordDataModifier;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.KerberosUtils;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
@@ -144,7 +145,7 @@ public class ChangePasswordService
         catch ( Exception e )
         {
             // This is a monitor.  No exceptions should bubble up.
-            LOG.error( "Error in request monitor", e );
+            LOG.error( I18n.err( I18n.ERR_152 ), e );
         }
     }
     
@@ -341,7 +342,7 @@ public class ChangePasswordService
         catch ( Exception e )
         {
             // This is a monitor.  No exceptions should bubble up.
-            LOG.error( "Error in context monitor", e );
+            LOG.error( I18n.err( I18n.ERR_154 ), e );
         }
     }
     
@@ -429,7 +430,7 @@ public class ChangePasswordService
         catch ( Exception e )
         {
             // This is a monitor.  No exceptions should bubble up.
-            LOG.error( "Error in reply monitor", e );
+            LOG.error( I18n.err( I18n.ERR_155 ), e );
         }
     }
 }

@@ -37,6 +37,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.cli.UnrecognizedOptionException;
+import org.apache.directory.server.i18n.I18n;
 
 
 /**
@@ -145,31 +146,27 @@ public class BaseCommand
         }
         catch ( AlreadySelectedException ase )
         {
-            System.err.println( "Command line parsing failed for " + command + ".  Reason: already selected "
-                + ase.getMessage() );
+            System.err.println( I18n.err( I18n.ERR_187, command, ase.getLocalizedMessage() ) );
             System.exit( 1 );
         }
         catch ( MissingArgumentException mae )
         {
-            System.err.println( "Command line parsing failed for " + command + ".  Reason: missing argument "
-                + mae.getMessage() );
+            System.err.println( I18n.err( I18n.ERR_188, command, mae.getLocalizedMessage() ) );
             System.exit( 1 );
         }
         catch ( MissingOptionException moe )
         {
-            System.err.println( "Command line parsing failed for " + command + ".  Reason: missing option "
-                + moe.getMessage() );
+            System.err.println( I18n.err( I18n.ERR_189, command, moe.getLocalizedMessage() ) );
             System.exit( 1 );
         }
         catch ( UnrecognizedOptionException uoe )
         {
-            System.err.println( "Command line parsing failed for " + command + ".  Reason: unrecognized option"
-                + uoe.getMessage() );
+            System.err.println( I18n.err( I18n.ERR_190, command, uoe.getLocalizedMessage() ) );
             System.exit( 1 );
         }
         catch ( ParseException pe )
         {
-            System.err.println( "Command line parsing failed for " + command + ".  Reason: " + pe.getClass() );
+            System.err.println( I18n.err( I18n.ERR_191, command, pe.getClass() ) );
             System.exit( 1 );
         }
 
@@ -236,7 +233,7 @@ public class BaseCommand
         }
         else
         {
-            System.err.println( command + ": unknown command" );
+            System.err.println( I18n.err( I18n.ERR_192, command ) );
             System.exit( 1 );
         }
     }

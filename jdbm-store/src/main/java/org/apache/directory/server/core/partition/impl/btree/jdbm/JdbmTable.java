@@ -33,6 +33,7 @@ import org.apache.directory.server.core.avltree.ArrayMarshaller;
 import org.apache.directory.server.core.avltree.ArrayTree;
 import org.apache.directory.server.core.avltree.ArrayTreeCursor;
 import org.apache.directory.server.core.avltree.Marshaller;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Table;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
@@ -684,7 +685,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
         catch ( Exception e )
         {
-            LOG.error( "Error while adding " + key + " on table " + name, e );
+            LOG.error( I18n.err( I18n.ERR_131, key, name ), e );
             throw e;
         }
     }
@@ -795,7 +796,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
         catch ( Exception e )
         {
-            LOG.error( "Error while adding " + key + ", " + value + " on table " + name, e );
+            LOG.error( I18n.err( I18n.ERR_132, key, value, name ), e );
         }
     }
 
@@ -870,7 +871,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
         catch ( Exception e )
         {
-            LOG.error(  "Exception while removing " + key + " from index " + name, e );
+            LOG.error( I18n.err( I18n.ERR_133, key, name ), e );
             
             if ( e instanceof IOException )
             {

@@ -37,7 +37,7 @@ public class JndiUtils
             throw ( NamingException ) t;
         }
         
-        NamingException ne = new NamingException( t.getMessage() );
+        NamingException ne = new NamingException( t.getLocalizedMessage() );
         ne.setRootCause( t );
         throw ne;
     }

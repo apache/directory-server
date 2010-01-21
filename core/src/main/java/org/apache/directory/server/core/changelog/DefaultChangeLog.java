@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +97,7 @@ public class DefaultChangeLog implements ChangeLog
     {
         if ( storeInitialized )
         {
-            LOG.error(  "Cannot set a changeLog store when one is already active" );
+            LOG.error( I18n.err( I18n.ERR_29 ) );
         }
         else
         {

@@ -40,6 +40,7 @@ import javax.naming.NamingException;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.security.CoreKeyStoreSpi;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.handlers.AbandonHandler;
 import org.apache.directory.server.ldap.handlers.AddHandler;
 import org.apache.directory.server.ldap.handlers.BindHandler;
@@ -577,7 +578,7 @@ public class LdapServer extends DirectoryBackedService
         }
         catch ( IOException e )
         {
-            String msg = "Failed to bind an LDAP service (" + transport.getPort() + ") to the service registry.";
+            String msg = I18n.err( I18n.ERR_171, transport.getPort() );
             LdapConfigurationException lce = new LdapConfigurationException( msg );
             lce.setRootCause( e );
             LOG.error( msg, e );

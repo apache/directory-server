@@ -36,6 +36,7 @@ import org.apache.directory.server.core.interceptor.context.EntryOperationContex
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -379,7 +380,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
      */
     public List<Entry> loadDitContentRules( Schema... schemas ) throws Exception
     {
-        LOG.error( "DitContentRule loading NYI" );
+        LOG.error( I18n.err( I18n.ERR_86 ) );
 
         return null;
     }
@@ -390,7 +391,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
      */
     public List<Entry> loadDitStructureRules( Schema... schemas ) throws Exception
     {
-        LOG.error( "DitStructureRule loading NYI" );
+        LOG.error( I18n.err( I18n.ERR_87 ) );
 
         return null;
     }
@@ -438,7 +439,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
      */
     public List<Entry> loadMatchingRuleUses( Schema... schemas ) throws Exception
     {
-        LOG.error( "MatchingRuleUse loading NYI" );
+        LOG.error( I18n.err( I18n.ERR_88 ) );
 
         return null;
     }
@@ -449,7 +450,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
      */
     public List<Entry> loadNameForms( Schema... schemas ) throws Exception
     {
-        LOG.error( "NameForm loading NYI" );
+        LOG.error( I18n.err( I18n.ERR_89 ) );
 
         return null;
     }

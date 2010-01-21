@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
@@ -152,7 +153,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         }
         else
         {
-            LOG.error( "Failed to write GracefulShutdownResponse to client: " + requestor.getRemoteAddress() );
+            LOG.error( I18n.err( I18n.ERR_159, requestor.getRemoteAddress() ) );
         }
         requestor.close( true );
     }

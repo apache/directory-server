@@ -49,6 +49,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -209,7 +210,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             if ( !isAdmin )
             {
                 // Wrong !
-                String message = "The " + SchemaConstants.ENTRY_UUID_AT + " operational attribute cannot be modified by a user";
+                String message = I18n.err( I18n.ERR_30, SchemaConstants.ENTRY_UUID_AT );
                 LOG.error( message );
                 throw new LdapSchemaViolationException( message, ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
             }
@@ -224,7 +225,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             if ( !isAdmin )
             {
                 // Wrong !
-                String message = "The " + SchemaConstants.ENTRY_CSN_AT + " operational attribute cannot be modified by a user";
+                String message =  I18n.err( I18n.ERR_30, SchemaConstants.ENTRY_CSN_AT );
                 LOG.error( message );
                 throw new LdapSchemaViolationException( message, ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
             }
@@ -257,14 +258,14 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             
             if ( attributeType.equals( MODIFIERS_NAME_ATTRIBUTE_TYPE ) )
             {
-                String message = "The ModifiersName operational attribute cannot be modified by a user";
+                String message = I18n.err( I18n.ERR_31 );
                 LOG.error( message );
                 throw new LdapSchemaViolationException( message, ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
             }
 
             if ( attributeType.equals( MODIFY_TIMESTAMP_ATTRIBUTE_TYPE ) )
             {
-                String message = "The ModifyTimestamp operational attribute cannot be modified by a user";
+                String message = I18n.err( I18n.ERR_32 );
                 LOG.error( message );
                 throw new LdapSchemaViolationException( message, ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
             }

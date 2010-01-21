@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.store.RecordStore;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
@@ -62,7 +63,7 @@ public class MonitorContext implements IoHandlerCommand
             catch ( Exception e )
             {
                 // This is a monitor.  No exceptions should bubble up.
-                log.error( "Error in context monitor", e );
+                log.error( I18n.err( I18n.ERR_154 ), e );
             }
         }
 

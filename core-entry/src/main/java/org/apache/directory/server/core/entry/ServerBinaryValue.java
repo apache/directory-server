@@ -28,6 +28,7 @@ import java.util.Comparator;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
@@ -226,7 +227,7 @@ public class ServerBinaryValue extends ClientBinaryValue
             }
             catch ( NamingException ne )
             {
-                String message = "Cannot normalize the value :" + ne.getMessage();
+                String message = "Cannot normalize the value :" + ne.getLocalizedMessage();
                 LOG.warn( message );
                 normalized = false;
             }
@@ -261,7 +262,7 @@ public class ServerBinaryValue extends ClientBinaryValue
             }
             catch ( NamingException ne )
             {
-                String message = "Cannot normalize the value :" + ne.getMessage();
+                String message = "Cannot normalize the value :" + ne.getLocalizedMessage();
                 LOG.warn( message );
                 normalized = false;
             }
@@ -294,7 +295,7 @@ public class ServerBinaryValue extends ClientBinaryValue
             }
             catch ( NamingException ne )
             {
-                String message = "Cannot normalize the value :" + ne.getMessage();
+                String message = "Cannot normalize the value :" + ne.getLocalizedMessage();
                 LOG.warn( message );
                 normalized = false;
             }
@@ -383,15 +384,13 @@ public class ServerBinaryValue extends ClientBinaryValue
             }
             catch ( NamingException e )
             {
-                String msg = "Failed to compare normalized values for " + Arrays.toString( getReference() ) + " and "
-                    + value;
+                String msg = I18n.err( I18n.ERR_109, Arrays.toString( getReference() ), value );
                 LOG.error( msg, e );
                 throw new IllegalStateException( msg, e );
             }
         }
 
-        String message = "I don't really know how to compare anything other "
-            + "than ServerBinaryValues at this point in time.";
+        String message = I18n.err( I18n.ERR_110 );
         LOG.error( message );
         throw new NotImplementedException( message );
     }

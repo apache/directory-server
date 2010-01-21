@@ -30,6 +30,7 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.AbstractEntry;
@@ -83,7 +84,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     {
         if ( StringTools.isEmpty( StringTools.trim( upId ) ) )
         {
-            String message = "The ID should not be null or empty";
+            String message = I18n.err( I18n.ERR_98 );
             LOG.error( message );
             throw new IllegalArgumentException( message );
         }
@@ -103,7 +104,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         {
             if ( StringTools.isEmpty( normUpId ) )
             {
-                String message = "Cannot add an attribute without an ID";
+                String message = I18n.err( I18n.ERR_99 );
                 LOG.error( message );
                 throw new IllegalArgumentException( message );
             }
@@ -422,7 +423,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         catch ( NamingException ne )
         {
             // Just discard the AttributeType
-            LOG.error( "We have had an error while adding the '{}' AttributeType : {}", upId, ne.getMessage() );
+            LOG.error( I18n.err( I18n.ERR_100, upId, ne.getLocalizedMessage() ) );
         }
     }
     
@@ -527,7 +528,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     {
         if ( attributeType == null )
         {
-            String message = "The attributeType should not be null";
+            String message = I18n.err( I18n.ERR_101 );
             LOG.error( message );
             throw new IllegalArgumentException( message );
         }
@@ -535,7 +536,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         // ObjectClass with binary values are not allowed
         if ( attributeType.equals( OBJECT_CLASS_AT ) )
         {
-            String message = "Only String values supported for objectClass attribute";
+            String message = I18n.err( I18n.ERR_102 );
             LOG.error(  message  );
             throw new UnsupportedOperationException( message );
         }
@@ -580,7 +581,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     {    
         if ( attributeType == null )
         {
-            String message = "The attributeType should not be null";
+            String message = I18n.err( I18n.ERR_101 );
             LOG.error( message );
             throw new IllegalArgumentException( message );
         }
@@ -625,7 +626,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     {
         if ( attributeType == null )
         {
-            String message = "The attributeType should not be null";
+            String message = I18n.err( I18n.ERR_101 );
             LOG.error( message );
             throw new IllegalArgumentException( message );
         }
@@ -708,7 +709,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         // ObjectClass with binary values are not allowed
         if ( attributeType.equals( OBJECT_CLASS_AT ) )
         {
-            String message = "Only String values supported for objectClass attribute";
+            String message = I18n.err( I18n.ERR_102 );
             LOG.error(  message  );
             throw new UnsupportedOperationException( message );
         }
@@ -756,7 +757,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     {
         if ( attributeType == null )
         {
-            String message = "The attributeType should not be null";
+            String message = I18n.err( I18n.ERR_101 );
             LOG.error( message );
             throw new IllegalArgumentException( message );
         }
@@ -792,7 +793,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     {
         if ( attributeType == null )
         {
-            String message = "The attributeType should not be null";
+            String message = I18n.err( I18n.ERR_101 );
             LOG.error( message );
             throw new IllegalArgumentException( message );
         }
@@ -1183,7 +1184,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         }
         catch ( NamingException ne )
         {
-            String message = ne.getMessage();
+            String message = ne.getLocalizedMessage();
             LOG.error( message );
             return null;
         }
@@ -1401,7 +1402,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         {
             if ( serverAttribute == null )
             {
-                String message = "The ServerAttribute list should not contain null elements";
+                String message = I18n.err( I18n.ERR_103 );
                 LOG.error( message );
                 throw new IllegalArgumentException( message );
             }
@@ -1445,7 +1446,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     {
         if ( attributeType == null )
         {
-            String message = "The attributeType should not be null";
+            String message = I18n.err( I18n.ERR_101 );
             LOG.error( message );
             throw new IllegalArgumentException( message );
         }
@@ -1456,7 +1457,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         
             if ( !tempAT.equals( attributeType ) )
             {
-                String message = "The '" + upId + "' id is not compatible with the '" + attributeType + "' attribute type";
+                String message = I18n.err( I18n.ERR_104, upId, attributeType );
                 LOG.error( message );
                 throw new IllegalArgumentException( message );
             }
@@ -1468,7 +1469,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         
         if ( attributeType.equals( OBJECT_CLASS_AT ) )
         {
-            String message = "Only String values supported for objectClass attribute";
+            String message = I18n.err( I18n.ERR_102 );
             LOG.error( message );
             throw new UnsupportedOperationException( message );
         }
@@ -1511,7 +1512,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
             }
             catch ( IllegalArgumentException iae )
             {
-                String message = "The attributeType should not be null";
+                String message = I18n.err( I18n.ERR_101 );
                 LOG.error( message );
                 throw new IllegalArgumentException( message );
             }
@@ -1524,7 +1525,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
             
                 if ( !tempAT.equals( attributeType ) )
                 {
-                    String message = "The '" + upId + "' id is not compatible with the '" + attributeType + "' attribute type";
+                    String message = I18n.err( I18n.ERR_104, upId, attributeType );
                     LOG.error( message );
                     throw new IllegalArgumentException( message );
                 }
@@ -1567,7 +1568,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     {
         if ( attributeType == null )
         {
-            String message = "The attributeType should not be null";
+            String message = I18n.err( I18n.ERR_101 );
             LOG.error( message );
             throw new IllegalArgumentException( message );
         }
@@ -1578,7 +1579,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         
             if ( !tempAT.equals( attributeType ) )
             {
-                String message = "The '" + upId + "' id is not compatible with the '" + attributeType + "' attribute type";
+                String message = I18n.err( I18n.ERR_104, upId, attributeType );
                 LOG.error( message );
                 throw new IllegalArgumentException( message );
             }
@@ -1617,8 +1618,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         }
         catch ( NamingException ne )
         {
-            String message = "Error while adding values into the '" + upId + "' attribute. Error : " + 
-                ne.getMessage();
+            String message = I18n.err( I18n.ERR_105, upId, ne.getLocalizedMessage() );
             LOG.error( message );
             throw new IllegalArgumentException( message );
         }
@@ -1650,8 +1650,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         }
         catch ( NamingException ne )
         {
-            String message = "Error while adding values into the '" + upId + "' attribute. Error : " + 
-                ne.getMessage();
+            String message = I18n.err( I18n.ERR_105, upId, ne.getLocalizedMessage() );
             LOG.error( message );
             throw new IllegalArgumentException( message );
         }
@@ -1682,8 +1681,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         }
         catch ( NamingException ne )
         {
-            String message = "Error while adding values into the '" + upId + "' attribute. Error : " + 
-                ne.getMessage();
+            String message = I18n.err( I18n.ERR_105, upId, ne.getLocalizedMessage() );
             LOG.error( message );
             throw new IllegalArgumentException( message );
         }
@@ -1749,7 +1747,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         }
         catch ( IllegalArgumentException iae )
         {
-            LOG.error( "The removal of values for the missing '{}' attribute is not possible", attributeType );
+            LOG.error( I18n.err( I18n.ERR_106, attributeType ) );
             return false;
         }
     }
@@ -1814,7 +1812,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         }
         catch ( IllegalArgumentException iae )
         {
-            LOG.error( "The removal of values for the missing '{}' attribute is not possible", attributeType );
+            LOG.error( I18n.err( I18n.ERR_106, attributeType ) );
             return false;
         }
     }
@@ -1879,7 +1877,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         }
         catch ( IllegalArgumentException iae )
         {
-            LOG.error( "The removal of values for the missing '{}' attribute is not possible", attributeType );
+            LOG.error( I18n.err( I18n.ERR_106, attributeType ) );
             return false;
         }
     }
@@ -1933,12 +1931,12 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         }
         catch ( NamingException ne )
         {
-            LOG.error( "The removal of values for the missing '{}' attribute is not possible", upId );
+            LOG.error( I18n.err( I18n.ERR_106, upId ) );
             return false;
         }
         catch ( IllegalArgumentException iae )
         {
-            LOG.error( "The removal of values for the bad '{}' attribute is not possible", upId );
+            LOG.error( I18n.err( I18n.ERR_107, upId ) );
             return false;
         }
     }
@@ -1975,12 +1973,12 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         }
         catch ( NamingException ne )
         {
-            LOG.error( "The removal of values for the missing '{}' attribute is not possible", upId );
+            LOG.error( I18n.err( I18n.ERR_106, upId ) );
             return false;
         }
         catch ( IllegalArgumentException iae )
         {
-            LOG.error( "The removal of values for the bad '{}' attribute is not possible", upId );
+            LOG.error( I18n.err( I18n.ERR_107, upId ) );
             return false;
         }
     }
@@ -2017,12 +2015,12 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         }
         catch ( NamingException ne )
         {
-            LOG.error( "The removal of values for the missing '{}' attribute is not possible", upId );
+            LOG.error( I18n.err( I18n.ERR_106, upId ) );
             return false;
         }
         catch ( IllegalArgumentException iae )
         {
-            LOG.error( "The removal of values for the bad '{}' attribute is not possible", upId );
+            LOG.error( I18n.err( I18n.ERR_107, upId ) );
             return false;
         }
     }
@@ -2153,7 +2151,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         {
             if ( attributeType == null )
             {
-                String message = "The AttributeType list should not contain null values";
+                String message = I18n.err( I18n.ERR_108 );
                 LOG.error( message );
                 continue;
             }
@@ -2205,12 +2203,12 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
             }
             catch ( NamingException ne )
             {
-                LOG.warn( "Trying to add a bad attribute type '{}', error : ", upId, ne.getMessage() );
+                LOG.warn( "Trying to add a bad attribute type '{}', error : ", upId, ne.getLocalizedMessage() );
                 continue;
             }
             catch ( IllegalArgumentException iae )
             {
-                LOG.warn( "Trying to add a bad attribute type '{}', error : ", upId, iae.getMessage() );
+                LOG.warn( "Trying to add a bad attribute type '{}', error : ", upId, iae.getLocalizedMessage() );
                 continue;
             }
             

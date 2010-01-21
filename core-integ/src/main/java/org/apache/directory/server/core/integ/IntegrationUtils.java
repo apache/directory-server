@@ -38,6 +38,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -80,12 +81,12 @@ public class IntegrationUtils
             }
             catch ( IOException e )
             {
-                LOG.error( "Failed to delete the working directory.", e );
+                LOG.error( I18n.err( I18n.ERR_115 ), e );
             }
         }
         if ( wkdir.exists() )
         {
-            throw new IOException( "Failed to delete: " + wkdir );
+            throw new IOException( I18n.err( I18n.ERR_116, wkdir ) );
         }
     }
 
@@ -117,8 +118,7 @@ public class IntegrationUtils
             }
             else
             {
-                String message = "Unsupported changetype found in LDIF: " + 
-                    entry.getChangeType();
+                String message = I18n.err( I18n.ERR_117, entry.getChangeType() );
                 LOG.error( message );
                 throw new NamingException( message );
             }

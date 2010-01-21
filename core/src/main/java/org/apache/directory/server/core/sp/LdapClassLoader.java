@@ -31,6 +31,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -123,7 +124,7 @@ public class LdapClassLoader extends ClassLoader
         }
         catch ( Exception e )
         {
-            log.error( "Exception while searching the DIT for class: " + name, e );
+            log.error( I18n.err( I18n.ERR_69, name ), e );
         }
 
         throw new ClassNotFoundException();
@@ -204,8 +205,8 @@ public class LdapClassLoader extends ClassLoader
         }
         catch ( Exception e ) 
         {
-            String msg = "Encountered failure while searching directory for class: " + name;
-            log.error( msg + e );
+            String msg = I18n.err( I18n.ERR_70, name );
+            log.error( msg, e );
             throw new ClassNotFoundException( msg );
         }
         

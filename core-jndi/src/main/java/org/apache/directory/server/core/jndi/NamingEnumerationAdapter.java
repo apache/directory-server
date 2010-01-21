@@ -143,7 +143,7 @@ public class NamingEnumerationAdapter implements NamingEnumeration<SearchResult>
         }
         catch ( NamingException e )
         {
-            throw new NoSuchElementException( e.getMessage() );
+            throw new NoSuchElementException( e.getLocalizedMessage() );
         }
     }
 }

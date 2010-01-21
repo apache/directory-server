@@ -25,6 +25,7 @@ import java.net.InetSocketAddress;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationContext;
 import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationService;
@@ -169,7 +170,7 @@ public class KerberosProtocolHandler implements IoHandler
         }
         catch ( KerberosException ke )
         {
-            String messageText = ke.getMessage() + " (" + ke.getErrorCode() + ")";
+            String messageText = ke.getLocalizedMessage() + " (" + ke.getErrorCode() + ")";
 
             if ( log.isDebugEnabled() )
             {
@@ -192,7 +193,7 @@ public class KerberosProtocolHandler implements IoHandler
         catch ( Exception e )
         {
         e.printStackTrace();
-            log.error( "Unexpected exception:  " + e.getMessage(), e );
+            log.error( I18n.err( I18n.ERR_152, e.getLocalizedMessage() ), e );
 
             session.write( getErrorMessage( config.getServicePrincipal(), new KerberosException(
                 ErrorType.KDC_ERR_SVC_UNAVAILABLE ) ) );
@@ -216,7 +217,7 @@ public class KerberosProtocolHandler implements IoHandler
         KerberosTime now = new KerberosTime();
 
         modifier.setErrorCode( exception.getErrorCode() );
-        modifier.setExplanatoryText( exception.getMessage() );
+        modifier.setExplanatoryText( exception.getLocalizedMessage() );
         modifier.setServerPrincipal( principal );
         modifier.setServerTime( now );
         modifier.setServerMicroSecond( 0 );
@@ -245,7 +246,7 @@ public class KerberosProtocolHandler implements IoHandler
         catch ( Exception e )
         {
             // This is a monitor.  No exceptions should bubble up.
-            log.error( "Error in reply monitor", e );
+            log.error( I18n.err( I18n.ERR_155 ), e );
         }
     }
 }
