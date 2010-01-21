@@ -39,6 +39,7 @@ import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -132,7 +133,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         }
         catch ( Exception e )
         {
-            throw new ServerSystemPreferenceException( "Failed to set up node.", e );
+            throw new ServerSystemPreferenceException( I18n.err( I18n.ERR_270 ), e );
         }
     }
 
@@ -336,7 +337,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         }
         catch ( Exception e )
         {
-            throw new ServerSystemPreferenceException( "Failed to get SPI.", e );
+            throw new ServerSystemPreferenceException( I18n.err( I18n.ERR_271 ), e );
         }
     }
 

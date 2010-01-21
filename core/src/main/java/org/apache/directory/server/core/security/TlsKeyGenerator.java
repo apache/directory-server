@@ -44,6 +44,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -117,7 +118,7 @@ public class TlsKeyGenerator
         }
         catch ( Exception e )
         {
-            NamingException ne = new NamingException( "Failed to get BC Certificate factory for algorithm: X.509" );
+            NamingException ne = new NamingException( I18n.err( I18n.ERR_286 ) );
             ne.setRootCause( e );
             throw ne;
         }
@@ -131,7 +132,7 @@ public class TlsKeyGenerator
         }
         catch ( CertificateException e )
         {
-            NamingException ne = new NamingException( "Bad certificate format." );
+            NamingException ne = new NamingException( I18n.err( I18n.ERR_287 ) );
             ne.setRootCause( e );
             throw ne;
         }
@@ -159,7 +160,7 @@ public class TlsKeyGenerator
         }
         catch ( Exception e )
         {
-            NamingException ne = new NamingException( "Failed to get key factory for algorithm: " + ALGORITHM );
+            NamingException ne = new NamingException( I18n.err( I18n.ERR_288, ALGORITHM ) );
             ne.setRootCause( e );
             throw ne;
         }
@@ -171,7 +172,7 @@ public class TlsKeyGenerator
         }
         catch ( Exception e )
         {
-            NamingException ne = new NamingException( "Bad private key format." );
+            NamingException ne = new NamingException( I18n.err( I18n.ERR_289 ) );
             ne.setRootCause( e );
             throw ne;
         }
@@ -183,7 +184,7 @@ public class TlsKeyGenerator
         }
         catch ( InvalidKeySpecException e )
         {
-            NamingException ne = new NamingException( "Bad public key format." );
+            NamingException ne = new NamingException( I18n.err( I18n.ERR_290 ) );
             ne.setRootCause( e );
             throw ne;
         }
@@ -226,7 +227,7 @@ public class TlsKeyGenerator
         }
         catch ( NoSuchAlgorithmException e )
         {
-            NamingException ne = new NamingException( "Cannot generate key pair for TLS" );
+            NamingException ne = new NamingException( I18n.err( I18n.ERR_291 ) );
             ne.setRootCause( e );
             throw ne;
         }
@@ -270,7 +271,7 @@ public class TlsKeyGenerator
         }
         catch ( Exception e )
         {
-            NamingException ne = new NamingException( "Cannot generate self signed certificate." );
+            NamingException ne = new NamingException( I18n.err( I18n.ERR_292 ) );
             ne.setRootCause( e );
             throw ne;
         }
@@ -305,7 +306,7 @@ public class TlsKeyGenerator
         }
         catch ( NoSuchAlgorithmException e )
         {
-            NamingException ne = new NamingException( "Cannot generate key pair for TLS" );
+            NamingException ne = new NamingException( I18n.err( I18n.ERR_291 ) );
             ne.setRootCause( e );
             throw ne;
         }
@@ -350,7 +351,7 @@ public class TlsKeyGenerator
         }
         catch ( Exception e )
         {
-            NamingException ne = new NamingException( "Cannot generate self signed certificate." );
+            NamingException ne = new NamingException( I18n.err( I18n.ERR_292 ) );
             ne.setRootCause( e );
             throw ne;
         }

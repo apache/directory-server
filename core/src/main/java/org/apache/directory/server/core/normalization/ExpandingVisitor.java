@@ -25,6 +25,7 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -162,7 +163,7 @@ public class ExpandingVisitor implements FilterVisitor
                             }
                             else
                             {
-                                throw new IllegalStateException( "Unknown assertion type: " + leaf );
+                                throw new IllegalStateException( I18n.err( I18n.ERR_260, leaf ) );
                             }
 
                             orNode.addNode( newLeaf );
@@ -172,7 +173,7 @@ public class ExpandingVisitor implements FilterVisitor
                 catch ( NamingException e )
                 {
                     // log something here and throw a runtime excpetion
-                    throw new RuntimeException( "Failed to expand node" );
+                    throw new RuntimeException( I18n.err( I18n.ERR_261 ) );
                 }
             }
             else

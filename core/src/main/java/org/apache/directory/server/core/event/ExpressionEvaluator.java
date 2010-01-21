@@ -23,6 +23,7 @@ package org.apache.directory.server.core.event;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -136,11 +137,11 @@ public class ExpressionEvaluator implements Evaluator
                 return !evaluate( bnode.getFirstChild(), dn, entry );
             }
 
-            throw new NamingException( "Negation has no child: " + node );
+            throw new NamingException( I18n.err( I18n.ERR_243, node ) );
         }
         else
         {
-                throw new NamingException( "Unrecognized branch node operator: " + bnode );
+                throw new NamingException( I18n.err( I18n.ERR_244, bnode ) );
         }
     }
 }

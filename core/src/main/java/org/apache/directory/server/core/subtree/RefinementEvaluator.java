@@ -21,6 +21,7 @@ package org.apache.directory.server.core.subtree;
 
 
 import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.filter.AndNode;
@@ -59,17 +60,17 @@ public class RefinementEvaluator
     {
         if ( node == null )
         {
-            throw new IllegalArgumentException( "node cannot be null" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_295 ) );
         }
         
         if ( objectClasses == null )
         {
-            throw new IllegalArgumentException( "objectClasses cannot be null" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_296 ) );
         }
         
         if ( !((ServerAttribute)objectClasses).instanceOf( SchemaConstants.OBJECT_CLASS_AT ) )
         {
-            throw new IllegalArgumentException( "Attribute objectClasses should be of id 'objectClass'" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_297 ) );
         }
         
         if ( node.isLeaf() )
@@ -111,12 +112,12 @@ public class RefinementEvaluator
                 return !evaluate( bnode.getFirstChild(), objectClasses );
             }
 
-            throw new IllegalArgumentException( "Negation has no child: " + node );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_298, node ) );
             
         }
         else
         {
-            throw new IllegalArgumentException( "Unrecognized branch node operator: " + bnode );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_299, bnode ) );
         }
     }
 }

@@ -25,6 +25,7 @@ import java.util.Iterator;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -71,27 +72,27 @@ public class RefinementLeafEvaluator
     {
         if ( node == null )
         {
-            throw new IllegalArgumentException( "node cannot be null" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_300 ) );
         }
         
         if ( !( node instanceof EqualityNode ) )
         {
-            throw new NamingException( "Unrecognized assertion type for refinement node: " + node );
+            throw new NamingException( I18n.err( I18n.ERR_301, node ) );
         }
         
         if ( !node.getAttribute().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
         {
-            throw new NamingException( "Refinement leaf node attribute was " + node.getAttribute() );
+            throw new NamingException( I18n.err( I18n.ERR_302, node.getAttribute() ) );
         }
 
         if ( null == objectClasses )
         {
-            throw new IllegalArgumentException( "objectClasses argument cannot be null" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_303 ) );
         }
         
         if ( !((ServerAttribute)objectClasses).instanceOf( SchemaConstants.OBJECT_CLASS_AT ) )
         {
-            throw new IllegalArgumentException( "objectClasses attribute must be for ID 'objectClass'" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_304 ) );
         }
 
         // check if AVA value exists in attribute

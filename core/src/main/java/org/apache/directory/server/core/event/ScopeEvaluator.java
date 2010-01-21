@@ -23,6 +23,7 @@ package org.apache.directory.server.core.event;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -65,7 +66,7 @@ public class ScopeEvaluator implements Evaluator
                 return dn.endsWith( snode.getBaseDn() );
             
             default:
-                throw new NamingException( "Unrecognized search scope!" );
+                throw new NamingException( I18n.err( I18n.ERR_247 ) );
         }
     }
 }

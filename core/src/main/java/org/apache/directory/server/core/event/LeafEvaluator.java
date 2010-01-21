@@ -25,6 +25,7 @@ import java.util.Comparator;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -140,7 +141,7 @@ public class LeafEvaluator implements Evaluator
         }
         else
         {
-            throw new NamingException( "Unrecognized leaf node type: " + node );
+            throw new NamingException( I18n.err( I18n.ERR_245, node ) );
         }
     }
 
@@ -368,7 +369,7 @@ public class LeafEvaluator implements Evaluator
                 break;
 
             default:
-                throw new NamingException( "Unknown match type: " + matchType );
+                throw new NamingException( I18n.err( I18n.ERR_246, matchType ) );
         }
 
         if ( ( mrule == null ) && ( matchType != EQUALITY_MATCH ) )

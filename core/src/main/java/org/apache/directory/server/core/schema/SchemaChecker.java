@@ -90,7 +90,7 @@ public class SchemaChecker
         // all the objectClass values in which case we must throw an exception
         if ( attribute.size() == 0 )
         {
-            String msg = "Modify operation leaves no structural objectClass for entry " + name;
+            String msg = I18n.err( I18n.ERR_272, name );
             
             if ( log.isInfoEnabled() )
             {
@@ -113,7 +113,7 @@ public class SchemaChecker
 
         // no structural object classes exist for the entry in the replacement
         // set for the objectClass attribute so we need to complain about that
-        String msg = "Modify operation leaves no structural objectClass for entry " + name;
+        String msg = I18n.err( I18n.ERR_272, name );
         if ( log.isInfoEnabled() )
         {
             log.info( msg + ".  Raising LdapSchemaViolationException." );
@@ -154,7 +154,7 @@ public class SchemaChecker
         // all the objectClass values in which case we must throw an exception
         if ( objectClass.size() == 0 )
         {
-            String msg = "Modify operation leaves no structural objectClass for entry " + name;
+            String msg = I18n.err( I18n.ERR_272, name );
             if ( log.isInfoEnabled() )
             {
                 log.info( msg + ".  Raising LdapSchemaViolationException." );
@@ -175,7 +175,7 @@ public class SchemaChecker
 
         // no structural object classes exist for the entry in the replacement
         // set for the objectClass attribute so we need to complain about that
-        String msg = "Modify operation leaves no structural objectClass for entry " + name;
+        String msg =  I18n.err( I18n.ERR_272, name );
         if ( log.isInfoEnabled() )
         {
             log.info( msg + ".  Raising LdapSchemaViolationException." );
@@ -234,7 +234,7 @@ public class SchemaChecker
         // all the objectClass values in which case we must throw an exception
         if ( attribute.size() == 0 )
         {
-            String msg = "Modify operation leaves no structural objectClass for entry " + name;
+            String msg =  I18n.err( I18n.ERR_272, name );
             
             if ( log.isInfoEnabled() )
             {
@@ -268,7 +268,7 @@ public class SchemaChecker
 
         // no structural object classes exist for the entry after the modifications
         // to the objectClass attribute so we need to complain about that
-        String msg = "Modify operation leaves no structural objectClass for entry " + name;
+        String msg =  I18n.err( I18n.ERR_272, name );
 
         if ( log.isInfoEnabled() )
         {
@@ -403,8 +403,7 @@ public class SchemaChecker
         // a schema violation exception with the notAllowedOnRdn result code
         if ( attribute.size() == 0 )
         {
-            String msg = "Modify operation attempts to delete RDN attribute ";
-            msg += id + " on entry " + name + " violates schema constraints";
+            String msg = I18n.err( I18n.ERR_273, id, name );
 
             if ( log.isInfoEnabled() )
             {
@@ -424,8 +423,7 @@ public class SchemaChecker
             // we must complain with a schema violation
             if ( !attribute.contains( rdnValue ) )
             {
-                String msg = "Modify operation attempts to delete RDN attribute values in use for ";
-                msg += id + " on entry " + name + " and violates schema constraints";
+                String msg = I18n.err( I18n.ERR_274, id, name );
 
                 if ( log.isInfoEnabled() )
                 {
@@ -482,8 +480,7 @@ public class SchemaChecker
                 // a schema violation exception with the notAllowedOnRdn result code
                 if ( rdnAttr.size() == 0 )
                 {
-                    String msg = "Modify operation attempts to delete RDN attribute ";
-                    msg += id + " on entry " + name + " violates schema constraints";
+                    String msg = I18n.err( I18n.ERR_273, id, name );
 
                     if ( log.isInfoEnabled() )
                     {
@@ -502,8 +499,7 @@ public class SchemaChecker
                 // we must complain with a schema violation
                 if ( !rdnAttr.contains( rdnValue ) )
                 {
-                    String msg = "Modify operation attempts to delete RDN attribute values in use for ";
-                    msg += id + " on entry " + name + " and violates schema constraints";
+                    String msg = I18n.err( I18n.ERR_274, id, name );
 
                     if ( log.isInfoEnabled() )
                     {
@@ -557,8 +553,7 @@ public class SchemaChecker
         // a schema violation exception with the notAllowedOnRdn result code
         if ( attribute.size() == 0 )
         {
-            String msg = "Modify operation attempts to delete RDN attribute ";
-            msg += id + " on entry " + name + " violates schema constraints";
+            String msg = I18n.err( I18n.ERR_273, id, name );
 
             if ( log.isInfoEnabled() )
             {
@@ -577,8 +572,7 @@ public class SchemaChecker
         {
             if ( rdnValue.equals( value.getString() ) )
             {
-                String msg = "Modify operation attempts to delete RDN attribute values in use for ";
-                msg += id + " on entry " + name + " and violates schema constraints";
+                String msg = I18n.err( I18n.ERR_274, id, name );
 
                 if ( log.isInfoEnabled() )
                 {
@@ -633,8 +627,7 @@ public class SchemaChecker
                 // a schema violation exception with the notAllowedOnRdn result code
                 if ( entry.get( id ).size() == 0 )
                 {
-                    String msg = "Modify operation attempts to delete RDN attribute ";
-                    msg += id + " on entry " + name + " violates schema constraints";
+                    String msg = I18n.err( I18n.ERR_273, id, name );
 
                     if ( log.isInfoEnabled() )
                     {
@@ -653,8 +646,7 @@ public class SchemaChecker
                 {
                     if ( rdnValue.equals( value.getString() ) )
                     {
-                        String msg = "Modify operation attempts to delete RDN attribute values in use for ";
-                        msg += id + " on entry " + name + " and violates schema constraints";
+                        String msg = I18n.err( I18n.ERR_274, id, name );
 
                         if ( log.isInfoEnabled() )
                         {

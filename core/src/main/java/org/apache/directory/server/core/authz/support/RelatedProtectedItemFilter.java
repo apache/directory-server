@@ -30,6 +30,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.event.Evaluator;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.subtree.RefinementEvaluator;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
@@ -279,7 +280,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
             }
             else
             {
-                throw new InternalError( "Unexpected protectedItem: " + item.getClass().getName() );
+                throw new InternalError( I18n.err( I18n.ERR_232, item.getClass().getName() ) );
             }
         }
 

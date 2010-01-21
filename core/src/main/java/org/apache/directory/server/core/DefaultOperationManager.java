@@ -52,6 +52,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -198,7 +199,7 @@ public class DefaultOperationManager implements OperationManager
 
     private PartialResultException buildPartialResultException( LdapDN childDn )
     {
-        PartialResultException pre = new PartialResultException( "cannot create an entry under a referral when the Context.REFERRAL is set to 'ignore'" );
+        PartialResultException pre = new PartialResultException( I18n.err( I18n.ERR_315 ) );
         
         pre.setRemainingName( childDn );
         pre.setResolvedName( LdapDN.EMPTY_LDAPDN );
@@ -1107,7 +1108,7 @@ public class DefaultOperationManager implements OperationManager
     {
         if ( ! directoryService.isStarted() )
         {
-            throw new ServiceUnavailableException( "Directory service is not started." );
+            throw new ServiceUnavailableException( I18n.err( I18n.ERR_316 ) );
         }
     }
     

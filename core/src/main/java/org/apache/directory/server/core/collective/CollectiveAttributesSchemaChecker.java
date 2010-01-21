@@ -30,6 +30,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -72,9 +73,7 @@ public class CollectiveAttributesSchemaChecker
             /*
              * TODO: Replace the Exception and the ResultCodeEnum with the correct ones.
              */
-            throw new LdapSchemaViolationException(
-                "Collective attributes cannot be stored in non-collectiveAttributeSubentries",
-                ResultCodeEnum.OTHER);
+            throw new LdapSchemaViolationException( I18n.err( I18n.ERR_241 ), ResultCodeEnum.OTHER );
         }
     }
     
@@ -96,9 +95,7 @@ public class CollectiveAttributesSchemaChecker
             /*
              * TODO: Replace the Exception and the ResultCodeEnum with the correct ones.
              */
-            throw new LdapSchemaViolationException(
-                "Cannot operate on collective attributes in non-collectiveAttributeSubentries",
-                ResultCodeEnum.OTHER);
+            throw new LdapSchemaViolationException( I18n.err( I18n.ERR_242 ), ResultCodeEnum.OTHER);
         }
     }
     

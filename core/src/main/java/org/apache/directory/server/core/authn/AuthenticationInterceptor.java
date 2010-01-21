@@ -515,6 +515,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         LdapDN dn = opContext.getDn();
         String upDn = ( dn == null ? "" : dn.getName() );
-        throw new LdapAuthenticationException( "Cannot authenticate user " + upDn );
+        throw new LdapAuthenticationException( I18n.err( I18n.ERR_229, upDn ) );
     }
 }

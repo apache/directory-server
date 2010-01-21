@@ -228,7 +228,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         }
         catch ( LdapAuthenticationException lae )
         {
-            assertEquals( "Cannot authenticate user uid=unknown,ou=system", lae.getMessage() );
+            assertEquals( "ERR_229 Cannot authenticate user uid=unknown,ou=system", lae.getMessage() );
         }
         catch ( NamingException ne )
         {

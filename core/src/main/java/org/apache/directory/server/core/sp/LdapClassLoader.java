@@ -199,7 +199,7 @@ public class LdapClassLoader extends ClassLoader
         } 
         catch ( ClassNotFoundException e )
         {
-            String msg = "Class " + name + " not found in DIT.";
+            String msg = I18n.err( I18n.ERR_293, name );
             log.debug( msg );
             throw new ClassNotFoundException( msg );
         }

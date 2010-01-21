@@ -287,8 +287,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
 
             if ( ! override.getId().equals( "system" ) )
             {
-                throw new ConfigurationException( "System partition has wrong name: should be 'system' not '"
-                        + override.getId() + "'." );
+                throw new ConfigurationException( I18n.err( I18n.ERR_262, override.getId() ) );
             }
             
 
@@ -335,7 +334,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         
         if ( partitions.containsKey( key ) )
         {
-            throw new ConfigurationException( "Duplicate partition suffix: " + key );
+            throw new ConfigurationException( I18n.err( I18n.ERR_263, key ) );
         }
         
         synchronized ( partitionLookupTree )
@@ -408,7 +407,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
      */
     public void setId( String id )
     {
-        throw new UnsupportedOperationException( "The id cannot be set for the partition nexus." );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_264 ) );
     }
 
 
@@ -485,7 +484,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
                 if ( error == null )
                 {
                     //noinspection ThrowableInstanceNeverThrown
-                    error = new MultiException( "Grouping many exceptions on root nexus sync()" );
+                    error = new MultiException( I18n.err( I18n.ERR_265 ) );
                 }
 
                 // @todo really need to send this info to a monitor
@@ -533,7 +532,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         // complain if we do not recognize the attribute being compared
         if ( !schemaManager.getAttributeTypeRegistry().contains( compareContext.getOid() ) )
         {
-            throw new LdapInvalidAttributeIdentifierException( compareContext.getOid() + " not found within the attributeType registry" );
+            throw new LdapInvalidAttributeIdentifierException( I18n.err( I18n.ERR_266, compareContext.getOid() ) );
         }
 
         AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( compareContext.getOid() );
@@ -875,7 +874,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         
         if ( partitions.containsKey( key ) )
         {
-            throw new ConfigurationException( "Duplicate partition suffix: " + key );
+            throw new ConfigurationException( I18n.err( I18n.ERR_263, key ) );
         }
 
         if ( ! partition.isInitialized() )
@@ -889,7 +888,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
             
             if ( partitionSuffix == null )
             {
-                throw new ConfigurationException( "The current partition does not have any suffix: " + partition.getId() );
+                throw new ConfigurationException( I18n.err( I18n.ERR_267, partition.getId() ) );
             }
             
             partitions.put( partitionSuffix.toString(), partition );
@@ -974,7 +973,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         
         if ( parent == null )
         {
-            throw new LdapNameNotFoundException( " Cannot find a partition for " + dn );
+            throw new LdapNameNotFoundException( I18n.err( I18n.ERR_268, dn ) );
         }
         else
         {

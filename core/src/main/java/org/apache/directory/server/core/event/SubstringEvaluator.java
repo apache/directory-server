@@ -26,6 +26,7 @@ import java.util.regex.PatternSyntaxException;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -95,7 +96,7 @@ public class SubstringEvaluator implements Evaluator
         }
         catch ( PatternSyntaxException pse )
         {
-            NamingException ne = new NamingException( "SubstringNode '" + node + "' had " + "incorrect syntax" );
+            NamingException ne = new NamingException( I18n.err( I18n.ERR_248, node ) );
             ne.setRootCause( pse );
             throw ne;
         }

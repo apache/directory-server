@@ -21,6 +21,7 @@ package org.apache.directory.server.core.prefs;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.NotImplementedException;
 
 import java.util.prefs.Preferences;
@@ -53,7 +54,6 @@ public class ServerPreferencesFactory implements PreferencesFactory
 
     public Preferences userRoot()
     {
-        throw new NotImplementedException(
-            "userRoot() in org.apache.directory.server.prefs.ServerPreferencesFactory not implemented!" );
+        throw new NotImplementedException( I18n.err( I18n.ERR_269 ) );
     }
 }

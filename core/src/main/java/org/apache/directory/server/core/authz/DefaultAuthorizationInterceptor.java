@@ -361,7 +361,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
         if ( dn.isEmpty() )
         {
-            String msg = "The rootDSE cannot be moved or renamed!";
+            String msg = I18n.err( I18n.ERR_234 );
             LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }

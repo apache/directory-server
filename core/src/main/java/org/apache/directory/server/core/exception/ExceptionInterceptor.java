@@ -47,6 +47,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -138,14 +139,13 @@ public class ExceptionInterceptor extends BaseInterceptor
         
         if ( subschemSubentryDn.getNormName().equals( name.getNormName() ) )
         {
-            throw new LdapNameAlreadyBoundException( 
-                "The global schema subentry cannot be added since it exists by default." );
+            throw new LdapNameAlreadyBoundException( I18n.err( I18n.ERR_249 ) );
         }
         
         // check if the entry already exists
         if ( nextInterceptor.hasEntry( new EntryOperationContext( opContext.getSession(), name ) ) )
         {
-            LdapNameAlreadyBoundException ne = new LdapNameAlreadyBoundException( name.getName() + " already exists!" );
+            LdapNameAlreadyBoundException ne = new LdapNameAlreadyBoundException( I18n.err( I18n.ERR_250, name.getName() ) );
             ne.setResolvedName( new LdapDN( name.getName() ) );
             throw ne;
         }
@@ -183,8 +183,8 @@ public class ExceptionInterceptor extends BaseInterceptor
             }
             catch ( Exception e )
             {
-                LdapNameNotFoundException e2 = new LdapNameNotFoundException( "Parent " + parentDn.getName() 
-                    + " not found" );
+                LdapNameNotFoundException e2 = new LdapNameNotFoundException( I18n.err( I18n.ERR_251, 
+                    parentDn.getName() ) );
                 e2.setResolvedName( new LdapDN( nexus.getMatchedName( 
                     new GetMatchedNameOperationContext( opContext.getSession(), parentDn ) ).getName() ) );
                 throw e2;
@@ -194,7 +194,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             
             if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
             {
-                String msg = "Attempt to add entry to alias '" + name.getName() + "' not allowed.";
+                String msg = I18n.err( I18n.ERR_252, name.getName() );
                 ResultCodeEnum rc = ResultCodeEnum.ALIAS_PROBLEM;
                 LdapNamingException e = new LdapNamingException( msg, rc );
                 e.setResolvedName( new LdapDN( parentDn.getName() ) );
@@ -223,9 +223,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         
         if ( name.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
         {
-            throw new LdapOperationNotSupportedException( 
-                "Can not allow the deletion of the subschemaSubentry (" + 
-                subschemSubentryDn + ") for the global schema.",
+            throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_253, subschemSubentryDn ),
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
@@ -335,8 +333,8 @@ public class ExceptionInterceptor extends BaseInterceptor
                     {
                         if ( entryAttr.contains( value ) )
                         {
-                            throw new LdapAttributeInUseException( "Trying to add existing value '" + value
-                                    + "' to attribute " + modAttr.getId() );
+                            throw new LdapAttributeInUseException( I18n.err( I18n.ERR_254, value,
+                                modAttr.getId() ) );
                         }
                     }
                 }
@@ -369,10 +367,8 @@ public class ExceptionInterceptor extends BaseInterceptor
         
         if ( dn.equals( subschemSubentryDn ) )
         {
-            throw new LdapOperationNotSupportedException( 
-                "Can not allow the renaming of the subschemaSubentry (" + 
-                subschemSubentryDn + ") for the global schema: it is fixed at " + subschemSubentryDn,
-                ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_255, subschemSubentryDn,
+                subschemSubentryDn ), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
         // Check to see if the renamed entry exists
@@ -381,7 +377,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             // This is a nonsense : we can't rename an entry which does not exist
             // on the server
             LdapNameNotFoundException ldnfe;
-            ldnfe = new LdapNameNotFoundException( "target entry " + dn.getName() + " des not exist!" );
+            ldnfe = new LdapNameNotFoundException( I18n.err( I18n.ERR_256, dn.getName() ) );
             ldnfe.setResolvedName( new LdapDN( dn.getName() ) );
             throw ldnfe;
         }
@@ -392,7 +388,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         if ( nextInterceptor.hasEntry( new EntryOperationContext( opContext.getSession(), newDn ) ) )
         {
             LdapNameAlreadyBoundException e;
-            e = new LdapNameAlreadyBoundException( "target entry " + newDn.getName() + " already exists!" );
+            e = new LdapNameAlreadyBoundException( I18n.err( I18n.ERR_257, newDn.getName() ) );
             e.setResolvedName( new LdapDN( newDn.getName() ) );
             throw e;
         }
@@ -421,10 +417,8 @@ public class ExceptionInterceptor extends BaseInterceptor
         
         if ( oriChildName.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
         {
-            throw new LdapOperationNotSupportedException( 
-                "Can not allow the move of the subschemaSubentry (" + 
-                subschemSubentryDn + ") for the global schema: it is fixed at " + subschemSubentryDn,
-                ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_258, subschemSubentryDn,
+                subschemSubentryDn ), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
         // check if child to move exists
@@ -448,7 +442,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             upTarget.add( upRdn );
 
             LdapNameAlreadyBoundException e;
-            e = new LdapNameAlreadyBoundException( "target entry " + upTarget.getName() + " already exists!" );
+            e = new LdapNameAlreadyBoundException( I18n.err( I18n.ERR_257, upTarget.getName() ) );
             e.setResolvedName( new LdapDN( upTarget.getName() ) );
             throw e;
         }
@@ -477,10 +471,8 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         if ( oriChildName.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
         {
-            throw new LdapOperationNotSupportedException( 
-                "Can not allow the move of the subschemaSubentry (" + 
-                subschemSubentryDn + ") for the global schema: it is fixed at " + subschemSubentryDn,
-                ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_258, subschemSubentryDn,
+                subschemSubentryDn ), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
         // check if child to move exists
@@ -502,7 +494,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             upTarget.add( opContext.getNewRdn() );
 
             LdapNameAlreadyBoundException e;
-            e = new LdapNameAlreadyBoundException( "target entry " + upTarget.getName() + " already exists!" );
+            e = new LdapNameAlreadyBoundException( I18n.err( I18n.ERR_257, upTarget.getName() ) );
             e.setResolvedName( new LdapDN( upTarget.getName() ) );
             throw e;
         }
@@ -544,7 +536,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         }
         catch ( Exception ne )
         {
-            String msg = "Attempt to search under non-existant entry: ";
+            String msg = I18n.err( I18n.ERR_259 );
             assertHasEntry( nextInterceptor, opContext, msg, base );
             throw ne;
         }

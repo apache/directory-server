@@ -1556,8 +1556,8 @@ public class SchemaInterceptor extends BaseInterceptor
         {
             if ( !schemaManager.getAttributeTypeRegistry().contains( attributeType.getName() ) )
             {
-                throw new LdapInvalidAttributeIdentifierException( attributeType.getName()
-                    + " not found in attribute registry!" );
+                throw new LdapInvalidAttributeIdentifierException( I18n.err( I18n.ERR_275, 
+                    attributeType.getName() ) );
             }
         }
 
@@ -1739,7 +1739,7 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         if ( dn.size() < 2 )
         {
-            throw new NamingException( "At least two name components are expected for the dn" );
+            throw new NamingException( I18n.err( I18n.ERR_276 ) );
         }
         
         RDN rdn = dn.getRdn( 1 );
@@ -1775,9 +1775,8 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 if ( !allowed.contains( attrOid ) )
                 {
-                    throw new LdapSchemaViolationException( "Attribute " + attribute.getUpId()
-                        + " not declared in objectClasses of entry " + dn.getName(),
-                        ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+                    throw new LdapSchemaViolationException( I18n.err( I18n.ERR_277, attribute.getUpId(),
+                        dn.getName() ), ResultCodeEnum.OBJECT_CLASS_VIOLATION );
                 }
             }
         }
@@ -1804,8 +1803,8 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         if ( attribute.size() > 1 && ( ( ServerAttribute ) attribute ).getAttributeType().isSingleValued() )
         {
-            throw new LdapInvalidAttributeValueException( "More than one value has been provided "
-                + "for the single-valued attribute: " + attribute.getUpId(), ResultCodeEnum.CONSTRAINT_VIOLATION );
+            throw new LdapInvalidAttributeValueException( I18n.err( I18n.ERR_278, attribute.getUpId() ),
+                ResultCodeEnum.CONSTRAINT_VIOLATION );
         }
     }
 
@@ -1822,8 +1821,8 @@ public class SchemaInterceptor extends BaseInterceptor
 
         if ( must.size() != 0 )
         {
-            throw new LdapSchemaViolationException( "Required attributes " + must + " not found within entry "
-                + dn.getName(), ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+            throw new LdapSchemaViolationException( I18n.err( I18n.ERR_279, must, dn.getName() ),
+                ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
     }
 
@@ -1929,8 +1928,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 }
                 catch ( Exception ne )
                 {
-                    String message = "Attribute value '" + value.getString()
-                         + "' for attribute '" + attribute.getUpId() + "' is syntactically incorrect";
+                    String message = I18n.err( I18n.ERR_280, value.getString(), attribute.getUpId() );
                     LOG.info( message );
 
                     throw new LdapInvalidAttributeValueException( message, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
@@ -1985,12 +1983,12 @@ public class SchemaInterceptor extends BaseInterceptor
                 }
                 catch ( UnsupportedEncodingException uee )
                 {
-                    throw new NamingException( "The value is not a valid String" );
+                    throw new NamingException( I18n.err( I18n.ERR_281 ) );
                 }
             }
             else
             {
-                throw new NamingException( "The value stored in an Human Readable attribute is not a String" );
+                throw new NamingException( I18n.err( I18n.ERR_282 ) );
             }
         }
 

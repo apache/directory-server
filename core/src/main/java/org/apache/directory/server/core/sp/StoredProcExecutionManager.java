@@ -32,6 +32,7 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -145,7 +146,7 @@ public class StoredProcExecutionManager
 
         }
 
-        throw new NamingException( "Stored Procedure Language, " + spLangId + " is not supported." );
+        throw new NamingException( I18n.err( I18n.ERR_294, spLangId ) );
 
     }
 

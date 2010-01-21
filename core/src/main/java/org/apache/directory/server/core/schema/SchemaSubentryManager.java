@@ -31,6 +31,7 @@ import javax.naming.directory.DirContext;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -175,15 +176,11 @@ public class SchemaSubentryManager
                     break; 
                     
                 case REPLACE_ATTRIBUTE :
-                    throw new LdapOperationNotSupportedException( 
-                        "Modify REPLACE operations on schema subentries are not allowed: " +
-                        "it's just silly to destroy and recreate so many \nschema entities " +
-                        "that reside in schema operational attributes.  Instead use \na " +
-                        "targeted combination of modify ADD and REMOVE operations.", 
+                    throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_283 ), 
                         ResultCodeEnum.UNWILLING_TO_PERFORM );
                 
                 default:
-                    throw new IllegalStateException( "Undefined modify operation: " + mod.getOperation() );
+                    throw new IllegalStateException( I18n.err( I18n.ERR_284, mod.getOperation() ) );
             }
         }
     }
@@ -218,15 +215,11 @@ public class SchemaSubentryManager
                 break;
                 
             case( DirContext.REPLACE_ATTRIBUTE ):
-                throw new LdapOperationNotSupportedException( 
-                    "Modify REPLACE operations on schema subentries are not allowed: " +
-                    "it's just silly to destroy and recreate so many \nschema entities " +
-                    "that reside in schema operational attributes.  Instead use \na " +
-                    "targeted combination of modify ADD and REMOVE operations.", 
+                throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_283 ), 
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             
             default:
-                throw new IllegalStateException( "Undefined modify operation: " + modOp );
+                throw new IllegalStateException( I18n.err( I18n.ERR_284, modOp ) );
         }
     }
     
@@ -337,7 +330,7 @@ public class SchemaSubentryManager
                 }
                 break;
             default:
-                throw new IllegalStateException( "Unknown index into handler array: " + index );
+                throw new IllegalStateException( I18n.err( I18n.ERR_285, index ) );
         }
     }
     
@@ -475,7 +468,7 @@ public class SchemaSubentryManager
                 break;
                 
             default:
-                throw new IllegalStateException( "Unknown index into handler array: " + index );
+                throw new IllegalStateException( I18n.err( I18n.ERR_285, index ) );
         }
     }
 }

@@ -125,7 +125,7 @@ public class DefaultChangeLog implements ChangeLog
     {
         if ( !enabled )
         {
-            throw new IllegalStateException( "The ChangeLog has not been enabled." );
+            throw new IllegalStateException( I18n.err( I18n.ERR_236 ) );
         }
 
         return store.log( principal, forward, reverse );
@@ -139,7 +139,7 @@ public class DefaultChangeLog implements ChangeLog
     {
         if ( !enabled )
         {
-            throw new IllegalStateException( "The ChangeLog has not been enabled." );
+            throw new IllegalStateException( I18n.err( I18n.ERR_236 ) );
         }
 
         return store.log( principal, forward, reverses );
@@ -183,8 +183,7 @@ public class DefaultChangeLog implements ChangeLog
             return ( ( SearchableChangeLogStore ) store ).getChangeLogSearchEngine();
         }
 
-        throw new UnsupportedOperationException(
-            "The underlying changelog store does not support searching through it's logs" );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_237 ) );
     }
 
 
@@ -198,8 +197,7 @@ public class DefaultChangeLog implements ChangeLog
             return ( ( TaggableSearchableChangeLogStore ) store ).getTagSearchEngine();
         }
 
-        throw new UnsupportedOperationException(
-            "The underlying changelog store does not support searching through it's tags" );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_238 ) );
     }
 
 
@@ -210,12 +208,12 @@ public class DefaultChangeLog implements ChangeLog
     {
         if ( revision < 0 )
         {
-            throw new IllegalArgumentException( "revision must be greater than or equal to 0" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_239 ) );
         }
 
         if ( revision > store.getCurrentRevision() )
         {
-            throw new IllegalArgumentException( "revision must be less than or equal to the current revision" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_240 ) );
         }
 
         if ( store instanceof TaggableChangeLogStore )

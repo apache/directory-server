@@ -50,6 +50,7 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -203,7 +204,7 @@ public class DefaultCoreSession implements CoreSession
             }
             else
             {
-                throw new NamingException( "Bad value for the OID " + oid );
+                throw new NamingException( I18n.err( I18n.ERR_309, oid ) );
             }
         }
         else
@@ -218,7 +219,7 @@ public class DefaultCoreSession implements CoreSession
             }
             else
             {
-                throw new NamingException( "Bad value for the OID " + oid );
+                throw new NamingException( I18n.err( I18n.ERR_309, oid ) );
             }
         }
         

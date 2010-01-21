@@ -699,7 +699,7 @@ public class DefaultDirectoryService implements DirectoryService
     {
         if ( changeLog == null || ! changeLog.isEnabled() )
         {
-            throw new IllegalStateException( "The change log must be enabled to revert to previous log revisions." );
+            throw new IllegalStateException( I18n.err( I18n.ERR_310 ) );
         }
 
         Tag latest = changeLog.getLatest();
@@ -717,7 +717,7 @@ public class DefaultDirectoryService implements DirectoryService
             }
         }
 
-        throw new IllegalStateException( "There must be at least one tag to revert to the latest tag." );
+        throw new IllegalStateException( I18n.err( I18n.ERR_311 ) );
     }
 
 
@@ -728,7 +728,7 @@ public class DefaultDirectoryService implements DirectoryService
     {
         if ( oldDn.size() == 0 )
         {
-            throw new LdapNoPermissionException( "can't rename the rootDSE" );
+            throw new LdapNoPermissionException( I18n.err( I18n.ERR_312 ) );
         }
 
         // calculate parents
@@ -774,17 +774,17 @@ public class DefaultDirectoryService implements DirectoryService
     {
         if ( changeLog == null || ! changeLog.isEnabled() )
         {
-            throw new IllegalStateException( "The change log must be enabled to revert to previous log revisions." );
+            throw new IllegalStateException( I18n.err( I18n.ERR_310 ) );
         }
 
         if ( revision < 0 )
         {
-            throw new IllegalArgumentException( "revision must be greater than or equal to 0" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_313 ) );
         }
 
         if ( revision >= changeLog.getChangeLogStore().getCurrentRevision() )
         {
-            throw new IllegalArgumentException( "revision must be less than the current revision" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_314 ) );
         }
 
         Cursor<ChangeLogEvent> cursor = changeLog.getChangeLogStore().findAfter( revision );

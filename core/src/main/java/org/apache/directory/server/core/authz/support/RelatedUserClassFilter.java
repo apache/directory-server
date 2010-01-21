@@ -28,6 +28,7 @@ import javax.naming.NamingException;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.subtree.SubtreeEvaluator;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.UserClass;
@@ -168,7 +169,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
             }
             else
             {
-                throw new InternalError( "Unexpected userClass: " + userClass.getClass().getName() );
+                throw new InternalError( I18n.err( I18n.ERR_233, userClass.getClass().getName() ) );
             }
         }
 

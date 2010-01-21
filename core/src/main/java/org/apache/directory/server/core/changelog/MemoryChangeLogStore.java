@@ -37,6 +37,7 @@ import java.util.Properties;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.ListCursor;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
@@ -471,12 +472,12 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     {
         if ( revision < 0 )
         {
-            throw new IllegalArgumentException( "revision must be greater than or equal to 0" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_239 ) );
         }
 
         if ( revision > getCurrentRevision() )
         {
-            throw new IllegalArgumentException( "The revision must not be greater than the current revision" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_240 ) );
         }
 
         return events.get( ( int ) revision );
