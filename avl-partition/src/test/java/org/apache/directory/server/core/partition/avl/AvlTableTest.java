@@ -22,14 +22,17 @@ package org.apache.directory.server.core.partition.avl;
 
 import static org.apache.directory.server.core.partition.avl.TableData.injectDupsData;
 import static org.apache.directory.server.core.partition.avl.TableData.injectNoDupsData;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Comparator;
-
-import junit.framework.TestCase;
 
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.junit.Before;
+import org.junit.Test;
 
 
 /**
@@ -38,7 +41,7 @@ import org.junit.Before;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AvlTableTest extends TestCase
+public class AvlTableTest
 {
     private AvlTable<Integer,Integer> dups;
     private AvlTable<Integer,Integer> nodups;
@@ -53,6 +56,7 @@ public class AvlTableTest extends TestCase
     }
     
     
+    @Test
     public void testGetName()
     {
         assertEquals( "dups", dups.getName() );
@@ -60,6 +64,7 @@ public class AvlTableTest extends TestCase
     }
     
     
+    @Test
     public void testCursorWithKey() throws Exception
     {
         injectNoDupsData( nodups );
@@ -107,6 +112,7 @@ public class AvlTableTest extends TestCase
     }
     
     
+    @Test
     public void testCursor() throws Exception
     {
         injectNoDupsData( nodups );
@@ -255,6 +261,7 @@ public class AvlTableTest extends TestCase
      * Checks that cursor.after() behavior with duplicates enabled obeys 
      * the required semantics.
      */
+    @Test
     public void testCursorAfterWithDups() throws Exception
     {
         injectDupsData( dups );
@@ -293,6 +300,7 @@ public class AvlTableTest extends TestCase
     /**
      * Tests the put() and get() methods on an AvlTable.
      */
+    @Test
     public void testPutGetCount() throws Exception
     {
         // ---------------------------------------------------------

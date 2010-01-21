@@ -93,7 +93,9 @@ public class MaxValueCountFilterTest
         }
     }
     
-    @Before public void setup() throws NamingException
+    
+    @Before 
+    public void setup() throws NamingException
     {
         LdapDN entryName = new LdapDN( "ou=test, ou=system" );
         ENTRY = new DefaultServerEntry( schemaManager, entryName );
@@ -104,7 +106,8 @@ public class MaxValueCountFilterTest
     }
 
 
-    @Test public void testWrongScope() throws Exception
+    @Test 
+    public void testWrongScope() throws Exception
     {
         MaxValueCountFilter filter = new MaxValueCountFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
@@ -121,7 +124,8 @@ public class MaxValueCountFilterTest
     }
 
 
-    @Test public void testZeroTuple() throws Exception
+    @Test 
+    public void testZeroTuple() throws Exception
     {
         MaxValueCountFilter filter = new MaxValueCountFilter();
 
@@ -130,7 +134,8 @@ public class MaxValueCountFilterTest
     }
 
 
-    @Test public void testDenialTuple() throws Exception
+    @Test 
+    public void testDenialTuple() throws Exception
     {
         MaxValueCountFilter filter = new MaxValueCountFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
@@ -146,7 +151,8 @@ public class MaxValueCountFilterTest
     }
 
 
-    @Test public void testGrantTuple() throws Exception
+    @Test 
+    public void testGrantTuple() throws Exception
     {
         MaxValueCountFilter filter = new MaxValueCountFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();

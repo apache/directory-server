@@ -104,7 +104,8 @@ public class RefinementEvaluatorTest
     /**
      * Sets evaluator and registries to null.
      */
-    @After public void tearDown()
+    @After 
+    public void tearDown()
     {
         evaluator = null;
     }
@@ -114,7 +115,8 @@ public class RefinementEvaluatorTest
      * Test cases for various bad combinations of arguments
      * @throws Exception if something goes wrong
      */
-    @Test public void testForBadArguments() throws Exception
+    @Test 
+    public void testForBadArguments() throws Exception
     {
         try
         {
@@ -145,7 +147,8 @@ public class RefinementEvaluatorTest
     }
 
 
-    @Test public void testMatchByName() throws Exception
+    @Test 
+    public void testMatchByName() throws Exception
     {
         ServerAttribute objectClasses = null;
 
@@ -165,7 +168,8 @@ public class RefinementEvaluatorTest
     }
 
 
-    @Test public void testMatchByOID() throws Exception
+    @Test 
+    public void testMatchByOID() throws Exception
     {
         ServerAttribute objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
         
@@ -184,7 +188,8 @@ public class RefinementEvaluatorTest
     }
 
 
-    @Test public void testComplexOrRefinement() throws Exception
+    @Test 
+    public void testComplexOrRefinement() throws Exception
     {
         ExprNode refinement = null;
         ServerAttribute objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
@@ -202,7 +207,8 @@ public class RefinementEvaluatorTest
     }
 
 
-    @Test public void testComplexAndRefinement() throws Exception
+    @Test 
+    public void testComplexAndRefinement() throws Exception
     {
         ExprNode refinement = null;
         ServerAttribute objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
@@ -224,7 +230,8 @@ public class RefinementEvaluatorTest
     }
 
 
-    @Test public void testComplexNotRefinement() throws Exception
+    @Test 
+    public void testComplexNotRefinement() throws Exception
     {
         ExprNode refinement = null;
         ServerAttribute objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );

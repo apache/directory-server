@@ -75,7 +75,8 @@ public class RestrictedByFilterTest
     private static SchemaManager schemaManager;
 
     
-    @BeforeClass public static void setup() throws Exception
+    @BeforeClass 
+    public static void setup() throws Exception
     {
         JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
 
@@ -96,7 +97,8 @@ public class RestrictedByFilterTest
     }
 
 
-    @Test public void testWrongScope() throws Exception
+    @Test 
+    public void testWrongScope() throws Exception
     {
         RestrictedByFilter filter = new RestrictedByFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
@@ -112,7 +114,8 @@ public class RestrictedByFilterTest
     }
 
 
-    @Test public void testZeroTuple() throws Exception
+    @Test 
+    public void testZeroTuple() throws Exception
     {
         RestrictedByFilter filter = new RestrictedByFilter();
 
@@ -121,7 +124,8 @@ public class RestrictedByFilterTest
     }
 
 
-    @Test public void testDenialTuple() throws Exception
+    @Test 
+    public void testDenialTuple() throws Exception
     {
         RestrictedByFilter filter = new RestrictedByFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
@@ -134,7 +138,8 @@ public class RestrictedByFilterTest
     }
 
 
-    @Test public void testGrantTuple() throws Exception
+    @Test 
+    public void testGrantTuple() throws Exception
     {
         RestrictedByFilter filter = new RestrictedByFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();

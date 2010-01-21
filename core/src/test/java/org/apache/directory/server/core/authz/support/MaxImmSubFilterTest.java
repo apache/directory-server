@@ -119,7 +119,8 @@ public class MaxImmSubFilterTest
     private static DirectoryService service;
 
     
-    @BeforeClass public static void setup() throws Exception
+    @BeforeClass 
+    public static void setup() throws Exception
     {
         service = new DefaultDirectoryService();
 
@@ -129,7 +130,8 @@ public class MaxImmSubFilterTest
     }
 
 
-    @Test public void testWrongScope() throws Exception
+    @Test 
+    public void testWrongScope() throws Exception
     {
         MaxImmSubFilter filter = new MaxImmSubFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
@@ -146,7 +148,8 @@ public class MaxImmSubFilterTest
     }
 
 
-    @Test public void testRootDSE() throws Exception
+    @Test 
+    public void testRootDSE() throws Exception
     {
         MaxImmSubFilter filter = new MaxImmSubFilter();
 
@@ -161,7 +164,8 @@ public class MaxImmSubFilterTest
     }
 
 
-    @Test public void testZeroTuple() throws Exception
+    @Test 
+    public void testZeroTuple() throws Exception
     {
         MaxImmSubFilter filter = new MaxImmSubFilter();
 
@@ -170,7 +174,8 @@ public class MaxImmSubFilterTest
     }
 
 
-    @Test public void testDenialTuple() throws Exception
+    @Test 
+    public void testDenialTuple() throws Exception
     {
         MaxImmSubFilter filter = new MaxImmSubFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
@@ -184,7 +189,8 @@ public class MaxImmSubFilterTest
     }
 
 
-    @Test public void testGrantTuple() throws Exception
+    @Test 
+    public void testGrantTuple() throws Exception
     {
         MaxImmSubFilter filter = new MaxImmSubFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();

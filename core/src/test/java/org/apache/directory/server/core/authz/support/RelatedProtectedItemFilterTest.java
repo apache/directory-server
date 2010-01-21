@@ -87,7 +87,8 @@ public class RelatedProtectedItemFilterTest
     private static AttributeType CN_AT;
 
     
-    @BeforeClass public static void setup() throws Exception
+    @BeforeClass 
+    public static void setup() throws Exception
     {
         JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
 
@@ -129,14 +130,16 @@ public class RelatedProtectedItemFilterTest
         return jndiAttributes;
     }
 
-    @Test public void testZeroTuple() throws Exception
+    @Test 
+    public void testZeroTuple() throws Exception
     {
         assertEquals( 0, filterA.filter( null, EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
             null, null, null, null, null, null, null, null, null ).size() );
     }
 
 
-    @Test public void testEntry() throws Exception
+    @Test 
+    public void testEntry() throws Exception
     {
         Collection<ACITuple> tuples = getTuples( ProtectedItem.ENTRY );
 
@@ -145,7 +148,8 @@ public class RelatedProtectedItemFilterTest
     }
 
 
-    @Test public void testAllUserAttributeTypes() throws Exception
+    @Test 
+    public void testAllUserAttributeTypes() throws Exception
     {
         Collection<ACITuple> tuples = getTuples( ProtectedItem.ALL_USER_ATTRIBUTE_TYPES );
 
@@ -160,7 +164,8 @@ public class RelatedProtectedItemFilterTest
     }
 
 
-    @Test public void testAllUserAttributeTypesAndValues() throws Exception
+    @Test 
+    public void testAllUserAttributeTypesAndValues() throws Exception
     {
         Collection<ACITuple> tuples = getTuples( ProtectedItem.ALL_USER_ATTRIBUTE_TYPES_AND_VALUES );
 
@@ -175,7 +180,8 @@ public class RelatedProtectedItemFilterTest
     }
 
 
-    @Test public void testAllAttributeValues() throws Exception
+    @Test 
+    public void testAllAttributeValues() throws Exception
     {
         Collection<String> attrTypes = new ArrayList<String>();
         attrTypes.add( "cn" );
@@ -195,7 +201,8 @@ public class RelatedProtectedItemFilterTest
     }
 
 
-    @Test public void testAttributeType() throws Exception
+    @Test 
+    public void testAttributeType() throws Exception
     {
         Collection<String> attrTypes = new ArrayList<String>();
         attrTypes.add( "cn" );
@@ -215,7 +222,8 @@ public class RelatedProtectedItemFilterTest
     }
 
 
-    @Test public void testAttributeValue() throws Exception
+    @Test 
+    public void testAttributeValue() throws Exception
     {
         Collection<ServerAttribute> attributes = new ArrayList<ServerAttribute>();
         attributes.add( new DefaultServerAttribute( "cn", CN_AT, "valueA" ) );
@@ -249,7 +257,8 @@ public class RelatedProtectedItemFilterTest
     }
 
 
-    @Test public void testMaxImmSub() throws Exception
+    @Test 
+    public void testMaxImmSub() throws Exception
     {
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.MaxImmSub( 2 ) );
 
@@ -259,7 +268,8 @@ public class RelatedProtectedItemFilterTest
     }
 
 
-    @Test public void testMaxValueCount() throws Exception
+    @Test 
+    public void testMaxValueCount() throws Exception
     {
         Collection<MaxValueCountItem> mvcItems = new ArrayList<MaxValueCountItem>();
         mvcItems.add( new MaxValueCountItem( "cn", 3 ) );
@@ -302,7 +312,8 @@ public class RelatedProtectedItemFilterTest
     */
 
 
-    @Test public void testRestrictedBy() throws Exception
+    @Test 
+    public void testRestrictedBy() throws Exception
     {
         Collection<RestrictedByItem> rbItems = new ArrayList<RestrictedByItem>();
         rbItems.add( new RestrictedByItem( "cn", "sn" ) );
@@ -325,7 +336,8 @@ public class RelatedProtectedItemFilterTest
     }
 
 
-    @Test public void testSelfValue() throws Exception
+    @Test 
+    public void testSelfValue() throws Exception
     {
         Collection<String> attrTypes = new ArrayList<String>();
         attrTypes.add( "cn" );

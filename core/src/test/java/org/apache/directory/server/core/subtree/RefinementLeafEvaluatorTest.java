@@ -101,7 +101,8 @@ public class RefinementLeafEvaluatorTest
     /**
      * Sets evaluator and registries to null.
      */
-    @After public void tearDown()
+    @After 
+    public void tearDown()
     {
         evaluator = null;
     }
@@ -111,7 +112,8 @@ public class RefinementLeafEvaluatorTest
      * Test cases for various bad combinations of arguments
      * @throws Exception if something goes wrongg
      */
-    @Test public void testForBadArguments() throws Exception
+    @Test 
+    public void testForBadArguments() throws Exception
     {
         ServerAttribute objectClasses = null;
 
@@ -164,7 +166,8 @@ public class RefinementLeafEvaluatorTest
     }
 
 
-    @Test public void testMatchByName() throws Exception
+    @Test 
+    public void testMatchByName() throws Exception
     {
         // positive test
         ServerAttribute objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
@@ -184,7 +187,8 @@ public class RefinementLeafEvaluatorTest
     }
 
 
-    @Test public void testMatchByOID() throws Exception
+    @Test 
+    public void testMatchByOID() throws Exception
     {
         ServerAttribute objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
 
