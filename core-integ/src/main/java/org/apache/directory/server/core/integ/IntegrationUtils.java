@@ -227,7 +227,7 @@ public class IntegrationUtils
                     
                     if ( dn.size() == 0 )
                     {
-                        throw new IllegalStateException( "can't move the root DSE" );
+                        throw new IllegalStateException( I18n.err( I18n.ERR_475 ) );
                     }
                     else if ( oldRdn.equals( newRdn ) )
                     {
@@ -253,7 +253,7 @@ public class IntegrationUtils
                 break;
 
             default:
-                throw new IllegalStateException( "Unidentified change type value: " + entry.getChangeType() );
+                throw new IllegalStateException( I18n.err( I18n.ERR_476, entry.getChangeType() ) );
         }
     }
 
