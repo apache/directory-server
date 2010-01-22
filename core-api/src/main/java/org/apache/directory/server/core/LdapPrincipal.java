@@ -26,6 +26,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.security.Principal;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -72,7 +73,7 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
         
         if ( ! name.isNormalized() )
         {
-            throw new IllegalStateException( "Names used for principals must be normalized!" );
+            throw new IllegalStateException( I18n.err( I18n.ERR_436 ) );
         }
         
         this.authenticationLevel = authenticationLevel;

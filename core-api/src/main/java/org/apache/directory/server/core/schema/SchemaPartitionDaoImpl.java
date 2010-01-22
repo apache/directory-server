@@ -39,6 +39,7 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -256,7 +257,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
             if ( cursor.next() )
             {
-                throw new NamingException( "Got more than one matchingRule for oid of " + oid );
+                throw new NamingException( I18n.err( I18n.ERR_430, oid ) );
             }
 
             return true;
@@ -305,7 +306,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
             if ( cursor.next() )
             {
-                throw new NamingException( "Got more than one attributeType for oid of " + oid );
+                throw new NamingException( I18n.err( I18n.ERR_431, oid ) );
             }
 
             return true;
@@ -354,7 +355,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
             if ( cursor.next() )
             {
-                throw new NamingException( "Got more than one attributeType for oid of " + oid );
+                throw new NamingException( I18n.err( I18n.ERR_431, oid ) );
             }
 
             return true;
@@ -403,7 +404,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
             if ( cursor.next() )
             {
-                throw new NamingException( "Got more than one syntax for oid of " + oid );
+                throw new NamingException( I18n.err( I18n.ERR_432, oid ) );
             }
 
             return true;
@@ -452,7 +453,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
             if ( cursor.next() )
             {
-                throw new NamingException( "Got more than one syntaxChecker for oid of " + oid );
+                throw new NamingException( I18n.err( I18n.ERR_433, oid ) );
             }
 
             return true;
@@ -482,8 +483,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
         
         if ( !rdn.getNormType().equalsIgnoreCase( CN_OID ) )
         {
-            throw new NamingException( "Attribute of second rdn in dn '" + dn.toNormName()
-                + "' expected to be CN oid of " + CN_OID + " but was " + rdn.getNormType() );
+            throw new NamingException( I18n.err( I18n.ERR_434, dn.toNormName(), CN_OID, rdn.getNormType() ) );
         }
 
         return ( String ) rdn.getNormValue();
@@ -532,7 +532,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
             
             if ( cursor.next() )
             {
-                throw new NamingException( "Got more than one result for the entity name: " + entityName );
+                throw new NamingException( I18n.err( I18n.ERR_435, entityName ) );
             }
 
             return sr;

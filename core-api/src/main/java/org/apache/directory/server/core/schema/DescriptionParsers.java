@@ -26,6 +26,7 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -135,9 +136,8 @@ public class DescriptionParsers
             }
             catch ( ParseException e )
             {
-                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
-                    "The following does not conform to the syntaxCheckerDescription syntax: " + value,
-                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( I18n.err( I18n.ERR_405, 
+                    value ), ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
             }
@@ -166,9 +166,8 @@ public class DescriptionParsers
             }
             catch ( ParseException e )
             {
-                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
-                    "The following does not conform to the normalizerDescription syntax: " + value.getString(),
-                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( I18n.err( I18n.ERR_406, 
+                    value.getString() ), ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
             }
@@ -197,9 +196,8 @@ public class DescriptionParsers
             }
             catch ( ParseException e )
             {
-                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
-                    "The following does not conform to the comparatorDescription syntax: " + value.getString(),
-                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( I18n.err( I18n.ERR_407,
+                    value.getString() ), ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
             }
@@ -238,9 +236,8 @@ public class DescriptionParsers
             }
             catch ( ParseException e )
             {
-                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
-                    "The following does not conform to the attributeTypeDescription syntax: " + value.getString(),
-                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( I18n.err( I18n.ERR_408,
+                    value.getString() ), ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
             }
@@ -248,41 +245,36 @@ public class DescriptionParsers
             // if the supertype is provided make sure it exists in some schema
             if ( ( attributeType.getSuperiorOid() != null ) && !schemaManager.getAttributeTypeRegistry().contains( attributeType.getSuperiorOid() ) )
             {
-                throw new LdapOperationNotSupportedException(
-                    "Cannot permit the addition of an attributeType with an invalid super type: "
-                        + attributeType.getSuperiorOid(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+                throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_409, attributeType.getSuperiorOid() ),
+                    ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
             // if the syntax is provided by the description make sure it exists in some schema
             if ( attributeType.getSyntaxOid() != null && !schemaManager.getLdapSyntaxRegistry().contains( attributeType.getSyntaxOid() ) )
             {
-                throw new LdapOperationNotSupportedException(
-                    "Cannot permit the addition of an attributeType with an invalid syntax: "
-                        + attributeType.getSyntaxOid(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+                throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_410, attributeType.getSyntaxOid() ),
+                    ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
             // if the matchingRule is provided make sure it exists in some schema
             if ( attributeType.getEqualityOid() != null && !schemaManager.getMatchingRuleRegistry().contains( attributeType.getEqualityOid() ) )
             {
-                throw new LdapOperationNotSupportedException(
-                    "Cannot permit the addition of an attributeType with an invalid EQUALITY matchingRule: "
-                        + attributeType.getEqualityOid(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+                throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_411, attributeType.getEqualityOid() ),
+                    ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
             // if the matchingRule is provided make sure it exists in some schema
             if ( attributeType.getOrderingOid() != null && !schemaManager.getMatchingRuleRegistry().contains( attributeType.getOrderingOid() ) )
             {
-                throw new LdapOperationNotSupportedException(
-                    "Cannot permit the addition of an attributeType with an invalid ORDERING matchingRule: "
-                        + attributeType.getOrderingOid(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+                throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_412, attributeType.getOrderingOid() ),
+                    ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
             // if the matchingRule is provided make sure it exists in some schema
             if ( attributeType.getSubstringOid() != null && !schemaManager.getMatchingRuleRegistry().contains( attributeType.getSubstringOid() ) )
             {
-                throw new LdapOperationNotSupportedException(
-                    "Cannot permit the addition of an attributeType with an invalid SUBSTRINGS matchingRule: "
-                        + attributeType.getSubstringOid(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+                throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_413, attributeType.getSubstringOid() ),
+                    ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
             // if the equality matching rule is null and no super type is specified then there is
@@ -292,10 +284,7 @@ public class DescriptionParsers
             {
                 if ( attributeType.getSuperiorOid() == null )
                 {
-                    throw new LdapOperationNotSupportedException(
-                        "Cannot permit the addition of an attributeType with an no EQUALITY matchingRule "
-                            + "\nand no super type from which to derive an EQUALITY matchingRule.",
-                        ResultCodeEnum.UNWILLING_TO_PERFORM );
+                    throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_414 ), ResultCodeEnum.UNWILLING_TO_PERFORM );
                 }
                 else
                 {
@@ -304,9 +293,7 @@ public class DescriptionParsers
 
                     if ( superType == null )
                     {
-                        throw new LdapOperationNotSupportedException(
-                            "Cannot permit the addition of an attributeType with which cannot resolve an "
-                                + "EQUALITY matchingRule from it's super type.", ResultCodeEnum.UNWILLING_TO_PERFORM );
+                        throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_415 ), ResultCodeEnum.UNWILLING_TO_PERFORM );
                     }
                 }
             }
@@ -317,9 +304,7 @@ public class DescriptionParsers
             // if a supertype exists then it must resolve a proper syntax somewhere in the hierarchy.
             if ( attributeType.getSyntaxOid() == null && attributeType.getSuperiorOid() == null )
             {
-                throw new LdapOperationNotSupportedException(
-                    "Cannot permit the addition of an attributeType with no syntax "
-                        + "\nand no super type from which to derive a syntax.", ResultCodeEnum.UNWILLING_TO_PERFORM );
+                throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_416 ), ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
             List<Throwable> errors = new ArrayList<Throwable>();
@@ -377,9 +362,8 @@ public class DescriptionParsers
             }
             catch ( ParseException e )
             {
-                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
-                    "The following does not conform to the objectClassDescription syntax: " + value.getString(),
-                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( I18n.err( I18n.ERR_417, 
+                    value.getString() ), ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
             }
@@ -397,9 +381,8 @@ public class DescriptionParsers
 
                     if ( !schemaManager.getObjectClassRegistry().contains( superiorOid ) )
                     {
-                        throw new LdapOperationNotSupportedException(
-                            "Cannot permit the addition of an objectClass with an invalid superior objectClass: "
-                                + superiorOid, ResultCodeEnum.UNWILLING_TO_PERFORM );
+                        throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_418, superiorOid ),
+                            ResultCodeEnum.UNWILLING_TO_PERFORM );
                     }
                 }
             }
@@ -411,9 +394,8 @@ public class DescriptionParsers
                 {
                     if ( !schemaManager.getAttributeTypeRegistry().contains( mayAttrOid ) )
                     {
-                        throw new LdapOperationNotSupportedException(
-                            "Cannot permit the addition of an objectClass with an invalid "
-                                + "attributeType in the mayList: " + mayAttrOid, ResultCodeEnum.UNWILLING_TO_PERFORM );
+                        throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_419, mayAttrOid ),
+                            ResultCodeEnum.UNWILLING_TO_PERFORM );
                     }
                 }
             }
@@ -425,9 +407,8 @@ public class DescriptionParsers
                 {
                     if ( !schemaManager.getAttributeTypeRegistry().contains( mustAttrOid ) )
                     {
-                        throw new LdapOperationNotSupportedException(
-                            "Cannot permit the addition of an objectClass with an invalid "
-                                + "attributeType in the mustList: " + mustAttrOid, ResultCodeEnum.UNWILLING_TO_PERFORM );
+                        throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_420, mustAttrOid ),
+                            ResultCodeEnum.UNWILLING_TO_PERFORM );
                     }
                 }
             }
@@ -472,9 +453,8 @@ public class DescriptionParsers
             }
             catch ( ParseException e )
             {
-                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
-                    "The following does not conform to the matchingRuleUseDescription syntax: " + value.getString(),
-                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( I18n.err( I18n.ERR_421, 
+                    value.getString() ), ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
             }
@@ -516,19 +496,15 @@ public class DescriptionParsers
             }
             catch ( ParseException e )
             {
-                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
-                    "The following does not conform to the ldapSyntax description syntax: " + value.getString(),
-                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( I18n.err( I18n.ERR_422, 
+                    value.getString() ), ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
             }
 
             if ( !schemaManager.getSyntaxCheckerRegistry().contains( ldapSyntax.getOid() ) )
             {
-                throw new LdapOperationNotSupportedException(
-                    "Cannot permit the addition of a syntax without the prior creation of a "
-                        + "\nsyntaxChecker with the same object identifier of the syntax!",
-                    ResultCodeEnum.UNWILLING_TO_PERFORM );
+                throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_423 ), ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
             ldapSyntax.setHumanReadable( isHumanReadable( ldapSyntax ) );
@@ -569,17 +545,15 @@ public class DescriptionParsers
             }
             catch ( ParseException e )
             {
-                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
-                    "The following does not conform to the matchingRuleDescription syntax: " + value.getString(),
-                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( I18n.err( I18n.ERR_424, 
+                    value.getString() ), ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
             }
 
             if ( !schemaManager.getLdapSyntaxRegistry().contains( matchingRule.getSyntaxOid() ) )
             {
-                throw new LdapOperationNotSupportedException(
-                    "Cannot create a matchingRule that depends on non-existant syntax: " + matchingRule.getSyntaxOid(),
+                throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_425, matchingRule.getSyntaxOid() ),
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
@@ -620,9 +594,8 @@ public class DescriptionParsers
             }
             catch ( ParseException e )
             {
-                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
-                    "The following does not conform to the ditStructureRuleDescription syntax: " + value.getString(),
-                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( I18n.err( I18n.ERR_426, 
+                    value.getString() ), ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
             }
@@ -664,9 +637,8 @@ public class DescriptionParsers
             }
             catch ( ParseException e )
             {
-                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
-                    "The following does not conform to the ditContentRuleDescription syntax: " + value.getString(),
-                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( I18n.err( I18n.ERR_427, 
+                    value.getString() ), ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
             }
@@ -708,9 +680,8 @@ public class DescriptionParsers
             }
             catch ( ParseException e )
             {
-                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
-                    "The following does not conform to the nameFormDescription syntax: " + value.getString(),
-                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( I18n.err( I18n.ERR_428, 
+                    value.getString() ), ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
             }

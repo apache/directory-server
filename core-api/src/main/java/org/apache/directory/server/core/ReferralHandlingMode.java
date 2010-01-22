@@ -22,6 +22,8 @@ package org.apache.directory.server.core;
 
 import javax.naming.Context;
 
+import org.apache.directory.server.i18n.I18n;
+
 
 /**
  * Enumeration for referral handling modes.
@@ -97,6 +99,6 @@ public enum ReferralHandlingMode
             return THROW_FINDING_BASE;
         }
         
-        throw new IllegalArgumentException( "Unknown JNDI Context.REFERRAL value of " + jndiValue );
+        throw new IllegalArgumentException( I18n.err( I18n.ERR_437, jndiValue ) );
     }
 }

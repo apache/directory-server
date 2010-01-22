@@ -27,6 +27,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
@@ -129,9 +130,8 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // We have some error : reject the addition and get out
-                String msg = "Cannot add the Syntax " + entry.getDn().getName() + " into the registries, "
-                    + "the resulting registries would be inconsistent :" + 
-                    StringTools.listToString( schemaManager.getErrors() );
+                String msg = I18n.err( I18n.ERR_399, entry.getDn().getName(),
+                    StringTools.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
@@ -237,8 +237,8 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // We have some error : reject the deletion and get out
-                String msg = "Cannot delete the Syntax " + entry.getDn().getName() + " into the registries, "
-                    + "the resulting registries would be inconsistent :" + StringTools.listToString( errors );
+                String msg = I18n.err( I18n.ERR_400, entry.getDn().getName(), 
+                    StringTools.listToString( errors ) );
                 LOG.info( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
@@ -263,10 +263,8 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
 
         if ( dependees.size() != 0 )
         {
-            throw new LdapOperationNotSupportedException(
-                "The syntax with OID " + oldOid + " cannot be deleted until all entities"
-                    + " using this syntax have also been deleted.  The following dependees exist: "
-                    + getNames( dependees ), ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_401, oldOid,
+                getNames( dependees ) ), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
@@ -305,10 +303,8 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
 
         if ( dependees.size() != 0 )
         {
-            throw new LdapOperationNotSupportedException(
-                "The syntax with OID " + oldOid + " cannot be deleted until all entities"
-                    + " using this syntax have also been deleted.  The following dependees exist: "
-                    + getNames( dependees ), ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_401, oldOid, getNames( dependees ) ),
+                ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
@@ -387,8 +383,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     {
         if ( newParent.size() != 3 )
         {
-            throw new LdapInvalidNameException(
-                "The parent dn of a syntax should be at most 3 name components in length.",
+            throw new LdapInvalidNameException( I18n.err( I18n.ERR_402 ),
                 ResultCodeEnum.NAMING_VIOLATION );
         }
 
@@ -396,15 +391,12 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         if ( !schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals(
             SchemaConstants.OU_AT_OID ) )
         {
-            throw new LdapInvalidNameException( "The parent entry of a syntax should be an organizationalUnit.",
-                ResultCodeEnum.NAMING_VIOLATION );
+            throw new LdapInvalidNameException( I18n.err( I18n.ERR_403 ), ResultCodeEnum.NAMING_VIOLATION );
         }
 
         if ( !( ( String ) rdn.getNormValue() ).equalsIgnoreCase( "syntaxes" ) )
         {
-            throw new LdapInvalidNameException(
-                "The parent entry of a syntax should have a relative name of ou=syntaxes.",
-                ResultCodeEnum.NAMING_VIOLATION );
+            throw new LdapInvalidNameException( I18n.err( I18n.ERR_404 ), ResultCodeEnum.NAMING_VIOLATION );
         }
     }
 }

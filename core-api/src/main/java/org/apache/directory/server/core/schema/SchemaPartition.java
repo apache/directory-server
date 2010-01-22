@@ -135,7 +135,7 @@ public final class SchemaPartition extends AbstractPartition
     {
         if ( this.isInitialized() )
         {
-            throw new IllegalStateException( "Not allowed to set the wrappedPartition after initialization." );
+            throw new IllegalStateException( I18n.err( I18n.ERR_429 ) );
         }
         
         this.wrapped = wrapped;
