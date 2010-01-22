@@ -187,7 +187,7 @@
               enableLdaps="true">
               
     <tcpTransport>
-      <tcpTransport port="10686" nbThreads="8" backLog="50"/>
+      <tcpTransport port="10636" nbThreads="8" backLog="50"/>
     </tcpTransport>
 
     <directoryService>#directoryService</directoryService>

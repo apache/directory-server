@@ -185,7 +185,7 @@
               enabled="true"
               enableLdaps="true">
     <tcpTransport>
-      <tcpTransport port="10686"/>
+      <tcpTransport port="10636"/>
     </tcpTransport>
     <directoryService>#directoryService</directoryService>
   </ldapService>

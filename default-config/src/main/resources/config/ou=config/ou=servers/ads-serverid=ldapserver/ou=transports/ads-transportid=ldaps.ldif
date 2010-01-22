@@ -1,7 +1,7 @@
 version: 1
 dn: ads-transportid=ldaps,ou=transports,ads-serverId=ldapServer,ou=servers,ou=co
  nfig
-ads-systemport: 10686
+ads-systemport: 10636
 ads-transportenablessl: true
 createtimestamp: 20100111145239Z
 entrycsn: 20100111202239.213000Z#000000#000#000000
