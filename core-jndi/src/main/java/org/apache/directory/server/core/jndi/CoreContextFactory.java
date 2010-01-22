@@ -22,6 +22,7 @@ package org.apache.directory.server.core.jndi;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -55,7 +56,7 @@ public class CoreContextFactory implements InitialContextFactory
 
         if ( service == null )
         {
-            throw new ConfigurationException( "Cannot find directory service in environment: " + env );
+            throw new ConfigurationException( I18n.err( I18n.ERR_477, env ) );
         }
 
         if ( ! service.isStarted() )
@@ -134,7 +135,7 @@ public class CoreContextFactory implements InitialContextFactory
         }
         else
         {
-            throw new javax.naming.ConfigurationException( "Can't convert '" + Context.SECURITY_CREDENTIALS + "' to byte[]." );
+            throw new javax.naming.ConfigurationException( I18n.err( I18n.ERR_478, Context.SECURITY_CREDENTIALS ) );
         }
 
         if ( credential != null )

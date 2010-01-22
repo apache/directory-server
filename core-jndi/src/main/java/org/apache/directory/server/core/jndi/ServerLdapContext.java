@@ -35,6 +35,7 @@ import org.apache.directory.server.core.entry.ServerBinaryValue;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -196,7 +197,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
             }
             else
             {
-                throw new NamingException( "Bad value for the OID " + oid );
+                throw new NamingException( I18n.err( I18n.ERR_502, oid ) );
             }
         }
         else
@@ -211,7 +212,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
             }
             else
             {
-                throw new NamingException( "Bad value for the OID " + oid );
+                throw new NamingException( I18n.err( I18n.ERR_502, oid ) );
             }
         }
         

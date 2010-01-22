@@ -31,6 +31,7 @@ import javax.naming.NamingException;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -92,8 +93,7 @@ class JavaLdapSupport
         }
         catch ( Exception e )
         {
-            NamingException ne = new NamingException( "De-serialization of '" + className + "' instance failed:\n"
-                + e.getLocalizedMessage() );
+            NamingException ne = new NamingException( I18n.err( I18n.ERR_479, className, e.getLocalizedMessage() ) );
             ne.setRootCause( e );
             throw ne;
         }
@@ -108,7 +108,7 @@ class JavaLdapSupport
             }
             catch ( IOException e )
             {
-                throw new NamingException( "object deserialization stream close() failure" );
+                throw new NamingException( I18n.err( I18n.ERR_480 ) );
             }
         }
     }
@@ -135,7 +135,7 @@ class JavaLdapSupport
         }
         catch ( Exception e )
         {
-            NamingException ne = new NamingException( "Serialization of '" + obj + "' failed:\n" + e.getLocalizedMessage() );
+            NamingException ne = new NamingException( I18n.err( I18n.ERR_481, obj, e.getLocalizedMessage() ) );
             ne.setRootCause( e );
             throw ne;
         }
@@ -150,7 +150,7 @@ class JavaLdapSupport
             }
             catch ( IOException e )
             {
-                throw new NamingException( "object serialization stream close() failure" );
+                throw new NamingException( I18n.err( I18n.ERR_482 ) );
             }
         }
     }

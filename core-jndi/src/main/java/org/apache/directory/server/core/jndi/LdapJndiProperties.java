@@ -25,6 +25,7 @@ import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -74,8 +75,8 @@ public class LdapJndiProperties
         }
         else if ( !( authentication instanceof String ) )
         {
-            throw new LdapConfigurationException( "Don't know how to interpret " + authentication.getClass()
-                + " objects for environment property " + Context.SECURITY_AUTHENTICATION );
+            throw new LdapConfigurationException( I18n.err( I18n.ERR_483, authentication.getClass(), 
+                Context.SECURITY_AUTHENTICATION ) );
         }
         else
         {
@@ -115,16 +116,14 @@ public class LdapJndiProperties
 
         if ( !env.containsKey( Context.PROVIDER_URL ) )
         {
-            String msg = "Expected property " + Context.PROVIDER_URL;
-            msg += " but could not find it in env!";
+            String msg = I18n.err( I18n.ERR_484, Context.PROVIDER_URL );
             throw new LdapConfigurationException( msg );
         }
 
         String url = ( String ) env.get( Context.PROVIDER_URL );
         if ( url == null )
         {
-            String msg = "Expected value for property " + Context.PROVIDER_URL;
-            msg += " but it was set to null in env!";
+            String msg = I18n.err( I18n.ERR_485, Context.PROVIDER_URL );
             throw new LdapConfigurationException( msg );
         }
 
@@ -155,8 +154,8 @@ public class LdapJndiProperties
         }
         else if ( !( authentication instanceof String ) )
         {
-            throw new LdapConfigurationException( "Don't know how to interpret " + authentication.getClass()
-                + " objects for environment property " + Context.SECURITY_AUTHENTICATION );
+            throw new LdapConfigurationException( I18n.err( I18n.ERR_486, authentication.getClass(), 
+                Context.SECURITY_AUTHENTICATION ) );
         }
         else
         {
@@ -189,7 +188,7 @@ public class LdapJndiProperties
 
         if ( principal == null && props.level == AuthenticationLevel.SIMPLE )
         {
-            throw new LdapConfigurationException( Context.SECURITY_PRINCIPAL + " cannot be null." );
+            throw new LdapConfigurationException( I18n.err( I18n.ERR_487, Context.SECURITY_PRINCIPAL ) );
         }
         else if ( principal == null && props.level == AuthenticationLevel.NONE )
         {
@@ -197,8 +196,7 @@ public class LdapJndiProperties
         }
         else if ( !( principal instanceof String ) )
         {
-            throw new LdapConfigurationException( "Don't know how to interpret " + principal.getClass()
-                + " objects for environment property " + Context.SECURITY_PRINCIPAL );
+            throw new LdapConfigurationException( I18n.err( I18n.ERR_488, principal.getClass(), Context.SECURITY_PRINCIPAL ) );
         }
         else if ( ( ( String ) principal ).trim().equals( "" ) )
         {
@@ -219,8 +217,7 @@ public class LdapJndiProperties
             }
             else
             {
-                throw new LdapConfigurationException( "Don't know how to interpret " + obj.getClass()
-                    + " objects for environment property " + SASL_AUTHID );
+                throw new LdapConfigurationException( I18n.err( I18n.ERR_488, obj.getClass(), SASL_AUTHID ) );
             }
             props.saslAuthId = ( String ) principal;
         }
@@ -231,7 +228,7 @@ public class LdapJndiProperties
 
         if ( props.level == AuthenticationLevel.SIMPLE && credobj == null )
         {
-            throw new LdapConfigurationException( "cannot specify simple authentication with supplying credentials" );
+            throw new LdapConfigurationException( I18n.err( I18n.ERR_489 ) );
         }
         else if ( credobj != null )
         {
@@ -245,8 +242,7 @@ public class LdapJndiProperties
             }
             else
             {
-                throw new LdapConfigurationException( "Don't know how to interpret " + credobj.getClass()
-                    + " objects for environment property " + Context.SECURITY_CREDENTIALS );
+                throw new LdapConfigurationException( I18n.err( I18n.ERR_488, credobj.getClass(), Context.SECURITY_CREDENTIALS ) );
             }
         }
 

@@ -53,6 +53,7 @@ import org.apache.directory.server.core.event.DirectoryListener;
 import org.apache.directory.server.core.event.NotificationCriteria;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -301,8 +302,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     {
         if ( ( null == obj ) && ( null == attrs ) )
         {
-            throw new NamingException( "Both obj and attrs args are null. "
-                + "At least one of these parameters must not be null." );
+            throw new NamingException( I18n.err( I18n.ERR_499 ) );
         }
 
         // A null attrs defaults this to the Context.bind() operation
@@ -364,14 +364,14 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         // Check for Referenceable
         if ( obj instanceof Referenceable )
         {
-            throw new NamingException( "Do not know how to store Referenceables yet!" );
+            throw new NamingException( I18n.err( I18n.ERR_493 ) );
         }
 
         // Store different formats
         if ( obj instanceof Reference )
         {
             // Store as ref and add outAttrs
-            throw new NamingException( "Do not know how to store References yet!" );
+            throw new NamingException( I18n.err( I18n.ERR_494 ) );
         }
         else if ( obj instanceof Serializable )
         {
@@ -424,7 +424,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         }
         else
         {
-            throw new NamingException( "Can't find a way to bind: " + obj );
+            throw new NamingException( I18n.err( I18n.ERR_495, obj ) );
         }
     }
 
@@ -809,8 +809,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         }
         catch ( ParseException pe )
         {
-            InvalidSearchFilterException isfe = new InvalidSearchFilterException(
-                "Encountered parse exception while parsing the filter: '" + filter + "'" );
+            InvalidSearchFilterException isfe = new InvalidSearchFilterException( I18n.err( I18n.ERR_500, filter ) );
             isfe.setRootCause( pe );
             throw isfe;
         }
@@ -926,7 +925,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         }
         catch ( Exception e )
         {
-            NamingException e2 = new NamingException( "could not parse filter: " + filterStr );
+            NamingException e2 = new NamingException( I18n.err( I18n.ERR_501, filterStr ) );
             e2.setRootCause( e );
             throw e2;
         }

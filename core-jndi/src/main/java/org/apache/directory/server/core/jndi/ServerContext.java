@@ -70,6 +70,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
@@ -170,7 +171,7 @@ public abstract class ServerContext implements EventContext
         
         if ( ! operationManager.hasEntry( new EntryOperationContext( session, dn ) ) )
         {
-            throw new NameNotFoundException( dn + " does not exist" );
+            throw new NameNotFoundException( I18n.err( I18n.ERR_490, dn ) );
         }
     }
     
@@ -198,7 +199,7 @@ public abstract class ServerContext implements EventContext
         
         if ( ! operationManager.hasEntry( new EntryOperationContext( session, ( LdapDN ) dn ) ) )
         {
-            throw new NameNotFoundException( dn + " does not exist" );
+            throw new NameNotFoundException( I18n.err( I18n.ERR_490, dn ) );
         }
     }
 
@@ -215,7 +216,7 @@ public abstract class ServerContext implements EventContext
         
         if ( ! operationManager.hasEntry( new EntryOperationContext( session, ( LdapDN ) dn ) ) )
         {
-            throw new NameNotFoundException( dn + " does not exist" );
+            throw new NameNotFoundException( I18n.err( I18n.ERR_490, dn ) );
         }
     }
 
@@ -715,17 +716,13 @@ public abstract class ServerContext implements EventContext
             else
             {
                 // No CN in the rdn, this is an error
-                throw new LdapSchemaViolationException( name
-                    + " does not contains the mandatory 'cn' attribute for JavaContainer ObjectClass!",
-                    ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+                throw new LdapSchemaViolationException( I18n.err( I18n.ERR_491, name), ResultCodeEnum.OBJECT_CLASS_VIOLATION );
             }
         }
         else
         {
             // No CN in the rdn, this is an error
-            throw new LdapSchemaViolationException( name
-                + " does not contains the mandatory 'cn' attribute for JavaContainer ObjectClass!",
-                ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+            throw new LdapSchemaViolationException( I18n.err( I18n.ERR_491, name), ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
 
         /*
@@ -777,7 +774,7 @@ public abstract class ServerContext implements EventContext
 
         if ( target.size() == 0 )
         {
-            throw new LdapNoPermissionException( "can't delete the rootDSE" );
+            throw new LdapNoPermissionException( I18n.err( I18n.ERR_492 ) );
         }
 
         try
@@ -860,13 +857,13 @@ public abstract class ServerContext implements EventContext
         // Check for Referenceable
         else if ( obj instanceof Referenceable )
         {
-            throw new NamingException( "Do not know how to store Referenceables yet!" );
+            throw new NamingException( I18n.err( I18n.ERR_493 ) );
         }
         // Store different formats
         else if ( obj instanceof Reference )
         {
             // Store as ref and add outAttrs
-            throw new NamingException( "Do not know how to store References yet!" );
+            throw new NamingException( I18n.err( I18n.ERR_494 ) );
         }
         else if ( obj instanceof Serializable )
         {
@@ -921,7 +918,7 @@ public abstract class ServerContext implements EventContext
         }
         else
         {
-            throw new NamingException( "Can't find a way to bind: " + obj );
+            throw new NamingException( I18n.err( I18n.ERR_495, obj ) );
         }
     }
 
@@ -945,7 +942,7 @@ public abstract class ServerContext implements EventContext
 
         if ( oldDn.size() == 0 )
         {
-            throw new LdapNoPermissionException( "can't rename the rootDSE" );
+            throw new LdapNoPermissionException( I18n.err( I18n.ERR_496 ) );
         }
 
         // calculate parents
@@ -1123,8 +1120,7 @@ public abstract class ServerContext implements EventContext
         }
         catch ( Exception e )
         {
-            String msg = "Failed to create an object for " + target;
-            msg += " using object factories within the context's environment.";
+            String msg = I18n.err( I18n.ERR_497, target );
             NamingException ne = new NamingException( msg );
             ne.setRootCause( e );
             throw ne;
@@ -1337,8 +1333,7 @@ public abstract class ServerContext implements EventContext
             }
         }
 
-        String msg = "The prefix '" + prefix + "' is not an ancestor of this ";
-        msg += "entry '" + dn + "'";
+        String msg = I18n.err( I18n.ERR_498, prefix, dn );
         throw new NamingException( msg );
     }
 
