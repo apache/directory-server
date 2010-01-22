@@ -2299,7 +2299,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      */
     public void writeExternal( ObjectOutput out ) throws IOException
     {
-        throw new IllegalStateException( "Cannot use standard serialization for a ServerEntry" );
+        throw new IllegalStateException( I18n.err( I18n.ERR_456 ) );
     }
     
     
@@ -2355,7 +2355,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      */
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
-        throw new IllegalStateException( "Cannot use standard serialization for a ServerAttribute" );
+        throw new IllegalStateException( I18n.err( I18n.ERR_455 ) );
     }
     
     
@@ -2395,7 +2395,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
             catch ( NamingException ne )
             {
                 // We weren't able to find the OID. The attribute will not be added
-                LOG.warn( "Cannot read the attribute as it's OID ('" + oid + "') does not exist" );
+                LOG.warn( I18n.err( I18n.ERR_460, oid ) );
                 
             }
         }

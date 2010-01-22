@@ -30,6 +30,7 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -427,7 +428,7 @@ public class ClonedServerEntry implements ServerEntry
      */
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
-        throw new IllegalStateException( "Cannot use standard serialization for a ServerAttribute" );
+        throw new IllegalStateException( I18n.err( I18n.ERR_455 ) );
     }
     
     
@@ -438,7 +439,7 @@ public class ClonedServerEntry implements ServerEntry
      */
     public void writeExternal( ObjectOutput out ) throws IOException
     {
-        throw new IllegalStateException( "Cannot use standard serialization for a ServerEntry" );
+        throw new IllegalStateException( I18n.err( I18n.ERR_456 ) );
     }
     
     

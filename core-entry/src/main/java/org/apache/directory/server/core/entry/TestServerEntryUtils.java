@@ -21,6 +21,7 @@ package org.apache.directory.server.core.entry;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
@@ -155,7 +156,7 @@ public class TestServerEntryUtils
                     return 2;
                 }
                 
-                throw new IllegalArgumentException( "Not a valid value" );
+                throw new IllegalArgumentException( I18n.err( I18n.ERR_472 ) );
             }
         } );
         
@@ -170,7 +171,7 @@ public class TestServerEntryUtils
                     return new ClientStringValue( value.getString().toLowerCase() );
                 }
 
-                throw new IllegalStateException( "expected string to normalize" );
+                throw new IllegalStateException( I18n.err( I18n.ERR_473 ) );
             }
             
             
@@ -274,12 +275,12 @@ public class TestServerEntryUtils
                     return new ClientBinaryValue( StringTools.trim( newVal ) );
                 }
 
-                throw new IllegalStateException( "expected byte[] to normalize" );
+                throw new IllegalStateException( I18n.err( I18n.ERR_474 ) );
             }
 
             public String normalize( String value ) throws NamingException
             {
-                throw new IllegalStateException( "expected byte[] to normalize" );
+                throw new IllegalStateException( I18n.err( I18n.ERR_474 ) );
             }
         } );
         

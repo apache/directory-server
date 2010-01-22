@@ -35,6 +35,7 @@ import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -300,7 +301,7 @@ public class ServerEntryUtils
                 break;
                 
             default:
-                throw new IllegalStateException( "undefined modification type: " + modOp );
+                throw new IllegalStateException( I18n.err( I18n.ERR_464, modOp ) );
         }
 
         return targetEntry;
@@ -324,7 +325,7 @@ public class ServerEntryUtils
     {
         if ( attr0 == null && attr1 == null )
         {
-            throw new IllegalArgumentException( "Cannot figure out attribute ID if both args are null" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_465 ) );
         }
         else if ( attr0 == null )
         {
@@ -336,7 +337,7 @@ public class ServerEntryUtils
         }
         else if ( !attr0.getAttributeType().equals( attr1.getAttributeType() ) )
         {
-            throw new IllegalArgumentException( "Cannot take union of attributes with different IDs!" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_466 ) );
         }
 
         ServerAttribute attr = (ServerAttribute)attr0.clone();
@@ -465,7 +466,7 @@ public class ServerEntryUtils
                 {
                     // The attributeType does not exist in the schema.
                     // It's an error
-                    String message = "The AttributeType '" + id + "' does not exist in the schema";
+                    String message = I18n.err( I18n.ERR_467, id );
                     throw new LdapInvalidAttributeIdentifierException( message );
                 }
                 else
@@ -650,7 +651,7 @@ public class ServerEntryUtils
                 catch ( NamingException ne )
                 {
                     NoSuchElementException nsee = 
-                        new NoSuchElementException( "Encountered NamingException on underlying enumeration." );
+                        new NoSuchElementException( I18n.err( I18n.ERR_468 ) );
                     nsee.initCause( ne );
                     throw nsee;
                 }

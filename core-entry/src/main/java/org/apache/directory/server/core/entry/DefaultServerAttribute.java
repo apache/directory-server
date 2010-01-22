@@ -163,7 +163,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
     {
         if ( attributeType == null )
         {
-            throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_457 ) );
         }
         
         setAttributeType( attributeType );
@@ -223,7 +223,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
     {
         if ( attributeType == null )
         {
-            throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_457 ) );
         }
         
         setAttributeType( attributeType );
@@ -255,7 +255,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
     {
         if ( attributeType == null )
         {
-            throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_457 ) );
         }
 
         setAttributeType( attributeType );
@@ -287,7 +287,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
     {
         if ( attributeType == null )
         {
-            throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_457 ) );
         }
 
         setAttributeType( attributeType );
@@ -967,15 +967,13 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 else
                 {
                     // The id is incorrect : this is not allowed 
-                    throw new IllegalArgumentException( "The ID '" + id + "'is incompatible with the AttributeType's id '" + 
-                        attributeType.getName() + "'" );
+                    throw new IllegalArgumentException( I18n.err( I18n.ERR_458, id, attributeType.getName() ) );
                 }
             }
         }
         else
         {
-            throw new IllegalArgumentException( "An ID cannnot be null, empty, or resolved to an emtpy" +
-            " value when trimmed" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_459 ) );
         }
     }
     
@@ -1169,7 +1167,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
      */
     public void writeExternal( ObjectOutput out ) throws IOException
     {
-        throw new IllegalStateException( "Cannot use standard serialization for a ServerAttribute" );
+        throw new IllegalStateException( I18n.err( I18n.ERR_455 ) );
     }
     
     
@@ -1230,7 +1228,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
      */
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
-        throw new IllegalStateException( "Cannot use standard serialization for a ServerAttribute" );
+        throw new IllegalStateException( I18n.err( I18n.ERR_455 ) );
     }
     
     

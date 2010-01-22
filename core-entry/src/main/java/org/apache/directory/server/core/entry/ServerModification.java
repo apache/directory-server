@@ -253,7 +253,7 @@ public class ServerModification implements Modification
      */
     public void writeExternal( ObjectOutput out ) throws IOException
     {
-        throw new IllegalStateException( "Cannot use standard serialization for a ServerEntry" );
+        throw new IllegalStateException( I18n.err( I18n.ERR_456 ) );
     }
     
     
@@ -264,7 +264,7 @@ public class ServerModification implements Modification
      */
     public void readExternal( ObjectInput in ) throws IOException
     {
-        throw new IllegalStateException( "Cannot use standard serialization for a ServerEntry" );
+        throw new IllegalStateException( I18n.err( I18n.ERR_456 ) );
     }
     
     
@@ -304,7 +304,7 @@ public class ServerModification implements Modification
     {
         if ( attribute == null )
         {
-            throw new IOException( "Cannot serialize a Modification with no attribute" );
+            throw new IOException( I18n.err( I18n.ERR_469 ) );
         }
         
         // Write the operation

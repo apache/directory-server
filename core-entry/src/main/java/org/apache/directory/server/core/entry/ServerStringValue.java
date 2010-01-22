@@ -106,12 +106,12 @@ public class ServerStringValue extends ClientStringValue
         
         if ( attributeType == null )
         {
-            throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_470 ) );
         }
 
         if ( attributeType.getSyntax() == null )
         {
-            throw new IllegalArgumentException( "There is no Syntax associated with this attributeType" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_471 ) );
         }
 
         if ( ! attributeType.getSyntax().isHumanReadable() )
@@ -556,7 +556,7 @@ public class ServerStringValue extends ClientStringValue
      */ 
     public void writeExternal( ObjectOutput out ) throws IOException
     {
-        throw new IllegalStateException( "Cannot use standard serialization for a ServerStringValue" );
+        throw new IllegalStateException( I18n.err( I18n.ERR_463 ) );
     }
     
     
@@ -629,7 +629,7 @@ public class ServerStringValue extends ClientStringValue
      */
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
-        throw new IllegalStateException( "Cannot use standard serialization for a ServerStringValue" );
+        throw new IllegalStateException( I18n.err( I18n.ERR_463 ) );
     }
     
 
