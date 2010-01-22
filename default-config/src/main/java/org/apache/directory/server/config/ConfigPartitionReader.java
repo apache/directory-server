@@ -54,6 +54,7 @@ import org.apache.directory.server.dhcp.service.StoreBasedDhcpService;
 import org.apache.directory.server.dhcp.store.DhcpStore;
 import org.apache.directory.server.dhcp.store.SimpleDhcpStore;
 import org.apache.directory.server.dns.DnsServer;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.integration.http.HttpServer;
 import org.apache.directory.server.integration.http.WebApp;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
@@ -131,12 +132,12 @@ public class ConfigPartitionReader
     {
         if ( configPartition == null )
         {
-            throw new IllegalArgumentException( "Config partition cannot be null" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_503 ) );
         }
 
         if ( !configPartition.isInitialized() )
         {
-            throw new IllegalStateException( "the config partition is not initialized" );
+            throw new IllegalStateException( I18n.err( I18n.ERR_504 ) );
         }
 
         this.configPartition = configPartition;
@@ -549,7 +550,7 @@ public class ConfigPartitionReader
         
         if ( systemPartition == null )
         {
-            throw new Exception( "system partition doesn't exist" );
+            throw new Exception( I18n.err( I18n.ERR_505 ) );
         }
 
         dirService.setSystemPartition( systemPartition );
@@ -722,7 +723,7 @@ public class ConfigPartitionReader
             }
             else
             {
-                throw new NotImplementedException( "yet to implement" );
+                throw new NotImplementedException( I18n.err( I18n.ERR_506 ) );
             }
         }
         
@@ -799,7 +800,7 @@ public class ConfigPartitionReader
             }
             else
             {
-                throw new NotImplementedException( "yet to implement" );
+                throw new NotImplementedException( I18n.err( I18n.ERR_506 ) );
             }
         }
         
@@ -1045,7 +1046,7 @@ public class ConfigPartitionReader
         {
             if ( order < 1 )
             {
-                throw new IllegalArgumentException( "Invalid interceptor order" );
+                throw new IllegalArgumentException( I18n.err( I18n.ERR_507 ) );
             }
             
             this.id = id;
