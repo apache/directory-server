@@ -21,6 +21,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import org.apache.directory.server.core.avltree.ArrayTree;
+import org.apache.directory.server.i18n.I18n;
 
 
 /**
@@ -68,7 +69,7 @@ public class DupsContainer<V>
     {
         if ( arrayTree == null )
         {
-            throw new IllegalStateException( "this is not an arrayTree container" );
+            throw new IllegalStateException( I18n.err( I18n.ERR_570 ) );
         }
 
         return arrayTree;
@@ -79,7 +80,7 @@ public class DupsContainer<V>
     {
         if ( btreeRedirect == null )
         {
-            throw new IllegalStateException( "this is not a btreeRedirect container" );
+            throw new IllegalStateException( I18n.err( I18n.ERR_571 ) );
         }
 
         return btreeRedirect;

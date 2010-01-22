@@ -23,6 +23,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 import java.io.IOException;
 
 import org.apache.directory.server.core.avltree.Marshaller;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.codec.binary.Hex;
 
 
@@ -74,12 +75,11 @@ public class BTreeRedirectMarshaller implements Marshaller<BTreeRedirect>
         {
             if ( bites != null )
             {
-                throw new IOException( "Not a serialized BTreeRedirect object: "
-                        + new String( Hex.encodeHex( bites ) ) );
+                throw new IOException( I18n.err( I18n.ERR_568, new String( Hex.encodeHex( bites ) ) ) );
             }
             else
             {
-                throw new IOException( "Not a serialized BTreeRedirect object: byte array is null." );
+                throw new IOException( I18n.err( I18n.ERR_569 ) );
             }
         }
 

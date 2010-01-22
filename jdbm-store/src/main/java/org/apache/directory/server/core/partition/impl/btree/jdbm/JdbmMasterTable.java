@@ -25,6 +25,7 @@ import jdbm.helper.LongSerializer;
 import jdbm.helper.Serializer;
 import jdbm.helper.StringComparator;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.MasterTable;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
@@ -51,11 +52,11 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
         {
             if ( o1 == null )
             {
-                throw new IllegalArgumentException( "Argument 'obj1' is null" );
+                throw new IllegalArgumentException( I18n.err( I18n.ERR_525 ) );
             } 
             else if ( o2 == null )
             {
-                throw new IllegalArgumentException( "Argument 'obj2' is null" );
+                throw new IllegalArgumentException( I18n.err( I18n.ERR_526 ) );
             }
 
             if ( o1 == ( long ) o2 )

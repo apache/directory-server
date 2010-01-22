@@ -32,6 +32,7 @@ import jdbm.recman.CacheRecordManager;
 
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.Tuple;
@@ -208,7 +209,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
         
         if ( mr == null )
         {
-            throw new IOException( "No Equality MatchingRule available for attribute " + attribute.getName() );
+            throw new IOException( I18n.err( I18n.ERR_574, attribute.getName() ) );
         }
         
         comp = new SerializableComparator<K>( mr.getOid() );
@@ -280,8 +281,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
     {
         if ( initialized )
         {
-            throw new IllegalStateException( "The " + property
-                + " property for an index cannot be set after it has been initialized." );
+            throw new IllegalStateException( I18n.err( I18n.ERR_575, property ) );
         }
     }
 

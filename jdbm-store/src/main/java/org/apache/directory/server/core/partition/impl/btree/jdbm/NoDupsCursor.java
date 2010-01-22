@@ -19,6 +19,7 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.server.xdbm.AbstractTupleCursor;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
@@ -116,13 +117,13 @@ class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
     public void beforeValue( K key, V value ) throws Exception
     {
-        throw new UnsupportedOperationException( "This Cursor does not support duplicate keys." );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_596 ) );
     }
 
 
     public void afterValue( K key, V value ) throws Exception
     {
-        throw new UnsupportedOperationException( "This Cursor does not support duplicate keys." );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_596 ) );
     }
 
 

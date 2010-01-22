@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.server.xdbm.AbstractTupleCursor;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
@@ -57,8 +58,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
     {
         if ( ! table.isDupsEnabled() )
         {
-            throw new IllegalStateException(
-                "This cursor can only be used with tables that have duplicate keys enabled." );
+            throw new IllegalStateException( I18n.err( I18n.ERR_572 ) );
         }
 
         this.table = table;
@@ -130,13 +130,13 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
 
     public void beforeValue( K key, DupsContainer<V> value ) throws Exception
     {
-        throw new UnsupportedOperationException( "Value based advances not supported." );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_573 ) );
     }
 
 
     public void afterValue( K key, DupsContainer<V> value ) throws Exception
     {
-        throw new UnsupportedOperationException( "Value based advances not supported." );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_573 ) );
     }
 
 

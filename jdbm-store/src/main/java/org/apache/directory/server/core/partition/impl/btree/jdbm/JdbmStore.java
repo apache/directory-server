@@ -167,7 +167,7 @@ public class JdbmStore<E> implements Store<E>
     {
         if ( initialized )
         {
-            throw new IllegalStateException( "Cannot set jdbm store property " + property + " after initialization." );
+            throw new IllegalStateException( I18n.err( I18n.ERR_576, property ) );
         }
     }
 
@@ -461,7 +461,7 @@ public class JdbmStore<E> implements Store<E>
         List<Index<?,E>> array = new ArrayList<Index<?,E>>();
         array.addAll( userIndices.values() );
         array.addAll( systemIndices.values() );
-        MultiException errors = new MultiException( "Errors encountered on destroy()" );
+        MultiException errors = new MultiException( I18n.err( I18n.ERR_577 ) );
 
         for ( Index<?,E> index : array )
         {
@@ -1029,16 +1029,14 @@ public class JdbmStore<E> implements Store<E>
         {
             if ( aliasDn.equals( normalizedAliasTargetDn ) )
             {
-                String msg = "[36] aliasDereferencingProblem - attempt to create alias to itself.";
+                String msg = I18n.err( I18n.ERR_578 );
                 ResultCodeEnum rc = ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
                 LdapNamingException e = new LdapNamingException( msg, rc );
                 e.setResolvedName( aliasDn );
                 throw e;
             }
 
-            String msg = "[36] aliasDereferencingProblem - "
-                + "attempt to create alias with cycle to relative " + aliasTarget
-                + " not allowed from descendent alias " + aliasDn;
+            String msg = I18n.err( I18n.ERR_579, aliasTarget, aliasDn );
             ResultCodeEnum rc = ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
             LdapNamingException e = new LdapNamingException( msg, rc );
             e.setResolvedName( aliasDn );
@@ -1055,9 +1053,7 @@ public class JdbmStore<E> implements Store<E>
          */
         if ( !normalizedAliasTargetDn.startsWith( normSuffix ) )
         {
-            String msg = "[36] aliasDereferencingProblem - "
-                + " the alias points to an entry outside of the " + upSuffix.getName()
-                + " namingContext to an object whose existence cannot be determined.";
+            String msg = I18n.err( I18n.ERR_580, upSuffix.getName() );
             ResultCodeEnum rc = ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
             LdapNamingException e = new LdapNamingException( msg, rc );
             e.setResolvedName( aliasDn );
@@ -1076,9 +1072,7 @@ public class JdbmStore<E> implements Store<E>
         if ( null == targetId )
         {
             // Complain about target not existing
-            String msg = "[33] aliasProblem - "
-                + "the alias '" + aliasDn.getName() + "' when dereferenced would not name a known object."
-                + "The aliased ObjectName '" + aliasTarget + "' must be set to a valid existing entry.";
+            String msg = I18n.err( I18n.ERR_581, aliasDn.getName(), aliasTarget );
             ResultCodeEnum rc = ResultCodeEnum.ALIAS_PROBLEM;
             LdapNamingException e = new LdapNamingException( msg, rc );
             e.setResolvedName( aliasDn );
@@ -1097,8 +1091,7 @@ public class JdbmStore<E> implements Store<E>
          */
         if ( null != aliasIdx.reverseLookup( targetId ) )
         {
-            String msg = "[36] aliasDereferencingProblem - "
-                + " the alias points to another alias.  Alias chaining is not supported by this backend.";
+            String msg = I18n.err( I18n.ERR_582 );
             ResultCodeEnum rc = ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
             LdapNamingException e = new LdapNamingException( msg, rc );
             e.setResolvedName( aliasDn );
@@ -1161,7 +1154,7 @@ public class JdbmStore<E> implements Store<E>
     {
         if ( entry instanceof ClonedServerEntry )
         {
-            throw new Exception( "Cannot store a ClonedServerEntry" );
+            throw new Exception( I18n.err( I18n.ERR_583 ) );
         }
         
         Long parentId;
@@ -1189,14 +1182,14 @@ public class JdbmStore<E> implements Store<E>
         // don't keep going if we cannot find the parent Id
         if ( parentId == null )
         {
-            throw new LdapNameNotFoundException( "Id for parent '" + parentDn + "' not found!" );
+            throw new LdapNameNotFoundException( I18n.err( I18n.ERR_584, parentDn ) );
         }
 
         EntryAttribute objectClass = entry.get( OBJECT_CLASS_AT );
 
         if ( objectClass == null )
         {
-            String msg = "Entry " + entryDn.getName() + " contains no objectClass attribute: " + entry;
+            String msg = I18n.err( I18n.ERR_586, entryDn.getName(), entry );
             ResultCodeEnum rc = ResultCodeEnum.OBJECT_CLASS_VIOLATION;
             NamingException e = new LdapSchemaViolationException( msg, rc );
             e.setResolvedName( entryDn );
@@ -1220,7 +1213,7 @@ public class JdbmStore<E> implements Store<E>
 
         if ( !Character.isDigit( entryDn.toNormName().charAt( 0 ) ) )
         {
-            throw new IllegalStateException( "Not a normalized name: " + entryDn.toNormName() );
+            throw new IllegalStateException( I18n.err( I18n.ERR_585, entryDn.toNormName() ) );
         }
 
         ndnIdx.add( entryDn.toNormName(), id );
@@ -1232,7 +1225,7 @@ public class JdbmStore<E> implements Store<E>
 
         if ( entryCsn == null )
         {
-            String msg = "Entry " + entryDn.getName() + " contains no entryCsn attribute: " + entry;
+            String msg = I18n.err( I18n.ERR_587, entryDn.getName(), entry );
             throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
         
@@ -1243,7 +1236,7 @@ public class JdbmStore<E> implements Store<E>
 
         if ( entryUuid == null )
         {
-            String msg = "Entry " + entryDn.getName() + " contains no entryUuid attribute: " + entry;
+            String msg = I18n.err( I18n.ERR_588, entryDn.getName(), entry );
             throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
         
@@ -1422,7 +1415,7 @@ public class JdbmStore<E> implements Store<E>
     {
         if ( entry instanceof ClonedServerEntry )
         {
-            throw new Exception( "Cannot store a ClonedServerEntry" );
+            throw new Exception( I18n.err( I18n.ERR_589 ) );
         }
         
         String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
@@ -1485,7 +1478,7 @@ public class JdbmStore<E> implements Store<E>
     {
         if ( entry instanceof ClonedServerEntry )
         {
-            throw new Exception( "Cannot store a ClonedServerEntry" );
+            throw new Exception( I18n.err( I18n.ERR_589 ) );
         }
         
         String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
@@ -1579,7 +1572,7 @@ public class JdbmStore<E> implements Store<E>
     {
         if ( entry instanceof ClonedServerEntry )
         {
-            throw new Exception( "Cannot store a ClonedServerEntry" );
+            throw new Exception( I18n.err( I18n.ERR_589 ) );
         }
         
         String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
@@ -1655,7 +1648,7 @@ public class JdbmStore<E> implements Store<E>
     {
         if ( mods instanceof ClonedServerEntry )
         {
-            throw new Exception( "Cannot store a ClonedServerEntry" );
+            throw new Exception( I18n.err( I18n.ERR_589 ) );
         }
         
         Long id = getEntryId( dn.toString() );
@@ -1681,7 +1674,7 @@ public class JdbmStore<E> implements Store<E>
                     break;
 
                 default:
-                    throw new NamingException( "Unidentified modification operation" );
+                    throw new NamingException( I18n.err( I18n.ERR_590 ) );
             }
         }
 
@@ -1718,7 +1711,7 @@ public class JdbmStore<E> implements Store<E>
                     break;
 
                 default:
-                    throw new NamingException( "Unidentified modification operation" );
+                    throw new NamingException( I18n.err( I18n.ERR_590 ) );
             }
         }
 

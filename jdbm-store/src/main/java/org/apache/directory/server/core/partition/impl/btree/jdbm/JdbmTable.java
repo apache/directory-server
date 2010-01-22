@@ -140,7 +140,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         if ( keyComparator == null )
         {
-            throw new NullPointerException( "Key comparator cannot be null." );
+            throw new NullPointerException( I18n.err( I18n.ERR_591 ) );
         }
         else
         {
@@ -149,7 +149,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         if ( valueComparator == null )
         {
-            throw new NullPointerException( "Value comparator must not be null for tables with duplicate keys." );
+            throw new NullPointerException( I18n.err( I18n.ERR_592 ) );
         }
         else
         {
@@ -216,7 +216,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         if ( keyComparator == null )
         {
-            throw new NullPointerException( "Key comparator cannot be null." );
+            throw new NullPointerException( I18n.err( I18n.ERR_591 ) );
         }
         else
         {
@@ -432,8 +432,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         if ( ! allowsDuplicates )
         {
-            throw new UnsupportedOperationException( "Unfortunately this Table without duplicates enabled " +
-                    "does not contain a value comparator which is needed to answer your ordering question." );
+            throw new UnsupportedOperationException( I18n.err( I18n.ERR_593 ) );
         }
 
         DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
@@ -464,8 +463,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         if ( ! allowsDuplicates )
         {
-            throw new UnsupportedOperationException( "Unfortunately this Table without duplicates enabled " +
-                    "does not contain a value comparator which is needed to answer your ordering question." );
+            throw new UnsupportedOperationException( I18n.err( I18n.ERR_593 ) );
         }
 
         DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
@@ -612,7 +610,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
             if ( ( value == null ) || ( key == null ) )
             {
-                throw new IllegalArgumentException( "null for key or value is not valid" );
+                throw new IllegalArgumentException( I18n.err( I18n.ERR_594 ) );
             }
             
             V replaced;
