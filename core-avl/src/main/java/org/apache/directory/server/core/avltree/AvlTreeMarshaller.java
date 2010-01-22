@@ -27,6 +27,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Comparator;
 
+import org.apache.directory.server.i18n.I18n;
+
 
 /**
  * Class to serialize the AvlTree node data.
@@ -166,7 +168,7 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
     {
         if ( data == null || data.length == 0 )
         {
-            throw new IOException( "Null or empty data array is invalid." );
+            throw new IOException( I18n.err( I18n.ERR_442 ) );
         }
 
         if ( data.length == 1 && data[0] == 0 )
@@ -181,7 +183,7 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
         
         if( startByte != 0 )
         {
-            throw new IOException("wrong AvlTree serialized data format");
+            throw new IOException( I18n.err( I18n.ERR_443 ) );
         }
         
         int size = din.readInt();

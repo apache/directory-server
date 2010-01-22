@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.directory.server.i18n.I18n;
+
 
 /**
  * An immutable AvlTree wrapping a singleton.
@@ -169,8 +171,7 @@ public class AvlTreeSingleton<K> implements AvlTree<K>
     
     public K insert( K key )
     {
-        throw new UnsupportedOperationException( "This singleton AvlTree does not support changes " +
-        		"since the behavoir of alterations on a singleton are undefined." );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_444 ) );
     }
 
     
@@ -188,7 +189,6 @@ public class AvlTreeSingleton<K> implements AvlTree<K>
     
     public K remove( K key )
     {
-        throw new UnsupportedOperationException( "This singleton AvlTree does not support changes " +
-        "since the behavoir of alterations on a singleton are undefined." );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_444 ) );
     }
 }

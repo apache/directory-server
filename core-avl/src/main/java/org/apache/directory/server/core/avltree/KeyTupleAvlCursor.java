@@ -19,6 +19,7 @@
 package org.apache.directory.server.core.avltree;
 
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractTupleCursor;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
@@ -70,13 +71,13 @@ public class KeyTupleAvlCursor<K,V> extends AbstractTupleCursor<K,V>
 
     public void beforeKey( K key ) throws Exception
     {
-        throw new UnsupportedOperationException( "This cursor locks down the key so keywise advances are not allowed." );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
     }
 
 
     public void afterKey( K key ) throws Exception
     {
-        throw new UnsupportedOperationException( "This cursor locks down the key so keywise advances are not allowed." );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
     }
 
 
@@ -85,7 +86,7 @@ public class KeyTupleAvlCursor<K,V> extends AbstractTupleCursor<K,V>
         checkNotClosed( "beforeValue()" );
         if ( key != null && ! key.equals( this.key ) )
         {
-            throw new UnsupportedOperationException( "This cursor locks down the key so keywise advances are not allowed." );
+            throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
         }
 
         wrapped.before( value );
@@ -98,7 +99,7 @@ public class KeyTupleAvlCursor<K,V> extends AbstractTupleCursor<K,V>
         checkNotClosed( "afterValue()" );
         if ( key != null && ! key.equals( this.key ) )
         {
-            throw new UnsupportedOperationException( "This cursor locks down the key so keywise advances are not allowed." );
+            throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
         }
 
         wrapped.after( value );

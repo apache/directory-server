@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import org.apache.directory.server.i18n.I18n;
+
 
 /**
  * A Marshaller which uses default Java Serialization.
@@ -65,7 +67,7 @@ public class DefaultMarshaller implements Marshaller<Object>
         }
         catch ( ClassNotFoundException e )
         {
-            IOException ioe = new IOException( "Could not find class" );
+            IOException ioe = new IOException( I18n.err( I18n.ERR_445 ) );
             ioe.initCause( e );
             throw ioe;
         }

@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.core.avltree;
 
+import org.apache.directory.server.i18n.I18n;
+
 
 /**
  * Stores either a single object or many of them in an AvlTree.
@@ -41,7 +43,7 @@ public class SingletonOrOrderedSet<V>
     {
         if ( singleton == null )
         {
-            throw new NullPointerException( "singleton must not be null" );
+            throw new NullPointerException( I18n.err( I18n.ERR_447 ) );
         }
         
         this.singleton = singleton;
@@ -58,7 +60,7 @@ public class SingletonOrOrderedSet<V>
     {
         if ( orderedSet == null )
         {
-            throw new NullPointerException( "orderedSet must not be null" );
+            throw new NullPointerException( I18n.err( I18n.ERR_448 ) );
         }
         
         this.orderedSet = orderedSet;
@@ -100,7 +102,7 @@ public class SingletonOrOrderedSet<V>
             return singleton;
         }
         
-        throw new RuntimeException( "Cannot request singleton when in ordered set mode." );
+        throw new RuntimeException( I18n.err( I18n.ERR_449 ) );
     }
     
     
@@ -114,13 +116,12 @@ public class SingletonOrOrderedSet<V>
     {
         if ( singleton == null )
         {
-            throw new NullPointerException( "singleton must not be null" );
+            throw new NullPointerException( I18n.err( I18n.ERR_447 ) );
         }
         
         if ( this.orderedSet != null )
         {
-            throw new RuntimeException( "Cannot set a singleton when using multiple values: " +
-            		"use switchToSingleton()" );
+            throw new RuntimeException( I18n.err( I18n.ERR_450 ) );
         }
         
         V retval = this.singleton;
@@ -141,12 +142,12 @@ public class SingletonOrOrderedSet<V>
     {
         if ( singleton == null )
         {
-            throw new NullPointerException( "singleton must not be null" );
+            throw new NullPointerException( I18n.err( I18n.ERR_447 ) );
         }
         
         if ( this.singleton != null )
         {
-            throw new RuntimeException( "Already in singleton mode." );
+            throw new RuntimeException( I18n.err( I18n.ERR_451 ) );
         }
         
         AvlTree<V> retval = this.orderedSet;
@@ -169,7 +170,7 @@ public class SingletonOrOrderedSet<V>
             return orderedSet;
         }
         
-        throw new RuntimeException( "Cannot get ordered set in singleton mode." );
+        throw new RuntimeException( I18n.err( I18n.ERR_452 ) );
     }
     
     
@@ -184,13 +185,12 @@ public class SingletonOrOrderedSet<V>
     {
         if ( orderedSet == null )
         {
-            throw new NullPointerException( "orderedSet must not be null" );
+            throw new NullPointerException( I18n.err( I18n.ERR_448 ) );
         }
         
         if ( this.singleton != null )
         {
-            throw new RuntimeException( "Cannot set a orderedSet when in singleton mode: " +
-                    "use switchToSingleValue()" );
+            throw new RuntimeException( I18n.err( I18n.ERR_453 ) );
         }
         
         AvlTree<V> retval = this.orderedSet;
@@ -211,12 +211,12 @@ public class SingletonOrOrderedSet<V>
     {
         if ( orderedSet == null )
         {
-            throw new NullPointerException( "orderedSet must not be null" );
+            throw new NullPointerException( I18n.err( I18n.ERR_448 ) );
         }
         
         if ( this.orderedSet != null )
         {
-            throw new RuntimeException( "Already in ordered set mode." );
+            throw new RuntimeException( I18n.err( I18n.ERR_454 ) );
         }
         
         V retval = this.singleton;

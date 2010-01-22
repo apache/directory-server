@@ -27,6 +27,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Comparator;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,7 +127,7 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
             }
             catch (NullPointerException npe )
             {
-                System.out.println( "Bad serialization, tree : [" + StringTools.dumpBytes( data ) + "]");
+                System.out.println( I18n.err( I18n.ERR_438, StringTools.dumpBytes( data ) ) );
                 throw npe;
             }
 
@@ -154,7 +155,7 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
         {
             if ( ( data == null ) || ( data.length == 0 ) )
             {
-                throw new IOException( "Null or empty data array is invalid." );
+                throw new IOException( I18n.err( I18n.ERR_439 ) );
             }
     
             if ( ( data.length == 1 ) && ( data[0] == 0 ) )
@@ -171,7 +172,7 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
             
             if( startByte != 0 )
             {
-                throw new IOException("wrong array serialized data format");
+                throw new IOException( I18n.err( I18n.ERR_440 ) );
             }
             
             int size = din.readInt();
@@ -198,7 +199,7 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
         }
         catch (NullPointerException npe )
         {
-            System.out.println( "Bad tree : [" + StringTools.dumpBytes( data ) + "]");
+            System.out.println( I18n.err( I18n.ERR_441, StringTools.dumpBytes( data ) ) );
             throw npe;
         }
     }
