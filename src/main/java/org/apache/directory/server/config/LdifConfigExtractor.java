@@ -34,6 +34,7 @@ import java.util.Stack;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.ResourceMap;
 import org.slf4j.Logger;
@@ -80,8 +81,7 @@ public class LdifConfigExtractor
         }
         else if ( !overwrite )
         {
-            throw new IOException( "Cannot overwrite, config output directory already exists: "
-                + configDirectory.getAbsolutePath() );
+            throw new IOException( I18n.err( I18n.ERR_508, configDirectory.getAbsolutePath() ) );
         }
 
         LOG.info( "extracting the configuration to the directory at {}", configDirectory.getAbsolutePath() );
@@ -125,8 +125,7 @@ public class LdifConfigExtractor
         
         if ( ! source.getParentFile().exists() )
         {
-            throw new FileNotFoundException( "Cannot copy non-existant " +
-                    "source file " + source.getAbsolutePath() );
+            throw new FileNotFoundException( I18n.err( I18n.ERR_509, source.getAbsolutePath() ) );
         }
         
         FileWriter out = new FileWriter( destination );
@@ -222,14 +221,13 @@ public class LdifConfigExtractor
             if ( parent.equals( parent.getParentFile() )
                     || parent.getParentFile() == null )
             {
-                throw new IllegalStateException( 
-                    "Should not be hitting root without config/config pattern." );
+                throw new IllegalStateException( I18n.err( I18n.ERR_510 ) );
             }
             
             parent = parent.getParentFile();
         }
 
-        throw new IllegalStateException( "parent cannot be null" );
+        throw new IllegalStateException( I18n.err( I18n.ERR_511 ) );
     }
 
     /**
