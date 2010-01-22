@@ -53,6 +53,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.directory.server.i18n.I18n;
+
 import jdbm.RecordManager;
 import jdbm.helper.Serializer;
 import jdbm.helper.DefaultSerializer;
@@ -241,8 +243,7 @@ public final class BaseRecordManager
     {
         checkIfClosed();
         if ( recid <= 0 ) {
-            throw new IllegalArgumentException( "Argument 'recid' is invalid: "
-                                                + recid );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_536, recid ) );
         }
 
         if ( DEBUG ) {
@@ -283,8 +284,7 @@ public final class BaseRecordManager
     {
         checkIfClosed();
         if ( recid <= 0 ) {
-            throw new IllegalArgumentException( "Argument 'recid' is invalid: "
-                                                + recid );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_536, recid ) );
         }
 
         Location logRecid = new Location( recid );
@@ -331,8 +331,7 @@ public final class BaseRecordManager
 
         checkIfClosed();
         if ( recid <= 0 ) {
-            throw new IllegalArgumentException( "Argument 'recid' is invalid: "
-                                                + recid );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_536, recid ) );
         }
         data = _physMgr.fetch( _logMgr.fetch( new Location( recid ) ) );
         if ( DEBUG ) {
@@ -465,7 +464,7 @@ public final class BaseRecordManager
     {
         long recid = getRoot( NAME_DIRECTORY_ROOT );
         if ( recid == 0 ) {
-            throw new IOException( "Name directory must exist" );
+            throw new IOException( I18n.err( I18n.ERR_537 ) );
         }
         update( recid, _nameDirectory );
     }
@@ -479,7 +478,7 @@ public final class BaseRecordManager
         throws IllegalStateException
     {
         if ( _file == null ) {
-            throw new IllegalStateException( "RecordManager has been closed" );
+            throw new IllegalStateException( I18n.err( I18n.ERR_538 ) );
         }
     }
 }

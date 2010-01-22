@@ -58,6 +58,8 @@ import java.io.ObjectOutput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import org.apache.directory.server.i18n.I18n;
+
 /**
  * Page of a Btree.
  * <p>
@@ -477,7 +479,7 @@ public final class BPage
         if ( height == 0 ) {
             // remove leaf entry
             if ( compare( _keys[ index ], key ) != 0 ) {
-                throw new IllegalArgumentException( "Key not found: " + key );
+                throw new IllegalArgumentException( I18n.err( I18n.ERR_514, key ) );
             }
             result = new RemoveResult();
             result._value = _values[ index ];
@@ -498,7 +500,7 @@ public final class BPage
             if ( result._underflow ) {
                 // underflow occured
                 if ( child._first != half+1 ) {
-                    throw new IllegalStateException( "Error during underflow [1]" );
+                    throw new IllegalStateException( I18n.err( I18n.ERR_513, "1" ) );
                 }
                 if ( index < _children.length-1 ) {
                     // exists greater brother page
@@ -538,7 +540,7 @@ public final class BPage
                     } else {
                         // move all entries from page "child" to "brother"
                         if ( brother._first != half ) {
-                            throw new IllegalStateException( "Error during underflow [2]" );
+                            throw new IllegalStateException( I18n.err( I18n.ERR_513, "2" ) );
                         }
 
                         brother._first = 1;
@@ -617,7 +619,7 @@ public final class BPage
                     } else {
                         // move all entries from page "brother" to "child"
                         if ( brother._first != half ) {
-                            throw new IllegalStateException( "Error during underflow [3]" );
+                            throw new IllegalStateException( I18n.err( I18n.ERR_513, "3" ) );
                         }
 
                         child._first = 1;
@@ -917,7 +919,7 @@ public final class BPage
         for ( int i=_first; i<_btree._pageSize-1; i++ ) {
             if ( compare( (byte[]) _keys[ i ], (byte[]) _keys[ i+1 ] ) >= 0 ) {
                 dump( 0 );
-                throw new Error( "BPage not ordered" );
+                throw new Error( I18n.err( I18n.ERR_515 ) );
             }
         }
     }
@@ -938,7 +940,7 @@ public final class BPage
                 if ( compare( (byte[]) _keys[ i ], child.getLargestKey() ) != 0 ) {
                     dump( 0 );
                     child.dump( 0 );
-                    throw new Error( "Invalid child subordinate key" );
+                    throw new Error( I18n.err( I18n.ERR_516 ) );
                 }
                 child.assertConsistencyRecursive( height );
             }

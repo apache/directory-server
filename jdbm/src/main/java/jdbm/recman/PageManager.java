@@ -49,6 +49,8 @@ package jdbm.recman;
 
 import java.io.*;
 
+import org.apache.directory.server.i18n.I18n;
+
 /**
  *  This class manages the linked lists of pages that make up a file.
  */
@@ -81,7 +83,7 @@ final class PageManager {
     long allocate(short type) throws IOException {
         
         if (type == Magic.FREE_PAGE)
-            throw new Error("allocate of free page?");
+            throw new Error( I18n.err( I18n.ERR_548 ) );
         
         // do we have something on the free list?
         long retval = header.getFirstOf(Magic.FREE_PAGE);
@@ -141,9 +143,9 @@ final class PageManager {
      */
     void free(short type, long recid) throws IOException {
         if (type == Magic.FREE_PAGE)
-            throw new Error("free free page?");
+            throw new Error( I18n.err( I18n.ERR_549 ) );
         if (recid == 0)
-            throw new Error("free header page?");
+            throw new Error( I18n.err( I18n.ERR_550 ) );
         
         // get the page and read next and previous pointers
         BlockIo buf = file.get(recid);

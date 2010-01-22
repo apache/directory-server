@@ -51,6 +51,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.apache.directory.server.i18n.I18n;
+
 
 /**
  *  MRU - Most Recently Used cache policy.
@@ -94,7 +96,7 @@ public class MRU implements CachePolicy {
      */
     public MRU(int max) {
         if (max <= 0) {
-            throw new IllegalArgumentException("MRU cache must contain at least one entry");
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_528 ));
         }
         _max = max;
     }
@@ -174,7 +176,7 @@ public class MRU implements CachePolicy {
      */
     public void addListener(CachePolicyListener listener) {
         if (listener == null) {
-            throw new IllegalArgumentException("Cannot add null listener.");
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_539 ) );
         }
         if ( ! listeners.contains(listener)) {
             listeners.addElement(listener);

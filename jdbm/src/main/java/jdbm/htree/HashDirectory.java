@@ -59,6 +59,8 @@ import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.apache.directory.server.i18n.I18n;
+
 /**
  *  Hashtable directory page.
  *
@@ -254,8 +256,7 @@ final class HashDirectory
                 } else {
                     // overflow, so create a new directory
                     if (_depth == MAX_DEPTH) {
-                        throw new RuntimeException( "Cannot create deeper directory. "
-                                                    + "Depth=" + _depth );
+                        throw new RuntimeException( I18n.err( I18n.ERR_535, _depth ) );
                     }
                     HashDirectory dir = new HashDirectory( (byte) (_depth+1) );
                     long dir_recid = _recman.insert( dir );

@@ -59,6 +59,8 @@ import jdbm.helper.WrappedRuntimeException;
 import java.io.IOException;
 import java.util.Enumeration;
 
+import org.apache.directory.server.i18n.I18n;
+
 /**
  *  A RecordManager wrapping and caching another RecordManager.
  *
@@ -92,10 +94,10 @@ public class CacheRecordManager
     public CacheRecordManager( RecordManager recman, CachePolicy cache )
     {
         if ( recman == null ) {
-            throw new IllegalArgumentException( "Argument 'recman' is null" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_517 ) );
         }
         if ( cache == null ) {
-            throw new IllegalArgumentException( "Argument 'cache' is null" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_542 ) );
         }
         _recman = recman;
         _cache = cache;
@@ -399,7 +401,7 @@ public class CacheRecordManager
         throws IllegalStateException
     {
         if ( _recman == null ) {
-            throw new IllegalStateException( "RecordManager has been closed" );
+            throw new IllegalStateException( I18n.err( I18n.ERR_538 ) );
         }
     }
 

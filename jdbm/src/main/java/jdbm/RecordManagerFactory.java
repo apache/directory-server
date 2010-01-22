@@ -51,6 +51,8 @@ package jdbm;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.apache.directory.server.i18n.I18n;
+
 /**
  * This is the factory class to use for instantiating {@link RecordManager}
  * instances.
@@ -105,11 +107,8 @@ public final class RecordManagerFactory
             clazz = Thread.currentThread().getContextClassLoader().loadClass( provider );
             factory = (RecordManagerProvider) clazz.newInstance();
         } catch ( Exception except ) {
-            throw new IllegalArgumentException( "Invalid record manager provider: "
-                                                + provider
-                                                + "\n[" + except.getClass().getName()
-                                                + ": " + except.getLocalizedMessage()
-                                                + "]" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_567, provider, except.getClass().getName(),
+                except.getLocalizedMessage() ) );
         }
         return factory.createRecordManager( name, options );
     }

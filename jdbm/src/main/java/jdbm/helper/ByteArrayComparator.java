@@ -49,6 +49,8 @@ package jdbm.helper;
 import java.util.Comparator;
 import java.io.Serializable;
 
+import org.apache.directory.server.i18n.I18n;
+
 /**
  * Comparator for byte arrays.
  *
@@ -76,11 +78,11 @@ public final class ByteArrayComparator
      public int compare( Object obj1, Object obj2 )
      {
         if ( obj1 == null ) {
-            throw new IllegalArgumentException( "Argument 'obj1' is null" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_525 ) );
         }
 
         if ( obj2 == null ) {
-            throw new IllegalArgumentException( "Argument 'obj2' is null" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_526 ) );
         }
 
         return compareByteArray( (byte[]) obj1, (byte[]) obj2 );

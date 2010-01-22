@@ -47,6 +47,8 @@
 
 package jdbm.recman;
 
+import org.apache.directory.server.i18n.I18n;
+
 /**
  *  This class represents a page header. It is the common superclass for
  *  all different page views.
@@ -71,9 +73,7 @@ public class PageHeader implements BlockView {
     protected PageHeader(BlockIo block) {
         initialize(block);
         if (!magicOk())
-            throw new Error("CRITICAL: page header magic for block "
-                            + block.getBlockId() + " not OK "
-                            + getMagic());
+            throw new Error( I18n.err( I18n.ERR_546, block.getBlockId(), getMagic() ) );
     }
     
     /**
@@ -116,8 +116,7 @@ public class PageHeader implements BlockView {
      */
     protected void paranoiaMagicOk() {
         if (!magicOk())
-            throw new Error("CRITICAL: page header magic not OK "
-                            + getMagic());
+            throw new Error( I18n.err( I18n.ERR_547, getMagic() ) );
     }
     
     /** Returns the magic code */

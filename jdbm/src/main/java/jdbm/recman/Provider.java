@@ -51,6 +51,8 @@ package jdbm.recman;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.apache.directory.server.i18n.I18n;
+
 import jdbm.RecordManager;
 import jdbm.RecordManagerOptions;
 import jdbm.RecordManagerProvider;
@@ -102,11 +104,11 @@ public final class Provider
             MRU cache = new MRU( cacheSize );
             recman = new CacheRecordManager( recman, cache );
         } else if ( value.equalsIgnoreCase( RecordManagerOptions.SOFT_REF_CACHE ) ) {
-            throw new IllegalArgumentException( "Soft reference cache not implemented" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_551 ) );
         } else if ( value.equalsIgnoreCase( RecordManagerOptions.WEAK_REF_CACHE ) ) {
-            throw new IllegalArgumentException( "Weak reference cache not implemented" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_552 ) );
         } else {
-            throw new IllegalArgumentException( "Invalid cache type: " + value );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_553, value ) );
         }
 
         return recman;

@@ -46,6 +46,8 @@
 
 package jdbm.helper;
 
+import org.apache.directory.server.i18n.I18n;
+
 
 /**
  * Miscelaneous conversion utility methods.
@@ -67,7 +69,7 @@ public class Conversion
             return s.getBytes( "UTF8" );
         } catch ( java.io.UnsupportedEncodingException uee ) {
             uee.printStackTrace();
-            throw new Error( "Platform doesn't support UTF8 encoding" );
+            throw new Error( I18n.err( I18n.ERR_527 ) );
         }
     }
 
@@ -129,7 +131,7 @@ public class Conversion
             return new String( buf, "UTF8" );
         } catch ( java.io.UnsupportedEncodingException uee ) {
             uee.printStackTrace();
-            throw new Error( "Platform doesn't support UTF8 encoding" );
+            throw new Error( I18n.err( I18n.ERR_527 ) );
         }
     }
 

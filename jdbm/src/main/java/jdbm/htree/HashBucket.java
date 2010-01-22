@@ -53,6 +53,8 @@ import java.io.ObjectOutput;
 
 import java.util.ArrayList;
 
+import org.apache.directory.server.i18n.I18n;
+
 /**
  * A bucket is a placeholder for multiple (key, value) pairs.  Buckets
  * are used to store collisions (same hash value) at all levels of an
@@ -124,9 +126,7 @@ final class HashBucket
     public HashBucket( int level )
     {
         if ( level > HashDirectory.MAX_DEPTH+1 ) {
-            throw new IllegalArgumentException(
-                            "Cannot create bucket with depth > MAX_DEPTH+1. "
-                            + "Depth=" + level );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_534, level ) );
         }
         _depth = level;
         _keys = new ArrayList( OVERFLOW_SIZE );

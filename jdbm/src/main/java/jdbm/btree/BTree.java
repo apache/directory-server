@@ -53,6 +53,8 @@ import java.io.ObjectOutput;
 import java.io.Serializable;
 import java.util.Comparator;
 
+import org.apache.directory.server.i18n.I18n;
+
 import jdbm.RecordManager;
 import jdbm.helper.Serializer;
 import jdbm.helper.Tuple;
@@ -225,28 +227,28 @@ public class BTree
         BTree btree;
 
         if ( recman == null ) {
-            throw new IllegalArgumentException( "Argument 'recman' is null" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_517 ) );
         }
 
         if ( comparator == null ) {
-            throw new IllegalArgumentException( "Argument 'comparator' is null" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_518 ) );
         }
 
         if ( ! ( comparator instanceof Serializable ) ) {
-            throw new IllegalArgumentException( "Argument 'comparator' must be serializable" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_519 ) );
         }
 
         if ( keySerializer != null && ! ( keySerializer instanceof Serializable ) ) {
-            throw new IllegalArgumentException( "Argument 'keySerializer' must be serializable" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_520 ) );
         }
 
         if ( valueSerializer != null && ! ( valueSerializer instanceof Serializable ) ) {
-            throw new IllegalArgumentException( "Argument 'valueSerializer' must be serializable" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_521 ) );
         }
 
         // make sure there's an even number of entries per BPage
         if ( ( pageSize & 1 ) != 0 ) {
-            throw new IllegalArgumentException( "Argument 'pageSize' must be even" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_522 ) );
         }
 
         btree = new BTree();
@@ -297,10 +299,10 @@ public class BTree
         throws IOException
     {
         if ( key == null ) {
-            throw new IllegalArgumentException( "Argument 'key' is null" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_523 ) );
         }
         if ( value == null ) {
-            throw new IllegalArgumentException( "Argument 'value' is null" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_524 ) );
         }
 
         BPage rootPage = getRoot();
@@ -353,7 +355,7 @@ public class BTree
         throws IOException
     {
         if ( key == null ) {
-            throw new IllegalArgumentException( "Argument 'key' is null" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_523 ) );
         }
 
         BPage rootPage = getRoot();
@@ -394,7 +396,7 @@ public class BTree
         throws IOException
     {
         if ( key == null ) {
-            throw new IllegalArgumentException( "Argument 'key' is null" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_523 ) );
         }
         BPage rootPage = getRoot();
         if ( rootPage == null ) {

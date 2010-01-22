@@ -50,6 +50,8 @@ package jdbm.recman;
 import java.io.*;
 import java.util.*;
 
+import org.apache.directory.server.i18n.I18n;
+
 /**
  *  This class represents a random access file as a set of fixed size
  *  records. Each record has a physical record number, and records are
@@ -150,7 +152,7 @@ public final class RecordFile {
 
          // sanity check: can't be on in use list
          if (inUse.get(key) != null) {
-             throw new Error("double get for block " + blockid);
+             throw new Error( I18n.err( I18n.ERR_554, blockid ) );
          }
 
          // get a new node and read it from the file
@@ -177,7 +179,7 @@ public final class RecordFile {
     throws IOException {
         BlockIo node = (BlockIo) inUse.get(new Long(blockid));
         if (node == null)
-            throw new IOException("bad blockid " + blockid + " on release");
+            throw new IOException( I18n.err( I18n.ERR_555, blockid ) );
         if (!node.isDirty() && isDirty)
             node.setDirty();
         release(node);
@@ -224,8 +226,7 @@ public final class RecordFile {
         // debugging...
         if (!inUse.isEmpty() && inUse.size() > 1) {
             showList(inUse.values().iterator());
-            throw new Error("in use list not empty at commit time ("
-                            + inUse.size() + ")");
+            throw new Error( I18n.err( I18n.ERR_556, inUse.size() ) );
         }
 
         //  System.out.println("committing...");
@@ -267,8 +268,7 @@ public final class RecordFile {
         // debugging...
         if (!inUse.isEmpty()) {
             showList(inUse.values().iterator());
-            throw new Error("in use list not empty at rollback time ("
-                            + inUse.size() + ")");
+            throw new Error( I18n.err( I18n.ERR_557, inUse.size() ) );
         }
         //  System.out.println("rollback...");
         dirty.clear();
@@ -277,8 +277,7 @@ public final class RecordFile {
 
         if (!inTxn.isEmpty()) {
             showList(inTxn.values().iterator());
-            throw new Error("in txn list not empty at rollback time ("
-                            + inTxn.size() + ")");
+            throw new Error( I18n.err( I18n.ERR_558, inTxn.size() ) );
         };
     }
 
@@ -293,19 +292,19 @@ public final class RecordFile {
 
         if (!inTxn.isEmpty()) {
             showList(inTxn.values().iterator());
-            throw new Error("In transaction not empty");
+            throw new Error( I18n.err( I18n.ERR_559 ) );
         }
 
         // these actually ain't that bad in a production release
         if (!dirty.isEmpty()) {
             System.out.println("ERROR: dirty blocks at close time");
             showList(dirty.values().iterator());
-            throw new Error("Dirty blocks at close time");
+            throw new Error( I18n.err( I18n.ERR_560 ) );
         }
         if (!inUse.isEmpty()) {
             System.out.println("ERROR: inUse blocks at close time");
             showList(inUse.values().iterator());
-            throw new Error("inUse blocks at close time");
+            throw new Error( I18n.err( I18n.ERR_561 ) );
         }
 
         // debugging stuff to keep an eye on the free list

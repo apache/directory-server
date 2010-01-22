@@ -47,6 +47,8 @@
 
 package jdbm.recman;
 
+import org.apache.directory.server.i18n.I18n;
+
 /**
  *  This class represents a file header. It is a 1:1 representation of
  *  the data that appears in block 0 of a file.
@@ -78,8 +80,7 @@ class FileHeader implements BlockView {
         if (isNew)
             block.writeShort(O_MAGIC, Magic.FILE_HEADER);
         else if (!magicOk())
-            throw new Error("CRITICAL: file header magic not OK " 
-                            + block.readShort(O_MAGIC));
+            throw new Error( I18n.err( I18n.ERR_544, block.readShort(O_MAGIC) ) );
     }
 
     /** Returns true if the magic corresponds with the fileHeader magic.  */

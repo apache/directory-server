@@ -50,6 +50,8 @@ package jdbm.recman;
 import java.io.*;
 import java.util.*;
 
+import org.apache.directory.server.i18n.I18n;
+
 /**
  *  This class manages the transaction log that belongs to every
  *  {@link RecordFile}. The transaction log is either clean, or
@@ -133,12 +135,10 @@ public final class TransactionManager {
         throws IOException
     {
         if ( maxTxns <= 0 ) {
-            throw new IllegalArgumentException( 
-                "Argument 'maxTxns' must be greater than 0." );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_563 ) );
         }
         if ( curTxn != -1 ) {
-            throw new IllegalStateException( 
-                "Cannot change setting while transactions are pending in the log" );
+            throw new IllegalStateException( I18n.err( I18n.ERR_564 ) );
         }
         _maxTxns = maxTxns;
         txns = new ArrayList[ maxTxns ];
@@ -212,7 +212,7 @@ public final class TransactionManager {
         try {
             if (ois.readShort() != Magic.LOGFILE_HEADER) {
                 ois.close();
-                throw new Error("Bad magic on log file");
+                throw new Error( I18n.err( I18n.ERR_565 ) );
             }
         } catch (IOException e) {
             // corrupted/empty logfile
@@ -227,7 +227,7 @@ public final class TransactionManager {
                 blocks = (ArrayList) ois.readObject();
             } catch (ClassNotFoundException e) {
                 ois.close();
-                throw new Error("Unexcepted exception: " + e);
+                throw new Error( I18n.err( I18n.ERR_566, e ) );
             } catch (IOException e) {
                 // corrupted logfile, ignore rest of transactions
                 break;

@@ -47,6 +47,8 @@
 
 package jdbm.recman;
 
+import org.apache.directory.server.i18n.I18n;
+
 /**
  *  Class describing a page that holds data.
  */
@@ -84,8 +86,7 @@ final class DataPage extends PageHeader {
     void setFirst(short value) {
   paranoiaMagicOk();
   if (value > 0 && value < O_DATA)
-      throw new Error("DataPage.setFirst: offset " + value 
-          + " too small");
+      throw new Error( I18n.err( I18n.ERR_543, value ) );
   block.writeShort(O_FIRST, value);
     }
 }

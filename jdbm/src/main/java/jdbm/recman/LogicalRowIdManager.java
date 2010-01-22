@@ -49,6 +49,8 @@ package jdbm.recman;
 
 import java.io.IOException;
 
+import org.apache.directory.server.i18n.I18n;
+
 /**
  *  This class manages the linked lists of logical rowid pages.
  */
@@ -89,7 +91,7 @@ final class LogicalRowIdManager {
       }
       retval = freeman.get();
       if (retval == null) {
-    throw new Error("couldn't obtain free translation");
+    throw new Error( I18n.err( I18n.ERR_545 ) );
       }
   }
   // write the translation.

@@ -49,6 +49,10 @@ package jdbm.recman;
 
 import java.io.*;
 
+import org.apache.directory.server.i18n.I18n;
+
+import org.apache.directory.server.i18n.I18n;
+
 /**
  *  This class wraps a page-sized byte array and provides methods
  *  to read and write data to and from it. The readers and writers
@@ -83,7 +87,7 @@ public final class BlockIo implements java.io.Externalizable {
     BlockIo(long blockId, byte[] data) {
         // removeme for production version
         if (blockId > 10000000000L)
-            throw new Error("bogus block id " + blockId);
+            throw new Error( I18n.err( I18n.ERR_539, blockId ) );
         this.blockId = blockId;
         this.data = data;
     }
@@ -100,10 +104,10 @@ public final class BlockIo implements java.io.Externalizable {
      */
     void setBlockId(long id) {
         if (isInTransaction())
-            throw new Error("BlockId assigned for transaction block");
+            throw new Error( I18n.err( I18n.ERR_540 ) );
         // removeme for production version
         if (id > 10000000000L)
-            throw new Error("bogus block id " + id);
+            throw new Error( I18n.err( I18n.ERR_539, id ) );
         blockId = id;
     }
 
@@ -175,8 +179,7 @@ public final class BlockIo implements java.io.Externalizable {
     synchronized void decrementTransactionCount() {
         transactionCount--;
         if (transactionCount < 0)
-            throw new Error("transaction count on block "
-                            + getBlockId() + " below zero!");
+            throw new Error( I18n.err( I18n.ERR_541, getBlockId() ) );
 
     }
 

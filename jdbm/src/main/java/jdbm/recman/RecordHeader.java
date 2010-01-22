@@ -47,6 +47,8 @@
 
 package jdbm.recman;
 
+import org.apache.directory.server.i18n.I18n;
+
 /**
  *  The data that comes at the start of a record of data. It stores 
  *  both the current size and the avaliable size for the record - the latter
@@ -72,9 +74,7 @@ class RecordHeader {
         this.block = block;
         this.pos = pos;
         if (pos > (RecordFile.BLOCK_SIZE - SIZE))
-            throw new Error("Offset too large for record header (" 
-                            + block.getBlockId() + ":" 
-                            + pos + ")");
+            throw new Error( I18n.err( I18n.ERR_562, block.getBlockId(), pos ) );
     }
 
     /** Returns the current size */

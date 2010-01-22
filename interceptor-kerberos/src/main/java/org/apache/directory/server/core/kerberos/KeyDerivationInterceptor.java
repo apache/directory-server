@@ -301,7 +301,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
         if ( userEntry == null )
         {
-            throw new LdapAuthenticationException( "Failed to authenticate user '" + principalDn + "'." );
+            throw new LdapAuthenticationException( I18n.err( I18n.ERR_512, principalDn ) );
         }
 
         EntryAttribute objectClass = userEntry.getOriginalEntry().get( SchemaConstants.OBJECT_CLASS_AT );

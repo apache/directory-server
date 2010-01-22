@@ -50,6 +50,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Comparator;
 
+import org.apache.directory.server.i18n.I18n;
+
 /**
  * Comparator for objects which have been serialized into byte arrays.
  * In effect, it wraps another Comparator which compares object and provides
@@ -82,7 +84,7 @@ public final class ObjectBAComparator
     public ObjectBAComparator( Comparator comparator )
     {
         if ( comparator == null ) {
-            throw new IllegalArgumentException( "Argument 'comparator' is null" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_530 ) );
         }
 
         _comparator = comparator;
@@ -99,11 +101,11 @@ public final class ObjectBAComparator
      public int compare( Object obj1, Object obj2 )
      {
         if ( obj1 == null ) {
-            throw new IllegalArgumentException( "Argument 'obj1' is null" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_525 ) );
         }
 
         if ( obj2 == null ) {
-            throw new IllegalArgumentException( "Argument 'obj2' is null" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_526 ) );
         }
 
         try {

@@ -53,6 +53,8 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.HashMap;
 
+import org.apache.directory.server.i18n.I18n;
+
 /**
  * Wraps a deterministic cache policy with a <q>Level-2</q> cache based on
  * J2SE's {@link SoftReference soft references}. Soft references allow
@@ -124,7 +126,7 @@ public class SoftCache implements CachePolicy {
      */
     public SoftCache(float loadFactor, CachePolicy internal) throws IllegalArgumentException, NullPointerException {
         if (internal == null) {
-            throw new NullPointerException("Internal cache cannot be null.");
+            throw new NullPointerException( I18n.err( I18n.ERR_531 ) );
         }
         _internal = internal;
         _cacheMap = new HashMap(INITIAL_CAPACITY, loadFactor);
@@ -141,9 +143,9 @@ public class SoftCache implements CachePolicy {
      */
     public void put(Object key, Object value) throws CacheEvictionException {
         if (key == null) {
-            throw new IllegalArgumentException("key cannot be null.");
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_532 ) );
         } else if (value == null) {
-            throw new IllegalArgumentException("value cannot be null.");
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_533 ) );
         }
         _internal.put(key, value);
         removeClearedEntries();
