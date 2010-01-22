@@ -374,7 +374,7 @@
     <!--module>syncrepl</module-->
     <module>server-replication</module>
     <module>xbean-spring</module>
-    <module>ldap-api-test</module>
+    <!-- module>ldap-api-test</module -->
     <module>http-integration</module>
     <module>test-framework</module>
   </modules>
