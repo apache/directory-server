@@ -34,6 +34,7 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
 import org.apache.directory.server.dhcp.options.OptionsField;
 import org.apache.directory.server.dhcp.options.dhcp.DhcpMessageType;
 import org.apache.directory.server.dhcp.options.dhcp.UnrecognizedOption;
+import org.apache.directory.server.i18n.I18n;
 
 
 /**
@@ -114,7 +115,7 @@ public class DhcpMessageDecoder
         }
         catch ( UnsupportedEncodingException e )
         {
-            throw new RuntimeException( "No ASCII encoding", e );
+            throw new RuntimeException( I18n.err( I18n.ERR_635 ), e );
         }
     }
 
@@ -194,7 +195,7 @@ public class DhcpMessageDecoder
         }
         catch ( Exception e )
         {
-            throw new DhcpException( "Can't set option value: " + e.toString() );
+            throw new DhcpException( I18n.err( I18n.ERR_636, e.toString() ) );
         }
     }
 }

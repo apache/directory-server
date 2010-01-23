@@ -94,6 +94,7 @@ import org.apache.directory.server.dhcp.options.vendor.SubnetMask;
 import org.apache.directory.server.dhcp.options.vendor.SwapServer;
 import org.apache.directory.server.dhcp.options.vendor.TimeOffset;
 import org.apache.directory.server.dhcp.options.vendor.TimeServers;
+import org.apache.directory.server.i18n.I18n;
 
 
 /**
@@ -156,7 +157,7 @@ public abstract class DhcpOption
                 Class c = OPTION_CLASSES[i];
 
                 if ( !DhcpOption.class.isAssignableFrom( c ) )
-                    throw new RuntimeException( "Class " + c + " is not a descendant of DhcpOption" );
+                    throw new RuntimeException( I18n.err( I18n.ERR_639, c ) );
 
                 DhcpOption o = ( DhcpOption ) c.newInstance();
 
@@ -170,7 +171,7 @@ public abstract class DhcpOption
         }
         catch ( Exception e )
         {
-            throw new RuntimeException( "Can't initialize option field classes", e );
+            throw new RuntimeException( I18n.err( I18n.ERR_640 ), e );
         }
     }
 
@@ -233,7 +234,7 @@ public abstract class DhcpOption
         // FIXME: handle continuation, i.e. options longer than 128 bytes?
         byte data[] = getData();
         if ( data.length > 255 )
-            throw new IllegalArgumentException( "Max data length: 128 bytes." );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_641 ) );
 
         out.put( ( byte ) data.length );
         out.put( data );

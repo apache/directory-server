@@ -22,6 +22,7 @@ package org.apache.directory.server.changepw.protocol;
 
 
 import org.apache.directory.server.changepw.io.ChangePasswordRequestDecoder;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
@@ -65,7 +66,7 @@ public class ChangePasswordTcpDecoder extends CumulativeProtocolDecoder
     {
         if ( maxObjectSize <= 0 )
         {
-            throw new IllegalArgumentException( "maxObjectSize: " + maxObjectSize );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_634, maxObjectSize ) );
         }
 
         this.maxObjectSize = maxObjectSize;

@@ -25,6 +25,8 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.directory.server.i18n.I18n;
+
 
 /**
  * A representation of a DHCP hardware address.
@@ -189,7 +191,7 @@ public final class HardwareAddress
 
         Matcher m = PARSE_PATTERN.matcher( s );
         if ( !m.matches() )
-            throw new IllegalArgumentException( "Can't parse string representation: " + s );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_637, s ) );
 
         int type = Integer.parseInt( m.group( 1 ) );
         int len = m.groupCount() - 1;

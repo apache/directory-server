@@ -31,6 +31,7 @@ import org.apache.directory.server.dhcp.messages.HardwareAddress;
 import org.apache.directory.server.dhcp.options.DhcpOption;
 import org.apache.directory.server.dhcp.options.OptionsField;
 import org.apache.directory.server.dhcp.options.dhcp.DhcpMessageType;
+import org.apache.directory.server.i18n.I18n;
 
 
 /**
@@ -102,7 +103,7 @@ public class DhcpMessageEncoder
         catch ( UnsupportedEncodingException e )
         {
             // should not happen
-            throw new RuntimeException( "No ASCII encoding", e );
+            throw new RuntimeException( I18n.err( I18n.ERR_635 ), e );
         }
     }
 

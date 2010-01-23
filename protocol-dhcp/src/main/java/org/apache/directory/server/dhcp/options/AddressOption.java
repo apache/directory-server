@@ -24,6 +24,8 @@ package org.apache.directory.server.dhcp.options;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.apache.directory.server.i18n.I18n;
+
 
 /**
  * The Dynamic Host Configuration Protocol (DHCP) provides a framework
@@ -62,7 +64,7 @@ public abstract class AddressOption extends DhcpOption
         }
         catch ( UnknownHostException e )
         {
-            throw new IllegalArgumentException( "illegal address", e );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_638 ), e );
         }
     }
 

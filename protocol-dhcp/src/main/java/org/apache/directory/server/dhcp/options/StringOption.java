@@ -23,6 +23,8 @@ package org.apache.directory.server.dhcp.options;
 
 import java.io.UnsupportedEncodingException;
 
+import org.apache.directory.server.i18n.I18n;
+
 
 /**
  * The Dynamic Host Configuration Protocol (DHCP) provides a framework for
@@ -54,7 +56,7 @@ public abstract class StringOption extends DhcpOption
         catch ( UnsupportedEncodingException e )
         {
             // should not happen
-            throw new RuntimeException( "ASCII encoding unavailable" );
+            throw new RuntimeException( I18n.err( I18n.ERR_642 ) );
         }
     }
 
@@ -75,7 +77,7 @@ public abstract class StringOption extends DhcpOption
         catch ( UnsupportedEncodingException e )
         {
             // should not happen
-            throw new RuntimeException( "ASCII encoding unavailable" );
+            throw new RuntimeException( I18n.err( I18n.ERR_642 ) );
         }
     }
 
