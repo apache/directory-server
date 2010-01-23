@@ -31,6 +31,7 @@ import java.util.Set;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.avl.AvlStore;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
@@ -102,7 +103,7 @@ public class LdifStore<E> implements Store<E>
         
         if( ! dir.exists() )
         {
-            throw new Exception( "The specified configuration dir " + upsuffixDir + " doesn't exist under " + workingDirectory.getAbsolutePath() );
+            throw new Exception( I18n.err( I18n.ERR_631, upsuffixDir, workingDirectory.getAbsolutePath() ) );
         }
         
         loadEntry( dir );

@@ -25,6 +25,7 @@ import java.io.FileFilter;
 import java.io.FileWriter;
 import java.util.List;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.client.api.LdapConnection;
 import org.apache.directory.shared.ldap.client.api.messages.AddResponse;
 import org.apache.directory.shared.ldap.client.api.messages.SearchResponse;
@@ -76,7 +77,7 @@ public class DitToLdifWriter
         }
         catch( Exception e )
         {
-            throw new RuntimeException( "Failed to connect to the server", e );
+            throw new RuntimeException( I18n.err( I18n.ERR_630 ), e );
         }
     }
 
@@ -128,7 +129,7 @@ public class DitToLdifWriter
         
         if( ! dir.exists() )
         {
-            throw new Exception( "The specified configuration dir" + partitionSuffix + " doesn't exist under " + baseDir.getAbsolutePath() );
+            throw new Exception( I18n.err( I18n.ERR_631, partitionSuffix, baseDir.getAbsolutePath() ) );
         }
         
         loadEntry( dir );

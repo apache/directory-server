@@ -227,7 +227,7 @@ public class LdifPartition extends BTreePartition
                 }
                 else
                 {
-                    throw new NamingException( "The expected context entry does not exist" );
+                    throw new NamingException( I18n.err( I18n.ERR_632 ) );
                 }
             }
             
@@ -550,7 +550,7 @@ public class LdifPartition extends BTreePartition
         if ( ldifFile.exists() && create )
         {
             // The entry already exists
-            throw new NamingException( "The entry already exists" );
+            throw new NamingException( I18n.err( I18n.ERR_633 ) );
         }
         
         return ldifFile;
