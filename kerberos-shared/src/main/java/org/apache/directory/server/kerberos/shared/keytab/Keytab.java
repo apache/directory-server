@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.mina.core.buffer.IoBuffer;
 
 
@@ -194,7 +195,7 @@ public class Keytab
         // Check to ensure that file is not larger than Integer.MAX_VALUE.
         if ( length > Integer.MAX_VALUE )
         {
-            throw new IOException( "File is too large " + file.getName() );
+            throw new IOException( I18n.err( I18n.ERR_618, file.getName() ) );
         }
 
         // Create the byte array to hold the data.
@@ -211,7 +212,7 @@ public class Keytab
         // Ensure all the bytes have been read in.
         if ( offset < bytes.length )
         {
-            throw new IOException( "Could not completely read file " + file.getName() );
+            throw new IOException( I18n.err( I18n.ERR_619, file.getName() ) );
         }
 
         // Close the input stream and return bytes.

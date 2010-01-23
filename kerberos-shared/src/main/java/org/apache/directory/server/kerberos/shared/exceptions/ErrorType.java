@@ -33,6 +33,10 @@ import java.util.List;
  */
 public final class ErrorType implements Comparable<ErrorType>
 {
+ 
+    // TODO Add i18n. Don't no if these error messages are also a response to the client.
+    // If so shall they really be i18n?
+    
     /**
      * No error.
      */

@@ -24,6 +24,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.store.operations.ChangePassword;
 import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
@@ -52,7 +53,7 @@ class SingleBaseSearch implements PrincipalStore
         }
         catch ( Exception e )
         {
-            throw new ServiceConfigurationException( "Can't get a session", e );
+            throw new ServiceConfigurationException( I18n.err( I18n.ERR_627 ), e );
         }
 
     }

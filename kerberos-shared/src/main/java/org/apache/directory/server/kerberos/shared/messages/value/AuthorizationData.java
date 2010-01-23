@@ -159,7 +159,7 @@ public class AuthorizationData extends AbstractAsn1Object implements Encodable
     {
         if ( buffer == null )
         {
-            throw new EncoderException( "Cannot put a PDU in a null buffer !" );
+            throw new EncoderException( I18n.err( I18n.ERR_620 ) );
         }
 
         try

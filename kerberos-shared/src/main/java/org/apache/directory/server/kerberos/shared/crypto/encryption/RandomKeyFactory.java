@@ -30,6 +30,7 @@ import java.util.Set;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
@@ -111,8 +112,7 @@ public class RandomKeyFactory
 
         if ( algorithm == null )
         {
-            throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP, encryptionType.getName()
-                + " is not a supported encryption type." );
+            throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP, I18n.err( I18n.ERR_616, encryptionType.getName() ) );
         }
 
         try

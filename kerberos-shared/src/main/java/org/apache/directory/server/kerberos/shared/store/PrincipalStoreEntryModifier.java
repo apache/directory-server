@@ -28,6 +28,7 @@ import javax.naming.NamingException;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.core.entry.ServerStringValue;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncryptionKeyDecoder;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
@@ -287,7 +288,7 @@ public class PrincipalStoreEntryModifier
         {
             if ( val instanceof ServerStringValue )
             {
-                throw new IllegalStateException( "Kerberos key should not be a String." );
+                throw new IllegalStateException( I18n.err( I18n.ERR_626 ) );
             }
 
             byte[] encryptionKeyBytes = val.getBytes();

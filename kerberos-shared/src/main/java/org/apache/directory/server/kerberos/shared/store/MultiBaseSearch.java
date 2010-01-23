@@ -28,6 +28,8 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.store.operations.ChangePassword;
 import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
@@ -61,7 +63,7 @@ class MultiBaseSearch implements PrincipalStore
         }
         catch ( Exception e )
         {
-            String message = "Failed to get catalog context " + catalogBaseDn;
+            String message = I18n.err( I18n.ERR_624, catalogBaseDn );
             throw new ServiceConfigurationException( message, e );
         }
     }
@@ -75,7 +77,7 @@ class MultiBaseSearch implements PrincipalStore
         }
         catch ( NamingException ne )
         {
-            String message = "Failed to get initial context " + principal.getRealm();
+            String message = I18n.err( I18n.ERR_625, principal.getRealm() );
             throw new ServiceConfigurationException( message, ne );
         }
     }
@@ -89,7 +91,7 @@ class MultiBaseSearch implements PrincipalStore
         }
         catch ( NamingException ne )
         {
-            String message = "Failed to get initial context " + principal.getRealm();
+            String message = I18n.err( I18n.ERR_625, principal.getRealm() );
             throw new ServiceConfigurationException( message, ne );
         }
     }

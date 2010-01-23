@@ -28,6 +28,8 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
+import org.apache.directory.server.i18n.I18n;
+
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -72,7 +74,7 @@ public class CallbackHandlerBean implements CallbackHandler
             }
             else
             {
-                throw new UnsupportedCallbackException( callBack, "Callback not supported" );
+                throw new UnsupportedCallbackException( callBack, I18n.err( I18n.ERR_617 ) );
             }
         }
     }

@@ -27,6 +27,7 @@ import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
@@ -169,7 +170,7 @@ public class KerberosUtils
                         }
                         else
                         {
-                            throw new ParseException( "An empty name is not valid in a kerberos name", i );
+                            throw new ParseException( I18n.err( I18n.ERR_628 ), i );
                         }
                     }
                     
@@ -194,7 +195,7 @@ public class KerberosUtils
                         }
                         else
                         {
-                            throw new ParseException( "An empty name is not valid in a kerberos name", i );
+                            throw new ParseException( I18n.err( I18n.ERR_628 ), i );
                         }
                     }
                     
@@ -211,7 +212,7 @@ public class KerberosUtils
         
         if ( escaped )
         {
-            throw new ParseException( "A '/' at the end of a Kerberos Name is not valid.", pos );
+            throw new ParseException( I18n.err( I18n.ERR_629 ), pos );
         }
         
         return nameComponents;

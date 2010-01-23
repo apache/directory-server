@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.io.decoder.AuthenticatorDecoder;
@@ -199,7 +200,7 @@ public class CipherTextHandler
 
         if ( clazz == null )
         {
-            throw new IOException( "Encoder unavailable for " + encodableClass );
+            throw new IOException( I18n.err( I18n.ERR_597, encodableClass ) );
         }
 
         EncoderFactory factory = null;
@@ -210,11 +211,11 @@ public class CipherTextHandler
         }
         catch ( IllegalAccessException iae )
         {
-            throw new IOException( "Error accessing encoder for " + encodableClass );
+            throw new IOException( I18n.err( I18n.ERR_598, encodableClass ) );
         }
         catch ( InstantiationException ie )
         {
-            throw new IOException( "Error instantiating encoder for " + encodableClass );
+            throw new IOException( I18n.err( I18n.ERR_599, encodableClass ) );
         }
 
         Encoder encoder = factory.getEncoder();
@@ -229,7 +230,7 @@ public class CipherTextHandler
 
         if ( clazz == null )
         {
-            throw new IOException( "Decoder unavailable for " + encodable );
+            throw new IOException( I18n.err( I18n.ERR_600, encodable ) );
         }
 
         DecoderFactory factory = null;
@@ -240,11 +241,11 @@ public class CipherTextHandler
         }
         catch ( IllegalAccessException iae )
         {
-            throw new IOException( "Error accessing decoder for " + encodable );
+            throw new IOException( I18n.err( I18n.ERR_601, encodable ) );
         }
         catch ( InstantiationException ie )
         {
-            throw new IOException( "Error instantiating decoder for " + encodable );
+            throw new IOException( I18n.err( I18n.ERR_602, encodable ) );
         }
 
         Decoder decoder = factory.getDecoder();

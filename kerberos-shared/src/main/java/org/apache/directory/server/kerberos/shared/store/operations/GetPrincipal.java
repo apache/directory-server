@@ -30,6 +30,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
@@ -146,8 +147,7 @@ public class GetPrincipal implements DirectoryServiceOperation
             }
             catch ( IOException ioe )
             {
-                throw new InvalidAttributeValueException( "Account Kerberos key attribute '" + KerberosAttribute.KRB5_KEY_AT
-                    + "' contained an invalid value for krb5key." );
+                throw new InvalidAttributeValueException( I18n.err( I18n.ERR_623, KerberosAttribute.KRB5_KEY_AT ) );
             }
         }
 
