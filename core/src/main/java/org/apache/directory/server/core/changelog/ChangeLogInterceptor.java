@@ -170,10 +170,15 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setDn( opContext.getDn() );
         
         Entry reverseEntry = new DefaultClientEntry( serverEntry.getDn() );
-        
-        for ( EntryAttribute attribute:serverEntry )
+
+        for ( EntryAttribute attribute : serverEntry )
         {
-            reverseEntry.add( ((ServerAttribute)attribute).toClientAttribute() );
+            // filter collective attributes, they can't be added by the revert operation
+            AttributeType at = schemaService.getSchemaManager().getAttributeTypeRegistry().lookup( attribute.getId() );
+            if ( !at.isCollective() )
+            {
+                reverseEntry.add( ( ( ServerAttribute ) attribute ).toClientAttribute() );
+            }
         }
 
         LdifEntry reverse = LdifRevertor.reverseDel( opContext.getDn(), reverseEntry );
