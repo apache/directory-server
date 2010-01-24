@@ -114,7 +114,7 @@ public class ServerBinaryValue extends ClientBinaryValue
 
         if ( attributeType == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_461 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_92 ) );
         }
 
         if ( attributeType.getSyntax() == null )

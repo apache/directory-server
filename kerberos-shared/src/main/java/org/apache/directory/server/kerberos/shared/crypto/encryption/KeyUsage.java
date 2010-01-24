@@ -86,7 +86,7 @@ public final class KeyUsage implements Comparable<KeyUsage>
     /**
      * TGS-REP encrypted part (includes application session key), encrypted with the TGS authenticator subkey (Section 5.4.2)
      */
-    public static final KeyUsage NUMBER9 = new KeyUsage( 9, I18n.err( I18n.ERR_611 ) );
+    public static final KeyUsage NUMBER9 = new KeyUsage( 9, I18n.err( I18n.ERR_610 ) );
 
     /**
      * AP-REQ Authenticator cksum, keyed with the application session key (Section 5.5.1)

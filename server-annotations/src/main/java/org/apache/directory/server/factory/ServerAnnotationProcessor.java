@@ -290,7 +290,7 @@ public class ServerAnnotationProcessor
                 }
                 else
                 {
-                    throw new IllegalArgumentException( I18n.err( I18n.ERR_693, protocol ) );
+                    throw new IllegalArgumentException( I18n.err( I18n.ERR_689, protocol ) );
                 }
             }
         }

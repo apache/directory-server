@@ -430,7 +430,7 @@ public class JdbmStore<E> implements Store<E>
                 }
                 else
                 {
-                    LOG.error( I18n.err( I18n.ERR_123, attributeType.getName() ) );
+                    LOG.error( I18n.err( I18n.ERR_4, attributeType.getName() ) );
                 }
             }
             
@@ -865,7 +865,7 @@ public class JdbmStore<E> implements Store<E>
             return userIndices.get( id );
         }
 
-        throw new IndexNotFoundException( I18n.err( I18n.ERR_129, id, name ) );
+        throw new IndexNotFoundException( I18n.err( I18n.ERR_3, id, name ) );
     }
 
 
@@ -887,7 +887,7 @@ public class JdbmStore<E> implements Store<E>
             return systemIndices.get( id );
         }
 
-        throw new IndexNotFoundException( I18n.err( I18n.ERR_130, id, name ) );
+        throw new IndexNotFoundException( I18n.err( I18n.ERR_2, id, name ) );
     }
 
 
@@ -1029,14 +1029,14 @@ public class JdbmStore<E> implements Store<E>
         {
             if ( aliasDn.equals( normalizedAliasTargetDn ) )
             {
-                String msg = I18n.err( I18n.ERR_578 );
+                String msg = I18n.err( I18n.ERR_223 );
                 ResultCodeEnum rc = ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
                 LdapNamingException e = new LdapNamingException( msg, rc );
                 e.setResolvedName( aliasDn );
                 throw e;
             }
 
-            String msg = I18n.err( I18n.ERR_579, aliasTarget, aliasDn );
+            String msg = I18n.err( I18n.ERR_224, aliasTarget, aliasDn );
             ResultCodeEnum rc = ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
             LdapNamingException e = new LdapNamingException( msg, rc );
             e.setResolvedName( aliasDn );
@@ -1053,7 +1053,7 @@ public class JdbmStore<E> implements Store<E>
          */
         if ( !normalizedAliasTargetDn.startsWith( normSuffix ) )
         {
-            String msg = I18n.err( I18n.ERR_580, upSuffix.getName() );
+            String msg = I18n.err( I18n.ERR_225, upSuffix.getName() );
             ResultCodeEnum rc = ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
             LdapNamingException e = new LdapNamingException( msg, rc );
             e.setResolvedName( aliasDn );
@@ -1091,7 +1091,7 @@ public class JdbmStore<E> implements Store<E>
          */
         if ( null != aliasIdx.reverseLookup( targetId ) )
         {
-            String msg = I18n.err( I18n.ERR_582 );
+            String msg = I18n.err( I18n.ERR_227 );
             ResultCodeEnum rc = ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
             LdapNamingException e = new LdapNamingException( msg, rc );
             e.setResolvedName( aliasDn );
@@ -1154,7 +1154,7 @@ public class JdbmStore<E> implements Store<E>
     {
         if ( entry instanceof ClonedServerEntry )
         {
-            throw new Exception( I18n.err( I18n.ERR_583 ) );
+            throw new Exception( I18n.err( I18n.ERR_215 ) );
         }
         
         Long parentId;
@@ -1182,14 +1182,14 @@ public class JdbmStore<E> implements Store<E>
         // don't keep going if we cannot find the parent Id
         if ( parentId == null )
         {
-            throw new LdapNameNotFoundException( I18n.err( I18n.ERR_584, parentDn ) );
+            throw new LdapNameNotFoundException( I18n.err( I18n.ERR_216, parentDn ) );
         }
 
         EntryAttribute objectClass = entry.get( OBJECT_CLASS_AT );
 
         if ( objectClass == null )
         {
-            String msg = I18n.err( I18n.ERR_586, entryDn.getName(), entry );
+            String msg = I18n.err( I18n.ERR_217, entryDn.getName(), entry );
             ResultCodeEnum rc = ResultCodeEnum.OBJECT_CLASS_VIOLATION;
             NamingException e = new LdapSchemaViolationException( msg, rc );
             e.setResolvedName( entryDn );
@@ -1213,7 +1213,7 @@ public class JdbmStore<E> implements Store<E>
 
         if ( !Character.isDigit( entryDn.toNormName().charAt( 0 ) ) )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_585, entryDn.toNormName() ) );
+            throw new IllegalStateException( I18n.err( I18n.ERR_218, entryDn.toNormName() ) );
         }
 
         ndnIdx.add( entryDn.toNormName(), id );
@@ -1225,7 +1225,7 @@ public class JdbmStore<E> implements Store<E>
 
         if ( entryCsn == null )
         {
-            String msg = I18n.err( I18n.ERR_587, entryDn.getName(), entry );
+            String msg = I18n.err( I18n.ERR_219, entryDn.getName(), entry );
             throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
         
@@ -1236,7 +1236,7 @@ public class JdbmStore<E> implements Store<E>
 
         if ( entryUuid == null )
         {
-            String msg = I18n.err( I18n.ERR_588, entryDn.getName(), entry );
+            String msg = I18n.err( I18n.ERR_220, entryDn.getName(), entry );
             throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
         
@@ -1415,7 +1415,7 @@ public class JdbmStore<E> implements Store<E>
     {
         if ( entry instanceof ClonedServerEntry )
         {
-            throw new Exception( I18n.err( I18n.ERR_589 ) );
+            throw new Exception( I18n.err( I18n.ERR_215 ) );
         }
         
         String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
@@ -1478,7 +1478,7 @@ public class JdbmStore<E> implements Store<E>
     {
         if ( entry instanceof ClonedServerEntry )
         {
-            throw new Exception( I18n.err( I18n.ERR_589 ) );
+            throw new Exception( I18n.err( I18n.ERR_215 ) );
         }
         
         String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
@@ -1572,7 +1572,7 @@ public class JdbmStore<E> implements Store<E>
     {
         if ( entry instanceof ClonedServerEntry )
         {
-            throw new Exception( I18n.err( I18n.ERR_589 ) );
+            throw new Exception( I18n.err( I18n.ERR_215 ) );
         }
         
         String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
@@ -1648,7 +1648,7 @@ public class JdbmStore<E> implements Store<E>
     {
         if ( mods instanceof ClonedServerEntry )
         {
-            throw new Exception( I18n.err( I18n.ERR_589 ) );
+            throw new Exception( I18n.err( I18n.ERR_215 ) );
         }
         
         Long id = getEntryId( dn.toString() );
@@ -1674,7 +1674,7 @@ public class JdbmStore<E> implements Store<E>
                     break;
 
                 default:
-                    throw new NamingException( I18n.err( I18n.ERR_590 ) );
+                    throw new NamingException( I18n.err( I18n.ERR_221 ) );
             }
         }
 
@@ -1711,7 +1711,7 @@ public class JdbmStore<E> implements Store<E>
                     break;
 
                 default:
-                    throw new NamingException( I18n.err( I18n.ERR_590 ) );
+                    throw new NamingException( I18n.err( I18n.ERR_221 ) );
             }
         }
 

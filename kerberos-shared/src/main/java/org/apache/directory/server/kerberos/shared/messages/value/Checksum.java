@@ -220,7 +220,7 @@ public class Checksum extends AbstractAsn1Object
     {
         if ( buffer == null )
         {
-            throw new EncoderException( I18n.err( I18n.ERR_620 ) );
+            throw new EncoderException( I18n.err( I18n.ERR_148 ) );
         }
 
         try

@@ -211,7 +211,7 @@ public class CipherTextHandler
         }
         catch ( IllegalAccessException iae )
         {
-            throw new IOException( I18n.err( I18n.ERR_598, encodableClass ) );
+            throw new IOException( I18n.err( I18n.ERR_601, encodableClass ) );
         }
         catch ( InstantiationException ie )
         {

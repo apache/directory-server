@@ -115,7 +115,7 @@ public class NtlmSaslServer extends AbstractSaslServer
                 break;
                 
             case COMPLETED:
-                throw new IllegalStateException( I18n.err( I18n.ERR_665 ) );
+                throw new IllegalStateException( I18n.err( I18n.ERR_662 ) );
         }
     }
 

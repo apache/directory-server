@@ -364,7 +364,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         }
         else
         {
-            throw new LdapSchemaViolationException( I18n.err( I18n.ERR_356, oid ),
+            throw new LdapSchemaViolationException( I18n.err( I18n.ERR_336, oid ),
                 ResultCodeEnum.OTHER );
         }
     }

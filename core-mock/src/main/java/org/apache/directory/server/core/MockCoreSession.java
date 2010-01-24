@@ -204,7 +204,7 @@ public class MockCoreSession implements CoreSession
             }
             else
             {
-                throw new NamingException( I18n.err( I18n.ERR_502, oid ) );
+                throw new NamingException( I18n.err( I18n.ERR_309, oid ) );
             }
         }
         else
@@ -219,7 +219,7 @@ public class MockCoreSession implements CoreSession
             }
             else
             {
-                throw new NamingException( I18n.err( I18n.ERR_502, oid ) );
+                throw new NamingException( I18n.err( I18n.ERR_309, oid ) );
             }
         }
         

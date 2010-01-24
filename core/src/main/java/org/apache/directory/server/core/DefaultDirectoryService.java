@@ -779,7 +779,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         if ( revision < 0 )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_313 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_239 ) );
         }
 
         if ( revision >= changeLog.getChangeLogStore().getCurrentRevision() )

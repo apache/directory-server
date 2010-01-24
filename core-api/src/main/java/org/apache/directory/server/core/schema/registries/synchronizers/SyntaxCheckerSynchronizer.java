@@ -205,7 +205,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
             }
             else
             {
-                String msg = I18n.err( I18n.ERR_388, entry.getDn().getName(),
+                String msg = I18n.err( I18n.ERR_386, entry.getDn().getName(),
                     StringTools.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
@@ -273,7 +273,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getSyntaxCheckerRegistry().contains( newOid ) )
         {
-            throw new LdapNamingException( I18n.err( I18n.ERR_392, newOid ),
+            throw new LdapNamingException( I18n.err( I18n.ERR_390, newOid ),
                 ResultCodeEnum.OTHER );
         }
 
@@ -327,7 +327,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getNormalizerRegistry().contains( oid ) )
         {
-            throw new LdapNamingException( I18n.err( I18n.ERR_394, oid ),
+            throw new LdapNamingException( I18n.err( I18n.ERR_390, oid ),
                 ResultCodeEnum.OTHER );
         }
     }
@@ -347,7 +347,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         }
         else
         {
-            throw new LdapSchemaViolationException( I18n.err( I18n.ERR_395, oid ),
+            throw new LdapSchemaViolationException( I18n.err( I18n.ERR_336, oid ),
                 ResultCodeEnum.OTHER );
         }
     }
@@ -371,7 +371,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( !( ( String ) rdn.getNormValue() ).equalsIgnoreCase( SchemaConstants.SYNTAX_CHECKERS_AT ) )
         {
-            throw new LdapInvalidNameException( I18n.err( I18n.ERR_398 ),
+            throw new LdapInvalidNameException( I18n.err( I18n.ERR_372 ),
                 ResultCodeEnum.NAMING_VIOLATION );
         }
     }

@@ -107,7 +107,7 @@ public class DumpCommand extends ToolCommand
         
         if ( errors.size() != 0 )
         {
-            throw new Exception( I18n.err( I18n.ERR_696, ExceptionUtils.printErrors( errors ) ) );
+            throw new Exception( I18n.err( I18n.ERR_317, ExceptionUtils.printErrors( errors ) ) );
         }
 
         

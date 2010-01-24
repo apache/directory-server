@@ -84,7 +84,7 @@ public final class ObjectBAComparator
     public ObjectBAComparator( Comparator comparator )
     {
         if ( comparator == null ) {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_530 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_518 ) );
         }
 
         _comparator = comparator;

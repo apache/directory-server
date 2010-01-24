@@ -215,7 +215,7 @@ public class AuthorizationDataEntry extends AbstractAsn1Object
     {
         if ( buffer == null )
         {
-            throw new EncoderException( I18n.err( I18n.ERR_620 ) );
+            throw new EncoderException( I18n.err( I18n.ERR_148 ) );
         }
 
         try
@@ -239,7 +239,7 @@ public class AuthorizationDataEntry extends AbstractAsn1Object
             log
                 .error( I18n.err( I18n.ERR_622, 1 + TLV.getNbBytes( authorizationDataEntryLength ) + authorizationDataEntryLength, 
                     buffer.capacity() ) );
-            throw new EncoderException( I18n.err( I18n.ERR_621 ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
         }
 
         if ( IS_DEBUG )

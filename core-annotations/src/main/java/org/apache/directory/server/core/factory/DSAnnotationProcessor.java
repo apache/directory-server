@@ -229,7 +229,7 @@ public class DSAnnotationProcessor
         }
         else
         {
-            String message = I18n.err( I18n.ERR_318, entry.getChangeType() );
+            String message = I18n.err( I18n.ERR_117, entry.getChangeType() );
             throw new NamingException( message );
         }
     }

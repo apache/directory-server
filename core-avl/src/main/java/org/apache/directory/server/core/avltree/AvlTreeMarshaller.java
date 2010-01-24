@@ -168,7 +168,7 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
     {
         if ( data == null || data.length == 0 )
         {
-            throw new IOException( I18n.err( I18n.ERR_442 ) );
+            throw new IOException( I18n.err( I18n.ERR_439 ) );
         }
 
         if ( data.length == 1 && data[0] == 0 )

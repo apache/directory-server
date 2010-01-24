@@ -69,7 +69,7 @@ public class DnsTcpDecoder extends CumulativeProtocolDecoder
     {
         if ( maxObjectSize <= 0 )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_645, maxObjectSize ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_634, maxObjectSize ) );
         }
 
         this.maxObjectSize = maxObjectSize;

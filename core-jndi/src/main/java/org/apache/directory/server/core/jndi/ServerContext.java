@@ -942,7 +942,7 @@ public abstract class ServerContext implements EventContext
 
         if ( oldDn.size() == 0 )
         {
-            throw new LdapNoPermissionException( I18n.err( I18n.ERR_496 ) );
+            throw new LdapNoPermissionException( I18n.err( I18n.ERR_312 ) );
         }
 
         // calculate parents

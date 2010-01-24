@@ -200,7 +200,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
         }
         catch ( Exception e )
         {
-            LOG.error( I18n.err( I18n.ERR_67 ), e );
+            LOG.error( I18n.err( I18n.ERR_66 ), e );
         }
         
         return new Certificate[0];

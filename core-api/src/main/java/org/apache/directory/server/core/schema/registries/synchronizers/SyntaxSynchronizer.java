@@ -396,7 +396,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
 
         if ( !( ( String ) rdn.getNormValue() ).equalsIgnoreCase( "syntaxes" ) )
         {
-            throw new LdapInvalidNameException( I18n.err( I18n.ERR_404 ), ResultCodeEnum.NAMING_VIOLATION );
+            throw new LdapInvalidNameException( I18n.err( I18n.ERR_363 ), ResultCodeEnum.NAMING_VIOLATION );
         }
     }
 }

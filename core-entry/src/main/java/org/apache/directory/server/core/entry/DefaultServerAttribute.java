@@ -163,7 +163,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
     {
         if ( attributeType == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_457 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_92 ) );
         }
         
         setAttributeType( attributeType );
@@ -223,7 +223,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
     {
         if ( attributeType == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_457 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_92 ) );
         }
         
         setAttributeType( attributeType );
@@ -255,7 +255,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
     {
         if ( attributeType == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_457 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_92 ) );
         }
 
         setAttributeType( attributeType );
@@ -287,7 +287,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
     {
         if ( attributeType == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_457 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_92 ) );
         }
 
         setAttributeType( attributeType );

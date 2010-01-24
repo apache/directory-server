@@ -192,7 +192,7 @@ public class PlainSaslServer extends AbstractSaslServer
             
                 if ( start == end )
                 {
-                    throw new IllegalArgumentException( I18n.err( I18n.ERR_673 ) );
+                    throw new IllegalArgumentException( I18n.err( I18n.ERR_671 ) );
                 }
                 
                 start++;
@@ -202,7 +202,7 @@ public class PlainSaslServer extends AbstractSaslServer
                 
                 if ( ( authcId == null ) || ( password == null ) )
                 {
-                    throw new IllegalArgumentException( I18n.err( I18n.ERR_673 ) );
+                    throw new IllegalArgumentException( I18n.err( I18n.ERR_671 ) );
                 }
                 
                 // Now that we have the authcid and password, try to authenticate.

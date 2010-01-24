@@ -154,7 +154,7 @@ public class LdapJndiProperties
         }
         else if ( !( authentication instanceof String ) )
         {
-            throw new LdapConfigurationException( I18n.err( I18n.ERR_486, authentication.getClass(), 
+            throw new LdapConfigurationException( I18n.err( I18n.ERR_483, authentication.getClass(), 
                 Context.SECURITY_AUTHENTICATION ) );
         }
         else
@@ -196,7 +196,7 @@ public class LdapJndiProperties
         }
         else if ( !( principal instanceof String ) )
         {
-            throw new LdapConfigurationException( I18n.err( I18n.ERR_488, principal.getClass(), Context.SECURITY_PRINCIPAL ) );
+            throw new LdapConfigurationException( I18n.err( I18n.ERR_483, principal.getClass(), Context.SECURITY_PRINCIPAL ) );
         }
         else if ( ( ( String ) principal ).trim().equals( "" ) )
         {
@@ -217,7 +217,7 @@ public class LdapJndiProperties
             }
             else
             {
-                throw new LdapConfigurationException( I18n.err( I18n.ERR_488, obj.getClass(), SASL_AUTHID ) );
+                throw new LdapConfigurationException( I18n.err( I18n.ERR_483, obj.getClass(), SASL_AUTHID ) );
             }
             props.saslAuthId = ( String ) principal;
         }
@@ -242,7 +242,7 @@ public class LdapJndiProperties
             }
             else
             {
-                throw new LdapConfigurationException( I18n.err( I18n.ERR_488, credobj.getClass(), Context.SECURITY_CREDENTIALS ) );
+                throw new LdapConfigurationException( I18n.err( I18n.ERR_483, credobj.getClass(), Context.SECURITY_CREDENTIALS ) );
             }
         }
 

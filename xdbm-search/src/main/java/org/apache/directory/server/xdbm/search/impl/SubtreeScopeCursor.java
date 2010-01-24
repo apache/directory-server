@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
  */
 public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
 {
-    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_726 );
+    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
     /** The Entry database/store */
     private final Store<ServerEntry> db;

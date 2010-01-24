@@ -197,7 +197,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
             }
             else
             {
-                throw new NamingException( I18n.err( I18n.ERR_502, oid ) );
+                throw new NamingException( I18n.err( I18n.ERR_309, oid ) );
             }
         }
         else
@@ -212,7 +212,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
             }
             else
             {
-                throw new NamingException( I18n.err( I18n.ERR_502, oid ) );
+                throw new NamingException( I18n.err( I18n.ERR_309, oid ) );
             }
         }
         

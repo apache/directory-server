@@ -693,8 +693,8 @@ public class SchemaChecker
 
             if ( rdnAttrOid == null )
             {
-                log.error( I18n.err( I18n.ERR_44, rdnAttrOid ) );
-                throw new NamingException( I18n.err( I18n.ERR_45, rdnAttrOid ) );
+                log.error( I18n.err( I18n.ERR_43, rdnAttrOid ) );
+                throw new NamingException( I18n.err( I18n.ERR_44, rdnAttrOid ) );
             }
 
             if ( rdnAttrOid.equalsIgnoreCase( idOid ) )

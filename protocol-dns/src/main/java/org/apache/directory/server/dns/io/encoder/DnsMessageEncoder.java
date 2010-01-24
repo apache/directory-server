@@ -167,7 +167,7 @@ public class DnsMessageEncoder
 
         if ( encoder == null )
         {
-            throw new IOException( I18n.err( I18n.ERR_644, type ) );
+            throw new IOException( I18n.err( I18n.ERR_597, type ) );
         }
 
         encoder.put( byteBuffer, record );

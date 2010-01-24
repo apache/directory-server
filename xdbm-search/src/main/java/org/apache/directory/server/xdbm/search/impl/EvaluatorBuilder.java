@@ -122,7 +122,7 @@ public class EvaluatorBuilder
                 throw new NotImplementedException();
 
             default:
-                throw new IllegalStateException( I18n.err( I18n.ERR_710, node.getAssertionType() ) );
+                throw new IllegalStateException( I18n.err( I18n.ERR_260, node.getAssertionType() ) );
         }
     }
 

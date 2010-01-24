@@ -106,12 +106,12 @@ public class ServerStringValue extends ClientStringValue
         
         if ( attributeType == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_470 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_92 ) );
         }
 
         if ( attributeType.getSyntax() == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_471 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_462 ) );
         }
 
         if ( ! attributeType.getSyntax().isHumanReadable() )
@@ -318,7 +318,7 @@ public class ServerStringValue extends ClientStringValue
             }
             catch ( NamingException e )
             {
-                String msg = I18n.err( I18n.ERR_113, this, value );
+                String msg = I18n.err( I18n.ERR_109, this, value );
                 LOG.error( msg, e );
                 throw new IllegalStateException( msg, e );
             }

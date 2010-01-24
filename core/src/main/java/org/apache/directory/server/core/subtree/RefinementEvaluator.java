@@ -112,12 +112,12 @@ public class RefinementEvaluator
                 return !evaluate( bnode.getFirstChild(), objectClasses );
             }
 
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_298, node ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_243, node ) );
             
         }
         else
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_299, bnode ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_244, bnode ) );
         }
     }
 }

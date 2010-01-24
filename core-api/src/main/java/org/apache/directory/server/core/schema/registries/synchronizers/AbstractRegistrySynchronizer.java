@@ -153,7 +153,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         if ( dn.size() < 2 )
         {
-            throw new NamingException( I18n.err( I18n.ERR_334 ) );
+            throw new NamingException( I18n.err( I18n.ERR_276 ) );
         }
         
         RDN rdn = dn.getRdn( 1 );
@@ -224,7 +224,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
         if ( schemaManager.getGlobalOidRegistry().contains( oid ) )
         {
-            throw new LdapSchemaViolationException( I18n.err( I18n.ERR_340, oid ),
+            throw new LdapSchemaViolationException( I18n.err( I18n.ERR_335, oid ),
                 ResultCodeEnum.OTHER );
         }
     }
@@ -234,7 +234,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         if ( schemaManager.getGlobalOidRegistry().contains( oid ) )
         {
-            throw new LdapSchemaViolationException( I18n.err( I18n.ERR_340, oid ),
+            throw new LdapSchemaViolationException( I18n.err( I18n.ERR_335, oid ),
                 ResultCodeEnum.OTHER );
         }
     }
@@ -307,7 +307,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         }
         else
         {
-            String msg = I18n.err( I18n.ERR_344, schemaObject.getName(), schemaName );
+            String msg = I18n.err( I18n.ERR_342, schemaObject.getName(), schemaName );
             LOG.warn( msg );
         
             throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );

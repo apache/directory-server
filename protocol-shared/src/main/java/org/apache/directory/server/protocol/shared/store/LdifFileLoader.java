@@ -288,7 +288,7 @@ public class LdifFileLoader
                 return in;
             }
 
-            throw new FileNotFoundException( I18n.err( I18n.ERR_688 ) );
+            throw new FileNotFoundException( I18n.err( I18n.ERR_173 ) );
         }
 
         return in;

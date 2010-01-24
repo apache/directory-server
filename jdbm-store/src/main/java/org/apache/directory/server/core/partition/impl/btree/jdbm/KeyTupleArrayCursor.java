@@ -73,13 +73,13 @@ public class KeyTupleArrayCursor<K,V> extends AbstractTupleCursor<K,V>
 
     public void beforeKey( K key ) throws Exception
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_595 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
     }
 
 
     public void afterKey( K key ) throws Exception
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_595 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
     }
 
 
@@ -88,7 +88,7 @@ public class KeyTupleArrayCursor<K,V> extends AbstractTupleCursor<K,V>
         checkNotClosed( "beforeValue()" );
         if ( key != null && ! key.equals( this.key ) )
         {
-            throw new UnsupportedOperationException( I18n.err( I18n.ERR_595 ) );
+            throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
         }
 
         wrapped.before( value );
@@ -101,7 +101,7 @@ public class KeyTupleArrayCursor<K,V> extends AbstractTupleCursor<K,V>
         checkNotClosed( "afterValue()" );
         if ( key != null && ! key.equals( this.key ) )
         {
-            throw new UnsupportedOperationException( I18n.err( I18n.ERR_595 ) );
+            throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
         }
 
         wrapped.after( value );

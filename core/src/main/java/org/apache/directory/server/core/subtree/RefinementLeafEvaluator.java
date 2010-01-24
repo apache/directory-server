@@ -72,7 +72,7 @@ public class RefinementLeafEvaluator
     {
         if ( node == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_300 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_295 ) );
         }
         
         if ( !( node instanceof EqualityNode ) )
