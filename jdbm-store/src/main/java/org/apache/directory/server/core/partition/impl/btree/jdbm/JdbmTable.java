@@ -851,7 +851,9 @@ public class JdbmTable<K,V> implements Table<K,V>
                 {
                     LOG.debug( "<--- Remove BTree {} = {}", name, key );
                 }
-                
+
+                recMan.delete( tree.getRecid() );
+                duplicateBtrees.remove( tree.getRecid() );
                 return;
             }
             else
