@@ -175,6 +175,7 @@ public class RegistrySynchronizerAdaptor
         }
         
         // This is a Schema
+        // e.g. ou=my custom schema,ou=schema
         if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
             ServerEntry entry = opContext.getEntry();
@@ -182,7 +183,8 @@ public class RegistrySynchronizerAdaptor
             return;
         }
         
-        // What is this for ??? TODO : remove this code if it's useless...
+        // Check if it is a valid container for AT, C, DCR, DSR, MR, MRU, NF, N, OC, S, SC
+        // e.g. ou=attributeTypes,ou=my custom schema,ou=schema
         if ( oc.contains( SchemaConstants.ORGANIZATIONAL_UNIT_OC ) )
         {
             if ( opContext.getDn().size() != 3 )
@@ -201,6 +203,9 @@ public class RegistrySynchronizerAdaptor
                 LOG.error( msg );
                 throw new LdapInvalidNameException( msg, ResultCodeEnum.NAMING_VIOLATION );
             }
+            
+            // this is a valid container.
+            return;
         }
 
         
