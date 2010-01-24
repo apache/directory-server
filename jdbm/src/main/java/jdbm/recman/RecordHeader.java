@@ -51,7 +51,7 @@ import org.apache.directory.server.i18n.I18n;
 
 /**
  *  The data that comes at the start of a record of data. It stores 
- *  both the current size and the avaliable size for the record - the latter
+ *  both the current size and the available size for the record - the latter
  *  can be bigger than the former, which allows the record to grow without
  *  needing to be moved and which allows the system to put small records
  *  in larger free spots.

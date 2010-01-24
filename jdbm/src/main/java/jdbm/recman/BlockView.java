@@ -44,8 +44,8 @@
  *
  * $Id: BlockView.java,v 1.2 2005/06/25 23:12:32 doomdark Exp $
  */
-
 package jdbm.recman;
+
 
 /**
  *  This is a marker interface that is implemented by classes that
@@ -53,5 +53,6 @@ package jdbm.recman;
  *
  *  @see BlockIo#setView
  */
-public interface BlockView {
+public interface BlockView 
+{
 }
