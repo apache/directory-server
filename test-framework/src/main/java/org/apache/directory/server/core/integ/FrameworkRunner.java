@@ -36,6 +36,7 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.junit.Ignore;
 import org.junit.runner.Description;
+import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
@@ -250,7 +251,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
         {
             LOG.error( I18n.err( I18n.ERR_181, getTestClass().getName() ) );
             LOG.error( e.getLocalizedMessage() );
-            e.printStackTrace();
+            notifier.fireTestFailure( new Failure(getDescription(), e) );
         }
     }
 
@@ -382,7 +383,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
         {
             LOG.error( I18n.err( I18n.ERR_182, method ) );
             LOG.error( "", e );
-            e.printStackTrace();
+            notifier.fireTestFailure( new Failure(getDescription(), e) );
         }
     }
 
