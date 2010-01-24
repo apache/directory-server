@@ -33,5 +33,14 @@
     across ApacheDS instances.  This service is modeled as an interceptor.
   </description>
   <packaging>jar</packaging>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-i18n</artifactId>
+      <version>${pom.version}</version>
+    </dependency>  
+  </dependencies>
+  
 </project>
 

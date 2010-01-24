@@ -23,6 +23,7 @@ package org.apache.directory.server.replication.configuration;
 import java.io.Serializable;
 import java.util.regex.Pattern;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -63,14 +64,14 @@ public class ReplicaId implements Comparable, Serializable
     {
         if ( StringTools.isEmpty( id ) )
         {
-            throw new IllegalArgumentException( "Empty ID: " + id );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_694, id ) );
         }
 
         String tmpId = id.trim().toUpperCase();
 
         if ( !REPLICA_ID_PATTERN.matcher( tmpId ).matches() )
         {
-            throw new IllegalArgumentException( "Invalid replica ID: " + id );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_695, id ) );
         }
 
         this.id = id;

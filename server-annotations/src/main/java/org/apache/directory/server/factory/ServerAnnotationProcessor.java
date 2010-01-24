@@ -26,6 +26,7 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
@@ -81,7 +82,7 @@ public class ServerAnnotationProcessor
                 }
                 else
                 {
-                    throw new IllegalArgumentException( "Unsupported protocol type " + protocol );
+                    throw new IllegalArgumentException( I18n.err( I18n.ERR_689, protocol ) );
                 }
             }
         }
@@ -127,7 +128,7 @@ public class ServerAnnotationProcessor
                 }
                 catch( Exception e )
                 {
-                    throw new RuntimeException( "Failed to add the extended operation of type " + extOpClass.getName(), e );
+                    throw new RuntimeException( I18n.err( I18n.ERR_690, extOpClass.getName() ), e );
                 }
             }
             
@@ -140,7 +141,7 @@ public class ServerAnnotationProcessor
                 }
                 catch( Exception e )
                 {
-                    throw new RuntimeException( "Failed to add the SASL mechanism with the name " + saslMech.name() + " and implementation class " + saslMech.implClass().getName(), e );
+                    throw new RuntimeException( I18n.err( I18n.ERR_691, saslMech.name(), saslMech.implClass().getName() ), e );
                 }
             }
             
@@ -157,7 +158,7 @@ public class ServerAnnotationProcessor
                     }
                     catch( Exception e )
                     {
-                        throw new RuntimeException( "Failed to add NTLM provider", e );
+                        throw new RuntimeException( I18n.err( I18n.ERR_692 ), e );
                     }
                 }
             }
@@ -289,7 +290,7 @@ public class ServerAnnotationProcessor
                 }
                 else
                 {
-                    throw new IllegalArgumentException( "Unsupported protocol type " + protocol );
+                    throw new IllegalArgumentException( I18n.err( I18n.ERR_693, protocol ) );
                 }
             }
         }

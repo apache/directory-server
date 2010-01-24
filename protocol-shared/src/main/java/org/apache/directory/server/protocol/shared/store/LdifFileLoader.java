@@ -288,7 +288,7 @@ public class LdifFileLoader
                 return in;
             }
 
-            throw new FileNotFoundException( "LDIF file does not exist." );
+            throw new FileNotFoundException( I18n.err( I18n.ERR_688 ) );
         }
 
         return in;
