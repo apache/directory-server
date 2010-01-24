@@ -97,14 +97,10 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
                     break;
 
                 case EXTENDED_REQ:
-                    throw new IllegalStateException( 
-                        "Although ExtendedRequests are SingleReplyRequests they're not handled" +
-                        " using this base class.  They have no target entry unlike the rest of" +
-                        " the SingleReplyRequests" );
+                    throw new IllegalStateException( I18n.err( I18n.ERR_684 ) );
                     
                 default:
-                    throw new IllegalStateException( 
-                        "Unidentified single reply request/response type: " + req );
+                    throw new IllegalStateException( I18n.err( I18n.ERR_685, req ) );
             }
             
         }

@@ -806,7 +806,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
                         break;
                         
                     default:
-                        throw new IllegalStateException( "Unexpected base scope." );
+                        throw new IllegalStateException( I18n.err( I18n.ERR_686 ) );
                 }
                 
                 respRef.getReferral().addLdapUrl( ldapUrl.toString() );

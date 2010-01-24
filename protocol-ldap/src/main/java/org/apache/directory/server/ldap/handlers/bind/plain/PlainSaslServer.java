@@ -24,6 +24,7 @@ import java.io.IOException;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.bind.AbstractSaslServer;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
@@ -152,7 +153,7 @@ public class PlainSaslServer extends AbstractSaslServer
                             else
                             {
                                 // This not allowed
-                                throw new IllegalArgumentException( "response with no auhcid or no password" );
+                                throw new IllegalArgumentException( I18n.err( I18n.ERR_671 ) );
                             }
                         }
                         else
@@ -179,7 +180,7 @@ public class PlainSaslServer extends AbstractSaslServer
                                     
                                 default :
                                     // This is an error !
-                                    throw new IllegalArgumentException( "'\0' chars are not allowed in authcid or no password" );
+                                    throw new IllegalArgumentException( I18n.err( I18n.ERR_672 ) );
                             }
                         }
                     }
@@ -191,7 +192,7 @@ public class PlainSaslServer extends AbstractSaslServer
             
                 if ( start == end )
                 {
-                    throw new IllegalArgumentException( "response with no auhcid or no password" );
+                    throw new IllegalArgumentException( I18n.err( I18n.ERR_673 ) );
                 }
                 
                 start++;
@@ -201,7 +202,7 @@ public class PlainSaslServer extends AbstractSaslServer
                 
                 if ( ( authcId == null ) || ( password == null ) )
                 {
-                    throw new IllegalArgumentException( "response with no auhcid or no password" );
+                    throw new IllegalArgumentException( I18n.err( I18n.ERR_673 ) );
                 }
                 
                 // Now that we have the authcid and password, try to authenticate.
@@ -213,15 +214,15 @@ public class PlainSaslServer extends AbstractSaslServer
             }
             catch ( IOException ioe )
             {
-                throw new IllegalArgumentException( "The given InitialReponse is incorrect" );
+                throw new IllegalArgumentException( I18n.err( I18n.ERR_674 ) );
             }
             catch ( InvalidNameException ine )
             {
-                throw new IllegalArgumentException( "Cannot authenticate an invalid authcid DN" );
+                throw new IllegalArgumentException( I18n.err( I18n.ERR_675 ) );
             }
             catch ( Exception e )
             {
-                throw new SaslException( "Cannot authenticate the user " + authcId );
+                throw new SaslException( I18n.err( I18n.ERR_676, authcId ) );
             }
         }
 

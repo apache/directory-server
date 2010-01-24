@@ -28,6 +28,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.security.auth.kerberos.KerberosKey;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.messages.value.SamType;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 
@@ -101,12 +102,12 @@ public final class SamSubsystem
 
         if ( keyChecker == null )
         {
-            throw new IllegalStateException( "SamSubsystem not enabled with key integrity checker" );
+            throw new IllegalStateException( I18n.err( I18n.ERR_651 ) );
         }
 
         if ( entry.getSamType() == null )
         {
-            throw new SamException( entry.getSamType(), "Entry has null SAM type" );
+            throw new SamException( entry.getSamType(), I18n.err( I18n.ERR_652 ) );
         }
 
         if ( verifiers.containsKey( entry.getSamType() ) )
@@ -131,7 +132,7 @@ public final class SamSubsystem
 
         if ( !env.containsKey( key ) )
         {
-            String msg = "Could not find property '" + key + "'";
+            String msg = I18n.err( I18n.ERR_653, key );
 
             throw new SamException( entry.getSamType(), msg );
         }
@@ -160,9 +161,7 @@ public final class SamSubsystem
 
             if ( !verifier.getSamType().equals( entry.getSamType() ) )
             {
-                String msg = "Expecting entries with SAM type of " + verifier.getSamType();
-
-                msg += " but got a type of entry with SAM type of " + entry.getSamType();
+                String msg = I18n.err( I18n.ERR_654, verifier.getSamType(), entry.getSamType() );
 
                 throw new SamException( entry.getSamType(), msg );
             }
@@ -173,25 +172,19 @@ public final class SamSubsystem
         }
         catch ( ClassNotFoundException e )
         {
-            String msg = "Could not find verifier class '" + fqcn;
-
-            msg += "' for SamType( " + entry.getSamType() + " ) ";
+            String msg = I18n.err( I18n.ERR_655, fqcn, entry.getSamType() );
 
             throw new SamException( entry.getSamType(), msg, e );
         }
         catch ( IllegalAccessException e )
         {
-            String msg = "No public default constructor on class '" + fqcn;
-
-            msg += "' for SamType( " + entry.getSamType() + " ) ";
+            String msg = I18n.err( I18n.ERR_656, fqcn, entry.getSamType() );
 
             throw new SamException( entry.getSamType(), msg, e );
         }
         catch ( InstantiationException e )
         {
-            String msg = "Failed on default constructor invocation for class '" + fqcn;
-
-            msg += "' for SamType( " + entry.getSamType() + " ) ";
+            String msg = I18n.err( I18n.ERR_657, fqcn, entry.getSamType() );
 
             throw new SamException( entry.getSamType(), msg, e );
         }

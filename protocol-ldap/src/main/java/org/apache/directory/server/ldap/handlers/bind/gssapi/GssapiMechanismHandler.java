@@ -32,6 +32,7 @@ import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslServer;
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
@@ -137,15 +138,13 @@ public class GssapiMechanismHandler extends AbstractMechanismHandler
         }
         catch ( ServiceConfigurationException sce )
         {
-            String message = "Service principal " + servicePrincipalName + " not found at search base DN "
-                + ldapServer.getSearchBaseDn() + ".";
+            String message = I18n.err( I18n.ERR_659, servicePrincipalName, ldapServer.getSearchBaseDn() );
             throw new ServiceConfigurationException( message, sce );
         }
 
         if ( entry == null )
         {
-            String message = "Service principal " + servicePrincipalName + " not found at search base DN "
-                + ldapServer.getSearchBaseDn() + ".";
+            String message = I18n.err( I18n.ERR_659, servicePrincipalName, ldapServer.getSearchBaseDn() );
             throw new ServiceConfigurationException( message );
         }
 

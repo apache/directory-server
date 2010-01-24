@@ -23,6 +23,7 @@ package org.apache.directory.server.ldap.handlers.bind;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -213,7 +214,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
                 catch ( Exception e )
                 {
                     // TODO - figure out how to handle this properly.
-                    throw new RuntimeException( "Failed authorization in callback handler.", e );
+                    throw new RuntimeException( I18n.err( I18n.ERR_677 ), e );
                 }
             }
         }

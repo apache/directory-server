@@ -29,6 +29,7 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
@@ -76,7 +77,7 @@ public class LdapsInitializer
         }
         catch ( Exception e )
         {
-            throw ( NamingException ) new NamingException( "Failed to create a SSL context." ).initCause( e );
+            throw ( NamingException ) new NamingException( I18n.err( I18n.ERR_683 ) ).initCause( e );
         }
 
         DefaultIoFilterChainBuilder chain = new DefaultIoFilterChainBuilder();

@@ -27,6 +27,7 @@ import javax.security.sasl.SaslException;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.bind.AbstractSaslServer;
 import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
@@ -80,17 +81,17 @@ public class NtlmSaslServer extends AbstractSaslServer
                 break;
                 
             case TYPE_1_RECEIVED:
-                throw new IllegalStateException( "Cannot receive NTLM message before sending Type 2 challenge." );
+                throw new IllegalStateException( I18n.err( I18n.ERR_660 ) );
                 
             case TYPE_2_SENT:
                 state = NegotiationState.TYPE_3_RECEIVED;
                 break;
                 
             case TYPE_3_RECEIVED:
-                throw new IllegalStateException( "Cannot receive NTLM message after Type 3 has been received." );
+                throw new IllegalStateException( I18n.err( I18n.ERR_661 ) );
                 
             case COMPLETED:
-                throw new IllegalStateException( "Sasl challenge response already completed." );
+                throw new IllegalStateException( I18n.err( I18n.ERR_662 ) );
         }
     }
 
@@ -100,21 +101,21 @@ public class NtlmSaslServer extends AbstractSaslServer
         switch ( state )
         {
             case INITIALIZED:
-                throw new IllegalStateException( "Cannot send Type 2 challenge before Type 1 response." );
+                throw new IllegalStateException( I18n.err( I18n.ERR_663 ) );
                 
             case TYPE_1_RECEIVED:
                 state = NegotiationState.TYPE_2_SENT;
                 break;
                 
             case TYPE_2_SENT:
-                throw new IllegalStateException( "Cannot send Type 2 after it's already sent." );
+                throw new IllegalStateException( I18n.err( I18n.ERR_664 ) );
                 
             case TYPE_3_RECEIVED:
                 state = NegotiationState.COMPLETED;
                 break;
                 
             case COMPLETED:
-                throw new IllegalStateException( "Sasl challenge response already completed." );
+                throw new IllegalStateException( I18n.err( I18n.ERR_665 ) );
         }
     }
 
@@ -126,12 +127,12 @@ public class NtlmSaslServer extends AbstractSaslServer
     {
         if ( response == null )
         {
-            throw new NullPointerException( "response was null" );
+            throw new NullPointerException( I18n.err( I18n.ERR_666 ) );
         }
 
         if ( response.length == 0 )
         {
-            throw new IllegalArgumentException( "response with zero bytes" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_667 ) );
         }
 
         responseRecieved();
@@ -146,7 +147,7 @@ public class NtlmSaslServer extends AbstractSaslServer
                 }
                 catch ( Exception e )
                 {
-                    throw new SaslException( "There was a failure during NTLM Type 1 message handling.", e );
+                    throw new SaslException( I18n.err( I18n.ERR_668 ), e );
                 }
                 
                 break;
@@ -164,12 +165,12 @@ public class NtlmSaslServer extends AbstractSaslServer
                 }
                 catch ( Exception e )
                 {
-                    throw new SaslException( "There was a failure during NTLM Type 3 message handling.", e );
+                    throw new SaslException( I18n.err( I18n.ERR_669 ), e );
                 }
 
                 if ( ! result )
                 {
-                    throw new SaslException( "Authentication attempted but the credentials were invalid.." );
+                    throw new SaslException( I18n.err( I18n.ERR_670 ) );
                 }
                 
                 break;

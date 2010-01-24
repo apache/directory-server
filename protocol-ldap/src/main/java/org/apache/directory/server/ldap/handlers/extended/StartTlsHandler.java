@@ -36,6 +36,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.directory.server.core.security.CoreKeyStoreSpi;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
@@ -151,7 +152,7 @@ public class StartTlsHandler implements ExtendedOperationHandler
         }
         catch ( Exception e1 )
         {
-            throw new RuntimeException( "Failed on keystore load which should never really happen." );
+            throw new RuntimeException( I18n.err( I18n.ERR_678 ) );
         }
         
         KeyManagerFactory keyManagerFactory = null;
@@ -161,7 +162,7 @@ public class StartTlsHandler implements ExtendedOperationHandler
         }
         catch ( Exception e )
         {
-            throw new RuntimeException( "Failed to create KeyManagerFactory", e );
+            throw new RuntimeException( I18n.err( I18n.ERR_679 ), e );
         }
         
         try
@@ -170,7 +171,7 @@ public class StartTlsHandler implements ExtendedOperationHandler
         }
         catch ( Exception e )
         {
-            throw new RuntimeException( "Failed to initialize KeyManagerFactory", e );
+            throw new RuntimeException( I18n.err( I18n.ERR_680 ), e );
         }
         
         try
@@ -179,7 +180,7 @@ public class StartTlsHandler implements ExtendedOperationHandler
         }
         catch ( Exception e )
         {
-            throw new RuntimeException( "Failed to create SSLContext", e );
+            throw new RuntimeException( I18n.err( I18n.ERR_681 ), e );
         }
         
         try
@@ -190,7 +191,7 @@ public class StartTlsHandler implements ExtendedOperationHandler
         }
         catch ( Exception e )
         {
-            throw new RuntimeException( "Failed to initialize SSLContext", e );
+            throw new RuntimeException( I18n.err( I18n.ERR_682 ), e );
         }
     }
 }

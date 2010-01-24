@@ -23,6 +23,7 @@ package org.apache.directory.server.ldap.gui;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.message.InternalAbandonableRequest;
 
 
@@ -88,7 +89,7 @@ public class OutstandingRequestsModel implements TableModel
             case ( 1 ):
                 return req.getType().toString();
             default:
-                throw new IndexOutOfBoundsException( "column index max is " + ( columns.length - 1 ) );
+                throw new IndexOutOfBoundsException( I18n.err( I18n.ERR_658, ( columns.length - 1 ) ) );
         }
     }
 

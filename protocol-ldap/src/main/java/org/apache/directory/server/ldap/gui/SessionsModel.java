@@ -25,6 +25,7 @@ import java.net.InetSocketAddress;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 
 
@@ -94,7 +95,7 @@ public class SessionsModel implements TableModel
             case ( 3 ):
                 return new Integer( ( ( InetSocketAddress ) session.getIoSession().getLocalAddress() ).getPort() );
             default:
-                throw new IndexOutOfBoundsException( "column index max is " + ( columns.length - 1 ) );
+                throw new IndexOutOfBoundsException( I18n.err( I18n.ERR_658, ( columns.length - 1 ) ) );
         }
     }
 

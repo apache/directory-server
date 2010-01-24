@@ -22,6 +22,7 @@ package org.apache.directory.server.ldap.handlers;
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.cursor.CursorClosedException;
 import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
@@ -63,7 +64,7 @@ public class SearchTimeLimitingMonitor implements ClosureMonitor
                 this.millisToLive = timeToLive * 1000;
                 break;
             default:
-                throw new IllegalStateException( "TimeUnit not supported: " + unit );
+                throw new IllegalStateException( I18n.err( I18n.ERR_687, unit ) );
         }
     }
 

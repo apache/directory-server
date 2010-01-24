@@ -20,6 +20,7 @@
 package org.apache.directory.server.kerberos.protocol;
 
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.io.decoder.KdcRequestDecoder;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
@@ -67,7 +68,7 @@ public class KerberosTcpDecoder extends CumulativeProtocolDecoder
     {
         if ( maxObjectSize <= 0 )
         {
-            throw new IllegalArgumentException( "maxObjectSize: " + maxObjectSize );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_645, maxObjectSize ) );
         }
 
         this.maxObjectSize = maxObjectSize;
