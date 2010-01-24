@@ -65,8 +65,7 @@ public final class RecordFile
 {
     final TransactionManager txnMgr;
 
-    // Todo: reorganize in hashes and fifos as necessary.
-    // free -> inUse -> dirty -> inTxn -> free
+    // state transitions: free -> inUse -> dirty -> inTxn -> free
     // free is a cache, thus a FIFO. The rest are hashes.
     private final LinkedList<BlockIo> free = new LinkedList<BlockIo>();
     private final HashMap<Long,BlockIo> inUse = new HashMap<Long,BlockIo>();
@@ -448,7 +447,7 @@ public final class RecordFile
      */
     void releaseFromTransaction( BlockIo node, boolean recycle ) throws IOException 
     {
-        if ( (inTxn.remove( node.getBlockId() ) != null ) && recycle ) 
+        if ( ( inTxn.remove( node.getBlockId() ) != null ) && recycle ) 
         {
             free.add( node );
         }
@@ -467,7 +466,7 @@ public final class RecordFile
     /**
      * Utility method: Read a block from a RandomAccessFile
      */
-    private static void read( RandomAccessFile file, long offset, byte[] buffer, int nBytes) throws IOException 
+    private static void read( RandomAccessFile file, long offset, byte[] buffer, int nBytes ) throws IOException 
     {
         file.seek( offset );
         int remaining = nBytes;
