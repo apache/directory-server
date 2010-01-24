@@ -44,13 +44,14 @@
  *
  * $Id: Magic.java,v 1.1 2000/05/06 00:00:31 boisvert Exp $
  */
-
 package jdbm.recman;
+
 
 /**
  *  This interface contains magic cookies.
  */
-public interface Magic {
+public interface Magic 
+{
     /** Magic cookie at start of file */
     public short FILE_HEADER = 0x1350;
 

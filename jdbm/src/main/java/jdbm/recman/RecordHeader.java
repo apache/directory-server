@@ -44,10 +44,11 @@
  *
  * $Id: RecordHeader.java,v 1.1 2000/05/06 00:00:31 boisvert Exp $
  */
-
 package jdbm.recman;
 
+
 import org.apache.directory.server.i18n.I18n;
+
 
 /**
  *  The data that comes at the start of a record of data. It stores 
@@ -56,7 +57,8 @@ import org.apache.directory.server.i18n.I18n;
  *  needing to be moved and which allows the system to put small records
  *  in larger free spots.
  */
-class RecordHeader {
+class RecordHeader 
+{
     // offsets
     private static final short O_CURRENTSIZE = 0; // int currentSize
     private static final short O_AVAILABLESIZE = Magic.SZ_INT; // int availableSize
@@ -66,42 +68,56 @@ class RecordHeader {
     private BlockIo block;
     private short pos;
 
+    
     /**
      *  Constructs a record header from the indicated data starting at
      *  the indicated position.
      */
-    RecordHeader(BlockIo block, short pos) {
+    RecordHeader( BlockIo block, short pos ) 
+    {
         this.block = block;
         this.pos = pos;
-        if (pos > (RecordFile.BLOCK_SIZE - SIZE))
+        if ( pos > ( RecordFile.BLOCK_SIZE - SIZE ) )
+        {
             throw new Error( I18n.err( I18n.ERR_562, block.getBlockId(), pos ) );
+        }
     }
 
+    
     /** Returns the current size */
-    int getCurrentSize() {
-        return block.readInt(pos + O_CURRENTSIZE);
+    int getCurrentSize() 
+    {
+        return block.readInt( pos + O_CURRENTSIZE );
     }
+    
     
     /** Sets the current size */
-    void setCurrentSize(int value) {
-        block.writeInt(pos + O_CURRENTSIZE, value);
+    void setCurrentSize( int value ) 
+    {
+        block.writeInt( pos + O_CURRENTSIZE, value );
     }
+    
     
     /** Returns the available size */
-    int getAvailableSize() {
-        return block.readInt(pos + O_AVAILABLESIZE);
+    int getAvailableSize() 
+    {
+        return block.readInt( pos + O_AVAILABLESIZE );
     }
     
+    
     /** Sets the available size */
-    void setAvailableSize(int value) {
-        block.writeInt(pos + O_AVAILABLESIZE, value);
+    void setAvailableSize( int value ) 
+    {
+        block.writeInt( pos + O_AVAILABLESIZE, value );
     }
 
+    
     // overrides java.lang.Object
-    public String toString() {
-        return "RH(" + block.getBlockId() + ":" + pos 
-            + ", avl=" + getAvailableSize()
-            + ", cur=" + getCurrentSize() 
-            + ")";
+    public String toString() 
+    {
+        return "RH( " + block.getBlockId() + " : " + pos 
+            + ", avl = " + getAvailableSize()
+            + ", cur = " + getCurrentSize() 
+            + " )";
     }
 }
