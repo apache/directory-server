@@ -33,6 +33,7 @@ import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResponseCode;
 import org.apache.directory.server.dns.store.jndi.operations.GetRecords;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
@@ -64,7 +65,7 @@ public class SingleBaseSearch implements SearchStrategy
             ctx = new ServerLdapContext( directoryService, session, new LdapDN( searchBaseDn ) );
         } catch ( Exception e )
         {
-            throw new ServiceConfigurationException( "Can't get context at" + searchBaseDn, e );
+            throw new ServiceConfigurationException( I18n.err( I18n.ERR_649, searchBaseDn ), e );
         }
 
     }

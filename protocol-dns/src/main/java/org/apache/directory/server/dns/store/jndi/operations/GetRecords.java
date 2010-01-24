@@ -45,6 +45,7 @@ import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResourceRecordModifier;
 import org.apache.directory.server.dns.store.DnsAttribute;
 import org.apache.directory.server.dns.store.jndi.DnsOperation;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 
 
@@ -272,14 +273,14 @@ public class GetRecords implements DnsOperation
 
                 if ( type == null )
                 {
-                    throw new RuntimeException( "Record type to objectClass mapping has not been set." );
+                    throw new RuntimeException( I18n.err( I18n.ERR_646 ) );
                 }
 
                 return type;
             }
         }
 
-        throw new NamingException( "ResourceRecord requires STRUCTURAL objectClass" );
+        throw new NamingException( I18n.err( I18n.ERR_647 ) );
     }
 
 
@@ -298,7 +299,7 @@ public class GetRecords implements DnsOperation
 
         if ( !searchBaseDn.startsWith( ctxRoot ) )
         {
-            throw new NamingException( "Invalid search base " + baseDn );
+            throw new NamingException( I18n.err( I18n.ERR_648, baseDn ) );
         }
 
         for ( int ii = 0; ii < ctxRoot.size(); ii++ )

@@ -35,6 +35,7 @@ import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.RecordType;
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResponseCode;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -166,7 +167,7 @@ public class DnsMessageEncoder
 
         if ( encoder == null )
         {
-            throw new IOException( "Encoder unavailable for " + type );
+            throw new IOException( I18n.err( I18n.ERR_644, type ) );
         }
 
         encoder.put( byteBuffer, record );

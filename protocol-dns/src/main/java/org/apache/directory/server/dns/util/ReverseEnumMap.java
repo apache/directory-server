@@ -24,6 +24,8 @@ package org.apache.directory.server.dns.util;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.directory.server.i18n.I18n;
+
 
 /**
  * A map to easily get the actual Enum instance from it's value as seen in the
@@ -65,7 +67,7 @@ public class ReverseEnumMap<K, E extends Enum<E> & EnumConverter<K>>
         E e = reverseMap.get( value );
         if ( e == null )
         {
-            throw new IllegalArgumentException( "Invalid enum value: " + value );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_650, value ) );
         }
         return e;
     }

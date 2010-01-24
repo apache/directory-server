@@ -38,6 +38,7 @@ import org.apache.directory.server.dns.messages.RecordType;
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResourceRecordImpl;
 import org.apache.directory.server.dns.messages.ResponseCode;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,7 +148,7 @@ public class DnsMessageDecoder
 
         if ( recordDecoder == null )
         {
-            throw new IllegalArgumentException( "Decoder unavailable for " + type );
+            throw new IllegalArgumentException( I18n.err(I18n.ERR_643, type ) );
         }
 
         return recordDecoder.decode( byteBuffer, length );
