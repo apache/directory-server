@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import javax.swing.table.AbstractTableModel;
 
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 
@@ -112,7 +113,7 @@ public class AttributesTableModel extends AbstractTableModel
         }
         else
         {
-            throw new RuntimeException( "There can only be 2 columns at index " + "0 and at 1" );
+            throw new RuntimeException( I18n.err( I18n.ERR_728 ) );
         }
     }
 
@@ -173,7 +174,7 @@ public class AttributesTableModel extends AbstractTableModel
         }
         else
         {
-            throw new RuntimeException( "You didn't correctly set col names" );
+            throw new RuntimeException( I18n.err( I18n.ERR_729 ) );
         }
     }
 

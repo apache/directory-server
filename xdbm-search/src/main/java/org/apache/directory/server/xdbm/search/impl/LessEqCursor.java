@@ -21,6 +21,7 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
@@ -42,8 +43,7 @@ import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
  */
 public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 {
-    private static final String UNSUPPORTED_MSG =
-        "LessEqCursors only support positioning by element when a user index exists on the asserted attribute.";
+    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_716 );
 
     /** An less eq evaluator for candidates */
     private final LessEqEvaluator lessEqEvaluator;
@@ -387,7 +387,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
                 return userIdxCursor.get();
             }
 
-            throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );
+            throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
         }
 
         if ( available )
@@ -395,7 +395,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
             return ndnCandidate;
         }
 
-        throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );
+        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
     }
 
 

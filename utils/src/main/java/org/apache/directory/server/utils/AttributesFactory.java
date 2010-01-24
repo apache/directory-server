@@ -27,6 +27,7 @@ import javax.naming.NamingException;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -91,7 +92,7 @@ public class AttributesFactory
             return getAttributes( ( NameForm ) obj, schema, schemaManager );
         }
         
-        throw new IllegalArgumentException( "Unknown SchemaObject type: " + obj.getClass() );
+        throw new IllegalArgumentException( I18n.err( I18n.ERR_698, obj.getClass() ) );
     }
     
     

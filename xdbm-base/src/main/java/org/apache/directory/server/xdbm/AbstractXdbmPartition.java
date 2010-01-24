@@ -33,6 +33,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -389,9 +390,7 @@ public abstract class AbstractXdbmPartition extends BTreePartition
         }
 
         // does nothing
-        throw new LdapAuthenticationNotSupportedException(
-            "Bind requests only tunnel down into partitions if there are no authenticators to handle the mechanism.\n"
-                + "Check to see if you have correctly configured authenticators for the server.",
+        throw new LdapAuthenticationNotSupportedException( I18n.err( I18n.ERR_702 ),
             ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
     }
 
@@ -399,9 +398,7 @@ public abstract class AbstractXdbmPartition extends BTreePartition
     public final void bind( BindOperationContext bindContext ) throws Exception
     {
         // does nothing
-        throw new LdapAuthenticationNotSupportedException(
-            "Bind requests only tunnel down into partitions if there are no authenticators to handle the mechanism.\n"
-                + "Check to see if you have correctly configured authenticators for the server.",
+        throw new LdapAuthenticationNotSupportedException( I18n.err( I18n.ERR_702 ),
             ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
     }
 

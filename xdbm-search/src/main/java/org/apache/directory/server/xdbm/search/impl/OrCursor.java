@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexCursor;
@@ -44,8 +45,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
  */
 public class OrCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 {
-    private static final String UNSUPPORTED_MSG =
-        "OrCursors are not ordered and do not support positioning by element.";
+    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_722 );
     private final List<IndexCursor<V,ServerEntry>> cursors;
     private final List<Evaluator<? extends ExprNode,ServerEntry>> evaluators;
     private final List<Set<Long>> blacklists;
@@ -58,8 +58,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     {
         if ( cursors.size() <= 1 )
         {
-            throw new IllegalArgumentException(
-                "Must have 2 or more sub-expression Cursors for a disjunction" );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_723 ) );
         }
 
         this.cursors = cursors;
@@ -244,7 +243,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V, ServerEntry>
             return cursors.get( cursorIndex ).get();
         }
 
-        throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );
+        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
     }
 
 

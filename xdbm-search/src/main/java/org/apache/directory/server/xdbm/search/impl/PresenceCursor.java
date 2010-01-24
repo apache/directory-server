@@ -25,6 +25,7 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
@@ -37,8 +38,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  */
 public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
 {
-    private static final String UNSUPPORTED_MSG =
-        "PresenceCursors do not support positioning by element without a user index on the presence attribute.";
+    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_724 );
     private final IndexCursor<String,ServerEntry> ndnCursor;
     private final IndexCursor<String,ServerEntry> presenceCursor;
     private final PresenceEvaluator presenceEvaluator;
@@ -234,7 +234,7 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
                 return presenceCursor.get();
             }
 
-            throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );
+            throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
         }
 
         if ( available )
@@ -249,7 +249,7 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
             return indexEntry;
         }
 
-        throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );
+        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
     }
 
 

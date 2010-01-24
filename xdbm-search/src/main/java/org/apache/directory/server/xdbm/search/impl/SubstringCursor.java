@@ -21,6 +21,7 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
@@ -38,8 +39,7 @@ import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
  */
 public class SubstringCursor extends AbstractIndexCursor<String, ServerEntry>
 {
-    private static final String UNSUPPORTED_MSG =
-        "SubstringCursors may not be ordered and do not support positioning by element.";
+    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_725 );
     private final boolean hasIndex;
     private final IndexCursor<String,ServerEntry> wrapped;
     private final SubstringEvaluator evaluator;
@@ -224,7 +224,7 @@ public class SubstringCursor extends AbstractIndexCursor<String, ServerEntry>
             return indexEntry;
         }
 
-        throw new InvalidCursorPositionException( "Cursor has yet to be positioned." );
+        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
     }
 
 

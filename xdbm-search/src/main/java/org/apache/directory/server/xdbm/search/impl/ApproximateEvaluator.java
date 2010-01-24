@@ -24,6 +24,7 @@ import java.util.Iterator;
 
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
@@ -79,8 +80,7 @@ public class ApproximateEvaluator implements Evaluator<ApproximateNode, ServerEn
 
             if ( mr == null )
             {
-                throw new IllegalStateException(
-                    "Could not find matchingRule to use for EqualityNode evaluation: " + node );
+                throw new IllegalStateException( I18n.err( I18n.ERR_709, node ) );
             }
 
             normalizer = mr.getNormalizer();

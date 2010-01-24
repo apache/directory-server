@@ -22,6 +22,7 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
@@ -75,7 +76,7 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode,E>
 
         if ( node.getScope() != SearchScope.SUBTREE )
         {
-            throw new IllegalStateException( "ScopeNode is not of subtree scope." );
+            throw new IllegalStateException( I18n.err( I18n.ERR_727 ) );
         }
 
         baseId = db.getEntryId( node.getBaseDn() );
@@ -256,7 +257,7 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode,E>
      */
     public boolean evaluate( E candidate ) throws Exception
     {
-        throw new UnsupportedOperationException( "This is too inefficient without getId() on ServerEntry" );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_721 ) );
     }
 
 

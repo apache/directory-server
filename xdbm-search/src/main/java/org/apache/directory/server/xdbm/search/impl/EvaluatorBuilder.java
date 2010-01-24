@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.NotImplementedException;
@@ -121,7 +122,7 @@ public class EvaluatorBuilder
                 throw new NotImplementedException();
 
             default:
-                throw new IllegalStateException( "Unknown assertion type: " + node.getAssertionType() );
+                throw new IllegalStateException( I18n.err( I18n.ERR_710, node.getAssertionType() ) );
         }
     }
 

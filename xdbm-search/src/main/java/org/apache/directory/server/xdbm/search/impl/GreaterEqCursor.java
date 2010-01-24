@@ -21,6 +21,7 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
@@ -358,7 +359,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
                 return userIdxCursor.get();
             }
 
-            throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );
+            throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
         }
 
         if ( available )
@@ -366,7 +367,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
             return ( IndexEntry<V, ServerEntry> ) ndnCandidate;
         }
 
-        throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );
+        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
     }
 
 

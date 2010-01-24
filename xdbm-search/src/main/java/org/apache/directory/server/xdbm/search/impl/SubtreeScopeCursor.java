@@ -21,6 +21,7 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
@@ -37,8 +38,7 @@ import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
  */
 public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
 {
-    private static final String UNSUPPORTED_MSG =
-        "Scope Cursors are not ordered and do not support positioning by element.";
+    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_726 );
 
     /** The Entry database/store */
     private final Store<ServerEntry> db;
@@ -326,7 +326,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
             return cursor.get();
         }
 
-        throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );
+        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
     }
 
 

@@ -45,6 +45,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.Optimizer;
@@ -262,13 +263,12 @@ public abstract class BTreePartition implements Partition
         // don't continue if id is null
         if ( id == null )
         {
-            throw new LdapNameNotFoundException( "Could not find entry at '" + dn + "' to delete it!" );
+            throw new LdapNameNotFoundException( I18n.err( I18n.ERR_699, dn ) );
         }
 
         if ( getChildCount( id ) > 0 )
         {
-            LdapContextNotEmptyException cnee = new LdapContextNotEmptyException( "[66] Cannot delete entry " + dn
-                + " it has children!" );
+            LdapContextNotEmptyException cnee = new LdapContextNotEmptyException( I18n.err( I18n.ERR_700, dn ) );
             cnee.setRemainingName( dn );
             throw cnee;
         }

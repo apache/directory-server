@@ -44,6 +44,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
+import org.apache.directory.server.i18n.I18n;
+
 
 /**
  * A dialog for the filter.
@@ -217,7 +219,7 @@ public class FilterDialog extends JDialog
         }
         else
         {
-            throw new RuntimeException( "Unrecognized mode." );
+            throw new RuntimeException( I18n.err( I18n.ERR_730 ) );
         }
     }
 

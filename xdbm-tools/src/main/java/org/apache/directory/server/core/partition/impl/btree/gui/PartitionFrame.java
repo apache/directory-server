@@ -63,6 +63,7 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -549,7 +550,7 @@ public class PartitionFrame extends JFrame
             }
             else
             {
-                throw new RuntimeException( "Unrecognized mode." );
+                throw new RuntimeException( I18n.err( I18n.ERR_730 ) );
             }
         }
         catch ( Exception e )
@@ -589,7 +590,7 @@ public class PartitionFrame extends JFrame
                 }
                 else
                 {
-                    throw new RuntimeException( "Unrecognized FilterDialog command: " + cmd );
+                    throw new RuntimeException( I18n.err( I18n.ERR_731, cmd ) );
                 }
 
                 dialog.setVisible( false );

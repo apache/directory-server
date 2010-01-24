@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.xdbm;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 
 
@@ -90,7 +91,7 @@ public class EmptyIndexCursor<K,E> extends AbstractIndexCursor<K,E>
     public IndexEntry<K,E> get() throws Exception
     {
         checkNotClosed( "get()" );
-        throw new InvalidCursorPositionException( "This cursor is empty and cannot return elements!" );
+        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_703 ) );
     }
 
 

@@ -22,6 +22,8 @@ package org.apache.directory.server.xdbm;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.server.i18n.I18n;
+
 
 /**
  * NamingException for missing indicies if full table scans are disallowed.
@@ -44,10 +46,7 @@ public class IndexNotFoundException extends NamingException
      */
     public IndexNotFoundException(String indexName)
     {
-        super( "Cannot efficiently search the DIB w/o an index on attribute " + indexName
-            + "\n. To allow such searches please contact the "
-            + "directory\nadministrator to create the index or to enable "
-            + "referrals on searches using these\nattributes to a replica with " + "the required set of indices." );
+        super( I18n.err( I18n.ERR_704, indexName ) );
         this.indexName = indexName;
     }
 

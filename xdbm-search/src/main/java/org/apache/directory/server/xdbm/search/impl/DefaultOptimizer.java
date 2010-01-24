@@ -38,6 +38,7 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.Store;
@@ -166,7 +167,7 @@ public class DefaultOptimizer<E> implements Optimizer
             }
             else
             {
-                throw new IllegalArgumentException( "Unrecognized leaf node" );
+                throw new IllegalArgumentException( I18n.err( I18n.ERR_711 ) );
             }
         }
         // --------------------------------------------------------------------
@@ -196,7 +197,7 @@ public class DefaultOptimizer<E> implements Optimizer
             }
             else
             {
-                throw new IllegalArgumentException( "Unrecognized branch node type" );
+                throw new IllegalArgumentException( I18n.err( I18n.ERR_712 ) );
             }
         }
 
@@ -384,7 +385,7 @@ public class DefaultOptimizer<E> implements Optimizer
                 }
             
             default:
-                throw new IllegalArgumentException( "Unrecognized search scope " + "value for filter scope node" );
+                throw new IllegalArgumentException( I18n.err( I18n.ERR_713 ) );
         }
     }
 }

@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.xdbm;
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 
 
@@ -197,11 +198,11 @@ public class SingletonIndexCursor<K, E> extends AbstractIndexCursor<K, E>
 
         if ( beforeFirst )
         {
-            throw new InvalidCursorPositionException( "Cannot access element if positioned before first." );
+            throw new InvalidCursorPositionException( I18n.err( I18n.ERR_705 ) );
         }
         else
         {
-            throw new InvalidCursorPositionException( "Cannot access element if positioned after last." );
+            throw new InvalidCursorPositionException( I18n.err( I18n.ERR_706 ) );
         }
     }
 

@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
@@ -201,7 +202,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode, ServerEntry>
 
     private boolean evaluateWithIndex( ServerEntry entry ) throws Exception
     {
-        throw new UnsupportedOperationException( "This is too inefficient without getId() on ServerEntry" );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_721 ) );
     }
 
 

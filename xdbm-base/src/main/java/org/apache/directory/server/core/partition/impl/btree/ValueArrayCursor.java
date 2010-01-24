@@ -19,6 +19,7 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.cursor.AbstractCursor;
@@ -197,8 +198,7 @@ public class ValueArrayCursor<K,V> extends AbstractCursor<Tuple>
             return tuple.setBoth( key, values.get( pos ) );
         }
 
-        throw new InvalidCursorPositionException( "Cursor pos (" + pos
-                + ") not in value range [0-" + ( values.size() - 1 )+ "]" );
+        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_701, pos, ( values.size() - 1 ) ) );
     }
 
 

@@ -26,6 +26,7 @@ import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 
@@ -38,8 +39,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
  */
 public class NotCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 {
-    private static final String UNSUPPORTED_MSG =
-        "NotCursors are not ordered and do not support positioning by element.";
+    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_718 );
     private final IndexCursor<V,ServerEntry> ndnCursor;
     private final Evaluator<? extends ExprNode, ServerEntry> childEvaluator;
     private boolean available = false;
@@ -154,7 +154,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V, ServerEntry>
             return ndnCursor.get();
         }
 
-        throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );
+        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
     }
 
 

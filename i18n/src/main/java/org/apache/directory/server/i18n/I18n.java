@@ -738,6 +738,38 @@ public class I18n
     public static String ERR_697 = "ERR_697";
     public static String ERR_698 = "ERR_698";
     public static String ERR_699 = "ERR_699";
+    public static String ERR_700 = "ERR_700";
+    public static String ERR_701 = "ERR_701";
+    public static String ERR_702 = "ERR_702";
+    public static String ERR_703 = "ERR_703";
+    public static String ERR_704 = "ERR_704";
+    public static String ERR_705 = "ERR_705";
+    public static String ERR_706 = "ERR_706";
+    public static String ERR_707 = "ERR_707";
+    public static String ERR_708 = "ERR_708";
+    public static String ERR_709 = "ERR_709";
+    public static String ERR_710 = "ERR_710";
+    public static String ERR_711 = "ERR_711";
+    public static String ERR_712 = "ERR_712";
+    public static String ERR_713 = "ERR_713";
+    public static String ERR_714 = "ERR_714";
+    public static String ERR_715 = "ERR_715";
+    public static String ERR_716 = "ERR_716";
+    public static String ERR_717 = "ERR_717";
+    public static String ERR_718 = "ERR_718";
+    public static String ERR_719 = "ERR_719";
+    public static String ERR_720 = "ERR_720";
+    public static String ERR_721 = "ERR_721";
+    public static String ERR_722 = "ERR_722";
+    public static String ERR_723 = "ERR_723";
+    public static String ERR_724 = "ERR_724";
+    public static String ERR_725 = "ERR_725";
+    public static String ERR_726 = "ERR_726";
+    public static String ERR_727 = "ERR_727";
+    public static String ERR_728 = "ERR_728";
+    public static String ERR_729 = "ERR_729";
+    public static String ERR_730 = "ERR_730";
+    public static String ERR_731 = "ERR_731";
 
 
     /**

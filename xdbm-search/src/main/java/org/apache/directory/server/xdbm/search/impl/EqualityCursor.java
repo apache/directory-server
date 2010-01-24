@@ -26,6 +26,7 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.entry.Value;
 
@@ -42,8 +43,7 @@ import org.apache.directory.shared.ldap.entry.Value;
  */
 public class EqualityCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 {
-    private static final String UNSUPPORTED_MSG =
-        "EqualityCursors only support positioning by element when a user index exists on the asserted attribute.";
+    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_714 );
 
     /** An equality evaluator for candidates */
     @SuppressWarnings("unchecked")
@@ -249,7 +249,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V, ServerEntry>
             return ( IndexEntry<V, ServerEntry> )ndnIdxCursor.get();
         }
 
-        throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );
+        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
     }
 
 

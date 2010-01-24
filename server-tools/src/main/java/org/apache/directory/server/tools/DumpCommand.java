@@ -107,7 +107,7 @@ public class DumpCommand extends ToolCommand
         
         if ( errors.size() != 0 )
         {
-            throw new Exception( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+            throw new Exception( I18n.err( I18n.ERR_696, ExceptionUtils.printErrors( errors ) ) );
         }
 
         
@@ -135,8 +135,7 @@ public class DumpCommand extends ToolCommand
 
         if ( !schemaDirectory.exists() )
         {
-            throw new LdapConfigurationException( "The following schema directory from "
-                + "the installation layout could not be found:\n\t" + schemaDirectory );
+            throw new LdapConfigurationException( I18n.err( I18n.ERR_697, schemaDirectory ) );
         }
 
         DirectoryService directoryService = new DefaultDirectoryService();
