@@ -224,6 +224,12 @@ public class SyncreplRunnerUI implements ActionListener
             partition.setPartitionDir( new File( workDir, partition.getId() ) );
             partition.setSyncOnWrite( true );
             partition.setSchemaManager( dirService.getSchemaManager() );
+            
+            // Add objectClass attribute for the system partition
+            Set<Index<?, ServerEntry>> indexedAttrs = new HashSet<Index<?, ServerEntry>>();
+            indexedAttrs.add( new JdbmIndex<Object, ServerEntry>( SchemaConstants.ENTRY_UUID_AT ) );
+            ( ( JdbmPartition ) partition ).setIndexedAttributes( indexedAttrs );
+
             partition.initialize();
 
             dirService.addPartition( partition );
