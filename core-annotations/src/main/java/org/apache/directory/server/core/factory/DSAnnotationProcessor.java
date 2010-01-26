@@ -18,7 +18,10 @@
  */
 package org.apache.directory.server.core.factory;
 
+
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -45,6 +48,7 @@ import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * A Helper class used to create a DS from the annotations
  *
@@ -56,7 +60,7 @@ public class DSAnnotationProcessor
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( DSAnnotationProcessor.class );
 
-    
+
     /**
      * Create the DirectoryService
      */
@@ -67,22 +71,22 @@ public class DSAnnotationProcessor
             LOG.debug( "Starting DS {}...", dsBuilder.name() );
             Class<?> factory = dsBuilder.factory();
             DirectoryServiceFactory dsf = ( DirectoryServiceFactory ) factory.newInstance();
-            
+
             DirectoryService service = dsf.getDirectoryService();
             service.setAccessControlEnabled( dsBuilder.enableAccessControl() );
             service.setAllowAnonymousAccess( dsBuilder.allowAnonAccess() );
             service.getChangeLog().setEnabled( dsBuilder.enableChangeLog() );
-            
+
             List<Interceptor> interceptorList = service.getInterceptors();
-            for( Class<?> interceptorClass : dsBuilder.additionalInterceptors() )
+            for ( Class<?> interceptorClass : dsBuilder.additionalInterceptors() )
             {
                 interceptorList.add( ( Interceptor ) interceptorClass.newInstance() );
             }
-            
+
             service.setInterceptors( interceptorList );
-            
+
             dsf.init( dsBuilder.name() );
-            
+
             // Process the Partition, if any.
             for ( CreatePartition createPartition : dsBuilder.partitions() )
             {
@@ -109,21 +113,21 @@ public class DSAnnotationProcessor
                         jdbmPartition.addIndexedAttributes( index );
                     }
                 }
-                
+
                 partition.setSchemaManager( service.getSchemaManager() );
-                
+
                 // Inject the partition into the DirectoryService
                 service.addPartition( partition );
-                
+
                 // Last, process the context entry
                 ContextEntry contextEntry = createPartition.contextEntry();
-                
+
                 if ( contextEntry != null )
                 {
                     injectEntries( service, contextEntry.entryLdif() );
                 }
             }
-            
+
             return service;
         }
         catch ( Exception e )
@@ -131,8 +135,8 @@ public class DSAnnotationProcessor
             return null;
         }
     }
-    
-    
+
+
     /**
      * Create a DirectoryService from a Unit test annotation
      *
@@ -144,7 +148,7 @@ public class DSAnnotationProcessor
         try
         {
             CreateDS dsBuilder = description.getAnnotation( CreateDS.class );
-            
+
             if ( dsBuilder != null )
             {
                 return createDS( dsBuilder );
@@ -160,8 +164,8 @@ public class DSAnnotationProcessor
             return null;
         }
     }
-    
-    
+
+
     /**
      * Create a DirectoryService from an annotation. The @CreateDS annotation must
      * be associated with either the method or the encapsulating class. We will first
@@ -173,25 +177,25 @@ public class DSAnnotationProcessor
     public static DirectoryService getDirectoryService() throws Exception
     {
         CreateDS dsBuilder = null;
-        
+
         // Get the caller by inspecting the stackTrace
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        
+
         // Get the enclosing class
         Class<?> classCaller = Class.forName( stackTrace[2].getClassName() );
-        
+
         // Get the current method
         String methodCaller = stackTrace[2].getMethodName();
-        
+
         // Check if we have any annotation associated with the method
         Method[] methods = classCaller.getMethods();
-        
+
         for ( Method method : methods )
         {
             if ( methodCaller.equals( method.getName() ) )
             {
                 dsBuilder = method.getAnnotation( CreateDS.class );
-                
+
                 if ( dsBuilder != null )
                 {
                     break;
@@ -204,12 +208,12 @@ public class DSAnnotationProcessor
         {
             dsBuilder = classCaller.getAnnotation( CreateDS.class );
         }
-        
+
         // Ok, we have found a CreateDS annotation. Process it now.
         return createDS( dsBuilder );
     }
 
-    
+
     /**
      * injects an LDIF entry in the given DirectoryService
      * 
@@ -234,7 +238,7 @@ public class DSAnnotationProcessor
         }
     }
 
-    
+
     /**
      * injects the LDIF entries present in a LDIF file
      * 
@@ -248,26 +252,34 @@ public class DSAnnotationProcessor
         {
             for ( String ldifFile : ldifFiles )
             {
-                try
+                InputStream is = clazz.getClassLoader().getResourceAsStream( ldifFile );
+                if ( is == null )
                 {
-                    LdifReader ldifReader = new LdifReader( clazz.getClassLoader().getResourceAsStream( ldifFile ) ); 
-    
-                    for ( LdifEntry entry : ldifReader )
-                    {
-                        injectEntry( entry, service );
-                    }
-                    
-                    ldifReader.close();
+                    throw new FileNotFoundException( "LDIF file '" + ldifFile + "' not found." );
                 }
-                catch ( Exception e )
+                else
                 {
-                    LOG.error( I18n.err( I18n.ERR_80, ldifFile, e.getLocalizedMessage() ) );
+                    try
+                    {
+                        LdifReader ldifReader = new LdifReader( is );
+
+                        for ( LdifEntry entry : ldifReader )
+                        {
+                            injectEntry( entry, service );
+                        }
+
+                        ldifReader.close();
+                    }
+                    catch ( Exception e )
+                    {
+                        LOG.error( I18n.err( I18n.ERR_80, ldifFile, e.getLocalizedMessage() ) );
+                    }
                 }
             }
         }
     }
-    
-    
+
+
     /**
      * Inject an ldif String into the server. DN must be relative to the
      * root.
@@ -290,17 +302,17 @@ public class DSAnnotationProcessor
         reader.close();
     }
 
-    
+
     /**
      * Apply the LDIF entries to the given service
      */
     public static void applyLdifs( Description desc, DirectoryService service ) throws Exception
     {
-        if( desc == null )
+        if ( desc == null )
         {
             return;
         }
-        
+
         ApplyLdifFiles applyLdifFiles = desc.getAnnotation( ApplyLdifFiles.class );
 
         if ( applyLdifFiles != null )
@@ -308,29 +320,29 @@ public class DSAnnotationProcessor
             LOG.debug( "Applying {} to {}", applyLdifFiles.value(), desc.getDisplayName() );
             injectLdifFiles( desc.getClass(), service, applyLdifFiles.value() );
         }
-        
-        ApplyLdifs applyLdifs = desc.getAnnotation( ApplyLdifs.class ); 
-        
+
+        ApplyLdifs applyLdifs = desc.getAnnotation( ApplyLdifs.class );
+
         if ( ( applyLdifs != null ) && ( applyLdifs.value() != null ) )
         {
             String[] ldifs = applyLdifs.value();
 
             String DN_START = "dn:";
-            
+
             StringBuilder sb = new StringBuilder();
 
-            for ( int i=0; i< ldifs.length; )
+            for ( int i = 0; i < ldifs.length; )
             {
                 String s = ldifs[i++].trim();
-                if( s.startsWith( DN_START ) )
+                if ( s.startsWith( DN_START ) )
                 {
                     sb.append( s ).append( '\n' );
 
                     // read the rest of lines till we encounter DN again
-                    while( i < ldifs.length )
+                    while ( i < ldifs.length )
                     {
                         s = ldifs[i++];
-                        if( !s.startsWith( DN_START ) )
+                        if ( !s.startsWith( DN_START ) )
                         {
                             sb.append( s ).append( '\n' );
                         }
@@ -339,11 +351,11 @@ public class DSAnnotationProcessor
                             break;
                         }
                     }
-                    
+
                     LOG.debug( "Applying {} to {}", sb, desc.getDisplayName() );
                     injectEntries( service, sb.toString() );
                     sb.setLength( 0 );
-                    
+
                     i--; // step up a line
                 }
             }
