@@ -25,6 +25,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.naming.NamingException;
 
@@ -35,12 +36,23 @@ import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.partition.ldif.LdifPartition;
+import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
+import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,9 +121,44 @@ public class ApacheDS
     {
         LOG.debug( "Starting the server" );
         
-        // Start the directory service if not started yet
+        initSchema();
+        
+        SchemaManager schemaManager = directoryService.getSchemaManager();
+        
         if ( ! directoryService.isStarted() )
         {
+            // inject the schema manager and set the partition directory
+            // once the CiDIT gets done we need not do this kind of dirty hack
+            Set<? extends Partition> partitions = directoryService.getPartitions();
+         
+            for( Partition p : partitions )
+            {
+                if( p instanceof JdbmPartition )
+                {
+                    ( ( JdbmPartition ) p ).setPartitionDir( new File( directoryService.getWorkingDirectory(), p.getId() ) );
+                }
+                
+                if( p.getSchemaManager() == null )
+                {
+                    LOG.warn( "setting the schema manager for partition {}", p.getSuffix() );
+                    p.setSchemaManager( schemaManager );
+                }
+            }
+            
+            Partition sysPartition = directoryService.getSystemPartition();
+            
+            if( sysPartition instanceof JdbmPartition )
+            {
+                ( ( JdbmPartition ) sysPartition ).setPartitionDir( new File( directoryService.getWorkingDirectory(), sysPartition.getId() ) );
+            }
+
+            if( sysPartition.getSchemaManager() == null )
+            {
+                LOG.warn( "setting the schema manager for partition {}", sysPartition.getSuffix() );
+                sysPartition.setSchemaManager( schemaManager );
+            }
+            
+            // Start the directory service if not started yet
             LOG.debug( "1. Starting the DirectoryService" );
             directoryService.startup();
         }
@@ -407,4 +454,54 @@ public class ApacheDS
             }
         }
     }
+    
+    
+    /**
+     * initialize the schema partition by loading the schema LDIF files
+     * 
+     * @throws Exception in case of any problems while extracting and writing the schema files
+     */
+    private void initSchema() throws Exception
+    {
+        SchemaPartition schemaPartition = directoryService.getSchemaService().getSchemaPartition();
+
+        // Init the LdifPartition
+        LdifPartition ldifPartition = new LdifPartition();
+        String workingDirectory = directoryService.getWorkingDirectory().getPath();
+        ldifPartition.setWorkingDirectory( workingDirectory + "/schema" );
+
+        // Extract the schema on disk (a brand new one) and load the registries
+        File schemaRepository = new File( workingDirectory, "schema" );
+        
+        if( schemaRepository.exists() )
+        {
+            LOG.info( "schema partition already exists, skipping schema extraction" );
+        }
+        else
+        {
+            SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+            extractor.extractOrCopy();
+        }
+
+        schemaPartition.setWrappedPartition( ldifPartition );
+
+        SchemaLoader loader = new LdifSchemaLoader( schemaRepository );
+        SchemaManager schemaManager = new DefaultSchemaManager( loader );
+        directoryService.setSchemaManager( schemaManager );
+
+        // We have to load the schema now, otherwise we won't be able
+        // to initialize the Partitions, as we won't be able to parse 
+        // and normalize their suffix DN
+        schemaManager.loadAllEnabled();
+        
+        schemaPartition.setSchemaManager( schemaManager );
+
+        List<Throwable> errors = schemaManager.getErrors();
+
+        if ( errors.size() != 0 )
+        {
+            throw new Exception( I18n.err( I18n.ERR_317, ExceptionUtils.printErrors( errors ) ) );
+        }
+    }
+
 }
