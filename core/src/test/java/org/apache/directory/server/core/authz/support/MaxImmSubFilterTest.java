@@ -34,7 +34,6 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.naming.NamingException;
-import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.CoreSession;
@@ -89,6 +88,7 @@ import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.CursorIterator;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
+import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.Registries;

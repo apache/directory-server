@@ -39,7 +39,6 @@ import javax.naming.ReferralException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.ManageReferralControl;
 
@@ -377,15 +376,14 @@ public class ReferralSearchIT extends AbstractLdapTestUnit
             assertEquals( "ldap://localhost:" + ldapServer.getPort() + "/c=usa,ou=system??base", referral );
         }
         
-        Control manageDsaItControl = new ManageReferralControl();
-        ((LdapContext)ctx).setRequestControls( new Control[]{manageDsaItControl} );
+        ((LdapContext)ctx).setRequestControls( new javax.naming.ldap.Control[]{new ManageReferralControl()} );
 
         // Now let's move the entry
         ctx.rename( "c=america,ou=Countries,ou=system", "c=USA,ou=Countries,ou=system" );
 
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
 
-        ((LdapContext)ctx).setRequestControls( new Control[]{} );
+        ((LdapContext)ctx).setRequestControls( new javax.naming.ldap.Control[]{} );
 
         try
         {
@@ -428,15 +426,14 @@ public class ReferralSearchIT extends AbstractLdapTestUnit
             assertEquals( "ldap://localhost:" + ldapServer.getPort() + "/c=usa,ou=system??base", referral );
         }
         
-        Control manageDsaItControl = new ManageReferralControl();
-        ((LdapContext)ctx).setRequestControls( new Control[]{manageDsaItControl} );
+        ((LdapContext)ctx).setRequestControls( new javax.naming.ldap.Control[]{new ManageReferralControl()} );
 
         // Now let's move the entry
         ctx.rename( "c=america,ou=Countries,ou=system", "c=america,ou=system" );
 
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
 
-        ((LdapContext)ctx).setRequestControls( new Control[]{} );
+        ((LdapContext)ctx).setRequestControls( new javax.naming.ldap.Control[]{} );
 
         try
         {
@@ -479,15 +476,14 @@ public class ReferralSearchIT extends AbstractLdapTestUnit
             assertEquals( "ldap://localhost:" + ldapServer.getPort() + "/c=usa,ou=system??base", referral );
         }
         
-        Control manageDsaItControl = new ManageReferralControl();
-        ((LdapContext)ctx).setRequestControls( new Control[]{manageDsaItControl} );
+        ((LdapContext)ctx).setRequestControls( new javax.naming.ldap.Control[]{new ManageReferralControl()} );
 
         // Now let's move the entry
         ctx.rename( "c=america,ou=Countries,ou=system", "c=us,ou=system" );
 
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
 
-        ((LdapContext)ctx).setRequestControls( new Control[]{} );
+        ((LdapContext)ctx).setRequestControls( new javax.naming.ldap.Control[]{} );
 
         try
         {

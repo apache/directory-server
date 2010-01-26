@@ -20,17 +20,16 @@
 package org.apache.directory.server.ldap;
 
 
-import javax.naming.ldap.Control;
-
-import org.apache.directory.shared.ldap.message.InternalExtendedRequest;
 import org.apache.directory.shared.ldap.message.ExtendedRequestImpl;
-import org.apache.directory.shared.ldap.message.InternalControl;
+import org.apache.directory.shared.ldap.message.InternalExtendedRequest;
 import org.apache.directory.shared.ldap.message.InternalRequest;
-import org.apache.directory.shared.ldap.message.ResponseCarryingMessageException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.InternalResultResponse;
 import org.apache.directory.shared.ldap.message.InternalResultResponseRequest;
+import org.apache.directory.shared.ldap.message.ResponseCarryingMessageException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
+import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.ssl.SslFilter;
 import org.apache.mina.handler.demux.DemuxingIoHandler;
@@ -177,13 +176,13 @@ class LdapProtocolHandler extends DemuxingIoHandler
         if ( ( ( InternalRequest ) message ).getControls().size() > 0 && message instanceof InternalResultResponseRequest )
         {
             InternalResultResponseRequest req = ( InternalResultResponseRequest ) message;
-            for ( Control control1 : req.getControls().values() )
+            
+            for ( Control control : req.getControls().values() )
             {
-                InternalControl control = ( InternalControl ) control1;
-                if ( control.isCritical() && ! ldapServer.getSupportedControls().contains( control.getID() ) )
+                if ( control.isCritical() && ! ldapServer.getSupportedControls().contains( control.getOid() ) )
                 {
                     InternalResultResponse resp = req.getResultResponse();
-                    resp.getLdapResult().setErrorMessage( "Unsupport critical control: " + control.getID() );
+                    resp.getLdapResult().setErrorMessage( "Unsupport critical control: " + control.getOid() );
                     resp.getLdapResult().setResultCode( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
                     session.write( resp );
                     return;

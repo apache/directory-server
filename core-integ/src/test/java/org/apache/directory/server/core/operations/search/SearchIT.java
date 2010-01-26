@@ -52,8 +52,8 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
 import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -267,7 +267,7 @@ public class SearchIT extends AbstractLdapTestUnit
      */
     private static DirContext addNisPosixGroup( String name, int gid ) throws Exception
     {
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top", 
             "objectClass: posixGroup",
             "cn", name,
@@ -728,7 +728,7 @@ public class SearchIT extends AbstractLdapTestUnit
      */
     protected Attributes getPersonAttributes( String sn, String cn ) throws NamingException
     {
-        Attributes attributes = AttributeUtils.createAttributes( 
+        Attributes attributes = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: top",
             "objectClass: person",
@@ -1279,7 +1279,7 @@ public class SearchIT extends AbstractLdapTestUnit
     public void testSearchWithEscapedCharsInFilter() throws Exception
     {
         // Create entry cn=Sid Vicious, ou=system
-        Attributes vicious = AttributeUtils.createAttributes( 
+        Attributes vicious = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: person",
             "cn", "Sid Vicious",
@@ -1329,7 +1329,7 @@ public class SearchIT extends AbstractLdapTestUnit
     public void testSubstringSearchWithEscapedCharsInFilter() throws Exception
     {
         // Create entry cn=Sid Vicious, ou=system
-        Attributes vicious = AttributeUtils.createAttributes( 
+        Attributes vicious = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: person",
             "cn", "Sid Vicious",
@@ -1381,7 +1381,7 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testSubstringSearchWithEscapedAsterisksInFilter_DIRSERVER_1181() throws Exception
     {
-        Attributes vicious = AttributeUtils.createAttributes( 
+        Attributes vicious = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: person",
             "cn", "x*y*z*",
@@ -1602,7 +1602,7 @@ public class SearchIT extends AbstractLdapTestUnit
                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
        
        // Create an entry which does not match
-       Attributes attrs = AttributeUtils.createAttributes( 
+       Attributes attrs = LdifUtils.createAttributes( 
            "objectClass: top",
            "objectClass: groupOfUniqueNames",
            "cn", "testGroup3",

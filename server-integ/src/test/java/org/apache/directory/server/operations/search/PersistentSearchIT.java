@@ -41,7 +41,6 @@ import javax.naming.event.NamespaceChangeListener;
 import javax.naming.event.NamingEvent;
 import javax.naming.event.NamingExceptionEvent;
 import javax.naming.event.ObjectChangeListener;
-import javax.naming.ldap.Control;
 import javax.naming.ldap.HasControls;
 import javax.naming.ldap.LdapContext;
 
@@ -55,8 +54,10 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControlCodec;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControlDecoder;
+import org.apache.directory.shared.ldap.jndi.JndiUtils;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.message.control.PersistentSearchControl;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -100,7 +101,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
      */
     private Attributes getPersonAttributes( String sn, String cn ) throws NamingException
     {
-        Attributes attributes = AttributeUtils.createAttributes( 
+        Attributes attributes = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: person",
             "cn", cn,
@@ -570,13 +571,16 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         {
             LOG.debug( "PSearchListener.run() called." );
             control.setCritical( true );
+            
+            control.setValue( control.getValue() );
+
             Control[] ctxCtls = new Control[]
                 { control };
 
             try
             {
                 ctx = ( LdapContext ) getWiredContext( ldapServer).lookup( BASE );
-                ctx.setRequestControls( ctxCtls );
+                ctx.setRequestControls( JndiUtils.toJndiControls( ctxCtls ) );
                 isReady = true;
                 LOG.debug( "PSearchListener is ready and about to issue persistent search request." );
                 list = ctx.search( "", "objectClass=*", null );
@@ -586,21 +590,22 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
                 while ( list.hasMore() )
                 {
                     LOG.debug( "PSearchListener search request got an item." );
-                    Control[] controls = null;
+                    javax.naming.ldap.Control[] controls = null;
                     SearchResult sresult = list.next();
                     
                     if ( sresult instanceof HasControls )
                     {
                         controls = ( ( HasControls ) sresult ).getControls();
+                        
                         if ( controls != null )
                         {
-                            for ( int ii = 0; ii < controls.length; ii++ )
+                            for ( javax.naming.ldap.Control control : controls )
                             {
-                                if ( controls[ii].getID().equals(
+                                if ( control.getID().equals(
                                     org.apache.directory.shared.ldap.message.control.EntryChangeControl.CONTROL_OID ) )
                                 {
                                     EntryChangeControlDecoder decoder = new EntryChangeControlDecoder();
-                                    ecControl = ( EntryChangeControlCodec ) decoder.decode( controls[ii].getEncodedValue() );
+                                    ecControl = ( EntryChangeControlCodec ) decoder.decode( control.getEncodedValue() );
                                 }
                             }
                         }

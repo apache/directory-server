@@ -76,10 +76,9 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.Csn;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.SchemaUtils;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -191,7 +190,7 @@ public class AddIT extends AbstractLdapTestUnit
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // modify object classes, add two more
-        Attributes attributes = AttributeUtils.createAttributes( 
+        Attributes attributes = LdifUtils.createAttributes( 
             "objectClass: organizationalPerson",
             "objectClass: inetOrgPerson" );
 

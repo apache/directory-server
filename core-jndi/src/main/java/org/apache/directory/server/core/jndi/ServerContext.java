@@ -83,6 +83,7 @@ import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.AVA;
@@ -247,7 +248,7 @@ public abstract class ServerContext implements EventContext
     // Use these methods instead of manually calling the nexusProxy so we can
     // add request controls to operation contexts before the call and extract 
     // response controls from the contexts after the call.  NOTE that the 
-    // requestControls must be cleared after each operation.  This makes a 
+    // JndiUtils.fromJndiControls( requestControls ) must be cleared after each operation.  This makes a 
     // context not thread safe.
     // ------------------------------------------------------------------------
 
@@ -261,7 +262,7 @@ public abstract class ServerContext implements EventContext
         // setup the op context and populate with request controls
         AddOperationContext opCtx = new AddOperationContext( session, entry );
 
-        opCtx.addRequestControls( requestControls );
+        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
         
         // Inject the referral handling into the operation context
         injectReferralControl( opCtx );
@@ -272,7 +273,7 @@ public abstract class ServerContext implements EventContext
     
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
-        responseControls = opCtx.getResponseControls();
+        responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
     }
 
 
@@ -285,7 +286,7 @@ public abstract class ServerContext implements EventContext
         // setup the op context and populate with request controls
         DeleteOperationContext opCtx = new DeleteOperationContext( session, target );
 
-        opCtx.addRequestControls( requestControls );
+        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
 
         // Inject the referral handling into the operation context
         injectReferralControl( opCtx );
@@ -296,7 +297,7 @@ public abstract class ServerContext implements EventContext
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
-        responseControls = opCtx.getResponseControls();
+        responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
     }
 
 
@@ -335,7 +336,7 @@ public abstract class ServerContext implements EventContext
             // setup the op context and populate with request controls
             opContext = new SearchOperationContext( session, dn, aliasDerefMode, filter,
                 searchControls );
-            opContext.addRequestControls( requestControls );
+            opContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
             
             if ( result )
             {
@@ -354,7 +355,7 @@ public abstract class ServerContext implements EventContext
             // setup the op context and populate with request controls
             opContext = new SearchOperationContext( session, dn, aliasDerefMode, filter,
                 searchControls );
-            opContext.addRequestControls( requestControls );
+            opContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
 
             // Inject the referral handling into the operation context
             injectReferralControl( opContext );
@@ -365,7 +366,7 @@ public abstract class ServerContext implements EventContext
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
-        responseControls = opContext.getResponseControls();
+        responseControls = JndiUtils.toJndiControls( opContext.getResponseControls() );
 
         return results;
     }
@@ -378,7 +379,7 @@ public abstract class ServerContext implements EventContext
     {
         // setup the op context and populate with request controls
         ListOperationContext opCtx = new ListOperationContext( session, target );
-        opCtx.addRequestControls( requestControls );
+        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
 
         // execute list operation
         OperationManager operationManager = service.getOperationManager();
@@ -386,7 +387,7 @@ public abstract class ServerContext implements EventContext
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
-        responseControls = opCtx.getResponseControls();
+        responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
 
         return results;
     }
@@ -395,7 +396,7 @@ public abstract class ServerContext implements EventContext
     protected ServerEntry doGetRootDSEOperation( LdapDN target ) throws Exception
     {
         GetRootDSEOperationContext opCtx = new GetRootDSEOperationContext( session, target );
-        opCtx.addRequestControls( requestControls );
+        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
 
         // do not reset request controls since this is not an external 
         // operation and not do bother setting the response controls either
@@ -414,13 +415,13 @@ public abstract class ServerContext implements EventContext
 
         // execute lookup/getRootDSE operation
         opCtx = new LookupOperationContext( session, target );
-        opCtx.addRequestControls( requestControls );
+        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
         OperationManager operationManager = service.getOperationManager();
         ServerEntry serverEntry = operationManager.lookup( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
-        responseControls = opCtx.getResponseControls();
+        responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
         return serverEntry;
     }
 
@@ -435,13 +436,13 @@ public abstract class ServerContext implements EventContext
 
         // execute lookup/getRootDSE operation
         opCtx = new LookupOperationContext( session, target, attrIds );
-        opCtx.addRequestControls( requestControls );
+        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
         OperationManager operationManager = service.getOperationManager();
         ClonedServerEntry serverEntry = operationManager.lookup( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
-        responseControls = opCtx.getResponseControls();
+        responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
 
         // Now remove the ObjectClass attribute if it has not been requested
         if ( ( opCtx.getAttrsId() != null ) && ( opCtx.getAttrsId().size() != 0 ) )
@@ -469,7 +470,7 @@ public abstract class ServerContext implements EventContext
         opCtx.setCredentials( credentials );
         opCtx.setSaslMechanism( saslMechanism );
         opCtx.setSaslAuthId( saslAuthId );
-        opCtx.addRequestControls( requestControls );
+        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
 
         // execute bind operation
         OperationManager operationManager = service.getOperationManager();
@@ -477,7 +478,7 @@ public abstract class ServerContext implements EventContext
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
-        responseControls = opCtx.getResponseControls();
+        responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
         return opCtx;
     }
 
@@ -491,7 +492,7 @@ public abstract class ServerContext implements EventContext
         // setup the op context and populate with request controls
         MoveAndRenameOperationContext opCtx = new MoveAndRenameOperationContext( session, oldDn, parent, new RDN(
             newRdn ), delOldDn );
-        opCtx.addRequestControls( requestControls );
+        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
 
         // Inject the referral handling into the operation context
         injectReferralControl( opCtx );
@@ -502,7 +503,7 @@ public abstract class ServerContext implements EventContext
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
-        responseControls = opCtx.getResponseControls();
+        responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
     }
 
 
@@ -513,7 +514,7 @@ public abstract class ServerContext implements EventContext
     {
         // setup the op context and populate with request controls
         ModifyOperationContext opCtx = new ModifyOperationContext( session, dn, modifications );
-        opCtx.addRequestControls( requestControls );
+        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
 
         // Inject the referral handling into the operation context
         injectReferralControl( opCtx );
@@ -524,7 +525,7 @@ public abstract class ServerContext implements EventContext
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
-        responseControls = opCtx.getResponseControls();
+        responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
     }
 
 
@@ -535,7 +536,7 @@ public abstract class ServerContext implements EventContext
     {
         // setup the op context and populate with request controls
         MoveOperationContext opCtx = new MoveOperationContext( session, oldDn, target );
-        opCtx.addRequestControls( requestControls );
+        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
 
         // Inject the referral handling into the operation context
         injectReferralControl( opCtx );
@@ -546,7 +547,7 @@ public abstract class ServerContext implements EventContext
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
-        responseControls = opCtx.getResponseControls();
+        responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
     }
 
 
@@ -557,7 +558,7 @@ public abstract class ServerContext implements EventContext
     {
         // setup the op context and populate with request controls
         RenameOperationContext opCtx = new RenameOperationContext( session, oldDn, newRdn, delOldRdn );
-        opCtx.addRequestControls( requestControls );
+        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
 
         // Inject the referral handling into the operation context
         injectReferralControl( opCtx );
@@ -568,7 +569,7 @@ public abstract class ServerContext implements EventContext
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
-        responseControls = opCtx.getResponseControls();
+        responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
     }
 
     

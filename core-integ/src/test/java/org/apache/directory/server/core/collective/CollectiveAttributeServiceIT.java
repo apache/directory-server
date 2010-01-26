@@ -43,7 +43,7 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -59,7 +59,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 {
     private Attributes getTestEntry( String cn ) throws NamingException
     {
-        Attributes subentry = AttributeUtils.createAttributes( 
+        Attributes subentry = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: person",
             "cn", cn ,
@@ -71,7 +71,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
     private Attributes getTestSubentry()  throws NamingException
     {
-        Attributes subentry = AttributeUtils.createAttributes( 
+        Attributes subentry = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: subentry",
             "objectClass: collectiveAttributeSubentry",
@@ -85,7 +85,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
     private Attributes getTestSubentry2() throws NamingException
     {
-        Attributes subentry = AttributeUtils.createAttributes( 
+        Attributes subentry = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: subentry",
             "objectClass: collectiveAttributeSubentry",
@@ -99,7 +99,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
     private Attributes getTestSubentry3() throws NamingException
     {
-        Attributes subentry = AttributeUtils.createAttributes( 
+        Attributes subentry = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: subentry",
             "objectClass: collectiveAttributeSubentry",

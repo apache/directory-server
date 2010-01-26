@@ -38,6 +38,7 @@ import org.apache.directory.server.core.interceptor.context.UnbindOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -218,7 +219,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         
         
         CompareOperationContext opCtx = new CompareOperationContext( getSession(), name, oid, val );
-        opCtx.addRequestControls( requestControls );
+        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
         
         // Inject the Referral flag
         injectReferralControl( opCtx );
@@ -253,7 +254,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     {
         LdapDN principalDn = getSession().getEffectivePrincipal().getJndiName();
         UnbindOperationContext opCtx = new UnbindOperationContext( getSession() );
-        opCtx.addRequestControls( requestControls );
+        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
         try
         {
             super.getDirectoryService().getOperationManager().unbind( opCtx );
@@ -262,7 +263,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         {
             JndiUtils.wrap( e );
         }
-        responseControls = opCtx.getResponseControls();
+        responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
         requestControls = EMPTY_CONTROLS;
     }
 

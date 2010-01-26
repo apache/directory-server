@@ -37,7 +37,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Before;
 import org.junit.Test;
@@ -118,7 +118,7 @@ public class CompareDirserver1139IT extends AbstractLdapTestUnit
     private void injectEntries( LdapContext sysRoot ) throws Exception
     {
         // Add the group
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "ObjectClass: top",
             "ObjectClass: groupOfNames",
             "cn: group",
@@ -127,7 +127,7 @@ public class CompareDirserver1139IT extends AbstractLdapTestUnit
         sysRoot.createSubcontext( "cn=group,ou=groups", attrs );
         
         // Add the user
-        attrs = AttributeUtils.createAttributes( 
+        attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: organizationalPerson",
             "objectClass: person",

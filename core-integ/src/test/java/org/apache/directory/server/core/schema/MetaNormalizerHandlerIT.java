@@ -42,13 +42,13 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -84,7 +84,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddNormalizerToEnabledSchema() throws Exception
     {
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaNormalizer",
@@ -107,7 +107,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddNormalizerToDisabledSchema() throws Exception
     {
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaNormalizer",
@@ -129,7 +129,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddNormalizerToUnloadedSchema() throws Exception
     {
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaNormalizer",
@@ -168,7 +168,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             out.write( in.read() );
         }
         
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaNormalizer",
@@ -200,7 +200,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             out.write( in.read() );
         }
         
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaNormalizer",
@@ -424,7 +424,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( service.getSchemaManager().getNormalizerRegistry().contains( OID ) );
         
         // Create a MR using this Normalizer
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaMatchingRule",

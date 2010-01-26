@@ -43,7 +43,6 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 
 import netscape.ldap.LDAPAttribute;
@@ -62,6 +61,8 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.jndi.JndiUtils;
+import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.message.control.SubentriesControl;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -821,7 +822,7 @@ public class SearchIT extends AbstractLdapTestUnit
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         
-        ctx.setRequestControls( reqControls );
+        ctx.setRequestControls( JndiUtils.toJndiControls( reqControls ) );
         NamingEnumeration<SearchResult> enm = ctx.search( "", "(objectClass=*)", searchControls );
         Set<String> results = new HashSet<String>();
         

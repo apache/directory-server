@@ -24,8 +24,6 @@ import java.net.SocketAddress;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.ldap.Control;
-
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.changelog.LogChange;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
@@ -44,6 +42,7 @@ import org.apache.directory.shared.ldap.message.InternalModifyDnRequest;
 import org.apache.directory.shared.ldap.message.InternalModifyRequest;
 import org.apache.directory.shared.ldap.message.InternalSearchRequest;
 import org.apache.directory.shared.ldap.message.InternalUnbindRequest;
+import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;

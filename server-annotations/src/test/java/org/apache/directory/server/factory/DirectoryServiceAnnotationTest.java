@@ -31,7 +31,6 @@ import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -47,6 +46,8 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.shared.ldap.jndi.JndiUtils;
+import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.Test;
 
@@ -77,7 +78,7 @@ public class DirectoryServiceAnnotationTest
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        return new InitialLdapContext( env, controls );
+        return new InitialLdapContext( env, JndiUtils.toJndiControls( controls ) );
     }
     
 

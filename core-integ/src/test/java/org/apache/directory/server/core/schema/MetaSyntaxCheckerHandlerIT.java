@@ -41,13 +41,13 @@ import javax.naming.directory.ModificationItem;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -83,7 +83,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddSyntaxCheckerToEnabledSchema() throws Exception
     {
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaSyntaxChecker",
@@ -106,7 +106,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddSyntaxCheckerToDisabledSchema() throws Exception
     {
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaSyntaxChecker",
@@ -128,7 +128,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddSyntaxCheckerToUnloadedSchema() throws Exception
     {
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaSyntaxChecker",
@@ -167,7 +167,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             out.write( in.read() );
         }
         
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaSyntaxChecker",
@@ -199,7 +199,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             out.write( in.read() );
         }
         
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaSyntaxChecker",
@@ -423,7 +423,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( service.getSchemaManager().getSyntaxCheckerRegistry().contains( OID ) );
         
         // Create a Syntax using this comparator
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaSyntax",

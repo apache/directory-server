@@ -50,6 +50,7 @@ import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.InternalReferral;
 import org.apache.directory.shared.ldap.message.InternalResponse;
@@ -409,7 +410,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
             }
             
             pagedResultsControl = new PagedResultsControl( 0, true );
-            req.getResultResponse().add( pagedResultsControl );
+            req.getResultResponse().add( JndiUtils.fromJndiControl( pagedResultsControl ) );
 
             return;
         }
@@ -422,7 +423,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
                 // We stop here. We have to add a ResponseControl
                 // DO NOT WRITE THE RESPONSE - JUST RETURN IT
                 ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
-                req.getResultResponse().add( pagedResultsControl );
+                req.getResultResponse().add( JndiUtils.fromJndiControl( pagedResultsControl ) );
                 
                 // Stores the cursor current position 
                 pagedContext.incrementCurrentPosition( pageCount );
@@ -483,7 +484,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
         // DO NOT WRITE THE RESPONSE - JUST RETURN IT
         InternalLdapResult ldapResult = req.getResultResponse().getLdapResult();
         ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
-        req.getResultResponse().add( pagedResultsControl );
+        req.getResultResponse().add( JndiUtils.fromJndiControl( pagedResultsControl ) );
         return ( InternalSearchResponseDone ) req.getResultResponse();
     }
     

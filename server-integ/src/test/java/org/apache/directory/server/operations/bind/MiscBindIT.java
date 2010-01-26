@@ -65,7 +65,9 @@ import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.directory.shared.ldap.message.InternalControl;
+import org.apache.directory.shared.ldap.jndi.JndiUtils;
+import org.apache.directory.shared.ldap.message.control.Control;
+import org.apache.directory.shared.ldap.message.control.ControlImpl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -349,7 +351,7 @@ public class MiscBindIT extends AbstractLdapTestUnit
     @Test
     public void testFailureWithUnsupportedControl() throws Exception
     {
-        InternalControl unsupported = new InternalControl()
+        Control unsupported = new ControlImpl( "1.1.1.1" )
         {
             boolean isCritical = true;
             private static final long serialVersionUID = 1L;
@@ -362,7 +364,7 @@ public class MiscBindIT extends AbstractLdapTestUnit
             }
 
 
-            public void setID( String oid )
+            public void setOid( String oid )
             {
             }
 
@@ -392,15 +394,9 @@ public class MiscBindIT extends AbstractLdapTestUnit
             }
 
 
-            public String getID()
+            public String getOid()
             {
                 return "1.1.1.1";
-            }
-
-
-            public byte[] getEncodedValue()
-            {
-                return new byte[0];
             }
         };
         
@@ -425,18 +421,21 @@ public class MiscBindIT extends AbstractLdapTestUnit
         user.put( oc );
         user.put( "sn", "Bush" );
         user.put( "userPassword", "Aerial" );
-        ctx.setRequestControls( new InternalControl[]
-                {unsupported} );
+        ctx.setRequestControls( JndiUtils.toJndiControls( new Control[]
+                {unsupported} ) );
 
         try
         {
             ctx.createSubcontext( "cn=Kate Bush", user );
+            fail();
         }
         catch ( OperationNotSupportedException e )
         {
         }
 
         unsupported.setCritical( false );
+        ctx.setRequestControls( JndiUtils.toJndiControls( new Control[]{unsupported} ) );
+        
         DirContext kate = ctx.createSubcontext( "cn=Kate Bush", user );
         assertNotNull( kate );
         assertTrue( ArrayUtils.isEquals( Asn1StringUtils.getBytesUtf8( "Aerial" ), kate.getAttributes( "" ).get(

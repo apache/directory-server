@@ -26,6 +26,7 @@
     <artifactId>apacheds-parent</artifactId>
     <version>1.5.6-SNAPSHOT</version>
   </parent>
+  
   <artifactId>apacheds-core-api</artifactId>
   <name>ApacheDS Core API</name>
   <packaging>jar</packaging>
@@ -36,21 +37,21 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-i18n</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core-entry</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core-constants</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
     </dependency>
   </dependencies>
 

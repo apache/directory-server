@@ -38,11 +38,11 @@ import javax.naming.directory.ModificationItem;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -78,7 +78,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     
     private LdapDN addObjectClass() throws Exception
     {
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaObjectClass",
@@ -125,7 +125,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddObjectClassToUnloadedSchema() throws Exception
     {
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaObjectClass",
@@ -543,7 +543,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     
     private LdapDN addObjectClassToDisabledSchema() throws Exception
     {
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaObjectClass",

@@ -26,6 +26,7 @@
     <artifactId>apacheds-parent</artifactId>
     <version>1.5.6-SNAPSHOT</version>
   </parent>
+  
   <artifactId>apacheds-core</artifactId>
   <name>ApacheDS Core</name>
   <packaging>jar</packaging>
@@ -38,21 +39,27 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-i18n</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core-api</artifactId>
+      <groupId>${groupId}</groupId>
       <version>${pom.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-utils</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
+    </dependency>
+
+    <dependency>
+      <artifactId>apacheds-utils</artifactId>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
     </dependency>
 
     <dependency>
@@ -75,6 +82,7 @@
           </systemProperties>
         </configuration>
       </plugin>
+      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>

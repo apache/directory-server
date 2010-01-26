@@ -23,9 +23,9 @@
     <artifactId>apacheds-parent</artifactId>
     <version>1.5.6-SNAPSHOT</version>
   </parent>
+  
   <artifactId>apacheds-core-avl</artifactId>
   <name>ApacheDS Core AVL</name>
-
   <description>
     A linked in memory AVL tree implementation with Cursor.
   </description>
@@ -34,8 +34,8 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
       <artifactId>apacheds-xdbm-base</artifactId>
     </dependency>
   </dependencies>

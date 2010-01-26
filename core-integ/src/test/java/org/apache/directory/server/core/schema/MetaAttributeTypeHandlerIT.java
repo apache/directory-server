@@ -40,10 +40,10 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -74,7 +74,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddAttributeTypeToEnabledSchema() throws Exception
     {
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaAttributeType",
@@ -105,7 +105,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddAttributeTypeToUnLoadedSchema() throws Exception
     {
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaAttributeType",
@@ -140,7 +140,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddAttributeTypeToDisabledSchema() throws Exception
     {
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaAttributeType",
@@ -565,7 +565,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
     // ----------------------------------------------------------------------
     private void addDependeeAttributeType() throws Exception
     {
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaAttributeType",

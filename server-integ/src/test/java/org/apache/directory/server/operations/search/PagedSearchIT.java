@@ -33,7 +33,6 @@ import javax.naming.OperationNotSupportedException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.PagedResultsResponseControl;
 
@@ -43,6 +42,8 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.shared.ldap.jndi.JndiUtils;
+import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.message.control.PagedSearchControl;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Before;
@@ -205,7 +206,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         PagedSearchControl pagedSearchControl = new PagedSearchControl();
         pagedSearchControl.setSize( pagedSize );
         
-        ((LdapContext)ctx).setRequestControls( new Control[] {pagedSearchControl} );
+        ((LdapContext)ctx).setRequestControls( JndiUtils.toJndiControls( new Control[] {pagedSearchControl} ) );
         
         return controls;
     }
@@ -220,7 +221,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         PagedSearchControl pagedSearchControl = new PagedSearchControl();
         pagedSearchControl.setCookie( cookie );
         pagedSearchControl.setSize( pagedSize );
-        ((LdapContext)ctx).setRequestControls( new Control[] {pagedSearchControl} );
+        ((LdapContext)ctx).setRequestControls( JndiUtils.toJndiControls( new Control[] {pagedSearchControl} ) );
     }
     
     
@@ -274,7 +275,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
             }
 
             // Now read the next ones
-            Control[] responseControls = ((LdapContext)ctx).getResponseControls();
+            javax.naming.ldap.Control[] responseControls = ((LdapContext)ctx).getResponseControls();
             
             PagedResultsResponseControl responseControl = 
                 (PagedResultsResponseControl)responseControls[0];
@@ -1001,7 +1002,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
             }
 
             // Now read the next ones
-            Control[] responseControls = ((LdapContext)ctx).getResponseControls();
+            javax.naming.ldap.Control[] responseControls = ((LdapContext)ctx).getResponseControls();
             
             PagedResultsResponseControl responseControl = 
                 (PagedResultsResponseControl)responseControls[0];
@@ -1056,7 +1057,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
             }
 
             // Now read the next ones
-            Control[] responseControls = ((LdapContext)ctx).getResponseControls();
+            javax.naming.ldap.Control[] responseControls = ((LdapContext)ctx).getResponseControls();
             
             PagedResultsResponseControl responseControl = 
                 (PagedResultsResponseControl)responseControls[0];

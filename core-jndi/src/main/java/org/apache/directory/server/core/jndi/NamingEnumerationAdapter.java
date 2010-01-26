@@ -29,6 +29,7 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.shared.ldap.jndi.JndiUtils;
 
 
 /**

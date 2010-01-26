@@ -38,12 +38,12 @@ import javax.naming.directory.ModificationItem;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.comparators.StringComparator;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -79,7 +79,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
 
     private void createComparator() throws Exception
     {
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaComparator",
@@ -108,7 +108,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         createComparator();
         
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaMatchingRule",
@@ -138,7 +138,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         createComparator();
         
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaMatchingRule",
@@ -161,7 +161,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         createComparator();
         
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaMatchingRule",

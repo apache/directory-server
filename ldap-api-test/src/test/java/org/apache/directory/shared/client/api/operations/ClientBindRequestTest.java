@@ -24,7 +24,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.util.concurrent.Semaphore;
 
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -35,8 +34,12 @@ import org.apache.directory.shared.ldap.client.api.exception.LdapException;
 import org.apache.directory.shared.ldap.client.api.listeners.BindListener;
 import org.apache.directory.shared.ldap.client.api.messages.BindRequest;
 import org.apache.directory.shared.ldap.client.api.messages.BindResponse;
+import org.apache.directory.shared.ldap.client.api.messages.Response;
+import org.apache.directory.shared.ldap.client.api.messages.future.ResponseFuture;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -56,11 +59,32 @@ import org.junit.runner.RunWith;
 public class ClientBindRequestTest extends AbstractLdapTestUnit
 {
     private LdapConnection connection;
+
     
+    /**
+     * Create the LdapConnection
+     */
     @Before
     public void setup() throws Exception
     {
         connection = new LdapConnection( "localhost", ldapServer.getPort() );
+    }
+
+    
+    /**
+     * Close the LdapConnection
+     */
+    @After
+    public void shutdown()
+    {
+        try
+        {
+            connection.close();
+        }
+        catch( IOException ioe )
+        {
+            fail();
+        }
     }
 
     
@@ -72,8 +96,6 @@ public class ClientBindRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSyncBindRequest() throws Exception
     {
-        connection = new LdapConnection( "localhost", ldapServer.getPort() );
-        
         try
         {
             BindResponse bindResponse = connection.bind( "uid=admin,ou=system", "secret" );
@@ -81,23 +103,13 @@ public class ClientBindRequestTest extends AbstractLdapTestUnit
             assertNotNull( bindResponse );
             assertNotNull( bindResponse.getLdapResult() );
             assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
-            
+            assertEquals( 1, bindResponse.getMessageId() );
+
             connection.unBind();
         }
         catch ( LdapException le )
         {
             fail();
-        }
-        finally
-        {
-            try
-            {
-                connection.close();
-            }
-            catch( IOException ioe )
-            {
-                fail();
-            }
         }
     }
 
@@ -108,36 +120,36 @@ public class ClientBindRequestTest extends AbstractLdapTestUnit
      * @throws IOException
      */
     @Test
+    @Ignore
     public void testAsyncBindRequest() throws Exception
     {
         int i = 0;
         int nbLoop = 10;
-        final Semaphore lock = new Semaphore( 1 );
 
         try
         {
-            lock.acquire();
-            
             for ( ; i < nbLoop; i++)
             {
-                connection = new LdapConnection( "localhost", ldapServer.getPort() );
-                
                 BindRequest bindRequest = new BindRequest();
                 bindRequest.setName( "uid=admin,ou=system" );
                 bindRequest.setCredentials( "secret" );
-                
-                connection.bind( bindRequest, new BindListener()
+                final int loop = i;
+
+                ResponseFuture bindFuture = connection.bind( bindRequest, new BindListener()
                 {
                     public void bindCompleted( LdapConnection connection, BindResponse bindResponse ) throws LdapException
                     {
                         assertNotNull( bindResponse );
                         assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
-                        lock.release();
+                        assertEquals( 1, bindResponse.getMessageId() );
+                        System.out.println( "Bound " + loop );
                     }
                 } );
                 
-                lock.acquire();
-                lock.release();
+                Response bindResponse = (Response)bindFuture.get();
+                bindResponse.wait();
+                
+                System.out.println( "Unbinding " + loop );
                 connection.unBind();
             }
         }
@@ -150,16 +162,68 @@ public class ClientBindRequestTest extends AbstractLdapTestUnit
         {
             e.printStackTrace();
         }
-        finally
+    }
+    
+    
+    @Test
+    public void testSimpleBindAnonymous() throws Exception
+    {
+        try
         {
-            try
-            {
-                connection.close();
-            }
-            catch( IOException ioe )
-            {
-                fail();
-            }
+            BindResponse bindResponse = connection.bind();
+            
+            assertNotNull( bindResponse );
+            assertNotNull( bindResponse.getLdapResult() );
+            assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
+            assertEquals( 1, bindResponse.getMessageId() );
+
+            connection.unBind();
+        }
+        catch ( LdapException le )
+        {
+            fail();
+        }
+    }
+    
+    
+    @Test
+    public void testSimpleBindAnonymous2() throws Exception
+    {
+        try
+        {
+            BindResponse bindResponse = connection.bind( "", "" );
+            
+            assertNotNull( bindResponse );
+            assertNotNull( bindResponse.getLdapResult() );
+            assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
+            assertEquals( 1, bindResponse.getMessageId() );
+
+            connection.unBind();
+        }
+        catch ( LdapException le )
+        {
+            fail();
+        }
+    }
+    
+    
+    @Test
+    public void testSimpleBindAnonymous3() throws Exception
+    {
+        try
+        {
+            BindResponse bindResponse = connection.bind( (String)null, (String)null );
+            
+            assertNotNull( bindResponse );
+            assertNotNull( bindResponse.getLdapResult() );
+            assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
+            assertEquals( 1, bindResponse.getMessageId() );
+
+            connection.unBind();
+        }
+        catch ( LdapException le )
+        {
+            fail();
         }
     }
 }

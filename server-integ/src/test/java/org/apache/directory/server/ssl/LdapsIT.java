@@ -43,7 +43,7 @@ import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandle
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.operations.bind.BogusNtlmProvider;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -109,7 +109,7 @@ public class LdapsIT extends AbstractLdapTestUnit
     public void testLdaps() throws Exception
     {
         // Create a person
-        Attributes attributes = AttributeUtils.createAttributes( 
+        Attributes attributes = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: person",
             "cn: The Person",

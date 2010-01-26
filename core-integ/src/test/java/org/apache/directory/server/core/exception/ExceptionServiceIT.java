@@ -46,8 +46,8 @@ import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -69,7 +69,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
 
     private DirContext createSubContext( DirContext ctx, String type, String value ) throws NamingException
     {
-        Attributes subentry = AttributeUtils.createAttributes( 
+        Attributes subentry = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: person",
             "objectClass: OrganizationalPerson",

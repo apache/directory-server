@@ -44,7 +44,7 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -105,7 +105,7 @@ public class MixedCaseITest extends AbstractLdapTestUnit
 
         String dn = "ou=Test";
 
-        Attributes attributes = AttributeUtils.createAttributes( "objectClass: top", "objectClass: organizationalUnit",
+        Attributes attributes = LdifUtils.createAttributes( "objectClass: top", "objectClass: organizationalUnit",
             "ou: Test" );
 
         DirContext ctx = ctxRoot.createSubcontext( dn, attributes );
@@ -131,7 +131,7 @@ public class MixedCaseITest extends AbstractLdapTestUnit
         String dn = "ou=Test";
         String description = "New Value";
 
-        Attributes attributes = AttributeUtils.createAttributes( "objectClass: top", "objectClass: organizationalUnit",
+        Attributes attributes = LdifUtils.createAttributes( "objectClass: top", "objectClass: organizationalUnit",
             "ou: Test", "description: Old Value" );
 
         DirContext ctx = ctxRoot.createSubcontext( dn, attributes );
@@ -166,7 +166,7 @@ public class MixedCaseITest extends AbstractLdapTestUnit
 
         String dn = "ou=Test";
 
-        Attributes attributes = AttributeUtils.createAttributes( "objectClass: top", "objectClass: organizationalUnit",
+        Attributes attributes = LdifUtils.createAttributes( "objectClass: top", "objectClass: organizationalUnit",
             "ou: Test" );
 
         DirContext ctx = ctxRoot.createSubcontext( dn, attributes );

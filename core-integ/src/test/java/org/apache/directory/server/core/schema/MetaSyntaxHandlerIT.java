@@ -45,12 +45,12 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -94,7 +94,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddSyntaxToEnabledSchema() throws Exception
     {
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaSyntax",
@@ -115,7 +115,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddSyntaxToDisabledSchema() throws Exception
     {
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaSyntax",
@@ -137,7 +137,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddSyntaxToUnloadedSchema() throws Exception
     {
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaSyntax",
@@ -440,7 +440,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
     
     private void addDependeeMatchingRule( String oid ) throws Exception
     {
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaMatchingRule",

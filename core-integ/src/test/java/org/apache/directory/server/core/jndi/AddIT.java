@@ -35,7 +35,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -106,7 +106,7 @@ public class AddIT extends AbstractLdapTestUnit
     {
         LdapContext sysRoot = getSystemContext( service );
 
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "ObjectClass: top",
             "cn: kevin Spacey",
             "dc: ke" );
@@ -136,7 +136,7 @@ public class AddIT extends AbstractLdapTestUnit
     {
         LdapContext sysRoot = getSystemContext( service );
 
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "ObjectClass: top",
             "ObjectClass: person",
             "cn: kevin Spacey",
@@ -164,7 +164,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddAttributeWithEscapedPlusCharacter() throws Exception
     {
-        Attributes entry = AttributeUtils.createAttributes( 
+        Attributes entry = LdifUtils.createAttributes( 
             "ObjectClass: top",
             "ObjectClass: inetorgperson",
             "cn: John\\+Doe",

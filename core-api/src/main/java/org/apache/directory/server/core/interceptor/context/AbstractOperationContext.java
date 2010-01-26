@@ -26,14 +26,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.naming.ldap.Control;
-
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -141,7 +140,7 @@ public abstract class AbstractOperationContext implements OperationContext
     
     public void addRequestControl( Control requestControl )
     {
-        requestControls.put( requestControl.getID(), requestControl );
+        requestControls.put( requestControl.getOid(), requestControl );
     }
 
     
@@ -165,7 +164,7 @@ public abstract class AbstractOperationContext implements OperationContext
 
     public void addResponseControl( Control responseControl )
     {
-        responseControls.put( responseControl.getID(), responseControl );
+        responseControls.put( responseControl.getOid(), responseControl );
     }
 
 
@@ -208,7 +207,7 @@ public abstract class AbstractOperationContext implements OperationContext
     {
         for ( Control c : requestControls )
         {
-            this.requestControls.put( c.getID(), c );
+            this.requestControls.put( c.getOid(), c );
         }
     }
 

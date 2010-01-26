@@ -39,13 +39,14 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
+import org.apache.directory.shared.ldap.jndi.JndiUtils;
+import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.message.control.SubentriesControl;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -903,7 +904,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // except subentries disappear
         SubentriesControl ctl = new SubentriesControl();
         ctl.setVisibility( true );
-        sysRoot.setRequestControls( new Control[] { ctl } );
+        sysRoot.setRequestControls( JndiUtils.toJndiControls( new Control[] { ctl } ) );
         list = sysRoot.search( "", "(objectClass=*)", searchControls );
         SearchResult result = ( SearchResult ) list.next();
         assertFalse( list.hasMore() );

@@ -42,13 +42,13 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.comparators.BooleanComparator;
 import org.apache.directory.shared.ldap.schema.comparators.StringComparator;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -97,7 +97,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddComparatorToEnabledSchema() throws Exception
     {
-        Attributes attrs = AttributeUtils.createAttributes( "objectClass: top", "objectClass: metaTop",
+        Attributes attrs = LdifUtils.createAttributes( "objectClass: top", "objectClass: metaTop",
             "objectClass: metaComparator", "m-fqcn: " + StringComparator.class.getName(), "m-oid: " + OID,
             "m-description: A test comparator" );
 
@@ -123,7 +123,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddComparatorToDisabledSchema() throws Exception
     {
-        Attributes attrs = AttributeUtils.createAttributes( "objectClass: top", "objectClass: metaTop",
+        Attributes attrs = LdifUtils.createAttributes( "objectClass: top", "objectClass: metaTop",
             "objectClass: metaComparator", "m-fqcn: " + StringComparator.class.getName(), "m-oid: " + OID,
             "m-description: A test comparator" );
 
@@ -148,7 +148,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddComparatorToUnloadedSchema() throws Exception
     {
-        Attributes attrs = AttributeUtils.createAttributes( "objectClass: top", "objectClass: metaTop",
+        Attributes attrs = LdifUtils.createAttributes( "objectClass: top", "objectClass: metaTop",
             "objectClass: metaComparator", "m-fqcn: " + StringComparator.class.getName(), "m-oid: " + OID,
             "m-description: A test comparator" );
 
@@ -189,7 +189,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
             out.write( in.read() );
         }
 
-        Attributes attrs = AttributeUtils.createAttributes( "objectClass: top", "objectClass: metaTop",
+        Attributes attrs = LdifUtils.createAttributes( "objectClass: top", "objectClass: metaTop",
             "objectClass: metaComparator",
             "m-fqcn: org.apache.directory.shared.ldap.schema.comparators.DummyComparator", "m-bytecode", out
                 .toByteArray(), "m-oid", OID, "m-description: A test comparator" );
@@ -224,7 +224,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
             out.write( in.read() );
         }
 
-        Attributes attrs = AttributeUtils.createAttributes( "objectClass: top", "objectClass: metaTop",
+        Attributes attrs = LdifUtils.createAttributes( "objectClass: top", "objectClass: metaTop",
             "objectClass: metaComparator",
             "m-fqcn: org.apache.directory.shared.ldap.schema.comparators.DummyComparator", "m-bytecode", out
                 .toByteArray(), "m-oid", OID, "m-description: A test comparator" );
@@ -327,7 +327,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( service.getSchemaManager().getComparatorRegistry().contains( OID ) );
         
         // Create a MR using this comparator
-        Attributes attrs = AttributeUtils.createAttributes( 
+        Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaMatchingRule",

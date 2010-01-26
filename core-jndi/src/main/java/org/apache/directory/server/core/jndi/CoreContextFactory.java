@@ -20,18 +20,20 @@
 package org.apache.directory.server.core.jndi;
 
 
-import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.StringTools;
+import java.util.Hashtable;
 
 import javax.naming.ConfigurationException;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
-import java.util.Hashtable;
+
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.jndi.JndiUtils;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**

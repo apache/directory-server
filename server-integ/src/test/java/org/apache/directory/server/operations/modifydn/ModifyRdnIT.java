@@ -43,7 +43,7 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -72,7 +72,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      */
     private Attributes getPersonAttributes( String sn, String cn ) throws Exception
     {
-        Attributes attributes = AttributeUtils.createAttributes( 
+        Attributes attributes = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: person",
             "cn", cn,
@@ -88,7 +88,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      */
     private Attributes getOrganizationalUnitAttributes( String ou ) throws Exception
     {
-        Attributes attributes = AttributeUtils.createAttributes( 
+        Attributes attributes = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: organizationalUnit",
             "ou", ou,
@@ -1024,7 +1024,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
-        Attributes attributes = AttributeUtils.createAttributes( 
+        Attributes attributes = LdifUtils.createAttributes( 
             "objectClass: top",
             "objectClass: person",
             "cn: Tori Amos",

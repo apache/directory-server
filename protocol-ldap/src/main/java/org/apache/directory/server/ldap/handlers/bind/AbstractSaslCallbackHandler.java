@@ -20,24 +20,7 @@
 package org.apache.directory.server.ldap.handlers.bind;
 
 
-import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.message.InternalBindRequest;
-import org.apache.directory.shared.ldap.message.InternalLdapResult;
-import org.apache.directory.shared.ldap.message.InternalControl;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.ExceptionUtils;
-import org.apache.directory.shared.ldap.util.StringTools;
-import org.apache.mina.core.session.IoSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Hashtable;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -49,7 +32,26 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.sasl.AuthorizeCallback;
 import javax.security.sasl.RealmCallback;
-import java.util.Hashtable;
+
+import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.ldap.LdapSession;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.jndi.JndiUtils;
+import org.apache.directory.shared.ldap.message.InternalBindRequest;
+import org.apache.directory.shared.ldap.message.InternalLdapResult;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.control.Control;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.mina.core.session.IoSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -66,7 +68,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
     private static final Logger LOG = LoggerFactory.getLogger( AbstractSaslCallbackHandler.class );
 
     /** An empty control array */ 
-    private static final InternalControl[] EMPTY = new InternalControl[0];
+    private static final Control[] EMPTY = new Control[0];
 
     private String username;
     private String realm;
@@ -238,9 +240,9 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
 
         try
         {
-            InternalControl[] connCtls = bindRequest.getControls().values().toArray( EMPTY );
+            Control[] connCtls = bindRequest.getControls().values().toArray( EMPTY );
             env.put( DirectoryService.JNDI_KEY, directoryService );
-            ctx = new InitialLdapContext( env, connCtls );
+            ctx = new InitialLdapContext( env, JndiUtils.toJndiControls( connCtls ) );
         }
         catch ( NamingException e )
         {
