@@ -59,10 +59,10 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
     /** The 'service' field in the run tests */
     private static final String DIRECTORY_SERVICE_FIELD_NAME = "service";
-    
+
     /** The 'ldapServer' field in the run tests */
     private static final String LDAP_SERVER_FIELD_NAME = "ldapServer";
-    
+
     /** The 'kdcServer' field in the run tests */
     private static final String KDC_SERVER_FIELD_NAME = "kdcServer";
 
@@ -80,8 +80,8 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
     /** The KdcServer for this class, if any */
     private KdcServer classKdcServer;
-    
-    
+
+
     /**
      * Creates a new instance of FrameworkRunner.
      */
@@ -90,7 +90,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
         super( clazz );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -106,24 +106,24 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             classDS = DSAnnotationProcessor.getDirectoryService( getDescription() );
             long revision = 0L;
             DirectoryService directoryService = null;
-            
+
             if ( classDS != null )
             {
                 // We have a class DS defined, update it
                 directoryService = classDS;
-                
+
                 // Get the applyLdifs for each level and apply them
                 if ( suite != null )
                 {
                     DSAnnotationProcessor.applyLdifs( suite.getDescription(), classDS );
                 }
-                
+
                 DSAnnotationProcessor.applyLdifs( getDescription(), classDS );
             }
             else
             {
                 // No class DS. Do we have a Suite ?
-                if ( suite != null ) 
+                if ( suite != null )
                 {
                     // yes. Do we have a suite DS ?
                     directoryService = suite.getDirectoryService();
@@ -140,22 +140,22 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                     {
                         // No : define a default DS for the suite then
                         DirectoryServiceFactory dsf = DefaultDirectoryServiceFactory.DEFAULT;
-                        
+
                         directoryService = dsf.getDirectoryService();
                         // enable CL explicitly cause we are not using DSAnnotationProcessor
                         directoryService.getChangeLog().setEnabled( true );
 
                         dsf.init( "default" + UUID.randomUUID().toString() );
-                        
+
                         // Stores it into the suite
                         suite.setDirectoryService( directoryService );
-                        
+
                         // Apply the suite LDIF first
                         DSAnnotationProcessor.applyLdifs( suite.getDescription(), directoryService );
-                        
+
                         // Then tag for reversion and apply the class LDIFs
                         revision = getCurrentRevision( directoryService );
-                        
+
                         DSAnnotationProcessor.applyLdifs( getDescription(), directoryService );
                     }
                 }
@@ -163,13 +163,13 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 {
                     // No : define a default class DS then
                     DirectoryServiceFactory dsf = DefaultDirectoryServiceFactory.DEFAULT;
-                    
+
                     directoryService = dsf.getDirectoryService();
                     // enable CL explicitly cause we are not using DSAnnotationProcessor
                     directoryService.getChangeLog().setEnabled( true );
 
                     dsf.init( "default" + UUID.randomUUID().toString() );
-                    
+
                     // Stores the defaultDS in the classDS
                     classDS = directoryService;
 
@@ -180,14 +180,14 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
             // check if it has a LdapServerBuilder
             // then use the DS created above
-            if( classLdapServerBuilder != null )
+            if ( classLdapServerBuilder != null )
             {
                 int minPort = 0;
-                
+
                 if ( suite != null )
                 {
                     LdapServer suiteServer = suite.getLdapServer();
-                    
+
                     for ( Transport transport : suiteServer.getTransports() )
                     {
                         if ( minPort <= transport.getPort() )
@@ -196,10 +196,11 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                         }
                     }
                 }
-                
-                classLdapServer = ServerAnnotationProcessor.getLdapServer( getDescription(), directoryService, minPort + 1 );
+
+                classLdapServer = ServerAnnotationProcessor.getLdapServer( getDescription(), directoryService,
+                    minPort + 1 );
             }
-            else if( suite != null && suite.getLdapServer() != null )
+            else if ( suite != null && suite.getLdapServer() != null )
             {
                 classLdapServer = suite.getLdapServer();
                 directoryService = classLdapServer.getDirectoryService();
@@ -207,31 +208,31 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 // if ApplyLdifs is present
             }
 
-            if( classKdcServer == null )
+            if ( classKdcServer == null )
             {
                 classKdcServer = ServerAnnotationProcessor.getKdcServer( getDescription(), directoryService, 0 );
             }
-            else if( suite != null )
+            else if ( suite != null )
             {
                 // TODO add suite level KdcServer support
             }
-            
+
             // Now run the class
             super.run( notifier );
 
-            if( classLdapServer != null )
+            if ( classLdapServer != null )
             {
-                if( suite == null || suite.getLdapServer() != classLdapServer )
+                if ( suite == null || suite.getLdapServer() != classLdapServer )
                 {
                     classLdapServer.stop();
                 }
             }
-            
-            if( classKdcServer != null )
+
+            if ( classKdcServer != null )
             {
                 classKdcServer.stop();
             }
-            
+
             // cleanup classService if it is not the same as suite service or
             // it is not null (this second case happens in the absence of a suite)
             if ( classDS != null )
@@ -251,7 +252,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
         {
             LOG.error( I18n.err( I18n.ERR_181, getTestClass().getName() ) );
             LOG.error( e.getLocalizedMessage() );
-            notifier.fireTestFailure( new Failure(getDescription(), e) );
+            notifier.fireTestFailure( new Failure( getDescription(), e ) );
         }
     }
 
@@ -272,12 +273,12 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
         // Get the applyLdifs for each level
         Description suiteDescription = null;
-        
+
         if ( suite != null )
         {
             suiteDescription = suite.getDescription();
         }
-        
+
         Description classDescription = getDescription();
         Description methodDescription = describeChild( method );
 
@@ -285,7 +286,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
         try
         {
             DirectoryService directoryService = null;
-            
+
             // Set the revision to 0, we will revert only if it's set to another value
             long revision = 0L;
 
@@ -294,20 +295,20 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
             // we don't support method level LdapServer so
             // we check for the presence of Class level LdapServer first 
-            if( classLdapServer != null )
+            if ( classLdapServer != null )
             {
                 directoryService = classLdapServer.getDirectoryService();
-                
+
                 revision = getCurrentRevision( directoryService );
-                
+
                 DSAnnotationProcessor.applyLdifs( methodDescription, directoryService );
             }
-            else if( classKdcServer != null )
+            else if ( classKdcServer != null )
             {
                 directoryService = classKdcServer.getDirectoryService();
-                
+
                 revision = getCurrentRevision( directoryService );
-                
+
                 DSAnnotationProcessor.applyLdifs( methodDescription, directoryService );
             }
             else if ( methodDS != null )
@@ -316,49 +317,48 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 DSAnnotationProcessor.applyLdifs( suiteDescription, methodDS );
                 DSAnnotationProcessor.applyLdifs( classDescription, methodDS );
                 DSAnnotationProcessor.applyLdifs( methodDescription, methodDS );
-                
+
                 directoryService = methodDS;
             }
             else if ( classDS != null )
             {
                 directoryService = classDS;
-                
+
                 // apply the method LDIFs, and tag for reversion
                 revision = getCurrentRevision( directoryService );
-                
+
                 DSAnnotationProcessor.applyLdifs( methodDescription, directoryService );
             }
             else if ( suite != null )
             {
                 directoryService = suite.getDirectoryService();
-                
+
                 // apply the method LDIFs, and tag for reversion
                 revision = getCurrentRevision( directoryService );
-                
+
                 DSAnnotationProcessor.applyLdifs( methodDescription, directoryService );
             }
 
-            
             // At this point, we know which service to use.
             // Inject it into the class
             Field dirServiceField = getTestClass().getJavaClass().getField( DIRECTORY_SERVICE_FIELD_NAME );
             dirServiceField.set( getTestClass().getJavaClass(), directoryService );
-            
+
             // if we run this class in a suite, tell it to the test
             Field runInSuiteField = getTestClass().getJavaClass().getField( IS_RUN_IN_SUITE_FIELD_NAME );
             runInSuiteField.set( getTestClass().getJavaClass(), suite != null );
-            
+
             Field ldapServerField = getTestClass().getJavaClass().getField( LDAP_SERVER_FIELD_NAME );
 
-            if( classLdapServer != null )
+            if ( classLdapServer != null )
             {
                 dirServiceField.set( getTestClass().getJavaClass(), classLdapServer.getDirectoryService() );
                 ldapServerField.set( getTestClass().getJavaClass(), classLdapServer );
             }
-            else if( classKdcServer != null )
+            else if ( classKdcServer != null )
             {
                 dirServiceField.set( getTestClass().getJavaClass(), classKdcServer.getDirectoryService() );
-                
+
                 Field kdcServerField = getTestClass().getJavaClass().getField( KDC_SERVER_FIELD_NAME );
                 kdcServerField.set( getTestClass().getJavaClass(), classKdcServer );
             }
@@ -381,9 +381,9 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
         }
         catch ( Exception e )
         {
-            LOG.error( I18n.err( I18n.ERR_182, method ) );
+            LOG.error( I18n.err( I18n.ERR_182, method.getName() ) );
             LOG.error( "", e );
-            notifier.fireTestFailure( new Failure(getDescription(), e) );
+            notifier.fireTestFailure( new Failure( getDescription(), e ) );
         }
     }
 
@@ -406,22 +406,22 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
     {
         return suite;
     }
-    
-    
+
+
     private long getCurrentRevision( DirectoryService dirService ) throws Exception
     {
-        if( ( dirService != null ) && ( dirService.getChangeLog().isEnabled() ) )
+        if ( ( dirService != null ) && ( dirService.getChangeLog().isEnabled() ) )
         {
-            long revision = dirService.getChangeLog().getCurrentRevision(); 
+            long revision = dirService.getChangeLog().getCurrentRevision();
             LOG.debug( "Create revision {}", revision );
 
             return revision;
         }
-        
+
         return 0;
     }
-    
-    
+
+
     private void revert( DirectoryService dirService, long revision ) throws Exception
     {
         if ( dirService == null )
