@@ -50,15 +50,17 @@
       <groupId>${groupId}</groupId>
       <version>${version}</version>
     </dependency>  
+
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-ldif-partition</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
     </dependency> 
+
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-jdbm-partition</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
     </dependency>      
   </dependencies>
 
