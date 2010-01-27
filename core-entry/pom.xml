@@ -26,6 +26,7 @@
     <artifactId>apacheds-parent</artifactId>
     <version>1.5.6-SNAPSHOT</version>
   </parent>
+  
   <artifactId>apacheds-core-entry</artifactId>
   <name>ApacheDS Core Entry</name>
 
@@ -37,9 +38,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-i18n</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
     </dependency>
   </dependencies>
 

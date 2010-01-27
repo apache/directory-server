@@ -34,11 +34,10 @@
 
   <dependencies>
     <dependency>
+      <artifactId>apacheds-xdbm-base</artifactId>
       <groupId>${groupId}</groupId>
       <version>${version}</version>
-      <artifactId>apacheds-xdbm-base</artifactId>
     </dependency>
   </dependencies>
-  
 </project>
 

@@ -26,6 +26,7 @@
     <artifactId>apacheds-parent</artifactId>
     <version>1.5.6-SNAPSHOT</version>
   </parent>
+  
   <artifactId>apacheds-core-integ</artifactId>
   <name>ApacheDS Core Integration</name>
   <packaging>jar</packaging>  
@@ -36,27 +37,29 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-i18n</artifactId>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
+    </dependency>  
+
+    <dependency>
+      <artifactId>apacheds-test-framework</artifactId>
+      <groupId>${groupId}</groupId>
       <version>${version}</version>
     </dependency>  
 
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
+      <version>${commons.io.version}</version>
     </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-test-framework</artifactId>
-      <version>${version}</version>
-    </dependency>  
   </dependencies>
 
   <profiles>

@@ -37,21 +37,21 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-i18n</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-kerberos-shared</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-xdbm-tools</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
     </dependency>
   </dependencies>
 
@@ -72,6 +72,5 @@
       </plugin>
     </plugins>
   </build>
-
 </project>
 

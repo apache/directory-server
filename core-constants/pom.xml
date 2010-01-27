@@ -26,6 +26,7 @@
     <artifactId>apacheds-parent</artifactId>
     <version>1.5.6-SNAPSHOT</version>
   </parent>
+  
   <artifactId>apacheds-core-constants</artifactId>
   <name>ApacheDS Core Constants</name>
   <packaging>jar</packaging>

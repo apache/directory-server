@@ -47,7 +47,7 @@
     <dependency>
       <artifactId>apacheds-core-api</artifactId>
       <groupId>${groupId}</groupId>
-      <version>${pom.version}</version>
+      <version>${version}</version>
     </dependency>
 
     <dependency>
@@ -65,6 +65,7 @@
     <dependency>
       <groupId>bouncycastle</groupId>
       <artifactId>bcprov-jdk15</artifactId>
+      <version>${bcprov.version}</version>
     </dependency>
   </dependencies>
 

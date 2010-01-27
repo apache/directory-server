@@ -26,6 +26,7 @@
     <artifactId>apacheds-parent</artifactId>
     <version>1.5.6-SNAPSHOT</version>
   </parent>
+  
   <artifactId>apacheds-protocol-dns</artifactId>
   <name>ApacheDS Protocol Dns</name>
 
@@ -36,24 +37,23 @@
   <packaging>jar</packaging>  
 
   <dependencies>
-
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-i18n</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
     </dependency>
 
     <!-- TODO remove dependency on JNDI core -->
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core-jndi</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-protocol-shared</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
     </dependency>
   </dependencies>
 
@@ -74,6 +74,5 @@
       </plugin>
     </plugins>
   </build>
-
 </project>
 

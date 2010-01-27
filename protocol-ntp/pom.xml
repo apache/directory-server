@@ -26,6 +26,7 @@
     <artifactId>apacheds-parent</artifactId>
     <version>1.5.6-SNAPSHOT</version>
   </parent>
+  
   <artifactId>apacheds-protocol-ntp</artifactId>
   <name>ApacheDS Protocol Ntp</name>
 
@@ -37,14 +38,15 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-protocol-shared</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
     </dependency>
 
     <dependency>
       <groupId>commons-net</groupId>
       <artifactId>commons-net</artifactId>
+      <version>${commons.net.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -66,6 +68,5 @@
       </plugin>
     </plugins>
   </build>
-
 </project>
 

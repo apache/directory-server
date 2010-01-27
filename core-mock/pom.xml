@@ -26,21 +26,20 @@
     <artifactId>apacheds-parent</artifactId>
     <version>1.5.6-SNAPSHOT</version>
   </parent>
+
   <artifactId>apacheds-core-mock</artifactId>
   <name>ApacheDS Core Mock</name>
-
   <description>
     Some commonly used mock objects that have more than bare minimum of functionality.
   </description>
+  <packaging>jar</packaging>
   
   <dependencies>
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core-api</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
     </dependency>
   </dependencies>
-
-  <packaging>jar</packaging>
 </project>
 
