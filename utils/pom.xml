@@ -26,6 +26,7 @@
     <artifactId>apacheds-parent</artifactId>
     <version>1.5.6-SNAPSHOT</version>
   </parent>
+  
   <artifactId>apacheds-utils</artifactId>
   <name>ApacheDS Utils</name>
   <packaging>jar</packaging>
@@ -36,15 +37,15 @@
 
   <dependencies>
     <dependency>
-      <groupId>${pom.groupId}</groupId>
       <artifactId>apacheds-core-constants</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
     </dependency>
 
     <dependency>
-      <groupId>${pom.groupId}</groupId>
       <artifactId>apacheds-core-entry</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
     </dependency>
   </dependencies>
 </project>

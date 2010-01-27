@@ -6,6 +6,7 @@
     <artifactId>apacheds-parent</artifactId>
     <version>1.5.6-SNAPSHOT</version>
   </parent>
+  
   <artifactId>apacheds-test-framework</artifactId>
   <name>ApacheDS Test Framework</name>
   <packaging>jar</packaging>
@@ -18,24 +19,25 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.7</version>
+      <version>${junit.version}</version>
     </dependency>
 
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
+      <version>${commons.io.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-i18n</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
     </dependency>  
 
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-server-annotations</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
     </dependency>  
   </dependencies>
 </project>

@@ -26,6 +26,7 @@
     <artifactId>apacheds-parent</artifactId>
     <version>1.5.6-SNAPSHOT</version>
   </parent>
+  
   <artifactId>apacheds-server-xml</artifactId>
   <name>ApacheDS Server XML File</name>
   <packaging>jar</packaging>
@@ -44,60 +45,65 @@
   
   <dependencies>
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-xbean-spring</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-protocol-changepw</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-jdbm-partition</artifactId>
       <version>${pom.version}</version>
       <scope>test</scope>
     </dependency>
+    
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-protocol-kerberos</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
       <scope>test</scope>
     </dependency>
+    
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-protocol-dns</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
       <scope>test</scope>
     </dependency>
+    
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-protocol-ldap</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
       <scope>test</scope>
     </dependency>
+    
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-protocol-ntp</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-server-jndi</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.directory.server.http</groupId>
       <artifactId>apacheds-http-integration</artifactId>
-      <version>${pom.version}</version>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
       <scope>test</scope>
     </dependency>
 
