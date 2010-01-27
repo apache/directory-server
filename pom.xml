@@ -41,6 +41,15 @@
     <!-- Set versions for depending projects -->
     <org.apache.directory.shared.version>0.9.18-SNAPSHOT</org.apache.directory.shared.version>
     <skin.version>1.0.1</skin.version>
+    
+    <!-- Set versions for depening jars -->
+    <bcprov.version>140</bcprov.version>
+    <commons.io.version>1.4</commons.io.version>
+    <commons.net.version>2.0</commons.net.version>
+    <jetty.version>6.1.14</jetty.version>
+    <junit.version>4.7</junit.version>
+    <ldapsdk.version>4.1</ldapsdk.version>
+    <mina.core.version>2.0.0-RC1</mina.core.version>
   </properties>
 
   <url>http://directory.apache.org/apacheds/1.5</url>
