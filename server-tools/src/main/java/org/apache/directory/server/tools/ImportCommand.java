@@ -41,7 +41,6 @@ import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.tlv.TLVStateEnum;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.LdapDecoder;
 import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.LdapResultCodec;
@@ -108,7 +107,7 @@ public class ImportCommand extends ToolCommand
 
     private IAsn1Container ldapMessageContainer = new LdapMessageContainer();
 
-    private Asn1Decoder ldapDecoder = new LdapDecoder();
+    private Asn1Decoder ldapDecoder = new Asn1Decoder();
 
 
     /**
