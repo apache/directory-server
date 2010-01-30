@@ -38,8 +38,8 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
@@ -64,76 +64,70 @@ public class DSAnnotationProcessor
     /**
      * Create the DirectoryService
      */
-    private static DirectoryService createDS( CreateDS dsBuilder )
+    private static DirectoryService createDS( CreateDS dsBuilder ) throws Exception
     {
-        try
+        LOG.debug( "Starting DS {}...", dsBuilder.name() );
+        Class<?> factory = dsBuilder.factory();
+        DirectoryServiceFactory dsf = ( DirectoryServiceFactory ) factory.newInstance();
+
+        DirectoryService service = dsf.getDirectoryService();
+        service.setAccessControlEnabled( dsBuilder.enableAccessControl() );
+        service.setAllowAnonymousAccess( dsBuilder.allowAnonAccess() );
+        service.getChangeLog().setEnabled( dsBuilder.enableChangeLog() );
+
+        List<Interceptor> interceptorList = service.getInterceptors();
+        for ( Class<?> interceptorClass : dsBuilder.additionalInterceptors() )
         {
-            LOG.debug( "Starting DS {}...", dsBuilder.name() );
-            Class<?> factory = dsBuilder.factory();
-            DirectoryServiceFactory dsf = ( DirectoryServiceFactory ) factory.newInstance();
+            interceptorList.add( ( Interceptor ) interceptorClass.newInstance() );
+        }
 
-            DirectoryService service = dsf.getDirectoryService();
-            service.setAccessControlEnabled( dsBuilder.enableAccessControl() );
-            service.setAllowAnonymousAccess( dsBuilder.allowAnonAccess() );
-            service.getChangeLog().setEnabled( dsBuilder.enableChangeLog() );
+        service.setInterceptors( interceptorList );
 
-            List<Interceptor> interceptorList = service.getInterceptors();
-            for ( Class<?> interceptorClass : dsBuilder.additionalInterceptors() )
+        dsf.init( dsBuilder.name() );
+
+        // Process the Partition, if any.
+        for ( CreatePartition createPartition : dsBuilder.partitions() )
+        {
+            // Create the partition
+            Partition partition = createPartition.type().newInstance();
+            partition.setId( createPartition.name() );
+            partition.setSuffix( createPartition.suffix() );
+            partition.setSchemaManager( service.getSchemaManager() );
+
+            if ( partition instanceof BTreePartition )
             {
-                interceptorList.add( ( Interceptor ) interceptorClass.newInstance() );
-            }
+                BTreePartition btreePartition = ( BTreePartition ) partition;
+                btreePartition.setCacheSize( createPartition.cacheSize() );
+                btreePartition.setPartitionDir( new File( service.getWorkingDirectory(), createPartition.name() ) );
 
-            service.setInterceptors( interceptorList );
+                // Process the indexes if any
+                CreateIndex[] indexes = createPartition.indexes();
 
-            dsf.init( dsBuilder.name() );
-
-            // Process the Partition, if any.
-            for ( CreatePartition createPartition : dsBuilder.partitions() )
-            {
-                // Create the partition
-                Partition partition = createPartition.type().newInstance();
-                partition.setId( createPartition.name() );
-                partition.setSuffix( createPartition.suffix() );
-                partition.setSchemaManager( service.getSchemaManager() );
-
-                if ( partition instanceof JdbmPartition )
+                // TODO: use index factory
+                for ( CreateIndex createIndex : indexes )
                 {
-                    JdbmPartition jdbmPartition = ( JdbmPartition ) partition;
-                    jdbmPartition.setCacheSize( createPartition.cacheSize() );
-                    jdbmPartition.setPartitionDir( new File( service.getWorkingDirectory(), createPartition.name() ) );
+                    Index<String, ServerEntry> index = new JdbmIndex<String, ServerEntry>( createIndex.attribute() );
+                    index.setCacheSize( createIndex.cacheSize() );
 
-                    // Process the indexes if any
-                    CreateIndex[] indexes = createPartition.indexes();
-
-                    for ( CreateIndex createIndex : indexes )
-                    {
-                        Index<String, ServerEntry> index = new JdbmIndex<String, ServerEntry>( createIndex.attribute() );
-                        index.setCacheSize( createIndex.cacheSize() );
-
-                        jdbmPartition.addIndexedAttributes( index );
-                    }
-                }
-
-                partition.setSchemaManager( service.getSchemaManager() );
-
-                // Inject the partition into the DirectoryService
-                service.addPartition( partition );
-
-                // Last, process the context entry
-                ContextEntry contextEntry = createPartition.contextEntry();
-
-                if ( contextEntry != null )
-                {
-                    injectEntries( service, contextEntry.entryLdif() );
+                    btreePartition.addIndexedAttributes( index );
                 }
             }
 
-            return service;
+            partition.setSchemaManager( service.getSchemaManager() );
+
+            // Inject the partition into the DirectoryService
+            service.addPartition( partition );
+
+            // Last, process the context entry
+            ContextEntry contextEntry = createPartition.contextEntry();
+
+            if ( contextEntry != null )
+            {
+                injectEntries( service, contextEntry.entryLdif() );
+            }
         }
-        catch ( Exception e )
-        {
-            return null;
-        }
+
+        return service;
     }
 
 
@@ -143,24 +137,17 @@ public class DSAnnotationProcessor
      * @param description The annotations containing the info from which we will create the DS
      * @return A valid DS
      */
-    public static DirectoryService getDirectoryService( Description description )
+    public static DirectoryService getDirectoryService( Description description ) throws Exception
     {
-        try
-        {
-            CreateDS dsBuilder = description.getAnnotation( CreateDS.class );
+        CreateDS dsBuilder = description.getAnnotation( CreateDS.class );
 
-            if ( dsBuilder != null )
-            {
-                return createDS( dsBuilder );
-            }
-            else
-            {
-                LOG.debug( "No {} DS.", description.getDisplayName() );
-                return null;
-            }
-        }
-        catch ( Exception e )
+        if ( dsBuilder != null )
         {
+            return createDS( dsBuilder );
+        }
+        else
+        {
+            LOG.debug( "No {} DS.", description.getDisplayName() );
             return null;
         }
     }

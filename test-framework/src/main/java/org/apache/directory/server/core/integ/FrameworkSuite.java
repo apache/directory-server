@@ -28,6 +28,7 @@ import org.apache.directory.server.factory.ServerAnnotationProcessor;
 import org.apache.directory.server.ldap.LdapServer;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
+import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.Suite;
 import org.junit.runners.model.InitializationError;
@@ -69,7 +70,7 @@ public class FrameworkSuite extends Suite
     /**
      * Start and initialize the DS
      */
-    private void startDS( Description description )
+    private void startDS( Description description ) throws Exception
     {
         // Initialize and start the DS before running any test, if we have a DS annotation
         directoryService = DSAnnotationProcessor.getDirectoryService( description );
@@ -77,14 +78,7 @@ public class FrameworkSuite extends Suite
         // and inject LDIFs if needed
         if ( directoryService != null )
         {
-            try
-            {
-                DSAnnotationProcessor.applyLdifs( description, directoryService );
-            }
-            catch ( Exception e )
-            {
-                return;
-            }
+            DSAnnotationProcessor.applyLdifs( description, directoryService );
         }
     }
     
@@ -121,16 +115,9 @@ public class FrameworkSuite extends Suite
     }
 
     
-    private void startLdapServer( Description description )
+    private void startLdapServer( Description description ) throws Exception
     {
-        try
-        {
-            ldapServer = ServerAnnotationProcessor.getLdapServer( description, directoryService, 1024 );
-        }
-        catch ( Exception e )
-        {
-            e.printStackTrace();
-        }
+        ldapServer = ServerAnnotationProcessor.getLdapServer( description, directoryService, 1024 );
     }
     
     
@@ -149,23 +136,30 @@ public class FrameworkSuite extends Suite
     @Override
     public void run( final RunNotifier notifier )
     {
-        // Create and initialize the Suite DS
-        startDS( getDescription() );
-        
-        // Add the partitions to this DS
-        addPartitions( getDescription() );
-        
-        // create and initialize the suite LdapServer
-        startLdapServer( getDescription() );
-        
-        // Run the suite
-        super.run( notifier );
-        
-        // Stop the LdapServer
-        stopLdapServer();
-        
-        // last, stop the DS if we have one
-        stopDS();
+        try
+        {
+            // Create and initialize the Suite DS
+            startDS( getDescription() );
+            
+            // Add the partitions to this DS
+            addPartitions( getDescription() );
+            
+            // create and initialize the suite LdapServer
+            startLdapServer( getDescription() );
+            
+            // Run the suite
+            super.run( notifier );
+            
+            // Stop the LdapServer
+            stopLdapServer();
+            
+            // last, stop the DS if we have one
+            stopDS();
+        }
+        catch ( Exception e )
+        {
+            notifier.fireTestFailure(new Failure(getDescription(), e));
+        }
     }
 
     /**
