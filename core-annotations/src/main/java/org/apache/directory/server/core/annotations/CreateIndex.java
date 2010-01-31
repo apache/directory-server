@@ -24,6 +24,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.xdbm.Index;
 
 /**
  * An annotation for the Index creation. It's used when we need to inject an
@@ -47,8 +48,8 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 @Target( {ElementType.METHOD, ElementType.TYPE } )
 public @interface CreateIndex
 {
-    /** The Factory to use to create an Index */
-    Class<?> factory() default JdbmIndex.class;
+    /** The index implementation class */
+    Class<? extends Index> type() default JdbmIndex.class;
     
     /** The cache size */
     int cacheSize() default 1000;

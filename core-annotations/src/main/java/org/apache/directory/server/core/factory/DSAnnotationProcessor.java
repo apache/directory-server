@@ -39,7 +39,6 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
@@ -103,12 +102,11 @@ public class DSAnnotationProcessor
                 // Process the indexes if any
                 CreateIndex[] indexes = createPartition.indexes();
 
-                // TODO: use index factory
                 for ( CreateIndex createIndex : indexes )
                 {
-                    Index<String, ServerEntry> index = new JdbmIndex<String, ServerEntry>( createIndex.attribute() );
+                    Index<?, ServerEntry> index = createIndex.type().newInstance();
+                    index.setAttributeId( createIndex.attribute() );
                     index.setCacheSize( createIndex.cacheSize() );
-
                     btreePartition.addIndexedAttributes( index );
                 }
             }
