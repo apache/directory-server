@@ -22,9 +22,9 @@ package org.apache.directory.server.ldap.handlers;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.message.InternalAddRequest;
-import org.apache.directory.shared.ldap.message.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.internal.InternalAddRequest;
+import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

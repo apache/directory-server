@@ -22,7 +22,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.message.InternalUnbindRequest;
+import org.apache.directory.shared.ldap.message.internal.InternalUnbindRequest;
 
 
 /**

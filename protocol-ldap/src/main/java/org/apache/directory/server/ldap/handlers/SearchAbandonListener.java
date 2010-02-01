@@ -26,7 +26,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.message.AbandonListener;
-import org.apache.directory.shared.ldap.message.InternalAbandonableRequest;
+import org.apache.directory.shared.ldap.message.internal.InternalAbandonableRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

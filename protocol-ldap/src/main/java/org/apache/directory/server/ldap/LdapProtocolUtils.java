@@ -21,8 +21,8 @@ package org.apache.directory.server.ldap;
 
 
 import org.apache.directory.server.core.interceptor.context.OperationContext;
-import org.apache.directory.shared.ldap.message.InternalRequest;
-import org.apache.directory.shared.ldap.message.InternalResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalRequest;
+import org.apache.directory.shared.ldap.message.internal.InternalResponse;
 
 
 /**
