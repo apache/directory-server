@@ -20,6 +20,7 @@
 package org.apache.directory.server.operations.add;
 
 
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getClientApiConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
@@ -58,6 +59,8 @@ import netscape.ldap.LDAPResponse;
 import netscape.ldap.LDAPResponseListener;
 import netscape.ldap.LDAPSearchConstraints;
 
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -76,6 +79,9 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.Csn;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -280,35 +286,33 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddEntryWithTwoDescriptions() throws Exception
     {
-        LDAPConnection con = getWiredConnection( ldapServer );
-        LDAPAttributeSet attrs = new LDAPAttributeSet();
-        LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
-            { "top", "person" } );
-        attrs.add( ocls );
-        attrs.add( new LDAPAttribute( "sn", "Bush" ) );
-        attrs.add( new LDAPAttribute( "cn", "Kate Bush" ) );
+        LdapConnection con = getClientApiConnection( ldapServer );
+        
+        String dn = "cn=Kate Bush," + BASE;
+        Entry kate = new DefaultClientEntry( new LdapDN( dn ) );
+
+        kate.add( "objectclass", "top", "person" );
+        kate.add( "sn", "Bush" );
+        kate.add( "cn", "Kate Bush" );
 
         String descr[] =
             { "a British singer-songwriter with an expressive four-octave voice",
                 "one of the most influential female artists of the twentieth century" };
 
-        attrs.add( new LDAPAttribute( "description", descr ) );
-
-        String dn = "cn=Kate Bush," + BASE;
-        LDAPEntry kate = new LDAPEntry( dn, attrs );
+        kate.add( "description", descr );
 
         con.add( kate );
 
         // Analyze entry and description attribute
-        LDAPEntry kateReloaded = con.read( dn );
+        Entry kateReloaded = ( ( SearchResultEntry ) con.lookup( dn ) ).getEntry();
         assertNotNull( kateReloaded );
-        LDAPAttribute attr = kateReloaded.getAttribute( "description" );
+        EntryAttribute attr = kateReloaded.get( "description" );
         assertNotNull( attr );
-        assertEquals( 2, attr.getStringValueArray().length );
+        assertEquals( 2, attr.size() );
 
         // Remove entry
         con.delete( dn );
-        con.disconnect();
+        con.unBind();
     }
 
 
@@ -322,36 +326,33 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddEntryWithTwoDescriptionsVariant() throws Exception
     {
-        LDAPConnection con = getWiredConnection( ldapServer );
-        LDAPAttributeSet attrs = new LDAPAttributeSet();
-        LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
-            { "top", "person" } );
-        attrs.add( ocls );
-        attrs.add( new LDAPAttribute( "sn", "Bush" ) );
-        attrs.add( new LDAPAttribute( "cn", "Kate Bush" ) );
+        LdapConnection con = getClientApiConnection( ldapServer );
+
+        String dn = "cn=Kate Bush," + BASE;
+        Entry kate = new DefaultClientEntry( new LdapDN( dn ) );
+        kate.add( "objectclass", "top", "person" );
+        kate.add( "sn", "Bush" );
+        kate.add( "cn", "Kate Bush" );
 
         String descr[] =
             { "a British singer-songwriter with an expressive four-octave voice",
                 "one of the most influential female artists of the twentieth century" };
 
-        attrs.add( new LDAPAttribute( "description", descr[0] ) );
-        attrs.add( new LDAPAttribute( "description", descr[1] ) );
-
-        String dn = "cn=Kate Bush," + BASE;
-        LDAPEntry kate = new LDAPEntry( dn, attrs );
+        kate.add( "description", descr[0] );
+        kate.add( "description", descr[1] );
 
         con.add( kate );
 
         // Analyze entry and description attribute
-        LDAPEntry kateReloaded = con.read( dn );
+        Entry kateReloaded = ( (SearchResultEntry ) con.lookup( dn ) ).getEntry();
         assertNotNull( kateReloaded );
-        LDAPAttribute attr = kateReloaded.getAttribute( "description" );
+        EntryAttribute attr = kateReloaded.get( "description" );
         assertNotNull( attr );
-        assertEquals( 2, attr.getStringValueArray().length );
+        assertEquals( 2, attr.size() );
 
         // Remove entry
         con.delete( dn );
-        con.disconnect();
+        con.unBind();
     }
 
 
@@ -365,36 +366,34 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddEntryWithTwoDescriptionsSecondVariant() throws Exception
     {
-        LDAPConnection con = getWiredConnection( ldapServer );
-        LDAPAttributeSet attrs = new LDAPAttributeSet();
-        LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
-            { "top", "person" } );
-        attrs.add( ocls );
-        attrs.add( new LDAPAttribute( "sn", "Bush" ) );
+        LdapConnection con = getClientApiConnection( ldapServer );
+
+        String dn = "cn=Kate Bush," + BASE;
+        Entry kate = new DefaultClientEntry( new LdapDN( dn ) );
+        
+        kate.add( "objectclass", "top", "person" );
+        kate.add( "sn", "Bush" );
 
         String descr[] =
             { "a British singer-songwriter with an expressive four-octave voice",
                 "one of the most influential female artists of the twentieth century" };
 
-        attrs.add( new LDAPAttribute( "description", descr[0] ) );
-        attrs.add( new LDAPAttribute( "cn", "Kate Bush" ) );
-        attrs.add( new LDAPAttribute( "description", descr[1] ) );
-
-        String dn = "cn=Kate Bush," + BASE;
-        LDAPEntry kate = new LDAPEntry( dn, attrs );
+        kate.add( "description", descr[0] );
+        kate.add( "cn", "Kate Bush" );
+        kate.add( "description", descr[1] );
 
         con.add( kate );
 
         // Analyze entry and description attribute
-        LDAPEntry kateReloaded = con.read( dn );
+        Entry kateReloaded = ( ( SearchResultEntry ) con.lookup( dn ) ).getEntry();
         assertNotNull( kateReloaded );
-        LDAPAttribute attr = kateReloaded.getAttribute( "description" );
+        EntryAttribute attr = kateReloaded.get( "description" );
         assertNotNull( attr );
-        assertEquals( 2, attr.getStringValueArray().length );
+        assertEquals( 2, attr.size() );
 
         // Remove entry
         con.delete( dn );
-        con.disconnect();
+        con.unBind();
     }
 
     
@@ -1228,45 +1227,43 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddEntryUUIDAndCSNAttributes() throws Exception
     {
-        LDAPConnection con = getWiredConnection( ldapServer );
-        LDAPAttributeSet attrs = new LDAPAttributeSet();
-        LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
-            { "top", "person" } );
-        attrs.add( ocls );
-        attrs.add( new LDAPAttribute( "sn", "Bush" ) );
-        attrs.add( new LDAPAttribute( "cn", "Kate Bush" ) );
+        LdapConnection con = getClientApiConnection( ldapServer );
+        
+        String dn = "cn=Kate Bush," + BASE;
+        Entry entry = new DefaultClientEntry( new LdapDN( dn ) );
+        entry.add( "objectclass", "top", "person" );
+        entry.add( "sn", "Bush" );
+        entry.add( "cn", "Kate Bush" );
 
         String descr = "a British singer-songwriter with an expressive four-octave voice";
-        attrs.add( new LDAPAttribute( "description", descr ) );
+        entry.add( "description", descr );
 
         UUID uuid = UUID.randomUUID();
-        attrs.add( new LDAPAttribute( SchemaConstants.ENTRY_UUID_AT, uuid.toString() ) );
+        entry.add( SchemaConstants.ENTRY_UUID_AT, uuid.toString() );
 
         CsnFactory csnFac = new CsnFactory( 0 );
         Csn csn = csnFac.newInstance();
-        attrs.add( new LDAPAttribute( SchemaConstants.ENTRY_CSN_AT, csn.toString() ) );
+        entry.add( SchemaConstants.ENTRY_CSN_AT, csn.toString() );
         
-        String dn = "cn=Kate Bush," + BASE;
-        LDAPEntry kate = new LDAPEntry( dn, attrs );
-
-        con.add( kate );
+        con.add( entry );
 
         // Analyze entry and description attribute
-        LDAPEntry addedEntry = con.read( dn, new String[]{ "*", "+"} );
+        SearchResultEntry resp = ( SearchResultEntry ) con.lookup( dn, "*", "+" );
+        Entry addedEntry = resp.getEntry();
         assertNotNull( addedEntry );
 
-        LDAPAttribute attr = addedEntry.getAttribute( SchemaConstants.ENTRY_UUID_AT );
+        EntryAttribute attr = addedEntry.get( SchemaConstants.ENTRY_UUID_AT );
         assertNotNull( attr );
         
-        assertEquals( uuid.toString(), attr.getStringValueArray()[0] );
+        assertEquals( uuid.toString(), attr.getString() );
 
-        attr = addedEntry.getAttribute( SchemaConstants.ENTRY_CSN_AT );
+        attr = addedEntry.get( SchemaConstants.ENTRY_CSN_AT );
         assertNotNull( attr );
-        assertEquals( csn.toString(), new String( attr.getStringValueArray()[0] ) );
+        assertEquals( csn.toString(), attr.getString() );
         
         // Remove entry
         con.delete( dn );
-        con.disconnect();
+        con.unBind();
     }
 
     

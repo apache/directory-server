@@ -27,6 +27,7 @@ import javax.naming.ldap.LdapContext;
 
 import netscape.ldap.LDAPConnection;
 
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.server.ldap.LdapServer;
@@ -46,7 +47,6 @@ public class ServerIntegrationUtils extends IntegrationUtils
     private static final int DEFAULT_PORT = 10389;
     private static final String DEFAULT_ADMIN = ServerDNConstants.ADMIN_SYSTEM_DN;
     private static final String DEFAULT_PASSWORD = "secret";
-
 
 
     /**
@@ -73,7 +73,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
      * @return an LdapContext as the administrative user to the RootDSE
      * @throws Exception if there are problems creating the context
      */
-    public static LdapContext getWiredContext( LdapServer ldapServer, String principalDn, String password ) 
+    public static LdapContext getWiredContext( LdapServer ldapServer, String principalDn, String password )
         throws Exception
     {
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
@@ -108,7 +108,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
         return new InitialLdapContext( env, JndiUtils.toJndiControls( controls ) );
     }
 
-    
+
     /**
      * Creates a JNDI LdapContext with a connection over the wire using the 
      * SUN LDAP provider.  The connection is made using the administrative 
@@ -131,7 +131,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
         return new InitialLdapContext( env, null );
     }
 
-    
+
     /**
      * Creates a JNDI LdapContext with a connection over the wire using the 
      * SUN LDAP provider.  The connection is made using the administrative 
@@ -154,7 +154,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
         return new InitialLdapContext( env, null );
     }
 
-    
+
     /**
      * Creates a JNDI LdapContext with a connection over the wire using the 
      * SUN LDAP provider.  The connection is made using the administrative 
@@ -177,18 +177,18 @@ public class ServerIntegrationUtils extends IntegrationUtils
         return new InitialLdapContext( env, null );
     }
 
-    
+
     public static LDAPConnection getWiredConnection( LdapServer ldapServer ) throws Exception
     {
         String testServer = System.getProperty( "ldap.test.server", null );
-        
+
         if ( testServer == null )
         {
             return getWiredConnection( ldapServer, ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
         }
-        
+
         LOG.debug( "ldap.test.server = " + testServer );
-        
+
         String admin = System.getProperty( testServer + ".admin", DEFAULT_ADMIN );
         LOG.debug( testServer + ".admin = " + admin );
 
@@ -200,18 +200,27 @@ public class ServerIntegrationUtils extends IntegrationUtils
 
         int port = Integer.parseInt( System.getProperty( testServer + ".port", Integer.toString( DEFAULT_PORT ) ) );
         LOG.debug( testServer + ".port = " + port );
-        
+
         LDAPConnection conn = new LDAPConnection();
         conn.connect( 3, host, port, admin, password );
         return conn;
     }
 
-    
-    public static LDAPConnection getWiredConnection( LdapServer ldapServer, String principalDn, String password ) 
+
+    public static LDAPConnection getWiredConnection( LdapServer ldapServer, String principalDn, String password )
         throws Exception
     {
         LDAPConnection conn = new LDAPConnection();
         conn.connect( 3, "localhost", ldapServer.getPort(), principalDn, password );
         return conn;
     }
+
+
+    public static LdapConnection getClientApiConnection( LdapServer ldapServer ) throws Exception
+    {
+        LdapConnection conn = new LdapConnection( "localhost", ldapServer.getPort() );
+        conn.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
+        return conn;
+    }
+
 }
