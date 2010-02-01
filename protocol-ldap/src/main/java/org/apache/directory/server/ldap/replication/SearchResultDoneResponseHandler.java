@@ -22,10 +22,10 @@ package org.apache.directory.server.ldap.replication;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.codec.controls.CodecControl;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlCodec;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControl;
 import org.apache.directory.shared.ldap.codec.search.SearchResultDoneCodec;
 import org.apache.directory.shared.ldap.message.InternalSearchResponseDone;
+import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,8 +53,8 @@ public class SearchResultDoneResponseHandler<T extends InternalSearchResponseDon
         SearchResultDoneCodec searchResult = (SearchResultDoneCodec)response;
         
         // Get the control
-        CodecControl control = searchResult.getCurrentControl();
-        SyncDoneValueControlCodec syncDoneCtrl = ( SyncDoneValueControlCodec ) control;
+        Control control = searchResult.getCurrentControl();
+        SyncDoneValueControl syncDoneCtrl = ( SyncDoneValueControl ) control;
 
         /** the sync cookie sent by the server */
         byte[] syncCookie;

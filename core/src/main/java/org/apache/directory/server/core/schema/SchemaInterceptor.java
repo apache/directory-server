@@ -58,7 +58,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.codec.controls.CascadeControlCodec;
+import org.apache.directory.shared.ldap.codec.controls.CascadeControl;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
@@ -1405,7 +1405,7 @@ public class SchemaInterceptor extends BaseInterceptor
             opContext.setModItems( cleanMods );
             
             // Now that the entry has been modified, update the SSSE
-            schemaSubEntryManager.modifySchemaSubentry(  opContext, opContext.hasRequestControl( CascadeControlCodec.CONTROL_OID ) );
+            schemaSubEntryManager.modifySchemaSubentry(  opContext, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
             
             return;
         }

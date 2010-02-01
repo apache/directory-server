@@ -23,7 +23,7 @@ package org.apache.directory.server.core.interceptor.context;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControlCodec;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.InternalModifyDnRequest;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -91,7 +91,7 @@ public class RenameOperationContext extends AbstractChangeOperationContext
         this.delOldDn = modifyDnRequest.getDeleteOldRdn();
         this.requestControls = modifyDnRequest.getControls();
         
-        if ( requestControls.containsKey( ManageDsaITControlCodec.CONTROL_OID ) )
+        if ( requestControls.containsKey( ManageDsaITControl.CONTROL_OID ) )
         {
             ignoreReferral();
         }

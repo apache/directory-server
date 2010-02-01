@@ -60,7 +60,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControlCodec;
+import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.control.Control;
@@ -816,7 +816,7 @@ public class SearchIT extends AbstractLdapTestUnit
         );
         
         // prepare the subentry control to make the subentry visible
-        SubentriesControlCodec control = new SubentriesControlCodec();
+        SubentriesControl control = new SubentriesControl();
         control.setVisibility( true );
         Control[] reqControls = new Control[] { control };
         SearchControls searchControls = new SearchControls();

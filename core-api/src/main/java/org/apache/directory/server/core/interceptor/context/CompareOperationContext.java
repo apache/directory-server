@@ -21,7 +21,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControlCodec;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.message.InternalCompareRequest;
@@ -112,7 +112,7 @@ public class CompareOperationContext extends AbstractOperationContext
         this.value = compareRequest.getAssertionValue();
         this.requestControls = compareRequest.getControls();
         
-        if ( requestControls.containsKey( ManageDsaITControlCodec.CONTROL_OID ) )
+        if ( requestControls.containsKey( ManageDsaITControl.CONTROL_OID ) )
         {
             ignoreReferral();
         }

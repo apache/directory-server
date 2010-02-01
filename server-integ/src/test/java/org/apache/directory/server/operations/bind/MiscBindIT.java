@@ -64,7 +64,7 @@ import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHand
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
-import org.apache.directory.shared.ldap.codec.controls.CodecControlImpl;
+import org.apache.directory.shared.ldap.codec.controls.ControlImpl;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.control.Control;
@@ -351,7 +351,7 @@ public class MiscBindIT extends AbstractLdapTestUnit
     @Test
     public void testFailureWithUnsupportedControl() throws Exception
     {
-        Control unsupported = new CodecControlImpl( "1.1.1.1" )
+        Control unsupported = new ControlImpl( "1.1.1.1" )
         {
             boolean isCritical = true;
             private static final long serialVersionUID = 1L;

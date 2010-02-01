@@ -42,7 +42,7 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControlCodec;
+import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControl;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -203,7 +203,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         SearchControls controls = new SearchControls();
         controls.setCountLimit( sizeLimit );
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        PagedResultsControlCodec pagedSearchControl = new PagedResultsControlCodec();
+        PagedResultsControl pagedSearchControl = new PagedResultsControl();
         pagedSearchControl.setSize( pagedSize );
         
         ((LdapContext)ctx).setRequestControls( JndiUtils.toJndiControls( new Control[] {pagedSearchControl} ) );
@@ -218,7 +218,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     private void createNextSearchControls( DirContext ctx, byte[] cookie, int pagedSize ) 
         throws NamingException
     {
-        PagedResultsControlCodec pagedSearchControl = new PagedResultsControlCodec();
+        PagedResultsControl pagedSearchControl = new PagedResultsControl();
         pagedSearchControl.setCookie( cookie );
         pagedSearchControl.setSize( pagedSize );
         ((LdapContext)ctx).setRequestControls( JndiUtils.toJndiControls( new Control[] {pagedSearchControl} ) );

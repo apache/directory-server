@@ -21,7 +21,7 @@ package org.apache.directory.server.core.event;
 
 import java.util.ArrayList;
 
-import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControlCodec;
+import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControl;
 
 
 
@@ -72,7 +72,7 @@ public enum EventType
      * NOTE: When the changeTypes mask includes a modDN(8) we include both the 
      * RENAME and MOVE EventType objects in the array.
      * 
-     * @see PersistentSearchControlCodec
+     * @see PersistentSearchControl
      * @param psearchChangeTypes the value of the changeTypes parameter
      * @return array of EventType objects
      */

@@ -28,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
-import javax.naming.ldap.PagedResultsControl;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.ReferralManager;
@@ -41,9 +40,9 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
-import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControlCodec;
-import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControlCodec;
-import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControlCodec;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
+import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControl;
+import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControl;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -53,7 +52,6 @@ import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.InternalReferral;
 import org.apache.directory.shared.ldap.message.InternalResponse;
@@ -124,7 +122,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
      * @throws Exception if failures are encountered while searching
      */
     private void handlePersistentSearch( LdapSession session, InternalSearchRequest req, 
-        PersistentSearchControlCodec psearchControl ) throws Exception 
+        PersistentSearchControl psearchControl ) throws Exception 
     {
         /*
          * We want the search to complete first before we start listening to 
@@ -409,8 +407,10 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
                 }
             }
             
-            pagedResultsControl = new PagedResultsControl( 0, true );
-            req.getResultResponse().add( JndiUtils.fromJndiControl( pagedResultsControl ) );
+            pagedResultsControl = new PagedResultsControl();
+            pagedResultsControl.setCritical( true );
+            pagedResultsControl.setSize( 0 );
+            req.getResultResponse().add( pagedResultsControl );
 
             return;
         }
@@ -423,7 +423,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
                 // We stop here. We have to add a ResponseControl
                 // DO NOT WRITE THE RESPONSE - JUST RETURN IT
                 ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
-                req.getResultResponse().add( JndiUtils.fromJndiControl( pagedResultsControl ) );
+                req.getResultResponse().add( pagedResultsControl );
                 
                 // Stores the cursor current position 
                 pagedContext.incrementCurrentPosition( pageCount );
@@ -455,8 +455,8 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
         throws Exception
     {
         PagedResultsControl pagedResultsControl = null;
-        PagedResultsControlCodec pagedSearchControl = 
-            ( PagedResultsControlCodec )req.getControls().get( PagedResultsControlCodec.CONTROL_OID );
+        PagedResultsControl pagedSearchControl = 
+            ( PagedResultsControl )req.getControls().get( PagedResultsControl.CONTROL_OID );
         byte [] cookie= pagedSearchControl.getCookie();
         
         if ( !StringTools.isEmpty( cookie ) )
@@ -465,7 +465,10 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
             // cursor stored into the session (if any)
             int cookieValue = pagedSearchControl.getCookieValue();
             PagedSearchContext psCookie =  session.removePagedSearchContext( cookieValue );
-            pagedResultsControl = new PagedResultsControl( 0, psCookie.getCookie(), true );
+            pagedResultsControl = new PagedResultsControl();
+            pagedResultsControl.setCookie( psCookie.getCookie() );
+            pagedResultsControl.setSize( 0 );
+            pagedResultsControl.setCritical( true );
             
             // Close the cursor
             EntryFilteringCursor cursor = psCookie.getCursor();
@@ -477,14 +480,16 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
         }
         else
         {
-            pagedResultsControl = new PagedResultsControl( 0, true );
+            pagedResultsControl = new PagedResultsControl();
+            pagedResultsControl.setSize( 0 );
+            pagedResultsControl.setCritical( true );
         }
         
         // and return
         // DO NOT WRITE THE RESPONSE - JUST RETURN IT
         InternalLdapResult ldapResult = req.getResultResponse().getLdapResult();
         ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
-        req.getResultResponse().add( JndiUtils.fromJndiControl( pagedResultsControl ) );
+        req.getResultResponse().add( pagedResultsControl );
         return ( InternalSearchResponseDone ) req.getResultResponse();
     }
     
@@ -508,10 +513,10 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
     /**
      * Handle a Paged Search request.
      */
-    private InternalSearchResponseDone doPagedSearch( LdapSession session, InternalSearchRequest req, PagedResultsControlCodec control )
+    private InternalSearchResponseDone doPagedSearch( LdapSession session, InternalSearchRequest req, PagedResultsControl control )
         throws Exception
     {
-        PagedResultsControlCodec pagedSearchControl = ( PagedResultsControlCodec )control;
+        PagedResultsControl pagedSearchControl = ( PagedResultsControl )control;
         PagedResultsControl pagedResultsControl = null;
 
         // Get the size limits
@@ -593,7 +598,11 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
 
                 session.addPagedSearchContext( pagedContext );
                 cookie = pagedContext.getCookie();
-                pagedResultsControl = new PagedResultsControl( 0, cookie, true );
+                pagedResultsControl = new PagedResultsControl();
+                pagedResultsControl.setCookie( cookie );
+                pagedResultsControl.setSize( 0 );
+                pagedResultsControl.setCritical( true );
+
 
                 // No cursor : do a search.
                 cursor = session.getCoreSession().search( req );
@@ -629,7 +638,11 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
                 
                 // get the cookie
                 cookie = pagedContext.getCookie();
-                pagedResultsControl = new PagedResultsControl( 0, cookie, true );
+                pagedResultsControl = new PagedResultsControl();
+                pagedResultsControl.setCookie( cookie );
+                pagedResultsControl.setSize( 0 );
+                pagedResultsControl.setCritical( true );
+
             }
             else
             {
@@ -648,7 +661,11 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
                 session.addPagedSearchContext( pagedContext );
                 
                 cookie = pagedContext.getCookie();
-                pagedResultsControl = new PagedResultsControl( 0, cookie, true );
+                pagedResultsControl = new PagedResultsControl();
+                pagedResultsControl.setCookie( cookie );
+                pagedResultsControl.setSize( 0 );
+                pagedResultsControl.setCritical( true );
+
             }
         }
         
@@ -697,12 +714,12 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
         InternalLdapResult ldapResult = req.getResultResponse().getLdapResult();
         
         // Check if we are using the Paged Search Control
-        Object control = req.getControls().get( PagedResultsControlCodec.CONTROL_OID );
+        Object control = req.getControls().get( PagedResultsControl.CONTROL_OID );
         
         if ( control != null )
         {
             // Let's deal with the pagedControl
-            return doPagedSearch( session, req, (PagedResultsControlCodec)control );
+            return doPagedSearch( session, req, (PagedResultsControl)control );
         }
         
         // A normal search
@@ -767,7 +784,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
     private InternalResponse generateResponse( LdapSession session, InternalSearchRequest req, ClonedServerEntry entry ) throws Exception
     {
         EntryAttribute ref = entry.getOriginalEntry().get( SchemaConstants.REF_AT );
-        boolean hasManageDsaItControl = req.getControls().containsKey( ManageDsaITControlCodec.CONTROL_OID );
+        boolean hasManageDsaItControl = req.getControls().containsKey( ManageDsaITControl.CONTROL_OID );
 
         if ( ( ref != null ) && ! hasManageDsaItControl )
         {
@@ -856,7 +873,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
      */
     public void modifyFilter( LdapSession session, InternalSearchRequest req ) throws Exception
     {
-        if ( req.hasControl( ManageDsaITControlCodec.CONTROL_OID ) )
+        if ( req.hasControl( ManageDsaITControl.CONTROL_OID ) )
         {
             return;
         }
@@ -942,8 +959,8 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
             // Handle psearch differently
             // ===============================================================
 
-            PersistentSearchControlCodec psearchControl = ( PersistentSearchControlCodec ) 
-                req.getControls().get( PersistentSearchControlCodec.CONTROL_OID );
+            PersistentSearchControl psearchControl = ( PersistentSearchControl ) 
+                req.getControls().get( PersistentSearchControl.CONTROL_OID );
             
             if ( psearchControl != null )
             {

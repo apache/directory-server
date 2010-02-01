@@ -43,7 +43,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControlCodec;
+import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
@@ -902,7 +902,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
         // now add the control with visibility set to true where all entries 
         // except subentries disappear
-        SubentriesControlCodec ctl = new SubentriesControlCodec();
+        SubentriesControl ctl = new SubentriesControl();
         ctl.setVisibility( true );
         sysRoot.setRequestControls( JndiUtils.toJndiControls( new Control[] { ctl } ) );
         list = sysRoot.search( "", "(objectClass=*)", searchControls );

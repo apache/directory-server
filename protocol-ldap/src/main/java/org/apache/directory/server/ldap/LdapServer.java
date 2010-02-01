@@ -60,16 +60,16 @@ import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
-import org.apache.directory.shared.ldap.codec.controls.CascadeControlCodec;
-import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControlCodec;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlCodec;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControlCodec;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControlCodec;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControlCodec;
-import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControlCodec;
-import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControlCodec;
-import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControlCodec;
-import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControlCodec;
+import org.apache.directory.shared.ldap.codec.controls.CascadeControl;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControl;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControl;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControl;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControl;
+import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControl;
+import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControl;
+import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControl;
+import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
 import org.apache.directory.shared.ldap.constants.SaslQoP;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.message.InternalAbandonRequest;
@@ -241,17 +241,17 @@ public class LdapServer extends DirectoryBackedService
         saslRealms.add( "example.com" );
 
         this.supportedControls = new HashSet<String>();
-        this.supportedControls.add( PersistentSearchControlCodec.CONTROL_OID );
-        this.supportedControls.add( EntryChangeControlCodec.CONTROL_OID );
-        this.supportedControls.add( SubentriesControlCodec.CONTROL_OID );
-        this.supportedControls.add( ManageDsaITControlCodec.CONTROL_OID );
-        this.supportedControls.add( CascadeControlCodec.CONTROL_OID );
-        this.supportedControls.add( PagedResultsControlCodec.CONTROL_OID );
+        this.supportedControls.add( PersistentSearchControl.CONTROL_OID );
+        this.supportedControls.add( EntryChangeControl.CONTROL_OID );
+        this.supportedControls.add( SubentriesControl.CONTROL_OID );
+        this.supportedControls.add( ManageDsaITControl.CONTROL_OID );
+        this.supportedControls.add( CascadeControl.CONTROL_OID );
+        this.supportedControls.add( PagedResultsControl.CONTROL_OID );
         // Replication controls
-        this.supportedControls.add( SyncDoneValueControlCodec.CONTROL_OID );
-        this.supportedControls.add( SyncInfoValueControlCodec.CONTROL_OID );
-        this.supportedControls.add( SyncRequestValueControlCodec.CONTROL_OID );
-        this.supportedControls.add( SyncStateValueControlCodec.CONTROL_OID );
+        this.supportedControls.add( SyncDoneValueControl.CONTROL_OID );
+        this.supportedControls.add( SyncInfoValueControl.CONTROL_OID );
+        this.supportedControls.add( SyncRequestValueControl.CONTROL_OID );
+        this.supportedControls.add( SyncStateValueControl.CONTROL_OID );
     }
 
 
