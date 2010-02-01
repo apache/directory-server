@@ -58,6 +58,7 @@ import org.apache.directory.server.core.interceptor.context.SearchingOperationCo
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControlCodec;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -74,7 +75,6 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.control.SubentriesControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
@@ -99,7 +99,7 @@ import org.slf4j.LoggerFactory;
 public class SubentryInterceptor extends BaseInterceptor
 {
     /** the subentry control OID */
-    private static final String SUBENTRY_CONTROL = SubentriesControl.CONTROL_OID;
+    private static final String SUBENTRY_CONTROL = SubentriesControlCodec.CONTROL_OID;
 
     public static final String AC_AREA = "accessControlSpecificArea";
     public static final String AC_INNERAREA = "accessControlInnerArea";
@@ -299,7 +299,7 @@ public class SubentryInterceptor extends BaseInterceptor
         // found the subentry request control so we return its value
         if ( opContext.hasRequestControl( SUBENTRY_CONTROL ) )
         {
-            SubentriesControl subentriesControl = ( SubentriesControl ) opContext.getRequestControl( SUBENTRY_CONTROL );
+            SubentriesControlCodec subentriesControl = ( SubentriesControlCodec ) opContext.getRequestControl( SUBENTRY_CONTROL );
             return subentriesControl.isVisible();
         }
 

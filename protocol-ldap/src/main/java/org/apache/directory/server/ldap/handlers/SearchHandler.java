@@ -41,6 +41,9 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControlCodec;
+import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControlCodec;
+import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControlCodec;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -62,9 +65,6 @@ import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
 import org.apache.directory.shared.ldap.message.SearchResponseReferenceImpl;
-import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
-import org.apache.directory.shared.ldap.message.control.PagedSearchControl;
-import org.apache.directory.shared.ldap.message.control.PersistentSearchControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.LdapURL;
@@ -124,7 +124,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
      * @throws Exception if failures are encountered while searching
      */
     private void handlePersistentSearch( LdapSession session, InternalSearchRequest req, 
-        PersistentSearchControl psearchControl ) throws Exception 
+        PersistentSearchControlCodec psearchControl ) throws Exception 
     {
         /*
          * We want the search to complete first before we start listening to 
@@ -455,8 +455,8 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
         throws Exception
     {
         PagedResultsControl pagedResultsControl = null;
-        PagedSearchControl pagedSearchControl = 
-            ( PagedSearchControl )req.getControls().get( PagedSearchControl.CONTROL_OID );
+        PagedResultsControlCodec pagedSearchControl = 
+            ( PagedResultsControlCodec )req.getControls().get( PagedResultsControlCodec.CONTROL_OID );
         byte [] cookie= pagedSearchControl.getCookie();
         
         if ( !StringTools.isEmpty( cookie ) )
@@ -508,10 +508,10 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
     /**
      * Handle a Paged Search request.
      */
-    private InternalSearchResponseDone doPagedSearch( LdapSession session, InternalSearchRequest req, PagedSearchControl control )
+    private InternalSearchResponseDone doPagedSearch( LdapSession session, InternalSearchRequest req, PagedResultsControlCodec control )
         throws Exception
     {
-        PagedSearchControl pagedSearchControl = ( PagedSearchControl )control;
+        PagedResultsControlCodec pagedSearchControl = ( PagedResultsControlCodec )control;
         PagedResultsControl pagedResultsControl = null;
 
         // Get the size limits
@@ -697,12 +697,12 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
         InternalLdapResult ldapResult = req.getResultResponse().getLdapResult();
         
         // Check if we are using the Paged Search Control
-        Object control = req.getControls().get( PagedSearchControl.CONTROL_OID );
+        Object control = req.getControls().get( PagedResultsControlCodec.CONTROL_OID );
         
         if ( control != null )
         {
             // Let's deal with the pagedControl
-            return doPagedSearch( session, req, (PagedSearchControl)control );
+            return doPagedSearch( session, req, (PagedResultsControlCodec)control );
         }
         
         // A normal search
@@ -767,7 +767,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
     private InternalResponse generateResponse( LdapSession session, InternalSearchRequest req, ClonedServerEntry entry ) throws Exception
     {
         EntryAttribute ref = entry.getOriginalEntry().get( SchemaConstants.REF_AT );
-        boolean hasManageDsaItControl = req.getControls().containsKey( ManageDsaITControl.CONTROL_OID );
+        boolean hasManageDsaItControl = req.getControls().containsKey( ManageDsaITControlCodec.CONTROL_OID );
 
         if ( ( ref != null ) && ! hasManageDsaItControl )
         {
@@ -856,7 +856,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
      */
     public void modifyFilter( LdapSession session, InternalSearchRequest req ) throws Exception
     {
-        if ( req.hasControl( ManageDsaITControl.CONTROL_OID ) )
+        if ( req.hasControl( ManageDsaITControlCodec.CONTROL_OID ) )
         {
             return;
         }
@@ -942,8 +942,8 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
             // Handle psearch differently
             // ===============================================================
 
-            PersistentSearchControl psearchControl = ( PersistentSearchControl ) 
-                req.getControls().get( PersistentSearchControl.CONTROL_OID );
+            PersistentSearchControlCodec psearchControl = ( PersistentSearchControlCodec ) 
+                req.getControls().get( PersistentSearchControlCodec.CONTROL_OID );
             
             if ( psearchControl != null )
             {

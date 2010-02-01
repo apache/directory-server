@@ -51,10 +51,10 @@ import org.apache.directory.server.core.partition.NullPartition;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.schema.registries.synchronizers.RegistrySynchronizerAdaptor;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.codec.controls.CascadeControlCodec;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.message.control.CascadeControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
@@ -311,7 +311,7 @@ public final class SchemaPartition extends AbstractPartition
      */
     public void delete( DeleteOperationContext opContext ) throws Exception
     {
-        boolean cascade = opContext.hasRequestControl( CascadeControl.CONTROL_OID );
+        boolean cascade = opContext.hasRequestControl( CascadeControlCodec.CONTROL_OID );
         
         // The SchemaObject always exist when we reach this method.
         synchronizer.delete( opContext, cascade );
@@ -373,7 +373,7 @@ public final class SchemaPartition extends AbstractPartition
         ServerEntry targetEntry = ( ServerEntry ) SchemaUtils.getTargetEntry( 
             opContext.getModItems(), entry );
         
-        boolean cascade = opContext.hasRequestControl( CascadeControl.CONTROL_OID );
+        boolean cascade = opContext.hasRequestControl( CascadeControlCodec.CONTROL_OID );
         
         boolean hasModification = synchronizer.modify( opContext, targetEntry, cascade );
         
@@ -394,7 +394,7 @@ public final class SchemaPartition extends AbstractPartition
      */
     public void move( MoveOperationContext opContext ) throws Exception
     {
-        boolean cascade = opContext.hasRequestControl( CascadeControl.CONTROL_OID );
+        boolean cascade = opContext.hasRequestControl( CascadeControlCodec.CONTROL_OID );
         ClonedServerEntry entry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
         synchronizer.move( opContext, entry, cascade );
         wrapped.move( opContext );
@@ -407,7 +407,7 @@ public final class SchemaPartition extends AbstractPartition
      */
     public void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception
     {
-        boolean cascade = opContext.hasRequestControl( CascadeControl.CONTROL_OID );
+        boolean cascade = opContext.hasRequestControl( CascadeControlCodec.CONTROL_OID );
         ClonedServerEntry entry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
         synchronizer.moveAndRename( opContext, entry, cascade );
         wrapped.moveAndRename( opContext );
@@ -420,7 +420,7 @@ public final class SchemaPartition extends AbstractPartition
      */
     public void rename( RenameOperationContext opContext ) throws Exception
     {
-        boolean cascade = opContext.hasRequestControl( CascadeControl.CONTROL_OID );
+        boolean cascade = opContext.hasRequestControl( CascadeControlCodec.CONTROL_OID );
         
         // First update the registries
         synchronizer.rename( opContext, cascade );

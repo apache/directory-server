@@ -30,13 +30,13 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerModification;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControlCodec;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.message.InternalModifyRequest;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -90,7 +90,7 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
         
         requestControls = modifyRequest.getControls();
 
-        if ( requestControls.containsKey( ManageDsaITControl.CONTROL_OID ) )
+        if ( requestControls.containsKey( ManageDsaITControlCodec.CONTROL_OID ) )
         {
             ignoreReferral();
         }

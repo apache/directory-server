@@ -22,8 +22,8 @@ package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControlCodec;
 import org.apache.directory.shared.ldap.message.InternalModifyDnRequest;
-import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.RDN;
 
@@ -78,7 +78,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
             throw new IllegalStateException( I18n.err( I18n.ERR_325, modifyDnRequest ) );
         }
         
-        if ( requestControls.containsKey( ManageDsaITControl.CONTROL_OID ) )
+        if ( requestControls.containsKey( ManageDsaITControlCodec.CONTROL_OID ) )
         {
             ignoreReferral();
         }

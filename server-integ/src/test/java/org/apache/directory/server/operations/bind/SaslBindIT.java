@@ -509,7 +509,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
              request.setSaslMechanism( mechanism );
              request.setVersion3( true ) ;
              
-             // Setup the ASN1 Enoder and Decoder
+             // Setup the ASN1 Encoder and Decoder
              MessageEncoder encoder = new MessageEncoder();
              MessageDecoder decoder = new MessageDecoder( new BinaryAttributeDetector() {
                  public boolean isBinary( String attributeId )

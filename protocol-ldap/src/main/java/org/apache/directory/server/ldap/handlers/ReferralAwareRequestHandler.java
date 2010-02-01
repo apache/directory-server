@@ -28,6 +28,7 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControlCodec;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -38,7 +39,6 @@ import org.apache.directory.shared.ldap.message.InternalResultResponseRequest;
 import org.apache.directory.shared.ldap.message.InternalSearchRequest;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.util.LdapURL;
@@ -74,7 +74,7 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
         
         // First, if we have the ManageDSAIt control, go directly
         // to the handling without pre-processing the request
-        if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
+        if ( req.getControls().containsKey( ManageDsaITControlCodec.CONTROL_OID ) )
         {
             // If the ManageDsaIT control is present, we will
             // consider that the user wants to get entry which

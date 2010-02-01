@@ -58,6 +58,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.codec.controls.CascadeControlCodec;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
@@ -87,7 +88,6 @@ import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.control.CascadeControl;
 import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.RDN;
@@ -1405,7 +1405,7 @@ public class SchemaInterceptor extends BaseInterceptor
             opContext.setModItems( cleanMods );
             
             // Now that the entry has been modified, update the SSSE
-            schemaSubEntryManager.modifySchemaSubentry(  opContext, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
+            schemaSubEntryManager.modifySchemaSubentry(  opContext, opContext.hasRequestControl( CascadeControlCodec.CONTROL_OID ) );
             
             return;
         }

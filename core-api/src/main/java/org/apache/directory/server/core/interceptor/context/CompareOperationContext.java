@@ -21,11 +21,11 @@ package org.apache.directory.server.core.interceptor.context;
 
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControlCodec;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.message.InternalCompareRequest;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -112,7 +112,7 @@ public class CompareOperationContext extends AbstractOperationContext
         this.value = compareRequest.getAssertionValue();
         this.requestControls = compareRequest.getControls();
         
-        if ( requestControls.containsKey( ManageDsaITControl.CONTROL_OID ) )
+        if ( requestControls.containsKey( ManageDsaITControlCodec.CONTROL_OID ) )
         {
             ignoreReferral();
         }

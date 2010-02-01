@@ -69,6 +69,16 @@ import org.apache.directory.server.core.interceptor.context.UnbindOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.MultiException;
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.codec.controls.CascadeControlCodec;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControlCodec;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlCodec;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControlCodec;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControlCodec;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControlCodec;
+import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControlCodec;
+import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControlCodec;
+import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControlCodec;
+import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControlCodec;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
@@ -79,22 +89,11 @@ import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.message.control.CascadeControl;
-import org.apache.directory.shared.ldap.message.control.EntryChangeControl;
-import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
-import org.apache.directory.shared.ldap.message.control.PagedSearchControl;
-import org.apache.directory.shared.ldap.message.control.PersistentSearchControl;
-import org.apache.directory.shared.ldap.message.control.SubentriesControl;
-import org.apache.directory.shared.ldap.message.control.replication.SyncDoneValueControl;
-import org.apache.directory.shared.ldap.message.control.replication.SyncInfoValueControl;
-import org.apache.directory.shared.ldap.message.control.replication.SyncRequestValueControl;
-import org.apache.directory.shared.ldap.message.control.replication.SyncStateValueControl;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
@@ -170,17 +169,17 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         // Add the supported controls
         rootDSE.put( 
             SchemaConstants.SUPPORTED_CONTROL_AT, 
-            PersistentSearchControl.CONTROL_OID,
-            EntryChangeControl.CONTROL_OID,
-            SubentriesControl.CONTROL_OID,
-            ManageDsaITControl.CONTROL_OID,
-            CascadeControl.CONTROL_OID,
-            PagedSearchControl.CONTROL_OID,
+            PersistentSearchControlCodec.CONTROL_OID,
+            EntryChangeControlCodec.CONTROL_OID,
+            SubentriesControlCodec.CONTROL_OID,
+            ManageDsaITControlCodec.CONTROL_OID,
+            CascadeControlCodec.CONTROL_OID,
+            PagedResultsControlCodec.CONTROL_OID,
             // Replication controls
-            SyncDoneValueControl.CONTROL_OID,
-            SyncInfoValueControl.CONTROL_OID,
-            SyncRequestValueControl.CONTROL_OID,
-            SyncStateValueControl.CONTROL_OID 
+            SyncDoneValueControlCodec.CONTROL_OID,
+            SyncInfoValueControlCodec.CONTROL_OID,
+            SyncRequestValueControlCodec.CONTROL_OID,
+            SyncStateValueControlCodec.CONTROL_OID 
         );
 
         // Add the objectClasses

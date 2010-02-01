@@ -33,13 +33,13 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
+import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControlCodec;
+import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControlCodec;
 import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.InternalAbandonableRequest;
 import org.apache.directory.shared.ldap.message.InternalSearchRequest;
 import org.apache.directory.shared.ldap.message.InternalSearchResponseEntry;
 import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
-import org.apache.directory.shared.ldap.message.control.EntryChangeControl;
-import org.apache.directory.shared.ldap.message.control.PersistentSearchControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +62,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
     private static final Logger LOG = LoggerFactory.getLogger( PersistentSearchListener.class );
     final LdapSession session;
     final InternalSearchRequest req;
-    final PersistentSearchControl control;
+    final PersistentSearchControlCodec control;
 
 
     PersistentSearchListener( LdapSession session, InternalSearchRequest req )
@@ -70,7 +70,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
         this.session = session;
         this.req = req;
         req.addAbandonListener( this );
-        this.control = ( PersistentSearchControl ) req.getControls().get( PersistentSearchControl.CONTROL_OID );
+        this.control = ( PersistentSearchControlCodec ) req.getControls().get( PersistentSearchControlCodec.CONTROL_OID );
     }
 
 
@@ -111,7 +111,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
     {
         if ( control.isReturnECs() )
         {
-            EntryChangeControl ecControl = new EntryChangeControl();
+            EntryChangeControlCodec ecControl = new EntryChangeControlCodec();
             ecControl.setChangeType( type );
             
             if ( opContext.getChangeLogEvent() != null )
