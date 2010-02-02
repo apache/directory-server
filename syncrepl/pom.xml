@@ -47,9 +47,9 @@
   <!-- =======  Dependencies are declared here  ======= -->
   <dependencies>
     <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-client-api</artifactId>
-      <version>${org.apache.directory.shared.version}</version>
+      <groupId>org.apache.directory.client.ldap</groupId>
+      <artifactId>ldap-client-api</artifactId>
+      <version>0.1-SNAPSHOT</version>
     </dependency>
 
     <dependency>

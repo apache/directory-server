@@ -30,9 +30,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
-import org.apache.directory.shared.ldap.client.api.LdapConnection;
-import org.apache.directory.shared.ldap.client.api.messages.SearchResponse;
-import org.apache.directory.shared.ldap.client.api.messages.SearchResultEntry;
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.message.SearchResponse;
+import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
@@ -80,7 +80,7 @@ public class EntryInjector extends JPanel implements ActionListener
         try
         {
             String cn = "entry-" + System.currentTimeMillis();
-            LdapDN dn = new LdapDN( "cn=" + cn + ",dc=test,dc=nodomain" );
+            LdapDN dn = new LdapDN( "cn=" + cn + "," + config.getBaseDn() );
             DefaultClientEntry entry = new DefaultClientEntry();
             entry.add( "objectclass", "inetOrgPerson", "organizationalPerson", "person" );
             entry.add( "cn", cn );
@@ -107,7 +107,7 @@ public class EntryInjector extends JPanel implements ActionListener
             }
             else if( dn == null )
             {
-                Cursor<SearchResponse> cursor = connection.search( config.getBaseDn(), config.getFilter(), SearchScope.getSearchScope( config.getSearchScope() ), config.getAttributes().split( "," ) );
+                Cursor<SearchResponse> cursor = connection.search( config.getBaseDn(), config.getFilter(), SearchScope.getSearchScope( config.getSearchScope() ), config.getAttributes() );
                 cursor.beforeFirst();
                 if( cursor.next() && cursor.next() ) // to skip the baseDN
                 {

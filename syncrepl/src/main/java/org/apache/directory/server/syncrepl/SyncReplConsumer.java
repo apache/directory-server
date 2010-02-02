@@ -28,30 +28,29 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.naming.ldap.Control;
-
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.exception.LdapException;
+import org.apache.directory.ldap.client.api.listener.IntermediateResponseListener;
+import org.apache.directory.ldap.client.api.listener.SearchListener;
+import org.apache.directory.ldap.client.api.message.BindResponse;
+import org.apache.directory.ldap.client.api.message.IntermediateResponse;
+import org.apache.directory.ldap.client.api.message.LdapResult;
+import org.apache.directory.ldap.client.api.message.SearchRequest;
+import org.apache.directory.ldap.client.api.message.SearchResultDone;
+import org.apache.directory.ldap.client.api.message.SearchResultEntry;
+import org.apache.directory.ldap.client.api.message.SearchResultReference;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
-import org.apache.directory.shared.ldap.client.api.LdapConnection;
-import org.apache.directory.shared.ldap.client.api.exception.LdapException;
-import org.apache.directory.shared.ldap.client.api.listeners.IntermediateResponseListener;
-import org.apache.directory.shared.ldap.client.api.listeners.SearchListener;
-import org.apache.directory.shared.ldap.client.api.messages.BindResponse;
-import org.apache.directory.shared.ldap.client.api.messages.IntermediateResponse;
-import org.apache.directory.shared.ldap.client.api.messages.LdapResult;
-import org.apache.directory.shared.ldap.client.api.messages.SearchRequest;
-import org.apache.directory.shared.ldap.client.api.messages.SearchResultDone;
-import org.apache.directory.shared.ldap.client.api.messages.SearchResultEntry;
-import org.apache.directory.shared.ldap.client.api.messages.SearchResultReference;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlCodec;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlDecoder;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControlCodec;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControlDecoder;
-import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControlCodec;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControl;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControlDecoder;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -65,10 +64,8 @@ import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.control.replication.SyncDoneValueControl;
-import org.apache.directory.shared.ldap.message.control.replication.SyncRequestValueControl;
+import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
-import org.apache.directory.shared.ldap.message.control.replication.SyncStateValueControl;
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationModeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -262,10 +259,10 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
         LOG.debug( "///////////////// handleSearchDone //////////////////" );
 
         Control ctrl = searchDone.getControl( SyncDoneValueControl.CONTROL_OID );
-        SyncDoneValueControlCodec syncDoneCtrl = null;
+        SyncDoneValueControl syncDoneCtrl = new SyncDoneValueControl();
         try
         {
-            syncDoneCtrl = ( SyncDoneValueControlCodec ) syncDoneControlDecoder.decode( ctrl.getEncodedValue() );
+            syncDoneCtrl = ( SyncDoneValueControl ) syncDoneControlDecoder.decode( ctrl.getValue(), syncDoneCtrl );
             refreshDeletes = syncDoneCtrl.isRefreshDeletes();
         }
         catch ( Exception e )
@@ -321,11 +318,11 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
             Entry remoteEntry = syncResult.getEntry();
 
             Control ctrl = syncResult.getControl( SyncStateValueControl.CONTROL_OID );
-            SyncStateValueControlCodec syncStateCtrl = null;
+            SyncStateValueControl syncStateCtrl = new SyncStateValueControl();
 
             try
             {
-                syncStateCtrl = ( SyncStateValueControlCodec ) syncStateControlDecoder.decode( ctrl.getEncodedValue() );
+                syncStateCtrl = ( SyncStateValueControl ) syncStateControlDecoder.decode( ctrl.getValue(), syncStateCtrl );
             }
             catch ( Exception e )
             {
@@ -400,7 +397,7 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
         {
             LOG.debug( "............... inside handleSyncInfo ..............." );
 
-            SyncInfoValueControlCodec syncInfoValue = ( SyncInfoValueControlCodec ) decoder.decode( syncinfo );
+            SyncInfoValueControl syncInfoValue = ( SyncInfoValueControl ) decoder.decode( syncinfo, null );
 
             byte[] cookie = syncInfoValue.getCookie();
 
