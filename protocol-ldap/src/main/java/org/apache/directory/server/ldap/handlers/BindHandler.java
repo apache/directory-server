@@ -39,7 +39,8 @@ import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
-import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
+import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalBindResponse;
@@ -103,7 +104,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
         // create a new Bind context, with a null session, as we don't have 
         // any context yet.
         BindOperationContext opContext = new BindOperationContext( null );
-
+        
         // Stores the DN of the user to check, and its password
         opContext.setDn( bindRequest.getName() );
         opContext.setCredentials( bindRequest.getCredentials() );
@@ -185,18 +186,25 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
         }
         catch ( Exception e )
         {
-            // Something went wrong. Write back an error message            
+            // Something went wrong. Write back an error message
+            // For BindRequest, it should be an InvalidCredentials, 
+            // no matter what kind of exception we got.
             ResultCodeEnum code = null;
             InternalLdapResult result = bindRequest.getResultResponse().getLdapResult();
 
-            if ( e instanceof LdapException )
+            if ( e instanceof LdapOperationNotSupportedException )
             {
-                code = ( ( LdapException ) e ).getResultCode();
+                code = ResultCodeEnum.UNWILLING_TO_PERFORM;
                 result.setResultCode( code );
             }
-            else
+            else if ( e instanceof LdapInvalidNameException )
             {
-                code = ResultCodeEnum.getBestEstimate( e, bindRequest.getType() );
+                code = ResultCodeEnum.INVALID_DN_SYNTAX;
+                result.setResultCode( code );
+            }
+            else 
+            {
+                code = ResultCodeEnum.INVALID_CREDENTIALS;
                 result.setResultCode( code );
             }
 

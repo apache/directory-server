@@ -430,7 +430,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.debug( "Operation Context: {}", opContext );
         }
 
-        if ( opContext.getSession() != null && opContext.getSession().getEffectivePrincipal() != null )
+        if ( ( opContext.getSession() != null ) && ( opContext.getSession().getEffectivePrincipal() != null ) )
         {
             // null out the credentials
             opContext.setCredentials( null );
