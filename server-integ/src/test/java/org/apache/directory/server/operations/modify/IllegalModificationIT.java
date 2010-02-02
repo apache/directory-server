@@ -20,6 +20,7 @@
 package org.apache.directory.server.operations.modify;
 
 
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getClientApiConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -29,11 +30,19 @@ import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.exception.LdapException;
+import org.apache.directory.ldap.client.api.message.ModifyRequest;
+import org.apache.directory.ldap.client.api.message.ModifyResponse;
+import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -82,23 +91,17 @@ public class IllegalModificationIT extends AbstractLdapTestUnit
     @Test
     public void testIllegalModification() throws Exception
     {
-        LDAPConnection con = getWiredConnection( ldapServer );
-        LDAPAttribute attr = new LDAPAttribute( "description" );
-        LDAPModification mod = new LDAPModification( LDAPModification.ADD, attr );
+        LdapConnection con = getClientApiConnection( ldapServer );
 
-        try
-        {
-            con.modify( "cn=Kate Bush,ou=system", mod );
-            fail( "error expected due to empty attribute value" );
-        }
-        catch ( LDAPException e )
-        {
-            // expected
-        }
+        ModifyRequest modReq = new ModifyRequest( new LdapDN( DN ) );
+        modReq.add( "description", "" );
+
+        ModifyResponse resp = con.modify( modReq, null );
+        assertEquals( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, resp.getLdapResult().getResultCode() );
 
         // Check whether entry is unmodified, i.e. no description
-        LDAPEntry entry = con.read( DN );
-        assertEquals( "description exists?", null, entry.getAttribute( "description" ) );
+        Entry entry = ( ( SearchResultEntry )con.lookup( DN ) ).getEntry();
+        assertEquals( "description exists?", null, entry.get( "description" ) );
     }
     
     

@@ -20,6 +20,7 @@
 package org.apache.directory.server.operations.delete;
 
 
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getClientApiConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
 import static org.junit.Assert.assertEquals;
@@ -38,6 +39,9 @@ import netscape.ldap.LDAPResponse;
 import netscape.ldap.LDAPResponseListener;
 import netscape.ldap.LDAPSearchConstraints;
 
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.exception.LdapException;
+import org.apache.directory.ldap.client.api.message.DeleteResponse;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -102,20 +106,13 @@ public class DeleteIT extends AbstractLdapTestUnit
     @Test
     public void testNormalDeleteFailContextNotEmpty() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapServer );
+        LdapConnection conn = getClientApiConnection( ldapServer );
         
         // delete failure on non-leaf entry
-        try
-        {
-            conn.delete( "uid=akarasulu,ou=users,ou=system" );
-            fail( "Should never get here." );
-        }
-        catch ( LDAPException e )
-        {
-            assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF.getValue(), e.getLDAPResultCode() );
-        }
-        
-        conn.disconnect();
+        DeleteResponse resp = conn.delete( "uid=akarasulu,ou=users,ou=system" );
+        assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF, resp.getLdapResult().getResultCode() );
+
+        conn.unBind();
     }
     
     
@@ -126,23 +123,16 @@ public class DeleteIT extends AbstractLdapTestUnit
     @Test
     public void testNormalDelete() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapServer );
+        LdapConnection conn = getClientApiConnection( ldapServer );
         
         // delete success
         conn.delete( "ou=computers,uid=akarasulu,ou=users,ou=system" );
 
         // delete failure non-existant entry
-        try
-        {
-            conn.delete( "uid=elecharny,ou=users,ou=system" );
-            fail( "Should never get here." );
-        }
-        catch ( LDAPException e )
-        {
-            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT.getValue(), e.getLDAPResultCode() );
-        }
+        DeleteResponse resp = conn.delete( "uid=elecharny,ou=users,ou=system" );
+        assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, resp.getLdapResult().getResultCode() );
         
-        conn.disconnect();
+        conn.unBind();
     }
     
     
@@ -153,20 +143,13 @@ public class DeleteIT extends AbstractLdapTestUnit
     @Test
     public void testDeleteNonExistent() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapServer );
+        LdapConnection conn = getClientApiConnection( ldapServer );
         
         // delete failure non-existent entry
-        try
-        {
-            conn.delete( "uid=elecharny,ou=users,ou=system" );
-            fail( "Should never get here." );
-        }
-        catch ( LDAPException e )
-        {
-            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT.getValue(), e.getLDAPResultCode() );
-        }
+        DeleteResponse resp = conn.delete( "uid=elecharny,ou=users,ou=system" );
+        assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, resp.getLdapResult().getResultCode() );
         
-        conn.disconnect();
+        conn.unBind();
     }
     
     
@@ -296,22 +279,22 @@ public class DeleteIT extends AbstractLdapTestUnit
     
 
     /**
-     * Try to delete an entry with invalid DN. Expected result code is 32
-     * (NO_SUCH_OBJECT) or 34 (INVALID_DN_SYNTAX).
+     * Try to delete an entry with invalid DN. The operation fails
+     * during parsing the given DN
      */
+    @Test
     public void testDeleteWithIllegalName() throws Exception 
     {
-        LDAPConnection conn = getWiredConnection( ldapServer );
+        LdapConnection conn = getClientApiConnection( ldapServer );
         
         try 
         {
             conn.delete("This is an illegal name,dc=example,dc=com" );
             fail( "deletion should fail" );
         } 
-        catch ( LDAPException e ) 
+        catch ( LdapException e ) 
         {
-            assertTrue( e.getLDAPResultCode() == LDAPException.INVALID_DN_SYNTAX || 
-                        e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT );
+            // expected
         }
     }
 }

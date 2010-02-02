@@ -45,14 +45,9 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPMessage;
-import netscape.ldap.LDAPSearchListener;
-
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.exception.LdapException;
+import org.apache.directory.ldap.client.api.message.SearchResponse;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -62,8 +57,13 @@ import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.control.Control;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -1667,41 +1667,34 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testAbandonnedRequest() throws Exception
     {
-        LDAPConnection asyncCnx = new LDAPConnection();
+        LdapConnection asyncCnx = new LdapConnection( "localhost", ldapServer.getPort() );
         
         try
         {
-            // Use the netscape API as JNDI cannot be used to do a search without
-            // first binding.
-            //conn.connect( 3, "localhost", ldapServer.getPort(), "uid=admin,ou=system", "secret" );
-           
-            asyncCnx.connect( 3, "localhost", ldapServer.getPort(), "uid=admin,ou=system", "secret" );
+            // Use the client API as JNDI cannot be used to do a search without
+            // first binding. (hmmm, even client API won't allow searching without binding)
+            asyncCnx.bind( "uid=admin,ou=system", "secret" );
             
             // First, add 1000 entries in the server
             for ( int i = 0; i < 1000; i++ )
             {
-                LDAPAttributeSet attrs = new LDAPAttributeSet();
-                LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
-                    { "top", "person" } );
-                attrs.add( ocls );
-                attrs.add( new LDAPAttribute( "sn", "Bush" ) );
-                attrs.add( new LDAPAttribute( "cn", "user" + i ) );
-
                 String dn = "cn=user" + i + "," + BASE;
-                LDAPEntry kate = new LDAPEntry( dn, attrs );
+                Entry kate = new DefaultClientEntry( new LdapDN( dn ) );
+
+                kate.add( "objectclass", "top", "person" );
+                kate.add( "sn", "Bush" );
+                kate.add( "cn", "user" + i );
 
                 asyncCnx.add( kate );
             }
             
             // Searches for all the entries in ou=system
-            LDAPSearchListener listener = asyncCnx.search( "ou=system", LDAPConnection.SCOPE_SUB,
-                "(ObjectClass=*)", new String[]{"*"}, false, (LDAPSearchListener)null);
+            Cursor<SearchResponse> cursor = asyncCnx.search( "ou=system", "(ObjectClass=*)", SearchScope.SUBTREE, "*" );
 
             // Now loop on all the elements found, and abandon after 10 elements returned
             int count = 0;
-            LDAPMessage msg = null;
             
-            while ( (msg = listener.getResponse() ) != null ) 
+            while ( cursor.next() ) 
             {
                 count++;
 
@@ -1713,14 +1706,13 @@ public class SearchIT extends AbstractLdapTestUnit
             
             assertEquals( 100, count );
         }
-        catch ( LDAPException e )
+        catch ( LdapException e )
         {
             fail( "Should not have caught exception." );
         }
         finally
         {
-            // Reset the allowAnonymousAccess flag
-           asyncCnx.disconnect();
+           asyncCnx.unBind();
         }
     }
 

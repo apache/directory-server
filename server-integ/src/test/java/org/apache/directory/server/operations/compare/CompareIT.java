@@ -20,6 +20,7 @@
 package org.apache.directory.server.operations.compare;
 
 
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getClientApiConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
 import static org.junit.Assert.assertEquals;
@@ -41,6 +42,8 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPResponse;
 import netscape.ldap.LDAPResponseListener;
 
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.message.CompareResponse;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -104,17 +107,17 @@ public class CompareIT extends AbstractLdapTestUnit
     @Test
     public void testNormalCompare() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapServer );
+        LdapConnection conn = getClientApiConnection( ldapServer );
         
         // comparison success
-        LDAPAttribute attribute = new LDAPAttribute( "sn", "karasulu" );
-        assertTrue( conn.compare( "uid=akarasulu,ou=users,ou=system", attribute ) );
+        CompareResponse resp = conn.compare( "uid=akarasulu,ou=users,ou=system", "sn", "karasulu" );
+        assertEquals( ResultCodeEnum.COMPARE_TRUE, resp.getLdapResult().getResultCode() );
 
         // comparison failure
-        attribute = new LDAPAttribute( "sn", "lecharny" );
-        assertFalse( conn.compare( "uid=akarasulu,ou=users,ou=system", attribute ) );
+        resp = conn.compare( "uid=akarasulu,ou=users,ou=system", "sn", "lecharny" );
+        assertEquals( ResultCodeEnum.COMPARE_FALSE, resp.getLdapResult().getResultCode() );
         
-        conn.disconnect();
+        conn.unBind();
     }
     
     
