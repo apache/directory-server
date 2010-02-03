@@ -29,7 +29,7 @@
     <module>shared</module>
     <module>daemon</module>
     <module>apacheds</module>
-    <!--module>ldap-client</module-->
+    <module>ldap-client</module>
     <!-- module>kerberos-client</module -->
   </modules>
 </project>
