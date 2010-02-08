@@ -45,11 +45,12 @@
  *
  * $Id: RecordManager.java,v 1.3 2005/06/25 23:12:31 doomdark Exp $
  */
-
 package jdbm;
+
 
 import java.io.IOException;
 import jdbm.helper.Serializer;
+
 
 /**
  *  An interface to manages records, which are uninterpreted blobs of data.
@@ -66,11 +67,10 @@ import jdbm.helper.Serializer;
  */
 public interface RecordManager
 {
-
     /**
      * Reserved slot for name directory.
      */
-    public static final int NAME_DIRECTORY_ROOT = 0;
+    int NAME_DIRECTORY_ROOT = 0;
 
 
     /**
@@ -80,8 +80,7 @@ public interface RecordManager
      *  @return the rowid for the new record.
      *  @throws IOException when one of the underlying I/O operations fails.
      */
-    public abstract long insert( Object obj )
-        throws IOException;
+    long insert( Object obj ) throws IOException;
 
     
     /**
@@ -92,8 +91,7 @@ public interface RecordManager
      *  @return the rowid for the new record.
      *  @throws IOException when one of the underlying I/O operations fails.
      */
-    public abstract long insert( Object obj, Serializer serializer )
-        throws IOException;
+    long insert( Object obj, Serializer serializer ) throws IOException;
 
 
     /**
@@ -102,8 +100,7 @@ public interface RecordManager
      *  @param recid the rowid for the record that should be deleted.
      *  @throws IOException when one of the underlying I/O operations fails.
      */
-    public abstract void delete( long recid )
-        throws IOException;
+    void delete( long recid ) throws IOException;
 
 
     /**
@@ -113,8 +110,7 @@ public interface RecordManager
      *  @param obj the new object for the record.
      *  @throws IOException when one of the underlying I/O operations fails.
      */
-    public abstract void update( long recid, Object obj )
-        throws IOException;
+    void update( long recid, Object obj ) throws IOException;
 
 
     /**
@@ -125,8 +121,7 @@ public interface RecordManager
      *  @param serializer a custom serializer
      *  @throws IOException when one of the underlying I/O operations fails.
      */
-    public abstract void update( long recid, Object obj, Serializer serializer )
-        throws IOException;
+    void update( long recid, Object obj, Serializer serializer ) throws IOException;
 
     
     /**
@@ -136,8 +131,7 @@ public interface RecordManager
      *  @return the object contained in the record.
      *  @throws IOException when one of the underlying I/O operations fails.
      */
-    public abstract Object fetch( long recid )
-        throws IOException;
+    Object fetch( long recid ) throws IOException;
 
 
     /**
@@ -148,8 +142,7 @@ public interface RecordManager
      *  @return the object contained in the record.
      *  @throws IOException when one of the underlying I/O operations fails.
      */
-    public abstract Object fetch( long recid, Serializer serializer )
-        throws IOException;
+    Object fetch( long recid, Serializer serializer ) throws IOException;
 
 
     /**
@@ -157,8 +150,7 @@ public interface RecordManager
      *
      *  @throws IOException when one of the underlying I/O operations fails.
      */
-    public abstract void close()
-        throws IOException;
+    void close() throws IOException;
 
 
     /**
@@ -167,7 +159,7 @@ public interface RecordManager
      *  other rowids. Root rowids are useful for bootstrapping access to
      *  a set of data.
      */
-    public abstract int getRootCount();
+    int getRootCount();
 
 
     /**
@@ -175,8 +167,7 @@ public interface RecordManager
      *
      *  @see #getRootCount
      */
-    public abstract long getRoot( int id )
-        throws IOException;
+    long getRoot( int id ) throws IOException;
 
 
     /**
@@ -184,39 +175,31 @@ public interface RecordManager
      *
      *  @see #getRootCount
      */
-    public abstract void setRoot( int id, long rowid )
-        throws IOException;
+    void setRoot( int id, long rowid ) throws IOException;
 
 
     /**
      * Commit (make persistent) all changes since beginning of transaction.
      */
-    public abstract void commit()
-        throws IOException;
+    void commit() throws IOException;
 
 
     /**
      * Rollback (cancel) all changes since beginning of transaction.
      */
-    public abstract void rollback()
-        throws IOException;
-
-
+    void rollback() throws IOException;
 
 
     /**
      * Obtain the record id of a named object. Returns 0 if named object
      * doesn't exist.
      */
-    public abstract long getNamedObject( String name )
-        throws IOException;
+    long getNamedObject( String name ) throws IOException;
 
 
     /**
      * Set the record id of a named object.
      */
-    public abstract void setNamedObject( String name, long recid )
-        throws IOException;
-
+    void setNamedObject( String name, long recid ) throws IOException;
 }
 
