@@ -43,6 +43,7 @@ import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
+import org.apache.directory.shared.ldap.codec.LdapResponseCodec;
 import org.apache.directory.shared.ldap.codec.LdapResultCodec;
 import org.apache.directory.shared.ldap.codec.add.AddRequestCodec;
 import org.apache.directory.shared.ldap.codec.bind.BindRequestCodec;
@@ -171,8 +172,7 @@ public class ImportCommand extends ToolCommand
 
                     if ( messageResp instanceof BindResponseCodec )
                     {
-                        BindResponseCodec resp = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage()
-                            .getBindResponse();
+                        BindResponseCodec resp = ( ( LdapMessageContainer ) ldapMessageContainer ).getBindResponse();
 
                         if ( resp.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
                         {
@@ -181,8 +181,7 @@ public class ImportCommand extends ToolCommand
                     }
                     else if ( messageResp instanceof ExtendedResponseCodec )
                     {
-                        ExtendedResponseCodec resp = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage()
-                            .getExtendedResponse();
+                        ExtendedResponseCodec resp = ( ( LdapMessageContainer ) ldapMessageContainer ).getExtendedResponse();
 
                         if ( resp.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
                         {
@@ -241,13 +240,10 @@ public class ImportCommand extends ToolCommand
             }
         }
 
-        LdapMessageCodec message = new LdapMessageCodec();
-
-        message.setProtocolOP( addRequest );
-        message.setMessageId( messageId );
+        addRequest.setMessageId( messageId );
 
         // Encode and send the addRequest message
-        ByteBuffer bb = message.encode( null );
+        ByteBuffer bb = addRequest.encode();
         bb.flip();
 
         sendMessage( bb );
@@ -257,7 +253,7 @@ public class ImportCommand extends ToolCommand
         // Get the response
         LdapMessageCodec response = readResponse( bb );
 
-        LdapResultCodec result = response.getAddResponse().getLdapResult();
+        LdapResultCodec result = ((LdapResponseCodec)response).getLdapResult();
 
         if ( result.getResultCode() == ResultCodeEnum.SUCCESS )
         {
@@ -300,13 +296,10 @@ public class ImportCommand extends ToolCommand
 
         delRequest.setEntry( new LdapDN( dn ) );
 
-        LdapMessageCodec message = new LdapMessageCodec();
-
-        message.setProtocolOP( delRequest );
-        message.setMessageId( messageId );
+        delRequest.setMessageId( messageId );
 
         // Encode and send the delete request
-        ByteBuffer bb = message.encode( null );
+        ByteBuffer bb = delRequest.encode();
         bb.flip();
 
         sendMessage( bb );
@@ -316,7 +309,7 @@ public class ImportCommand extends ToolCommand
         // Get the response
         LdapMessageCodec response = readResponse( bb );
 
-        LdapResultCodec result = response.getDelResponse().getLdapResult();
+        LdapResultCodec result = ((LdapResponseCodec)response).getLdapResult();
 
         if ( result.getResultCode() == ResultCodeEnum.SUCCESS )
         {
@@ -365,13 +358,10 @@ public class ImportCommand extends ToolCommand
             modifyDNRequest.setNewSuperior( new LdapDN( entry.getNewSuperior() ) );
         }
 
-        LdapMessageCodec message = new LdapMessageCodec();
-
-        message.setProtocolOP( modifyDNRequest );
-        message.setMessageId( messageId );
+        modifyDNRequest.setMessageId( messageId );
 
         // Encode and send the delete request
-        ByteBuffer bb = message.encode( null );
+        ByteBuffer bb = modifyDNRequest.encode();
         bb.flip();
 
         sendMessage( bb );
@@ -381,7 +371,7 @@ public class ImportCommand extends ToolCommand
         // Get the response
         LdapMessageCodec response = readResponse( bb );
 
-        LdapResultCodec result = response.getModifyDNResponse().getLdapResult();
+        LdapResultCodec result = ((LdapResponseCodec)response).getLdapResult();
 
         if ( result.getResultCode() == ResultCodeEnum.SUCCESS )
         {
@@ -433,13 +423,10 @@ public class ImportCommand extends ToolCommand
             }
         }
 
-        LdapMessageCodec message = new LdapMessageCodec();
-
-        message.setProtocolOP( modifyRequest );
-        message.setMessageId( messageId );
+        modifyRequest.setMessageId( messageId );
 
         // Encode and send the delete request
-        ByteBuffer bb = message.encode( null );
+        ByteBuffer bb = modifyRequest.encode();
         bb.flip();
 
         sendMessage( bb );
@@ -449,7 +436,7 @@ public class ImportCommand extends ToolCommand
         // Get the response
         LdapMessageCodec response = readResponse( bb );
 
-        LdapResultCodec result = response.getModifyResponse().getLdapResult();
+        LdapResultCodec result = ((LdapResponseCodec)response).getLdapResult();
 
         if ( result.getResultCode() == ResultCodeEnum.SUCCESS )
         {
@@ -510,7 +497,6 @@ public class ImportCommand extends ToolCommand
     private void bind( int messageId ) throws NamingException, EncoderException, DecoderException, IOException
     {
         BindRequestCodec bindRequest = new BindRequestCodec();
-        LdapMessageCodec message = new LdapMessageCodec();
         LdapAuthentication authentication = null;
 
         if ( "simple".equals( auth ) )
@@ -523,11 +509,10 @@ public class ImportCommand extends ToolCommand
         bindRequest.setName( new LdapDN( user ) );
         bindRequest.setVersion( 3 );
 
-        message.setProtocolOP( bindRequest );
-        message.setMessageId( messageId );
+        bindRequest.setMessageId( messageId );
 
         // Encode and send the bind request
-        ByteBuffer bb = message.encode( null );
+        ByteBuffer bb = bindRequest.encode();
         bb.flip();
 
         connect();
@@ -538,7 +523,7 @@ public class ImportCommand extends ToolCommand
         // Get the bind response
         LdapMessageCodec response = readResponse( bb );
 
-        LdapResultCodec result = response.getBindResponse().getLdapResult();
+        LdapResultCodec result = ((LdapResponseCodec)response).getLdapResult();
 
         if ( result.getResultCode() == ResultCodeEnum.SUCCESS )
         {
@@ -568,11 +553,9 @@ public class ImportCommand extends ToolCommand
     private void unbind( int messageId ) throws InvalidNameException, EncoderException, DecoderException, IOException
     {
         UnBindRequestCodec unbindRequest = new UnBindRequestCodec();
-        LdapMessageCodec message = new LdapMessageCodec();
 
-        message.setProtocolOP( unbindRequest );
-        message.setMessageId( messageId );
-        ByteBuffer bb = message.encode( null );
+        unbindRequest.setMessageId( messageId );
+        ByteBuffer bb = unbindRequest.encode();
         bb.flip();
 
         sendMessage( bb );

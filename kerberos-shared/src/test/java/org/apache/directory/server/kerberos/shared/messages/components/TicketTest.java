@@ -19,6 +19,9 @@
  */
 package org.apache.directory.server.kerberos.shared.messages.components;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -29,9 +32,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.TicketFactory;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Test the Ticket encoding and decoding
@@ -56,7 +56,7 @@ public class TicketTest
 
         byte[] encodedTicket = TicketEncoder.encodeTicket( serviceTicket );
         
-        ByteBuffer encoded = serviceTicket.encode( null );
+        ByteBuffer encoded = serviceTicket.encode();
         
         byte[] expectedResult = new byte[]
             {
@@ -123,7 +123,7 @@ public class TicketTest
         
         for ( int i=0; i < 1000000; i++ )
         {
-            serviceTicket.encode( null );
+            serviceTicket.encode();
         }
         
         long t3 = System.currentTimeMillis();

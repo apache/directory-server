@@ -476,16 +476,11 @@ public class Ticket extends AbstractAsn1Object
      *     0xA3 LL
      *       enc-part (EncryptedData)
      * 
-     * @param buffer The buffer where to put the PDU. It should have been allocated
-     * before, with the right size.
      * @return The constructed PDU.
      */
-    public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
+    public ByteBuffer encode() throws EncoderException
     {
-        if ( buffer == null )
-        {
-            buffer = ByteBuffer.allocate( computeLength() );
-        }
+        ByteBuffer buffer = ByteBuffer.allocate( computeLength() );
 
         try
         {

@@ -25,11 +25,11 @@ import java.util.Set;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;

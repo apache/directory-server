@@ -24,8 +24,8 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
-import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.internal.InternalAddRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 

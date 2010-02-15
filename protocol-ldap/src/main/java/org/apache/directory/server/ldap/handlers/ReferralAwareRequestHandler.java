@@ -96,7 +96,7 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
                     handleWithReferrals( session, ( ( InternalSearchRequest ) req ).getBase(), req );
                     break;
 
-                case EXTENDED_REQ:
+                case EXTENDED_REQUEST:
                     throw new IllegalStateException( I18n.err( I18n.ERR_684 ) );
                     
                 default:

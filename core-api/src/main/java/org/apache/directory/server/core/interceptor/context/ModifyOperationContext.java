@@ -30,12 +30,12 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerModification;
+import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.client.ClientModification;
-import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
