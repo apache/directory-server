@@ -31,7 +31,6 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.exception.LdapException;
 import org.apache.directory.ldap.client.api.message.ModifyRequest;
 import org.apache.directory.ldap.client.api.message.ModifyResponse;
 import org.apache.directory.ldap.client.api.message.SearchResultEntry;
@@ -96,7 +95,7 @@ public class IllegalModificationIT extends AbstractLdapTestUnit
         ModifyRequest modReq = new ModifyRequest( new LdapDN( DN ) );
         modReq.add( "description", "" );
 
-        ModifyResponse resp = con.modify( modReq, null );
+        ModifyResponse resp = con.modify( modReq );
         assertEquals( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, resp.getLdapResult().getResultCode() );
 
         // Check whether entry is unmodified, i.e. no description
