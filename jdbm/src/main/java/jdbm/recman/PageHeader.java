@@ -44,112 +44,154 @@
  *
  * $Id: PageHeader.java,v 1.2 2003/09/21 15:47:01 boisvert Exp $
  */
-
 package jdbm.recman;
+
 
 import org.apache.directory.server.i18n.I18n;
 
+
 /**
- *  This class represents a page header. It is the common superclass for
- *  all different page views.
+ * This class represents a page header. It is the common superclass for
+ * all different page views. It contains the following information:
+ * 
+ * <ol>
+ *   <li>2 bytes: the short block type code</li>
+ *   <li>8 bytes: the long block id of the next block in the block list</li>
+ *   <li>8 bytes: the long block id of the previous block in the block list</li>
+ * </ol>
+ * 
+ * The page header block view hence sees 18 bytes of page header data.
  */
-public class PageHeader implements BlockView {
-    // offsets
-    private static final short O_MAGIC = 0; // short magic
-    private static final short O_NEXT = Magic.SZ_SHORT;  // long next
-    private static final short O_PREV = O_NEXT + Magic.SZ_LONG; // long prev
+public class PageHeader implements BlockView 
+{
+    // offsets into page header's (BlockIo's) buffer
+    
+    /** the page (BlockIo's type code) short magic code */
+    private static final short O_MAGIC = 0; 
+    /** the long block id of the next block in the block list */
+    private static final short O_NEXT = Magic.SZ_SHORT;  
+    /** the long block id of the previous block in the block list */
+    private static final short O_PREV = O_NEXT + Magic.SZ_LONG; 
+    
+    /** the size of this page header = 18 bytes */
     protected static final short SIZE = O_PREV + Magic.SZ_LONG;
 
-    // my block
+    /** the page header block this view is associated with */
     protected BlockIo block;
 
+    
     /**
-     *  Constructs a PageHeader object from a block
+     * Constructs a PageHeader object from a block
      *
-     *  @param block The block that contains the file header
-     *  @throws IOException if the block is too short to keep the file
+     * @param block The block that contains the page header
+     * @throws IOException if the block is too short to keep the page
      *          header.
      */
-    protected PageHeader(BlockIo block) {
-        initialize(block);
-        if (!magicOk())
-            throw new Error( I18n.err( I18n.ERR_546, block.getBlockId(), getMagic() ) );
-    }
-    
-    /**
-     *  Constructs a new PageHeader of the indicated type. Used for newly
-     *  created pages.
-     */
-    PageHeader(BlockIo block, short type) {
-        initialize(block);
-        setType(type);
-    }
-    
-    /**
-     *  Factory method to create or return a page header for the
-     *  indicated block.
-     */
-    static PageHeader getView(BlockIo block) {
-        BlockView view = block.getView();
-        if (view != null && view instanceof PageHeader)
-            return (PageHeader) view;
-        else
-            return new PageHeader(block);
-    }
-    
-    private void initialize(BlockIo block) {
+    protected PageHeader( BlockIo block ) 
+    {
         this.block = block;
-        block.setView(this);
+        block.setView( this );
+        if ( ! magicOk() )
+        {
+            throw new Error( I18n.err( I18n.ERR_546, block.getBlockId(), getMagic() ) );
+        }
     }
     
+    
     /**
-     *  Returns true if the magic corresponds with the fileHeader magic.
+     * Constructs a new PageHeader of the indicated type. Used for newly
+     * created pages.
      */
-    private boolean magicOk() {
+    PageHeader( BlockIo block, short type ) 
+    {
+        this.block = block;
+        block.setView( this );
+        setType( type );
+    }
+    
+    
+    /**
+     * Factory method to create or return a page header for the indicated block.
+     */
+    static PageHeader getView ( BlockIo block ) 
+    {
+        BlockView view = block.getView();
+        if ( view != null && view instanceof PageHeader )
+        {
+            return ( PageHeader ) view;
+        }
+        else
+        {
+            return new PageHeader( block );
+        }
+    }
+    
+    
+    /**
+     * Returns true if the magic corresponds with the fileHeader magic.
+     */
+    private boolean magicOk() 
+    {
         int magic = getMagic();
         return magic >= Magic.BLOCK
-            && magic <= (Magic.BLOCK + Magic.FREEPHYSIDS_PAGE);
+            && magic <= ( Magic.BLOCK + Magic.FREEPHYSIDS_PAGE );
     }
+    
     
     /**
-     *  For paranoia mode
+     * For paranoia mode
      */
-    protected void paranoiaMagicOk() {
-        if (!magicOk())
+    protected void paranoiaMagicOk() 
+    {
+        if ( ! magicOk() )
+        {
             throw new Error( I18n.err( I18n.ERR_547, getMagic() ) );
+        }
     }
+    
     
     /** Returns the magic code */
-    short getMagic() {
-        return block.readShort(O_MAGIC);
+    short getMagic() 
+    {
+        return block.readShort( O_MAGIC );
     }
 
+    
     /** Returns the next block. */
-    long getNext() {
+    long getNext() 
+    {
         paranoiaMagicOk();
-        return block.readLong(O_NEXT);
+        return block.readLong( O_NEXT );
     }
+    
     
     /** Sets the next block. */
-    void setNext(long next) {
+    void setNext( long next ) 
+    {
         paranoiaMagicOk();
-        block.writeLong(O_NEXT, next);
+        block.writeLong( O_NEXT, next );
     }
+    
     
     /** Returns the previous block. */
-    long getPrev() {
+    long getPrev() 
+    {
         paranoiaMagicOk();
-        return block.readLong(O_PREV);
+        return block.readLong( O_PREV );
     }
+    
     
     /** Sets the previous block. */
-    void setPrev(long prev) {
+    void setPrev( long prev ) 
+    {
         paranoiaMagicOk();
-        block.writeLong(O_PREV, prev);
+        block.writeLong( O_PREV, prev );
     }
     
+    
     /** Sets the type of the page header */
-    void setType(short type) {
-        block.writeShort(O_MAGIC, (short) (Magic.BLOCK + type));
+    void setType ( short type ) 
+    {
+        block.writeShort( O_MAGIC, ( short ) ( Magic.BLOCK + type ) );
     }
 }
