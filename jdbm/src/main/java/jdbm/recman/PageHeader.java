@@ -84,8 +84,7 @@ public class PageHeader implements BlockView
      * Constructs a PageHeader object from a block
      *
      * @param block The block that contains the page header
-     * @throws IOException if the block is too short to keep the page
-     *          header.
+     * @throws IOException if the block is too short to keep the page header.
      */
     protected PageHeader( BlockIo block ) 
     {
