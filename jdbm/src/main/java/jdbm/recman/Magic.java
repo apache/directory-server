@@ -48,17 +48,17 @@ package jdbm.recman;
 
 
 /**
- *  This interface contains magic cookies.
+ * This interface contains magic cookies.
  */
 public interface Magic 
 {
     /** Magic cookie at start of file */
-    public short FILE_HEADER = 0x1350;
+    short FILE_HEADER = 0x1350;
 
     /** Magic for blocks. They're offset by the block type magic codes. */
-    public short BLOCK = 0x1351;
+    short BLOCK = 0x1351;
 
-    /** Magics for blocks in certain lists. Offset by baseBlockMagic */
+    /** Magics for block types in certain lists. Offset by baseBlockMagic */
     short FREE_PAGE = 0;
     short USED_PAGE = 1;
     short TRANSLATION_PAGE = 2;
@@ -78,11 +78,11 @@ public interface Magic
     short LOGFILE_HEADER = 0x1360;
 
     /** Size of an externalized byte */
-    public short SZ_BYTE = 1;
+    short SZ_BYTE = 1;
     /** Size of an externalized short */
-    public short SZ_SHORT = 2;
+    short SZ_SHORT = 2;
     /** Size of an externalized int */
-    public short SZ_INT = 4;
+    short SZ_INT = 4;
     /** Size of an externalized long */
-    public short SZ_LONG = 8;
+    short SZ_LONG = 8;
 }
