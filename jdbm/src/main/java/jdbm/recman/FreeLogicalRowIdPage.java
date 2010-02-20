@@ -44,21 +44,22 @@
  *
  * $Id: FreeLogicalRowIdPage.java,v 1.1 2000/05/06 00:00:31 boisvert Exp $
  */
-
 package jdbm.recman;
 
+
 /**
- *  Class describing a page that holds logical rowids that were freed. Note
- *  that the methods have *physical* rowids in their signatures - this is
- *  because logical and physical rowids are internally the same, only their
- *  external representation (i.e. in the client API) differs.
+ * Class describing a page that holds logical rowids that were freed. Note
+ * that the methods have *physical* rowids in their signatures - this is
+ * because logical and physical rowids are internally the same, only their
+ * external representation (i.e. in the client API) differs.
  */
-class FreeLogicalRowIdPage extends PageHeader {
+class FreeLogicalRowIdPage extends PageHeader 
+{
     // offsets
     private static final short O_COUNT = PageHeader.SIZE; // short count
     static final short O_FREE = (short)(O_COUNT + Magic.SZ_SHORT);
-    static final short ELEMS_PER_PAGE = (short)
-        ((RecordFile.BLOCK_SIZE - O_FREE) / PhysicalRowId.SIZE);
+    static final short ELEMS_PER_PAGE = ( short ) 
+        ( ( RecordFile.BLOCK_SIZE - O_FREE ) / PhysicalRowId.SIZE );
 
     // slots we returned.
     final PhysicalRowId[] slots = new PhysicalRowId[ELEMS_PER_PAGE];

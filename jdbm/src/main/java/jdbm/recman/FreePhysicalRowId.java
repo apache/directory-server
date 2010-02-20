@@ -44,34 +44,39 @@
  *
  * $Id: FreePhysicalRowId.java,v 1.1 2000/05/06 00:00:31 boisvert Exp $
  */
-
 package jdbm.recman;
 
+
 /**
- *  This class extends the physical rowid with a size value to indicated
- *  the size of a free rowid on the free rowid list.
+ * This class extends the physical rowid with a size value to indicate
+ * the size of a free rowid on the free rowid list.
  */
-final class FreePhysicalRowId extends PhysicalRowId {
+final class FreePhysicalRowId extends PhysicalRowId 
+{
     // offsets
     private static final short O_SIZE = PhysicalRowId.SIZE; // int size
     static final short SIZE = O_SIZE + Magic.SZ_INT;
 
+    
     /**
-     *  Constructs a physical rowid from the indicated data starting at
-     *  the indicated position.
+     * Constructs a physical rowid from the indicated data starting at
+     * the indicated position.
      */
-    FreePhysicalRowId(BlockIo block, short pos) {
-  super(block, pos);
+    FreePhysicalRowId( BlockIo block, short pos ) 
+    {
+        super( block, pos );
     }
+    
 
     /** Returns the size */
-    int getSize() {
-  return block.readInt(pos + O_SIZE);
+    int getSize() 
+    {
+        return block.readInt( pos + O_SIZE );
     }
 
     /** Sets the size */
-    void setSize(int value) {
-  block.writeInt(pos + O_SIZE, value);
+    void setSize( int value ) 
+    {
+        block.writeInt( pos + O_SIZE, value );
     }
-
 }
