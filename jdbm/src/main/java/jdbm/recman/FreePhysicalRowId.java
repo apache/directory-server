@@ -73,6 +73,7 @@ final class FreePhysicalRowId extends PhysicalRowId
     {
         return block.readInt( pos + O_SIZE );
     }
+    
 
     /** Sets the size */
     void setSize( int value ) 
