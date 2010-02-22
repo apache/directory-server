@@ -189,7 +189,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         }
         catch ( InvalidNameException ine )
         {
-            assertEquals( "No more characters available at position 5", ine.getMessage() );
+            assertEquals( "ERR_04201 No more characters available at position 5", ine.getMessage() );
         }
         catch ( NamingException ne )
         {
@@ -228,7 +228,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         }
         catch ( LdapAuthenticationException lae )
         {
-            assertEquals( "ERR_229 Cannot authenticate user uid=unknown,ou=system", lae.getMessage() );
+            assertEquals( "ERR_229 (uid=unknown,ou=system)", lae.getMessage() );
         }
         catch ( NamingException ne )
         {
