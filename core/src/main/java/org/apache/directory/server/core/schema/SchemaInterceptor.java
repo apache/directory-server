@@ -1234,7 +1234,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         for ( Value<?> value : attribute )
                         {
                             // At this point, we know that the attribute's syntax is correct
-                            // We just have to check thaat the current attribute does not 
+                            // We just have to check that the current attribute does not 
                             // contains the value already
                             if ( currentAttribute.contains( value ))
                             {
@@ -1922,6 +1922,12 @@ public class SchemaInterceptor extends BaseInterceptor
             // Then loop on all values
             for ( Value<?> value : attribute )
             {
+                if ( value.isValid() )
+                {
+                    // No need to validate something which is already ok
+                    continue;
+                }
+                
                 try
                 {
                     syntaxChecker.assertSyntax( value.get() );
