@@ -51,11 +51,11 @@ import org.apache.directory.server.i18n.I18n;
 
 
 /**
- *  The data that comes at the start of a record of data. It stores 
- *  both the current size and the available size for the record - the latter
- *  can be bigger than the former, which allows the record to grow without
- *  needing to be moved and which allows the system to put small records
- *  in larger free spots.
+ * The data that comes at the start of a record of data. It stores both the 
+ * current size and the available size for the record - the latter can be 
+ * bigger than the former, which allows the record to grow without needing to 
+ * be moved and which allows the system to put small records in larger free 
+ * spots.
  */
 class RecordHeader 
 {
@@ -70,13 +70,14 @@ class RecordHeader
 
     
     /**
-     *  Constructs a record header from the indicated data starting at
-     *  the indicated position.
+     * Constructs a record header from the indicated data starting at the 
+     * indicated position.
      */
     RecordHeader( BlockIo block, short pos ) 
     {
         this.block = block;
         this.pos = pos;
+        
         if ( pos > ( RecordFile.BLOCK_SIZE - SIZE ) )
         {
             throw new Error( I18n.err( I18n.ERR_562, block.getBlockId(), pos ) );
