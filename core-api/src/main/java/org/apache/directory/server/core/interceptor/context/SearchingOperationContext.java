@@ -376,7 +376,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
     {
         SearchControls controls = new SearchControls();
         controls.setCountLimit( sizeLimit );
-        controls.setSearchScope( scope.getJndiScope() );
+        controls.setSearchScope( scope.getScope() );
         controls.setTimeLimit( timeLimit );
 
         Set<String> allReturningAttributes = new HashSet<String>();

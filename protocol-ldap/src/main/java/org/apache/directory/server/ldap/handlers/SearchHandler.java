@@ -816,11 +816,11 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
                 switch( req.getScope() )
                 {
                     case SUBTREE:
-                        ldapUrl.setScope( SearchScope.SUBTREE.getJndiScope() );
+                        ldapUrl.setScope( SearchScope.SUBTREE.getScope() );
                         break;
                         
                     case ONELEVEL: // one level here is object level on remote server
-                        ldapUrl.setScope( SearchScope.OBJECT.getJndiScope() );
+                        ldapUrl.setScope( SearchScope.OBJECT.getScope() );
                         break;
                         
                     default:
@@ -1199,7 +1199,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
             
             ldapUrl.setForceScopeRendering( true );
             ldapUrl.setAttributes( req.getAttributes() );
-            ldapUrl.setScope( req.getScope().getJndiScope() );
+            ldapUrl.setScope( req.getScope().getScope() );
             referral.addLdapUrl( ldapUrl.toString() );
         }
 

@@ -325,7 +325,7 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
             {
                 ldapUrl.setForceScopeRendering( true );
                 ldapUrl.setAttributes( req.getAttributes() );
-                ldapUrl.setScope( req.getScope().getJndiScope() );
+                ldapUrl.setScope( req.getScope().getScope() );
                 referral.addLdapUrl( ldapUrl.toString() );
                 continue;
             }
@@ -349,7 +349,7 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
             ldapUrl.getDn().addAll( extra );
             ldapUrl.setForceScopeRendering( true );
             ldapUrl.setAttributes( req.getAttributes() );
-            ldapUrl.setScope( req.getScope().getJndiScope() );
+            ldapUrl.setScope( req.getScope().getScope() );
             referral.addLdapUrl( ldapUrl.toString() );
         }
         

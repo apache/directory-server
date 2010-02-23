@@ -87,14 +87,23 @@ public class ModifyMVAttributeIT extends AbstractLdapTestUnit
      * With this test the Master table will grow crazy.
      */
     @Test
-    @Ignore
+    //@Ignore
     public void testAdd500Members() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
+        long t0 = System.currentTimeMillis();
         
         // Add 600 members
-        for ( int i = 0; i < 600; i++ )
+        for ( int i = 0; i < 100000; i++ )
         {
+            if ( i% 100 == 0)
+            {
+                long t1 = System.currentTimeMillis();
+                long delta = ( t1 - t0 );
+                System.out.println( "Done : " + i + " in " + delta + "ms" );
+                t0 = t1;
+            }
+            
             String newValue = "cn=member" + i + ",ou=people,o=sevenSeas";
             Attributes attrs = new BasicAttributes( "uniqueMember", newValue, true );
             sysRoot.modifyAttributes( "cn=testing00", DirContext.ADD_ATTRIBUTE, attrs );
