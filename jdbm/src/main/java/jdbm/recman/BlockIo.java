@@ -53,13 +53,13 @@ import org.apache.directory.server.i18n.I18n;
 
 
 /**
- *  This class wraps a page-sized byte array and provides methods
- *  to read and write data to and from it. The readers and writers
- *  are just the ones that the rest of the toolkit needs, nothing else.
- *  Values written are compatible with java.io routines.
+ * This class wraps a page-sized byte array and provides methods to read and 
+ * write data to and from it. The readers and writers are just the ones that 
+ * the rest of the toolkit needs, nothing else. Values written are compatible 
+ * with java.io routines.
  *
- *  @see java.io.DataInput
- *  @see java.io.DataOutput
+ * @see java.io.DataInput
+ * @see java.io.DataOutput
  */
 public final class BlockIo implements java.io.Externalizable 
 {
@@ -99,7 +99,7 @@ public final class BlockIo implements java.io.Externalizable
 
     
     /**
-     *  Returns the underlying array
+     * Returns the underlying array
      */
     byte[] getData() 
     {
@@ -108,7 +108,7 @@ public final class BlockIo implements java.io.Externalizable
 
     
     /**
-     *  Sets the block number. Should only be called by RecordFile.
+     * Sets the block number. Should only be called by RecordFile.
      */
     void setBlockId( long id ) 
     {
@@ -128,7 +128,7 @@ public final class BlockIo implements java.io.Externalizable
 
     
     /**
-     *  Returns the block number.
+     * Returns the block number.
      */
     long getBlockId() 
     {
@@ -137,7 +137,7 @@ public final class BlockIo implements java.io.Externalizable
 
     
     /**
-     *  Returns the current view of the block.
+     * Returns the current view of the block.
      */
     public BlockView getView() 
     {
@@ -146,7 +146,7 @@ public final class BlockIo implements java.io.Externalizable
 
     
     /**
-     *  Sets the current view of the block.
+     * Sets the current view of the block.
      */
     public void setView( BlockView view ) 
     {
@@ -155,7 +155,7 @@ public final class BlockIo implements java.io.Externalizable
 
     
     /**
-     *  Sets the dirty flag
+     * Sets the dirty flag
      */
     void setDirty() 
     {
@@ -164,7 +164,7 @@ public final class BlockIo implements java.io.Externalizable
 
     
     /**
-     *  Clears the dirty flag
+     * Clears the dirty flag
      */
     void setClean() 
     {
@@ -173,7 +173,7 @@ public final class BlockIo implements java.io.Externalizable
 
     
     /**
-     *  Returns true if the dirty flag is set.
+     * Returns true if the dirty flag is set.
      */
     boolean isDirty() 
     {
@@ -182,8 +182,8 @@ public final class BlockIo implements java.io.Externalizable
 
     
     /**
-     *  Returns true if the block is still dirty with respect to the 
-     *  transaction log.
+     * Returns true if the block is still dirty with respect to the 
+     * transaction log.
      */
     boolean isInTransaction() 
     {
@@ -192,9 +192,9 @@ public final class BlockIo implements java.io.Externalizable
 
 
     /**
-     *  Increments transaction count for this block, to signal that this
-     *  block is in the log but not yet in the data file. The method also
-     *  takes a snapshot so that the data may be modified in new transactions.
+     * Increments transaction count for this block, to signal that this
+     * block is in the log but not yet in the data file. The method also
+     * takes a snapshot so that the data may be modified in new transactions.
      */
     synchronized void incrementTransactionCount() 
     {
@@ -206,8 +206,8 @@ public final class BlockIo implements java.io.Externalizable
 
     
     /**
-     *  Decrements transaction count for this block, to signal that this
-     *  block has been written from the log to the data file.
+     * Decrements transaction count for this block, to signal that this
+     * block has been written from the log to the data file.
      */
     synchronized void decrementTransactionCount() 
     {
@@ -220,7 +220,7 @@ public final class BlockIo implements java.io.Externalizable
     
 
     /**
-     *  Reads a byte from the indicated position
+     * Reads a byte from the indicated position
      */
     public byte readByte( int pos ) 
     {
@@ -229,7 +229,7 @@ public final class BlockIo implements java.io.Externalizable
     
 
     /**
-     *  Writes a byte to the indicated position
+     * Writes a byte to the indicated position
      */
     public void writeByte( int pos, byte value ) 
     {
@@ -239,7 +239,7 @@ public final class BlockIo implements java.io.Externalizable
 
     
     /**
-     *  Reads a short from the indicated position
+     * Reads a short from the indicated position
      */
     public short readShort( int pos ) 
     {
@@ -250,7 +250,7 @@ public final class BlockIo implements java.io.Externalizable
 
     
     /**
-     *  Writes a short to the indicated position
+     * Writes a short to the indicated position
      */
     public void writeShort( int pos, short value ) 
     {
@@ -261,7 +261,7 @@ public final class BlockIo implements java.io.Externalizable
 
     
     /**
-     *  Reads an int from the indicated position
+     * Reads an int from the indicated position
      */
     public int readInt( int pos ) 
     {
@@ -274,7 +274,7 @@ public final class BlockIo implements java.io.Externalizable
 
     
     /**
-     *  Writes an int to the indicated position
+     * Writes an int to the indicated position
      */
     public void writeInt( int pos, int value ) 
     {
@@ -287,7 +287,7 @@ public final class BlockIo implements java.io.Externalizable
 
     
     /**
-     *  Reads a long from the indicated position
+     * Reads a long from the indicated position
      */
     public long readLong( int pos )
     {
@@ -317,7 +317,7 @@ public final class BlockIo implements java.io.Externalizable
 
     
     /**
-     *  Writes a long to the indicated position
+     * Writes a long to the indicated position
      */
     public void writeLong(int pos, long value) {
         data[pos+0] = (byte)(0xff & (value >> 56));

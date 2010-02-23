@@ -89,13 +89,13 @@ public final class RecordFile
 
     
     /**
-     *  Creates a new object on the indicated filename. The file is
-     *  opened in read/write mode.
+     * Creates a new object on the indicated filename. The file is
+     * opened in read/write mode.
      *
-     *  @param fileName the name of the file to open or create, without
-     *         an extension.
-     *  @throws IOException whenever the creation of the underlying
-     *          RandomAccessFile throws it.
+     * @param fileName the name of the file to open or create, without
+     *        an extension.
+     * @throws IOException whenever the creation of the underlying
+     *         RandomAccessFile throws it.
      */
     RecordFile ( String fileName ) throws IOException 
     {
@@ -106,7 +106,7 @@ public final class RecordFile
 
     
     /**
-     *  Returns the file name.
+     * Returns the file name.
      */
     String getFileName() 
     {
@@ -115,8 +115,8 @@ public final class RecordFile
 
     
     /**
-     *  Disables transactions: doesn't sync and doesn't use the
-     *  transaction manager.
+     * Disables transactions: doesn't sync and doesn't use the
+     * transaction manager.
      */
     void disableTransactions() 
     {
@@ -125,12 +125,11 @@ public final class RecordFile
 
     
     /**
-     *  Gets a block from the file. The returned byte array is
-     *  the in-memory copy of the record, and thus can be written
-     *  (and subsequently released with a dirty flag in order to
-     *  write the block back).
+     * Gets a block from the file. The returned byte array is the in-memory 
+     * copy of the record, and thus can be written (and subsequently released 
+     * with a dirty flag in order to write the block back).
      *
-     *  @param blockid The record number to retrieve.
+     * @param blockid The record number to retrieve.
      */
      BlockIo get( long blockid ) throws IOException 
      {
@@ -189,10 +188,10 @@ public final class RecordFile
 
 
     /**
-     *  Releases a block.
+     * Releases a block.
      *
-     *  @param blockid The record number to release.
-     *  @param isDirty If true, the block was modified since the get().
+     * @param blockid The record number to release.
+     * @param isDirty If true, the block was modified since the get().
      */
     void release( long blockid, boolean isDirty ) throws IOException 
     {
@@ -213,9 +212,9 @@ public final class RecordFile
 
     
     /**
-     *  Releases a block.
+     * Releases a block.
      *
-     *  @param block The block to release.
+     * @param block The block to release.
      */
     void release( BlockIo block ) 
     {
@@ -241,9 +240,9 @@ public final class RecordFile
     
 
     /**
-     *  Discards a block (will not write the block even if it's dirty)
+     * Discards a block (will not write the block even if it's dirty)
      *
-     *  @param block The block to discard.
+     * @param block The block to discard.
      */
     void discard( BlockIo block ) 
     {
@@ -255,7 +254,7 @@ public final class RecordFile
 
     
     /**
-     *  Commits the current transaction by flushing all dirty buffers to disk.
+     * Commits the current transaction by flushing all dirty buffers to disk.
      */
     void commit() throws IOException 
     {
@@ -310,7 +309,7 @@ public final class RecordFile
 
     
     /**
-     *  Rollback the current transaction by discarding all dirty buffers
+     * Rollback the current transaction by discarding all dirty buffers
      */
     void rollback() throws IOException 
     {
@@ -335,7 +334,7 @@ public final class RecordFile
 
     
     /**
-     *  Commits and closes file.
+     * Commits and closes file.
      */
     void close() throws IOException 
     {
@@ -386,7 +385,7 @@ public final class RecordFile
 
     
     /**
-     *  Prints contents of a list
+     * Prints contents of a list
      */
     private void showList( Iterator<BlockIo> i ) 
     {
@@ -400,8 +399,8 @@ public final class RecordFile
 
 
     /**
-     *  Returns a new node. The node is retrieved (and removed) from the 
-     *  released list or created new.
+     * Returns a new node. The node is retrieved (and removed) from the 
+     * released list or created new.
      */
     private BlockIo getNewNode( long blockid ) throws IOException 
     {
@@ -424,8 +423,8 @@ public final class RecordFile
     
 
     /**
-     *  Synchronizes a node to disk. This is called by the transaction manager's
-     *  synchronization code.
+     * Synchronizes a node to disk. This is called by the transaction manager's
+     * synchronization code.
      */
     void synch( BlockIo node ) throws IOException 
     {
@@ -440,10 +439,9 @@ public final class RecordFile
 
     
     /**
-     *  Releases a node from the transaction list, if it was sitting
-     *  there.
+     * Releases a node from the transaction list, if it was sitting there.
      *
-     *  @param recycle true if block data can be reused
+     * @param recycle true if block data can be reused
      */
     void releaseFromTransaction( BlockIo node, boolean recycle ) throws IOException 
     {
@@ -455,7 +453,7 @@ public final class RecordFile
     
 
     /**
-     *  Synchronizes the file.
+     * Synchronizes the file.
      */
     void sync() throws IOException 
     {
