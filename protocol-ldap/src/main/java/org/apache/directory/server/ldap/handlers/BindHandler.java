@@ -89,15 +89,15 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
     public void handleSimpleAuth( LdapSession ldapSession, InternalBindRequest bindRequest ) throws Exception
     {
         // if the user is already bound, we have to unbind him
-        if ( !ldapSession.isAnonymous() )
+        if ( ldapSession.isAuthenticated() )
         {
             // We already have a bound session for this user. We have to
             // abandon it first.
             ldapSession.getCoreSession().unbind();
-
-            // Reset the status to Anonymous
-            ldapSession.setAnonymous();
         }
+
+        // Set the status to SimpleAuthPending
+        ldapSession.setSimpleAuthPending();
 
         // Now, bind the user
 
@@ -176,11 +176,16 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
             // As a result, store the created session in the Core Session
             ldapSession.setCoreSession( opContext.getSession() );
 
+            // And set the current state accordingly
             if ( !ldapSession.getCoreSession().isAnonymous() )
             {
                 ldapSession.setAuthenticated();
             }
-
+            else
+            {
+                ldapSession.setAnonymous();
+            }
+            
             // Return the successful response
             sendBindSuccess( ldapSession, bindRequest, null );
         }
@@ -328,8 +333,8 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
                 // Store the challenge
                 resp.setServerSaslCreds( tokenBytes );
 
-                // Switch to AuthPending
-                ldapSession.setAuthPending();
+                // Switch to SASLAuthPending
+                ldapSession.setSaslAuthPending();
 
                 // And write back the response
                 ldapSession.getIoSession().write( resp );

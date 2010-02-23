@@ -187,7 +187,7 @@ public class LdapServer extends DirectoryBackedService
     /** The list of realms serviced by this host. */
     private List<String> saslRealms;
 
-    /** The potocol handlers */
+    /** The protocol handlers */
     private LdapRequestHandler<InternalAbandonRequest> abandonHandler;
     private LdapRequestHandler<InternalAddRequest> addHandler;
     private LdapRequestHandler<InternalBindRequest> bindHandler;

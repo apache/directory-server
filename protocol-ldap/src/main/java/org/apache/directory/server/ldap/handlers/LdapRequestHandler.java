@@ -23,15 +23,19 @@ package org.apache.directory.server.ldap.handlers;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
+import org.apache.directory.shared.ldap.message.BindRequestImpl;
+import org.apache.directory.shared.ldap.message.BindResponseImpl;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.InternalAbandonRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
+import org.apache.directory.shared.ldap.message.internal.InternalBindResponse;
 import org.apache.directory.shared.ldap.message.internal.InternalExtendedRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.internal.InternalReferral;
@@ -117,12 +121,33 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
         return;
     }
 
-
+    /**
+     *{@inheritDoc} 
+     */
     public final void handleMessage( IoSession session, T message ) throws Exception
     {
         LdapSession ldapSession = ldapServer.getLdapSessionManager().getLdapSession( session );
         
-        //handle( ldapSession, message );
+        // First check that the client hasn't issued a previous BindRequest, unless it
+        // was a SASL BindRequest
+        if ( ldapSession.isAuthPending() )
+        {
+            // Only SASL BinRequest are allowed if we already are handling a 
+            // SASL BindRequest
+            if ( !( message instanceof BindRequestImpl ) || 
+                 ((BindRequestImpl)message).isSimple() ||
+                 ldapSession.isSimpleAuthPending() )
+            {
+                LOG.error( I18n.err( I18n.ERR_732 ) );
+                InternalBindResponse bindResponse = new BindResponseImpl( message.getMessageId() );
+                InternalLdapResult bindResult = bindResponse.getLdapResult();
+                bindResult.setResultCode( ResultCodeEnum.UNWILLING_TO_PERFORM );
+                bindResult.setErrorMessage( I18n.err( I18n.ERR_732 ) );
+                ldapSession.getIoSession().write( bindResponse );
+                return;
+            }
+        }
+        
         // TODO - session you get from LdapServer should have the ldapServer 
         // member already set no?  Should remove these lines where ever they
         // may be if that's the case.
@@ -135,6 +160,7 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
             {
                 // Reject all extended operations except StartTls  
                 InternalExtendedRequest req = ( InternalExtendedRequest ) message;
+                
                 if ( ! req.getID().equals( StartTlsHandler.EXTENSION_OID ) )
                 {
                     rejectWithoutConfidentiality( session, req.getResultResponse() );

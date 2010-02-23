@@ -770,6 +770,7 @@ public class I18n
     public static String ERR_729 = "ERR_729";
     public static String ERR_730 = "ERR_730";
     public static String ERR_731 = "ERR_731";
+    public static String ERR_732 = "ERR_732";
 
 
     /**

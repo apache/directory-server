@@ -135,13 +135,37 @@ public class LdapSession
     
     
     /**
-     * Check if the session is in the middle of a SASL negotiation.
+     * Check if the session is processing a BindRequest, either Simple
+     * or SASL
      * 
      * @return <code>true</code> if the session is in AuthPending state
      */
     public boolean isAuthPending()
     {
-        return bindStatus == BindStatus.AUTH_PENDING;
+        return ( bindStatus == BindStatus.SIMPLE_AUTH_PENDING ) || 
+               ( bindStatus == BindStatus.SASL_AUTH_PENDING );
+    }
+    
+    
+    /**
+     * Check if the session is processing a Simple BindRequest
+     * 
+     * @return <code>true</code> if the session is in AuthPending state
+     */
+    public boolean isSimpleAuthPending()
+    {
+        return ( bindStatus == BindStatus.SIMPLE_AUTH_PENDING );
+    }
+    
+    
+    /**
+     * Check if the session is processing a SASL BindRequest
+     * 
+     * @return <code>true</code> if the session is in AuthPending state
+     */
+    public boolean isSaslAuthPending()
+    {
+        return ( bindStatus == BindStatus.SASL_AUTH_PENDING );
     }
     
     
@@ -283,11 +307,20 @@ public class LdapSession
     
     
     /**
-     * Set the current BindStatus to authentication pending
+     * Set the current BindStatus to Simple authentication pending
      */
-    public void setAuthPending()
+    public void setSimpleAuthPending()
     {
-        bindStatus = BindStatus.AUTH_PENDING;
+        bindStatus = BindStatus.SIMPLE_AUTH_PENDING;
+    }
+    
+    
+    /**
+     * Set the current BindStatus to SASL authentication pending
+     */
+    public void setSaslAuthPending()
+    {
+        bindStatus = BindStatus.SASL_AUTH_PENDING;
     }
 
 
