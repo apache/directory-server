@@ -45,13 +45,14 @@
  *
  * $Id: RecordManagerFactory.java,v 1.2 2005/06/25 23:12:31 doomdark Exp $
  */
-
 package jdbm;
+
 
 import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.directory.server.i18n.I18n;
+
 
 /**
  * This is the factory class to use for instantiating {@link RecordManager}
@@ -74,8 +75,7 @@ public final class RecordManagerFactory
      *                                      implementation.
      * @throws IllegalArgumentException if some options are invalid.
      */
-    public static RecordManager createRecordManager( String name )
-        throws IOException
+    public static RecordManager createRecordManager( String name ) throws IOException
     {
         return createRecordManager( name, new Properties() );
     }
@@ -92,25 +92,25 @@ public final class RecordManagerFactory
      *                                      implementation.
      * @throws IllegalArgumentException if some options are invalid.
      */
-    public static RecordManager createRecordManager( String name,
-                                                     Properties options )
-        throws IOException
+    public static RecordManager createRecordManager( String name, Properties options ) throws IOException
     {
         String                 provider;
-        Class                  clazz;
+        Class<?>               clazz;
         RecordManagerProvider  factory;
 
-        provider = options.getProperty( RecordManagerOptions.PROVIDER_FACTORY,
-                                        "jdbm.recman.Provider" );
+        provider = options.getProperty( RecordManagerOptions.PROVIDER_FACTORY, "jdbm.recman.Provider" );
 
-        try {
+        try 
+        {
             clazz = Thread.currentThread().getContextClassLoader().loadClass( provider );
-            factory = (RecordManagerProvider) clazz.newInstance();
-        } catch ( Exception except ) {
+            factory = ( RecordManagerProvider ) clazz.newInstance();
+        } 
+        catch ( Exception except ) 
+        {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_567, provider, except.getClass().getName(),
                 except.getLocalizedMessage() ) );
         }
+        
         return factory.createRecordManager( name, options );
     }
-
 }

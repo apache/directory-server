@@ -65,10 +65,8 @@ import jdbm.helper.MRU;
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @version $Id: Provider.java,v 1.3 2005/06/25 23:12:32 doomdark Exp $
  */
-public final class Provider
-    implements RecordManagerProvider
+public final class Provider implements RecordManagerProvider
 {
-
     /**
      * Create a default implementation record manager.
      *
@@ -80,9 +78,7 @@ public final class Provider
      *                                      implementation.
      * @throws IllegalArgumentException if some options are invalid.
      */
-    public RecordManager createRecordManager( String name,
-                                              Properties options )
-        throws IOException
+    public RecordManager createRecordManager( String name, Properties options ) throws IOException
     {
         RecordManager  recman;
         String         value;
@@ -91,28 +87,35 @@ public final class Provider
         recman = new BaseRecordManager( name );
 
         value = options.getProperty( RecordManagerOptions.DISABLE_TRANSACTIONS, "false" );
-        if ( value.equalsIgnoreCase( "TRUE" ) ) {
-            ( (BaseRecordManager) recman ).disableTransactions();
+        
+        if ( value.equalsIgnoreCase( "TRUE" ) ) 
+        {
+            ( ( BaseRecordManager ) recman ).disableTransactions();
         }
 
         value = options.getProperty( RecordManagerOptions.CACHE_SIZE, "1000" );
         cacheSize = Integer.parseInt( value );
 
-        value = options.getProperty( RecordManagerOptions.CACHE_TYPE,
-                                     RecordManagerOptions.NORMAL_CACHE );
-        if ( value.equalsIgnoreCase( RecordManagerOptions.NORMAL_CACHE ) ) {
+        value = options.getProperty( RecordManagerOptions.CACHE_TYPE, RecordManagerOptions.NORMAL_CACHE );
+        
+        if ( value.equalsIgnoreCase( RecordManagerOptions.NORMAL_CACHE ) ) 
+        {
             MRU cache = new MRU( cacheSize );
             recman = new CacheRecordManager( recman, cache );
-        } else if ( value.equalsIgnoreCase( RecordManagerOptions.SOFT_REF_CACHE ) ) {
+        } 
+        else if ( value.equalsIgnoreCase( RecordManagerOptions.SOFT_REF_CACHE ) ) 
+        {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_551 ) );
-        } else if ( value.equalsIgnoreCase( RecordManagerOptions.WEAK_REF_CACHE ) ) {
+        } 
+        else if ( value.equalsIgnoreCase( RecordManagerOptions.WEAK_REF_CACHE ) ) 
+        {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_552 ) );
-        } else {
+        } 
+        else 
+        {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_553, value ) );
         }
 
         return recman;
     }
-
-
 }

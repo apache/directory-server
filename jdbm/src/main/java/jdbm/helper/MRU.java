@@ -62,7 +62,8 @@ import org.apache.directory.server.i18n.I18n;
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @version $Id: MRU.java,v 1.8 2005/06/25 23:12:31 doomdark Exp $
  */
-public class MRU implements CachePolicy {
+public class MRU implements CachePolicy 
+{
 
     /** Cached object hashtable */
     Hashtable _hash = new Hashtable();
