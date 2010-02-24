@@ -57,33 +57,39 @@ class FreeLogicalRowIdPage extends PageHeader
 {
     // offsets
     private static final short O_COUNT = PageHeader.SIZE; // short count
-    static final short O_FREE = (short)(O_COUNT + Magic.SZ_SHORT);
-    static final short ELEMS_PER_PAGE = ( short ) 
-        ( ( RecordFile.BLOCK_SIZE - O_FREE ) / PhysicalRowId.SIZE );
+    static final short O_FREE = O_COUNT + Magic.SZ_SHORT;
+    static final short ELEMS_PER_PAGE = ( RecordFile.BLOCK_SIZE - O_FREE ) / PhysicalRowId.SIZE;
 
     // slots we returned.
     final PhysicalRowId[] slots = new PhysicalRowId[ELEMS_PER_PAGE];
 
+    
     /**
-     *  Constructs a data page view from the indicated block.
+     * Constructs a data page view from the indicated block.
      */
-    FreeLogicalRowIdPage(BlockIo block) {
-        super(block);
+    FreeLogicalRowIdPage( BlockIo block ) 
+    {
+        super( block );
     }
+    
 
     /**
-     *  Factory method to create or return a data page for the
-     *  indicated block.
+     * Factory method to create or return a data page for the indicated block.
      */
-    static FreeLogicalRowIdPage getFreeLogicalRowIdPageView(BlockIo block) {
-
+    static FreeLogicalRowIdPage getFreeLogicalRowIdPageView( BlockIo block ) 
+    {
         BlockView view = block.getView();
-        if (view != null && view instanceof FreeLogicalRowIdPage)
-            return (FreeLogicalRowIdPage) view;
+        if ( view != null && view instanceof FreeLogicalRowIdPage )
+        {
+            return ( FreeLogicalRowIdPage ) view;
+        }
         else
+        {
             return new FreeLogicalRowIdPage(block);
+        }
     }
 
+    
     /** Returns the number of free rowids */
     short getCount() {
         return block.readShort(O_COUNT);

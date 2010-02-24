@@ -178,7 +178,7 @@ final class PageManager
             throw new Error( I18n.err( I18n.ERR_549 ) );
         }
         
-        if (recid == 0)
+        if ( recid == 0 )
         {
             throw new Error( I18n.err( I18n.ERR_550 ) );
         }
@@ -276,7 +276,7 @@ final class PageManager
     
     /**
      * Commit all pending (in-memory) data by flushing the page manager.
-     * This forces a flush of all outstanding blocks (this it's an implicit
+     * This forces a flush of all outstanding blocks (this is an implicit
      * {@link RecordFile#commit} as well).
      */
     void commit() throws IOException 
@@ -292,8 +292,10 @@ final class PageManager
 
     
     /**
-     *  Flushes the page manager. This forces a flush of all outstanding
-     *  blocks (this it's an implicit {@link RecordFile#commit} as well).
+     * Flushes the page manager. This forces a flush of all outstanding
+     * blocks (this is an implicit {@link RecordFile#commit} as well).
+     * 
+     * @TODO completely wrong description of method
      */
     void rollback() throws IOException 
     {
@@ -315,8 +317,8 @@ final class PageManager
     
     
     /**
-     *  Closes the page manager. This flushes the page manager and releases
-     *  the lock on the header.
+     * Closes the page manager. This flushes the page manager and releases
+     * the lock on the header.
      */
     void close() throws IOException 
     {   

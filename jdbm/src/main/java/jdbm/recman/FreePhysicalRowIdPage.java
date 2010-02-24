@@ -55,8 +55,7 @@ final class FreePhysicalRowIdPage extends PageHeader
     // offsets
     private static final short O_COUNT = PageHeader.SIZE; // short count
     static final short O_FREE = O_COUNT + Magic.SZ_SHORT;
-    static final short ELEMS_PER_PAGE =  ( RecordFile.BLOCK_SIZE - O_FREE ) 
-        / FreePhysicalRowId.SIZE;
+    static final short ELEMS_PER_PAGE =  ( RecordFile.BLOCK_SIZE - O_FREE ) / FreePhysicalRowId.SIZE;
     
     // slots we returned.
     FreePhysicalRowId[] slots = new FreePhysicalRowId[ELEMS_PER_PAGE];
@@ -174,9 +173,9 @@ final class FreePhysicalRowIdPage extends PageHeader
      */
     int getFirstLargerThan( int size ) 
     {
-        for (int i = 0; i < ELEMS_PER_PAGE; i++) 
+        for ( int i = 0; i < ELEMS_PER_PAGE; i++ ) 
         {
-            if ( isAllocated(i) && get(i).getSize() >= size )
+            if ( isAllocated( i ) && get( i ).getSize() >= size )
             {
                 return i;
             }

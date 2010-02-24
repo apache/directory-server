@@ -44,17 +44,17 @@
  *
  * $Id: PhysicalRowIdManager.java,v 1.3 2003/03/21 03:00:09 boisvert Exp $
  */
-
 package jdbm.recman;
+
 
 import java.io.IOException;
 
+
 /**
- *  This class manages physical row ids, and their data.
+ * This class manages physical row ids, and their data.
  */
 final class PhysicalRowIdManager
 {
-
     // The file we're talking to and the associated page manager.
     private RecordFile file;
     private PageManager pageman;
@@ -284,7 +284,6 @@ final class PhysicalRowIdManager
     {
         // get the rowid, and write a zero current size into it.
         BlockIo curBlock = file.get( id.getBlock() );
-        DataPage curPage = DataPage.getDataPageView( curBlock );
         RecordHeader hdr = new RecordHeader( curBlock, id.getOffset() );
         hdr.setCurrentSize( 0 );
         file.release( id.getBlock(), true );

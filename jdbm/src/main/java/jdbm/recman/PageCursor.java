@@ -44,60 +44,76 @@
  *
  * $Id: PageCursor.java,v 1.1 2000/05/06 00:00:31 boisvert Exp $
  */
-
 package jdbm.recman;
+
 
 import java.io.IOException;
 
+
 /**
- *  This class provides a cursor that can follow lists of pages
- *  bi-directionally.
+ * This class provides a cursor that can follow lists of pages bi-directionally.
  */
-final class PageCursor {
+final class PageCursor 
+{
     PageManager pageman;
     long current;
     short type;
     
+
     /**
-     *  Constructs a page cursor that starts at the indicated block.
+     * Constructs a page cursor that starts at the indicated block.
      */
-    PageCursor(PageManager pageman, long current) {
+    PageCursor( PageManager pageman, long current ) 
+    {
         this.pageman = pageman;
         this.current = current;
     }
     
+    
     /**
-     *  Constructs a page cursor that starts at the first block
-     *  of the indicated list.
+     * Constructs a page cursor that starts at the first block of the 
+     * indicated list.
      */
-    PageCursor(PageManager pageman, short type) throws IOException {
+    PageCursor( PageManager pageman, short type ) throws IOException 
+    {
         this.pageman = pageman;
         this.type = type;
     }
     
+    
     /**
-     *  Returns the current value of the cursor.
+     * Returns the current value of the cursor.
      */
-    long getCurrent() throws IOException {
+    long getCurrent() throws IOException 
+    {
         return current;
     }
     
+    
     /**
-     *  Returns the next value of the cursor
+     * Returns the next value of the cursor.
      */
-    long next() throws IOException {
-        if (current == 0)
-            current = pageman.getFirst(type);
+    long next() throws IOException 
+    {
+        if ( current == 0 )
+        {
+            current = pageman.getFirst( type );
+        }
         else
-            current = pageman.getNext(current);
+        {
+            current = pageman.getNext( current );
+        }
+        
         return current;
     } 
     
+    
     /**
-     *  Returns the previous value of the cursor
+     * Returns the previous value of the cursor
      */
-    long prev() throws IOException {
-        current = pageman.getPrev(current);
+    long prev() throws IOException 
+    {
+        current = pageman.getPrev( current );
         return current;
     }
 }
