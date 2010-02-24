@@ -43,10 +43,11 @@
  * Contributions are Copyright (C) 2001 by their associated contributors.
  *
  */
-
 package jdbm.helper;
 
+
 import java.io.IOException;
+
 
 /**
  * Default java serializer.
@@ -54,11 +55,10 @@ import java.io.IOException;
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @version $Id: DefaultSerializer.java,v 1.2 2003/09/21 15:47:00 boisvert Exp $
  */
-public class DefaultSerializer
-    implements Serializer
+public class DefaultSerializer implements Serializer
 {
+    private static final long serialVersionUID = -3818545055661017388L;
 
-    
     public static final DefaultSerializer INSTANCE = new DefaultSerializer();
     
     
@@ -77,27 +77,27 @@ public class DefaultSerializer
      * @param obj Object to serialize
      * @return a byte array representing the object's state
      */
-     public byte[] serialize( Object obj )
-        throws IOException
+     public byte[] serialize( Object obj ) throws IOException
      {
          return Serialization.serialize( obj );
      }
         
         
     /**
-     * Deserialize the content of an object from a byte array.
+     * De-serialize the content of an object from a byte array.
      *
      * @param serialized Byte array representation of the object
-     * @return deserialized object
+     * @return de-serialized object
      */
-     public Object deserialize( byte[] serialized )
-        throws IOException
+     public Object deserialize( byte[] serialized ) throws IOException
      {
-         try {
+         try 
+         {
             return Serialization.deserialize( serialized );
-         } catch ( ClassNotFoundException except ) {
+         } 
+         catch ( ClassNotFoundException except ) 
+         {
             throw new WrappedRuntimeException( except );
          }
      }
-
 }

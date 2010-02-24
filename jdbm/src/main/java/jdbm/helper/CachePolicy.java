@@ -44,10 +44,11 @@
  *
  * $Id: CachePolicy.java,v 1.5 2003/11/01 13:25:02 dranatunga Exp $
  */
-
 package jdbm.helper;
 
+
 import java.util.Enumeration;
+
 
 /**
  *  CachePolicity is an abstraction for different cache policies.
@@ -57,9 +58,8 @@ import java.util.Enumeration;
  * @author <a href="mailto:dranatunga@users.sourceforge.net">Dilum Ranatunga</a>
  * @version $Id: CachePolicy.java,v 1.5 2003/11/01 13:25:02 dranatunga Exp $
  */
-public interface CachePolicy
+public interface CachePolicy<K,V>
 {
-
     /**
      * Place an object in the cache. If the cache does not currently contain
      * an object for the key specified, this mapping is added. If an object
@@ -82,8 +82,7 @@ public interface CachePolicy
      *     to make room for new object, an eviction listener encountered
      *     this problem.
      */
-    public void put( Object key, Object value )
-        throws CacheEvictionException;
+    public void put( K key, V value ) throws CacheEvictionException;
 
 
     /**
@@ -92,7 +91,7 @@ public interface CachePolicy
      * @param key key the object was cached under
      * @return the object if it is still in the cache, null otherwise.
      */
-    public Object get( Object key );
+    public V get( K key );
 
 
     /**
@@ -103,7 +102,7 @@ public interface CachePolicy
      *
      * @param key key the object was stored in the cache under.
      */
-    public void remove( Object key );
+    public void remove( K key );
 
 
     /**
@@ -116,7 +115,7 @@ public interface CachePolicy
     /**
      * Enumerate through the objects currently in the cache.
      */
-    public Enumeration elements();
+    public Enumeration<V> elements();
 
 
     /**
@@ -128,8 +127,7 @@ public interface CachePolicy
      * @param listener the (non-null) listener to add to this policy
      * @throws IllegalArgumentException if listener is null.
      */
-    public void addListener( CachePolicyListener listener )
-            throws IllegalArgumentException;
+    public void addListener( CachePolicyListener<V> listener ) throws IllegalArgumentException;
 
     
     /**
@@ -138,6 +136,5 @@ public interface CachePolicy
      *
      * @param listener the listener to remove from this policy
      */
-    public void removeListener( CachePolicyListener listener );
-
+    public void removeListener( CachePolicyListener<V> listener );
 }

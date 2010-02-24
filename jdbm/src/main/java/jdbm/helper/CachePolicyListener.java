@@ -60,18 +60,17 @@ package jdbm.helper;
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @version $Id: CachePolicyListener.java,v 1.3 2003/11/01 13:25:41 dranatunga Exp $
  */
-public interface CachePolicyListener {
-
+public interface CachePolicyListener<T> 
+{
     /**
      * Notification that the cache this listener is attached to is evicting
      * the object indicated.
      *
-     * @param obj object being evited from cache
+     * @param obj object being evicted from cache
      * @throws CacheEvictionException if this listener encountered problems
      *     while preparing for the specified object's eviction. For example,
      *     a listener may try to persist the object to disk, and encounter
      *     an <code>IOException</code>.
      */
-    public void cacheObjectEvicted(Object obj) throws CacheEvictionException;
-
+    public void cacheObjectEvicted( T obj ) throws CacheEvictionException;
 }
