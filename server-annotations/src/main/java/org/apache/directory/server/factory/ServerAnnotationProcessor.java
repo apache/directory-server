@@ -204,12 +204,15 @@ public class ServerAnnotationProcessor
     {
         // Get the caller by inspecting the stackTrace
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        
+
+        // In Java5 the 0th stacktrace element is: java.lang.Thread.dumpThreads(Native Method)
+        int index = stackTrace[0].getMethodName().equals( "dumpThreads" ) ? 4 : 3;
+
         // Get the enclosing class
-        Class<?> classCaller = Class.forName( stackTrace[3].getClassName() );
+        Class<?> classCaller = Class.forName( stackTrace[index].getClassName() );
 
         // Get the current method
-        String methodCaller = stackTrace[3].getMethodName();
+        String methodCaller = stackTrace[index].getMethodName();
 
         // Check if we have any annotation associated with the method
         Method[] methods = classCaller.getMethods();
