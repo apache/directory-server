@@ -371,13 +371,26 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     
     private void filterContents( ClonedServerEntry entry ) throws Exception
     {
+        boolean typesOnly = getOperationContext().isTypesOnly();
+
         boolean returnAll = getOperationContext().getReturningAttributes() == null ||
-            ( getOperationContext().isAllOperationalAttributes() && getOperationContext().isAllUserAttributes() );
+            ( getOperationContext().isAllOperationalAttributes() && getOperationContext().isAllUserAttributes() && ( ! typesOnly ) );
         
         if ( returnAll )
         {
             return;
         }
+
+        if ( getOperationContext().isNoAttributes() )
+        {
+            for ( AttributeType at : entry.getOriginalEntry().getAttributeTypes() )
+            {
+                entry.remove( entry.get( at ) );
+            }
+            
+            return;
+        }
+        
         
         if ( getOperationContext().isAllUserAttributes() )
         {
@@ -399,6 +412,10 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
                 if (  isNotRequested && isNotUserAttribute )
                 {
                     entry.removeAttributes( at );
+                }
+                else if( typesOnly )
+                {
+                    entry.get( at ).clear();
                 }
             }
             
@@ -426,29 +443,9 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
                 {
                     entry.removeAttributes( at );
                 }
-            }
-            
-            return;
-        }
-
-        if ( getOperationContext().isNoAttributes() )
-        {
-            for ( AttributeType at : entry.getOriginalEntry().getAttributeTypes() )
-            {
-                boolean isNotRequested = true;
-                
-                for ( AttributeTypeOptions attrOptions:getOperationContext().getReturningAttributes() )
+                else if( typesOnly )
                 {
-                    if ( attrOptions.getAttributeType().equals( at ) || attrOptions.getAttributeType().isAncestorOf( at ) )
-                    {
-                        isNotRequested = false;
-                        break;
-                    }
-                }
-
-                if ( isNotRequested )
-                {
-                    entry.removeAttributes( at );
+                    entry.get( at ).clear();
                 }
             }
             
@@ -473,6 +470,10 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
                 if ( isNotRequested )
                 {
                     entry.removeAttributes( at );
+                }
+                else if( typesOnly )
+                {
+                    entry.get( at ).clear();
                 }
             }
         }

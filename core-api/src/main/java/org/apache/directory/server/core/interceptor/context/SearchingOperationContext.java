@@ -84,6 +84,8 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
     /** A flag if the search operation is abandoned */
     protected boolean abandoned = false;
     
+    /** A flag to tell if only the attribute names to be returned */
+    protected boolean typesOnly = false;
     
     /**
      * Creates a new instance of ListOperationContext.
@@ -159,7 +161,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
                     AttributeType attributeType = session.getDirectoryService()
                         .getSchemaManager().lookupAttributeTypeRegistry( id );
                     AttributeTypeOptions attrOptions = new AttributeTypeOptions( attributeType, options );
-                    
+                   
                     returningAttributes.add( attrOptions );
                 }
                 catch ( NoSuchAttributeException nsae )
@@ -168,6 +170,12 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
                     // Unknown attributes should be silently ignored, as RFC 2251 states
                 }
             }
+            
+            // reset the noAttrubte flag if it is already set cause that will be ignored if any other AT is requested
+            if( noAttributes && ( allUserAttributes || allOperationalAttributes || ( ! returningAttributes.isEmpty() ) ) )
+            {
+                noAttributes = false;
+            }   
         }
     }
     
@@ -332,6 +340,21 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
     public boolean isNoAttributes()
     {
         return noAttributes;
+    }
+
+
+    /**
+     * @return true, if attribute descriptions alone need to be returned
+     */
+    public boolean isTypesOnly()
+    {
+        return typesOnly;
+    }
+
+
+    public void setTypesOnly( boolean typesOnly )
+    {
+        this.typesOnly = typesOnly;
     }
 
 

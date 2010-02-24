@@ -74,7 +74,7 @@ public class SearchOperationContext extends SearchingOperationContext
         this.scope = searchRequest.getScope();
         this.sizeLimit = searchRequest.getSizeLimit();
         this.timeLimit = searchRequest.getTimeLimit();
-        this.noAttributes = searchRequest.getTypesOnly();
+        this.typesOnly = searchRequest.getTypesOnly();
         setReturningAttributes( searchRequest.getAttributes() );
         
         if ( requestControls.containsKey( ManageDsaITControl.CONTROL_OID ) )

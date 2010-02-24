@@ -315,6 +315,13 @@ public abstract class ServerContext implements EventContext
         OperationManager operationManager = service.getOperationManager();
         EntryFilteringCursor results = null;
         OperationContext opContext;
+        
+        Object typesOnlyObj = getEnvironment().get( "java.naming.ldap.typesOnly" );
+        boolean typesOnly = false;
+        if( typesOnlyObj != null )
+        {
+            typesOnly = Boolean.parseBoolean( typesOnlyObj.toString() );
+        }
 
         // We have to check if it's a compare operation or a search. 
         // A compare operation has a OBJECT scope search, the filter must
@@ -338,6 +345,8 @@ public abstract class ServerContext implements EventContext
                 searchControls );
             opContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
             
+            ( ( SearchOperationContext ) opContext ).setTypesOnly(  typesOnly );
+            
             if ( result )
             {
                 ServerEntry emptyEntry = new DefaultServerEntry( service.getSchemaManager(), LdapDN.EMPTY_LDAPDN ); 
@@ -356,7 +365,8 @@ public abstract class ServerContext implements EventContext
             opContext = new SearchOperationContext( session, dn, aliasDerefMode, filter,
                 searchControls );
             opContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
-
+            ( ( SearchOperationContext ) opContext ).setTypesOnly(  typesOnly );
+            
             // Inject the referral handling into the operation context
             injectReferralControl( opContext );
 

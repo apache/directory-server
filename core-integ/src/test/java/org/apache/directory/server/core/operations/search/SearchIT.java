@@ -50,10 +50,13 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
 import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.message.SearchRequestImpl;
+import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -352,7 +355,6 @@ public class SearchIT extends AbstractLdapTestUnit
         assertEquals( "Expected number of results returned was incorrect", 1, map.size() );
         assertTrue( map.containsKey( "ou=testing02,ou=system" ) );
         Attributes attrs = map.get( "ou=testing02,ou=system" );
-        
         assertEquals( 0, attrs.size() );
     }
 
@@ -1629,4 +1631,112 @@ public class SearchIT extends AbstractLdapTestUnit
        assertTrue( map.containsKey( "cn=testGroup5,ou=groups,ou=system" ) ); 
        assertFalse( map.containsKey( "cn=testGroup3,ou=groups,ou=system" ) ); 
    }
+   
+   
+   /**
+    *  NO attributes should be returned
+    */
+   @Test
+   public void testSearchTypesOnlyAndNoAttr() throws Exception
+   {
+       SearchControls controls = new SearchControls();
+       controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+       controls.setDerefLinkFlag( false );
+       controls.setReturningAttributes( new String[] { "1.1"  } );
+       sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
+               AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
+       sysRoot.addToEnvironment( "java.naming.ldap.typesOnly", "true");
+       
+       HashMap<String, Attributes> map = new HashMap<String, Attributes>();
+
+       NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=testing01)", controls );
+       
+       while ( list.hasMore() )
+       {
+           SearchResult result = list.next();
+           map.put( result.getName(), result.getAttributes() );
+       }
+
+       assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+
+       Attributes attrs = map.get( "ou=testing01,ou=system" );
+
+       assertEquals( 0, attrs.size() );
+   }
+
+   
+   /**
+    * operational attributes with no values must be returned
+    */
+   @Test
+   public void testSearchTypesOnlyWithNoAttrAndOperationalAttr() throws Exception
+   {
+       SearchControls controls = new SearchControls();
+       controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+       controls.setDerefLinkFlag( false );
+       controls.setReturningAttributes( new String[] { "1.1", "+"  } );
+       sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
+               AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
+       sysRoot.addToEnvironment( "java.naming.ldap.typesOnly", "true");
+       
+       HashMap<String, Attributes> map = new HashMap<String, Attributes>();
+
+       NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=testing01)", controls );
+       
+       while ( list.hasMore() )
+       {
+           SearchResult result = list.next();
+           map.put( result.getName(), result.getAttributes() );
+       }
+
+       assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+
+       Attributes attrs = map.get( "ou=testing01,ou=system" );
+
+       assertNotNull( attrs.get( SchemaConstants.ENTRY_UUID_AT ) );
+       assertNotNull( attrs.get( SchemaConstants.CREATORS_NAME_AT ) );
+       
+       assertEquals( 0, attrs.get( SchemaConstants.ENTRY_UUID_AT ).size() );
+       assertEquals( 0, attrs.get( SchemaConstants.CREATORS_NAME_AT ).size() );
+   }
+
+   
+   /**
+    * all user attributes with no values must be returned
+    */
+   @Test
+   public void testSearchTypesOnlyWithNullReturnAttr() throws Exception
+   {
+       SearchControls controls = new SearchControls();
+       controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+       controls.setDerefLinkFlag( false );
+       sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
+               AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
+       sysRoot.addToEnvironment( "java.naming.ldap.typesOnly", "true");
+       
+       HashMap<String, Attributes> map = new HashMap<String, Attributes>();
+
+       NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=testing01)", controls );
+       
+       while ( list.hasMore() )
+       {
+           SearchResult result = list.next();
+           map.put( result.getName(), result.getAttributes() );
+       }
+
+       assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+
+       Attributes attrs = map.get( "ou=testing01,ou=system" );
+
+       
+       assertNotNull( attrs.get( SchemaConstants.OU_AT ) );
+       assertNotNull( attrs.get( "integerAttribute" ) );
+
+       assertNotNull( attrs.get( SchemaConstants.OU_AT ).get() );
+       assertNotNull( attrs.get( "integerAttribute" ).get() );
+       
+       assertNull( attrs.get( SchemaConstants.ENTRY_UUID_AT ) );
+       assertNull( attrs.get( SchemaConstants.CREATORS_NAME_AT ) );
+   }
+   
 }
