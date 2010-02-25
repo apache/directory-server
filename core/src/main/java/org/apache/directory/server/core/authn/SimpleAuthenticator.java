@@ -241,6 +241,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * We have at least 6 algorithms to encrypt the password :
      * <ul>
      * <li>- SHA</li>
+     * <li>- SHA-256</li>
      * <li>- SSHA (salted SHA)</li>
      * <li>- MD5</li>
      * <li>- SMD5 (slated MD5)</li>
@@ -258,7 +259,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      *  <li>- length(password) - 2, starting at 3rd position for crypt</li>
      *  </ul>
      *  <p>
-     *  For (S)SHA and (S)MD5, we have to transform the password from Base64 encoded text
+     *  For (S)SHA, SHA-256 and (S)MD5, we have to transform the password from Base64 encoded text
      *  to a byte[] before comparing the password with the stored one.
      *  </p>
      *  <p>
@@ -371,6 +372,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             case HASH_METHOD_MD5:
             case HASH_METHOD_SHA:
+            case HASH_METHOD_SHA256:
                 try
                 {
                     // We just have the password just after the algorithm, base64 encoded.
@@ -550,6 +552,9 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             case HASH_METHOD_SSHA:
                 return digest( LdapSecurityConstants.HASH_METHOD_SHA, credentials, salt );
 
+            case HASH_METHOD_SHA256:
+                return digest( LdapSecurityConstants.HASH_METHOD_SHA256, credentials, salt );
+                
             case HASH_METHOD_MD5:
             case HASH_METHOD_SMD5:
                 return digest( LdapSecurityConstants.HASH_METHOD_MD5, credentials, salt );
