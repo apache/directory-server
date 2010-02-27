@@ -192,7 +192,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
     {
         super( session, dn );
         this.aliasDerefMode = aliasDerefMode;
-        this.scope = SearchScope.getSearchScope( searchControls );
+        this.scope = SearchScope.getSearchScope( searchControls.getSearchScope() );
         this.timeLimit = searchControls.getTimeLimit();
         this.sizeLimit = searchControls.getCountLimit();
         

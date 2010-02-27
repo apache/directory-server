@@ -22,6 +22,16 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import javax.naming.directory.SearchControls;
 
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.xdbm.EmptyIndexCursor;
+import org.apache.directory.server.xdbm.ForwardIndexEntry;
+import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.SingletonIndexCursor;
+import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.server.xdbm.search.Optimizer;
+import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -29,16 +39,6 @@ import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.server.xdbm.EmptyIndexCursor;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexCursor;
-import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.SingletonIndexCursor;
-import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.search.Optimizer;
-import org.apache.directory.server.xdbm.search.SearchEngine;
-import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.server.core.entry.ServerEntry;
 
 
 /**
@@ -166,7 +166,7 @@ public class DefaultSearchEngine implements SearchEngine<ServerEntry>
         // Add the scope node using the effective base to the filter
         BranchNode root = new AndNode();
         ExprNode node = new ScopeNode( aliasDerefMode, effectiveBase.toString(), 
-            SearchScope.getSearchScope( searchCtls ) );
+            SearchScope.getSearchScope( searchCtls.getSearchScope() ) );
         root.getChildren().add( node );
         root.getChildren().add( filter );
 

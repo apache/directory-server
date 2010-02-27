@@ -936,7 +936,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             DirectoryListener listener = new EventListenerAdapter( ( ServerLdapContext ) this, namingListener );
             NotificationCriteria criteria = new NotificationCriteria();
             criteria.setFilter( filter );
-            criteria.setScope( SearchScope.getSearchScope( searchControls ) );
+            criteria.setScope( SearchScope.getSearchScope( searchControls.getSearchScope() ) );
             criteria.setAliasDerefMode( AliasDerefMode.getEnum( getEnvironment() ) );
             criteria.setBase( buildTarget( name ) );
             
