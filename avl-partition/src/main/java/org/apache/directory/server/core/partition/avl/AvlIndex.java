@@ -42,44 +42,44 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AvlIndex<K,O> implements Index<K, O>
+public class AvlIndex<K, O> implements Index<K, O>
 {
     private Normalizer normalizer;
     private AttributeType attributeType;
-    private AvlTable<K,Long> forward;
-    private AvlTable<Long,K> reverse;
+    private AvlTable<K, Long> forward;
+    private AvlTable<Long, K> reverse;
     private String attributeId;
-    
-    
+
+
     public AvlIndex()
     {
     }
 
-    
+
     public AvlIndex( String attributeId )
     {
         setAttributeId( attributeId );
     }
 
-    
+
     void initialize( AttributeType attributeType ) throws Exception
     {
         this.attributeType = attributeType;
 
         MatchingRule mr = attributeType.getEquality();
-        
+
         if ( mr == null )
         {
             mr = attributeType.getOrdering();
         }
-        
+
         if ( mr == null )
         {
             mr = attributeType.getSubstring();
         }
 
         normalizer = mr.getNormalizer();
-        
+
         if ( normalizer == null )
         {
             throw new Exception( I18n.err( I18n.ERR_212, attributeType ) );
@@ -92,9 +92,7 @@ public class AvlIndex<K,O> implements Index<K, O>
          * primary keys.  A value for an attribute can occur several times in
          * different entries so the forward map can have more than one value.
          */
-        forward = new AvlTable<K, Long>(
-            attributeType.getName(), 
-            comp, LongComparator.INSTANCE, true);
+        forward = new AvlTable<K, Long>( attributeType.getName(), comp, LongComparator.INSTANCE, true );
 
         /*
          * Now the reverse map stores the primary key into the master table as
@@ -104,22 +102,15 @@ public class AvlIndex<K,O> implements Index<K, O>
          */
         if ( attributeType.isSingleValued() )
         {
-            reverse = new AvlTable<Long,K>(
-                attributeType.getName(),
-                LongComparator.INSTANCE,
-                comp,
-                false );
+            reverse = new AvlTable<Long, K>( attributeType.getName(), LongComparator.INSTANCE, comp, false );
         }
         else
         {
-            reverse = new AvlTable<Long,K>(
-                attributeType.getName(),
-                LongComparator.INSTANCE, comp,
-                true);
+            reverse = new AvlTable<Long, K>( attributeType.getName(), LongComparator.INSTANCE, comp, true );
         }
     }
 
-    
+
     public void add( K attrVal, Long id ) throws Exception
     {
         forward.put( getNormalized( attrVal ), id );
@@ -160,11 +151,11 @@ public class AvlIndex<K,O> implements Index<K, O>
      */
     public void drop( Long id ) throws Exception
     {
-        Cursor<Tuple<Long,K>> cursor = reverse.cursor( id );
+        Cursor<Tuple<Long, K>> cursor = reverse.cursor( id );
 
         while ( cursor.next() )
         {
-            Tuple<Long,K> tuple = cursor.get();
+            Tuple<Long, K> tuple = cursor.get();
             forward.remove( tuple.getValue(), id );
         }
 
@@ -298,12 +289,12 @@ public class AvlIndex<K,O> implements Index<K, O>
     @SuppressWarnings("unchecked")
     public K getNormalized( K attrVal ) throws Exception
     {
-        if( attrVal instanceof Long )
+        if ( attrVal instanceof Long )
         {
             return attrVal;
         }
 
-        if( attrVal instanceof String )
+        if ( attrVal instanceof String )
         {
             return ( K ) normalizer.normalize( ( String ) attrVal );
         }
@@ -405,7 +396,7 @@ public class AvlIndex<K,O> implements Index<K, O>
         return reverse.hasLessOrEqual( id );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -441,7 +432,7 @@ public class AvlIndex<K,O> implements Index<K, O>
         this.attributeId = attributeId;
     }
 
-    
+
     /**
      * throws UnsupportedOperationException cause it is a in-memory index
      */
@@ -450,7 +441,7 @@ public class AvlIndex<K,O> implements Index<K, O>
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_213 ) );
     }
 
-    
+
     /**
      * this method always returns null for AvlIndex cause this is a in-memory index.
      */
@@ -459,7 +450,7 @@ public class AvlIndex<K,O> implements Index<K, O>
         return null;
     }
 
-    
+
     /**
      * throws UnsupportedOperationException cause it is a in-memory index
      */
@@ -468,7 +459,7 @@ public class AvlIndex<K,O> implements Index<K, O>
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_214 ) );
     }
 
-    
+
     public int getCacheSize()
     {
         return 0;

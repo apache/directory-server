@@ -823,7 +823,7 @@ public class AvlStore<E> implements Store<E>
                 }
                 else
                 {
-                    LOG.error( I18n.err( I18n.ERR_4, attributeType.getName() )   );
+                    LOG.error( I18n.err( I18n.ERR_4, attributeType.getName() ) );
                 }
             }
 

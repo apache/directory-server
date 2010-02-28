@@ -61,7 +61,7 @@ public class AvlPartition extends AbstractXdbmPartition
     /**
      * {@inheritDoc}
      */
-    public void initialize( ) throws Exception
+    public void initialize() throws Exception
     {
         setSchemaManager( schemaManager );
 
@@ -102,7 +102,8 @@ public class AvlPartition extends AbstractXdbmPartition
 
             String oid = schemaManager.getAttributeTypeRegistry().getOidByName( index.getAttributeId() );
 
-            if ( SYS_INDEX_OIDS.contains( schemaManager.getAttributeTypeRegistry().getOidByName( index.getAttributeId() ) ) )
+            if ( SYS_INDEX_OIDS.contains( schemaManager.getAttributeTypeRegistry()
+                .getOidByName( index.getAttributeId() ) ) )
             {
                 if ( oid.equals( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) )
                 {
@@ -158,10 +159,10 @@ public class AvlPartition extends AbstractXdbmPartition
      */
     public final void modify( long entryId, List<Modification> modifications ) throws Exception
     {
-        ((AvlStore<ServerEntry>)store).modify( entryId, modifications );
+        ( ( AvlStore<ServerEntry> ) store ).modify( entryId, modifications );
     }
-    
-    
+
+
     /*
      * TODO requires review 
      * 
@@ -172,7 +173,7 @@ public class AvlPartition extends AbstractXdbmPartition
      */
     public AvlStore<ServerEntry> getStore()
     {
-        return (AvlStore<ServerEntry>)store;
+        return ( AvlStore<ServerEntry> ) store;
     }
-    
+
 }
