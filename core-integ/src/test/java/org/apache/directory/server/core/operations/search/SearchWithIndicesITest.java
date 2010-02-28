@@ -73,7 +73,7 @@ public class SearchWithIndicesITest extends AbstractLdapTestUnit
         LdapContext schemaRoot = getSchemaContext( service );
         Attributes nisAttrs = schemaRoot.getAttributes( "cn=nis" );
         boolean isNisDisabled = false;
-        
+
         if ( nisAttrs.get( "m-disabled" ) != null )
         {
             isNisDisabled = ( ( String ) nisAttrs.get( "m-disabled" ).get() ).equalsIgnoreCase( "TRUE" );
@@ -83,14 +83,14 @@ public class SearchWithIndicesITest extends AbstractLdapTestUnit
         if ( isNisDisabled )
         {
             Attribute disabled = new BasicAttribute( "m-disabled" );
-            ModificationItem[] mods = new ModificationItem[] {
-                new ModificationItem( DirContext.REMOVE_ATTRIBUTE, disabled ) };
+            ModificationItem[] mods = new ModificationItem[]
+                { new ModificationItem( DirContext.REMOVE_ATTRIBUTE, disabled ) };
             schemaRoot.modifyAttributes( "cn=nis", mods );
         }
 
         Partition systemPartition = service.getSystemPartition();
-        Set<Index<?,ServerEntry>> indexedAtributes = ( ( JdbmPartition ) systemPartition ).getIndexedAttributes();
-        indexedAtributes.add( new JdbmIndex<String,ServerEntry>( "gidNumber" ) );
+        Set<Index<?, ServerEntry>> indexedAtributes = ( ( JdbmPartition ) systemPartition ).getIndexedAttributes();
+        indexedAtributes.add( new JdbmIndex<String, ServerEntry>( "gidNumber" ) );
 
         // -------------------------------------------------------------------
         // Add a bunch of nis groups
@@ -110,10 +110,10 @@ public class SearchWithIndicesITest extends AbstractLdapTestUnit
         attrs.get( "objectClass" ).add( "posixGroup" );
         attrs.put( "cn", name );
         attrs.put( "gidNumber", String.valueOf( gid ) );
-        return getSystemContext( service ).createSubcontext( "cn="+name+",ou=groups", attrs );
+        return getSystemContext( service ).createSubcontext( "cn=" + name + ",ou=groups", attrs );
     }
-    
-    
+
+
     /**
      *  Convenience method that performs a one level search using the
      *  specified filter returning their DNs as Strings in a set.
@@ -133,7 +133,7 @@ public class SearchWithIndicesITest extends AbstractLdapTestUnit
         Set<String> results = new HashSet<String>();
         NamingEnumeration<SearchResult> list = getSystemContext( service ).search( "ou=groups", filter, controls );
 
-        while( list.hasMore() )
+        while ( list.hasMore() )
         {
             SearchResult result = list.next();
             results.add( result.getName() );
@@ -201,7 +201,7 @@ public class SearchWithIndicesITest extends AbstractLdapTestUnit
         assertFalse( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
     }
 
-    
+
     @Test
     public void testGreaterThanSearchWithIndices() throws Exception
     {
