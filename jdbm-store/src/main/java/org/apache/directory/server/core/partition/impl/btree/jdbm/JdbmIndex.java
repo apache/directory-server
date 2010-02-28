@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class JdbmIndex<K,O> implements Index<K,O>
+public class JdbmIndex<K, O> implements Index<K, O>
 {
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( JdbmIndex.class.getSimpleName() );
@@ -67,7 +67,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
 
     /**  the key used for the forward btree name */
     public static final String FORWARD_BTREE = "_forward";
-    
+
     /**  the key used for the reverse btree name */
     public static final String REVERSE_BTREE = "_reverse";
 
@@ -80,43 +80,43 @@ public class JdbmIndex<K,O> implements Index<K,O>
      * that value
      */
     protected JdbmTable<K, Long> forward;
-    
+
     /**
      * the reverse btree where the btree key is the entry id of the entry containing a
      * value for the indexed attribute, and the btree value is the value of the indexed
      * attribute
      */
-    protected JdbmTable<Long,K> reverse;
-    
+    protected JdbmTable<Long, K> reverse;
+
     /**
      * the JDBM record manager for the file containing this index
      */
     protected RecordManager recMan;
-    
+
     /**
      * the normalized value cache for this index
      * @todo I don't think the keyCache is required anymore since the normalizer
      * will cache values for us.
      */
     protected SynchronizedLRUMap keyCache;
-    
+
     /** the size (number of index entries) for the cache */
     protected int cacheSize = DEFAULT_INDEX_CACHE_SIZE;
-    
+
     /**
      * duplicate limit before duplicate keys switch to using a btree for values
      */
     protected int numDupLimit = DEFAULT_DUPLICATE_LIMIT;
-    
+
     /**
      * the attribute identifier set at configuration time for this index which may not
      * be the OID but an alias name for the attributeType associated with this Index
      */
     private String attributeId;
-    
+
     /** whether or not this index has been initialized */
     protected boolean initialized;
-    
+
     /** a custom working directory path when specified in configuration */
     protected File wkDirPath;
 
@@ -159,7 +159,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
     public void init( SchemaManager schemaManager, AttributeType attributeType, File wkDirPath ) throws IOException
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
-        
+
         keyCache = new SynchronizedLRUMap( cacheSize );
         attribute = attributeType;
 
@@ -189,11 +189,11 @@ public class JdbmIndex<K,O> implements Index<K,O>
             close();
             throw e;
         }
-        
+
         initialized = true;
     }
 
-    
+
     /**
      * Initializes the forward and reverse tables used by this Index.
      * 
@@ -206,12 +206,12 @@ public class JdbmIndex<K,O> implements Index<K,O>
         SerializableComparator<K> comp;
 
         MatchingRule mr = attribute.getEquality();
-        
+
         if ( mr == null )
         {
             throw new IOException( I18n.err( I18n.ERR_574, attribute.getName() ) );
         }
-        
+
         comp = new SerializableComparator<K>( mr.getOid() );
 
         /*
@@ -221,14 +221,9 @@ public class JdbmIndex<K,O> implements Index<K,O>
          */
         LongComparator.INSTANCE.setSchemaManager( schemaManager );
         comp.setSchemaManager( schemaManager );
-        
-        forward = new JdbmTable<K, Long>(
-            schemaManager,
-            attribute.getName() + FORWARD_BTREE, 
-            numDupLimit,
-            recMan, 
-            comp, LongComparator.INSTANCE,
-            null, LongSerializer.INSTANCE );
+
+        forward = new JdbmTable<K, Long>( schemaManager, attribute.getName() + FORWARD_BTREE, numDupLimit, recMan,
+            comp, LongComparator.INSTANCE, null, LongSerializer.INSTANCE );
 
         /*
          * Now the reverse map stores the primary key into the master table as
@@ -238,23 +233,13 @@ public class JdbmIndex<K,O> implements Index<K,O>
          */
         if ( attribute.isSingleValued() )
         {
-            reverse = new JdbmTable<Long,K>(
-                schemaManager,
-                attribute.getName() + REVERSE_BTREE,
-                recMan,
-                LongComparator.INSTANCE,
-                LongSerializer.INSTANCE,
-                null );
+            reverse = new JdbmTable<Long, K>( schemaManager, attribute.getName() + REVERSE_BTREE, recMan,
+                LongComparator.INSTANCE, LongSerializer.INSTANCE, null );
         }
         else
         {
-            reverse = new JdbmTable<Long,K>(
-                schemaManager,
-                attribute.getName() + REVERSE_BTREE,
-                numDupLimit,
-                recMan,
-                LongComparator.INSTANCE, comp,
-                LongSerializer.INSTANCE, null );
+            reverse = new JdbmTable<Long, K>( schemaManager, attribute.getName() + REVERSE_BTREE, numDupLimit, recMan,
+                LongComparator.INSTANCE, comp, LongSerializer.INSTANCE, null );
         }
     }
 
@@ -290,7 +275,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
     {
         return false;
     }
-    
+
 
     /**
      * Gets the attribute identifier set at configuration time for this index which may not
@@ -394,7 +379,6 @@ public class JdbmIndex<K,O> implements Index<K,O>
     // Scan Count Methods
     // ------------------------------------------------------------------------
 
-
     /**
      * @see org.apache.directory.server.xdbm.Index#count()
      */
@@ -417,8 +401,8 @@ public class JdbmIndex<K,O> implements Index<K,O>
     {
         return forward.greaterThanCount( getNormalized( attrVal ) );
     }
-    
-    
+
+
     /**
      * @see org.apache.directory.server.xdbm.Index#lessThanCount(java.lang.Object)
      */
@@ -431,7 +415,6 @@ public class JdbmIndex<K,O> implements Index<K,O>
     // ------------------------------------------------------------------------
     // Forward and Reverse Lookups
     // ------------------------------------------------------------------------
-
 
     /**
      * @see Index#forwardLookup(java.lang.Object)
@@ -454,7 +437,6 @@ public class JdbmIndex<K,O> implements Index<K,O>
     // ------------------------------------------------------------------------
     // Add/Drop Methods
     // ------------------------------------------------------------------------
-
 
     /**
      * @see Index#add(Object, Long)
@@ -483,7 +465,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
     {
         // Build a cursor to iterate on all the keys referencing
         // this entryId
-        Cursor<Tuple<Long,K>> values = reverse.cursor( entryId );
+        Cursor<Tuple<Long, K>> values = reverse.cursor( entryId );
 
         while ( values.next() )
         {
@@ -558,6 +540,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
     {
         return forward.has( getNormalized( attrVal ), id );
     }
+
 
     /**
      * @see Index#reverse(Long)
@@ -657,12 +640,12 @@ public class JdbmIndex<K,O> implements Index<K,O>
      */
     public synchronized void close() throws IOException
     {
-        if (forward != null)
+        if ( forward != null )
         {
             forward.close();
         }
-        
-        if (reverse != null)
+
+        if ( reverse != null )
         {
             reverse.close();
         }
@@ -699,11 +682,12 @@ public class JdbmIndex<K,O> implements Index<K,O>
         {
             if ( attrVal instanceof String )
             {
-               normalized = ( K ) attribute.getEquality().getNormalizer().normalize( (String)attrVal );
+                normalized = ( K ) attribute.getEquality().getNormalizer().normalize( ( String ) attrVal );
             }
             else
             {
-                normalized = ( K ) attribute.getEquality().getNormalizer().normalize( new ClientBinaryValue( (byte[])attrVal ) ).get();
+                normalized = ( K ) attribute.getEquality().getNormalizer().normalize(
+                    new ClientBinaryValue( ( byte[] ) attrVal ) ).get();
             }
 
             // Double map it so if we use an already normalized
@@ -715,13 +699,13 @@ public class JdbmIndex<K,O> implements Index<K,O>
 
         return normalized;
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */
     public String toString()
     {
-        return "Index<" + attributeId +">";
+        return "Index<" + attributeId + ">";
     }
 }

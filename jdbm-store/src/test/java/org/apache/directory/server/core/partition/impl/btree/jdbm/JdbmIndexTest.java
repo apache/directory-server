@@ -57,14 +57,14 @@ import org.junit.Test;
 public class JdbmIndexTest
 {
     private static File dbFileDir;
-    Index<String,ServerEntry> idx;
+    Index<String, ServerEntry> idx;
     private static SchemaManager schemaManager;
 
 
     @BeforeClass
     public static void init() throws Exception
     {
-    	String workingDirectory = System.getProperty( "workingDirectory" );
+        String workingDirectory = System.getProperty( "workingDirectory" );
 
         if ( workingDirectory == null )
         {
@@ -86,16 +86,15 @@ public class JdbmIndexTest
             fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
     }
-    
-    
+
+
     @Before
     public void setup() throws IOException
     {
 
         File tmpIndexFile = File.createTempFile( JdbmIndexTest.class.getSimpleName(), "db" );
         tmpIndexFile.deleteOnExit();
-        dbFileDir = new File( tmpIndexFile.getParentFile(),
-            JdbmIndexTest.class.getSimpleName() );
+        dbFileDir = new File( tmpIndexFile.getParentFile(), JdbmIndexTest.class.getSimpleName() );
 
         dbFileDir.mkdirs();
     }
@@ -105,7 +104,7 @@ public class JdbmIndexTest
     public void teardown() throws Exception
     {
         destroyIndex();
-        
+
         if ( ( dbFileDir != null ) && dbFileDir.exists() )
         {
             FileUtils.deleteDirectory( dbFileDir );
@@ -119,31 +118,31 @@ public class JdbmIndexTest
         {
             idx.sync();
             idx.close();
-            
+
             // created by this test
             File dbFile = new File( idx.getWkDirPath(), idx.getAttribute().getName() + ".db" );
             assert dbFile.delete();
-            
+
             // created by TransactionManager
             File logFile = new File( idx.getWkDirPath(), idx.getAttribute().getName() + ".lg" );
             assert logFile.delete();
         }
-        
+
         idx = null;
     }
 
 
     void initIndex() throws Exception
     {
-        initIndex( new JdbmIndex<String,ServerEntry>() );
+        initIndex( new JdbmIndex<String, ServerEntry>() );
     }
 
 
-    void initIndex( JdbmIndex<String,ServerEntry> jdbmIdx ) throws Exception
+    void initIndex( JdbmIndex<String, ServerEntry> jdbmIdx ) throws Exception
     {
         if ( jdbmIdx == null )
         {
-            jdbmIdx = new JdbmIndex<String,ServerEntry>();
+            jdbmIdx = new JdbmIndex<String, ServerEntry>();
         }
 
         jdbmIdx.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT ), dbFileDir );
@@ -155,12 +154,11 @@ public class JdbmIndexTest
     // Property Test Methods
     // -----------------------------------------------------------------------
 
-
     @Test
     public void testAttributeId() throws Exception
     {
         // uninitialized index
-        JdbmIndex jdbmIndex1= new JdbmIndex();
+        JdbmIndex jdbmIndex1 = new JdbmIndex();
         jdbmIndex1.setAttributeId( "foo" );
         assertEquals( "foo", jdbmIndex1.getAttributeId() );
 
@@ -169,7 +167,7 @@ public class JdbmIndexTest
 
         // initialized index
         initIndex();
-        
+
         try
         {
             idx.setAttributeId( "foo" );
@@ -181,7 +179,7 @@ public class JdbmIndexTest
         assertEquals( "ou", idx.getAttributeId() );
 
         destroyIndex();
-        initIndex( new JdbmIndex<String,ServerEntry>( "foo" ) );
+        initIndex( new JdbmIndex<String, ServerEntry>( "foo" ) );
         assertEquals( "foo", idx.getAttributeId() );
     }
 
@@ -212,7 +210,7 @@ public class JdbmIndexTest
     public void testWkDirPath() throws Exception
     {
         // uninitialized index
-        JdbmIndex<String,ServerEntry> jdbmIndex = new JdbmIndex<String,ServerEntry>();
+        JdbmIndex<String, ServerEntry> jdbmIndex = new JdbmIndex<String, ServerEntry>();
         jdbmIndex.setWkDirPath( new File( dbFileDir, "foo" ) );
         assertEquals( "foo", jdbmIndex.getWkDirPath().getName() );
 
@@ -229,7 +227,7 @@ public class JdbmIndexTest
         assertEquals( dbFileDir, idx.getWkDirPath() );
 
         destroyIndex();
-        jdbmIndex = new JdbmIndex<String,ServerEntry>();
+        jdbmIndex = new JdbmIndex<String, ServerEntry>();
         File wkdir = new File( dbFileDir, "foo" );
         wkdir.mkdirs();
         jdbmIndex.setWkDirPath( wkdir );
@@ -250,13 +248,13 @@ public class JdbmIndexTest
         initIndex();
         try
         {
-            ( ( JdbmIndex ) idx).setNumDupLimit( 30 );
+            ( ( JdbmIndex ) idx ).setNumDupLimit( 30 );
             fail( "Should not be able to set numDupLimit after initialization." );
         }
         catch ( Exception e )
         {
         }
-        assertEquals( JdbmIndex.DEFAULT_DUPLICATE_LIMIT, ( ( JdbmIndex ) idx).getNumDupLimit() );
+        assertEquals( JdbmIndex.DEFAULT_DUPLICATE_LIMIT, ( ( JdbmIndex ) idx ).getNumDupLimit() );
     }
 
 
@@ -282,7 +280,6 @@ public class JdbmIndexTest
     // -----------------------------------------------------------------------
     // Count Test Methods
     // -----------------------------------------------------------------------
-
 
     @Test
     public void testCount() throws Exception
@@ -350,7 +347,6 @@ public class JdbmIndexTest
     // Add, Drop and Lookup Test Methods
     // -----------------------------------------------------------------------
 
-
     @Test
     public void testLookups() throws Exception
     {
@@ -393,7 +389,7 @@ public class JdbmIndexTest
 
         idx.add( "bar", 0L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "bar" ) );
-        assertEquals( "bar", idx.reverseLookup( 0L ) );  // reverse lookup returns first val
+        assertEquals( "bar", idx.reverseLookup( 0L ) ); // reverse lookup returns first val
         assertTrue( idx.forward( "bar", 0L ) );
         assertTrue( idx.forward( "foo", 0L ) );
         assertTrue( idx.forward( "foo", 1L ) );
@@ -504,7 +500,6 @@ public class JdbmIndexTest
     // Miscellaneous Test Methods
     // -----------------------------------------------------------------------
 
-
     @Test
     public void testCursors() throws Exception
     {
@@ -521,21 +516,21 @@ public class JdbmIndexTest
         assertEquals( 3, idx.count() );
 
         // use forward index's cursor
-        Cursor<IndexEntry<String,ServerEntry>> cursor = idx.forwardCursor();
+        Cursor<IndexEntry<String, ServerEntry>> cursor = idx.forwardCursor();
         cursor.beforeFirst();
 
         cursor.next();
-        IndexEntry<String,ServerEntry> e1 = cursor.get();
+        IndexEntry<String, ServerEntry> e1 = cursor.get();
         assertEquals( 555L, ( long ) e1.getId() );
         assertEquals( "bar", e1.getValue() );
 
         cursor.next();
-        IndexEntry<String,ServerEntry> e2 = cursor.get();
+        IndexEntry<String, ServerEntry> e2 = cursor.get();
         assertEquals( 333L, ( long ) e2.getId() );
         assertEquals( "foo", e2.getValue() );
 
         cursor.next();
-        IndexEntry<String,ServerEntry> e3 = cursor.get();
+        IndexEntry<String, ServerEntry> e3 = cursor.get();
         assertEquals( 1234L, ( long ) e3.getId() );
         assertEquals( "foo", e3.getValue() );
 
@@ -568,11 +563,11 @@ public class JdbmIndexTest
         try
         {
             AttributeType noEqMatchAttribute = new AttributeType( "1.1" );
-            
+
             jdbmIndex.init( schemaManager, noEqMatchAttribute, dbFileDir );
             fail( "should not get here" );
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
         }
     }
@@ -582,12 +577,12 @@ public class JdbmIndexTest
     // Failing Tests
     // -----------------------------------------------------------------------
 
-
     @Test
     public void testSingleValuedAttribute() throws Exception
     {
         JdbmIndex jdbmIndex = new JdbmIndex();
-        jdbmIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATORS_NAME_AT ), dbFileDir );
+        jdbmIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATORS_NAME_AT ),
+            dbFileDir );
         jdbmIndex.close();
     }
 }

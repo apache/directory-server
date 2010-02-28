@@ -94,7 +94,7 @@ public class JdbmStoreTest
     @BeforeClass
     public static void setup() throws Exception
     {
-    	String workingDirectory = System.getProperty( "workingDirectory" );
+        String workingDirectory = System.getProperty( "workingDirectory" );
 
         if ( workingDirectory == null )
         {
@@ -152,7 +152,7 @@ public class JdbmStoreTest
         }
 
         store = null;
-        
+
         if ( wkdir != null )
         {
             FileUtils.deleteDirectory( wkdir );
@@ -167,9 +167,9 @@ public class JdbmStoreTest
     {
         JdbmStore<Attributes> store = new JdbmStore<Attributes>();
         store.setSyncOnWrite( true ); // for code coverage
-        
+
         assertNull( store.getAliasIndex() );
-        store.setAliasIndex( new JdbmIndex<String,Attributes>( "alias" ) );
+        store.setAliasIndex( new JdbmIndex<String, Attributes>( "alias" ) );
         assertNotNull( store.getAliasIndex() );
 
         assertEquals( JdbmStore.DEFAULT_CACHE_SIZE, store.getCacheSize() );
@@ -177,15 +177,15 @@ public class JdbmStoreTest
         assertEquals( 24, store.getCacheSize() );
 
         assertNull( store.getPresenceIndex() );
-        store.setPresenceIndex( new JdbmIndex<String,Attributes>( "existence" ) );
+        store.setPresenceIndex( new JdbmIndex<String, Attributes>( "existence" ) );
         assertNotNull( store.getPresenceIndex() );
 
         assertNull( store.getOneLevelIndex() );
-        store.setOneLevelIndex( new JdbmIndex<Long,Attributes>( "hierarchy" ) );
+        store.setOneLevelIndex( new JdbmIndex<Long, Attributes>( "hierarchy" ) );
         assertNotNull( store.getOneLevelIndex() );
-        
+
         assertNull( store.getSubLevelIndex() );
-        store.setSubLevelIndex( new JdbmIndex<Long,Attributes>( "sublevel" ) );
+        store.setSubLevelIndex( new JdbmIndex<Long, Attributes>( "sublevel" ) );
         assertNotNull( store.getSubLevelIndex() );
 
         assertNull( store.getName() );
@@ -193,15 +193,15 @@ public class JdbmStoreTest
         assertEquals( "foo", store.getName() );
 
         assertNull( store.getNdnIndex() );
-        store.setNdnIndex( new JdbmIndex<String,Attributes>( "ndn" ) );
+        store.setNdnIndex( new JdbmIndex<String, Attributes>( "ndn" ) );
         assertNotNull( store.getNdnIndex() );
 
         assertNull( store.getOneAliasIndex() );
-        store.setOneAliasIndex( new JdbmIndex<Long,Attributes>( "oneAlias" ) );
+        store.setOneAliasIndex( new JdbmIndex<Long, Attributes>( "oneAlias" ) );
         assertNotNull( store.getNdnIndex() );
 
         assertNull( store.getSubAliasIndex() );
-        store.setSubAliasIndex( new JdbmIndex<Long,Attributes>( "subAlias" ) );
+        store.setSubAliasIndex( new JdbmIndex<Long, Attributes>( "subAlias" ) );
         assertNotNull( store.getSubAliasIndex() );
 
         assertNull( store.getSuffixDn() );
@@ -209,15 +209,15 @@ public class JdbmStoreTest
         assertEquals( "dc=example,dc=com", store.getSuffixDn() );
 
         assertNull( store.getUpdnIndex() );
-        store.setUpdnIndex( new JdbmIndex<String,Attributes>( "updn" ) );
+        store.setUpdnIndex( new JdbmIndex<String, Attributes>( "updn" ) );
         assertNotNull( store.getUpdnIndex() );
 
         assertNull( store.getUpSuffix() );
         assertNull( store.getSuffix() );
 
         assertEquals( 0, store.getUserIndices().size() );
-        Set<Index<?,Attributes>> set = new HashSet<Index<?,Attributes>>();
-        set.add( new JdbmIndex<Object,Attributes>( "foo" ) );
+        Set<Index<?, Attributes>> set = new HashSet<Index<?, Attributes>>();
+        set.add( new JdbmIndex<Object, Attributes>( "foo" ) );
         store.setUserIndices( set );
         assertEquals( set.size(), store.getUserIndices().size() );
 
@@ -239,62 +239,139 @@ public class JdbmStoreTest
     public void testSimplePropertiesLocked() throws Exception
     {
         assertNotNull( store.getAliasIndex() );
-        try { store.setAliasIndex( new JdbmIndex<String,ServerEntry>( "alias" ) ); fail(); }
-        catch( IllegalStateException e ) {}
+        try
+        {
+            store.setAliasIndex( new JdbmIndex<String, ServerEntry>( "alias" ) );
+            fail();
+        }
+        catch ( IllegalStateException e )
+        {
+        }
 
         assertEquals( 10, store.getCacheSize() );
-        try { store.setCacheSize( 24 ); }
-        catch( IllegalStateException e ) {}
+        try
+        {
+            store.setCacheSize( 24 );
+        }
+        catch ( IllegalStateException e )
+        {
+        }
 
         assertNotNull( store.getPresenceIndex() );
-        try { store.setPresenceIndex( new JdbmIndex<String,ServerEntry>( "existence" ) ); fail(); }
-        catch( IllegalStateException e ) {}
+        try
+        {
+            store.setPresenceIndex( new JdbmIndex<String, ServerEntry>( "existence" ) );
+            fail();
+        }
+        catch ( IllegalStateException e )
+        {
+        }
 
         assertNotNull( store.getOneLevelIndex() );
-        try { store.setOneLevelIndex( new JdbmIndex<Long,ServerEntry>( "hierarchy" ) ); fail(); }
-        catch( IllegalStateException e ) {}
+        try
+        {
+            store.setOneLevelIndex( new JdbmIndex<Long, ServerEntry>( "hierarchy" ) );
+            fail();
+        }
+        catch ( IllegalStateException e )
+        {
+        }
 
         assertNotNull( store.getSubLevelIndex() );
-        try { store.setSubLevelIndex( new JdbmIndex<Long,ServerEntry>( "sublevel" ) ); fail(); }
-        catch( IllegalStateException e ) {}
-        
+        try
+        {
+            store.setSubLevelIndex( new JdbmIndex<Long, ServerEntry>( "sublevel" ) );
+            fail();
+        }
+        catch ( IllegalStateException e )
+        {
+        }
+
         assertNotNull( store.getName() );
-        try { store.setName( "foo" ); fail(); }
-        catch( IllegalStateException e ) {}
+        try
+        {
+            store.setName( "foo" );
+            fail();
+        }
+        catch ( IllegalStateException e )
+        {
+        }
 
         assertNotNull( store.getNdnIndex() );
-        try { store.setNdnIndex( new JdbmIndex<String,ServerEntry>( "ndn" ) ); fail(); }
-        catch( IllegalStateException e ) {}
+        try
+        {
+            store.setNdnIndex( new JdbmIndex<String, ServerEntry>( "ndn" ) );
+            fail();
+        }
+        catch ( IllegalStateException e )
+        {
+        }
 
         assertNotNull( store.getOneAliasIndex() );
-        try { store.setOneAliasIndex( new JdbmIndex<Long,ServerEntry>( "oneAlias" ) ); fail(); }
-        catch( IllegalStateException e ) {}
+        try
+        {
+            store.setOneAliasIndex( new JdbmIndex<Long, ServerEntry>( "oneAlias" ) );
+            fail();
+        }
+        catch ( IllegalStateException e )
+        {
+        }
 
         assertNotNull( store.getSubAliasIndex() );
-        try { store.setSubAliasIndex( new JdbmIndex<Long,ServerEntry>( "subAlias" ) ); fail(); }
-        catch( IllegalStateException e ) {}
+        try
+        {
+            store.setSubAliasIndex( new JdbmIndex<Long, ServerEntry>( "subAlias" ) );
+            fail();
+        }
+        catch ( IllegalStateException e )
+        {
+        }
 
         assertNotNull( store.getSuffixDn() );
-        try { store.setSuffixDn( "dc=example,dc=com" ); fail(); }
-        catch( IllegalStateException e ) {}
+        try
+        {
+            store.setSuffixDn( "dc=example,dc=com" );
+            fail();
+        }
+        catch ( IllegalStateException e )
+        {
+        }
 
         assertNotNull( store.getUpdnIndex() );
-        try { store.setUpdnIndex( new JdbmIndex<String,ServerEntry>( "updn" ) ); fail(); }
-        catch( IllegalStateException e ) {}
+        try
+        {
+            store.setUpdnIndex( new JdbmIndex<String, ServerEntry>( "updn" ) );
+            fail();
+        }
+        catch ( IllegalStateException e )
+        {
+        }
         Iterator<String> systemIndices = store.systemIndices();
-        
+
         for ( int ii = 0; ii < 11; ii++ )
         {
             assertTrue( systemIndices.hasNext() );
             assertNotNull( systemIndices.next() );
         }
-        
+
         assertFalse( systemIndices.hasNext() );
         assertNotNull( store.getSystemIndex( ApacheSchemaConstants.APACHE_ALIAS_AT ) );
-        try { store.getSystemIndex( "bogus" ); fail(); }
-        catch ( IndexNotFoundException e ) {}
-        try { store.getSystemIndex( "dc" ); fail(); }
-        catch ( IndexNotFoundException e ) {}
+        try
+        {
+            store.getSystemIndex( "bogus" );
+            fail();
+        }
+        catch ( IndexNotFoundException e )
+        {
+        }
+        try
+        {
+            store.getSystemIndex( "dc" );
+            fail();
+        }
+        catch ( IndexNotFoundException e )
+        {
+        }
 
         assertNotNull( store.getUpSuffix() );
         assertNotNull( store.getSuffix() );
@@ -306,18 +383,36 @@ public class JdbmStoreTest
         Iterator<String> userIndices = store.userIndices();
         assertTrue( userIndices.hasNext() );
         assertNotNull( userIndices.next() );
-        assertTrue( userIndices.hasNext() );        
+        assertTrue( userIndices.hasNext() );
         assertNotNull( userIndices.next() );
-        assertFalse( userIndices.hasNext() );        
+        assertFalse( userIndices.hasNext() );
         assertNotNull( store.getUserIndex( SchemaConstants.OU_AT ) );
-        try { store.getUserIndex( "bogus" ); fail(); }
-        catch ( IndexNotFoundException e ) {}
-        try { store.getUserIndex( "dc" ); fail(); }
-        catch ( IndexNotFoundException e ) {}
+        try
+        {
+            store.getUserIndex( "bogus" );
+            fail();
+        }
+        catch ( IndexNotFoundException e )
+        {
+        }
+        try
+        {
+            store.getUserIndex( "dc" );
+            fail();
+        }
+        catch ( IndexNotFoundException e )
+        {
+        }
 
         assertNotNull( store.getWorkingDirectory() );
-        try { store.setWorkingDirectory( new File( "." ) ); fail(); }
-        catch( IllegalStateException e ) {}
+        try
+        {
+            store.setWorkingDirectory( new File( "." ) );
+            fail();
+        }
+        catch ( IllegalStateException e )
+        {
+        }
 
         assertTrue( store.isInitialized() );
         assertFalse( store.isSyncOnWrite() );
@@ -351,7 +446,7 @@ public class JdbmStoreTest
         assertNull( store.getParentId( 0L ) );
 
         // should NOW be allowed
-        store.delete( 1L ); 
+        store.delete( 1L );
     }
 
 
@@ -360,181 +455,198 @@ public class JdbmStoreTest
     {
         assertEquals( 3, store.getChildCount( 1L ) );
 
-        Cursor<IndexEntry<Long,ServerEntry>> cursor = store.list( 1L );
+        Cursor<IndexEntry<Long, ServerEntry>> cursor = store.list( 1L );
         assertNotNull( cursor );
         cursor.beforeFirst();
         assertTrue( cursor.next() );
         assertEquals( 2L, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
         assertEquals( 3, store.getChildCount( 1L ) );
-        
+
         store.delete( 2L );
         assertEquals( 2, store.getChildCount( 1L ) );
         assertEquals( 10, store.count() );
-        
+
         // add an alias and delete to test dropAliasIndices method
         LdapDN dn = new LdapDN( "commonName=Jack Daniels,ou=Apache,ou=Board of Directors,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
         DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "ou", "Apache" );
-        entry.add( "commonName",  "Jack Daniels");
+        entry.add( "commonName", "Jack Daniels" );
         entry.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", UUID.randomUUID().toString() );
         store.add( entry );
-        
+
         store.delete( 12L ); // drops the alias indices
-        
+
     }
-    
+
 
     @Test
     public void testSubLevelIndex() throws Exception
     {
-      Index idx = store.getSubLevelIndex();
-      
-      assertEquals( 19, idx.count() );
-      
-      Cursor<IndexEntry<Long,Attributes>> cursor = idx.forwardCursor( 2L );
-      
-      assertTrue( cursor.next() );
-      assertEquals( 2, ( long ) cursor.get().getId() );
-      
-      assertTrue( cursor.next() );
-      assertEquals( 5, ( long ) cursor.get().getId() );
-      
-      assertTrue( cursor.next() );
-      assertEquals( 6, ( long ) cursor.get().getId() );
+        Index idx = store.getSubLevelIndex();
 
-      assertFalse( cursor.next() );
-      
-      idx.drop( 5L );
-      
-      cursor = idx.forwardCursor( 2L );
+        assertEquals( 19, idx.count() );
 
-      assertTrue( cursor.next() );
-      assertEquals( 2, ( long ) cursor.get().getId() );
-      
-      assertTrue( cursor.next() );
-      assertEquals( 6, ( long ) cursor.get().getId() );
-      
-      assertFalse( cursor.next() );
-      
-      // dn id 12
-      LdapDN martinDn = new LdapDN( "cn=Marting King,ou=Sales,o=Good Times Co." );
-      martinDn.normalize( schemaManager.getNormalizerMapping() );
-      DefaultServerEntry entry = new DefaultServerEntry( schemaManager, martinDn );
-      entry.add( "objectClass", "top", "person", "organizationalPerson" );
-      entry.add( "ou", "Sales" );
-      entry.add( "cn",  "Martin King");
-      entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-      entry.add( "entryUUID", UUID.randomUUID().toString() );
-      store.add( entry );
-      
-      cursor = idx.forwardCursor( 2L);
-      cursor.afterLast();
-      assertTrue( cursor.previous() );
-      assertEquals( 12, ( long ) cursor.get().getId() );
-      
-      LdapDN newParentDn = new LdapDN( "ou=Board of Directors,o=Good Times Co." );
-      newParentDn.normalize( schemaManager.getNormalizerMapping() );
-      
-      store.move( martinDn, newParentDn );
-      cursor = idx.forwardCursor( 3L);
-      cursor.afterLast();
-      assertTrue( cursor.previous() );
-      assertEquals( 12, ( long ) cursor.get().getId() );
-      
-      // dn id 13
-      LdapDN marketingDn = new LdapDN( "ou=Marketing,ou=Sales,o=Good Times Co." );
-      marketingDn.normalize( schemaManager.getNormalizerMapping() );
-      entry = new DefaultServerEntry( schemaManager, marketingDn );
-      entry.add( "objectClass", "top", "organizationalUnit" );
-      entry.add( "ou", "Marketing" );
-      entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-      entry.add( "entryUUID", UUID.randomUUID().toString() );
-      store.add( entry );
+        Cursor<IndexEntry<Long, Attributes>> cursor = idx.forwardCursor( 2L );
 
-      // dn id 14
-      LdapDN jimmyDn = new LdapDN( "cn=Jimmy Wales,ou=Marketing, ou=Sales,o=Good Times Co." );
-      jimmyDn.normalize( schemaManager.getNormalizerMapping() );
-      entry = new DefaultServerEntry( schemaManager, jimmyDn );
-      entry.add( "objectClass", "top", "person", "organizationalPerson" );
-      entry.add( "ou", "Marketing" );
-      entry.add( "cn",  "Jimmy Wales");
-      entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-      entry.add( "entryUUID", UUID.randomUUID().toString() );
-      store.add( entry );
-      
-      store.move( marketingDn, newParentDn );
+        assertTrue( cursor.next() );
+        assertEquals( 2, ( long ) cursor.get().getId() );
 
-      cursor = idx.forwardCursor( 3L);
-      cursor.afterLast();
+        assertTrue( cursor.next() );
+        assertEquals( 5, ( long ) cursor.get().getId() );
 
-      assertTrue( cursor.previous() );
-      assertEquals( 14, ( long ) cursor.get().getId() );
-      
-      assertTrue( cursor.previous() );
-      assertEquals( 13, ( long ) cursor.get().getId() );
+        assertTrue( cursor.next() );
+        assertEquals( 6, ( long ) cursor.get().getId() );
 
-      assertTrue( cursor.previous() );
-      assertEquals( 12, ( long ) cursor.get().getId() );
+        assertFalse( cursor.next() );
 
-      assertTrue( cursor.previous() );
-      assertEquals( 10, ( long ) cursor.get().getId() );
+        idx.drop( 5L );
 
-      assertTrue( cursor.previous() );
-      assertEquals( 9, ( long ) cursor.get().getId() );
+        cursor = idx.forwardCursor( 2L );
 
-      assertTrue( cursor.previous() );
-      assertEquals( 7, ( long ) cursor.get().getId() );
+        assertTrue( cursor.next() );
+        assertEquals( 2, ( long ) cursor.get().getId() );
 
-      assertTrue( cursor.previous() );
-      assertEquals( 3, ( long ) cursor.get().getId() );
-      
-      assertFalse( cursor.previous() );
+        assertTrue( cursor.next() );
+        assertEquals( 6, ( long ) cursor.get().getId() );
+
+        assertFalse( cursor.next() );
+
+        // dn id 12
+        LdapDN martinDn = new LdapDN( "cn=Marting King,ou=Sales,o=Good Times Co." );
+        martinDn.normalize( schemaManager.getNormalizerMapping() );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, martinDn );
+        entry.add( "objectClass", "top", "person", "organizationalPerson" );
+        entry.add( "ou", "Sales" );
+        entry.add( "cn", "Martin King" );
+        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
+        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        store.add( entry );
+
+        cursor = idx.forwardCursor( 2L );
+        cursor.afterLast();
+        assertTrue( cursor.previous() );
+        assertEquals( 12, ( long ) cursor.get().getId() );
+
+        LdapDN newParentDn = new LdapDN( "ou=Board of Directors,o=Good Times Co." );
+        newParentDn.normalize( schemaManager.getNormalizerMapping() );
+
+        store.move( martinDn, newParentDn );
+        cursor = idx.forwardCursor( 3L );
+        cursor.afterLast();
+        assertTrue( cursor.previous() );
+        assertEquals( 12, ( long ) cursor.get().getId() );
+
+        // dn id 13
+        LdapDN marketingDn = new LdapDN( "ou=Marketing,ou=Sales,o=Good Times Co." );
+        marketingDn.normalize( schemaManager.getNormalizerMapping() );
+        entry = new DefaultServerEntry( schemaManager, marketingDn );
+        entry.add( "objectClass", "top", "organizationalUnit" );
+        entry.add( "ou", "Marketing" );
+        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
+        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        store.add( entry );
+
+        // dn id 14
+        LdapDN jimmyDn = new LdapDN( "cn=Jimmy Wales,ou=Marketing, ou=Sales,o=Good Times Co." );
+        jimmyDn.normalize( schemaManager.getNormalizerMapping() );
+        entry = new DefaultServerEntry( schemaManager, jimmyDn );
+        entry.add( "objectClass", "top", "person", "organizationalPerson" );
+        entry.add( "ou", "Marketing" );
+        entry.add( "cn", "Jimmy Wales" );
+        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
+        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        store.add( entry );
+
+        store.move( marketingDn, newParentDn );
+
+        cursor = idx.forwardCursor( 3L );
+        cursor.afterLast();
+
+        assertTrue( cursor.previous() );
+        assertEquals( 14, ( long ) cursor.get().getId() );
+
+        assertTrue( cursor.previous() );
+        assertEquals( 13, ( long ) cursor.get().getId() );
+
+        assertTrue( cursor.previous() );
+        assertEquals( 12, ( long ) cursor.get().getId() );
+
+        assertTrue( cursor.previous() );
+        assertEquals( 10, ( long ) cursor.get().getId() );
+
+        assertTrue( cursor.previous() );
+        assertEquals( 9, ( long ) cursor.get().getId() );
+
+        assertTrue( cursor.previous() );
+        assertEquals( 7, ( long ) cursor.get().getId() );
+
+        assertTrue( cursor.previous() );
+        assertEquals( 3, ( long ) cursor.get().getId() );
+
+        assertFalse( cursor.previous() );
     }
-   
-    
+
+
     @Test
     public void testConvertIndex() throws Exception
     {
         Index nonJdbmIndex = new Index()
         {
 
-            public void add( Object attrVal, Long id ) throws Exception { }
+            public void add( Object attrVal, Long id ) throws Exception
+            {
+            }
 
-            public void close() throws Exception { }
+
+            public void close() throws Exception
+            {
+            }
+
 
             public int count() throws Exception
             {
                 return 0;
             }
 
+
             public int count( Object attrVal ) throws Exception
             {
                 return 0;
             }
 
-            public void drop( Long id ) throws Exception { }
 
-            public void drop( Object attrVal, Long id ) throws Exception { }
+            public void drop( Long id ) throws Exception
+            {
+            }
+
+
+            public void drop( Object attrVal, Long id ) throws Exception
+            {
+            }
+
 
             public IndexCursor forwardCursor() throws Exception
             {
                 return null;
             }
 
+
             public IndexCursor forwardCursor( Object key ) throws Exception
             {
                 return null;
             }
 
+
             public Long forwardLookup( Object attrVal ) throws Exception
             {
                 return null;
             }
+
 
             public Cursor forwardValueCursor( Object key ) throws Exception
             {
@@ -619,81 +731,104 @@ public class JdbmStoreTest
                 return null;
             }
 
+
             public String getAttributeId()
             {
                 return "ou";
             }
+
 
             public int getCacheSize()
             {
                 return 10;
             }
 
+
             public Object getNormalized( Object attrVal ) throws Exception
             {
                 return null;
             }
 
+
             public File getWkDirPath()
             {
-                return new File(".");
+                return new File( "." );
             }
+
 
             public int greaterThanCount( Object attrVal ) throws Exception
             {
                 return 0;
             }
 
+
             public boolean isCountExact()
             {
                 return false;
             }
+
 
             public int lessThanCount( Object attrVal ) throws Exception
             {
                 return 0;
             }
 
+
             public IndexCursor reverseCursor() throws Exception
             {
                 return null;
             }
+
 
             public IndexCursor reverseCursor( Long id ) throws Exception
             {
                 return null;
             }
 
+
             public Object reverseLookup( Long id ) throws Exception
             {
                 return null;
             }
+
 
             public Cursor reverseValueCursor( Long id ) throws Exception
             {
                 return null;
             }
 
-            public void setAttributeId( String attributeId ) { }
 
-            public void setCacheSize( int cacheSize ) { }
+            public void setAttributeId( String attributeId )
+            {
+            }
 
-            public void setWkDirPath( File wkDirPath ) { }
 
-            public void sync() throws Exception { }
-            
+            public void setCacheSize( int cacheSize )
+            {
+            }
+
+
+            public void setWkDirPath( File wkDirPath )
+            {
+            }
+
+
+            public void sync() throws Exception
+            {
+            }
+
         };
-        
+
         Method convertIndex = store.getClass().getDeclaredMethod( "convertIndex", Index.class );
         convertIndex.setAccessible( true );
         Object obj = convertIndex.invoke( store, nonJdbmIndex );
-        
+
         assertNotNull( obj );
         assertEquals( JdbmIndex.class, obj.getClass() );
     }
-    
-    
-    @Test( expected = LdapNameNotFoundException.class )
+
+
+    @Test(expected = LdapNameNotFoundException.class)
     public void testAddWithoutParentId() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=Marting King,ou=Not Present,o=Good Times Co." );
@@ -701,23 +836,23 @@ public class JdbmStoreTest
         DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Not Present" );
-        entry.add( "cn",  "Martin King");
+        entry.add( "cn", "Martin King" );
         store.add( entry );
     }
-    
-    
-    @Test( expected = LdapSchemaViolationException.class )
+
+
+    @Test(expected = LdapSchemaViolationException.class)
     public void testAddWithoutObjectClass() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=Martin King,ou=Sales,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
         DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "ou", "Sales" );
-        entry.add( "cn",  "Martin King");
+        entry.add( "cn", "Martin King" );
         store.add( entry );
     }
-        
-    
+
+
     @Test
     public void testModifyAddOUAttrib() throws Exception
     {
@@ -725,18 +860,18 @@ public class JdbmStoreTest
         dn.normalize( schemaManager.getNormalizerMapping() );
 
         List<Modification> mods = new ArrayList<Modification>();
-        ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.OU_AT,
-            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT_OID ) );
+        ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.OU_AT, schemaManager
+            .lookupAttributeTypeRegistry( SchemaConstants.OU_AT_OID ) );
         attrib.add( "Engineering" );
-        
+
         Modification add = new ServerModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
-        
+
         mods.add( add );
-        
+
         store.modify( dn, mods );
     }
-    
-    
+
+
     @Test
     public void testRename() throws Exception
     {
@@ -745,18 +880,18 @@ public class JdbmStoreTest
         DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Engineering" );
-        entry.add( "cn",  "Private Ryan");
+        entry.add( "cn", "Private Ryan" );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", UUID.randomUUID().toString() );
 
         store.add( entry );
-        
-        RDN rdn = new RDN("sn=James");
-        
+
+        RDN rdn = new RDN( "sn=James" );
+
         store.rename( dn, rdn, true );
     }
-    
-    
+
+
     @Test
     public void testRenameEscaped() throws Exception
     {
@@ -765,25 +900,25 @@ public class JdbmStoreTest
         DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Engineering" );
-        entry.add( "cn",  "Private Ryan");
+        entry.add( "cn", "Private Ryan" );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", UUID.randomUUID().toString() );
-        
+
         store.add( entry );
-        
-        RDN rdn = new RDN("sn=Ja\\+es");
-        
+
+        RDN rdn = new RDN( "sn=Ja\\+es" );
+
         store.rename( dn, rdn, true );
-        
+
         LdapDN dn2 = new LdapDN( "sn=Ja\\+es,ou=Engineering,o=Good Times Co." );
         dn2.normalize( schemaManager.getNormalizerMapping() );
         Long id = store.getEntryId( dn2.getNormName() );
         assertNotNull( id );
         ServerEntry entry2 = store.lookup( id );
-        assertEquals("Ja+es", entry2.get( "sn" ).getString());
+        assertEquals( "Ja+es", entry2.get( "sn" ).getString() );
     }
-    
-    
+
+
     @Test
     public void testMove() throws Exception
     {
@@ -792,7 +927,7 @@ public class JdbmStoreTest
         DefaultServerEntry childEntry = new DefaultServerEntry( schemaManager, childDn );
         childEntry.add( "objectClass", "top", "person", "organizationalPerson" );
         childEntry.add( "ou", "Engineering" );
-        childEntry.add( "cn",  "Private Ryan");
+        childEntry.add( "cn", "Private Ryan" );
         childEntry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         childEntry.add( "entryUUID", UUID.randomUUID().toString() );
 
@@ -801,25 +936,25 @@ public class JdbmStoreTest
         LdapDN parentDn = new LdapDN( "ou=Sales,o=Good Times Co." );
         parentDn.normalize( schemaManager.getNormalizerMapping() );
 
-        RDN rdn = new RDN("cn=Ryan");
+        RDN rdn = new RDN( "cn=Ryan" );
 
         store.move( childDn, parentDn, rdn, true );
 
         // to drop the alias indices   
         childDn = new LdapDN( "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co." );
         childDn.normalize( schemaManager.getNormalizerMapping() );
-        
+
         parentDn = new LdapDN( "ou=Engineering,o=Good Times Co." );
         parentDn.normalize( schemaManager.getNormalizerMapping() );
-        
+
         assertEquals( 3, store.getSubAliasIndex().count() );
-        
-        store.move( childDn, parentDn);
-        
+
+        store.move( childDn, parentDn );
+
         assertEquals( 4, store.getSubAliasIndex().count() );
     }
-    
-    
+
+
     @Test
     public void testModifyAdd() throws Exception
     {
@@ -827,31 +962,31 @@ public class JdbmStoreTest
         dn.normalize( schemaManager.getNormalizerMapping() );
 
         List<Modification> mods = new ArrayList<Modification>();
-        ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.SURNAME_AT,
-            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.SURNAME_AT ) );
-        
+        ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.SURNAME_AT, schemaManager
+            .lookupAttributeTypeRegistry( SchemaConstants.SURNAME_AT ) );
+
         String attribVal = "Walker";
         attrib.add( attribVal );
-        
+
         Modification add = new ServerModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
         mods.add( add );
-        
+
         ServerEntry lookedup = store.lookup( store.getEntryId( dn.toNormName() ) );
 
         store.modify( dn, mods );
         assertTrue( lookedup.get( "sn" ).contains( attribVal ) );
-        
+
         // testing the store.modify( dn, mod, entry ) API
         ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         attribVal = "+1974045779";
         entry.add( "telephoneNumber", attribVal );
-        
+
         store.modify( dn, ModificationOperation.ADD_ATTRIBUTE, entry );
         lookedup = store.lookup( store.getEntryId( dn.toNormName() ) );
         assertTrue( lookedup.get( "telephoneNumber" ).contains( attribVal ) );
     }
-    
-    
+
+
     @Test
     public void testModifyReplace() throws Exception
     {
@@ -859,32 +994,32 @@ public class JdbmStoreTest
         dn.normalize( schemaManager.getNormalizerMapping() );
 
         List<Modification> mods = new ArrayList<Modification>();
-        ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.SN_AT,
-            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.SN_AT_OID ) );
-        
+        ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.SN_AT, schemaManager
+            .lookupAttributeTypeRegistry( SchemaConstants.SN_AT_OID ) );
+
         String attribVal = "Johnny";
         attrib.add( attribVal );
-        
+
         Modification add = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
         mods.add( add );
-        
+
         ServerEntry lookedup = store.lookup( store.getEntryId( dn.toNormName() ) );
-        
+
         assertEquals( "WAlkeR", lookedup.get( "sn" ).get().getString() ); // before replacing
-        
+
         store.modify( dn, mods );
         assertEquals( attribVal, lookedup.get( "sn" ).get().getString() );
-        
+
         // testing the store.modify( dn, mod, entry ) API
         ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         attribVal = "JWalker";
         entry.add( "sn", attribVal );
-        
+
         store.modify( dn, ModificationOperation.REPLACE_ATTRIBUTE, entry );
         assertEquals( attribVal, lookedup.get( "sn" ).get().getString() );
     }
-    
-    
+
+
     @Test
     public void testModifyRemove() throws Exception
     {
@@ -892,32 +1027,32 @@ public class JdbmStoreTest
         dn.normalize( schemaManager.getNormalizerMapping() );
 
         List<Modification> mods = new ArrayList<Modification>();
-        ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.SN_AT,
-            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.SN_AT_OID ) );
-        
+        ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.SN_AT, schemaManager
+            .lookupAttributeTypeRegistry( SchemaConstants.SN_AT_OID ) );
+
         Modification add = new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
         mods.add( add );
-        
+
         ServerEntry lookedup = store.lookup( store.getEntryId( dn.toNormName() ) );
-        
+
         assertNotNull( lookedup.get( "sn" ).get() );
-        
+
         store.modify( dn, mods );
         assertNull( lookedup.get( "sn" ) );
-        
+
         // testing the store.modify( dn, mod, entry ) API
         ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
-        
+
         // add an entry for the sake of testing the remove operation
         entry.add( "sn", "JWalker" );
         store.modify( dn, ModificationOperation.ADD_ATTRIBUTE, entry );
         assertNotNull( lookedup.get( "sn" ) );
-        
+
         store.modify( dn, ModificationOperation.REMOVE_ATTRIBUTE, entry );
         assertNull( lookedup.get( "sn" ) );
     }
 
-    
+
     @Test
     public void testModifyReplaceNonExistingIndexAttribute() throws Exception
     {
@@ -925,26 +1060,26 @@ public class JdbmStoreTest
         dn.normalize( schemaManager.getNormalizerMapping() );
         DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "cn", "Tim B");
+        entry.add( "cn", "Tim B" );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", UUID.randomUUID().toString() );
-        
+
         store.add( entry );
-        
+
         List<Modification> mods = new ArrayList<Modification>();
-        ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.OU_AT,
-            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT_OID ) );
-        
+        ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.OU_AT, schemaManager
+            .lookupAttributeTypeRegistry( SchemaConstants.OU_AT_OID ) );
+
         String attribVal = "Marketing";
         attrib.add( attribVal );
-        
+
         Modification add = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
         mods.add( add );
-        
+
         ServerEntry lookedup = store.lookup( store.getEntryId( dn.toNormName() ) );
-        
+
         assertNull( lookedup.get( "ou" ) ); // before replacing
-        
+
         store.modify( dn, mods );
         assertEquals( attribVal, lookedup.get( "ou" ).get().getString() );
     }
