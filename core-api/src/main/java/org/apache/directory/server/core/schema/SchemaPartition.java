@@ -108,23 +108,23 @@ public final class SchemaPartition extends AbstractPartition
 {
     /** the logger */
     private static final Logger LOG = LoggerFactory.getLogger( SchemaPartition.class );
-    
+
     /** the fixed id: 'schema' */
     private static final String ID = "schema";
-    
+
     /** the wrapped Partition */
     private Partition wrapped = new NullPartition();
-    
+
     /** schema manager */
     private SchemaManager schemaManager;
-    
+
     /** registry synchronizer adaptor */
     private RegistrySynchronizerAdaptor synchronizer;
-    
+
     /** A static DN for the ou=schemaModifications entry */
     private static LdapDN schemaModificationDN;
-    
-    
+
+
     /**
      * Sets the wrapped {@link Partition} which must be supplied or 
      * {@link Partition#initialize()} will fail with a NullPointerException.
@@ -137,11 +137,11 @@ public final class SchemaPartition extends AbstractPartition
         {
             throw new IllegalStateException( I18n.err( I18n.ERR_429 ) );
         }
-        
+
         this.wrapped = wrapped;
     }
-    
-    
+
+
     /**
      * Gets the {@link Partition} being wrapped.
      *
@@ -160,8 +160,8 @@ public final class SchemaPartition extends AbstractPartition
     {
         return ID;
     }
-    
-    
+
+
     /**
      * Has no affect: the id is fixed at {@link SchemaPartition#ID}: 'schema'.
      * A warning is logged.
@@ -180,7 +180,7 @@ public final class SchemaPartition extends AbstractPartition
         return wrapped.getSuffixDn();
     }
 
-    
+
     /**
      * Always returns {@link ServerDNConstants#OU_SCHEMA_DN}: 'ou=schema'.
      */
@@ -203,14 +203,13 @@ public final class SchemaPartition extends AbstractPartition
     // Partition Interface Method Overrides
     // -----------------------------------------------------------------------
 
-    
     @Override
     public void sync() throws Exception
     {
         wrapped.sync();
     }
-    
-    
+
+
     @Override
     protected void doInit() throws Exception
     {
@@ -224,18 +223,18 @@ public final class SchemaPartition extends AbstractPartition
         wrapped.setSuffix( SchemaConstants.OU_SCHEMA );
         wrapped.getSuffixDn().normalize( schemaManager.getNormalizerMapping() );
         wrapped.setSchemaManager( schemaManager );
-        
+
         try
         {
             wrapped.initialize();
-            
+
             PartitionSchemaLoader partitionLoader = new PartitionSchemaLoader( wrapped, schemaManager );
             synchronizer = new RegistrySynchronizerAdaptor( schemaManager );
-            
+
             if ( wrapped instanceof NullPartition )
             {
-                LOG.warn( "BYPASSING CRITICAL SCHEMA PROCESSING CODE DURING HEAVY DEV.  " +
-                		"PLEASE REMOVE THIS CONDITION BY USING A VALID SCHEMA PARTITION!!!" );
+                LOG.warn( "BYPASSING CRITICAL SCHEMA PROCESSING CODE DURING HEAVY DEV.  "
+                    + "PLEASE REMOVE THIS CONDITION BY USING A VALID SCHEMA PARTITION!!!" );
                 return;
             }
         }
@@ -248,8 +247,8 @@ public final class SchemaPartition extends AbstractPartition
         schemaModificationDN = new LdapDN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
         schemaModificationDN.normalize( schemaManager.getNormalizerMapping() );
     }
-    
-    
+
+
     @Override
     protected void doDestroy()
     {
@@ -263,13 +262,12 @@ public final class SchemaPartition extends AbstractPartition
             throw new RuntimeException( e );
         }
     }
-    
-    
+
+
     // -----------------------------------------------------------------------
     // Partition Interface Methods
     // -----------------------------------------------------------------------
 
-    
     /**
      * {@inheritDoc}
      */
@@ -279,7 +277,7 @@ public final class SchemaPartition extends AbstractPartition
         // We have to check if it's enabled and then inject it into the registries
         // but only if it does not break the server.
         synchronizer.add( opContext );
-        
+
         // Now, write the newly added SchemaObject into the schemaPartition
         try
         {
@@ -312,10 +310,10 @@ public final class SchemaPartition extends AbstractPartition
     public void delete( DeleteOperationContext opContext ) throws Exception
     {
         boolean cascade = opContext.hasRequestControl( CascadeControl.CONTROL_OID );
-        
+
         // The SchemaObject always exist when we reach this method.
         synchronizer.delete( opContext, cascade );
-        
+
         try
         {
             wrapped.delete( opContext );
@@ -329,7 +327,7 @@ public final class SchemaPartition extends AbstractPartition
         updateSchemaModificationAttributes( opContext );
     }
 
-    
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#list(org.apache.directory.server.core.interceptor.context.ListOperationContext)
      */
@@ -337,7 +335,7 @@ public final class SchemaPartition extends AbstractPartition
     {
         return wrapped.list( opContext );
     }
-    
+
 
     /**
      * {@inheritDoc}
@@ -363,25 +361,24 @@ public final class SchemaPartition extends AbstractPartition
     public void modify( ModifyOperationContext opContext ) throws Exception
     {
         ServerEntry entry = opContext.getEntry();
-        
+
         if ( entry == null )
         {
             LookupOperationContext lookupCtx = new LookupOperationContext( opContext.getSession(), opContext.getDn() );
             entry = wrapped.lookup( lookupCtx );
         }
-        
-        ServerEntry targetEntry = ( ServerEntry ) SchemaUtils.getTargetEntry( 
-            opContext.getModItems(), entry );
-        
+
+        ServerEntry targetEntry = ( ServerEntry ) SchemaUtils.getTargetEntry( opContext.getModItems(), entry );
+
         boolean cascade = opContext.hasRequestControl( CascadeControl.CONTROL_OID );
-        
+
         boolean hasModification = synchronizer.modify( opContext, targetEntry, cascade );
-        
+
         if ( hasModification )
         {
             wrapped.modify( opContext );
         }
-        
+
         if ( !opContext.getDn().equals( schemaModificationDN ) )
         {
             updateSchemaModificationAttributes( opContext );
@@ -421,13 +418,13 @@ public final class SchemaPartition extends AbstractPartition
     public void rename( RenameOperationContext opContext ) throws Exception
     {
         boolean cascade = opContext.hasRequestControl( CascadeControl.CONTROL_OID );
-        
+
         // First update the registries
         synchronizer.rename( opContext, cascade );
-        
+
         // Update the schema partition
         wrapped.rename( opContext );
-        
+
         // Update the SSSE operational attributes
         updateSchemaModificationAttributes( opContext );
     }
@@ -449,8 +446,8 @@ public final class SchemaPartition extends AbstractPartition
     {
         wrapped.unbind( opContext );
     }
-    
-    
+
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#lookup(org.apache.directory.server.core.interceptor.context.LookupOperationContext)
      */
@@ -458,8 +455,8 @@ public final class SchemaPartition extends AbstractPartition
     {
         return wrapped.lookup( lookupContext );
     }
-    
-    
+
+
     /**
      * Updates the schemaModifiersName and schemaModifyTimestamp attributes of
      * the schemaModificationAttributes entry for the global schema at 
@@ -475,21 +472,17 @@ public final class SchemaPartition extends AbstractPartition
     {
         String modifiersName = opContext.getSession().getEffectivePrincipal().getJndiName().getNormName();
         String modifyTimestamp = DateUtils.getGeneralizedTime();
-        
+
         List<Modification> mods = new ArrayList<Modification>( 2 );
-        
-        mods.add( new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, 
-            new DefaultServerAttribute( 
-                ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT,
-                schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT ),
-                modifyTimestamp ) ) );
-        
-        mods.add( new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE,
-            new DefaultServerAttribute( 
-                ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT, 
-                schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT ),
-                modifiersName ) ) );
-        
+
+        mods.add( new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, new DefaultServerAttribute(
+            ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT, schemaManager
+                .lookupAttributeTypeRegistry( ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT ), modifyTimestamp ) ) );
+
+        mods.add( new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, new DefaultServerAttribute(
+            ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT, schemaManager
+                .lookupAttributeTypeRegistry( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT ), modifiersName ) ) );
+
         opContext.modify( schemaModificationDN, mods, ByPassConstants.SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS );
     }
 
@@ -501,8 +494,8 @@ public final class SchemaPartition extends AbstractPartition
     {
         this.schemaManager = schemaManager;
     }
-    
-    
+
+
     /**
      * @return The schemaManager
      */
@@ -510,8 +503,8 @@ public final class SchemaPartition extends AbstractPartition
     {
         return schemaManager;
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */

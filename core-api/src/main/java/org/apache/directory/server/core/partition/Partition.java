@@ -55,7 +55,6 @@ public interface Partition
     // C O N F I G U R A T I O N   M E T H O D S
     // -----------------------------------------------------------------------
 
-    
     /**
      * Gets the unique identifier for this partition.
      *
@@ -84,17 +83,17 @@ public interface Partition
      * @param suffix the suffix String for this Partition.
      * @throws InvalidNameException if the suffix does not conform to LDAP DN syntax
      */
-    void setSuffix( String suffix )  throws InvalidNameException;
-    
-    
+    void setSuffix( String suffix ) throws InvalidNameException;
+
+
     /**
      * Gets the schema manager assigned to this Partition.
      *
      * @return the schema manager
      */
     SchemaManager getSchemaManager();
-    
-    
+
+
     /**
      * Sets the schema manager assigned to this Partition.
      *
@@ -106,7 +105,6 @@ public interface Partition
     // -----------------------------------------------------------------------
     // E N D   C O N F I G U R A T I O N   M E T H O D S
     // -----------------------------------------------------------------------
-
 
     /**
      * Initializes this partition.
@@ -226,8 +224,8 @@ public interface Partition
      * @throws Exception if there are any problems
      */
     ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws Exception;
-    
-   
+
+
     /**
      * Looks up an entry by id.
      *
@@ -236,7 +234,7 @@ public interface Partition
      * @throws Exception if there are any problems
      */
     ClonedServerEntry lookup( Long id ) throws Exception;
-    
+
 
     /**
      * Fast operation to check and see if a particular entry exists.
@@ -246,6 +244,7 @@ public interface Partition
      * @throws Exception if there are any problems
      */
     boolean hasEntry( EntryOperationContext opContext ) throws Exception;
+
 
     /**
      * Modifies an entry by changing its relative name. Optionally attributes
@@ -294,7 +293,7 @@ public interface Partition
      */
     void bind( BindOperationContext opContext ) throws Exception;
 
-    
+
     /**
      * Represents an unbind operation issued by an authenticated client.  Partitions
      * need not support this operation.  This operation is here to enable those
