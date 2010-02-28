@@ -67,9 +67,9 @@ public class LdifStore<E> implements Store<E>
     private AvlStore<E> wrappedStore = new AvlStore<E>();
 
     private SchemaManager schemaManager;
-    
+
     private LdifReader ldifReader;
-    
+
     private FileFilter dirFilter = new FileFilter()
     {
         public boolean accept( File dir )
@@ -81,12 +81,13 @@ public class LdifStore<E> implements Store<E>
     private static final String CONF_FILE_EXTN = ".ldif";
 
     private static Logger LOG = LoggerFactory.getLogger( LdifStore.class );
-    
+
+
     public void init( SchemaManager schemaManager ) throws Exception
     {
         this.schemaManager = schemaManager;
         wrappedStore.init( schemaManager );
-     
+
         // load the config 
         loadConfig();
     }
@@ -100,43 +101,43 @@ public class LdifStore<E> implements Store<E>
     {
         String upsuffixDir = wrappedStore.getUpSuffix().getName().toLowerCase();
         File dir = new File( workingDirectory, upsuffixDir );
-        
-        if( ! dir.exists() )
+
+        if ( !dir.exists() )
         {
             throw new Exception( I18n.err( I18n.ERR_631, upsuffixDir, workingDirectory.getAbsolutePath() ) );
         }
-        
+
         loadEntry( dir );
     }
 
-    
+
     /*
      * recursively load the configuration entries
      */
     private void loadEntry( File entryDir ) throws Exception
     {
         LOG.debug( "processing dir {}", entryDir.getName() );
-        
+
         File ldifFile = new File( entryDir, entryDir.getName() + CONF_FILE_EXTN );
-        
+
         try
         {
-            
+
             ldifReader = new LdifReader();
 
-            if( ldifFile.exists() )
+            if ( ldifFile.exists() )
             {
                 LOG.debug( "parsing ldif file {}", ldifFile.getName() );
                 List<LdifEntry> entries = ldifReader.parseLdifFile( ldifFile.getAbsolutePath() );
-                
-                if( entries != null && !entries.isEmpty() )
+
+                if ( entries != null && !entries.isEmpty() )
                 {
                     // this ldif will have only one entry
                     LdifEntry ldifEntry = entries.get( 0 );
                     LOG.debug( "adding entry {}", ldifEntry );
-    
+
                     ServerEntry serverEntry = new DefaultServerEntry( schemaManager, ldifEntry.getEntry() );
-                    
+
                     // call add on the wrapped store not on the self  
                     wrappedStore.add( serverEntry );
                 }
@@ -152,12 +153,12 @@ public class LdifStore<E> implements Store<E>
         {
             ldifReader.close();
         }
-        
+
         File[] dirs = entryDir.listFiles( dirFilter );
-        
-        if( dirs != null )
+
+        if ( dirs != null )
         {
-            for( File f : dirs )
+            for ( File f : dirs )
             {
                 loadEntry( f );
             }
@@ -168,32 +169,32 @@ public class LdifStore<E> implements Store<E>
     private File getFile( LdapDN entryDn )
     {
         int size = entryDn.size();
-        
+
         StringBuilder filePath = new StringBuilder();
         filePath.append( workingDirectory.getAbsolutePath() ).append( File.separator );
-        
-        for( int i =0; i< size; i++ )
+
+        for ( int i = 0; i < size; i++ )
         {
             filePath.append( entryDn.getRdn( i ).getUpName().toLowerCase() ).append( File.separator );
         }
-        
+
         File dir = new File( filePath.toString() );
         dir.mkdirs();
-        
+
         return new File( dir, entryDn.getRdn().getUpName().toLowerCase() + CONF_FILE_EXTN );
     }
 
-    
-    public void add( ServerEntry entry ) throws Exception 
+
+    public void add( ServerEntry entry ) throws Exception
     {
         wrappedStore.add( entry );
-        
+
         FileWriter fw = new FileWriter( getFile( entry.getDn() ) );
         fw.write( LdifUtils.convertEntryToLdif( entry ) );
         fw.close();
     }
-    
-    
+
+
     public void delete( Long id ) throws Exception
     {
         ServerEntry entry = lookup( id );
@@ -201,8 +202,8 @@ public class LdifStore<E> implements Store<E>
 
         LOG.warn( "having the parent id {}", getParentId( entry.getDn().getName() ) );
         wrappedStore.delete( id );
-        
-        if( entry != null )
+
+        if ( entry != null )
         {
             File file = getFile( entry.getDn() ).getParentFile();
             boolean deleted = deleteFile( file );
@@ -213,19 +214,19 @@ public class LdifStore<E> implements Store<E>
 
     private boolean deleteFile( File file )
     {
-        if( file.isDirectory() )
+        if ( file.isDirectory() )
         {
             File[] files = file.listFiles();
-            for( File f : files )
+            for ( File f : files )
             {
                 deleteFile( f );
             }
         }
-        
+
         return file.delete();
     }
-    
-    
+
+
     public void destroy() throws Exception
     {
         wrappedStore.destroy();
@@ -345,7 +346,7 @@ public class LdifStore<E> implements Store<E>
         return wrappedStore.getName();
     }
 
-    
+
     public Index<String, E> getNdnIndex()
     {
         return wrappedStore.getNdnIndex();
@@ -410,7 +411,6 @@ public class LdifStore<E> implements Store<E>
     {
         return wrappedStore.getUpdnIndex();
     }
-
 
 
     public Index<?, E> getUserIndex( String id ) throws IndexNotFoundException
@@ -593,13 +593,13 @@ public class LdifStore<E> implements Store<E>
         wrappedStore.setEntryCsnIndex( index );
     }
 
-    
+
     public void setEntryUuidIndex( Index<String, E> index ) throws Exception
     {
         wrappedStore.setEntryUuidIndex( index );
     }
- 
-    
+
+
     public void setObjectClassIndex( Index<String, E> index ) throws Exception
     {
         wrappedStore.setObjectClassIndex( index );

@@ -93,7 +93,7 @@ public class LdifPartition extends BTreePartition
 {
     /** A logger for this class */
     private static Logger LOG = LoggerFactory.getLogger( LdifPartition.class );
-    
+
     /** The LDIF file parser */
     //private LdifReader ldifReader;
 
@@ -105,7 +105,7 @@ public class LdifPartition extends BTreePartition
 
     /** The context entry */
     private ServerEntry contextEntry;
-    
+
     /** Flags used for the getFile() method */
     private static final boolean CREATE = Boolean.TRUE;
     private static final boolean DELETE = Boolean.FALSE;
@@ -145,8 +145,8 @@ public class LdifPartition extends BTreePartition
 
     /** A default CSN factory */
     private static CsnFactory defaultCSNFactory;
-    
-    
+
+
     /**
      * Creates a new instance of LdifPartition.
      */
@@ -166,7 +166,7 @@ public class LdifPartition extends BTreePartition
         wrappedPartition.setSuffix( suffix.getName() );
         wrappedPartition.setSchemaManager( schemaManager );
         wrappedPartition.initialize();
-        
+
         // Create the CsnFactory with a invalid ReplicaId
         // @TODO : inject a correct ReplicaId
         defaultCSNFactory = new CsnFactory( 0 );
@@ -183,15 +183,15 @@ public class LdifPartition extends BTreePartition
             LOG.error( msg );
             throw new InvalidNameException( msg );
         }
-        
+
         if ( !suffix.isNormalized() )
         {
             suffix.normalize( schemaManager.getNormalizerMapping() );
         }
-        
+
         String suffixDirName = getFileName( suffix );
-        suffixDirectory = new File( workingDirectory, suffixDirName);
-        
+        suffixDirectory = new File( workingDirectory, suffixDirName );
+
         // Create the context entry now, if it does not exists, or load the
         // existing entries
         if ( suffixDirectory.exists() )
@@ -207,16 +207,16 @@ public class LdifPartition extends BTreePartition
             }
             catch ( SecurityException se )
             {
-                String msg = I18n.err( I18n.ERR_151, suffixDirectory.getAbsolutePath(), se.getLocalizedMessage() ); 
+                String msg = I18n.err( I18n.ERR_151, suffixDirectory.getAbsolutePath(), se.getLocalizedMessage() );
                 LOG.error( msg );
                 throw se;
             }
-            
+
             // And create the context entry too
             File contextEntryFile = new File( suffixDirectory + CONF_FILE_EXTN );
 
             LOG.info( "ldif file doesn't exist {}, creating it.", contextEntryFile.getAbsolutePath() );
-            
+
             if ( contextEntry == null )
             {
                 if ( contextEntryFile.exists() )
@@ -230,23 +230,22 @@ public class LdifPartition extends BTreePartition
                     throw new NamingException( I18n.err( I18n.ERR_632 ) );
                 }
             }
-            
+
             if ( contextEntry.get( SchemaConstants.ENTRY_CSN_AT ) == null )
             {
                 contextEntry.add( SchemaConstants.ENTRY_CSN_AT, defaultCSNFactory.newInstance().toString() );
             }
-            
 
             if ( contextEntry.get( SchemaConstants.ENTRY_UUID_AT ) == null )
             {
                 String uuid = UUID.randomUUID().toString();
                 contextEntry.add( SchemaConstants.ENTRY_UUID_AT, uuid );
             }
-            
+
             FileWriter fw = new FileWriter( contextEntryFile );
             fw.write( LdifUtils.convertEntryToLdif( contextEntry ) );
             fw.close();
-            
+
             // And add this entry to the underlying partition
             wrappedPartition.getStore().add( contextEntry );
         }
@@ -275,9 +274,7 @@ public class LdifPartition extends BTreePartition
         wrappedPartition.bind( bindContext );
     }
 
-    
-    
-    
+
     /**
      * {@inheritDoc}
      */
@@ -291,26 +288,26 @@ public class LdifPartition extends BTreePartition
         if ( entry != null )
         {
             File ldifFile = getFile( entry.getDn(), DELETE );
-            
+
             boolean deleted = deleteFile( ldifFile );
 
             LOG.debug( "deleted file {} {}", ldifFile.getAbsoluteFile(), deleted );
 
             // Delete the parent if there is no more children
             File parentFile = ldifFile.getParentFile();
-            
+
             if ( parentFile.listFiles().length == 0 )
             {
                 deleteFile( parentFile );
 
                 LOG.debug( "deleted file {} {}", parentFile.getAbsoluteFile(), deleted );
             }
-            
+
         }
 
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -320,14 +317,14 @@ public class LdifPartition extends BTreePartition
         Long id = getEntryId( modifyContext.getDn().getNormName() );
 
         wrappedPartition.modify( id, modifyContext.getModItems() );
-        
+
         // Get the modified entry and store it in the context for post usage
         ClonedServerEntry modifiedEntry = lookup( id );
         modifyContext.setAlteredEntry( modifiedEntry );
 
         // just overwrite the existing file
         LdapDN dn = modifyContext.getDn();
-        
+
         // And write it back on disk
         FileWriter fw = new FileWriter( getFile( dn, DELETE ) );
         fw.write( LdifUtils.convertEntryToLdif( modifiedEntry ) );
@@ -383,7 +380,7 @@ public class LdifPartition extends BTreePartition
 
         // Create the new entry 
         wrappedPartition.rename( renameContext );
-        
+
         // Get the modified entry and store it in the context for post usage
         ClonedServerEntry modifiedEntry = lookup( id );
         renameContext.setAlteredEntry( modifiedEntry );
@@ -404,38 +401,39 @@ public class LdifPartition extends BTreePartition
      * @param deleteOldEntry a flag to tell whether to delete the old entry files
      * @throws Exception
      */
-    private void entryMoved( LdapDN oldEntryDn, Entry modifiedEntry, Long entryIdOld, boolean deleteOldEntry ) throws Exception
+    private void entryMoved( LdapDN oldEntryDn, Entry modifiedEntry, Long entryIdOld, boolean deleteOldEntry )
+        throws Exception
     {
         // First, add the new entry
         add( modifiedEntry );
 
         // Then, if there are some children, move then to the new place
         IndexCursor<Long, ServerEntry> cursor = getSubLevelIndex().forwardCursor( entryIdOld );
-        
+
         while ( cursor.next() )
         {
             IndexEntry<Long, ServerEntry> entry = cursor.get();
 
             // except the parent entry add the rest of entries
-            if( entry.getId() != entryIdOld )
+            if ( entry.getId() != entryIdOld )
             {
                 add( wrappedPartition.lookup( entry.getId() ) );
             }
         }
 
         cursor.close();
-        
-        if( deleteOldEntry )
+
+        if ( deleteOldEntry )
         {
             // And delete the old entry's LDIF file
             File file = getFile( oldEntryDn, DELETE );
             boolean deleted = deleteFile( file );
             LOG.warn( "move operation: deleted file {} {}", file.getAbsoluteFile(), deleted );
-            
+
             // and the associated directory ( the file's name's minus ".ldif")
             String dirName = file.getAbsolutePath();
             dirName = dirName.substring( 0, dirName.indexOf( CONF_FILE_EXTN ) );
-            deleted = deleteFile( new File(  dirName ) );
+            deleted = deleteFile( new File( dirName ) );
             LOG.warn( "move operation: deleted dir {} {}", dirName, deleted );
         }
     }
@@ -460,20 +458,20 @@ public class LdifPartition extends BTreePartition
     private void loadEntries( File entryDir ) throws Exception
     {
         LOG.debug( "Processing dir {}", entryDir.getName() );
-        
+
         // First, load the entries
         File[] entries = entryDir.listFiles( entryFilter );
-        
+
         if ( ( entries != null ) && ( entries.length != 0 ) )
         {
             LdifReader ldifReader = new LdifReader();
-            
+
             for ( File entry : entries )
             {
                 LOG.debug( "parsing ldif file {}", entry.getName() );
                 List<LdifEntry> ldifEntries = ldifReader.parseLdifFile( entry.getAbsolutePath() );
                 ldifReader.close();
-                
+
                 if ( ( ldifEntries != null ) && !ldifEntries.isEmpty() )
                 {
                     // this ldif will have only one entry
@@ -481,12 +479,12 @@ public class LdifPartition extends BTreePartition
                     LOG.debug( "Adding entry {}", ldifEntry );
 
                     ServerEntry serverEntry = new DefaultServerEntry( schemaManager, ldifEntry.getEntry() );
-                    
+
                     if ( !serverEntry.containsAttribute( SchemaConstants.ENTRY_CSN_AT ) )
                     {
                         serverEntry.put( SchemaConstants.ENTRY_CSN_AT, defaultCSNFactory.newInstance().toString() );
                     }
-                    
+
                     if ( !serverEntry.containsAttribute( SchemaConstants.ENTRY_UUID_AT ) )
                     {
                         serverEntry.put( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
@@ -496,17 +494,17 @@ public class LdifPartition extends BTreePartition
                     wrappedPartition.getStore().add( serverEntry );
                 }
             }
-            
+
         }
         else
         {
             // If we don't have ldif files, we won't have sub-directories
             return;
         }
-        
+
         // Second, recurse on the sub directories
         File[] dirs = entryDir.listFiles( dirFilter );
-        
+
         if ( ( dirs != null ) && ( dirs.length != 0 ) )
         {
             for ( File f : dirs )
@@ -524,39 +522,39 @@ public class LdifPartition extends BTreePartition
     {
         StringBuilder filePath = new StringBuilder();
         filePath.append( suffixDirectory ).append( File.separator );
-        
-        LdapDN baseDn = (LdapDN)entryDn.getSuffix( suffix.size() );
+
+        LdapDN baseDn = ( LdapDN ) entryDn.getSuffix( suffix.size() );
 
         for ( int i = 0; i < baseDn.size() - 1; i++ )
         {
             String rdnFileName = getFileName( baseDn.getRdn( i ) );
-            
+
             filePath.append( rdnFileName ).append( File.separator );
         }
-        
+
         String rdnFileName = getFileName( entryDn.getRdn() ) + CONF_FILE_EXTN;
         String parentDir = filePath.toString();
-        
+
         File dir = new File( parentDir );
-        
+
         if ( !dir.exists() && create )
         {
             // We have to create the entry if it does not have a parent
             dir.mkdir();
         }
-        
+
         File ldifFile = new File( parentDir + rdnFileName );
-        
+
         if ( ldifFile.exists() && create )
         {
             // The entry already exists
             throw new NamingException( I18n.err( I18n.ERR_633 ) );
         }
-        
+
         return ldifFile;
     }
-    
-    
+
+
     /**
      * Compute the real name based on the RDN, assuming that depending on the underlying 
      * OS, some characters are not allowed.
@@ -568,18 +566,18 @@ public class LdifPartition extends BTreePartition
         // First, get the AT name, or OID
         String normAT = rdn.getAtav().getNormType();
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( normAT );
-        
+
         String atName = at.getName();
 
         // Now, get the normalized value
         String normValue = rdn.getAtav().getNormValue().getString();
-        
+
         String fileName = atName + "=" + normValue;
-        
+
         return getOSFileName( fileName );
     }
-    
-    
+
+
     /**
      * Compute the real name based on the DN, assuming that depending on the underlying 
      * OS, some characters are not allowed.
@@ -590,18 +588,18 @@ public class LdifPartition extends BTreePartition
     {
         StringBuilder sb = new StringBuilder();
         boolean isFirst = true;
-        
+
         for ( RDN rdn : dn.getRdns() )
         {
             // First, get the AT name, or OID
             String normAT = rdn.getAtav().getNormType();
             AttributeType at = schemaManager.lookupAttributeTypeRegistry( normAT );
-            
+
             String atName = at.getName();
 
             // Now, get the normalized value
             String normValue = rdn.getAtav().getNormValue().getString();
-            
+
             if ( isFirst )
             {
                 isFirst = false;
@@ -610,14 +608,14 @@ public class LdifPartition extends BTreePartition
             {
                 sb.append( "," );
             }
-            
+
             sb.append( atName ).append( "=" ).append( normValue );
         }
-        
+
         return getOSFileName( sb.toString() );
     }
-    
-    
+
+
     /**
      * Get a OS compatible file name
      */
@@ -628,40 +626,64 @@ public class LdifPartition extends BTreePartition
             // On Windows, we escape '/', '<', '>', '\', '|', '"', ':', '+', ' ', '[', ']', 
             // '*', [0x00-0x1F], '?'
             StringBuilder sb = new StringBuilder();
-            
+
             for ( char c : fileName.toCharArray() )
             {
                 switch ( c )
                 {
-                    case 0x00 : case 0x01 : case 0x02 : case 0x03 : 
-                    case 0x04 : case 0x05 : case 0x06 : case 0x07 : 
-                    case 0x08 : case 0x09 : case 0x0A : case 0x0B :
-                    case 0x0C : case 0x0D : case 0x0E : case 0x0F :
-                    case 0x10 : case 0x11 : case 0x12 : case 0x13 : 
-                    case 0x14 : case 0x15 : case 0x16 : case 0x17 : 
-                    case 0x18 : case 0x19 : case 0x1A : case 0x1B :
-                    case 0x1C : case 0x1D : case 0x1E : case 0x1F :
-                        sb.append( "\\" ).append( StringTools.dumpHex( (byte)(c >> 4) ) ).
-                            append( StringTools.dumpHex( (byte)(c & 0x04 ) ) );
+                    case 0x00:
+                    case 0x01:
+                    case 0x02:
+                    case 0x03:
+                    case 0x04:
+                    case 0x05:
+                    case 0x06:
+                    case 0x07:
+                    case 0x08:
+                    case 0x09:
+                    case 0x0A:
+                    case 0x0B:
+                    case 0x0C:
+                    case 0x0D:
+                    case 0x0E:
+                    case 0x0F:
+                    case 0x10:
+                    case 0x11:
+                    case 0x12:
+                    case 0x13:
+                    case 0x14:
+                    case 0x15:
+                    case 0x16:
+                    case 0x17:
+                    case 0x18:
+                    case 0x19:
+                    case 0x1A:
+                    case 0x1B:
+                    case 0x1C:
+                    case 0x1D:
+                    case 0x1E:
+                    case 0x1F:
+                        sb.append( "\\" ).append( StringTools.dumpHex( ( byte ) ( c >> 4 ) ) ).append(
+                            StringTools.dumpHex( ( byte ) ( c & 0x04 ) ) );
                         break;
-                        
-                    case '/' :
-                    case '\\' :
-                    case '<' :
-                    case '>' :
-                    case '|' :
-                    case '"' :
-                    case ':' :
-                    case '+' :
-                    case ' ' :
-                    case '[' :
-                    case ']' :
-                    case '*' :
-                    case '?' :
+
+                    case '/':
+                    case '\\':
+                    case '<':
+                    case '>':
+                    case '|':
+                    case '"':
+                    case ':':
+                    case '+':
+                    case ' ':
+                    case '[':
+                    case ']':
+                    case '*':
+                    case '?':
                         sb.append( '\\' ).append( c );
                         break;
-                        
-                    default :
+
+                    default:
                         sb.append( c );
                         break;
                 }
@@ -669,24 +691,24 @@ public class LdifPartition extends BTreePartition
 
             return sb.toString().toLowerCase();
         }
-        else 
+        else
         {
             // On linux, just escape '/' and null
             StringBuilder sb = new StringBuilder();
-            
+
             for ( char c : fileName.toCharArray() )
             {
                 switch ( c )
                 {
-                    case '/' :
+                    case '/':
                         sb.append( "\\/" );
                         break;
-                        
-                    case '\0' :
-                        sb.append(  "\\00" );
+
+                    case '\0':
+                        sb.append( "\\00" );
                         break;
-                        
-                    default :
+
+                    default:
                         sb.append( c );
                         break;
                 }
@@ -719,7 +741,7 @@ public class LdifPartition extends BTreePartition
         if ( file.isDirectory() )
         {
             File[] files = file.listFiles();
-            
+
             // Process the contained files
             for ( File f : files )
             {
@@ -1079,7 +1101,7 @@ public class LdifPartition extends BTreePartition
     {
         LdifReader ldifReader = new LdifReader();
         List<LdifEntry> entries = ldifReader.parseLdif( contextEntry );
-        
+
         try
         {
             ldifReader.close();
@@ -1088,7 +1110,7 @@ public class LdifPartition extends BTreePartition
         {
             // What can we do here ???
         }
-        
+
         this.contextEntry = new DefaultServerEntry( schemaManager, entries.get( 0 ).getEntry() );
     }
 
