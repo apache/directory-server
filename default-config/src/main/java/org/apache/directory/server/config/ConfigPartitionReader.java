@@ -103,7 +103,7 @@ public class ConfigPartitionReader
 
     /** the schema manager set in the config partition */
     private SchemaManager schemaManager;
-    
+
     /** the parent directory of the config partition's working directory */
     private File workDir;
 
@@ -116,7 +116,7 @@ public class ConfigPartitionReader
             {
                 return true;
             }
-            
+
             return file.getName().toLowerCase().endsWith( ".ldif" );
         }
     };
@@ -143,10 +143,10 @@ public class ConfigPartitionReader
         this.configPartition = configPartition;
         se = configPartition.getSearchEngine();
         this.schemaManager = configPartition.getSchemaManager();
-        workDir = configPartition.getPartitionDir().getParentFile();        
+        workDir = configPartition.getPartitionDir().getParentFile();
     }
 
-    
+
     /**
      * reads the LDAP server configuration and instantiates without setting a DirectoryService 
      *
@@ -159,8 +159,8 @@ public class ConfigPartitionReader
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        IndexCursor<Long, ServerEntry> cursor = se.cursor( configPartition.getSuffixDn(), AliasDerefMode.NEVER_DEREF_ALIASES, filter,
-            controls );
+        IndexCursor<Long, ServerEntry> cursor = se.cursor( configPartition.getSuffixDn(),
+            AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         if ( !cursor.next() )
         {
@@ -173,15 +173,15 @@ public class ConfigPartitionReader
 
         ClonedServerEntry ldapServerEntry = configPartition.lookup( forwardEntry.getId() );
         LOG.debug( "LDAP Server Entry {}", ldapServerEntry );
-        
+
         if ( !isEnabled( ldapServerEntry ) )
         {
             return null;
         }
-        
+
         LdapServer server = new LdapServer();
         server.setServiceId( getString( "ads-serverId", ldapServerEntry ) );
-        
+
         LdapDN transportsDN = new LdapDN( getString( "ads-transports", ldapServerEntry ) );
         transportsDN.normalize( schemaManager.getNormalizerMapping() );
         Transport[] transports = getTransports( transportsDN );
@@ -193,12 +193,13 @@ public class ConfigPartitionReader
 
     public KdcServer getKdcServer() throws Exception
     {
-        EqualityNode<String> filter = new EqualityNode<String>( "objectClass", new ClientStringValue( "ads-kerberosServer" ) );
+        EqualityNode<String> filter = new EqualityNode<String>( "objectClass", new ClientStringValue(
+            "ads-kerberosServer" ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        IndexCursor<Long, ServerEntry> cursor = se.cursor( configPartition.getSuffixDn(), AliasDerefMode.NEVER_DEREF_ALIASES, filter,
-            controls );
+        IndexCursor<Long, ServerEntry> cursor = se.cursor( configPartition.getSuffixDn(),
+            AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         if ( !cursor.next() )
         {
@@ -211,135 +212,135 @@ public class ConfigPartitionReader
 
         ClonedServerEntry kdcEntry = configPartition.lookup( forwardEntry.getId() );
         LOG.debug( "kerberos server entry {}", kdcEntry );
-        
+
         if ( !isEnabled( kdcEntry ) )
         {
             return null;
         }
-        
+
         KdcServer kdcServer = new KdcServer();
-        
+
         kdcServer.setServiceId( getString( "ads-serverId", kdcEntry ) );
 
         LdapDN transportsDN = new LdapDN( getString( "ads-transports", kdcEntry ) );
         transportsDN.normalize( schemaManager.getNormalizerMapping() );
         Transport[] transports = getTransports( transportsDN );
         kdcServer.setTransports( transports );
-        
+
         // MAY attributes
         EntryAttribute clockSkewAttr = kdcEntry.get( "ads-krbAllowableClockSkew" );
-        
+
         if ( clockSkewAttr != null )
         {
             kdcServer.setAllowableClockSkew( Long.parseLong( clockSkewAttr.getString() ) );
         }
-        
+
         EntryAttribute encryptionTypeAttr = kdcEntry.get( "ads-krbEncryptionTypes" );
-        
+
         if ( encryptionTypeAttr != null )
         {
-            EncryptionType[] encryptionTypes = new EncryptionType[ encryptionTypeAttr.size() ];
+            EncryptionType[] encryptionTypes = new EncryptionType[encryptionTypeAttr.size()];
             Iterator<Value<?>> itr = encryptionTypeAttr.getAll();
             int count = 0;
-            
-            while( itr.hasNext() )
+
+            while ( itr.hasNext() )
             {
                 Value<?> val = itr.next();
-                encryptionTypes[count++] = EncryptionType.getByName( val.getString() ); 
+                encryptionTypes[count++] = EncryptionType.getByName( val.getString() );
             }
-            
+
             kdcServer.setEncryptionTypes( encryptionTypes );
         }
-        
+
         EntryAttribute emptyAddrAttr = kdcEntry.get( "ads-krbEmptyAddressesAllowed" );
-        
+
         if ( emptyAddrAttr != null )
         {
             kdcServer.setEmptyAddressesAllowed( Boolean.parseBoolean( emptyAddrAttr.getString() ) );
         }
-        
+
         EntryAttribute fwdAllowedAttr = kdcEntry.get( "ads-krbForwardableAllowed" );
-        
+
         if ( fwdAllowedAttr != null )
         {
             kdcServer.setForwardableAllowed( Boolean.parseBoolean( fwdAllowedAttr.getString() ) );
         }
 
         EntryAttribute paEncTmstpAttr = kdcEntry.get( "ads-krbPaEncTimestampRequired" );
-        
+
         if ( paEncTmstpAttr != null )
         {
             kdcServer.setPaEncTimestampRequired( Boolean.parseBoolean( paEncTmstpAttr.getString() ) );
         }
-        
+
         EntryAttribute posdtAllowedAttr = kdcEntry.get( "ads-krbPostdatedAllowed" );
-        
+
         if ( posdtAllowedAttr != null )
         {
             kdcServer.setPostdatedAllowed( Boolean.parseBoolean( posdtAllowedAttr.getString() ) );
         }
-        
+
         EntryAttribute prxyAllowedAttr = kdcEntry.get( "ads-krbProxiableAllowed" );
-        
+
         if ( prxyAllowedAttr != null )
         {
             kdcServer.setProxiableAllowed( Boolean.parseBoolean( prxyAllowedAttr.getString() ) );
         }
-        
+
         EntryAttribute rnwAllowedAttr = kdcEntry.get( "ads-krbRenewableAllowed" );
-        
+
         if ( rnwAllowedAttr != null )
         {
             kdcServer.setRenewableAllowed( Boolean.parseBoolean( rnwAllowedAttr.getString() ) );
         }
-        
+
         EntryAttribute kdcPrncplAttr = kdcEntry.get( "ads-krbKdcPrincipal" );
-        
+
         if ( kdcPrncplAttr != null )
         {
             kdcServer.setKdcPrincipal( kdcPrncplAttr.getString() );
         }
-        
+
         EntryAttribute maxRnwLfTimeAttr = kdcEntry.get( "ads-krbMaximumRenewableLifetime" );
-        
+
         if ( maxRnwLfTimeAttr != null )
         {
             kdcServer.setMaximumRenewableLifetime( Long.parseLong( maxRnwLfTimeAttr.getString() ) );
         }
-        
+
         EntryAttribute maxTcktLfTimeAttr = kdcEntry.get( "ads-krbMaximumTicketLifetime" );
-        
+
         if ( maxTcktLfTimeAttr != null )
         {
             kdcServer.setMaximumTicketLifetime( Long.parseLong( maxTcktLfTimeAttr.getString() ) );
         }
-        
+
         EntryAttribute prmRealmAttr = kdcEntry.get( "ads-krbPrimaryRealm" );
-        
+
         if ( prmRealmAttr != null )
         {
             kdcServer.setPrimaryRealm( prmRealmAttr.getString() );
         }
-        
+
         EntryAttribute bdyCkhsmVerifyAttr = kdcEntry.get( "ads-krbBodyChecksumVerified" );
-        
+
         if ( bdyCkhsmVerifyAttr != null )
         {
             kdcServer.setBodyChecksumVerified( Boolean.parseBoolean( bdyCkhsmVerifyAttr.getString() ) );
         }
-        
+
         return kdcServer;
     }
-    
-    
+
+
     public DnsServer getDnsServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( "objectClass", new ClientStringValue( "ads-dnsServer" ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        IndexCursor<Long, ServerEntry> cursor = se.cursor( configPartition.getSuffixDn(), AliasDerefMode.NEVER_DEREF_ALIASES, filter,
-            controls );
+        IndexCursor<Long, ServerEntry> cursor = se.cursor( configPartition.getSuffixDn(),
+            AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         if ( !cursor.next() )
         {
@@ -352,24 +353,24 @@ public class ConfigPartitionReader
 
         ClonedServerEntry dnsEntry = configPartition.lookup( forwardEntry.getId() );
         LOG.debug( "DNS server entry {}", dnsEntry );
-        
+
         if ( !isEnabled( dnsEntry ) )
         {
             return null;
         }
 
         DnsServer dnsServer = new DnsServer();
-        
+
         dnsServer.setServiceId( getString( "ads-serverId", dnsEntry ) );
 
         LdapDN transportsDN = new LdapDN( getString( "ads-transports", dnsEntry ) );
         transportsDN.normalize( schemaManager.getNormalizerMapping() );
         Transport[] transports = getTransports( transportsDN );
         dnsServer.setTransports( transports );
-        
+
         return dnsServer;
     }
-    
+
 
     //TODO making this method invisible cause there is no DhcpServer exists as of now
     private DhcpService getDhcpServer() throws Exception
@@ -378,8 +379,8 @@ public class ConfigPartitionReader
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        IndexCursor<Long, ServerEntry> cursor = se.cursor( configPartition.getSuffixDn(), AliasDerefMode.NEVER_DEREF_ALIASES, filter,
-            controls );
+        IndexCursor<Long, ServerEntry> cursor = se.cursor( configPartition.getSuffixDn(),
+            AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         if ( !cursor.next() )
         {
@@ -392,27 +393,27 @@ public class ConfigPartitionReader
 
         ClonedServerEntry dhcpEntry = configPartition.lookup( forwardEntry.getId() );
         LOG.debug( "DHCP server entry {}", dhcpEntry );
-        
+
         if ( !isEnabled( dhcpEntry ) )
         {
             return null;
         }
-        
+
         DhcpStore dhcpStore = new SimpleDhcpStore();
         DhcpService dhcpService = new StoreBasedDhcpService( dhcpStore );
 
         return dhcpService;
     }
 
-    
+
     public NtpServer getNtpServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( "objectClass", new ClientStringValue( "ads-ntpServer" ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        IndexCursor<Long, ServerEntry> cursor = se.cursor( configPartition.getSuffixDn(), AliasDerefMode.NEVER_DEREF_ALIASES, filter,
-            controls );
+        IndexCursor<Long, ServerEntry> cursor = se.cursor( configPartition.getSuffixDn(),
+            AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         if ( !cursor.next() )
         {
@@ -425,12 +426,12 @@ public class ConfigPartitionReader
 
         ClonedServerEntry ntpEntry = configPartition.lookup( forwardEntry.getId() );
         LOG.debug( "NTP server entry {}", ntpEntry );
-        
+
         if ( !isEnabled( ntpEntry ) )
         {
             return null;
         }
-        
+
         NtpServer ntpServer = new NtpServer();
 
         ntpServer.setServiceId( getString( "ads-serverId", ntpEntry ) );
@@ -439,19 +440,19 @@ public class ConfigPartitionReader
         transportsDN.normalize( schemaManager.getNormalizerMapping() );
         Transport[] transports = getTransports( transportsDN );
         ntpServer.setTransports( transports );
-        
+
         return ntpServer;
     }
 
-    
+
     public HttpServer getHttpServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( "objectClass", new ClientStringValue( "ads-httpServer" ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        IndexCursor<Long, ServerEntry> cursor = se.cursor( configPartition.getSuffixDn(), AliasDerefMode.NEVER_DEREF_ALIASES, filter,
-            controls );
+        IndexCursor<Long, ServerEntry> cursor = se.cursor( configPartition.getSuffixDn(),
+            AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         if ( !cursor.next() )
         {
@@ -464,43 +465,43 @@ public class ConfigPartitionReader
 
         ClonedServerEntry httpEntry = configPartition.lookup( forwardEntry.getId() );
         LOG.debug( "HTTP server entry {}", httpEntry );
-        
+
         if ( !isEnabled( httpEntry ) )
         {
             return null;
         }
-        
+
         HttpServer httpServer = new HttpServer();
-        
+
         EntryAttribute portAttr = httpEntry.get( "ads-systemPort" );
-        
+
         if ( portAttr != null )
         {
             httpServer.setPort( Integer.parseInt( portAttr.getString() ) );
         }
-        
+
         EntryAttribute confFileAttr = httpEntry.get( "ads-httpConfFile" );
-        
+
         if ( confFileAttr != null )
         {
             httpServer.setConfFile( confFileAttr.getString() );
         }
-        
+
         EntryAttribute webAppsAttr = httpEntry.get( "ads-httpWebApps" );
-        
+
         if ( webAppsAttr != null )
         {
             LdapDN webAppsDN = new LdapDN( webAppsAttr.getString() );
             webAppsDN.normalize( schemaManager.getNormalizerMapping() );
-         
+
             Set<WebApp> webApps = getWebApps( webAppsDN );
             httpServer.setWebApps( webApps );
         }
-        
+
         return httpServer;
     }
-    
-    
+
+
     /**
      * 
      * instantiates a DirectoryService based on the configuration present in the partition 
@@ -514,8 +515,8 @@ public class ConfigPartitionReader
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        IndexCursor<Long, ServerEntry> cursor = se.cursor( configPartition.getSuffixDn(), AliasDerefMode.NEVER_DEREF_ALIASES, filter,
-            controls );
+        IndexCursor<Long, ServerEntry> cursor = se.cursor( configPartition.getSuffixDn(),
+            AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         if ( !cursor.next() )
         {
@@ -543,11 +544,11 @@ public class ConfigPartitionReader
 
         LdapDN partitionsDN = new LdapDN( dsEntry.get( "ads-dsPartitions" ).getString() );
         partitionsDN.normalize( configPartition.getSchemaManager().getNormalizerMapping() );
-        
+
         Map<String, Partition> partitions = getPartitions( partitionsDN );
 
         Partition systemPartition = partitions.remove( "system" );
-        
+
         if ( systemPartition == null )
         {
             throw new Exception( I18n.err( I18n.ERR_505 ) );
@@ -555,24 +556,24 @@ public class ConfigPartitionReader
 
         dirService.setSystemPartition( systemPartition );
         dirService.setPartitions( new HashSet<Partition>( partitions.values() ) );
-        
+
         // MAY attributes
         EntryAttribute acEnabledAttr = dsEntry.get( "ads-dsAccessControlEnabled" );
-        
+
         if ( acEnabledAttr != null )
         {
             dirService.setAccessControlEnabled( Boolean.parseBoolean( acEnabledAttr.getString() ) );
         }
 
         EntryAttribute anonAccessAttr = dsEntry.get( "ads-dsAllowAnonymousAccess" );
-        
+
         if ( anonAccessAttr != null )
         {
             dirService.setAllowAnonymousAccess( Boolean.parseBoolean( anonAccessAttr.getString() ) );
         }
 
         EntryAttribute changeLogAttr = dsEntry.get( "ads-dsChangeLog" );
-        
+
         if ( changeLogAttr != null )
         {
             LdapDN clDN = new LdapDN( changeLogAttr.getString() );
@@ -582,14 +583,14 @@ public class ConfigPartitionReader
         }
 
         EntryAttribute denormAttr = dsEntry.get( "ads-dsDenormalizeOpAttrsEnabled" );
-        
+
         if ( denormAttr != null )
         {
             dirService.setDenormalizeOpAttrsEnabled( Boolean.parseBoolean( denormAttr.getString() ) );
         }
 
         EntryAttribute journalAttr = dsEntry.get( "ads-dsJournal" );
-        
+
         if ( journalAttr != null )
         {
             LdapDN journalDN = new LdapDN( journalAttr.getString() );
@@ -598,28 +599,28 @@ public class ConfigPartitionReader
         }
 
         EntryAttribute maxPduAttr = dsEntry.get( "ads-dsMaxPDUSize" );
-        
+
         if ( maxPduAttr != null )
         {
             dirService.setMaxPDUSize( Integer.parseInt( maxPduAttr.getString() ) );
         }
 
         EntryAttribute passwordHidAttr = dsEntry.get( "ads-dsPasswordHidden" );
-        
+
         if ( passwordHidAttr != null )
         {
             dirService.setPasswordHidden( Boolean.parseBoolean( passwordHidAttr.getString() ) );
         }
 
         EntryAttribute replAttr = dsEntry.get( "ads-dsReplication" );
-        
+
         if ( replAttr != null )
         {
             // configure replication
         }
 
         EntryAttribute syncPeriodAttr = dsEntry.get( "ads-dsSyncPeriodMillis" );
-        
+
         if ( syncPeriodAttr != null )
         {
             // FIXME the DirectoryService interface doesn't have this setter
@@ -627,7 +628,7 @@ public class ConfigPartitionReader
         }
 
         EntryAttribute testEntryAttr = dsEntry.get( "ads-dsTestEntries" );
-        
+
         if ( testEntryAttr != null )
         {
             String entryFilePath = testEntryAttr.getString();
@@ -640,7 +641,7 @@ public class ConfigPartitionReader
             // switch between them
             // decide which one to use based on this flag
         }
-        
+
         return dirService;
     }
 
@@ -657,7 +658,8 @@ public class ConfigPartitionReader
         PresenceNode filter = new PresenceNode( "ads-interceptorId" );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        IndexCursor<Long, ServerEntry> cursor = se.cursor( interceptorsDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
+        IndexCursor<Long, ServerEntry> cursor = se.cursor( interceptorsDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter,
+            controls );
 
         Set<InterceptorConfig> set = new TreeSet<InterceptorConfig>();
 
@@ -673,12 +675,12 @@ public class ConfigPartitionReader
             InterceptorConfig intConfig = new InterceptorConfig( id, fqcn, order );
             set.add( intConfig );
         }
-    
+
         cursor.close();
-        
+
         List<Interceptor> interceptors = new ArrayList<Interceptor>();
 
-        for( InterceptorConfig iconfig : set )
+        for ( InterceptorConfig iconfig : set )
         {
             try
             {
@@ -686,26 +688,27 @@ public class ConfigPartitionReader
                 Interceptor ic = ( Interceptor ) Class.forName( iconfig.getFqcn() ).newInstance();
                 interceptors.add( ic );
             }
-            catch( Exception e )
+            catch ( Exception e )
             {
                 throw e;
             }
         }
-        
+
         return interceptors;
     }
 
 
-    private Map<String,Partition> getPartitions( LdapDN partitionsDN ) throws Exception
+    private Map<String, Partition> getPartitions( LdapDN partitionsDN ) throws Exception
     {
         PresenceNode filter = new PresenceNode( "ads-partitionId" );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        IndexCursor<Long, ServerEntry> cursor = se.cursor( partitionsDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
-        
-        Map<String,Partition> partitions = new HashMap<String,Partition>();
-        
-        while( cursor.next() )
+        IndexCursor<Long, ServerEntry> cursor = se.cursor( partitionsDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter,
+            controls );
+
+        Map<String, Partition> partitions = new HashMap<String, Partition>();
+
+        while ( cursor.next() )
         {
             ForwardIndexEntry<Long, ServerEntry> forwardEntry = ( ForwardIndexEntry<Long, ServerEntry> ) cursor.get();
             ServerEntry partitionEntry = configPartition.lookup( forwardEntry.getId() );
@@ -715,7 +718,7 @@ public class ConfigPartitionReader
                 continue;
             }
             EntryAttribute ocAttr = partitionEntry.get( "objectClass" );
-            
+
             if ( ocAttr.contains( "ads-jdbmPartition" ) )
             {
                 JdbmPartition partition = getJdbmPartition( partitionEntry );
@@ -726,74 +729,75 @@ public class ConfigPartitionReader
                 throw new NotImplementedException( I18n.err( I18n.ERR_506 ) );
             }
         }
-        
+
         cursor.close();
-        
+
         return partitions;
     }
-    
-    
+
+
     private JdbmPartition getJdbmPartition( ServerEntry partitionEntry ) throws Exception
     {
         JdbmPartition partition = new JdbmPartition();
         partition.setSchemaManager( schemaManager );
-        
+
         partition.setId( getString( "ads-partitionId", partitionEntry ) );
         partition.setPartitionDir( new File( workDir, partition.getId() ) );
-        
+
         partition.setSuffix( getString( "ads-partitionSuffix", partitionEntry ) );
-        
+
         EntryAttribute cacheAttr = partitionEntry.get( "ads-partitionCacheSize" );
-        
+
         if ( cacheAttr != null )
         {
             partition.setCacheSize( Integer.parseInt( cacheAttr.getString() ) );
         }
-        
+
         EntryAttribute optimizerAttr = partitionEntry.get( "ads-jdbmPartitionOptimizerEnabled" );
-        
+
         if ( optimizerAttr != null )
         {
             partition.setOptimizerEnabled( Boolean.parseBoolean( optimizerAttr.getString() ) );
         }
-        
+
         EntryAttribute syncAttr = partitionEntry.get( "ads-partitionSyncOnWrite" );
-        
+
         if ( syncAttr != null )
         {
             partition.setSyncOnWrite( Boolean.parseBoolean( syncAttr.getString() ) );
         }
 
         String indexesDN = partitionEntry.get( "ads-partitionIndexedAttributes" ).getString();
-        
-        Set<Index<?,ServerEntry>> indexedAttributes = getIndexes( new LdapDN( indexesDN ) );
+
+        Set<Index<?, ServerEntry>> indexedAttributes = getIndexes( new LdapDN( indexesDN ) );
         partition.setIndexedAttributes( indexedAttributes );
 
         return partition;
     }
-    
 
-    private Set<Index<?,ServerEntry>> getIndexes( LdapDN indexesDN ) throws Exception
+
+    private Set<Index<?, ServerEntry>> getIndexes( LdapDN indexesDN ) throws Exception
     {
         PresenceNode filter = new PresenceNode( "ads-indexAttributeId" );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        IndexCursor<Long, ServerEntry> cursor = se.cursor( indexesDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
-        
-        Set<Index<?,ServerEntry>> indexes = new HashSet<Index<?,ServerEntry>>();
-        
-        while( cursor.next() )
+        IndexCursor<Long, ServerEntry> cursor = se.cursor( indexesDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter,
+            controls );
+
+        Set<Index<?, ServerEntry>> indexes = new HashSet<Index<?, ServerEntry>>();
+
+        while ( cursor.next() )
         {
             ForwardIndexEntry<Long, ServerEntry> forwardEntry = ( ForwardIndexEntry<Long, ServerEntry> ) cursor.get();
             ServerEntry indexEntry = configPartition.lookup( forwardEntry.getId() );
-            
+
             if ( !isEnabled( indexEntry ) )
             {
                 continue;
             }
-            
+
             EntryAttribute ocAttr = indexEntry.get( "objectClass" );
-            
+
             if ( ocAttr.contains( "ads-jdbmIndex" ) )
             {
                 indexes.add( getJdbmIndex( indexEntry ) );
@@ -803,58 +807,60 @@ public class ConfigPartitionReader
                 throw new NotImplementedException( I18n.err( I18n.ERR_506 ) );
             }
         }
-        
+
         return indexes;
     }
-    
-    
+
+
     private JdbmIndex<?, ServerEntry> getJdbmIndex( ServerEntry indexEntry ) throws Exception
     {
         JdbmIndex<String, ServerEntry> index = new JdbmIndex<String, ServerEntry>();
         index.setAttributeId( getString( "ads-indexAttributeId", indexEntry ) );
         EntryAttribute cacheAttr = indexEntry.get( "ads-indexCacheSize" );
-        
+
         if ( cacheAttr != null )
         {
             index.setCacheSize( Integer.parseInt( cacheAttr.getString() ) );
         }
-        
+
         return index;
     }
-    
-    
+
+
     private Transport[] getTransports( LdapDN transportsDN ) throws Exception
     {
         PresenceNode filter = new PresenceNode( "ads-transportId" );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        IndexCursor<Long, ServerEntry> cursor = se.cursor( transportsDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
-        
+        IndexCursor<Long, ServerEntry> cursor = se.cursor( transportsDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter,
+            controls );
+
         List<Transport> transports = new ArrayList<Transport>();
-        
-        while( cursor.next() )
+
+        while ( cursor.next() )
         {
             ForwardIndexEntry<Long, ServerEntry> forwardEntry = ( ForwardIndexEntry<Long, ServerEntry> ) cursor.get();
             ServerEntry transportEntry = configPartition.lookup( forwardEntry.getId() );
-            
+
             if ( !isEnabled( transportEntry ) )
             {
                 continue;
             }
-            
+
             transports.add( getTransport( transportEntry ) );
         }
-        
-        return transports.toArray( new Transport[]{} );
+
+        return transports.toArray( new Transport[]
+            {} );
     }
-    
-    
+
+
     private Transport getTransport( Entry transportEntry ) throws Exception
     {
         Transport transport = null;
-     
+
         EntryAttribute ocAttr = transportEntry.get( "objectClass" );
-        
+
         if ( ocAttr.contains( "ads-tcpTransport" ) )
         {
             transport = new TcpTransport();
@@ -863,10 +869,10 @@ public class ConfigPartitionReader
         {
             transport = new UdpTransport();
         }
-        
+
         transport.setPort( getInt( "ads-systemPort", transportEntry ) );
         EntryAttribute addressAttr = transportEntry.get( "ads-transportAddress" );
-        
+
         if ( addressAttr != null )
         {
             transport.setAddress( addressAttr.getString() );
@@ -875,23 +881,23 @@ public class ConfigPartitionReader
         {
             transport.setAddress( "0.0.0.0" );
         }
-        
+
         EntryAttribute backlogAttr = transportEntry.get( "ads-transportBacklog" );
-        
+
         if ( backlogAttr != null )
         {
             transport.setBackLog( Integer.parseInt( backlogAttr.getString() ) );
         }
-        
+
         EntryAttribute sslAttr = transportEntry.get( "ads-transportEnableSSL" );
-        
+
         if ( sslAttr != null )
         {
             transport.setEnableSSL( Boolean.parseBoolean( sslAttr.getString() ) );
         }
-        
+
         EntryAttribute nbThreadsAttr = transportEntry.get( "ads-transportNbThreads" );
-        
+
         if ( nbThreadsAttr != null )
         {
             transport.setNbThreads( Integer.parseInt( nbThreadsAttr.getString() ) );
@@ -899,32 +905,32 @@ public class ConfigPartitionReader
 
         return transport;
     }
-    
+
 
     private ChangeLog getChangeLog( LdapDN changelogDN ) throws Exception
     {
         long id = configPartition.getEntryId( changelogDN.getNormName() );
         Entry clEntry = configPartition.lookup( id );
-        
+
         ChangeLog cl = new DefaultChangeLog();
-        EntryAttribute clEnabledAttr =clEntry.get( "ads-changeLogEnabled" );
-        
+        EntryAttribute clEnabledAttr = clEntry.get( "ads-changeLogEnabled" );
+
         if ( clEnabledAttr != null )
         {
             cl.setEnabled( Boolean.parseBoolean( clEnabledAttr.getString() ) );
         }
-        
+
         EntryAttribute clExpAttr = clEntry.get( "ads-changeLogExposed" );
-        
+
         if ( clExpAttr != null )
         {
             cl.setExposed( Boolean.parseBoolean( clExpAttr.getString() ) );
         }
-        
+
         return cl;
     }
-    
-    
+
+
     private Journal getJournal( LdapDN journalDN ) throws Exception
     {
         long id = configPartition.getEntryId( journalDN.getNormName() );
@@ -932,41 +938,41 @@ public class ConfigPartitionReader
 
         Journal journal = new DefaultJournal();
         JournalStore store = new DefaultJournalStore();
-        
+
         store.setFileName( getString( "ads-journalFileName", jlEntry ) );
-        
+
         EntryAttribute jlWorkDirAttr = jlEntry.get( "ads-journalWorkingDir" );
-        
+
         if ( jlWorkDirAttr != null )
         {
             store.setWorkingDirectory( jlWorkDirAttr.getString() );
         }
-        
+
         EntryAttribute jlRotAttr = jlEntry.get( "ads-journalRotation" );
-        
+
         if ( jlRotAttr != null )
         {
             journal.setRotation( Integer.parseInt( jlRotAttr.getString() ) );
         }
-        
+
         EntryAttribute jlEnabledAttr = jlEntry.get( "ads-journalEnabled" );
-        
+
         if ( jlEnabledAttr != null )
         {
             journal.setEnabled( Boolean.parseBoolean( jlEnabledAttr.getString() ) );
         }
-        
+
         journal.setJournalStore( store );
         return journal;
     }
-    
+
 
     private List<LdifEntry> getTestEntries( String entryFilePath ) throws Exception
     {
         List<LdifEntry> entries = new ArrayList<LdifEntry>();
-        
+
         File file = new File( entryFilePath );
-        
+
         if ( !file.exists() )
         {
             LOG.warn( "LDIF test entry file path doesn't exist {}", entryFilePath );
@@ -976,18 +982,18 @@ public class ConfigPartitionReader
             LOG.info( "parsing the LDIF file(s) present at the path {}", entryFilePath );
             loadEntries( file, entries );
         }
-        
+
         return entries;
     }
-    
-    
+
+
     private void loadEntries( File ldifFile, List<LdifEntry> entries ) throws Exception
     {
         if ( ldifFile.isDirectory() )
         {
             File[] files = ldifFile.listFiles( ldifFilter );
-            
-            for( File f : files )
+
+            for ( File f : files )
             {
                 loadEntries( f, entries );
             }
@@ -999,39 +1005,39 @@ public class ConfigPartitionReader
             reader.close();
         }
     }
-    
-    
+
+
     private Set<WebApp> getWebApps( LdapDN webAppsDN ) throws Exception
     {
         PresenceNode filter = new PresenceNode( "ads-httpWarFile" );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        IndexCursor<Long, ServerEntry> cursor = se.cursor( webAppsDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
-        
+        IndexCursor<Long, ServerEntry> cursor = se.cursor( webAppsDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter,
+            controls );
+
         Set<WebApp> webApps = new HashSet<WebApp>();
-        
-        while( cursor.next() )
+
+        while ( cursor.next() )
         {
             ForwardIndexEntry<Long, ServerEntry> forwardEntry = ( ForwardIndexEntry<Long, ServerEntry> ) cursor.get();
             ServerEntry webAppEntry = configPartition.lookup( forwardEntry.getId() );
-            
+
             WebApp app = new WebApp();
             app.setWarFile( getString( "ads-httpWarFile", webAppEntry ) );
-            
+
             EntryAttribute ctxPathAttr = webAppEntry.get( "ads-httpAppCtxPath" );
-            
+
             if ( ctxPathAttr != null )
             {
                 app.setContextPath( ctxPathAttr.getString() );
             }
-            
+
             webApps.add( app );
         }
-        
+
         return webApps;
     }
-    
-    
+
     /**
      * internal class used for holding the Interceptor classname and order configuration
      */
@@ -1048,7 +1054,7 @@ public class ConfigPartitionReader
             {
                 throw new IllegalArgumentException( I18n.err( I18n.ERR_507 ) );
             }
-            
+
             this.id = id;
             this.fqcn = fqcn;
             this.order = order;
@@ -1092,7 +1098,7 @@ public class ConfigPartitionReader
         return Integer.parseInt( entry.get( attrName ).getString() );
     }
 
-    
+
     private boolean isEnabled( Entry entry ) throws Exception
     {
         EntryAttribute enabledAttr = entry.get( "ads-enabled" );
