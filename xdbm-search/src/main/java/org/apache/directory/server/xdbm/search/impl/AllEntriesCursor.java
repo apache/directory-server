@@ -34,19 +34,19 @@ import org.apache.directory.server.xdbm.Store;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AllEntriesCursor extends AbstractIndexCursor<Long,ServerEntry>
+public class AllEntriesCursor extends AbstractIndexCursor<Long, ServerEntry>
 {
     private IndexEntry<Long, ServerEntry> indexEntry = new ForwardIndexEntry<Long, ServerEntry>();
-    private final IndexCursor<String,ServerEntry> wrapped;
+    private final IndexCursor<String, ServerEntry> wrapped;
 
-    
+
     public AllEntriesCursor( Store<ServerEntry> db ) throws Exception
     {
         // Get a reverse cursor because we want to sort by ID
         wrapped = db.getNdnIndex().reverseCursor();
     }
-    
-    
+
+
     /* 
      * @see org.apache.directory.server.xdbm.IndexCursor#afterValue(Long, Object)
      */
@@ -70,7 +70,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<Long,ServerEntry>
     /* 
      * @see org.apache.directory.server.core.cursor.Cursor#after(java.lang.Object)
      */
-    public void after( IndexEntry<Long,ServerEntry> indexEntry ) throws Exception
+    public void after( IndexEntry<Long, ServerEntry> indexEntry ) throws Exception
     {
         checkNotClosed( "after()" );
         wrapped.afterValue( indexEntry.getId(), null );
@@ -99,7 +99,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<Long,ServerEntry>
     /* 
      * @see org.apache.directory.server.core.cursor.Cursor#before(java.lang.Object)
      */
-    public void before( IndexEntry<Long,ServerEntry> indexEntry ) throws Exception
+    public void before( IndexEntry<Long, ServerEntry> indexEntry ) throws Exception
     {
         checkNotClosed( "before()" );
         wrapped.beforeValue( indexEntry.getId(), null );
@@ -129,10 +129,10 @@ public class AllEntriesCursor extends AbstractIndexCursor<Long,ServerEntry>
     /* 
      * @see org.apache.directory.server.core.cursor.Cursor#get()
      */
-    public IndexEntry<Long,ServerEntry> get() throws Exception
+    public IndexEntry<Long, ServerEntry> get() throws Exception
     {
         checkNotClosed( "get()" );
-        IndexEntry<String,ServerEntry> wrappedEntry = wrapped.get();
+        IndexEntry<String, ServerEntry> wrappedEntry = wrapped.get();
         indexEntry.setId( wrappedEntry.getId() );
         indexEntry.setValue( wrappedEntry.getId() );
         indexEntry.setObject( wrappedEntry.getObject() );

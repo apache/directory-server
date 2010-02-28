@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.xdbm.search.impl;
 
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -80,10 +81,11 @@ public class OrCursorTest
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
 
+
     @BeforeClass
     public static void setup() throws Exception
     {
-    	String workingDirectory = System.getProperty( "workingDirectory" );
+        String workingDirectory = System.getProperty( "workingDirectory" );
 
         if ( workingDirectory == null )
         {
@@ -104,9 +106,9 @@ public class OrCursorTest
         {
             fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
-        
+
         loaded = schemaManager.loadWithDeps( loader.getSchema( "collective" ) );
-        
+
         if ( !loaded )
         {
             fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
@@ -135,14 +137,14 @@ public class OrCursorTest
         store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new JdbmIndex( SchemaConstants.CN_AT_OID ) );
         StoreUtils.loadExampleData( store, schemaManager );
-        
+
         evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
         cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
-        
+
         LOG.debug( "Created new store" );
     }
 
-    
+
     @After
     public void destryStore() throws Exception
     {
@@ -160,15 +162,15 @@ public class OrCursorTest
         wkdir = null;
     }
 
-    
+
     @Test
     public void testOrCursorUsingCursorBuilder() throws Exception
     {
         String filter = "(|(cn=J*)(sn=W*))";
 
         ExprNode exprNode = FilterParser.parse( filter );
-        
-        IndexCursor<?,ServerEntry> cursor = cursorBuilder.build( exprNode );
+
+        IndexCursor<?, ServerEntry> cursor = cursorBuilder.build( exprNode );
 
         cursor.afterLast();
 
@@ -176,139 +178,141 @@ public class OrCursorTest
         assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
         assertEquals( "walker", cursor.get().getValue() );
-        
+
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 11, ( long ) cursor.get().getId() );
         assertEquals( "johnny walker", cursor.get().getValue() );
-        
+
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 10, ( long ) cursor.get().getId() );
         assertEquals( "jim bean", cursor.get().getValue() );
-        
+
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 9, ( long ) cursor.get().getId() );
         assertEquals( "jim bean", cursor.get().getValue() );
-        
+
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
         assertEquals( "jim bean", cursor.get().getValue() );
-        
+
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 8, ( long ) cursor.get().getId() );
         assertEquals( "jack daniels", cursor.get().getValue() );
-        
+
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
-        
+
         cursor.beforeFirst();
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 8, ( long ) cursor.get().getId() );
         assertEquals( "jack daniels", cursor.get().getValue() );
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
         assertEquals( "jim bean", cursor.get().getValue() );
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 9, ( long ) cursor.get().getId() );
         assertEquals( "jim bean", cursor.get().getValue() );
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 10, ( long ) cursor.get().getId() );
         assertEquals( "jim bean", cursor.get().getValue() );
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 11, ( long ) cursor.get().getId() );
         assertEquals( "johnny walker", cursor.get().getValue() );
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
         assertEquals( "walker", cursor.get().getValue() );
-        
+
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
-        
+
         cursor.close();
         assertTrue( cursor.isClosed() );
     }
-    
-    
-    @Test( expected = InvalidCursorPositionException.class )
-    @SuppressWarnings( "unchecked" )
+
+
+    @Test(expected = InvalidCursorPositionException.class)
+    @SuppressWarnings("unchecked")
     public void testOrCursor() throws Exception
     {
-        List<Evaluator<? extends ExprNode,ServerEntry>> evaluators = new ArrayList<Evaluator<? extends ExprNode,ServerEntry>>();
-        List<Cursor<IndexEntry<?,ServerEntry>>> cursors = new ArrayList<Cursor<IndexEntry<?,ServerEntry>>>();
+        List<Evaluator<? extends ExprNode, ServerEntry>> evaluators = new ArrayList<Evaluator<? extends ExprNode, ServerEntry>>();
+        List<Cursor<IndexEntry<?, ServerEntry>>> cursors = new ArrayList<Cursor<IndexEntry<?, ServerEntry>>>();
         Evaluator<? extends ExprNode, ServerEntry> eval;
-        Cursor<IndexEntry<?,ServerEntry>> cursor;
-        
+        Cursor<IndexEntry<?, ServerEntry>> cursor;
+
         OrNode orNode = new OrNode();
 
         ExprNode exprNode = new SubstringNode( "cn", "J", null );
         eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
         Cursor subStrCursor1 = new SubstringCursor( store, ( SubstringEvaluator ) eval );
         cursors.add( subStrCursor1 );
-        evaluators.add( eval );  
+        evaluators.add( eval );
         orNode.addNode( exprNode );
-        
+
         try
         {
             new OrCursor( cursors, evaluators );
             fail( "should throw IllegalArgumentException" );
         }
-        catch( IllegalArgumentException ie ){ }
-        
+        catch ( IllegalArgumentException ie )
+        {
+        }
+
         exprNode = new SubstringNode( "sn", "W", null );
         eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
         evaluators.add( eval );
         Cursor subStrCursor2 = new SubstringCursor( store, ( SubstringEvaluator ) eval );
         cursors.add( subStrCursor2 );
-        
+
         orNode.addNode( exprNode );
-        
-        cursor =  new OrCursor( cursors, evaluators );
-        
+
+        cursor = new OrCursor( cursors, evaluators );
+
         cursor.beforeFirst();
         assertFalse( cursor.available() );
-        
+
         // from first
         assertTrue( cursor.first() );
         assertTrue( cursor.available() );
         assertEquals( 8, ( long ) cursor.get().getId() );
         assertEquals( "jack daniels", cursor.get().getValue() );
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
         assertEquals( "jim bean", cursor.get().getValue() );
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 9, ( long ) cursor.get().getId() );
         assertEquals( "jim bean", cursor.get().getValue() );
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 10, ( long ) cursor.get().getId() );
         assertEquals( "jim bean", cursor.get().getValue() );
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
         assertEquals( "walker", cursor.get().getValue() );
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 11, ( long ) cursor.get().getId() );
@@ -320,56 +324,60 @@ public class OrCursorTest
         // from last        
         cursor.afterLast();
         assertFalse( cursor.available() );
-        
+
         assertTrue( cursor.last() );
         assertTrue( cursor.available() );
         assertEquals( 11, ( long ) cursor.get().getId() );
         assertEquals( "johnny walker", cursor.get().getValue() );
-        
+
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
         assertEquals( "walker", cursor.get().getValue() );
-        
+
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 10, ( long ) cursor.get().getId() );
         assertEquals( "jim bean", cursor.get().getValue() );
-        
+
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 9, ( long ) cursor.get().getId() );
         assertEquals( "jim bean", cursor.get().getValue() );
-        
+
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
         assertEquals( "jim bean", cursor.get().getValue() );
-        
+
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 8, ( long ) cursor.get().getId() );
         assertEquals( "jack daniels", cursor.get().getValue() );
-        
+
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
-        
+
         assertTrue( cursor.isElementReused() );
-        
+
         try
         {
             cursor.after( new ForwardIndexEntry() );
             fail( "should fail with UnsupportedOperationException " );
         }
-        catch( UnsupportedOperationException uoe ) {}
-        
+        catch ( UnsupportedOperationException uoe )
+        {
+        }
+
         try
         {
             cursor.before( new ForwardIndexEntry() );
             fail( "should fail with UnsupportedOperationException " );
         }
-        catch( UnsupportedOperationException uoe ) {}
-        
+        catch ( UnsupportedOperationException uoe )
+        {
+        }
+
         cursor.get();
     }
 

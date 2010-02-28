@@ -36,7 +36,6 @@ import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 
 
-
 /**
  * A Cursor returning candidates satisfying a logical disjunction expression.
  *
@@ -46,15 +45,16 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 public class OrCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 {
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_722 );
-    private final List<IndexCursor<V,ServerEntry>> cursors;
-    private final List<Evaluator<? extends ExprNode,ServerEntry>> evaluators;
+    private final List<IndexCursor<V, ServerEntry>> cursors;
+    private final List<Evaluator<? extends ExprNode, ServerEntry>> evaluators;
     private final List<Set<Long>> blacklists;
     private int cursorIndex = -1;
     private boolean available = false;
 
 
     // TODO - do same evaluator fail fast optimization that we do in AndCursor
-    public OrCursor( List<IndexCursor<V, ServerEntry>> cursors, List<Evaluator<? extends ExprNode,ServerEntry>> evaluators )
+    public OrCursor( List<IndexCursor<V, ServerEntry>> cursors,
+        List<Evaluator<? extends ExprNode, ServerEntry>> evaluators )
     {
         if ( cursors.size() <= 1 )
         {
@@ -170,8 +170,8 @@ public class OrCursor<V> extends AbstractIndexCursor<V, ServerEntry>
         while ( cursors.get( cursorIndex ).previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?,ServerEntry> candidate = cursors.get( cursorIndex ).get();
-            if ( ! isBlackListed( candidate.getId() ) )
+            IndexEntry<?, ServerEntry> candidate = cursors.get( cursorIndex ).get();
+            if ( !isBlackListed( candidate.getId() ) )
             {
                 blackListIfDuplicate( candidate );
                 return available = true;
@@ -187,8 +187,8 @@ public class OrCursor<V> extends AbstractIndexCursor<V, ServerEntry>
             while ( cursors.get( cursorIndex ).previous() )
             {
                 checkNotClosed( "previous()" );
-                IndexEntry<?,ServerEntry> candidate = cursors.get( cursorIndex ).get();
-                if ( ! isBlackListed( candidate.getId() ) )
+                IndexEntry<?, ServerEntry> candidate = cursors.get( cursorIndex ).get();
+                if ( !isBlackListed( candidate.getId() ) )
                 {
                     blackListIfDuplicate( candidate );
                     return available = true;
@@ -205,8 +205,8 @@ public class OrCursor<V> extends AbstractIndexCursor<V, ServerEntry>
         while ( cursors.get( cursorIndex ).next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?,ServerEntry> candidate = cursors.get( cursorIndex ).get();
-            if ( ! isBlackListed( candidate.getId() ) )
+            IndexEntry<?, ServerEntry> candidate = cursors.get( cursorIndex ).get();
+            if ( !isBlackListed( candidate.getId() ) )
             {
                 blackListIfDuplicate( candidate );
                 return available = true;
@@ -222,8 +222,8 @@ public class OrCursor<V> extends AbstractIndexCursor<V, ServerEntry>
             while ( cursors.get( cursorIndex ).next() )
             {
                 checkNotClosed( "previous()" );
-                IndexEntry<?,ServerEntry> candidate = cursors.get( cursorIndex ).get();
-                if ( ! isBlackListed( candidate.getId() ) )
+                IndexEntry<?, ServerEntry> candidate = cursors.get( cursorIndex ).get();
+                if ( !isBlackListed( candidate.getId() ) )
                 {
                     blackListIfDuplicate( candidate );
                     return available = true;

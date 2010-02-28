@@ -36,7 +36,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 public class NotEvaluator implements Evaluator<NotNode, ServerEntry>
 {
     private final NotNode node;
-    private final Evaluator<? extends ExprNode,ServerEntry> childEvaluator;
+    private final Evaluator<? extends ExprNode, ServerEntry> childEvaluator;
 
 
     public NotEvaluator( NotNode node, Evaluator<? extends ExprNode, ServerEntry> childEvaluator )
@@ -48,19 +48,19 @@ public class NotEvaluator implements Evaluator<NotNode, ServerEntry>
 
     public boolean evaluate( Long id ) throws Exception
     {
-        return ! childEvaluator.evaluate( id );
+        return !childEvaluator.evaluate( id );
     }
 
 
     public boolean evaluate( ServerEntry entry ) throws Exception
     {
-        return ! childEvaluator.evaluate( entry );
+        return !childEvaluator.evaluate( entry );
     }
 
 
     public boolean evaluate( IndexEntry<?, ServerEntry> indexEntry ) throws Exception
     {
-        return ! childEvaluator.evaluate( indexEntry );
+        return !childEvaluator.evaluate( indexEntry );
     }
 
 

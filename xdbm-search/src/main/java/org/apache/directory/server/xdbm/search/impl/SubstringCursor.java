@@ -41,23 +41,21 @@ public class SubstringCursor extends AbstractIndexCursor<String, ServerEntry>
 {
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_725 );
     private final boolean hasIndex;
-    private final IndexCursor<String,ServerEntry> wrapped;
+    private final IndexCursor<String, ServerEntry> wrapped;
     private final SubstringEvaluator evaluator;
-    private final ForwardIndexEntry<String,ServerEntry> indexEntry =
-        new ForwardIndexEntry<String,ServerEntry>();
+    private final ForwardIndexEntry<String, ServerEntry> indexEntry = new ForwardIndexEntry<String, ServerEntry>();
     private boolean available = false;
 
 
     @SuppressWarnings("unchecked")
-    public SubstringCursor( Store<ServerEntry> db,
-                            final SubstringEvaluator substringEvaluator ) throws Exception
+    public SubstringCursor( Store<ServerEntry> db, final SubstringEvaluator substringEvaluator ) throws Exception
     {
         evaluator = substringEvaluator;
         hasIndex = db.hasUserIndexOn( evaluator.getExpression().getAttribute() );
 
         if ( hasIndex )
         {
-            wrapped = ( ( Index<String,ServerEntry> ) db.getUserIndex( evaluator.getExpression().getAttribute() ) )
+            wrapped = ( ( Index<String, ServerEntry> ) db.getUserIndex( evaluator.getExpression().getAttribute() ) )
                 .forwardCursor();
         }
         else
@@ -113,7 +111,7 @@ public class SubstringCursor extends AbstractIndexCursor<String, ServerEntry>
         checkNotClosed( "beforeFirst()" );
         if ( evaluator.getExpression().getInitial() != null && hasIndex )
         {
-            ForwardIndexEntry<String,ServerEntry> indexEntry = new ForwardIndexEntry<String,ServerEntry>();
+            ForwardIndexEntry<String, ServerEntry> indexEntry = new ForwardIndexEntry<String, ServerEntry>();
             indexEntry.setValue( evaluator.getExpression().getInitial() );
             wrapped.before( indexEntry );
         }
@@ -154,7 +152,7 @@ public class SubstringCursor extends AbstractIndexCursor<String, ServerEntry>
     }
 
 
-    private boolean evaluateCandidate( IndexEntry<String,ServerEntry> indexEntry ) throws Exception
+    private boolean evaluateCandidate( IndexEntry<String, ServerEntry> indexEntry ) throws Exception
     {
         if ( hasIndex )
         {
@@ -179,7 +177,7 @@ public class SubstringCursor extends AbstractIndexCursor<String, ServerEntry>
         while ( wrapped.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<String,ServerEntry> entry = wrapped.get();
+            IndexEntry<String, ServerEntry> entry = wrapped.get();
             if ( evaluateCandidate( entry ) )
             {
                 available = true;
@@ -200,7 +198,7 @@ public class SubstringCursor extends AbstractIndexCursor<String, ServerEntry>
         while ( wrapped.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<String,ServerEntry> entry = wrapped.get();
+            IndexEntry<String, ServerEntry> entry = wrapped.get();
             if ( evaluateCandidate( entry ) )
             {
                 available = true;

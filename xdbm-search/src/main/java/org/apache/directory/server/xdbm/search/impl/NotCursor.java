@@ -40,17 +40,17 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 public class NotCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 {
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_718 );
-    private final IndexCursor<V,ServerEntry> ndnCursor;
+    private final IndexCursor<V, ServerEntry> ndnCursor;
     private final Evaluator<? extends ExprNode, ServerEntry> childEvaluator;
     private boolean available = false;
 
 
     @SuppressWarnings("unchecked")
-    public NotCursor( Store<ServerEntry> db,
-                      Evaluator<? extends ExprNode, ServerEntry> childEvaluator ) throws Exception
+    public NotCursor( Store<ServerEntry> db, Evaluator<? extends ExprNode, ServerEntry> childEvaluator )
+        throws Exception
     {
         this.childEvaluator = childEvaluator;
-        this.ndnCursor = ( IndexCursor<V,ServerEntry> ) db.getNdnIndex().forwardCursor();
+        this.ndnCursor = ( IndexCursor<V, ServerEntry> ) db.getNdnIndex().forwardCursor();
     }
 
 
@@ -119,8 +119,8 @@ public class NotCursor<V> extends AbstractIndexCursor<V, ServerEntry>
         while ( ndnCursor.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?,ServerEntry> candidate = ndnCursor.get();
-            if ( ! childEvaluator.evaluate( candidate ) )
+            IndexEntry<?, ServerEntry> candidate = ndnCursor.get();
+            if ( !childEvaluator.evaluate( candidate ) )
             {
                 return available = true;
             }
@@ -135,8 +135,8 @@ public class NotCursor<V> extends AbstractIndexCursor<V, ServerEntry>
         while ( ndnCursor.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?,ServerEntry> candidate = ndnCursor.get();
-            if ( ! childEvaluator.evaluate( candidate ) )
+            IndexEntry<?, ServerEntry> candidate = ndnCursor.get();
+            if ( !childEvaluator.evaluate( candidate ) )
             {
                 return available = true;
             }

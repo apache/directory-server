@@ -35,7 +35,7 @@ import org.apache.directory.server.xdbm.search.Evaluator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode,E>
+public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode, E>
 {
     /** The ScopeNode containing initial search scope constraints */
     private final ScopeNode node;
@@ -52,9 +52,9 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode,E>
      * the values for the context entry id to it's subordinates since it would 
      * have to include all entries.  This is a waste of space and lookup time
      * since we know all entries will be subordinates in this case.
-     */ 
+     */
     private final boolean baseIsContextEntry;
-    
+
     /** True if the scope requires alias dereferencing while searching */
     private final boolean dereferencing;
 
@@ -81,11 +81,9 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode,E>
 
         baseId = db.getEntryId( node.getBaseDn() );
         baseIsContextEntry = getContextEntryId() == baseId;
-        dereferencing = node.getDerefAliases().isDerefInSearching() ||
-            node.getDerefAliases().isDerefAlways();
+        dereferencing = node.getDerefAliases().isDerefInSearching() || node.getDerefAliases().isDerefAlways();
     }
 
-    
     private Long contextEntryId;
 
 
@@ -103,16 +101,16 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode,E>
                 // might not have been created
             }
         }
-        
+
         if ( contextEntryId == null )
         {
             return 1L;
         }
-        
+
         return contextEntryId;
     }
 
-    
+
     /**
      * Asserts whether or not a candidate has one level scope while taking
      * alias dereferencing into account.
@@ -123,7 +121,7 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode,E>
      * @throws Exception if the index lookups fail.
      * @see Evaluator#evaluate(org.apache.directory.server.xdbm.IndexEntry)
      */
-    public boolean evaluate( IndexEntry<?,E> candidate ) throws Exception
+    public boolean evaluate( IndexEntry<?, E> candidate ) throws Exception
     {
         /*
          * This condition catches situations where the candidate is equal to 
@@ -144,7 +142,7 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode,E>
          * dereferencing is not enabled then we return the results of the
          * descendant test.
          */
-        if ( ! isDereferencing() )
+        if ( !isDereferencing() )
         {
             return isDescendant;
         }
@@ -204,7 +202,7 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode,E>
          * dereferencing is not enabled then we return the results of the
          * descendant test.
          */
-        if ( ! isDereferencing() )
+        if ( !isDereferencing() )
         {
             return isDescendant;
         }

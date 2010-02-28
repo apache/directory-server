@@ -65,7 +65,7 @@ public class CursorBuilder
     }
 
 
-    public IndexCursor<?,ServerEntry> build( ExprNode node ) throws Exception
+    public IndexCursor<?, ServerEntry> build( ExprNode node ) throws Exception
     {
         switch ( node.getAssertionType() )
         {
@@ -73,19 +73,19 @@ public class CursorBuilder
 
             case APPROXIMATE:
                 return new ApproximateCursor( db, ( ApproximateEvaluator ) evaluatorBuilder.build( node ) );
-            
+
             case EQUALITY:
                 return new EqualityCursor( db, ( EqualityEvaluator ) evaluatorBuilder.build( node ) );
-            
+
             case GREATEREQ:
                 return new GreaterEqCursor( db, ( GreaterEqEvaluator ) evaluatorBuilder.build( node ) );
-            
+
             case LESSEQ:
                 return new LessEqCursor( db, ( LessEqEvaluator ) evaluatorBuilder.build( node ) );
-            
+
             case PRESENCE:
                 return new PresenceCursor( db, ( PresenceEvaluator ) evaluatorBuilder.build( node ) );
-            
+
             case SCOPE:
                 if ( ( ( ScopeNode ) node ).getScope() == SearchScope.ONELEVEL )
                 {
@@ -95,22 +95,22 @@ public class CursorBuilder
                 {
                     return new SubtreeScopeCursor( db, ( SubtreeScopeEvaluator ) evaluatorBuilder.build( node ) );
                 }
-                
+
             case SUBSTRING:
                 return new SubstringCursor( db, ( SubstringEvaluator ) evaluatorBuilder.build( node ) );
 
-            /* ---------- LOGICAL OPERATORS ---------- */
+                /* ---------- LOGICAL OPERATORS ---------- */
 
             case AND:
                 return buildAndCursor( ( AndNode ) node );
-                
+
             case NOT:
-                return new NotCursor( db, evaluatorBuilder.build( ( ( NotNode ) node).getFirstChild() ) );
-            
+                return new NotCursor( db, evaluatorBuilder.build( ( ( NotNode ) node ).getFirstChild() ) );
+
             case OR:
                 return buildOrCursor( ( OrNode ) node );
 
-            /* ----------  NOT IMPLEMENTED  ---------- */
+                /* ----------  NOT IMPLEMENTED  ---------- */
 
             case ASSERTION:
             case EXTENSIBLE:
@@ -129,12 +129,12 @@ public class CursorBuilder
      * @return Cursor over candidates satisfying disjunction expression
      * @throws Exception on db access failures
      */
-    private IndexCursor<?,ServerEntry> buildOrCursor( OrNode node ) throws Exception
+    private IndexCursor<?, ServerEntry> buildOrCursor( OrNode node ) throws Exception
     {
         List<ExprNode> children = node.getChildren();
-        List<IndexCursor<?,ServerEntry>> childCursors = new ArrayList<IndexCursor<?,ServerEntry>>( children.size() );
-        List<Evaluator<? extends ExprNode, ServerEntry>> childEvaluators
-            = new ArrayList<Evaluator<? extends ExprNode, ServerEntry>>( children.size() );
+        List<IndexCursor<?, ServerEntry>> childCursors = new ArrayList<IndexCursor<?, ServerEntry>>( children.size() );
+        List<Evaluator<? extends ExprNode, ServerEntry>> childEvaluators = new ArrayList<Evaluator<? extends ExprNode, ServerEntry>>(
+            children.size() );
 
         // Recursively create Cursors and Evaluators for each child expression node
         for ( ExprNode child : children )
@@ -155,7 +155,7 @@ public class CursorBuilder
      * @return Cursor over the conjunction expression
      * @throws Exception on db access failures
      */
-    private IndexCursor<?,ServerEntry> buildAndCursor( AndNode node ) throws Exception
+    private IndexCursor<?, ServerEntry> buildAndCursor( AndNode node ) throws Exception
     {
         int minIndex = 0;
         long minValue = Long.MAX_VALUE;
@@ -168,12 +168,12 @@ public class CursorBuilder
          * we will use for iteration by creating a Cursor over its expression.
          */
         final List<ExprNode> children = node.getChildren();
-        
+
         for ( int ii = 0; ii < children.size(); ii++ )
         {
             ExprNode child = children.get( ii );
             Object count = child.get( "count" );
-            if( count == null )
+            if ( count == null )
             {
                 continue;
             }
@@ -188,8 +188,8 @@ public class CursorBuilder
 
         // Once found we build the child Evaluators minus the one for the minChild
         ExprNode minChild = children.get( minIndex );
-        List<Evaluator<? extends ExprNode, ServerEntry>> childEvaluators =
-            new ArrayList<Evaluator<? extends ExprNode, ServerEntry>>( children.size() - 1 );
+        List<Evaluator<? extends ExprNode, ServerEntry>> childEvaluators = new ArrayList<Evaluator<? extends ExprNode, ServerEntry>>(
+            children.size() - 1 );
         for ( ExprNode child : children )
         {
             if ( child == minChild )
@@ -201,7 +201,7 @@ public class CursorBuilder
         }
 
         // Do recursive call to build min child Cursor then create AndCursor
-        IndexCursor<?,ServerEntry> childCursor = build( minChild );
+        IndexCursor<?, ServerEntry> childCursor = build( minChild );
         return new AndCursor( childCursor, childEvaluators );
     }
 }

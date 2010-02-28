@@ -50,10 +50,10 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     private final EqualityEvaluator equalityEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
-    private final IndexCursor<V,ServerEntry> userIdxCursor;
+    private final IndexCursor<V, ServerEntry> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final IndexCursor<String,ServerEntry> ndnIdxCursor;
+    private final IndexCursor<String, ServerEntry> ndnIdxCursor;
 
     /** used only when ndnIdxCursor is used (no index on attribute) */
     private boolean available = false;
@@ -68,7 +68,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V, ServerEntry>
         Value<V> value = equalityEvaluator.getExpression().getValue();
         if ( db.hasUserIndexOn( attribute ) )
         {
-            Index<V,ServerEntry> userIndex = ( Index<V, ServerEntry> ) db.getUserIndex( attribute ); 
+            Index<V, ServerEntry> userIndex = ( Index<V, ServerEntry> ) db.getUserIndex( attribute );
             userIdxCursor = userIndex.forwardCursor( value.get() );
             ndnIdxCursor = null;
         }
@@ -199,13 +199,13 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V, ServerEntry>
             return userIdxCursor.previous();
         }
 
-        while( ndnIdxCursor.previous() )
+        while ( ndnIdxCursor.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?,ServerEntry> candidate = ndnIdxCursor.get();
+            IndexEntry<?, ServerEntry> candidate = ndnIdxCursor.get();
             if ( equalityEvaluator.evaluate( candidate ) )
             {
-                 return available = true;
+                return available = true;
             }
         }
 
@@ -221,13 +221,13 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V, ServerEntry>
             return userIdxCursor.next();
         }
 
-        while( ndnIdxCursor.next() )
+        while ( ndnIdxCursor.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?,ServerEntry> candidate = ndnIdxCursor.get();
+            IndexEntry<?, ServerEntry> candidate = ndnIdxCursor.get();
             if ( equalityEvaluator.evaluate( candidate ) )
             {
-                 return available = true;
+                return available = true;
             }
         }
 
@@ -246,7 +246,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
         if ( available )
         {
-            return ( IndexEntry<V, ServerEntry> )ndnIdxCursor.get();
+            return ( IndexEntry<V, ServerEntry> ) ndnIdxCursor.get();
         }
 
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );

@@ -53,7 +53,7 @@ public class ApproximateEvaluator implements Evaluator<ApproximateNode, ServerEn
     private final AttributeType type;
     private final Normalizer normalizer;
     private final LdapComparator<? super Object> ldapComparator;
-    private final Index<Object,ServerEntry> idx;
+    private final Index<Object, ServerEntry> idx;
 
 
     public ApproximateEvaluator( ApproximateNode node, Store<ServerEntry> db, SchemaManager schemaManager )
@@ -66,7 +66,7 @@ public class ApproximateEvaluator implements Evaluator<ApproximateNode, ServerEn
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             //noinspection unchecked
-            idx = ( Index<Object,ServerEntry> ) db.getUserIndex( node.getAttribute() );
+            idx = ( Index<Object, ServerEntry> ) db.getUserIndex( node.getAttribute() );
             type = null;
             normalizer = null;
             ldapComparator = null;
@@ -114,8 +114,8 @@ public class ApproximateEvaluator implements Evaluator<ApproximateNode, ServerEn
             // TODO check to see if descendant handling is necessary for the
             // index so we can match properly even when for example a name
             // attribute is used instead of more specific commonName
-            Iterator<AttributeType> descendants =
-                schemaManager.getAttributeTypeRegistry().descendants( node.getAttribute() );
+            Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants(
+                node.getAttribute() );
 
             while ( descendants.hasNext() )
             {
@@ -146,7 +146,7 @@ public class ApproximateEvaluator implements Evaluator<ApproximateNode, ServerEn
     }
 
 
-    public boolean evaluate( IndexEntry<?,ServerEntry> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, ServerEntry> indexEntry ) throws Exception
     {
         if ( idx != null )
         {

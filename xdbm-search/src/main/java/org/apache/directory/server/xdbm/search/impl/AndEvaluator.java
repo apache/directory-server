@@ -40,7 +40,7 @@ import java.util.Comparator;
  */
 public class AndEvaluator implements Evaluator<AndNode, ServerEntry>
 {
-    private final List<Evaluator<? extends ExprNode,ServerEntry>> evaluators;
+    private final List<Evaluator<? extends ExprNode, ServerEntry>> evaluators;
 
     private final AndNode node;
 
@@ -63,13 +63,13 @@ public class AndEvaluator implements Evaluator<AndNode, ServerEntry>
      * @param unoptimized the unoptimized list of Evaluators
      * @return optimized Evaluator list with increasing scan count ordering
      */
-    private List<Evaluator<? extends ExprNode,ServerEntry>>
-        optimize( List<Evaluator<? extends ExprNode,ServerEntry>> unoptimized )
+    private List<Evaluator<? extends ExprNode, ServerEntry>> optimize(
+        List<Evaluator<? extends ExprNode, ServerEntry>> unoptimized )
     {
-        List<Evaluator<? extends ExprNode,ServerEntry>> optimized =
-            new ArrayList<Evaluator<? extends ExprNode,ServerEntry>>( unoptimized.size() );
+        List<Evaluator<? extends ExprNode, ServerEntry>> optimized = new ArrayList<Evaluator<? extends ExprNode, ServerEntry>>(
+            unoptimized.size() );
         optimized.addAll( unoptimized );
-        Collections.sort( optimized, new Comparator<Evaluator<?,ServerEntry>>()
+        Collections.sort( optimized, new Comparator<Evaluator<?, ServerEntry>>()
         {
             public int compare( Evaluator<?, ServerEntry> e1, Evaluator<?, ServerEntry> e2 )
             {
@@ -94,7 +94,7 @@ public class AndEvaluator implements Evaluator<AndNode, ServerEntry>
 
                 return 1;
             }
-        });
+        } );
 
         return optimized;
     }
@@ -102,9 +102,9 @@ public class AndEvaluator implements Evaluator<AndNode, ServerEntry>
 
     public boolean evaluate( Long id ) throws Exception
     {
-        for ( Evaluator<?,ServerEntry> evaluator : evaluators )
+        for ( Evaluator<?, ServerEntry> evaluator : evaluators )
         {
-            if ( ! evaluator.evaluate( id ) )
+            if ( !evaluator.evaluate( id ) )
             {
                 return false;
             }
@@ -116,9 +116,9 @@ public class AndEvaluator implements Evaluator<AndNode, ServerEntry>
 
     public boolean evaluate( ServerEntry entry ) throws Exception
     {
-        for ( Evaluator<?,ServerEntry> evaluator : evaluators )
+        for ( Evaluator<?, ServerEntry> evaluator : evaluators )
         {
-            if ( ! evaluator.evaluate( entry ) )
+            if ( !evaluator.evaluate( entry ) )
             {
                 return false;
             }
@@ -130,9 +130,9 @@ public class AndEvaluator implements Evaluator<AndNode, ServerEntry>
 
     public boolean evaluate( IndexEntry<?, ServerEntry> indexEntry ) throws Exception
     {
-        for ( Evaluator<?,ServerEntry> evaluator : evaluators )
+        for ( Evaluator<?, ServerEntry> evaluator : evaluators )
         {
-            if ( ! evaluator.evaluate( indexEntry ) )
+            if ( !evaluator.evaluate( indexEntry ) )
             {
                 return false;
             }

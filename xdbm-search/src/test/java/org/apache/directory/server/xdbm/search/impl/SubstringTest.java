@@ -69,7 +69,7 @@ public class SubstringTest
     @BeforeClass
     public static void setup() throws Exception
     {
-    	String workingDirectory = System.getProperty( "workingDirectory" );
+        String workingDirectory = System.getProperty( "workingDirectory" );
 
         if ( workingDirectory == null )
         {
@@ -90,9 +90,9 @@ public class SubstringTest
         {
             fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
-        
+
         loaded = schemaManager.loadWithDeps( loader.getSchema( "collective" ) );
-        
+
         if ( !loaded )
         {
             fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
@@ -223,7 +223,6 @@ public class SubstringTest
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
 
-
         // ---------- test afterLast ----------
 
         cursor = new SubstringCursor( store, evaluator );
@@ -344,7 +343,6 @@ public class SubstringTest
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
 
-
         // ---------- test afterLast ----------
 
         cursor = new SubstringCursor( store, evaluator );
@@ -437,7 +435,6 @@ public class SubstringTest
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
 
-
         // ---------- test afterLast ----------
 
         cursor = new SubstringCursor( store, evaluator );
@@ -515,7 +512,6 @@ public class SubstringTest
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
 
-
         // ---------- test afterLast ----------
 
         cursor = new SubstringCursor( store, evaluator );
@@ -577,7 +573,6 @@ public class SubstringTest
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
 
-
         // ---------- test afterLast ----------
 
         cursor = new SubstringCursor( store, evaluator );
@@ -612,7 +607,7 @@ public class SubstringTest
     {
         SubstringNode node = new SubstringNode( SchemaConstants.SN_AT_OID, "walk", null );
         SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager );
-        ForwardIndexEntry<String,ServerEntry> indexEntry = new ForwardIndexEntry<String,ServerEntry>();
+        ForwardIndexEntry<String, ServerEntry> indexEntry = new ForwardIndexEntry<String, ServerEntry>();
         indexEntry.setId( 5L );
         assertTrue( evaluator.evaluate( indexEntry ) );
         indexEntry.setId( 3L );
@@ -624,35 +619,35 @@ public class SubstringTest
 
         node = new SubstringNode( SchemaConstants.SN_AT_OID, "wa", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
-        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
+        indexEntry = new ForwardIndexEntry<String, ServerEntry>();
         indexEntry.setId( 5L );
         indexEntry.setObject( store.lookup( 5L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( SchemaConstants.SEARCHGUIDE_AT_OID, "j", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
-        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
+        indexEntry = new ForwardIndexEntry<String, ServerEntry>();
         indexEntry.setId( 6L );
         indexEntry.setObject( store.lookup( 6L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( SchemaConstants.ST_AT_OID, "j", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
-        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
+        indexEntry = new ForwardIndexEntry<String, ServerEntry>();
         indexEntry.setId( 6L );
         indexEntry.setObject( store.lookup( 6L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( SchemaConstants.NAME_AT_OID, "j", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
-        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
+        indexEntry = new ForwardIndexEntry<String, ServerEntry>();
         indexEntry.setId( 6L );
         indexEntry.setObject( store.lookup( 6L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( SchemaConstants.NAME_AT_OID, "s", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
-        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
+        indexEntry = new ForwardIndexEntry<String, ServerEntry>();
         indexEntry.setId( 6L );
         indexEntry.setObject( store.lookup( 6L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
@@ -664,7 +659,7 @@ public class SubstringTest
     {
         SubstringNode node = new SubstringNode( SchemaConstants.CN_AT_OID, "jim", null );
         SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager );
-        ForwardIndexEntry<String,ServerEntry> indexEntry = new ForwardIndexEntry<String,ServerEntry>();
+        ForwardIndexEntry<String, ServerEntry> indexEntry = new ForwardIndexEntry<String, ServerEntry>();
         indexEntry.setId( 6L );
         assertTrue( evaluator.evaluate( indexEntry ) );
         indexEntry.setId( 3L );
@@ -673,14 +668,14 @@ public class SubstringTest
 
         node = new SubstringNode( SchemaConstants.CN_AT_OID, "j", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
-        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
+        indexEntry = new ForwardIndexEntry<String, ServerEntry>();
         indexEntry.setId( 6L );
         indexEntry.setObject( store.lookup( 6L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( SchemaConstants.CN_AT_OID, "s", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
-        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
+        indexEntry = new ForwardIndexEntry<String, ServerEntry>();
         indexEntry.setId( 6L );
         indexEntry.setObject( store.lookup( 6L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
@@ -693,7 +688,7 @@ public class SubstringTest
     }
 
 
-    @Test ( expected = InvalidCursorPositionException.class )
+    @Test(expected = InvalidCursorPositionException.class)
     public void testInvalidCursorPositionException() throws Exception
     {
         SubstringNode node = new SubstringNode( SchemaConstants.SN_AT_OID, "b", null );
@@ -703,7 +698,7 @@ public class SubstringTest
     }
 
 
-    @Test ( expected = InvalidCursorPositionException.class )
+    @Test(expected = InvalidCursorPositionException.class)
     public void testInvalidCursorPositionException2() throws Exception
     {
         SubstringNode node = new SubstringNode( SchemaConstants.CN_AT_OID, "j", null );
@@ -713,7 +708,7 @@ public class SubstringTest
     }
 
 
-    @Test ( expected = UnsupportedOperationException.class )
+    @Test(expected = UnsupportedOperationException.class)
     public void testUnsupportBeforeWithoutIndex() throws Exception
     {
         SubstringNode node = new SubstringNode( SchemaConstants.SN_AT_OID, "j", null );
@@ -721,13 +716,13 @@ public class SubstringTest
         SubstringCursor cursor = new SubstringCursor( store, evaluator );
 
         // test before()
-        ForwardIndexEntry<String,ServerEntry> entry = new ForwardIndexEntry<String,ServerEntry>();
+        ForwardIndexEntry<String, ServerEntry> entry = new ForwardIndexEntry<String, ServerEntry>();
         entry.setValue( SchemaConstants.SN_AT_OID );
         cursor.before( entry );
     }
 
 
-    @Test ( expected = UnsupportedOperationException.class )
+    @Test(expected = UnsupportedOperationException.class)
     public void testUnsupportAfterWithoutIndex() throws Exception
     {
         SubstringNode node = new SubstringNode( SchemaConstants.SN_AT_OID, "j", null );
@@ -735,7 +730,7 @@ public class SubstringTest
         SubstringCursor cursor = new SubstringCursor( store, evaluator );
 
         // test before()
-        ForwardIndexEntry<String,ServerEntry> entry = new ForwardIndexEntry<String,ServerEntry>();
+        ForwardIndexEntry<String, ServerEntry> entry = new ForwardIndexEntry<String, ServerEntry>();
         entry.setValue( SchemaConstants.SN_AT_OID );
         cursor.after( entry );
     }

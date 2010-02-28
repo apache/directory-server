@@ -73,11 +73,12 @@ public class NestedFilterTest
     Optimizer optimizer;
     static FilterNormalizingVisitor visitor;
 
+
     @BeforeClass
     static public void setup() throws Exception
     {
         // setup the standard registries
-    	String workingDirectory = System.getProperty( "workingDirectory" );
+        String workingDirectory = System.getProperty( "workingDirectory" );
 
         if ( workingDirectory == null )
         {
@@ -98,19 +99,19 @@ public class NestedFilterTest
         {
             fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
-        
+
         loaded = schemaManager.loadWithDeps( loader.getSchema( "collective" ) );
-        
+
         if ( !loaded )
         {
             fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
-        
+
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
         visitor = new FilterNormalizingVisitor( ncn, schemaManager );
     }
 
-    
+
     @Before
     public void createStore() throws Exception
     {
@@ -132,15 +133,15 @@ public class NestedFilterTest
         store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new JdbmIndex( SchemaConstants.CN_AT_OID ) );
         StoreUtils.loadExampleData( store, schemaManager );
-        
+
         evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
         cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
         optimizer = new DefaultOptimizer( store );
-        
+
         LOG.debug( "Created new store" );
     }
 
-    
+
     @After
     public void destryStore() throws Exception
     {
@@ -158,7 +159,7 @@ public class NestedFilterTest
         wkdir = null;
     }
 
-    
+
     @Test
     public void testNestedAndnOr() throws Exception
     {
@@ -167,18 +168,18 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( filter );
         exprNode.accept( visitor );
         optimizer.annotate( exprNode );
-        
-        IndexCursor<?,ServerEntry> cursor = cursorBuilder.build( exprNode );
-     
+
+        IndexCursor<?, ServerEntry> cursor = cursorBuilder.build( exprNode );
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
         assertEquals( "walker", cursor.get().getValue() );
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( long ) cursor.get().getId() );
-        assertEquals( "apache", cursor.get().getValue());
+        assertEquals( "apache", cursor.get().getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
@@ -187,8 +188,8 @@ public class NestedFilterTest
 
         assertFalse( cursor.next() );
     }
-    
-    
+
+
     @Test
     public void testNestedAndnNot() throws Exception
     {
@@ -196,8 +197,8 @@ public class NestedFilterTest
 
         ExprNode exprNode = FilterParser.parse( filter );
         optimizer.annotate( exprNode );
-        
-        IndexCursor<?,ServerEntry> cursor = cursorBuilder.build( exprNode );
+
+        IndexCursor<?, ServerEntry> cursor = cursorBuilder.build( exprNode );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
@@ -206,7 +207,7 @@ public class NestedFilterTest
 
         assertFalse( cursor.next() );
     }
-    
+
 
     @Test
     public void testNestedNotnOrnAnd() throws Exception
@@ -215,23 +216,23 @@ public class NestedFilterTest
 
         ExprNode exprNode = FilterParser.parse( filter );
         optimizer.annotate( exprNode );
-        
-        IndexCursor<?,ServerEntry> cursor = cursorBuilder.build( exprNode );
-        
+
+        IndexCursor<?, ServerEntry> cursor = cursorBuilder.build( exprNode );
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( long ) cursor.get().getId() );
         assertEquals( "2.5.4.11=apache,2.5.4.11=board of directors,2.5.4.10=good times co.", cursor.get().getValue() );
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 8, ( long ) cursor.get().getId() );
         assertEquals( "2.5.4.3=jack daniels,2.5.4.11=engineering,2.5.4.10=good times co.", cursor.get().getValue() );
-        
+
         assertFalse( cursor.next() );
     }
 
-    
+
     @Test
     public void testNestedOrnNot() throws Exception
     {
@@ -239,7 +240,7 @@ public class NestedFilterTest
 
         ExprNode exprNode = FilterParser.parse( filter );
         optimizer.annotate( exprNode );
-        
-        IndexCursor<?,ServerEntry> cursor = cursorBuilder.build( exprNode );
+
+        IndexCursor<?, ServerEntry> cursor = cursorBuilder.build( exprNode );
     }
 }

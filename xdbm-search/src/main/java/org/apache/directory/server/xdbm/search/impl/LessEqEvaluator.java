@@ -53,11 +53,10 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
     private final AttributeType type;
     private final Normalizer normalizer;
     private final LdapComparator<? super Object> ldapComparator;
-    private final Index<Object,ServerEntry> idx;
+    private final Index<Object, ServerEntry> idx;
 
 
-    public LessEqEvaluator( LessEqNode node, Store<ServerEntry> db, SchemaManager schemaManager )
-        throws Exception
+    public LessEqEvaluator( LessEqNode node, Store<ServerEntry> db, SchemaManager schemaManager ) throws Exception
     {
         this.db = db;
         this.node = node;
@@ -67,7 +66,7 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             //noinspection unchecked
-            idx = ( Index<Object,ServerEntry> ) db.getUserIndex( node.getAttribute() );
+            idx = ( Index<Object, ServerEntry> ) db.getUserIndex( node.getAttribute() );
         }
         else
         {
@@ -132,7 +131,7 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
     }
 
 
-    public boolean evaluate( IndexEntry<?,ServerEntry> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, ServerEntry> indexEntry ) throws Exception
     {
         if ( idx != null )
         {
@@ -147,7 +146,7 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
             entry = db.lookup( indexEntry.getId() );
             indexEntry.setObject( entry );
         }
-        
+
         if ( null == entry )
         {
             return false;
@@ -158,7 +157,7 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
 
         // if the attribute does not exist just return false
         //noinspection unchecked
-        if ( attr != null && evaluate( ( IndexEntry<Object,ServerEntry> ) indexEntry, attr ) )
+        if ( attr != null && evaluate( ( IndexEntry<Object, ServerEntry> ) indexEntry, attr ) )
         {
             return true;
         }
@@ -171,8 +170,8 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
             // TODO check to see if descendant handling is necessary for the
             // index so we can match properly even when for example a name
             // attribute is used instead of more specific commonName
-            Iterator<AttributeType> descendants =
-                schemaManager.getAttributeTypeRegistry().descendants( node.getAttribute() );
+            Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants(
+                node.getAttribute() );
 
             while ( descendants.hasNext() )
             {
@@ -181,7 +180,7 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
                 attr = ( ServerAttribute ) entry.get( descendant );
 
                 //noinspection unchecked
-                if ( attr != null && evaluate( ( IndexEntry<Object,ServerEntry> ) indexEntry, attr ) )
+                if ( attr != null && evaluate( ( IndexEntry<Object, ServerEntry> ) indexEntry, attr ) )
                 {
                     return true;
                 }
@@ -212,8 +211,8 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
             // TODO check to see if descendant handling is necessary for the
             // index so we can match properly even when for example a name
             // attribute is used instead of more specific commonName
-            Iterator<AttributeType> descendants =
-                schemaManager.getAttributeTypeRegistry().descendants( node.getAttribute() );
+            Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants(
+                node.getAttribute() );
 
             while ( descendants.hasNext() )
             {
@@ -235,7 +234,7 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    private boolean evaluate( IndexEntry<Object,ServerEntry> indexEntry, ServerAttribute attribute ) throws Exception
+    private boolean evaluate( IndexEntry<Object, ServerEntry> indexEntry, ServerAttribute attribute ) throws Exception
     {
         /*
          * Cycle through the attribute values testing normalized version

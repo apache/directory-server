@@ -78,19 +78,19 @@ public class EvaluatorBuilder
 
             case APPROXIMATE:
                 return new ApproximateEvaluator( ( ApproximateNode ) node, db, schemaManager );
-                
+
             case EQUALITY:
                 return new EqualityEvaluator( ( EqualityNode ) node, db, schemaManager );
-                
+
             case GREATEREQ:
                 return new GreaterEqEvaluator( ( GreaterEqNode ) node, db, schemaManager );
-                
+
             case LESSEQ:
                 return new LessEqEvaluator( ( LessEqNode ) node, db, schemaManager );
-                
+
             case PRESENCE:
                 return new PresenceEvaluator( ( PresenceNode ) node, db, schemaManager );
-                
+
             case SCOPE:
                 if ( ( ( ScopeNode ) node ).getScope() == SearchScope.ONELEVEL )
                 {
@@ -100,22 +100,22 @@ public class EvaluatorBuilder
                 {
                     return new SubtreeScopeEvaluator<ServerEntry>( db, ( ScopeNode ) node );
                 }
-                
+
             case SUBSTRING:
                 return new SubstringEvaluator( ( SubstringNode ) node, db, schemaManager );
 
-            /* ---------- LOGICAL OPERATORS ---------- */
+                /* ---------- LOGICAL OPERATORS ---------- */
 
             case AND:
                 return buildAndEvaluator( ( AndNode ) node );
-                
+
             case NOT:
-                return new NotEvaluator( ( NotNode ) node, build( ( ( NotNode ) node).getFirstChild() ) );
-                
+                return new NotEvaluator( ( NotNode ) node, build( ( ( NotNode ) node ).getFirstChild() ) );
+
             case OR:
                 return buildOrEvaluator( ( OrNode ) node );
 
-            /* ----------  NOT IMPLEMENTED  ---------- */
+                /* ----------  NOT IMPLEMENTED  ---------- */
 
             case ASSERTION:
             case EXTENSIBLE:
@@ -130,8 +130,8 @@ public class EvaluatorBuilder
     AndEvaluator buildAndEvaluator( AndNode node ) throws Exception
     {
         List<ExprNode> children = node.getChildren();
-        List<Evaluator<? extends ExprNode,ServerEntry>> evaluators =
-            new ArrayList<Evaluator<? extends ExprNode,ServerEntry>>( children.size() );
+        List<Evaluator<? extends ExprNode, ServerEntry>> evaluators = new ArrayList<Evaluator<? extends ExprNode, ServerEntry>>(
+            children.size() );
         for ( ExprNode child : children )
         {
             evaluators.add( build( child ) );
@@ -143,8 +143,8 @@ public class EvaluatorBuilder
     OrEvaluator buildOrEvaluator( OrNode node ) throws Exception
     {
         List<ExprNode> children = node.getChildren();
-        List<Evaluator<? extends ExprNode,ServerEntry>> evaluators =
-            new ArrayList<Evaluator<? extends ExprNode,ServerEntry>>( children.size() );
+        List<Evaluator<? extends ExprNode, ServerEntry>> evaluators = new ArrayList<Evaluator<? extends ExprNode, ServerEntry>>(
+            children.size() );
         for ( ExprNode child : children )
         {
             evaluators.add( build( child ) );

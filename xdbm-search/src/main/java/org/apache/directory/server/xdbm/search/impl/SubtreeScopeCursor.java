@@ -47,20 +47,20 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
     private final SubtreeScopeEvaluator<ServerEntry> evaluator;
 
     /** A Cursor over the entries in the scope of the search base */
-    private final IndexCursor<Long,ServerEntry> scopeCursor;
+    private final IndexCursor<Long, ServerEntry> scopeCursor;
 
     /** A Cursor over entries brought into scope by alias dereferencing */
-    private final IndexCursor<Long,ServerEntry> dereferencedCursor;
+    private final IndexCursor<Long, ServerEntry> dereferencedCursor;
 
     /** Currently active Cursor: we switch between two cursors */
-    private IndexCursor<Long,ServerEntry> cursor;
+    private IndexCursor<Long, ServerEntry> cursor;
 
     /** Whether or not this Cursor is positioned so an entry is available */
     private boolean available = false;
 
     private Long contextEntryId;
 
-    
+
     /**
      * Creates a Cursor over entries satisfying subtree level scope criteria.
      *
@@ -72,7 +72,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
     {
         this.db = db;
         this.evaluator = evaluator;
-        
+
         if ( evaluator.getBaseId() == getContextEntryId() )
         {
             scopeCursor = new AllEntriesCursor( db );
@@ -107,16 +107,16 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
                 // might not have been created
             }
         }
-        
+
         if ( contextEntryId == null )
         {
             return 1L;
         }
-        
+
         return contextEntryId;
     }
 
-    
+
     public boolean available()
     {
         return available;
@@ -232,7 +232,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
          * last element.
          */
         available = cursor.previous();
-        if ( ! available )
+        if ( !available )
         {
             cursor = scopeCursor;
             cursor.afterLast();
@@ -302,7 +302,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
          * dereferencedCursor and try a previous call after positioning past
          * it's last element.
          */
-        if ( ! available )
+        if ( !available )
         {
             if ( dereferencedCursor != null )
             {
@@ -332,7 +332,6 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
 
     public boolean isElementReused()
     {
-        return scopeCursor.isElementReused() ||
-            ( dereferencedCursor != null && dereferencedCursor.isElementReused() );
+        return scopeCursor.isElementReused() || ( dereferencedCursor != null && dereferencedCursor.isElementReused() );
     }
 }

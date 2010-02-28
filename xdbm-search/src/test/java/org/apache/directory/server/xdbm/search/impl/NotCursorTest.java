@@ -73,11 +73,12 @@ public class NotCursorTest
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
 
+
     @BeforeClass
     static public void setup() throws Exception
     {
         // setup the standard registries
-    	String workingDirectory = System.getProperty( "workingDirectory" );
+        String workingDirectory = System.getProperty( "workingDirectory" );
 
         if ( workingDirectory == null )
         {
@@ -98,9 +99,9 @@ public class NotCursorTest
         {
             fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
-        
+
         loaded = schemaManager.loadWithDeps( loader.getSchema( "collective" ) );
-        
+
         if ( !loaded )
         {
             fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
@@ -129,14 +130,14 @@ public class NotCursorTest
         store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new JdbmIndex( SchemaConstants.CN_AT_OID ) );
         StoreUtils.loadExampleData( store, schemaManager );
-        
+
         evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
         cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
-        
+
         LOG.debug( "Created new store" );
     }
 
-    
+
     @After
     public void destryStore() throws Exception
     {
@@ -154,147 +155,154 @@ public class NotCursorTest
         wkdir = null;
     }
 
-    
+
     @Test
     public void testNotCursor() throws Exception
     {
         String filter = "(!(cn=J*))";
 
         ExprNode exprNode = FilterParser.parse( filter );
-        
+
         IndexCursor<?, ServerEntry> cursor = cursorBuilder.build( exprNode );
-        
+
         assertFalse( cursor.available() );
-        
+
         cursor.beforeFirst();
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 1, ( long ) cursor.get().getId() );
         assertEquals( "2.5.4.10=good times co.", cursor.get().getValue() );
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( long ) cursor.get().getId() );
         assertEquals( "2.5.4.11=apache,2.5.4.11=board of directors,2.5.4.10=good times co.", cursor.get().getValue() );
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 3, ( long ) cursor.get().getId() );
         assertEquals( "2.5.4.11=board of directors,2.5.4.10=good times co.", cursor.get().getValue() );
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 4, ( long ) cursor.get().getId() );
         assertEquals( "2.5.4.11=engineering,2.5.4.10=good times co.", cursor.get().getValue() );
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 2, ( long ) cursor.get().getId() );
         assertEquals( "2.5.4.11=sales,2.5.4.10=good times co.", cursor.get().getValue() );
-        
+
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
-        
+
         cursor.close();
         assertTrue( cursor.isClosed() );
     }
-    
-    
+
+
     @Test
     public void testNotCursorWithManualFilter() throws Exception
     {
         NotNode notNode = new NotNode();
-        
+
         ExprNode exprNode = new SubstringNode( "cn", "J", null );
-        Evaluator<? extends ExprNode, ServerEntry> eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
+        Evaluator<? extends ExprNode, ServerEntry> eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store,
+            schemaManager );
         notNode.addNode( exprNode );
-        
+
         NotCursor cursor = new NotCursor( store, eval ); //cursorBuilder.build( andNode );
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 1, ( long ) cursor.get().getId() );
         assertEquals( "2.5.4.10=good times co.", cursor.get().getValue() );
-        
+
         cursor.first();
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( long ) cursor.get().getId() );
         assertEquals( "2.5.4.11=apache,2.5.4.11=board of directors,2.5.4.10=good times co.", cursor.get().getValue() );
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 3, ( long ) cursor.get().getId() );
         assertEquals( "2.5.4.11=board of directors,2.5.4.10=good times co.", cursor.get().getValue() );
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 4, ( long ) cursor.get().getId() );
         assertEquals( "2.5.4.11=engineering,2.5.4.10=good times co.", cursor.get().getValue() );
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 2, ( long ) cursor.get().getId() );
         assertEquals( "2.5.4.11=sales,2.5.4.10=good times co.", cursor.get().getValue() );
-        
+
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
 
         cursor.afterLast();
-        
+
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 2, ( long ) cursor.get().getId() );
         assertEquals( "2.5.4.11=sales,2.5.4.10=good times co.", cursor.get().getValue() );
-        
+
         cursor.last();
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 4, ( long ) cursor.get().getId() );
         assertEquals( "2.5.4.11=engineering,2.5.4.10=good times co.", cursor.get().getValue() );
-        
+
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 3, ( long ) cursor.get().getId() );
         assertEquals( "2.5.4.11=board of directors,2.5.4.10=good times co.", cursor.get().getValue() );
-        
+
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( long ) cursor.get().getId() );
         assertEquals( "2.5.4.11=apache,2.5.4.11=board of directors,2.5.4.10=good times co.", cursor.get().getValue() );
-        
+
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 1, ( long ) cursor.get().getId() );
         assertEquals( "2.5.4.10=good times co.", cursor.get().getValue() );
-        
+
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
-        
+
         assertTrue( cursor.isElementReused() );
- 
-        try 
+
+        try
         {
             cursor.get();
             fail( "should fail with InvalidCursorPositionException" );
         }
-        catch( InvalidCursorPositionException ice ) { }
-        
+        catch ( InvalidCursorPositionException ice )
+        {
+        }
+
         try
         {
-            cursor.after( new ForwardIndexEntry<Object,ServerEntry>() );
+            cursor.after( new ForwardIndexEntry<Object, ServerEntry>() );
             fail( "should fail with UnsupportedOperationException " );
         }
-        catch( UnsupportedOperationException uoe ) {}
-        
+        catch ( UnsupportedOperationException uoe )
+        {
+        }
+
         try
         {
-            cursor.before( new ForwardIndexEntry<Object,ServerEntry>() );
+            cursor.before( new ForwardIndexEntry<Object, ServerEntry>() );
             fail( "should fail with UnsupportedOperationException " );
         }
-        catch( UnsupportedOperationException uoe ) {}
+        catch ( UnsupportedOperationException uoe )
+        {
+        }
     }
 
 }

@@ -55,7 +55,7 @@ public class DefaultOptimizer<E> implements Optimizer
     /** the database this optimizer operates on */
     private final Store<E> db;
     private Long contextEntryId;
-    
+
 
     /**
      * Creates an optimizer on a database.
@@ -67,7 +67,7 @@ public class DefaultOptimizer<E> implements Optimizer
         this.db = db;
     }
 
-    
+
     private Long getContextEntryId()
     {
         if ( contextEntryId == null )
@@ -81,15 +81,15 @@ public class DefaultOptimizer<E> implements Optimizer
                 // might not have been created
             }
         }
-        
+
         if ( contextEntryId == null )
         {
             return 1L;
         }
-        
+
         return contextEntryId;
     }
-    
+
 
     /**
      * Annotates the expression tree to determine optimal evaluation order based
@@ -177,11 +177,11 @@ public class DefaultOptimizer<E> implements Optimizer
         {
             if ( node instanceof AndNode )
             {
-                count = getConjunctionScan( (AndNode)node );
+                count = getConjunctionScan( ( AndNode ) node );
             }
             else if ( node instanceof OrNode )
             {
-                count = getDisjunctionScan( (OrNode)node );
+                count = getDisjunctionScan( ( OrNode ) node );
             }
             else if ( node instanceof NotNode )
             {
@@ -257,7 +257,7 @@ public class DefaultOptimizer<E> implements Optimizer
             annotate( child );
             total += ( Long ) child.get( "count" );
         }
-        
+
         return total;
     }
 
@@ -271,11 +271,11 @@ public class DefaultOptimizer<E> implements Optimizer
      * @throws Exception if there is an error accessing an index
      */
     @SuppressWarnings("unchecked")
-    private<V> long getEqualityScan( SimpleNode<V> node ) throws Exception
+    private <V> long getEqualityScan( SimpleNode<V> node ) throws Exception
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
-            Index<V,E> idx = ( Index<V, E> ) db.getUserIndex( node.getAttribute() );
+            Index<V, E> idx = ( Index<V, E> ) db.getUserIndex( node.getAttribute() );
             return idx.count( node.getValue().get() );
         }
 
@@ -294,7 +294,7 @@ public class DefaultOptimizer<E> implements Optimizer
      * @throws Exception if there is an error accessing an index
      */
     @SuppressWarnings("unchecked")
-    private<V> long getGreaterLessScan( SimpleNode<V> node, boolean isGreaterThan ) throws Exception
+    private <V> long getGreaterLessScan( SimpleNode<V> node, boolean isGreaterThan ) throws Exception
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
@@ -348,7 +348,7 @@ public class DefaultOptimizer<E> implements Optimizer
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
-            Index<String,E> idx = db.getPresenceIndex();
+            Index<String, E> idx = db.getPresenceIndex();
             return idx.count( node.getAttribute() );
         }
 
@@ -370,10 +370,10 @@ public class DefaultOptimizer<E> implements Optimizer
         {
             case OBJECT:
                 return 1L;
-            
+
             case ONELEVEL:
                 return db.getChildCount( id );
-                
+
             case SUBTREE:
                 if ( id == getContextEntryId() )
                 {
@@ -383,7 +383,7 @@ public class DefaultOptimizer<E> implements Optimizer
                 {
                     return db.getSubLevelIndex().count( id );
                 }
-            
+
             default:
                 throw new IllegalArgumentException( I18n.err( I18n.ERR_713 ) );
         }

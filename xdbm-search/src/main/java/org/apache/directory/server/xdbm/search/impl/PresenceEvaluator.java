@@ -46,11 +46,10 @@ public class PresenceEvaluator implements Evaluator<PresenceNode, ServerEntry>
     private final Store<ServerEntry> db;
     private final AttributeType type;
     private final SchemaManager schemaManager;
-    private final Index<String,ServerEntry> idx;
+    private final Index<String, ServerEntry> idx;
 
 
-    public PresenceEvaluator( PresenceNode node, Store<ServerEntry> db, SchemaManager schemaManager )
-        throws Exception
+    public PresenceEvaluator( PresenceNode node, Store<ServerEntry> db, SchemaManager schemaManager ) throws Exception
     {
         this.db = db;
         this.node = node;
@@ -82,7 +81,7 @@ public class PresenceEvaluator implements Evaluator<PresenceNode, ServerEntry>
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    public boolean evaluate( IndexEntry<?,ServerEntry> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, ServerEntry> indexEntry ) throws Exception
     {
         if ( idx != null )
         {
@@ -136,8 +135,8 @@ public class PresenceEvaluator implements Evaluator<PresenceNode, ServerEntry>
             // TODO check to see if descendant handling is necessary for the
             // index so we can match properly even when for example a name
             // attribute is used instead of more specific commonName
-            Iterator<AttributeType> descendants =
-                schemaManager.getAttributeTypeRegistry().descendants( node.getAttribute() );
+            Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants(
+                node.getAttribute() );
 
             do
             {

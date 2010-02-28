@@ -56,17 +56,17 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
     private final SchemaManager schemaManager;
     private final AttributeType type;
     private final Normalizer normalizer;
-    
+
     /** The comparator to use */
     private final LdapComparator<?> comparator;
-    
+
     /** The default byte[] comparator if no comparator has been defined */
     private static final Comparator<byte[]> BINARY_COMPARATOR = new ByteArrayComparator( null );
-    
+
     /** The default String comparator if no comparator has been defined */
     private static final Comparator<String> STRING_COMPARATOR = new StringComparator( null );
-    
-    private final Index<T,ServerEntry> idx;
+
+    private final Index<T, ServerEntry> idx;
 
 
     public EqualityEvaluator( EqualityNode<T> node, Store<ServerEntry> db, SchemaManager schemaManager )
@@ -111,7 +111,7 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
     }
 
 
-    public boolean evaluate( IndexEntry<?,ServerEntry> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, ServerEntry> indexEntry ) throws Exception
     {
         if ( idx != null )
         {
@@ -150,8 +150,8 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
             // TODO check to see if descendant handling is necessary for the
             // index so we can match properly even when for example a name
             // attribute is used instead of more specific commonName
-            Iterator<AttributeType> descendants =
-                schemaManager.getAttributeTypeRegistry().descendants( node.getAttribute() );
+            Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants(
+                node.getAttribute() );
 
             while ( descendants.hasNext() )
             {
@@ -178,10 +178,10 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
             return idx.reverse( id );
         }
 
-        return evaluate ( db.lookup( id ) );
+        return evaluate( db.lookup( id ) );
     }
-    
-    
+
+
     // TODO - determine if comparator and index entry should have the Value
     // wrapper or the raw normalized value
     private boolean evaluate( ServerAttribute attribute ) throws Exception
@@ -195,17 +195,17 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
         for ( Value<?> value : attribute )
         {
             value.normalize( normalizer );
-            
+
             //noinspection unchecked
             if ( value.isBinary() )
             {
                 // Deal with a binary value
-                byte[] serverValue = ((Value<byte[]>)value).getNormalizedValue();
-                byte[] nodeValue = ((Value<byte[]>)node.getValue()).getNormalizedValue();
-                
+                byte[] serverValue = ( ( Value<byte[]> ) value ).getNormalizedValue();
+                byte[] nodeValue = ( ( Value<byte[]> ) node.getValue() ).getNormalizedValue();
+
                 if ( comparator != null )
                 {
-                    if ( ( ((LdapComparator<byte[]>)comparator).compare( serverValue, nodeValue ) == 0 ) )
+                    if ( ( ( ( LdapComparator<byte[]> ) comparator ).compare( serverValue, nodeValue ) == 0 ) )
                     {
                         return true;
                     }
@@ -221,21 +221,21 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
             else
             {
                 // Deal with a String value
-                String serverValue = ((Value<String>)value).getNormalizedValue();
+                String serverValue = ( ( Value<String> ) value ).getNormalizedValue();
                 String nodeValue = null;
-                
+
                 if ( node.getValue().isBinary() )
                 {
-                    nodeValue = StringTools.utf8ToString( ((Value<byte[]>)node.getValue()).getNormalizedValue() );
+                    nodeValue = StringTools.utf8ToString( ( ( Value<byte[]> ) node.getValue() ).getNormalizedValue() );
                 }
                 else
                 {
-                    nodeValue = ((Value<String>)node.getValue()).getNormalizedValue();
+                    nodeValue = ( ( Value<String> ) node.getValue() ).getNormalizedValue();
                 }
-                
+
                 if ( comparator != null )
                 {
-                    if ( ((LdapComparator<String>)comparator).compare( serverValue, nodeValue ) == 0 )
+                    if ( ( ( LdapComparator<String> ) comparator ).compare( serverValue, nodeValue ) == 0 )
                     {
                         return true;
                     }

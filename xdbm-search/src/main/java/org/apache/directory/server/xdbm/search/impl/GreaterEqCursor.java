@@ -43,17 +43,16 @@ import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
  */
 public class GreaterEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 {
-    private static final String UNSUPPORTED_MSG =
-        "GreaterEqCursors only support positioning by element when a user index exists on the asserted attribute.";
+    private static final String UNSUPPORTED_MSG = "GreaterEqCursors only support positioning by element when a user index exists on the asserted attribute.";
 
     /** An greater eq evaluator for candidates */
     private final GreaterEqEvaluator greaterEqEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
-    private final IndexCursor<V,ServerEntry> userIdxCursor;
+    private final IndexCursor<V, ServerEntry> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final IndexCursor<String,ServerEntry> ndnIdxCursor;
+    private final IndexCursor<String, ServerEntry> ndnIdxCursor;
 
     /**
      * Used to store indexEntry from ndnCandidate so it can be saved after
@@ -74,7 +73,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
         String attribute = greaterEqEvaluator.getExpression().getAttribute();
         if ( db.hasUserIndexOn( attribute ) )
         {
-            userIdxCursor = ( ( Index<V,ServerEntry> ) db.getUserIndex( attribute ) ).forwardCursor();
+            userIdxCursor = ( ( Index<V, ServerEntry> ) db.getUserIndex( attribute ) ).forwardCursor();
             ndnIdxCursor = null;
         }
         else
@@ -105,8 +104,8 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
              * userIdxCursor before the first element.  Otherwise we let the
              * underlying userIdx Cursor position the element.
              */
-            if ( greaterEqEvaluator.getComparator().compare( value,
-                 greaterEqEvaluator.getExpression().getValue().get() ) <= 0 )
+            if ( greaterEqEvaluator.getComparator()
+                .compare( value, greaterEqEvaluator.getExpression().getValue().get() ) <= 0 )
             {
                 beforeFirst();
                 return;
@@ -129,7 +128,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
         if ( userIdxCursor != null )
         {
             int comparedValue = greaterEqEvaluator.getComparator().compare( value,
-                 greaterEqEvaluator.getExpression().getValue().get() );
+                greaterEqEvaluator.getExpression().getValue().get() );
 
             /*
              * First we need to check and make sure this element is within
@@ -177,7 +176,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
              * underlying userIdx Cursor position the element.
              */
             if ( greaterEqEvaluator.getComparator().compare( element.getValue(),
-                 greaterEqEvaluator.getExpression().getValue().get() ) <= 0 )
+                greaterEqEvaluator.getExpression().getValue().get() ) <= 0 )
             {
                 beforeFirst();
                 return;
@@ -200,7 +199,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
         if ( userIdxCursor != null )
         {
             int comparedValue = greaterEqEvaluator.getComparator().compare( element.getValue(),
-                 greaterEqEvaluator.getExpression().getValue().get() );
+                greaterEqEvaluator.getExpression().getValue().get() );
 
             /*
              * First we need to check and make sure this element is within
@@ -239,7 +238,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
         checkNotClosed( "beforeFirst()" );
         if ( userIdxCursor != null )
         {
-            IndexEntry<V,ServerEntry> advanceTo = new ForwardIndexEntry<V,ServerEntry>();
+            IndexEntry<V, ServerEntry> advanceTo = new ForwardIndexEntry<V, ServerEntry>();
             advanceTo.setValue( ( V ) greaterEqEvaluator.getExpression().getValue().get() );
             userIdxCursor.before( advanceTo );
         }
@@ -297,8 +296,8 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
             while ( userIdxCursor.previous() )
             {
                 checkNotClosed( "previous()" );
-                IndexEntry<?,ServerEntry> candidate = userIdxCursor.get();
-                if ( greaterEqEvaluator.getComparator().compare( candidate.getValue(), 
+                IndexEntry<?, ServerEntry> candidate = userIdxCursor.get();
+                if ( greaterEqEvaluator.getComparator().compare( candidate.getValue(),
                     greaterEqEvaluator.getExpression().getValue().get() ) >= 0 )
                 {
                     return available = true;
@@ -308,13 +307,13 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
             return available = false;
         }
 
-        while( ndnIdxCursor.previous() )
+        while ( ndnIdxCursor.previous() )
         {
             checkNotClosed( "previous()" );
             ndnCandidate = ndnIdxCursor.get();
             if ( greaterEqEvaluator.evaluate( ndnCandidate ) )
             {
-                 return available = true;
+                return available = true;
             }
         }
 
@@ -334,13 +333,13 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
             return available = userIdxCursor.next();
         }
 
-        while( ndnIdxCursor.next() )
+        while ( ndnIdxCursor.next() )
         {
             checkNotClosed( "next()" );
             ndnCandidate = ndnIdxCursor.get();
             if ( greaterEqEvaluator.evaluate( ndnCandidate ) )
             {
-                 return available = true;
+                return available = true;
             }
         }
 

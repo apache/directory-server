@@ -50,13 +50,13 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
     private final OneLevelScopeEvaluator evaluator;
 
     /** A Cursor over the entries in the scope of the search base */
-    private final IndexCursor<Long,ServerEntry> scopeCursor;
+    private final IndexCursor<Long, ServerEntry> scopeCursor;
 
     /** A Cursor over entries brought into scope by alias dereferencing */
-    private final Cursor<IndexEntry<Long,ServerEntry>> dereferencedCursor;
+    private final Cursor<IndexEntry<Long, ServerEntry>> dereferencedCursor;
 
     /** Currently active Cursor: we switch between two cursors */
-    private Cursor<IndexEntry<Long,ServerEntry>> cursor;
+    private Cursor<IndexEntry<Long, ServerEntry>> cursor;
 
     /** Whether or not this Cursor is positioned so an entry is available */
     private boolean available = false;
@@ -203,7 +203,7 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
          * last element.
          */
         available = cursor.previous();
-        if ( ! available )
+        if ( !available )
         {
             cursor = scopeCursor;
             cursor.afterLast();
@@ -273,7 +273,7 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
          * dereferencedCursor and try a previous call after positioning past
          * it's last element.
          */
-        if ( ! available )
+        if ( !available )
         {
             if ( dereferencedCursor != null )
             {
@@ -303,7 +303,6 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
 
     public boolean isElementReused()
     {
-        return scopeCursor.isElementReused() ||
-            ( dereferencedCursor != null && dereferencedCursor.isElementReused() );
+        return scopeCursor.isElementReused() || ( dereferencedCursor != null && dereferencedCursor.isElementReused() );
     }
 }

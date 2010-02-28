@@ -53,7 +53,7 @@ public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, ServerEntry>
     private final AttributeType type;
     private final Normalizer normalizer;
     private final Comparator comparator;
-    private final Index<Object,ServerEntry> idx;
+    private final Index<Object, ServerEntry> idx;
 
 
     public GreaterEqEvaluator( GreaterEqNode node, Store<ServerEntry> db, SchemaManager schemaManager )
@@ -67,7 +67,7 @@ public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, ServerEntry>
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             //noinspection unchecked
-            idx = ( Index<Object,ServerEntry> ) db.getUserIndex( node.getAttribute() );
+            idx = ( Index<Object, ServerEntry> ) db.getUserIndex( node.getAttribute() );
         }
         else
         {
@@ -121,7 +121,7 @@ public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, ServerEntry>
     }
 
 
-    public boolean evaluate( IndexEntry<?,ServerEntry> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, ServerEntry> indexEntry ) throws Exception
     {
         if ( idx != null )
         {
@@ -150,7 +150,7 @@ public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, ServerEntry>
 
         // if the attribute exists and has a greater than or equal value return true
         //noinspection unchecked
-        if ( attr != null && evaluate( ( IndexEntry<Object,ServerEntry> ) indexEntry, attr ) )
+        if ( attr != null && evaluate( ( IndexEntry<Object, ServerEntry> ) indexEntry, attr ) )
         {
             return true;
         }
@@ -163,8 +163,8 @@ public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, ServerEntry>
             // TODO check to see if descendant handling is necessary for the
             // index so we can match properly even when for example a name
             // attribute is used instead of more specific commonName
-            Iterator<AttributeType> descendants =
-                schemaManager.getAttributeTypeRegistry().descendants( node.getAttribute() );
+            Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants(
+                node.getAttribute() );
 
             while ( descendants.hasNext() )
             {
@@ -192,7 +192,7 @@ public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, ServerEntry>
             return idx.reverseGreaterOrEq( id, node.getValue().get() );
         }
 
-        return evaluate ( db.lookup( id ) );
+        return evaluate( db.lookup( id ) );
     }
 
 
@@ -215,8 +215,8 @@ public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, ServerEntry>
             // TODO check to see if descendant handling is necessary for the
             // index so we can match properly even when for example a name
             // attribute is used instead of more specific commonName
-            Iterator<AttributeType> descendants =
-                schemaManager.getAttributeTypeRegistry().descendants( node.getAttribute() );
+            Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants(
+                node.getAttribute() );
 
             while ( descendants.hasNext() )
             {
@@ -238,7 +238,7 @@ public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, ServerEntry>
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value 
-    private boolean evaluate( IndexEntry<Object,ServerEntry> indexEntry, ServerAttribute attribute ) throws Exception
+    private boolean evaluate( IndexEntry<Object, ServerEntry> indexEntry, ServerAttribute attribute ) throws Exception
     {
         /*
          * Cycle through the attribute values testing normalized version

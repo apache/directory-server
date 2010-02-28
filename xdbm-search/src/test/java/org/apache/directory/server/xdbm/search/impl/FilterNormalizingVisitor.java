@@ -73,31 +73,30 @@ public class FilterNormalizingVisitor implements FilterVisitor
     /** the global schemaManager used to resolve OIDs for attributeType ids */
     private final SchemaManager schemaManager;
 
-
     /**
      * Chars which need to be escaped in a filter
      * '\0' | '(' | ')' | '*' | '\'
      */
     private static final boolean[] FILTER_CHAR =
-        { 
-            true,  false, false, false, false, false, false, false, // 00 -> 07 NULL
+        { true, false, false, false, false, false, false, false, // 00 -> 07 NULL
             false, false, false, false, false, false, false, false, // 08 -> 0F
             false, false, false, false, false, false, false, false, // 10 -> 17
             false, false, false, false, false, false, false, false, // 18 -> 1F
             false, false, false, false, false, false, false, false, // 20 -> 27
-            true,  true,  true,  false, false, false, false, false, // 28 -> 2F '(', ')', '*'
+            true, true, true, false, false, false, false, false, // 28 -> 2F '(', ')', '*'
             false, false, false, false, false, false, false, false, // 30 -> 37
             false, false, false, false, false, false, false, false, // 38 -> 3F 
             false, false, false, false, false, false, false, false, // 40 -> 47
             false, false, false, false, false, false, false, false, // 48 -> 4F
             false, false, false, false, false, false, false, false, // 50 -> 57
-            false, false, false, false, true,  false, false, false, // 58 -> 5F '\'
+            false, false, false, false, true, false, false, false, // 58 -> 5F '\'
             false, false, false, false, false, false, false, false, // 60 -> 67
             false, false, false, false, false, false, false, false, // 68 -> 6F
             false, false, false, false, false, false, false, false, // 70 -> 77
-            false, false, false, false, false, false, false, false  // 78 -> 7F
+            false, false, false, false, false, false, false, false // 78 -> 7F
         };
-    
+
+
     /**
      * Check if the given char is a filter escaped char
      * &lt;filterEscapedChars&gt; ::= '\0' | '(' | ')' | '*' | '\'
@@ -145,13 +144,11 @@ public class FilterNormalizingVisitor implements FilterVisitor
 
             if ( attributeType.getSyntax().isHumanReadable() )
             {
-                normalized = new ClientStringValue( 
-                    (String) ncn.normalizeByName( attribute, value.getString() ) );
+                normalized = new ClientStringValue( ( String ) ncn.normalizeByName( attribute, value.getString() ) );
             }
             else
             {
-                normalized = new ClientBinaryValue( 
-                    (byte[]) ncn.normalizeByName( attribute, value.getBytes() ) );
+                normalized = new ClientBinaryValue( ( byte[] ) ncn.normalizeByName( attribute, value.getBytes() ) );
             }
 
             return normalized;

@@ -39,8 +39,8 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
 {
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_724 );
-    private final IndexCursor<String,ServerEntry> ndnCursor;
-    private final IndexCursor<String,ServerEntry> presenceCursor;
+    private final IndexCursor<String, ServerEntry> ndnCursor;
+    private final IndexCursor<String, ServerEntry> presenceCursor;
     private final PresenceEvaluator presenceEvaluator;
     private boolean available = false;
 
@@ -191,13 +191,13 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
         while ( ndnCursor.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?,ServerEntry> candidate = ndnCursor.get();
+            IndexEntry<?, ServerEntry> candidate = ndnCursor.get();
             if ( presenceEvaluator.evaluate( candidate ) )
             {
                 return available = true;
             }
         }
-        
+
         return available = false;
     }
 
@@ -213,7 +213,7 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
         while ( ndnCursor.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?,ServerEntry> candidate = ndnCursor.get();
+            IndexEntry<?, ServerEntry> candidate = ndnCursor.get();
             if ( presenceEvaluator.evaluate( candidate ) )
             {
                 return available = true;

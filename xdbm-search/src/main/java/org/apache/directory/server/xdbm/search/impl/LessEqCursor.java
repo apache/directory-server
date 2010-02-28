@@ -49,10 +49,10 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     private final LessEqEvaluator lessEqEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
-    private final IndexCursor<V,ServerEntry> userIdxCursor;
+    private final IndexCursor<V, ServerEntry> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final IndexCursor<V,ServerEntry> ndnIdxCursor;
+    private final IndexCursor<V, ServerEntry> ndnIdxCursor;
 
     /**
      * Used to store indexEntry from ndnCandidate so it can be saved after
@@ -73,12 +73,12 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
         String attribute = lessEqEvaluator.getExpression().getAttribute();
         if ( db.hasUserIndexOn( attribute ) )
         {
-            userIdxCursor = ( ( Index<V,ServerEntry> ) db.getUserIndex( attribute ) ).forwardCursor();
+            userIdxCursor = ( ( Index<V, ServerEntry> ) db.getUserIndex( attribute ) ).forwardCursor();
             ndnIdxCursor = null;
         }
         else
         {
-            ndnIdxCursor = ( IndexCursor<V,ServerEntry> ) db.getNdnIndex().forwardCursor();
+            ndnIdxCursor = ( IndexCursor<V, ServerEntry> ) db.getNdnIndex().forwardCursor();
             userIdxCursor = null;
         }
     }
@@ -110,7 +110,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
              */
             //noinspection unchecked
             int compareValue = lessEqEvaluator.getLdapComparator().compare( value,
-                 lessEqEvaluator.getExpression().getValue().get() );
+                lessEqEvaluator.getExpression().getValue().get() );
 
             if ( compareValue > 0 )
             {
@@ -154,7 +154,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
              * before() method of the userIdxCursor.
              */
             int compareValue = lessEqEvaluator.getLdapComparator().compare( element.getValue(),
-                 lessEqEvaluator.getExpression().getValue().get() );
+                lessEqEvaluator.getExpression().getValue().get() );
 
             if ( compareValue > 0 )
             {
@@ -185,7 +185,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
         if ( userIdxCursor != null )
         {
             int comparedValue = lessEqEvaluator.getLdapComparator().compare( value,
-                 lessEqEvaluator.getExpression().getValue().get() );
+                lessEqEvaluator.getExpression().getValue().get() );
 
             /*
              * First we need to check and make sure this element is within
@@ -221,7 +221,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
         if ( userIdxCursor != null )
         {
             int comparedValue = lessEqEvaluator.getLdapComparator().compare( element.getValue(),
-                 lessEqEvaluator.getExpression().getValue().get() );
+                lessEqEvaluator.getExpression().getValue().get() );
 
             /*
              * First we need to check and make sure this element is within
@@ -273,7 +273,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
         checkNotClosed( "afterLast()" );
         if ( userIdxCursor != null )
         {
-            IndexEntry<V,ServerEntry> advanceTo = new ForwardIndexEntry<V,ServerEntry>();
+            IndexEntry<V, ServerEntry> advanceTo = new ForwardIndexEntry<V, ServerEntry>();
             //noinspection unchecked
             advanceTo.setValue( ( V ) lessEqEvaluator.getExpression().getValue().get() );
             userIdxCursor.after( advanceTo );
@@ -316,13 +316,13 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
             return available = userIdxCursor.previous();
         }
 
-        while( ndnIdxCursor.previous() )
+        while ( ndnIdxCursor.previous() )
         {
             checkNotClosed( "previous()" );
             ndnCandidate = ndnIdxCursor.get();
             if ( lessEqEvaluator.evaluate( ndnCandidate ) )
             {
-                 return available = true;
+                return available = true;
             }
             else
             {
@@ -348,9 +348,9 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
             while ( userIdxCursor.next() )
             {
                 checkNotClosed( "next()" );
-                IndexEntry<?,ServerEntry> candidate = userIdxCursor.get();
+                IndexEntry<?, ServerEntry> candidate = userIdxCursor.get();
                 if ( lessEqEvaluator.getLdapComparator().compare( candidate.getValue(),
-                     lessEqEvaluator.getExpression().getValue().get() ) <= 0 )
+                    lessEqEvaluator.getExpression().getValue().get() ) <= 0 )
                 {
                     return available = true;
                 }
@@ -359,13 +359,13 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
             return available = false;
         }
 
-        while( ndnIdxCursor.next() )
+        while ( ndnIdxCursor.next() )
         {
             checkNotClosed( "next()" );
             ndnCandidate = ndnIdxCursor.get();
             if ( lessEqEvaluator.evaluate( ndnCandidate ) )
             {
-                 return available = true;
+                return available = true;
             }
             else
             {
@@ -422,6 +422,6 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
         {
             ndnIdxCursor.close();
             ndnCandidate = null;
-         }
+        }
     }
 }

@@ -75,7 +75,8 @@ public class AndCursorTest
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
     private static SchemaManager schemaManager;
-    
+
+
     @BeforeClass
     public static void setup() throws Exception
     {
@@ -96,19 +97,20 @@ public class AndCursorTest
         schemaManager = new DefaultSchemaManager( loader );
 
         boolean loaded = schemaManager.loadAllEnabled();
-        
+
         if ( !loaded )
         {
             fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
 
         loaded = schemaManager.loadWithDeps( "collective" );
-        
+
         if ( !loaded )
         {
             fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
     }
+
 
     public AndCursorTest() throws Exception
     {
@@ -132,18 +134,18 @@ public class AndCursorTest
         store.setCacheSize( 10 );
         store.setWorkingDirectory( wkdir );
         store.setSyncOnWrite( false );
-        
+
         store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new JdbmIndex( SchemaConstants.CN_AT_OID ) );
         StoreUtils.loadExampleData( store, schemaManager );
-        
+
         evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
         cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
-        
+
         LOG.debug( "Created new store" );
     }
 
-    
+
     @After
     public void destroyStore() throws Exception
     {
@@ -161,111 +163,111 @@ public class AndCursorTest
         wkdir = null;
     }
 
-    
+
     @Test
     public void testAndCursorWithCursorBuilder() throws Exception
     {
         String filter = "(&(cn=J*)(sn=*))";
 
         ExprNode exprNode = FilterParser.parse( filter );
-        
-        IndexCursor<?,ServerEntry> cursor = cursorBuilder.build( exprNode );
-        
+
+        IndexCursor<?, ServerEntry> cursor = cursorBuilder.build( exprNode );
+
         cursor.beforeFirst();
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 8, ( long ) cursor.get().getId() );
         assertEquals( "jack daniels", cursor.get().getValue() );
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
         assertEquals( "jim bean", cursor.get().getValue() );
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
         assertEquals( "johnny walker", cursor.get().getValue() );
-        
+
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
-        
+
         cursor.close();
         assertTrue( cursor.isClosed() );
     }
-    
-    
+
+
     @Test
     public void testAndCursorWithManualFilter() throws Exception
     {
         AndNode andNode = new AndNode();
-        
-        List<Evaluator<? extends ExprNode,ServerEntry>> evaluators = new ArrayList<Evaluator<? extends ExprNode,ServerEntry>>();
+
+        List<Evaluator<? extends ExprNode, ServerEntry>> evaluators = new ArrayList<Evaluator<? extends ExprNode, ServerEntry>>();
         Evaluator<? extends ExprNode, ServerEntry> eval;
-        
+
         ExprNode exprNode = new SubstringNode( "cn", "J", null );
         eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
-        IndexCursor<?,ServerEntry> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
-        
+        IndexCursor<?, ServerEntry> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
+
         /* adding this results in NPE  adding Presence evaluator not 
          Substring evaluator but adding Substring cursor as wrapped cursor */
         // evaluators.add( eval ); 
-        
+
         andNode.addNode( exprNode );
-        
+
         exprNode = new PresenceNode( "sn" );
         eval = new PresenceEvaluator( ( PresenceNode ) exprNode, store, schemaManager );
         evaluators.add( eval );
-        
+
         andNode.addNode( exprNode );
-        
-        IndexCursor<?,ServerEntry> cursor = new AndCursor( wrapped, evaluators ); //cursorBuilder.build( andNode );
-        
+
+        IndexCursor<?, ServerEntry> cursor = new AndCursor( wrapped, evaluators ); //cursorBuilder.build( andNode );
+
         cursor.beforeFirst();
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 8, ( long ) cursor.get().getId() );
         assertEquals( "jack daniels", cursor.get().getValue() );
-        
+
         cursor.first();
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
         assertEquals( "jim bean", cursor.get().getValue() );
-        
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getValue() );        
-        
+        assertEquals( "johnny walker", cursor.get().getValue() );
+
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
 
         cursor.afterLast();
-        
+
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
         assertEquals( "johnny walker", cursor.get().getValue() );
-        
+
         cursor.last();
-        
+
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
         assertEquals( "jim bean", cursor.get().getValue() );
-        
+
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 8, ( long ) cursor.get().getId() );
         assertEquals( "jack daniels", cursor.get().getValue() );
-        
+
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
-        
+
         assertTrue( cursor.isElementReused() );
 
         try
@@ -273,23 +275,28 @@ public class AndCursorTest
             cursor.get();
             fail( "should fail with InvalidCursorPositionException" );
         }
-        catch( InvalidCursorPositionException ice ) { }
-        
+        catch ( InvalidCursorPositionException ice )
+        {
+        }
+
         try
         {
             cursor.after( new ForwardIndexEntry() );
             fail( "should fail with UnsupportedOperationException " );
         }
-        catch( UnsupportedOperationException uoe ) {}
-        
+        catch ( UnsupportedOperationException uoe )
+        {
+        }
+
         try
         {
             cursor.before( new ForwardIndexEntry() );
             fail( "should fail with UnsupportedOperationException " );
         }
-        catch( UnsupportedOperationException uoe ) {}
+        catch ( UnsupportedOperationException uoe )
+        {
+        }
 
     }
-    
-    
+
 }

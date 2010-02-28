@@ -63,7 +63,6 @@ public class DefaultSearchEngine implements SearchEngine<ServerEntry>
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
-    
 
     /**
      * Creates a DefaultSearchEngine for searching a Database without setting
@@ -73,8 +72,8 @@ public class DefaultSearchEngine implements SearchEngine<ServerEntry>
      * @param evaluatorBuilder an expression evaluator builder
      * @param optimizer an optimizer to use during search
      */
-    public DefaultSearchEngine( Store<ServerEntry> db,
-                                CursorBuilder cursorBuilder, EvaluatorBuilder evaluatorBuilder, Optimizer optimizer )
+    public DefaultSearchEngine( Store<ServerEntry> db, CursorBuilder cursorBuilder, EvaluatorBuilder evaluatorBuilder,
+        Optimizer optimizer )
     {
         this.db = db;
         this.optimizer = optimizer;
@@ -97,19 +96,19 @@ public class DefaultSearchEngine implements SearchEngine<ServerEntry>
     /**
      * @see SearchEngine#cursor(LdapDN, AliasDerefMode, ExprNode, SearchControls)
      */
-    public IndexCursor<Long,ServerEntry> cursor( LdapDN base, AliasDerefMode aliasDerefMode, ExprNode filter,
-                                                     SearchControls searchCtls ) throws Exception
+    public IndexCursor<Long, ServerEntry> cursor( LdapDN base, AliasDerefMode aliasDerefMode, ExprNode filter,
+        SearchControls searchCtls ) throws Exception
     {
         LdapDN effectiveBase;
         Long baseId = db.getEntryId( base.toString() );
-        
+
         // Check that we have an entry, otherwise we can immediately get out
         if ( baseId == null )
         {
             // The entry is not found : ciao !
             return new EmptyIndexCursor<Long, ServerEntry>();
         }
-        
+
         String aliasedBase = db.getAliasIndex().reverseLookup( baseId );
 
         // --------------------------------------------------------------------
@@ -121,7 +120,7 @@ public class DefaultSearchEngine implements SearchEngine<ServerEntry>
          * occur on finding the base then we set the effective base to the
          * given base.
          */
-        if ( ( null == aliasedBase ) || ! aliasDerefMode.isDerefFindingBase() )
+        if ( ( null == aliasedBase ) || !aliasDerefMode.isDerefFindingBase() )
         {
             effectiveBase = base;
         }
@@ -135,7 +134,7 @@ public class DefaultSearchEngine implements SearchEngine<ServerEntry>
         {
             effectiveBase = new LdapDN( aliasedBase );
         }
-        
+
         // --------------------------------------------------------------------
         // Specifically Handle Object Level Scope
         // --------------------------------------------------------------------
@@ -145,28 +144,28 @@ public class DefaultSearchEngine implements SearchEngine<ServerEntry>
             Long effectiveBaseId = baseId;
             if ( effectiveBase != base )
             {
-                effectiveBaseId = db.getEntryId( effectiveBase.toNormName() ); 
+                effectiveBaseId = db.getEntryId( effectiveBase.toNormName() );
             }
-            
+
             IndexEntry<Long, ServerEntry> indexEntry = new ForwardIndexEntry<Long, ServerEntry>();
             indexEntry.setId( effectiveBaseId );
             optimizer.annotate( filter );
             Evaluator<? extends ExprNode, ServerEntry> evaluator = evaluatorBuilder.build( filter );
-            
+
             if ( evaluator.evaluate( indexEntry ) )
             {
-                return new SingletonIndexCursor<Long,ServerEntry>( indexEntry );
+                return new SingletonIndexCursor<Long, ServerEntry>( indexEntry );
             }
             else
             {
                 return new EmptyIndexCursor<Long, ServerEntry>();
             }
         }
-        
+
         // Add the scope node using the effective base to the filter
         BranchNode root = new AndNode();
-        ExprNode node = new ScopeNode( aliasDerefMode, effectiveBase.toString(), 
-            SearchScope.getSearchScope( searchCtls.getSearchScope() ) );
+        ExprNode node = new ScopeNode( aliasDerefMode, effectiveBase.toString(), SearchScope.getSearchScope( searchCtls
+            .getSearchScope() ) );
         root.getChildren().add( node );
         root.getChildren().add( filter );
 
@@ -179,8 +178,7 @@ public class DefaultSearchEngine implements SearchEngine<ServerEntry>
     /**
      * @see SearchEngine#evaluator(ExprNode)
      */
-    public Evaluator<? extends ExprNode, ServerEntry> evaluator( ExprNode filter )
-        throws Exception
+    public Evaluator<? extends ExprNode, ServerEntry> evaluator( ExprNode filter ) throws Exception
     {
         return evaluatorBuilder.build( filter );
     }

@@ -45,17 +45,16 @@ import org.apache.directory.shared.ldap.entry.Value;
  */
 public class ApproximateCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 {
-    private static final String UNSUPPORTED_MSG =
-        "ApproximateCursors only support positioning by element when a user index exists on the asserted attribute.";
+    private static final String UNSUPPORTED_MSG = "ApproximateCursors only support positioning by element when a user index exists on the asserted attribute.";
 
     /** An approximate evaluator for candidates */
     private final ApproximateEvaluator approximateEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
-    private final IndexCursor<V,ServerEntry> userIdxCursor;
+    private final IndexCursor<V, ServerEntry> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final IndexCursor<String,ServerEntry> ndnIdxCursor;
+    private final IndexCursor<String, ServerEntry> ndnIdxCursor;
 
     /** used only when ndnIdxCursor is used (no index on attribute) */
     private boolean available = false;
@@ -70,7 +69,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V, ServerEntry>
         if ( db.hasUserIndexOn( attribute ) )
         {
             //noinspection unchecked
-            Index<V,ServerEntry> index = ( Index<V, ServerEntry> ) db.getUserIndex( attribute );
+            Index<V, ServerEntry> index = ( Index<V, ServerEntry> ) db.getUserIndex( attribute );
             userIdxCursor = index.forwardCursor( value.get() );
             ndnIdxCursor = null;
         }
@@ -200,13 +199,13 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V, ServerEntry>
             return userIdxCursor.previous();
         }
 
-        while( ndnIdxCursor.previous() )
+        while ( ndnIdxCursor.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?,ServerEntry> candidate = ndnIdxCursor.get();
+            IndexEntry<?, ServerEntry> candidate = ndnIdxCursor.get();
             if ( approximateEvaluator.evaluate( candidate ) )
             {
-                 return available = true;
+                return available = true;
             }
         }
 
@@ -221,13 +220,13 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V, ServerEntry>
             return userIdxCursor.next();
         }
 
-        while( ndnIdxCursor.next() )
+        while ( ndnIdxCursor.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?,ServerEntry> candidate = ndnIdxCursor.get();
+            IndexEntry<?, ServerEntry> candidate = ndnIdxCursor.get();
             if ( approximateEvaluator.evaluate( candidate ) )
             {
-                 return available = true;
+                return available = true;
             }
         }
 

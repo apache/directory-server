@@ -34,7 +34,7 @@ import org.apache.directory.server.xdbm.search.Evaluator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode,E>
+public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode, E>
 {
     /** The ScopeNode containing initial search scope constraints */
     private final ScopeNode node;
@@ -67,8 +67,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode,E>
 
         this.db = db;
         baseId = db.getEntryId( node.getBaseDn() );
-        dereferencing = node.getDerefAliases().isDerefInSearching() ||
-            node.getDerefAliases().isDerefAlways();
+        dereferencing = node.getDerefAliases().isDerefInSearching() || node.getDerefAliases().isDerefAlways();
     }
 
 
@@ -90,7 +89,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode,E>
          * dereferencing is not enabled then we return the results of the child
          * test.
          */
-        if ( ! dereferencing )
+        if ( !dereferencing )
         {
             return isChild;
         }
@@ -152,7 +151,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode,E>
      * @throws Exception if db lookups fail
      * @see org.apache.directory.server.xdbm.search.Evaluator#evaluate(IndexEntry)
      */
-    public boolean evaluate( IndexEntry<?,E> candidate ) throws Exception
+    public boolean evaluate( IndexEntry<?, E> candidate ) throws Exception
     {
         boolean isChild = db.getOneLevelIndex().forward( baseId, candidate.getId() );
 
@@ -161,7 +160,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode,E>
          * dereferencing is not enabled then we return the results of the child
          * test.
          */
-        if ( ! dereferencing )
+        if ( !dereferencing )
         {
             return isChild;
         }
