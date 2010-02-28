@@ -23,7 +23,6 @@ package org.apache.directory.server.core.referral;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
-import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.ReferralManager;
@@ -45,6 +44,7 @@ import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.LdapURL;
@@ -94,7 +94,7 @@ public class ReferralInterceptor extends BaseInterceptor
         // - we don't have extensions
         // - the DN is not empty
 
-        if ( ldapUrl.getScope() != SearchControls.OBJECT_SCOPE )
+        if ( ldapUrl.getScope() != SearchScope.OBJECT )
         {
             // This is the default value if we don't have any scope
             // Let's assume that it's incorrect if we get something
