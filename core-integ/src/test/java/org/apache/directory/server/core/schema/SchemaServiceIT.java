@@ -21,6 +21,7 @@ package org.apache.directory.server.core.schema;
 
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -905,4 +906,34 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         assertTrue( ocs.contains( "organizationalPerson" ) );
         assertTrue( ocs.contains( "inetOrgPerson" ) );
     }
+    
+    
+    
+    /**
+     * Search all the entries with a 'metaTop' ObjectClass, or an ObjectClass
+     * inheriting from 'metaTop' 
+     *
+     * @throws NamingException on error
+     */
+    @Test
+    public void testSearchForMetaTop() throws Exception
+    {
+        LdapContext schemaRoot = getSchemaContext( service );
+        
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        NamingEnumeration<SearchResult> results = schemaRoot.search( "", "(objectClass=top)", controls );
+        assertTrue( "Expected some results", results.hasMore() );
+        
+        controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        results = schemaRoot.search( "", "(objectClass=metaAttributeType)", controls );
+        assertTrue( "Expected some results", results.hasMore() );
+        
+        controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        results = schemaRoot.search( "", "(objectClass=metaTop)", controls );
+        assertTrue( "Expected some results", results.hasMore() );
+    }
+    
 }
