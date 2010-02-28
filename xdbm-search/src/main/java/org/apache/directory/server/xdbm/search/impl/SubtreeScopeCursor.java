@@ -36,29 +36,29 @@ import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
+public class SubtreeScopeCursor<ID> extends AbstractIndexCursor<ID, ServerEntry, ID>
 {
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
     /** The Entry database/store */
-    private final Store<ServerEntry> db;
+    private final Store<ServerEntry, ID> db;
 
     /** A ScopeNode Evaluator */
-    private final SubtreeScopeEvaluator<ServerEntry> evaluator;
+    private final SubtreeScopeEvaluator<ServerEntry, ID> evaluator;
 
     /** A Cursor over the entries in the scope of the search base */
-    private final IndexCursor<Long, ServerEntry> scopeCursor;
+    private final IndexCursor<ID, ServerEntry, ID> scopeCursor;
 
     /** A Cursor over entries brought into scope by alias dereferencing */
-    private final IndexCursor<Long, ServerEntry> dereferencedCursor;
+    private final IndexCursor<ID, ServerEntry, ID> dereferencedCursor;
 
     /** Currently active Cursor: we switch between two cursors */
-    private IndexCursor<Long, ServerEntry> cursor;
+    private IndexCursor<ID, ServerEntry, ID> cursor;
 
     /** Whether or not this Cursor is positioned so an entry is available */
     private boolean available = false;
 
-    private Long contextEntryId;
+    private ID contextEntryId;
 
 
     /**
@@ -68,14 +68,15 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public SubtreeScopeCursor( Store<ServerEntry> db, SubtreeScopeEvaluator<ServerEntry> evaluator ) throws Exception
+    public SubtreeScopeCursor( Store<ServerEntry, ID> db, SubtreeScopeEvaluator<ServerEntry, ID> evaluator )
+        throws Exception
     {
         this.db = db;
         this.evaluator = evaluator;
 
         if ( evaluator.getBaseId() == getContextEntryId() )
         {
-            scopeCursor = new AllEntriesCursor( db );
+            scopeCursor = new AllEntriesCursor<ID>( db );
         }
         else
         {
@@ -93,7 +94,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
     }
 
 
-    private Long getContextEntryId()
+    private ID getContextEntryId() throws Exception
     {
         if ( contextEntryId == null )
         {
@@ -110,7 +111,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
 
         if ( contextEntryId == null )
         {
-            return 1L;
+            return db.getDefaultId();
         }
 
         return contextEntryId;
@@ -123,25 +124,25 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
     }
 
 
-    public void beforeValue( Long id, Long value ) throws Exception
+    public void beforeValue( ID id, ID value ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
 
 
-    public void before( IndexEntry<Long, ServerEntry> element ) throws Exception
+    public void before( IndexEntry<ID, ServerEntry, ID> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
 
 
-    public void afterValue( Long id, Long value ) throws Exception
+    public void afterValue( ID id, ID value ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
 
 
-    public void after( IndexEntry<Long, ServerEntry> element ) throws Exception
+    public void after( IndexEntry<ID, ServerEntry, ID> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
@@ -318,7 +319,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
     }
 
 
-    public IndexEntry<Long, ServerEntry> get() throws Exception
+    public IndexEntry<ID, ServerEntry, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
         if ( available )

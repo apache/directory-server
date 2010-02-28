@@ -37,7 +37,7 @@ import javax.naming.directory.SearchControls;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface SearchEngine<E>
+public interface SearchEngine<E, ID>
 {
     /**
      * @todo put this in the right place
@@ -84,8 +84,8 @@ public interface SearchEngine<E>
      * @return enumeration over SearchResults
      * @throws Exception if the search fails
      */
-    IndexCursor<Long, E> cursor( LdapDN base, AliasDerefMode aliasDerefMode, ExprNode filter, SearchControls searchCtls )
-        throws Exception;
+    IndexCursor<ID, E, ID> cursor( LdapDN base, AliasDerefMode aliasDerefMode, ExprNode filter,
+        SearchControls searchCtls ) throws Exception;
 
 
     /**
@@ -95,5 +95,5 @@ public interface SearchEngine<E>
      * @return true if the filter passes the entry, false otherwise
      * @throws Exception if something goes wrong while accessing the db
      */
-    Evaluator<? extends ExprNode, ServerEntry> evaluator( ExprNode filter ) throws Exception;
+    Evaluator<? extends ExprNode, ServerEntry, ID> evaluator( ExprNode filter ) throws Exception;
 }

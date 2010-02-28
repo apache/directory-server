@@ -26,7 +26,7 @@ package org.apache.directory.server.xdbm;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public interface IndexEntry<V, O>
+public interface IndexEntry<V, O, ID>
 {
     /**
      * Gets the value referred to by this IndexEntry.
@@ -49,7 +49,7 @@ public interface IndexEntry<V, O>
      *
      * @return the id of the object indexed
      */
-    Long getId();
+    ID getId();
 
 
     /**
@@ -57,7 +57,7 @@ public interface IndexEntry<V, O>
      *
      * @param id the id of the object indexed
      */
-    void setId( Long id );
+    void setId( ID id );
 
 
     /**
@@ -73,7 +73,7 @@ public interface IndexEntry<V, O>
      *
      * @return the underlying tuple
      */
-    Tuple getTuple();
+    Tuple<?, ?> getTuple();
 
 
     /**
@@ -95,5 +95,5 @@ public interface IndexEntry<V, O>
      *
      * @param entry the entry to copy fields of
      */
-    void copy( IndexEntry<V, O> entry );
+    void copy( IndexEntry<V, O, ID> entry );
 }

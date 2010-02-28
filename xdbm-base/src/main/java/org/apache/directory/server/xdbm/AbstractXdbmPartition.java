@@ -47,16 +47,16 @@ import org.apache.directory.shared.ldap.name.RDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class AbstractXdbmPartition extends BTreePartition
+public abstract class AbstractXdbmPartition<ID> extends BTreePartition<ID>
 {
 
     protected boolean optimizerEnabled = true;
 
     /** The store. */
-    protected Store<ServerEntry> store;
+    protected Store<ServerEntry, ID> store;
 
 
-    protected AbstractXdbmPartition( Store<ServerEntry> store )
+    protected AbstractXdbmPartition( Store<ServerEntry, ID> store )
     {
         this.store = store;
     }
@@ -121,13 +121,13 @@ public abstract class AbstractXdbmPartition extends BTreePartition
     // I N D E X   M E T H O D S
     // ------------------------------------------------------------------------
 
-    public final void addIndexOn( Index<Long, ServerEntry> index ) throws Exception
+    public final void addIndexOn( Index<? extends Object, ServerEntry, ID> index ) throws Exception
     {
         store.addIndex( index );
     }
 
 
-    public final Index<String, ServerEntry> getExistenceIndex()
+    public final Index<String, ServerEntry, ID> getExistenceIndex()
     {
         return store.getPresenceIndex();
     }
@@ -136,13 +136,13 @@ public abstract class AbstractXdbmPartition extends BTreePartition
     /**
      * @org.apache.xbean.Property hidden="true"
      */
-    public final void setPresenceIndexOn( Index<String, ServerEntry> index ) throws Exception
+    public final void setPresenceIndexOn( Index<String, ServerEntry, ID> index ) throws Exception
     {
         store.setPresenceIndex( index );
     }
 
 
-    public final Index<Long, ServerEntry> getOneLevelIndex()
+    public final Index<ID, ServerEntry, ID> getOneLevelIndex()
     {
         return store.getOneLevelIndex();
     }
@@ -151,13 +151,13 @@ public abstract class AbstractXdbmPartition extends BTreePartition
     /**
      * @org.apache.xbean.Property hidden="true"
      */
-    public final void setOneLevelIndexOn( Index<Long, ServerEntry> index ) throws Exception
+    public final void setOneLevelIndexOn( Index<ID, ServerEntry, ID> index ) throws Exception
     {
         store.setOneLevelIndex( index );
     }
 
 
-    public final Index<String, ServerEntry> getAliasIndex()
+    public final Index<String, ServerEntry, ID> getAliasIndex()
     {
         return store.getAliasIndex();
     }
@@ -166,13 +166,13 @@ public abstract class AbstractXdbmPartition extends BTreePartition
     /**
      * @org.apache.xbean.Property hidden="true"
      */
-    public final void setAliasIndexOn( Index<String, ServerEntry> index ) throws Exception
+    public final void setAliasIndexOn( Index<String, ServerEntry, ID> index ) throws Exception
     {
         store.setAliasIndex( index );
     }
 
 
-    public final Index<Long, ServerEntry> getOneAliasIndex()
+    public final Index<ID, ServerEntry, ID> getOneAliasIndex()
     {
         return store.getOneAliasIndex();
     }
@@ -181,13 +181,13 @@ public abstract class AbstractXdbmPartition extends BTreePartition
     /**
      * @org.apache.xbean.Property hidden="true"
      */
-    public final void setOneAliasIndexOn( Index<Long, ServerEntry> index ) throws Exception
+    public final void setOneAliasIndexOn( Index<ID, ServerEntry, ID> index ) throws Exception
     {
-        store.setOneAliasIndex( ( Index<Long, ServerEntry> ) index );
+        store.setOneAliasIndex( index );
     }
 
 
-    public final Index<Long, ServerEntry> getSubAliasIndex()
+    public final Index<ID, ServerEntry, ID> getSubAliasIndex()
     {
         return store.getSubAliasIndex();
     }
@@ -196,13 +196,13 @@ public abstract class AbstractXdbmPartition extends BTreePartition
     /**
      * @org.apache.xbean.Property hidden="true"
      */
-    public final void setSubAliasIndexOn( Index<Long, ServerEntry> index ) throws Exception
+    public final void setSubAliasIndexOn( Index<ID, ServerEntry, ID> index ) throws Exception
     {
-        store.setSubAliasIndex( ( Index<Long, ServerEntry> ) index );
+        store.setSubAliasIndex( index );
     }
 
 
-    public final Index<String, ServerEntry> getUpdnIndex()
+    public final Index<String, ServerEntry, ID> getUpdnIndex()
     {
         return store.getUpdnIndex();
     }
@@ -211,13 +211,13 @@ public abstract class AbstractXdbmPartition extends BTreePartition
     /**
      * @org.apache.xbean.Property hidden="true"
      */
-    public final void setUpdnIndexOn( Index<String, ServerEntry> index ) throws Exception
+    public final void setUpdnIndexOn( Index<String, ServerEntry, ID> index ) throws Exception
     {
-        store.setUpdnIndex( ( Index<String, ServerEntry> ) index );
+        store.setUpdnIndex( index );
     }
 
 
-    public final Index<String, ServerEntry> getNdnIndex()
+    public final Index<String, ServerEntry, ID> getNdnIndex()
     {
         return store.getNdnIndex();
     }
@@ -226,9 +226,9 @@ public abstract class AbstractXdbmPartition extends BTreePartition
     /**
      * @org.apache.xbean.Property hidden="true"
      */
-    public final void setNdnIndexOn( Index<String, ServerEntry> index ) throws Exception
+    public final void setNdnIndexOn( Index<String, ServerEntry, ID> index ) throws Exception
     {
-        store.setNdnIndex( ( Index<String, ServerEntry> ) index );
+        store.setNdnIndex( index );
     }
 
 
@@ -259,7 +259,7 @@ public abstract class AbstractXdbmPartition extends BTreePartition
     /**
      * @see org.apache.directory.server.core.partition.impl.btree.BTreePartition#getUserIndex(String)
      */
-    public final Index<?, ServerEntry> getUserIndex( String id ) throws IndexNotFoundException
+    public final Index<? extends Object, ServerEntry, ID> getUserIndex( String id ) throws IndexNotFoundException
     {
         return store.getUserIndex( id );
     }
@@ -268,37 +268,37 @@ public abstract class AbstractXdbmPartition extends BTreePartition
     /**
      * @see BTreePartition#getEntryId(String)
      */
-    public final Index<?, ServerEntry> getSystemIndex( String id ) throws IndexNotFoundException
+    public final Index<? extends Object, ServerEntry, ID> getSystemIndex( String id ) throws IndexNotFoundException
     {
         return store.getSystemIndex( id );
     }
 
 
-    public final Long getEntryId( String dn ) throws Exception
+    public final ID getEntryId( String dn ) throws Exception
     {
         return store.getEntryId( dn );
     }
 
 
-    public final String getEntryDn( Long id ) throws Exception
+    public final String getEntryDn( ID id ) throws Exception
     {
         return store.getEntryDn( id );
     }
 
 
-    public final Long getParentId( String dn ) throws Exception
+    public final ID getParentId( String dn ) throws Exception
     {
         return store.getParentId( dn );
     }
 
 
-    public final Long getParentId( Long childId ) throws Exception
+    public final ID getParentId( ID childId ) throws Exception
     {
         return store.getParentId( childId );
     }
 
 
-    public final String getEntryUpdn( Long id ) throws Exception
+    public final String getEntryUpdn( ID id ) throws Exception
     {
         return store.getEntryUpdn( id );
     }
@@ -322,25 +322,25 @@ public abstract class AbstractXdbmPartition extends BTreePartition
     }
 
 
-    public final ClonedServerEntry lookup( Long id ) throws Exception
+    public final ClonedServerEntry lookup( ID id ) throws Exception
     {
         return new ClonedServerEntry( store.lookup( id ) );
     }
 
 
-    public final void delete( Long id ) throws Exception
+    public final void delete( ID id ) throws Exception
     {
         store.delete( id );
     }
 
 
-    public final IndexCursor<Long, ServerEntry> list( Long id ) throws Exception
+    public final IndexCursor<ID, ServerEntry, ID> list( ID id ) throws Exception
     {
         return store.list( id );
     }
 
 
-    public final int getChildCount( Long id ) throws Exception
+    public final int getChildCount( ID id ) throws Exception
     {
         return store.getChildCount( id );
     }
@@ -455,13 +455,13 @@ public abstract class AbstractXdbmPartition extends BTreePartition
     }
 
 
-    public final Index<String, ServerEntry> getPresenceIndex()
+    public final Index<String, ServerEntry, ID> getPresenceIndex()
     {
         return store.getPresenceIndex();
     }
 
 
-    public final Index<Long, ServerEntry> getSubLevelIndex()
+    public final Index<ID, ServerEntry, ID> getSubLevelIndex()
     {
         return store.getSubLevelIndex();
     }

@@ -36,13 +36,13 @@ import java.io.PrintStream;
  */
 public class IndexUtils
 {
-    public static void printContents( Index<?, ServerEntry> idx ) throws Exception
+    public static void printContents( Index<?, ServerEntry, Long> idx ) throws Exception
     {
         printContents( idx, System.out );
     }
 
 
-    public static void printContents( Index<?, ServerEntry> idx, OutputStream outputStream ) throws Exception
+    public static void printContents( Index<?, ServerEntry, Long> idx, OutputStream outputStream ) throws Exception
     {
         PrintStream out;
 
@@ -59,7 +59,7 @@ public class IndexUtils
             out = new PrintStream( outputStream );
         }
 
-        IndexCursor<?, ServerEntry> cursor = idx.forwardCursor();
+        IndexCursor<?, ServerEntry, Long> cursor = idx.forwardCursor();
         cursor.first();
         for ( Object entry : cursor )
         {

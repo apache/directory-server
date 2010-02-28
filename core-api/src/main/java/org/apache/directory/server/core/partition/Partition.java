@@ -227,16 +227,6 @@ public interface Partition
 
 
     /**
-     * Looks up an entry by id.
-     *
-     * @param id the id of the entry to look up
-     * @return the entry with the id
-     * @throws Exception if there are any problems
-     */
-    ClonedServerEntry lookup( Long id ) throws Exception;
-
-
-    /**
      * Fast operation to check and see if a particular entry exists.
      *
      * @param opContext The context used to pass informations

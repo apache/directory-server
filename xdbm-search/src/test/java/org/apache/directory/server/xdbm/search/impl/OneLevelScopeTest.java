@@ -71,7 +71,7 @@ public class OneLevelScopeTest
     public static final Logger LOG = LoggerFactory.getLogger( OneLevelScopeTest.class );
 
     File wkdir;
-    Store<ServerEntry> store;
+    Store<ServerEntry, Long> store;
     static SchemaManager schemaManager = null;
 
 
@@ -158,8 +158,9 @@ public class OneLevelScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, SchemaConstants.OU_AT_OID + "=sales,"
             + SchemaConstants.O_AT_OID + "=good times co.", SearchScope.ONELEVEL );
-        OneLevelScopeEvaluator<ServerEntry> evaluator = new OneLevelScopeEvaluator<ServerEntry>( store, node );
-        OneLevelScopeCursor cursor = new OneLevelScopeCursor( store, evaluator );
+        OneLevelScopeEvaluator<ServerEntry, Long> evaluator = new OneLevelScopeEvaluator<ServerEntry, Long>( store,
+            node );
+        OneLevelScopeCursor<Long> cursor = new OneLevelScopeCursor<Long>( store, evaluator );
 
         assertTrue( cursor.isElementReused() );
 
@@ -170,7 +171,7 @@ public class OneLevelScopeTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        IndexEntry<Long, ServerEntry> indexEntry = cursor.get();
+        IndexEntry<Long, ServerEntry, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 5L, ( long ) indexEntry.getId() );
         assertEquals( 2L, ( long ) indexEntry.getValue() );
@@ -303,8 +304,9 @@ public class OneLevelScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, SchemaConstants.OU_AT_OID + "=engineering,"
             + SchemaConstants.O_AT_OID + "=good times co.", SearchScope.ONELEVEL );
-        OneLevelScopeEvaluator<ServerEntry> evaluator = new OneLevelScopeEvaluator<ServerEntry>( store, node );
-        OneLevelScopeCursor cursor = new OneLevelScopeCursor( store, evaluator );
+        OneLevelScopeEvaluator<ServerEntry, Long> evaluator = new OneLevelScopeEvaluator<ServerEntry, Long>( store,
+            node );
+        OneLevelScopeCursor<Long> cursor = new OneLevelScopeCursor<Long>( store, evaluator );
 
         assertTrue( cursor.isElementReused() );
 
@@ -315,7 +317,7 @@ public class OneLevelScopeTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        IndexEntry<Long, ServerEntry> indexEntry = cursor.get();
+        IndexEntry<Long, ServerEntry, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 8L, ( long ) indexEntry.getId() );
         assertEquals( 4L, ( long ) indexEntry.getValue() );
@@ -448,8 +450,9 @@ public class OneLevelScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, SchemaConstants.OU_AT_OID
             + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co.", SearchScope.ONELEVEL );
-        OneLevelScopeEvaluator<ServerEntry> evaluator = new OneLevelScopeEvaluator<ServerEntry>( store, node );
-        OneLevelScopeCursor cursor = new OneLevelScopeCursor( store, evaluator );
+        OneLevelScopeEvaluator<ServerEntry, Long> evaluator = new OneLevelScopeEvaluator<ServerEntry, Long>( store,
+            node );
+        OneLevelScopeCursor<Long> cursor = new OneLevelScopeCursor<Long>( store, evaluator );
 
         assertTrue( cursor.isElementReused() );
 
@@ -460,7 +463,7 @@ public class OneLevelScopeTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        IndexEntry<Long, ServerEntry> indexEntry = cursor.get();
+        IndexEntry<Long, ServerEntry, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
         assertEquals( 3L, ( long ) indexEntry.getValue() );
@@ -572,8 +575,9 @@ public class OneLevelScopeTest
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, SchemaConstants.OU_AT_OID + "=apache,"
             + SchemaConstants.OU_AT_OID + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co.",
             SearchScope.ONELEVEL );
-        OneLevelScopeEvaluator<ServerEntry> evaluator = new OneLevelScopeEvaluator<ServerEntry>( store, node );
-        OneLevelScopeCursor cursor = new OneLevelScopeCursor( store, evaluator );
+        OneLevelScopeEvaluator<ServerEntry, Long> evaluator = new OneLevelScopeEvaluator<ServerEntry, Long>( store,
+            node );
+        OneLevelScopeCursor<Long> cursor = new OneLevelScopeCursor<Long>( store, evaluator );
 
         assertTrue( cursor.isElementReused() );
 
@@ -584,7 +588,7 @@ public class OneLevelScopeTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        IndexEntry<Long, ServerEntry> indexEntry = cursor.get();
+        IndexEntry<Long, ServerEntry, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
         assertEquals( 7L, ( long ) indexEntry.getValue() );
@@ -684,8 +688,9 @@ public class OneLevelScopeTest
 
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, SchemaConstants.OU_AT_OID
             + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co.", SearchScope.ONELEVEL );
-        OneLevelScopeEvaluator<ServerEntry> evaluator = new OneLevelScopeEvaluator<ServerEntry>( store, node );
-        OneLevelScopeCursor cursor = new OneLevelScopeCursor( store, evaluator );
+        OneLevelScopeEvaluator<ServerEntry, Long> evaluator = new OneLevelScopeEvaluator<ServerEntry, Long>( store,
+            node );
+        OneLevelScopeCursor<Long> cursor = new OneLevelScopeCursor<Long>( store, evaluator );
 
         assertTrue( cursor.isElementReused() );
 
@@ -696,7 +701,7 @@ public class OneLevelScopeTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        IndexEntry<Long, ServerEntry> indexEntry = cursor.get();
+        IndexEntry<Long, ServerEntry, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
         assertEquals( 3L, ( long ) indexEntry.getValue() );
@@ -913,9 +918,10 @@ public class OneLevelScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, SchemaConstants.OU_AT_OID + "=sales,"
             + SchemaConstants.O_AT_OID + "=good times co.", SearchScope.ONELEVEL );
-        OneLevelScopeEvaluator<ServerEntry> evaluator = new OneLevelScopeEvaluator<ServerEntry>( store, node );
+        OneLevelScopeEvaluator<ServerEntry, Long> evaluator = new OneLevelScopeEvaluator<ServerEntry, Long>( store,
+            node );
 
-        ForwardIndexEntry<Long, ServerEntry> indexEntry = new ForwardIndexEntry<Long, ServerEntry>();
+        ForwardIndexEntry<Long, ServerEntry, Long> indexEntry = new ForwardIndexEntry<Long, ServerEntry, Long>();
         indexEntry.setId( 6L );
         assertTrue( evaluator.evaluate( indexEntry ) );
     }
@@ -926,7 +932,8 @@ public class OneLevelScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_ALWAYS, SchemaConstants.OU_AT_OID + "=engineering,"
             + SchemaConstants.O_AT_OID + "=good times co.", SearchScope.ONELEVEL );
-        OneLevelScopeEvaluator<ServerEntry> evaluator = new OneLevelScopeEvaluator<ServerEntry>( store, node );
+        OneLevelScopeEvaluator<ServerEntry, Long> evaluator = new OneLevelScopeEvaluator<ServerEntry, Long>( store,
+            node );
         assertEquals( node, evaluator.getExpression() );
 
         /*
@@ -934,19 +941,19 @@ public class OneLevelScopeTest
          * will not accept an alias candidate because aliases are not returned
          * when alias dereferencing while searching is enabled.
          */
-        ForwardIndexEntry<Long, ServerEntry> indexEntry = new ForwardIndexEntry<Long, ServerEntry>();
+        ForwardIndexEntry<Long, ServerEntry, Long> indexEntry = new ForwardIndexEntry<Long, ServerEntry, Long>();
         indexEntry.setId( 11L );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<Long, ServerEntry>();
+        indexEntry = new ForwardIndexEntry<Long, ServerEntry, Long>();
         indexEntry.setId( 8L );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<Long, ServerEntry>();
+        indexEntry = new ForwardIndexEntry<Long, ServerEntry, Long>();
         indexEntry.setId( 5L );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<Long, ServerEntry>();
+        indexEntry = new ForwardIndexEntry<Long, ServerEntry, Long>();
         indexEntry.setId( 6L );
         assertFalse( evaluator.evaluate( indexEntry ) );
     }
@@ -957,7 +964,8 @@ public class OneLevelScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, SchemaConstants.OU_AT_OID + "=sales,"
             + SchemaConstants.O_AT_OID + "=good times co.", SearchScope.ONELEVEL );
-        OneLevelScopeEvaluator<ServerEntry> evaluator = new OneLevelScopeEvaluator<ServerEntry>( store, node );
+        OneLevelScopeEvaluator<ServerEntry, Long> evaluator = new OneLevelScopeEvaluator<ServerEntry, Long>( store,
+            node );
         OneLevelScopeCursor cursor = new OneLevelScopeCursor( store, evaluator );
         cursor.get();
     }
@@ -968,11 +976,12 @@ public class OneLevelScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, SchemaConstants.OU_AT_OID + "=sales,"
             + SchemaConstants.O_AT_OID + "=good times co.", SearchScope.ONELEVEL );
-        OneLevelScopeEvaluator<ServerEntry> evaluator = new OneLevelScopeEvaluator<ServerEntry>( store, node );
+        OneLevelScopeEvaluator<ServerEntry, Long> evaluator = new OneLevelScopeEvaluator<ServerEntry, Long>( store,
+            node );
         OneLevelScopeCursor cursor = new OneLevelScopeCursor( store, evaluator );
 
         // test before()
-        ForwardIndexEntry<Long, ServerEntry> entry = new ForwardIndexEntry<Long, ServerEntry>();
+        ForwardIndexEntry<Long, ServerEntry, Long> entry = new ForwardIndexEntry<Long, ServerEntry, Long>();
         entry.setValue( 3L );
         cursor.before( entry );
     }
@@ -983,11 +992,12 @@ public class OneLevelScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, SchemaConstants.OU_AT_OID + "=sales,"
             + SchemaConstants.O_AT_OID + "=good times co.", SearchScope.ONELEVEL );
-        OneLevelScopeEvaluator<ServerEntry> evaluator = new OneLevelScopeEvaluator<ServerEntry>( store, node );
+        OneLevelScopeEvaluator<ServerEntry, Long> evaluator = new OneLevelScopeEvaluator<ServerEntry, Long>( store,
+            node );
         OneLevelScopeCursor cursor = new OneLevelScopeCursor( store, evaluator );
 
         // test after()
-        ForwardIndexEntry<Long, ServerEntry> entry = new ForwardIndexEntry<Long, ServerEntry>();
+        ForwardIndexEntry<Long, ServerEntry, Long> entry = new ForwardIndexEntry<Long, ServerEntry, Long>();
         entry.setValue( 3L );
         cursor.after( entry );
     }
@@ -998,6 +1008,6 @@ public class OneLevelScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, SchemaConstants.OU_AT_OID + "=sales,"
             + SchemaConstants.O_AT_OID + "=good times co.", SearchScope.SUBTREE );
-        new OneLevelScopeEvaluator<ServerEntry>( store, node );
+        new OneLevelScopeEvaluator<ServerEntry, Long>( store, node );
     }
 }

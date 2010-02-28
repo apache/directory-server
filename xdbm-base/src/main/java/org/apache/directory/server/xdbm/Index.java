@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface Index<K, O>
+public interface Index<K, O, ID>
 {
     int DEFAULT_INDEX_CACHE_SIZE = 100;
 
@@ -158,13 +158,13 @@ public interface Index<K, O>
     int lessThanCount( K attrVal ) throws Exception;
 
 
-    Long forwardLookup( K attrVal ) throws Exception;
+    ID forwardLookup( K attrVal ) throws Exception;
 
 
-    K reverseLookup( Long id ) throws Exception;
+    K reverseLookup( ID id ) throws Exception;
 
 
-    void add( K attrVal, Long id ) throws Exception;
+    void add( K attrVal, ID id ) throws Exception;
 
 
     /**
@@ -194,64 +194,64 @@ public interface Index<K, O>
      * @param entryId The master table entry ID to remove
      * @throws Exception
      */
-    void drop( Long entryId ) throws Exception;
+    void drop( ID entryId ) throws Exception;
 
 
-    void drop( K attrVal, Long id ) throws Exception;
+    void drop( K attrVal, ID id ) throws Exception;
 
 
-    IndexCursor<K, O> reverseCursor() throws Exception;
+    IndexCursor<K, O, ID> reverseCursor() throws Exception;
 
 
-    IndexCursor<K, O> forwardCursor() throws Exception;
+    IndexCursor<K, O, ID> forwardCursor() throws Exception;
 
 
-    IndexCursor<K, O> reverseCursor( Long id ) throws Exception;
+    IndexCursor<K, O, ID> reverseCursor( ID id ) throws Exception;
 
 
-    IndexCursor<K, O> forwardCursor( K key ) throws Exception;
+    IndexCursor<K, O, ID> forwardCursor( K key ) throws Exception;
 
 
-    Cursor<K> reverseValueCursor( Long id ) throws Exception;
+    Cursor<K> reverseValueCursor( ID id ) throws Exception;
 
 
-    Cursor<Long> forwardValueCursor( K key ) throws Exception;
+    Cursor<ID> forwardValueCursor( K key ) throws Exception;
 
 
     boolean forward( K attrVal ) throws Exception;
 
 
-    boolean forward( K attrVal, Long id ) throws Exception;
+    boolean forward( K attrVal, ID id ) throws Exception;
 
 
-    boolean reverse( Long id ) throws Exception;
+    boolean reverse( ID id ) throws Exception;
 
 
-    boolean reverse( Long id, K attrVal ) throws Exception;
+    boolean reverse( ID id, K attrVal ) throws Exception;
 
 
     boolean forwardGreaterOrEq( K attrVal ) throws Exception;
 
 
-    boolean forwardGreaterOrEq( K attrVal, Long id ) throws Exception;
+    boolean forwardGreaterOrEq( K attrVal, ID id ) throws Exception;
 
 
-    boolean reverseGreaterOrEq( Long id ) throws Exception;
+    boolean reverseGreaterOrEq( ID id ) throws Exception;
 
 
-    boolean reverseGreaterOrEq( Long id, K attrVal ) throws Exception;
+    boolean reverseGreaterOrEq( ID id, K attrVal ) throws Exception;
 
 
     boolean forwardLessOrEq( K attrVal ) throws Exception;
 
 
-    boolean forwardLessOrEq( K attrVal, Long id ) throws Exception;
+    boolean forwardLessOrEq( K attrVal, ID id ) throws Exception;
 
 
-    boolean reverseLessOrEq( Long id ) throws Exception;
+    boolean reverseLessOrEq( ID id ) throws Exception;
 
 
-    boolean reverseLessOrEq( Long id, K attrVal ) throws Exception;
+    boolean reverseLessOrEq( ID id, K attrVal ) throws Exception;
 
 
     void close() throws Exception;

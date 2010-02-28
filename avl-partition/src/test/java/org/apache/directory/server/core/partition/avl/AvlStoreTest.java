@@ -198,7 +198,7 @@ public class AvlStoreTest
         assertNotNull( store.getSuffix() );
 
         assertEquals( 0, store.getUserIndices().size() );
-        Set<Index<?, Attributes>> set = new HashSet<Index<?, Attributes>>();
+        Set<Index<?, Attributes, Long>> set = new HashSet<Index<?, Attributes, Long>>();
         set.add( new AvlIndex<Object, Attributes>( "foo" ) );
         store.setUserIndices( set );
         assertEquals( set.size(), store.getUserIndices().size() );
@@ -422,7 +422,7 @@ public class AvlStoreTest
     {
         assertEquals( 3, store.getChildCount( 1L ) );
 
-        Cursor<IndexEntry<Long, ServerEntry>> cursor = store.list( 1L );
+        Cursor<IndexEntry<Long, ServerEntry, Long>> cursor = store.list( 1L );
         assertNotNull( cursor );
         cursor.beforeFirst();
         assertTrue( cursor.next() );
@@ -458,7 +458,7 @@ public class AvlStoreTest
 
         assertEquals( 19, idx.count() );
 
-        Cursor<IndexEntry<Long, Attributes>> cursor = idx.forwardCursor( 2L );
+        Cursor<IndexEntry<Long, Attributes, Long>> cursor = idx.forwardCursor( 2L );
 
         assertTrue( cursor.next() );
         assertEquals( 2, ( long ) cursor.get().getId() );
@@ -562,7 +562,7 @@ public class AvlStoreTest
     @Test
     public void testConvertIndex() throws Exception
     {
-        Index nonAvlIndex = new Index()
+        Index nonAvlIndex = new Index<Object, ServerEntry, Long>()
         {
 
             public void add( Object attrVal, Long id ) throws Exception

@@ -23,7 +23,6 @@ package org.apache.directory.server.core.partition.impl.btree;
 import java.util.Iterator;
 
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
@@ -37,13 +36,13 @@ import org.apache.directory.shared.ldap.cursor.CursorIterator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ServerEntryCursorAdaptor implements Cursor<ServerEntry>
+public class ServerEntryCursorAdaptor<ID> implements Cursor<ServerEntry>
 {
-    private final Partition db;
-    private final IndexCursor<Long, ServerEntry> indexCursor;
+    private final BTreePartition<ID> db;
+    private final IndexCursor<ID, ServerEntry, ID> indexCursor;
 
 
-    public ServerEntryCursorAdaptor( Partition db, IndexCursor<Long, ServerEntry> indexCursor )
+    public ServerEntryCursorAdaptor( BTreePartition<ID> db, IndexCursor<ID, ServerEntry, ID> indexCursor )
     {
         this.db = db;
         this.indexCursor = indexCursor;
@@ -133,7 +132,7 @@ public class ServerEntryCursorAdaptor implements Cursor<ServerEntry>
      */
     public ServerEntry get() throws Exception
     {
-        IndexEntry<Long, ServerEntry> indexEntry = indexCursor.get();
+        IndexEntry<ID, ServerEntry, ID> indexEntry = indexCursor.get();
 
         if ( indexEntry.getObject() == null )
         {

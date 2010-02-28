@@ -49,9 +49,9 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EvaluatorBuilder
+public class EvaluatorBuilder<ID>
 {
-    private final Store<ServerEntry> db;
+    private final Store<ServerEntry, ID> db;
     private final SchemaManager schemaManager;
 
 
@@ -63,14 +63,14 @@ public class EvaluatorBuilder
      * @param registries the schema registries
      * @throws Exception failure to access db or lookup schema in registries
      */
-    public EvaluatorBuilder( Store<ServerEntry> db, SchemaManager schemaManager ) throws Exception
+    public EvaluatorBuilder( Store<ServerEntry, ID> db, SchemaManager schemaManager ) throws Exception
     {
         this.db = db;
         this.schemaManager = schemaManager;
     }
 
 
-    public Evaluator<? extends ExprNode, ServerEntry> build( ExprNode node ) throws Exception
+    public Evaluator<? extends ExprNode, ServerEntry, ID> build( ExprNode node ) throws Exception
     {
         switch ( node.getAssertionType() )
         {
@@ -89,20 +89,20 @@ public class EvaluatorBuilder
                 return new LessEqEvaluator( ( LessEqNode ) node, db, schemaManager );
 
             case PRESENCE:
-                return new PresenceEvaluator( ( PresenceNode ) node, db, schemaManager );
+                return new PresenceEvaluator<ID>( ( PresenceNode ) node, db, schemaManager );
 
             case SCOPE:
                 if ( ( ( ScopeNode ) node ).getScope() == SearchScope.ONELEVEL )
                 {
-                    return new OneLevelScopeEvaluator<ServerEntry>( db, ( ScopeNode ) node );
+                    return new OneLevelScopeEvaluator<ServerEntry, ID>( db, ( ScopeNode ) node );
                 }
                 else
                 {
-                    return new SubtreeScopeEvaluator<ServerEntry>( db, ( ScopeNode ) node );
+                    return new SubtreeScopeEvaluator<ServerEntry, ID>( db, ( ScopeNode ) node );
                 }
 
             case SUBSTRING:
-                return new SubstringEvaluator( ( SubstringNode ) node, db, schemaManager );
+                return new SubstringEvaluator<ID>( ( SubstringNode ) node, db, schemaManager );
 
                 /* ---------- LOGICAL OPERATORS ---------- */
 
@@ -110,7 +110,7 @@ public class EvaluatorBuilder
                 return buildAndEvaluator( ( AndNode ) node );
 
             case NOT:
-                return new NotEvaluator( ( NotNode ) node, build( ( ( NotNode ) node ).getFirstChild() ) );
+                return new NotEvaluator<ID>( ( NotNode ) node, build( ( ( NotNode ) node ).getFirstChild() ) );
 
             case OR:
                 return buildOrEvaluator( ( OrNode ) node );
@@ -127,28 +127,28 @@ public class EvaluatorBuilder
     }
 
 
-    AndEvaluator buildAndEvaluator( AndNode node ) throws Exception
+    AndEvaluator<ID> buildAndEvaluator( AndNode node ) throws Exception
     {
         List<ExprNode> children = node.getChildren();
-        List<Evaluator<? extends ExprNode, ServerEntry>> evaluators = new ArrayList<Evaluator<? extends ExprNode, ServerEntry>>(
+        List<Evaluator<? extends ExprNode, ServerEntry, ID>> evaluators = new ArrayList<Evaluator<? extends ExprNode, ServerEntry, ID>>(
             children.size() );
         for ( ExprNode child : children )
         {
             evaluators.add( build( child ) );
         }
-        return new AndEvaluator( node, evaluators );
+        return new AndEvaluator<ID>( node, evaluators );
     }
 
 
-    OrEvaluator buildOrEvaluator( OrNode node ) throws Exception
+    OrEvaluator<ID> buildOrEvaluator( OrNode node ) throws Exception
     {
         List<ExprNode> children = node.getChildren();
-        List<Evaluator<? extends ExprNode, ServerEntry>> evaluators = new ArrayList<Evaluator<? extends ExprNode, ServerEntry>>(
+        List<Evaluator<? extends ExprNode, ServerEntry, ID>> evaluators = new ArrayList<Evaluator<? extends ExprNode, ServerEntry, ID>>(
             children.size() );
         for ( ExprNode child : children )
         {
             evaluators.add( build( child ) );
         }
-        return new OrEvaluator( node, evaluators );
+        return new OrEvaluator<ID>( node, evaluators );
     }
 }

@@ -27,10 +27,10 @@ package org.apache.directory.server.xdbm;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ForwardIndexEntry<V, O> implements IndexEntry<V, O>
+public class ForwardIndexEntry<V, O, ID> implements IndexEntry<V, O, ID>
 {
     /** The underlying Tuple */
-    private final Tuple<V, Long> tuple = new Tuple<V, Long>();
+    private final Tuple<V, ID> tuple = new Tuple<V, ID>();
 
     /** The referenced obj if loaded from the store */
     private O obj;
@@ -44,7 +44,7 @@ public class ForwardIndexEntry<V, O> implements IndexEntry<V, O>
      * @param tuple the tuple for the ForwardIndexEntry
      * @param entry the resusitated obj if any
      */
-    public void setTuple( Tuple<V, Long> tuple, O entry )
+    public void setTuple( Tuple<V, ID> tuple, O entry )
     {
         this.tuple.setKey( tuple.getKey() );
         this.tuple.setValue( tuple.getValue() );
@@ -52,7 +52,7 @@ public class ForwardIndexEntry<V, O> implements IndexEntry<V, O>
     }
 
 
-    public Long getId()
+    public ID getId()
     {
         return tuple.getValue();
     }
@@ -64,7 +64,7 @@ public class ForwardIndexEntry<V, O> implements IndexEntry<V, O>
     }
 
 
-    public void setId( Long id )
+    public void setId( ID id )
     {
         tuple.setValue( id );
     }
@@ -93,7 +93,7 @@ public class ForwardIndexEntry<V, O> implements IndexEntry<V, O>
     }
 
 
-    public Tuple getTuple()
+    public Tuple<V, ID> getTuple()
     {
         return tuple;
     }
@@ -107,7 +107,7 @@ public class ForwardIndexEntry<V, O> implements IndexEntry<V, O>
     }
 
 
-    public void copy( IndexEntry<V, O> entry )
+    public void copy( IndexEntry<V, O, ID> entry )
     {
         this.obj = entry.getObject();
         tuple.setKey( entry.getValue() );

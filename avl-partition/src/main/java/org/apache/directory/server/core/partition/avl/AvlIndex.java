@@ -42,7 +42,7 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AvlIndex<K, O> implements Index<K, O>
+public class AvlIndex<K, O> implements Index<K, O, Long>
 {
     private Normalizer normalizer;
     private AttributeType attributeType;
@@ -85,7 +85,7 @@ public class AvlIndex<K, O> implements Index<K, O>
             throw new Exception( I18n.err( I18n.ERR_212, attributeType ) );
         }
 
-        LdapComparator comp = mr.getLdapComparator();
+        LdapComparator<K> comp = ( LdapComparator<K> ) mr.getLdapComparator();
 
         /*
          * The forward key/value map stores attribute values to master table 
@@ -195,7 +195,7 @@ public class AvlIndex<K, O> implements Index<K, O>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, O> forwardCursor() throws Exception
+    public IndexCursor<K, O, Long> forwardCursor() throws Exception
     {
         return new IndexCursorAdaptor( forward.cursor(), true );
     }
@@ -205,7 +205,7 @@ public class AvlIndex<K, O> implements Index<K, O>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, O> forwardCursor( K key ) throws Exception
+    public IndexCursor<K, O, Long> forwardCursor( K key ) throws Exception
     {
         return new IndexCursorAdaptor( forward.cursor( key ), true );
     }
@@ -354,7 +354,7 @@ public class AvlIndex<K, O> implements Index<K, O>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, O> reverseCursor() throws Exception
+    public IndexCursor<K, O, Long> reverseCursor() throws Exception
     {
         return new IndexCursorAdaptor( reverse.cursor(), false );
     }
@@ -364,7 +364,7 @@ public class AvlIndex<K, O> implements Index<K, O>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, O> reverseCursor( Long id ) throws Exception
+    public IndexCursor<K, O, Long> reverseCursor( Long id ) throws Exception
     {
         return new IndexCursorAdaptor( reverse.cursor( id ), false );
     }

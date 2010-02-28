@@ -62,7 +62,7 @@ public class PresenceTest
     private static final Logger LOG = LoggerFactory.getLogger( PresenceTest.class.getSimpleName() );
 
     File wkdir;
-    Store<ServerEntry> store;
+    Store<ServerEntry, Long> store;
     static SchemaManager schemaManager = null;
 
 
@@ -147,8 +147,8 @@ public class PresenceTest
     public void testIndexedServerEntry() throws Exception
     {
         PresenceNode node = new PresenceNode( SchemaConstants.CN_AT_OID );
-        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
-        PresenceCursor cursor = new PresenceCursor( store, evaluator );
+        PresenceEvaluator<Long> evaluator = new PresenceEvaluator<Long>( node, store, schemaManager );
+        PresenceCursor<Long> cursor = new PresenceCursor<Long>( store, evaluator );
 
         assertEquals( node, evaluator.getExpression() );
         assertTrue( cursor.isElementReused() );
@@ -200,7 +200,7 @@ public class PresenceTest
         assertEquals( SchemaConstants.CN_AT_OID, cursor.get().getValue() );
 
         // test before()
-        ForwardIndexEntry<String, ServerEntry> entry = new ForwardIndexEntry<String, ServerEntry>();
+        ForwardIndexEntry<String, ServerEntry, Long> entry = new ForwardIndexEntry<String, ServerEntry, Long>();
         entry.setValue( SchemaConstants.CN_AT_OID );
         cursor.before( entry );
         assertTrue( cursor.next() );
@@ -208,7 +208,7 @@ public class PresenceTest
         assertEquals( SchemaConstants.CN_AT_OID, cursor.get().getValue() );
 
         // test after()
-        entry = new ForwardIndexEntry<String, ServerEntry>();
+        entry = new ForwardIndexEntry<String, ServerEntry, Long>();
         cursor.after( entry );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
@@ -261,8 +261,8 @@ public class PresenceTest
     public void testNonIndexedServerEntry() throws Exception
     {
         PresenceNode node = new PresenceNode( SchemaConstants.SN_AT_OID );
-        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
-        PresenceCursor cursor = new PresenceCursor( store, evaluator );
+        PresenceEvaluator<Long> evaluator = new PresenceEvaluator<Long>( node, store, schemaManager );
+        PresenceCursor<Long> cursor = new PresenceCursor<Long>( store, evaluator );
 
         assertEquals( node, evaluator.getExpression() );
         assertTrue( cursor.isElementReused() );
@@ -344,12 +344,12 @@ public class PresenceTest
     public void testEvaluatorIndexed() throws Exception
     {
         PresenceNode node = new PresenceNode( SchemaConstants.CN_AT_OID );
-        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
-        ForwardIndexEntry<String, ServerEntry> entry = new ForwardIndexEntry<String, ServerEntry>();
+        PresenceEvaluator<Long> evaluator = new PresenceEvaluator<Long>( node, store, schemaManager );
+        ForwardIndexEntry<String, ServerEntry, Long> entry = new ForwardIndexEntry<String, ServerEntry, Long>();
         entry.setValue( SchemaConstants.CN_AT_OID );
         entry.setId( ( long ) 3 );
         assertFalse( evaluator.evaluate( entry ) );
-        entry = new ForwardIndexEntry<String, ServerEntry>();
+        entry = new ForwardIndexEntry<String, ServerEntry, Long>();
         entry.setValue( SchemaConstants.CN_AT_OID );
         entry.setId( ( long ) 5 );
         assertTrue( evaluator.evaluate( entry ) );
@@ -360,35 +360,35 @@ public class PresenceTest
     public void testEvaluatorNotIndexed() throws Exception
     {
         PresenceNode node = new PresenceNode( SchemaConstants.NAME_AT_OID );
-        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
-        ForwardIndexEntry<String, ServerEntry> entry = new ForwardIndexEntry<String, ServerEntry>();
+        PresenceEvaluator<Long> evaluator = new PresenceEvaluator<Long>( node, store, schemaManager );
+        ForwardIndexEntry<String, ServerEntry, Long> entry = new ForwardIndexEntry<String, ServerEntry, Long>();
         entry.setValue( SchemaConstants.NAME_AT_OID );
         entry.setId( ( long ) 3 );
         assertTrue( evaluator.evaluate( entry ) );
-        entry = new ForwardIndexEntry<String, ServerEntry>();
+        entry = new ForwardIndexEntry<String, ServerEntry, Long>();
         entry.setValue( SchemaConstants.NAME_AT_OID );
         entry.setId( ( long ) 5 );
         assertTrue( evaluator.evaluate( entry ) );
 
         node = new PresenceNode( SchemaConstants.SEARCHGUIDE_AT_OID );
-        evaluator = new PresenceEvaluator( node, store, schemaManager );
-        entry = new ForwardIndexEntry<String, ServerEntry>();
+        evaluator = new PresenceEvaluator<Long>( node, store, schemaManager );
+        entry = new ForwardIndexEntry<String, ServerEntry, Long>();
         entry.setValue( SchemaConstants.SEARCHGUIDE_AT_OID );
         entry.setId( ( long ) 3 );
         assertFalse( evaluator.evaluate( entry ) );
-        entry = new ForwardIndexEntry<String, ServerEntry>();
+        entry = new ForwardIndexEntry<String, ServerEntry, Long>();
         entry.setValue( SchemaConstants.SEARCHGUIDE_AT_OID );
         entry.setId( ( long ) 5 );
         entry.setObject( store.lookup( ( long ) 5 ) );
         assertFalse( evaluator.evaluate( entry ) );
 
         node = new PresenceNode( SchemaConstants.ST_AT_OID );
-        evaluator = new PresenceEvaluator( node, store, schemaManager );
-        entry = new ForwardIndexEntry<String, ServerEntry>();
+        evaluator = new PresenceEvaluator<Long>( node, store, schemaManager );
+        entry = new ForwardIndexEntry<String, ServerEntry, Long>();
         entry.setValue( SchemaConstants.ST_AT_OID );
         entry.setId( ( long ) 3 );
         assertFalse( evaluator.evaluate( entry ) );
-        entry = new ForwardIndexEntry<String, ServerEntry>();
+        entry = new ForwardIndexEntry<String, ServerEntry, Long>();
         entry.setValue( SchemaConstants.ST_AT_OID );
         entry.setId( ( long ) 5 );
         entry.setObject( store.lookup( ( long ) 5 ) );
@@ -400,8 +400,8 @@ public class PresenceTest
     public void testInvalidCursorPositionException() throws Exception
     {
         PresenceNode node = new PresenceNode( SchemaConstants.SN_AT_OID );
-        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
-        PresenceCursor cursor = new PresenceCursor( store, evaluator );
+        PresenceEvaluator<Long> evaluator = new PresenceEvaluator<Long>( node, store, schemaManager );
+        PresenceCursor<Long> cursor = new PresenceCursor<Long>( store, evaluator );
         cursor.get();
     }
 
@@ -410,8 +410,8 @@ public class PresenceTest
     public void testInvalidCursorPositionException2() throws Exception
     {
         PresenceNode node = new PresenceNode( SchemaConstants.CN_AT_OID );
-        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
-        PresenceCursor cursor = new PresenceCursor( store, evaluator );
+        PresenceEvaluator<Long> evaluator = new PresenceEvaluator<Long>( node, store, schemaManager );
+        PresenceCursor<Long> cursor = new PresenceCursor<Long>( store, evaluator );
         cursor.get();
     }
 
@@ -420,11 +420,11 @@ public class PresenceTest
     public void testUnsupportBeforeWithoutIndex() throws Exception
     {
         PresenceNode node = new PresenceNode( SchemaConstants.SN_AT_OID );
-        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
-        PresenceCursor cursor = new PresenceCursor( store, evaluator );
+        PresenceEvaluator<Long> evaluator = new PresenceEvaluator<Long>( node, store, schemaManager );
+        PresenceCursor<Long> cursor = new PresenceCursor<Long>( store, evaluator );
 
         // test before()
-        ForwardIndexEntry<String, ServerEntry> entry = new ForwardIndexEntry<String, ServerEntry>();
+        ForwardIndexEntry<String, ServerEntry, Long> entry = new ForwardIndexEntry<String, ServerEntry, Long>();
         entry.setValue( SchemaConstants.SN_AT_OID );
         cursor.before( entry );
     }
@@ -434,11 +434,11 @@ public class PresenceTest
     public void testUnsupportAfterWithoutIndex() throws Exception
     {
         PresenceNode node = new PresenceNode( SchemaConstants.SN_AT_OID );
-        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
-        PresenceCursor cursor = new PresenceCursor( store, evaluator );
+        PresenceEvaluator<Long> evaluator = new PresenceEvaluator<Long>( node, store, schemaManager );
+        PresenceCursor<Long> cursor = new PresenceCursor<Long>( store, evaluator );
 
         // test before()
-        ForwardIndexEntry<String, ServerEntry> entry = new ForwardIndexEntry<String, ServerEntry>();
+        ForwardIndexEntry<String, ServerEntry, Long> entry = new ForwardIndexEntry<String, ServerEntry, Long>();
         entry.setValue( SchemaConstants.SN_AT_OID );
         cursor.after( entry );
     }

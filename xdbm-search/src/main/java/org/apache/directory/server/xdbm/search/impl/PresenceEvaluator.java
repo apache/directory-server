@@ -40,16 +40,17 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class PresenceEvaluator implements Evaluator<PresenceNode, ServerEntry>
+public class PresenceEvaluator<ID> implements Evaluator<PresenceNode, ServerEntry, ID>
 {
     private final PresenceNode node;
-    private final Store<ServerEntry> db;
+    private final Store<ServerEntry, ID> db;
     private final AttributeType type;
     private final SchemaManager schemaManager;
-    private final Index<String, ServerEntry> idx;
+    private final Index<String, ServerEntry, ID> idx;
 
 
-    public PresenceEvaluator( PresenceNode node, Store<ServerEntry> db, SchemaManager schemaManager ) throws Exception
+    public PresenceEvaluator( PresenceNode node, Store<ServerEntry, ID> db, SchemaManager schemaManager )
+        throws Exception
     {
         this.db = db;
         this.node = node;
@@ -81,7 +82,7 @@ public class PresenceEvaluator implements Evaluator<PresenceNode, ServerEntry>
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    public boolean evaluate( IndexEntry<?, ServerEntry> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, ServerEntry, ID> indexEntry ) throws Exception
     {
         if ( idx != null )
         {
@@ -97,26 +98,26 @@ public class PresenceEvaluator implements Evaluator<PresenceNode, ServerEntry>
             indexEntry.setObject( entry );
         }
 
-        return evaluate( entry );
+        return evaluateEntry( entry );
     }
 
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    public boolean evaluate( Long id ) throws Exception
+    public boolean evaluateId( ID id ) throws Exception
     {
         if ( idx != null )
         {
             return idx.forward( type.getOid(), id );
         }
 
-        return evaluate( db.lookup( id ) );
+        return evaluateEntry( db.lookup( id ) );
     }
 
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    public boolean evaluate( ServerEntry entry ) throws Exception
+    public boolean evaluateEntry( ServerEntry entry ) throws Exception
     {
         // get the attribute
         ServerAttribute attr = ( ServerAttribute ) entry.get( type );

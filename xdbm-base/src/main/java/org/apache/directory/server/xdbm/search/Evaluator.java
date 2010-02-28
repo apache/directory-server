@@ -49,7 +49,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface Evaluator<N extends ExprNode, E>
+public interface Evaluator<N extends ExprNode, E, ID>
 {
     /**
      * Evaluates a candidate to determine if a filter expression selects it.
@@ -63,7 +63,7 @@ public interface Evaluator<N extends ExprNode, E>
      * @return true if filter selects the candidate false otherwise
      * @throws Exception if there are faults during evaluation
      */
-    boolean evaluate( IndexEntry<?, E> entry ) throws Exception;
+    boolean evaluate( IndexEntry<?, E, ID> entry ) throws Exception;
 
 
     /**
@@ -74,7 +74,7 @@ public interface Evaluator<N extends ExprNode, E>
      * @return true if filter selects the candidate false otherwise
      * @throws Exception if there are faults during evaluation
      */
-    boolean evaluate( Long id ) throws Exception;
+    boolean evaluateId( ID id ) throws Exception;
 
 
     /**
@@ -85,7 +85,7 @@ public interface Evaluator<N extends ExprNode, E>
      * @return true if filter selects the candidate false otherwise
      * @throws Exception if there are faults during evaluation
      */
-    boolean evaluate( E entry ) throws Exception;
+    boolean evaluateEntry( E entry ) throws Exception;
 
 
     /**

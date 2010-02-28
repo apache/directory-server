@@ -66,7 +66,7 @@ public class NestedFilterTest
     private static final Logger LOG = LoggerFactory.getLogger( NestedFilterTest.class.getSimpleName() );
 
     File wkdir;
-    Store<ServerEntry> store;
+    Store<ServerEntry, Long> store;
     static SchemaManager schemaManager = null;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
@@ -169,7 +169,7 @@ public class NestedFilterTest
         exprNode.accept( visitor );
         optimizer.annotate( exprNode );
 
-        IndexCursor<?, ServerEntry> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?, ServerEntry, Long> cursor = cursorBuilder.build( exprNode );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
@@ -198,7 +198,7 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( filter );
         optimizer.annotate( exprNode );
 
-        IndexCursor<?, ServerEntry> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?, ServerEntry, Long> cursor = cursorBuilder.build( exprNode );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
@@ -217,7 +217,7 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( filter );
         optimizer.annotate( exprNode );
 
-        IndexCursor<?, ServerEntry> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?, ServerEntry, Long> cursor = cursorBuilder.build( exprNode );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
@@ -241,6 +241,6 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( filter );
         optimizer.annotate( exprNode );
 
-        IndexCursor<?, ServerEntry> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?, ServerEntry, Long> cursor = cursorBuilder.build( exprNode );
     }
 }

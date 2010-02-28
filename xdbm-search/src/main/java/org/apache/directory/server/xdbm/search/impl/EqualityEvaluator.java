@@ -49,10 +49,10 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEntry>
+public class EqualityEvaluator<T, ID> implements Evaluator<EqualityNode<T>, ServerEntry, ID>
 {
     private final EqualityNode<T> node;
-    private final Store<ServerEntry> db;
+    private final Store<ServerEntry, ID> db;
     private final SchemaManager schemaManager;
     private final AttributeType type;
     private final Normalizer normalizer;
@@ -66,10 +66,10 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
     /** The default String comparator if no comparator has been defined */
     private static final Comparator<String> STRING_COMPARATOR = new StringComparator( null );
 
-    private final Index<T, ServerEntry> idx;
+    private final Index<T, ServerEntry, ID> idx;
 
 
-    public EqualityEvaluator( EqualityNode<T> node, Store<ServerEntry> db, SchemaManager schemaManager )
+    public EqualityEvaluator( EqualityNode<T> node, Store<ServerEntry, ID> db, SchemaManager schemaManager )
         throws Exception
     {
         this.db = db;
@@ -79,7 +79,7 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             //noinspection unchecked
-            idx = ( Index<T, ServerEntry> ) db.getUserIndex( node.getAttribute() );
+            idx = ( Index<T, ServerEntry, ID> ) db.getUserIndex( node.getAttribute() );
             type = null;
             normalizer = null;
             comparator = null;
@@ -111,7 +111,7 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
     }
 
 
-    public boolean evaluate( IndexEntry<?, ServerEntry> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, ServerEntry, ID> indexEntry ) throws Exception
     {
         if ( idx != null )
         {
@@ -127,11 +127,11 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
             indexEntry.setObject( entry );
         }
 
-        return evaluate( entry );
+        return evaluateEntry( entry );
     }
 
 
-    public boolean evaluate( ServerEntry entry ) throws Exception
+    public boolean evaluateEntry( ServerEntry entry ) throws Exception
     {
         // get the attribute
         ServerAttribute attr = ( ServerAttribute ) entry.get( type );
@@ -171,14 +171,14 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
     }
 
 
-    public boolean evaluate( Long id ) throws Exception
+    public boolean evaluateId( ID id ) throws Exception
     {
         if ( idx != null )
         {
             return idx.reverse( id );
         }
 
-        return evaluate( db.lookup( id ) );
+        return evaluateEntry( db.lookup( id ) );
     }
 
 

@@ -93,9 +93,9 @@ public class DSAnnotationProcessor
             partition.setSuffix( createPartition.suffix() );
             partition.setSchemaManager( service.getSchemaManager() );
 
-            if ( partition instanceof BTreePartition )
+            if ( partition instanceof BTreePartition<?> )
             {
-                BTreePartition btreePartition = ( BTreePartition ) partition;
+                BTreePartition<Object> btreePartition = ( BTreePartition<Object> ) partition;
                 btreePartition.setCacheSize( createPartition.cacheSize() );
                 btreePartition.setPartitionDir( new File( service.getWorkingDirectory(), createPartition.name() ) );
 
@@ -104,7 +104,7 @@ public class DSAnnotationProcessor
 
                 for ( CreateIndex createIndex : indexes )
                 {
-                    Index<?, ServerEntry> index = createIndex.type().newInstance();
+                    Index<? extends Object, ServerEntry, Object> index = createIndex.type().newInstance();
                     index.setAttributeId( createIndex.attribute() );
                     index.setCacheSize( createIndex.cacheSize() );
                     btreePartition.addIndexedAttributes( index );

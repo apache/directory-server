@@ -22,6 +22,7 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
 
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.IndexCursor;
@@ -30,11 +31,16 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.filter.AndNode;
+import org.apache.directory.shared.ldap.filter.ApproximateNode;
+import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.GreaterEqNode;
+import org.apache.directory.shared.ldap.filter.LessEqNode;
 import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.filter.SimpleNode;
 
 
 /**
@@ -43,13 +49,13 @@ import org.apache.directory.shared.ldap.filter.SearchScope;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CursorBuilder
+public class CursorBuilder<ID>
 {
     /** The database used by this builder */
-    private Store<ServerEntry> db = null;
+    private Store<ServerEntry, ID> db = null;
 
     /** Evaluator dependency on a EvaluatorBuilder */
-    private EvaluatorBuilder evaluatorBuilder;
+    private EvaluatorBuilder<ID> evaluatorBuilder;
 
 
     /**
@@ -58,14 +64,14 @@ public class CursorBuilder
      * @param db database used by this enumerator
      * @param evaluatorBuilder the evaluator builder
      */
-    public CursorBuilder( Store<ServerEntry> db, EvaluatorBuilder evaluatorBuilder )
+    public CursorBuilder( Store<ServerEntry, ID> db, EvaluatorBuilder<ID> evaluatorBuilder )
     {
         this.db = db;
         this.evaluatorBuilder = evaluatorBuilder;
     }
 
 
-    public IndexCursor<?, ServerEntry> build( ExprNode node ) throws Exception
+    public IndexCursor<?, ServerEntry, ID> build( ExprNode node ) throws Exception
     {
         switch ( node.getAssertionType() )
         {
@@ -84,7 +90,7 @@ public class CursorBuilder
                 return new LessEqCursor( db, ( LessEqEvaluator ) evaluatorBuilder.build( node ) );
 
             case PRESENCE:
-                return new PresenceCursor( db, ( PresenceEvaluator ) evaluatorBuilder.build( node ) );
+                return new PresenceCursor<ID>( db, ( PresenceEvaluator<ID> ) evaluatorBuilder.build( node ) );
 
             case SCOPE:
                 if ( ( ( ScopeNode ) node ).getScope() == SearchScope.ONELEVEL )
@@ -105,7 +111,7 @@ public class CursorBuilder
                 return buildAndCursor( ( AndNode ) node );
 
             case NOT:
-                return new NotCursor( db, evaluatorBuilder.build( ( ( NotNode ) node ).getFirstChild() ) );
+                return new NotCursor<ID, ID>( db, evaluatorBuilder.build( ( ( NotNode ) node ).getFirstChild() ) );
 
             case OR:
                 return buildOrCursor( ( OrNode ) node );
@@ -129,11 +135,12 @@ public class CursorBuilder
      * @return Cursor over candidates satisfying disjunction expression
      * @throws Exception on db access failures
      */
-    private IndexCursor<?, ServerEntry> buildOrCursor( OrNode node ) throws Exception
+    private IndexCursor<?, ServerEntry, ID> buildOrCursor( OrNode node ) throws Exception
     {
         List<ExprNode> children = node.getChildren();
-        List<IndexCursor<?, ServerEntry>> childCursors = new ArrayList<IndexCursor<?, ServerEntry>>( children.size() );
-        List<Evaluator<? extends ExprNode, ServerEntry>> childEvaluators = new ArrayList<Evaluator<? extends ExprNode, ServerEntry>>(
+        List<IndexCursor<? extends Object, ServerEntry, ID>> childCursors = new ArrayList<IndexCursor<?, ServerEntry, ID>>(
+            children.size() );
+        List<Evaluator<? extends ExprNode, ServerEntry, ID>> childEvaluators = new ArrayList<Evaluator<? extends ExprNode, ServerEntry, ID>>(
             children.size() );
 
         // Recursively create Cursors and Evaluators for each child expression node
@@ -143,7 +150,6 @@ public class CursorBuilder
             childEvaluators.add( evaluatorBuilder.build( child ) );
         }
 
-        //noinspection unchecked
         return new OrCursor( childCursors, childEvaluators );
     }
 
@@ -155,7 +161,7 @@ public class CursorBuilder
      * @return Cursor over the conjunction expression
      * @throws Exception on db access failures
      */
-    private IndexCursor<?, ServerEntry> buildAndCursor( AndNode node ) throws Exception
+    private IndexCursor<?, ServerEntry, ID> buildAndCursor( AndNode node ) throws Exception
     {
         int minIndex = 0;
         long minValue = Long.MAX_VALUE;
@@ -188,7 +194,7 @@ public class CursorBuilder
 
         // Once found we build the child Evaluators minus the one for the minChild
         ExprNode minChild = children.get( minIndex );
-        List<Evaluator<? extends ExprNode, ServerEntry>> childEvaluators = new ArrayList<Evaluator<? extends ExprNode, ServerEntry>>(
+        List<Evaluator<? extends ExprNode, ServerEntry, ID>> childEvaluators = new ArrayList<Evaluator<? extends ExprNode, ServerEntry, ID>>(
             children.size() - 1 );
         for ( ExprNode child : children )
         {
@@ -201,7 +207,7 @@ public class CursorBuilder
         }
 
         // Do recursive call to build min child Cursor then create AndCursor
-        IndexCursor<?, ServerEntry> childCursor = build( minChild );
+        IndexCursor<?, ServerEntry, ID> childCursor = build( minChild );
         return new AndCursor( childCursor, childEvaluators );
     }
 }

@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.cursor.Cursor;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface IndexCursor<V, E> extends Cursor<IndexEntry<V, E>>
+public interface IndexCursor<V, E, ID> extends Cursor<IndexEntry<V, E, ID>>
 {
     /**
      * An alternative to calling before(IndexEntry) which often may require
@@ -38,11 +38,11 @@ public interface IndexCursor<V, E> extends Cursor<IndexEntry<V, E>>
      * be an unnecessary object creation.  Some implementations may not
      * support this operation and may throw an UnsupportedOperationEception.
      *
-     * @param id the Long id for the entry
+     * @param id the id for the entry
      * @param indexValue the value to advance just before
-     * @throws Exception if there are faults peforming this operation
+     * @throws Exception if there are faults performing this operation
      */
-    void beforeValue( Long id, V indexValue ) throws Exception;
+    void beforeValue( ID id, V indexValue ) throws Exception;
 
 
     /**
@@ -51,9 +51,9 @@ public interface IndexCursor<V, E> extends Cursor<IndexEntry<V, E>>
      * be an unnecessary object creation.  Some implementations may not
      * support this operation and may throw an UnsupportedOperationEception.
      *
-     * @param id the Long id for the entry
+     * @param id the id for the entry
      * @param indexValue the value to advance just after the last value
-     * @throws Exception if there are faults peforming this operation
+     * @throws Exception if there are faults performing this operation
      */
-    void afterValue( Long id, V indexValue ) throws Exception;
+    void afterValue( ID id, V indexValue ) throws Exception;
 }

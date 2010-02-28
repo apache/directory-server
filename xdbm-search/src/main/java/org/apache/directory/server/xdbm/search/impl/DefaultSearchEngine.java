@@ -48,16 +48,16 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultSearchEngine implements SearchEngine<ServerEntry>
+public class DefaultSearchEngine<ID> implements SearchEngine<ServerEntry, ID>
 {
     /** the Optimizer used by this DefaultSearchEngine */
     private final Optimizer optimizer;
     /** the Database this DefaultSearchEngine operates on */
-    private final Store<ServerEntry> db;
+    private final Store<ServerEntry, ID> db;
     /** creates Cursors over entries satisfying filter expressions */
-    private final CursorBuilder cursorBuilder;
+    private final CursorBuilder<ID> cursorBuilder;
     /** creates evaluators which check to see if candidates satisfy a filter expression */
-    private final EvaluatorBuilder evaluatorBuilder;
+    private final EvaluatorBuilder<ID> evaluatorBuilder;
 
 
     // ------------------------------------------------------------------------
@@ -72,8 +72,8 @@ public class DefaultSearchEngine implements SearchEngine<ServerEntry>
      * @param evaluatorBuilder an expression evaluator builder
      * @param optimizer an optimizer to use during search
      */
-    public DefaultSearchEngine( Store<ServerEntry> db, CursorBuilder cursorBuilder, EvaluatorBuilder evaluatorBuilder,
-        Optimizer optimizer )
+    public DefaultSearchEngine( Store<ServerEntry, ID> db, CursorBuilder<ID> cursorBuilder,
+        EvaluatorBuilder<ID> evaluatorBuilder, Optimizer optimizer )
     {
         this.db = db;
         this.optimizer = optimizer;
@@ -96,17 +96,17 @@ public class DefaultSearchEngine implements SearchEngine<ServerEntry>
     /**
      * @see SearchEngine#cursor(LdapDN, AliasDerefMode, ExprNode, SearchControls)
      */
-    public IndexCursor<Long, ServerEntry> cursor( LdapDN base, AliasDerefMode aliasDerefMode, ExprNode filter,
+    public IndexCursor<ID, ServerEntry, ID> cursor( LdapDN base, AliasDerefMode aliasDerefMode, ExprNode filter,
         SearchControls searchCtls ) throws Exception
     {
         LdapDN effectiveBase;
-        Long baseId = db.getEntryId( base.toString() );
+        ID baseId = db.getEntryId( base.toString() );
 
         // Check that we have an entry, otherwise we can immediately get out
         if ( baseId == null )
         {
             // The entry is not found : ciao !
-            return new EmptyIndexCursor<Long, ServerEntry>();
+            return new EmptyIndexCursor<ID, ServerEntry, ID>();
         }
 
         String aliasedBase = db.getAliasIndex().reverseLookup( baseId );
@@ -141,24 +141,24 @@ public class DefaultSearchEngine implements SearchEngine<ServerEntry>
 
         if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE )
         {
-            Long effectiveBaseId = baseId;
+            ID effectiveBaseId = baseId;
             if ( effectiveBase != base )
             {
                 effectiveBaseId = db.getEntryId( effectiveBase.toNormName() );
             }
 
-            IndexEntry<Long, ServerEntry> indexEntry = new ForwardIndexEntry<Long, ServerEntry>();
+            IndexEntry<ID, ServerEntry, ID> indexEntry = new ForwardIndexEntry<ID, ServerEntry, ID>();
             indexEntry.setId( effectiveBaseId );
             optimizer.annotate( filter );
-            Evaluator<? extends ExprNode, ServerEntry> evaluator = evaluatorBuilder.build( filter );
+            Evaluator<? extends ExprNode, ServerEntry, ID> evaluator = evaluatorBuilder.build( filter );
 
             if ( evaluator.evaluate( indexEntry ) )
             {
-                return new SingletonIndexCursor<Long, ServerEntry>( indexEntry );
+                return new SingletonIndexCursor<ID, ServerEntry, ID>( indexEntry );
             }
             else
             {
-                return new EmptyIndexCursor<Long, ServerEntry>();
+                return new EmptyIndexCursor<ID, ServerEntry, ID>();
             }
         }
 
@@ -171,14 +171,14 @@ public class DefaultSearchEngine implements SearchEngine<ServerEntry>
 
         // Annotate the node with the optimizer and return search enumeration.
         optimizer.annotate( root );
-        return ( IndexCursor<Long, ServerEntry> ) cursorBuilder.build( root );
+        return ( IndexCursor<ID, ServerEntry, ID> ) cursorBuilder.build( root );
     }
 
 
     /**
      * @see SearchEngine#evaluator(ExprNode)
      */
-    public Evaluator<? extends ExprNode, ServerEntry> evaluator( ExprNode filter ) throws Exception
+    public Evaluator<? extends ExprNode, ServerEntry, ID> evaluator( ExprNode filter ) throws Exception
     {
         return evaluatorBuilder.build( filter );
     }

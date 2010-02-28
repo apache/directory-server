@@ -34,19 +34,19 @@ import org.apache.directory.server.xdbm.search.Evaluator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode, E>
+public class OneLevelScopeEvaluator<E, ID> implements Evaluator<ScopeNode, E, ID>
 {
     /** The ScopeNode containing initial search scope constraints */
     private final ScopeNode node;
 
     /** The entry identifier of the scope base */
-    private final Long baseId;
+    private final ID baseId;
 
     /** True if the scope requires alias dereferencing while searching */
     private final boolean dereferencing;
 
     /** the entry db storing entries */
-    private final Store<E> db;
+    private final Store<E, ID> db;
 
 
     /**
@@ -56,7 +56,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode, E>
      * @param db the database used to evaluate scope node
      * @throws Exception on db access failure
      */
-    public OneLevelScopeEvaluator( Store<E> db, ScopeNode node ) throws Exception
+    public OneLevelScopeEvaluator( Store<E, ID> db, ScopeNode node ) throws Exception
     {
         this.node = node;
 
@@ -80,7 +80,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode, E>
      * @throws Exception if db lookups fail
      * @see org.apache.directory.server.xdbm.search.Evaluator#evaluate(IndexEntry)
      */
-    public boolean evaluate( Long candidate ) throws Exception
+    public boolean evaluateId( ID candidate ) throws Exception
     {
         boolean isChild = db.getOneLevelIndex().forward( baseId, candidate );
 
@@ -136,7 +136,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode, E>
      *
      * @see Evaluator#evaluate(Object)
      */
-    public boolean evaluate( E candidate ) throws Exception
+    public boolean evaluateEntry( E candidate ) throws Exception
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_721 ) );
     }
@@ -151,7 +151,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode, E>
      * @throws Exception if db lookups fail
      * @see org.apache.directory.server.xdbm.search.Evaluator#evaluate(IndexEntry)
      */
-    public boolean evaluate( IndexEntry<?, E> candidate ) throws Exception
+    public boolean evaluate( IndexEntry<?, E, ID> candidate ) throws Exception
     {
         boolean isChild = db.getOneLevelIndex().forward( baseId, candidate.getId() );
 
@@ -209,7 +209,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode, E>
      *
      * @return identifier of the search base
      */
-    public Long getBaseId()
+    public ID getBaseId()
     {
         return baseId;
     }

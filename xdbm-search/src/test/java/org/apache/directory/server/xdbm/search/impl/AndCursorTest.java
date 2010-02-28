@@ -71,7 +71,7 @@ public class AndCursorTest
     private static final Logger LOG = LoggerFactory.getLogger( AndCursorTest.class.getSimpleName() );
 
     File wkdir;
-    Store<ServerEntry> store;
+    Store<ServerEntry, Long> store;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
     private static SchemaManager schemaManager;
@@ -171,7 +171,7 @@ public class AndCursorTest
 
         ExprNode exprNode = FilterParser.parse( filter );
 
-        IndexCursor<?, ServerEntry> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?, ServerEntry, Long> cursor = cursorBuilder.build( exprNode );
 
         cursor.beforeFirst();
 
@@ -203,12 +203,12 @@ public class AndCursorTest
     {
         AndNode andNode = new AndNode();
 
-        List<Evaluator<? extends ExprNode, ServerEntry>> evaluators = new ArrayList<Evaluator<? extends ExprNode, ServerEntry>>();
-        Evaluator<? extends ExprNode, ServerEntry> eval;
+        List<Evaluator<? extends ExprNode, ServerEntry, Long>> evaluators = new ArrayList<Evaluator<? extends ExprNode, ServerEntry, Long>>();
+        Evaluator<? extends ExprNode, ServerEntry, Long> eval;
 
         ExprNode exprNode = new SubstringNode( "cn", "J", null );
         eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
-        IndexCursor<?, ServerEntry> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
+        IndexCursor<?, ServerEntry, Long> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
 
         /* adding this results in NPE  adding Presence evaluator not 
          Substring evaluator but adding Substring cursor as wrapped cursor */
@@ -222,7 +222,7 @@ public class AndCursorTest
 
         andNode.addNode( exprNode );
 
-        IndexCursor<?, ServerEntry> cursor = new AndCursor( wrapped, evaluators ); //cursorBuilder.build( andNode );
+        IndexCursor<?, ServerEntry, Long> cursor = new AndCursor( wrapped, evaluators ); //cursorBuilder.build( andNode );
 
         cursor.beforeFirst();
 

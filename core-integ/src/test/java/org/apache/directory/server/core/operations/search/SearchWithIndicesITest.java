@@ -89,7 +89,8 @@ public class SearchWithIndicesITest extends AbstractLdapTestUnit
         }
 
         Partition systemPartition = service.getSystemPartition();
-        Set<Index<?, ServerEntry>> indexedAtributes = ( ( JdbmPartition ) systemPartition ).getIndexedAttributes();
+        Set<Index<? extends Object, ServerEntry, Long>> indexedAtributes = ( ( JdbmPartition ) systemPartition )
+            .getIndexedAttributes();
         indexedAtributes.add( new JdbmIndex<String, ServerEntry>( "gidNumber" ) );
 
         // -------------------------------------------------------------------

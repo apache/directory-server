@@ -47,7 +47,6 @@ import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
@@ -72,7 +71,7 @@ public class SubtreeScopeTest
     public static final Logger LOG = LoggerFactory.getLogger( SubtreeScopeTest.class );
 
     File wkdir;
-    Store<ServerEntry> store;
+    Store<ServerEntry, Long> store;
     static SchemaManager schemaManager = null;
 
 
@@ -158,8 +157,8 @@ public class SubtreeScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, SchemaConstants.OU_AT_OID + "=sales,"
             + SchemaConstants.O_AT_OID + "=good times co.", SearchScope.SUBTREE );
-        SubtreeScopeEvaluator<ServerEntry> evaluator = new SubtreeScopeEvaluator<ServerEntry>( store, node );
-        SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator );
+        SubtreeScopeEvaluator<ServerEntry, Long> evaluator = new SubtreeScopeEvaluator<ServerEntry, Long>( store, node );
+        SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
 
         assertTrue( cursor.isElementReused() );
 
@@ -170,7 +169,7 @@ public class SubtreeScopeTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        IndexEntry<Long, ServerEntry> indexEntry = cursor.get();
+        IndexEntry<Long, ServerEntry, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 2L, ( long ) indexEntry.getId() );
         assertEquals( 2L, ( long ) indexEntry.getValue() );
@@ -194,7 +193,7 @@ public class SubtreeScopeTest
 
         // --------- Test first() ---------
 
-        cursor = new SubtreeScopeCursor( store, evaluator );
+        cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         assertFalse( cursor.available() );
         cursor.first();
 
@@ -223,7 +222,7 @@ public class SubtreeScopeTest
 
         // --------- Test afterLast() ---------
 
-        cursor = new SubtreeScopeCursor( store, evaluator );
+        cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         cursor.afterLast();
         assertFalse( cursor.available() );
 
@@ -253,7 +252,7 @@ public class SubtreeScopeTest
 
         // --------- Test last() ---------
 
-        cursor = new SubtreeScopeCursor( store, evaluator );
+        cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         assertFalse( cursor.available() );
         cursor.last();
 
@@ -282,7 +281,7 @@ public class SubtreeScopeTest
 
         // --------- Test previous() before positioning ---------
 
-        cursor = new SubtreeScopeCursor( store, evaluator );
+        cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         assertFalse( cursor.available() );
         cursor.previous();
 
@@ -316,8 +315,8 @@ public class SubtreeScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, SchemaConstants.OU_AT_OID
             + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co.", SearchScope.SUBTREE );
-        SubtreeScopeEvaluator<ServerEntry> evaluator = new SubtreeScopeEvaluator<ServerEntry>( store, node );
-        SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator );
+        SubtreeScopeEvaluator<ServerEntry, Long> evaluator = new SubtreeScopeEvaluator<ServerEntry, Long>( store, node );
+        SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
 
         assertTrue( cursor.isElementReused() );
 
@@ -328,7 +327,7 @@ public class SubtreeScopeTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        IndexEntry<Long, ServerEntry> indexEntry = cursor.get();
+        IndexEntry<Long, ServerEntry, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 3L, ( long ) indexEntry.getId() );
         assertEquals( 3L, ( long ) indexEntry.getValue() );
@@ -352,7 +351,7 @@ public class SubtreeScopeTest
 
         // --------- Test first() ---------
 
-        cursor = new SubtreeScopeCursor( store, evaluator );
+        cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         assertFalse( cursor.available() );
         cursor.first();
 
@@ -381,7 +380,7 @@ public class SubtreeScopeTest
 
         // --------- Test afterLast() ---------
 
-        cursor = new SubtreeScopeCursor( store, evaluator );
+        cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         cursor.afterLast();
         assertFalse( cursor.available() );
 
@@ -411,7 +410,7 @@ public class SubtreeScopeTest
 
         // --------- Test last() ---------
 
-        cursor = new SubtreeScopeCursor( store, evaluator );
+        cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         assertFalse( cursor.available() );
         cursor.last();
 
@@ -440,7 +439,7 @@ public class SubtreeScopeTest
 
         // --------- Test previous() before positioning ---------
 
-        cursor = new SubtreeScopeCursor( store, evaluator );
+        cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         assertFalse( cursor.available() );
         cursor.previous();
 
@@ -469,7 +468,7 @@ public class SubtreeScopeTest
 
         // --------- Test next() before positioning ---------
 
-        cursor = new SubtreeScopeCursor( store, evaluator );
+        cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         assertFalse( cursor.available() );
         cursor.next();
 
@@ -504,8 +503,8 @@ public class SubtreeScopeTest
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, SchemaConstants.OU_AT_OID + "=apache,"
             + SchemaConstants.OU_AT_OID + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co.",
             SearchScope.SUBTREE );
-        SubtreeScopeEvaluator<ServerEntry> evaluator = new SubtreeScopeEvaluator<ServerEntry>( store, node );
-        SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator );
+        SubtreeScopeEvaluator<ServerEntry, Long> evaluator = new SubtreeScopeEvaluator<ServerEntry, Long>( store, node );
+        SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
 
         assertTrue( cursor.isElementReused() );
 
@@ -516,7 +515,7 @@ public class SubtreeScopeTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        IndexEntry<Long, ServerEntry> indexEntry = cursor.get();
+        IndexEntry<Long, ServerEntry, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
         assertEquals( 7L, ( long ) indexEntry.getValue() );
@@ -533,7 +532,7 @@ public class SubtreeScopeTest
 
         // --------- Test first() ---------
 
-        cursor = new SubtreeScopeCursor( store, evaluator );
+        cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         assertFalse( cursor.available() );
         cursor.first();
 
@@ -555,7 +554,7 @@ public class SubtreeScopeTest
 
         // --------- Test afterLast() ---------
 
-        cursor = new SubtreeScopeCursor( store, evaluator );
+        cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         cursor.afterLast();
         assertFalse( cursor.available() );
 
@@ -578,7 +577,7 @@ public class SubtreeScopeTest
 
         // --------- Test last() ---------
 
-        cursor = new SubtreeScopeCursor( store, evaluator );
+        cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         assertFalse( cursor.available() );
         cursor.last();
 
@@ -600,7 +599,7 @@ public class SubtreeScopeTest
 
         // --------- Test previous() before positioning ---------
 
-        cursor = new SubtreeScopeCursor( store, evaluator );
+        cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         assertFalse( cursor.available() );
         cursor.previous();
 
@@ -651,8 +650,8 @@ public class SubtreeScopeTest
 
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, SchemaConstants.OU_AT_OID
             + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co.", SearchScope.SUBTREE );
-        SubtreeScopeEvaluator<ServerEntry> evaluator = new SubtreeScopeEvaluator<ServerEntry>( store, node );
-        SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator );
+        SubtreeScopeEvaluator<ServerEntry, Long> evaluator = new SubtreeScopeEvaluator<ServerEntry, Long>( store, node );
+        SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
 
         assertTrue( cursor.isElementReused() );
 
@@ -663,7 +662,7 @@ public class SubtreeScopeTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        IndexEntry<Long, ServerEntry> indexEntry = cursor.get();
+        IndexEntry<Long, ServerEntry, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 3L, ( long ) indexEntry.getId() );
         assertEquals( 3L, ( long ) indexEntry.getValue() );
@@ -701,7 +700,7 @@ public class SubtreeScopeTest
 
         // --------- Test first() ---------
 
-        cursor = new SubtreeScopeCursor( store, evaluator );
+        cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         assertFalse( cursor.available() );
         cursor.first();
 
@@ -738,7 +737,7 @@ public class SubtreeScopeTest
 
         // --------- Test afterLast() ---------
 
-        cursor = new SubtreeScopeCursor( store, evaluator );
+        cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         cursor.afterLast();
         assertFalse( cursor.available() );
 
@@ -782,7 +781,7 @@ public class SubtreeScopeTest
 
         // --------- Test last() ---------
 
-        cursor = new SubtreeScopeCursor( store, evaluator );
+        cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         assertFalse( cursor.available() );
         cursor.last();
 
@@ -825,7 +824,7 @@ public class SubtreeScopeTest
 
         // --------- Test previous() before positioning ---------
 
-        cursor = new SubtreeScopeCursor( store, evaluator );
+        cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         assertFalse( cursor.available() );
         cursor.previous();
 
@@ -868,7 +867,7 @@ public class SubtreeScopeTest
 
         // --------- Test next() before positioning ---------
 
-        cursor = new SubtreeScopeCursor( store, evaluator );
+        cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         assertFalse( cursor.available() );
         cursor.next();
 
@@ -916,9 +915,9 @@ public class SubtreeScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, SchemaConstants.OU_AT_OID + "=sales,"
             + SchemaConstants.O_AT_OID + "=good times co.", SearchScope.SUBTREE );
-        SubtreeScopeEvaluator<ServerEntry> evaluator = new SubtreeScopeEvaluator<ServerEntry>( store, node );
+        SubtreeScopeEvaluator<ServerEntry, Long> evaluator = new SubtreeScopeEvaluator<ServerEntry, Long>( store, node );
 
-        ForwardIndexEntry<Long, ServerEntry> indexEntry = new ForwardIndexEntry<Long, ServerEntry>();
+        ForwardIndexEntry<Long, ServerEntry, Long> indexEntry = new ForwardIndexEntry<Long, ServerEntry, Long>();
         indexEntry.setId( 6L );
         assertTrue( evaluator.evaluate( indexEntry ) );
     }
@@ -929,22 +928,22 @@ public class SubtreeScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_ALWAYS, SchemaConstants.OU_AT_OID + "=engineering,"
             + SchemaConstants.O_AT_OID + "=good times co.", SearchScope.SUBTREE );
-        SubtreeScopeEvaluator<ServerEntry> evaluator = new SubtreeScopeEvaluator<ServerEntry>( store, node );
+        SubtreeScopeEvaluator<ServerEntry, Long> evaluator = new SubtreeScopeEvaluator<ServerEntry, Long>( store, node );
         assertEquals( node, evaluator.getExpression() );
 
         /*
          * With dereferencing the evaluator does not accept candidates that
          * are aliases.  This is done to filter out aliases from the results.
          */
-        ForwardIndexEntry<Long, ServerEntry> indexEntry = new ForwardIndexEntry<Long, ServerEntry>();
+        ForwardIndexEntry<Long, ServerEntry, Long> indexEntry = new ForwardIndexEntry<Long, ServerEntry, Long>();
         indexEntry.setId( 11L );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<Long, ServerEntry>();
+        indexEntry = new ForwardIndexEntry<Long, ServerEntry, Long>();
         indexEntry.setId( 8L );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<Long, ServerEntry>();
+        indexEntry = new ForwardIndexEntry<Long, ServerEntry, Long>();
         indexEntry.setId( 6L );
         assertFalse( evaluator.evaluate( indexEntry ) );
     }
@@ -955,8 +954,8 @@ public class SubtreeScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, SchemaConstants.OU_AT_OID + "=sales,"
             + SchemaConstants.O_AT_OID + "=good times co.", SearchScope.SUBTREE );
-        SubtreeScopeEvaluator<ServerEntry> evaluator = new SubtreeScopeEvaluator<ServerEntry>( store, node );
-        SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator );
+        SubtreeScopeEvaluator<ServerEntry, Long> evaluator = new SubtreeScopeEvaluator<ServerEntry, Long>( store, node );
+        SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         cursor.get();
     }
 
@@ -966,11 +965,11 @@ public class SubtreeScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, SchemaConstants.OU_AT_OID + "=sales,"
             + SchemaConstants.O_AT_OID + "=good times co.", SearchScope.SUBTREE );
-        SubtreeScopeEvaluator<ServerEntry> evaluator = new SubtreeScopeEvaluator<ServerEntry>( store, node );
-        SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator );
+        SubtreeScopeEvaluator<ServerEntry, Long> evaluator = new SubtreeScopeEvaluator<ServerEntry, Long>( store, node );
+        SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
 
         // test before()
-        ForwardIndexEntry<Long, ServerEntry> entry = new ForwardIndexEntry<Long, ServerEntry>();
+        ForwardIndexEntry<Long, ServerEntry, Long> entry = new ForwardIndexEntry<Long, ServerEntry, Long>();
         entry.setValue( 3L );
         cursor.before( entry );
     }
@@ -981,11 +980,11 @@ public class SubtreeScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, SchemaConstants.OU_AT_OID + "=sales,"
             + SchemaConstants.O_AT_OID + "=good times co.", SearchScope.SUBTREE );
-        SubtreeScopeEvaluator<ServerEntry> evaluator = new SubtreeScopeEvaluator<ServerEntry>( store, node );
-        SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator );
+        SubtreeScopeEvaluator<ServerEntry, Long> evaluator = new SubtreeScopeEvaluator<ServerEntry, Long>( store, node );
+        SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
 
         // test after()
-        ForwardIndexEntry<Long, ServerEntry> entry = new ForwardIndexEntry<Long, ServerEntry>();
+        ForwardIndexEntry<Long, ServerEntry, Long> entry = new ForwardIndexEntry<Long, ServerEntry, Long>();
         entry.setValue( 3L );
         cursor.after( entry );
     }
@@ -996,7 +995,7 @@ public class SubtreeScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, SchemaConstants.OU_AT_OID + "=sales,"
             + SchemaConstants.O_AT_OID + "=good times co.", SearchScope.ONELEVEL );
-        SubtreeScopeEvaluator<ServerEntry> evaluator = new SubtreeScopeEvaluator<ServerEntry>( store, node );
+        SubtreeScopeEvaluator<ServerEntry, Long> evaluator = new SubtreeScopeEvaluator<ServerEntry, Long>( store, node );
         assertNull( evaluator );
     }
 }

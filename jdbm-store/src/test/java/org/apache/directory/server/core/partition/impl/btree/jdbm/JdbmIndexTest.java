@@ -57,7 +57,7 @@ import org.junit.Test;
 public class JdbmIndexTest
 {
     private static File dbFileDir;
-    Index<String, ServerEntry> idx;
+    Index<String, ServerEntry, Long> idx;
     private static SchemaManager schemaManager;
 
 
@@ -516,21 +516,21 @@ public class JdbmIndexTest
         assertEquals( 3, idx.count() );
 
         // use forward index's cursor
-        Cursor<IndexEntry<String, ServerEntry>> cursor = idx.forwardCursor();
+        Cursor<IndexEntry<String, ServerEntry, Long>> cursor = idx.forwardCursor();
         cursor.beforeFirst();
 
         cursor.next();
-        IndexEntry<String, ServerEntry> e1 = cursor.get();
+        IndexEntry<String, ServerEntry, Long> e1 = cursor.get();
         assertEquals( 555L, ( long ) e1.getId() );
         assertEquals( "bar", e1.getValue() );
 
         cursor.next();
-        IndexEntry<String, ServerEntry> e2 = cursor.get();
+        IndexEntry<String, ServerEntry, Long> e2 = cursor.get();
         assertEquals( 333L, ( long ) e2.getId() );
         assertEquals( "foo", e2.getValue() );
 
         cursor.next();
-        IndexEntry<String, ServerEntry> e3 = cursor.get();
+        IndexEntry<String, ServerEntry, Long> e3 = cursor.get();
         assertEquals( 1234L, ( long ) e3.getId() );
         assertEquals( "foo", e3.getValue() );
 

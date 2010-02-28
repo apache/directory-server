@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class LdifStore<E> implements Store<E>
+public class LdifStore<E> implements Store<E, Long>
 {
 
     /** the working directory to use for files */
@@ -293,7 +293,7 @@ public class LdifStore<E> implements Store<E>
     }
 
 
-    public void addIndex( Index<?, E> index ) throws Exception
+    public void addIndex( Index<?, E, Long> index ) throws Exception
     {
         wrappedStore.addIndex( index );
     }
@@ -305,7 +305,7 @@ public class LdifStore<E> implements Store<E>
     }
 
 
-    public Index<String, E> getAliasIndex()
+    public Index<String, E, Long> getAliasIndex()
     {
         return wrappedStore.getAliasIndex();
     }
@@ -347,19 +347,19 @@ public class LdifStore<E> implements Store<E>
     }
 
 
-    public Index<String, E> getNdnIndex()
+    public Index<String, E, Long> getNdnIndex()
     {
         return wrappedStore.getNdnIndex();
     }
 
 
-    public Index<Long, E> getOneAliasIndex()
+    public Index<Long, E, Long> getOneAliasIndex()
     {
         return wrappedStore.getOneAliasIndex();
     }
 
 
-    public Index<Long, E> getOneLevelIndex()
+    public Index<Long, E, Long> getOneLevelIndex()
     {
         return wrappedStore.getOneLevelIndex();
     }
@@ -377,7 +377,7 @@ public class LdifStore<E> implements Store<E>
     }
 
 
-    public Index<String, E> getPresenceIndex()
+    public Index<String, E, Long> getPresenceIndex()
     {
         return wrappedStore.getPresenceIndex();
     }
@@ -389,37 +389,37 @@ public class LdifStore<E> implements Store<E>
     }
 
 
-    public Index<Long, E> getSubAliasIndex()
+    public Index<Long, E, Long> getSubAliasIndex()
     {
         return wrappedStore.getSubAliasIndex();
     }
 
 
-    public Index<Long, E> getSubLevelIndex()
+    public Index<Long, E, Long> getSubLevelIndex()
     {
         return wrappedStore.getSubLevelIndex();
     }
 
 
-    public Index<?, E> getSystemIndex( String id ) throws IndexNotFoundException
+    public Index<?, E, Long> getSystemIndex( String id ) throws IndexNotFoundException
     {
         return wrappedStore.getSystemIndex( id );
     }
 
 
-    public Index<String, E> getUpdnIndex()
+    public Index<String, E, Long> getUpdnIndex()
     {
         return wrappedStore.getUpdnIndex();
     }
 
 
-    public Index<?, E> getUserIndex( String id ) throws IndexNotFoundException
+    public Index<?, E, Long> getUserIndex( String id ) throws IndexNotFoundException
     {
         return wrappedStore.getUserIndex( id );
     }
 
 
-    public Set<Index<?, E>> getUserIndices()
+    public Set<Index<?, E, Long>> getUserIndices()
     {
         return wrappedStore.getUserIndices();
     }
@@ -443,7 +443,7 @@ public class LdifStore<E> implements Store<E>
     }
 
 
-    public IndexCursor<Long, E> list( Long id ) throws Exception
+    public IndexCursor<Long, E, Long> list( Long id ) throws Exception
     {
         return wrappedStore.list( id );
     }
@@ -455,7 +455,7 @@ public class LdifStore<E> implements Store<E>
     }
 
 
-    public void setAliasIndex( Index<String, E> index ) throws Exception
+    public void setAliasIndex( Index<String, E, Long> index ) throws Exception
     {
         wrappedStore.setAliasIndex( index );
     }
@@ -467,25 +467,25 @@ public class LdifStore<E> implements Store<E>
     }
 
 
-    public void setNdnIndex( Index<String, E> index ) throws Exception
+    public void setNdnIndex( Index<String, E, Long> index ) throws Exception
     {
         wrappedStore.setNdnIndex( index );
     }
 
 
-    public void setOneAliasIndex( Index<Long, E> index ) throws Exception
+    public void setOneAliasIndex( Index<Long, E, Long> index ) throws Exception
     {
         wrappedStore.setOneAliasIndex( index );
     }
 
 
-    public void setOneLevelIndex( Index<Long, E> index ) throws Exception
+    public void setOneLevelIndex( Index<Long, E, Long> index ) throws Exception
     {
         wrappedStore.setOneLevelIndex( index );
     }
 
 
-    public void setPresenceIndex( Index<String, E> index ) throws Exception
+    public void setPresenceIndex( Index<String, E, Long> index ) throws Exception
     {
         wrappedStore.setPresenceIndex( index );
     }
@@ -497,19 +497,19 @@ public class LdifStore<E> implements Store<E>
     }
 
 
-    public void setSubAliasIndex( Index<Long, E> index ) throws Exception
+    public void setSubAliasIndex( Index<Long, E, Long> index ) throws Exception
     {
         wrappedStore.setSubAliasIndex( index );
     }
 
 
-    public void setSubLevelIndex( Index<Long, E> index ) throws Exception
+    public void setSubLevelIndex( Index<Long, E, Long> index ) throws Exception
     {
         wrappedStore.setSubLevelIndex( index );
     }
 
 
-    public void setUpdnIndex( Index<String, E> index ) throws Exception
+    public void setUpdnIndex( Index<String, E, Long> index ) throws Exception
     {
         wrappedStore.setUpdnIndex( index );
     }
@@ -534,19 +534,19 @@ public class LdifStore<E> implements Store<E>
     }
 
 
-    public Index<String, E> getEntryCsnIndex()
+    public Index<String, E, Long> getEntryCsnIndex()
     {
         return wrappedStore.getEntryCsnIndex();
     }
 
 
-    public Index<String, E> getEntryUuidIndex()
+    public Index<String, E, Long> getEntryUuidIndex()
     {
         return wrappedStore.getEntryUuidIndex();
     }
 
 
-    public Index<String, E> getObjectClassIndex()
+    public Index<String, E, Long> getObjectClassIndex()
     {
         return wrappedStore.getObjectClassIndex();
     }
@@ -576,7 +576,7 @@ public class LdifStore<E> implements Store<E>
     }
 
 
-    public void setUserIndices( Set<Index<?, E>> userIndices )
+    public void setUserIndices( Set<Index<?, E, Long>> userIndices )
     {
         wrappedStore.setUserIndices( userIndices );
     }
@@ -588,20 +588,27 @@ public class LdifStore<E> implements Store<E>
     }
 
 
-    public void setEntryCsnIndex( Index<String, E> index ) throws Exception
+    public void setEntryCsnIndex( Index<String, E, Long> index ) throws Exception
     {
         wrappedStore.setEntryCsnIndex( index );
     }
 
 
-    public void setEntryUuidIndex( Index<String, E> index ) throws Exception
+    public void setEntryUuidIndex( Index<String, E, Long> index ) throws Exception
     {
         wrappedStore.setEntryUuidIndex( index );
     }
 
 
-    public void setObjectClassIndex( Index<String, E> index ) throws Exception
+    public void setObjectClassIndex( Index<String, E, Long> index ) throws Exception
     {
         wrappedStore.setObjectClassIndex( index );
     }
+
+
+    public Long getDefaultId()
+    {
+        return 1L;
+    }
+
 }

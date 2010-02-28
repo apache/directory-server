@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public interface Store<E>
+public interface Store<E, ID>
 {
     /*
      * W H Y   H A V E   A   S T O R E   I N T E R F A C E  ?
@@ -103,13 +103,13 @@ public interface Store<E>
      * Stores the list of user index
      * @param userIndices The list of user index
      */
-    void setUserIndices( Set<Index<?, E>> userIndices );
+    void setUserIndices( Set<Index<?, E, ID>> userIndices );
 
 
     /**
      * @return The list of user index
      */
-    Set<Index<?, E>> getUserIndices();
+    Set<Index<?, E, ID>> getUserIndices();
 
 
     void setSuffixDn( String suffixDn );
@@ -200,7 +200,7 @@ public interface Store<E>
      * @param index The index to add
      * @throws Exception If the addition failed
      */
-    void addIndex( Index<?, E> index ) throws Exception;
+    void addIndex( Index<?, E, ID> index ) throws Exception;
 
 
     //------------------------------------------------------------------------
@@ -209,7 +209,7 @@ public interface Store<E>
     /**
      * @return The Presence system index
      */
-    Index<String, E> getPresenceIndex();
+    Index<String, E, ID> getPresenceIndex();
 
 
     /**
@@ -217,13 +217,13 @@ public interface Store<E>
      * @param index The Presence index
      * @throws Exception If the addition failed
      */
-    void setPresenceIndex( Index<String, E> index ) throws Exception;
+    void setPresenceIndex( Index<String, E, ID> index ) throws Exception;
 
 
     /**
      * @return The OneLevel system index
      */
-    Index<Long, E> getOneLevelIndex();
+    Index<ID, E, ID> getOneLevelIndex();
 
 
     /**
@@ -231,13 +231,13 @@ public interface Store<E>
      * @param index The OneLevel index
      * @throws Exception If the addition failed
      */
-    void setOneLevelIndex( Index<Long, E> index ) throws Exception;
+    void setOneLevelIndex( Index<ID, E, ID> index ) throws Exception;
 
 
     /**
      * @return The SubLevel system index
      */
-    Index<Long, E> getSubLevelIndex();
+    Index<ID, E, ID> getSubLevelIndex();
 
 
     /**
@@ -245,13 +245,13 @@ public interface Store<E>
      * @param index The SubLevel index
      * @throws Exception If the addition failed
      */
-    void setSubLevelIndex( Index<Long, E> index ) throws Exception;
+    void setSubLevelIndex( Index<ID, E, ID> index ) throws Exception;
 
 
     /**
      * @return The Alias system index
      */
-    Index<String, E> getAliasIndex();
+    Index<String, E, ID> getAliasIndex();
 
 
     /**
@@ -259,13 +259,13 @@ public interface Store<E>
      * @param index The Alias index
      * @throws Exception If the addition failed
      */
-    void setAliasIndex( Index<String, E> index ) throws Exception;
+    void setAliasIndex( Index<String, E, ID> index ) throws Exception;
 
 
     /**
      * @return The OneAlias system index
      */
-    Index<Long, E> getOneAliasIndex();
+    Index<ID, E, ID> getOneAliasIndex();
 
 
     /**
@@ -273,13 +273,13 @@ public interface Store<E>
      * @param index The OneAlias index
      * @throws Exception If the addition failed
      */
-    void setOneAliasIndex( Index<Long, E> index ) throws Exception;
+    void setOneAliasIndex( Index<ID, E, ID> index ) throws Exception;
 
 
     /**
      * @return The SubAlias system index
      */
-    Index<Long, E> getSubAliasIndex();
+    Index<ID, E, ID> getSubAliasIndex();
 
 
     /**
@@ -287,13 +287,13 @@ public interface Store<E>
      * @param index The SubAlias index
      * @throws Exception If the addition failed
      */
-    void setSubAliasIndex( Index<Long, E> index ) throws Exception;
+    void setSubAliasIndex( Index<ID, E, ID> index ) throws Exception;
 
 
     /**
      * @return The UpDN system index
      */
-    Index<String, E> getUpdnIndex();
+    Index<String, E, ID> getUpdnIndex();
 
 
     /**
@@ -301,13 +301,13 @@ public interface Store<E>
      * @param index The UpDn index
      * @throws Exception If the addition failed
      */
-    void setUpdnIndex( Index<String, E> index ) throws Exception;
+    void setUpdnIndex( Index<String, E, ID> index ) throws Exception;
 
 
     /**
      * @return The Ndn system index
      */
-    Index<String, E> getNdnIndex();
+    Index<String, E, ID> getNdnIndex();
 
 
     /**
@@ -315,13 +315,13 @@ public interface Store<E>
      * @param index The NDN index
      * @throws Exception If the addition failed
      */
-    void setNdnIndex( Index<String, E> index ) throws Exception;
+    void setNdnIndex( Index<String, E, ID> index ) throws Exception;
 
 
     /**
      * @return The ObjectClass system index
      */
-    Index<String, E> getObjectClassIndex();
+    Index<String, E, ID> getObjectClassIndex();
 
 
     /**
@@ -329,13 +329,13 @@ public interface Store<E>
      * @param index The ObjectClass index
      * @throws Exception If the addition failed
      */
-    void setObjectClassIndex( Index<String, E> index ) throws Exception;
+    void setObjectClassIndex( Index<String, E, ID> index ) throws Exception;
 
 
     /**
      * @return The EntryUUID system index
      */
-    Index<String, E> getEntryUuidIndex();
+    Index<String, E, ID> getEntryUuidIndex();
 
 
     /**
@@ -343,13 +343,13 @@ public interface Store<E>
      * @param index The EntryUUID index
      * @throws Exception If the addition failed
      */
-    void setEntryUuidIndex( Index<String, E> index ) throws Exception;
+    void setEntryUuidIndex( Index<String, E, ID> index ) throws Exception;
 
 
     /**
      * @return The EntryCSN system index
      */
-    Index<String, E> getEntryCsnIndex();
+    Index<String, E, ID> getEntryCsnIndex();
 
 
     /**
@@ -357,7 +357,7 @@ public interface Store<E>
      * @param index The EntryCSN index
      * @throws Exception If the addition failed
      */
-    void setEntryCsnIndex( Index<String, E> index ) throws Exception;
+    void setEntryCsnIndex( Index<String, E, ID> index ) throws Exception;
 
 
     //------------------------------------------------------------------------
@@ -402,7 +402,7 @@ public interface Store<E>
      * @return The associated user index
      * @throws IndexNotFoundException If the index does not exist
      */
-    Index<?, E> getUserIndex( String id ) throws IndexNotFoundException;
+    Index<?, E, ID> getUserIndex( String id ) throws IndexNotFoundException;
 
 
     /**
@@ -411,13 +411,13 @@ public interface Store<E>
      * @return The associated user index
      * @throws IndexNotFoundException If the index does not exist
      */
-    Index<?, E> getSystemIndex( String id ) throws IndexNotFoundException;
+    Index<?, E, ID> getSystemIndex( String id ) throws IndexNotFoundException;
 
 
-    Long getEntryId( String dn ) throws Exception;
+    ID getEntryId( String dn ) throws Exception;
 
 
-    String getEntryDn( Long id ) throws Exception;
+    String getEntryDn( ID id ) throws Exception;
 
 
     /**
@@ -430,13 +430,13 @@ public interface Store<E>
      * normalized suffix dn string is used
      * @throws Exception on failures to access the underlying store
      */
-    Long getParentId( String dn ) throws Exception;
+    ID getParentId( String dn ) throws Exception;
 
 
-    Long getParentId( Long childId ) throws Exception;
+    ID getParentId( ID childId ) throws Exception;
 
 
-    String getEntryUpdn( Long id ) throws Exception;
+    String getEntryUpdn( ID id ) throws Exception;
 
 
     String getEntryUpdn( String dn ) throws Exception;
@@ -455,7 +455,7 @@ public interface Store<E>
     void add( ServerEntry entry ) throws Exception;
 
 
-    ServerEntry lookup( Long id ) throws Exception;
+    ServerEntry lookup( ID id ) throws Exception;
 
 
     /**
@@ -463,7 +463,7 @@ public interface Store<E>
      * @param id The id of the entry to delete
      * @throws Exception If the deletion failed
      */
-    void delete( Long id ) throws Exception;
+    void delete( ID id ) throws Exception;
 
 
     /**
@@ -473,10 +473,10 @@ public interface Store<E>
      * @return an IndexEntry Cursor over the child entries
      * @throws Exception on failures to access the underlying store
      */
-    IndexCursor<Long, E> list( Long id ) throws Exception;
+    IndexCursor<ID, E, ID> list( ID id ) throws Exception;
 
 
-    int getChildCount( Long id ) throws Exception;
+    int getChildCount( ID id ) throws Exception;
 
 
     LdapDN getSuffix();
@@ -520,4 +520,12 @@ public interface Store<E>
 
 
     void move( LdapDN oldChildDn, LdapDN newParentDn ) throws Exception;
+
+
+    /**
+     * Gets the default ID.
+     *
+     * @return the default ID.
+     */
+    ID getDefaultId() throws Exception;
 }

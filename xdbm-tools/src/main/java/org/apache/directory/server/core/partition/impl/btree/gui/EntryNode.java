@@ -81,7 +81,7 @@ public class EntryNode implements TreeNode
         try
         {
             List<ForwardIndexEntry> recordForwards = new ArrayList<ForwardIndexEntry>();
-            IndexCursor<Long, ServerEntry> childList = db.list( id );
+            IndexCursor<Long, ServerEntry, Long> childList = db.list( id );
 
             while ( childList.next() )
             {
@@ -104,10 +104,11 @@ public class EntryNode implements TreeNode
                     if ( db.getChildCount( rec.getId() ) == 0 )
                     {
                         Evaluator evaluator = engine.evaluator( exprNode );
-                        if ( evaluator.evaluate( rec.getId() ) )
+                        if ( evaluator.evaluateId( rec.getId() ) )
                         {
                             ServerEntry newEntry = db.lookup( rec.getId() );
-                            EntryNode child = new EntryNode( rec.getId(), this, db, newEntry, map, exprNode, engine );
+                            EntryNode child = new EntryNode( ( Long ) rec.getId(), this, db, newEntry, map, exprNode,
+                                engine );
                             children.add( child );
                         }
                         else
@@ -118,7 +119,8 @@ public class EntryNode implements TreeNode
                     else
                     {
                         ServerEntry newEntry = db.lookup( rec.getId() );
-                        EntryNode child = new EntryNode( rec.getId(), this, db, newEntry, map, exprNode, engine );
+                        EntryNode child = new EntryNode( ( Long ) rec.getId(), this, db, newEntry, map, exprNode,
+                            engine );
                         children.add( child );
                     }
                 }

@@ -158,7 +158,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
             "system" ) );
 
         // Add objectClass attribute for the system partition
-        Set<Index<?, ServerEntry>> indexedAttrs = new HashSet<Index<?, ServerEntry>>();
+        Set<Index<?, ServerEntry, Long>> indexedAttrs = new HashSet<Index<?, ServerEntry, Long>>();
         indexedAttrs.add( new JdbmIndex<Object, ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
         ( ( JdbmPartition ) systemPartition ).setIndexedAttributes( indexedAttrs );
 

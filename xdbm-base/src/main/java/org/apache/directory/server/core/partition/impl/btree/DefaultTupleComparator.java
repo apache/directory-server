@@ -31,6 +31,8 @@ import org.apache.directory.shared.ldap.schema.comparators.SerializableComparato
  */
 public class DefaultTupleComparator<K, V> implements TupleComparator<K, V>
 {
+    private static final long serialVersionUID = -6639792479317762334L;
+
     SerializableComparator<K> keyComparator;
     SerializableComparator<V> valueComparator;
 

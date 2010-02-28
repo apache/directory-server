@@ -111,7 +111,7 @@ public class PartitionFrame extends JFrame
     private JMenu indices = new JMenu();
 
     // Non Swing Stuff
-    private BTreePartition partition;
+    private BTreePartition<Long> partition;
     private boolean doCleanUp;
     private Map<Long, EntryNode> nodes;
     private EntryNode root;
@@ -126,7 +126,7 @@ public class PartitionFrame extends JFrame
      * @param db the partition to view
      * @throws NamingException if there are problems accessing the partition
      */
-    public PartitionFrame( BTreePartition db, SchemaManager schemaManager ) throws Exception
+    public PartitionFrame( BTreePartition<Long> db, SchemaManager schemaManager ) throws Exception
     {
         partition = db;
         this.schemaManager = schemaManager;
@@ -662,7 +662,7 @@ public class PartitionFrame extends JFrame
             limitMax = Integer.parseInt( limit );
         }
 
-        IndexCursor<Long, ServerEntry> cursor = partition.getSearchEngine().cursor( new LdapDN( base ),
+        IndexCursor<Long, ServerEntry, Long> cursor = partition.getSearchEngine().cursor( new LdapDN( base ),
             AliasDerefMode.DEREF_ALWAYS, root, ctls );
         String[] cols = new String[2];
         cols[0] = "id";

@@ -19,14 +19,14 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
-
-import java.util.Arrays;
-import java.util.List;
 
 
 /**
@@ -35,7 +35,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ValueArrayCursor<K, V> extends AbstractCursor<Tuple>
+public class ValueArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 {
     private static final int BEFORE_FIRST = -1;
 
@@ -68,13 +68,13 @@ public class ValueArrayCursor<K, V> extends AbstractCursor<Tuple>
     }
 
 
-    public void before( Tuple element ) throws Exception
+    public void before( Tuple<K, V> element ) throws Exception
     {
         throw new NotImplementedException();
     }
 
 
-    public void after( Tuple element ) throws Exception
+    public void after( Tuple<K, V> element ) throws Exception
     {
         throw new NotImplementedException();
     }
@@ -190,7 +190,7 @@ public class ValueArrayCursor<K, V> extends AbstractCursor<Tuple>
     }
 
 
-    public Tuple get() throws Exception
+    public Tuple<K, V> get() throws Exception
     {
         checkNotClosed( "get()" );
         if ( inRangeOnValue() )

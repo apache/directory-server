@@ -45,18 +45,18 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
+public class LessEqEvaluator<T, ID> implements Evaluator<LessEqNode<T>, ServerEntry, ID>
 {
-    private final LessEqNode node;
-    private final Store<ServerEntry> db;
+    private final LessEqNode<T> node;
+    private final Store<ServerEntry, ID> db;
     private final SchemaManager schemaManager;
     private final AttributeType type;
     private final Normalizer normalizer;
     private final LdapComparator<? super Object> ldapComparator;
-    private final Index<Object, ServerEntry> idx;
+    private final Index<T, ServerEntry, ID> idx;
 
 
-    public LessEqEvaluator( LessEqNode node, Store<ServerEntry> db, SchemaManager schemaManager ) throws Exception
+    public LessEqEvaluator( LessEqNode<T> node, Store<ServerEntry, ID> db, SchemaManager schemaManager ) throws Exception
     {
         this.db = db;
         this.node = node;
@@ -66,7 +66,7 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             //noinspection unchecked
-            idx = ( Index<Object, ServerEntry> ) db.getUserIndex( node.getAttribute() );
+            idx = ( Index<T, ServerEntry, ID> ) db.getUserIndex( node.getAttribute() );
         }
         else
         {
@@ -96,7 +96,7 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
     }
 
 
-    public LessEqNode getExpression()
+    public LessEqNode<T> getExpression()
     {
         return node;
     }
@@ -120,18 +120,18 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
     }
 
 
-    public boolean evaluate( Long id ) throws Exception
+    public boolean evaluateId( ID id ) throws Exception
     {
         if ( idx != null )
         {
             return idx.reverseLessOrEq( id, node.getValue().get() );
         }
 
-        return evaluate( db.lookup( id ) );
+        return evaluateEntry( db.lookup( id ) );
     }
 
 
-    public boolean evaluate( IndexEntry<?, ServerEntry> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, ServerEntry, ID> indexEntry ) throws Exception
     {
         if ( idx != null )
         {
@@ -157,7 +157,7 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
 
         // if the attribute does not exist just return false
         //noinspection unchecked
-        if ( attr != null && evaluate( ( IndexEntry<Object, ServerEntry> ) indexEntry, attr ) )
+        if ( attr != null && evaluate( ( IndexEntry<Object, ServerEntry, ID> ) indexEntry, attr ) )
         {
             return true;
         }
@@ -180,7 +180,7 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
                 attr = ( ServerAttribute ) entry.get( descendant );
 
                 //noinspection unchecked
-                if ( attr != null && evaluate( ( IndexEntry<Object, ServerEntry> ) indexEntry, attr ) )
+                if ( attr != null && evaluate( ( IndexEntry<Object, ServerEntry, ID> ) indexEntry, attr ) )
                 {
                     return true;
                 }
@@ -192,7 +192,7 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
     }
 
 
-    public boolean evaluate( ServerEntry entry ) throws Exception
+    public boolean evaluateEntry( ServerEntry entry ) throws Exception
     {
         // get the attribute
         ServerAttribute attr = ( ServerAttribute ) entry.get( type );
@@ -234,7 +234,8 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    private boolean evaluate( IndexEntry<Object, ServerEntry> indexEntry, ServerAttribute attribute ) throws Exception
+    private boolean evaluate( IndexEntry<Object, ServerEntry, ID> indexEntry, ServerAttribute attribute )
+        throws Exception
     {
         /*
          * Cycle through the attribute values testing normalized version
@@ -242,7 +243,7 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
          * normalizer.  The test uses the comparator obtained from the
          * appropriate matching rule to perform the check.
          */
-        for ( Value value : attribute )
+        for ( Value<?> value : attribute )
         {
             value.normalize( normalizer );
 

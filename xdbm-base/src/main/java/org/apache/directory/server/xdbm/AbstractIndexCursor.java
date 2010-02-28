@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.cursor.DefaultClosureMonitor;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class AbstractIndexCursor<K, E> implements IndexCursor<K, E>
+public abstract class AbstractIndexCursor<K, E, ID> implements IndexCursor<K, E, ID>
 {
     private ClosureMonitor monitor = new DefaultClosureMonitor();
 
@@ -73,8 +73,8 @@ public abstract class AbstractIndexCursor<K, E> implements IndexCursor<K, E>
     }
 
 
-    public Iterator<IndexEntry<K, E>> iterator()
+    public Iterator<IndexEntry<K, E, ID>> iterator()
     {
-        return new CursorIterator<IndexEntry<K, E>>( this );
+        return new CursorIterator<IndexEntry<K, E, ID>>( this );
     }
 }

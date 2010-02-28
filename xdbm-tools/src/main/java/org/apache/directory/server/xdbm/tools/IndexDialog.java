@@ -63,7 +63,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 639279 $
  */
-public class IndexDialog<K, O> extends JDialog
+public class IndexDialog<K, O, ID> extends JDialog
 {
     private static final Logger LOG = LoggerFactory.getLogger( IndexDialog.class );
 
@@ -89,10 +89,10 @@ public class IndexDialog<K, O> extends JDialog
     private JLabel jLabel2 = new JLabel();
     private JButton scanBut = new JButton();
 
-    private Index<K, O> index = null;
+    private Index<K, O, ID> index = null;
 
 
-    public IndexDialog( Frame parent, boolean modal, Index<K, O> index )
+    public IndexDialog( Frame parent, boolean modal, Index<K, O, ID> index )
     {
         super( parent, modal );
         this.index = index;
@@ -100,7 +100,7 @@ public class IndexDialog<K, O> extends JDialog
     }
 
 
-    public IndexDialog( Index<K, O> index )
+    public IndexDialog( Index<K, O, ID> index )
     {
         super();
         this.index = index;
@@ -291,7 +291,7 @@ public class IndexDialog<K, O> extends JDialog
 
         try
         {
-            Cursor<IndexEntry<K, O>> list;
+            Cursor<IndexEntry<K, O, ID>> list;
 
             if ( scanType.equals( EQUALITY_CURSOR ) )
             {
@@ -299,7 +299,7 @@ public class IndexDialog<K, O> extends JDialog
                 list.beforeFirst();
                 while ( list.next() )
                 {
-                    IndexEntry<K, O> rec = list.get();
+                    IndexEntry<K, O, ID> rec = list.get();
                     row = new Object[2];
                     row[0] = rec.getValue();
                     row[1] = rec.getId();
@@ -310,12 +310,12 @@ public class IndexDialog<K, O> extends JDialog
             else if ( scanType.equals( GREATER_CURSOR ) )
             {
                 list = index.forwardCursor();
-                ForwardIndexEntry<K, O> entry = new ForwardIndexEntry<K, O>();
+                ForwardIndexEntry<K, O, ID> entry = new ForwardIndexEntry<K, O, ID>();
                 entry.setValue( key );
                 list.before( entry );
                 while ( list.next() )
                 {
-                    IndexEntry<K, O> rec = list.get();
+                    IndexEntry<K, O, ID> rec = list.get();
                     row = new Object[2];
                     row[0] = rec.getValue();
                     row[1] = rec.getId();
@@ -326,12 +326,12 @@ public class IndexDialog<K, O> extends JDialog
             else if ( scanType.equals( LESS_CURSOR ) )
             {
                 list = index.forwardCursor();
-                ForwardIndexEntry<K, O> entry = new ForwardIndexEntry<K, O>();
+                ForwardIndexEntry<K, O, ID> entry = new ForwardIndexEntry<K, O, ID>();
                 entry.setValue( key );
                 list.after( entry );
                 while ( list.previous() )
                 {
-                    IndexEntry<K, O> rec = list.get();
+                    IndexEntry<K, O, ID> rec = list.get();
                     row = new Object[2];
                     row[0] = rec.getValue();
                     row[1] = rec.getId();
@@ -364,7 +364,7 @@ public class IndexDialog<K, O> extends JDialog
                 list = index.forwardCursor();
                 while ( list.next() )
                 {
-                    IndexEntry<K, O> rec = list.get();
+                    IndexEntry<K, O, ID> rec = list.get();
                     row = new Object[2];
                     row[0] = rec.getValue();
                     row[1] = rec.getId();
@@ -406,9 +406,9 @@ public class IndexDialog<K, O> extends JDialog
 
 
     @SuppressWarnings("unchecked")
-    public static void show( Index<?, ServerEntry> index )
+    public static void show( Index<?, ServerEntry, Long> index )
     {
-        IndexDialog<?, ServerEntry> dialog = new IndexDialog( index );
+        IndexDialog<?, ServerEntry, Long> dialog = new IndexDialog( index );
         dialog.setVisible( true );
     }
 }

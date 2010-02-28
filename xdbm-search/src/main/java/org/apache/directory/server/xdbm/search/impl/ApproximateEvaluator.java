@@ -45,18 +45,18 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ApproximateEvaluator implements Evaluator<ApproximateNode, ServerEntry>
+public class ApproximateEvaluator<T, ID> implements Evaluator<ApproximateNode<T>, ServerEntry, ID>
 {
-    private final ApproximateNode<Object> node;
-    private final Store<ServerEntry> db;
+    private final ApproximateNode<T> node;
+    private final Store<ServerEntry, ID> db;
     private final SchemaManager schemaManager;
     private final AttributeType type;
     private final Normalizer normalizer;
     private final LdapComparator<? super Object> ldapComparator;
-    private final Index<Object, ServerEntry> idx;
+    private final Index<T, ServerEntry, ID> idx;
 
 
-    public ApproximateEvaluator( ApproximateNode node, Store<ServerEntry> db, SchemaManager schemaManager )
+    public ApproximateEvaluator( ApproximateNode<T> node, Store<ServerEntry, ID> db, SchemaManager schemaManager )
         throws Exception
     {
         this.db = db;
@@ -66,7 +66,7 @@ public class ApproximateEvaluator implements Evaluator<ApproximateNode, ServerEn
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             //noinspection unchecked
-            idx = ( Index<Object, ServerEntry> ) db.getUserIndex( node.getAttribute() );
+            idx = ( Index<T, ServerEntry, ID> ) db.getUserIndex( node.getAttribute() );
             type = null;
             normalizer = null;
             ldapComparator = null;
@@ -89,13 +89,13 @@ public class ApproximateEvaluator implements Evaluator<ApproximateNode, ServerEn
     }
 
 
-    public ApproximateNode getExpression()
+    public ApproximateNode<T> getExpression()
     {
         return node;
     }
 
 
-    public boolean evaluate( ServerEntry entry ) throws Exception
+    public boolean evaluateEntry( ServerEntry entry ) throws Exception
     {
         // get the attribute
         ServerAttribute attr = ( ServerAttribute ) entry.get( type );
@@ -135,18 +135,18 @@ public class ApproximateEvaluator implements Evaluator<ApproximateNode, ServerEn
     }
 
 
-    public boolean evaluate( Long id ) throws Exception
+    public boolean evaluateId( ID id ) throws Exception
     {
         if ( idx != null )
         {
             return idx.reverse( id );
         }
 
-        return evaluate( db.lookup( id ) );
+        return evaluateEntry( db.lookup( id ) );
     }
 
 
-    public boolean evaluate( IndexEntry<?, ServerEntry> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, ServerEntry, ID> indexEntry ) throws Exception
     {
         if ( idx != null )
         {
@@ -162,7 +162,7 @@ public class ApproximateEvaluator implements Evaluator<ApproximateNode, ServerEn
             indexEntry.setObject( entry );
         }
 
-        return evaluate( entry );
+        return evaluateEntry( entry );
     }
 
 

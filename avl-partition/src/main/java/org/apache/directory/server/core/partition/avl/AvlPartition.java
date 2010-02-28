@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.entry.Modification;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AvlPartition extends AbstractXdbmPartition
+public class AvlPartition extends AbstractXdbmPartition<Long>
 {
     private Set<AvlIndex<?, ServerEntry>> indexedAttributes;
 
@@ -65,8 +65,8 @@ public class AvlPartition extends AbstractXdbmPartition
     {
         setSchemaManager( schemaManager );
 
-        EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
-        CursorBuilder cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
+        EvaluatorBuilder<Long> evaluatorBuilder = new EvaluatorBuilder<Long>( store, schemaManager );
+        CursorBuilder<Long> cursorBuilder = new CursorBuilder<Long>( store, evaluatorBuilder );
 
         // setup optimizer and registries for parent
         if ( !optimizerEnabled )
@@ -75,16 +75,16 @@ public class AvlPartition extends AbstractXdbmPartition
         }
         else
         {
-            optimizer = new DefaultOptimizer<ServerEntry>( store );
+            optimizer = new DefaultOptimizer<ServerEntry, Long>( store );
         }
 
-        searchEngine = new DefaultSearchEngine( store, cursorBuilder, evaluatorBuilder, optimizer );
+        searchEngine = new DefaultSearchEngine<Long>( store, cursorBuilder, evaluatorBuilder, optimizer );
 
         // initialize the store
         store.setName( getId() );
         store.setSuffixDn( suffix.getName() );
 
-        Set<Index<?, ServerEntry>> userIndices = new HashSet<Index<?, ServerEntry>>();
+        Set<Index<?, ServerEntry, Long>> userIndices = new HashSet<Index<?, ServerEntry, Long>>();
 
         for ( AvlIndex<?, ServerEntry> obj : indexedAttributes )
         {
@@ -107,35 +107,35 @@ public class AvlPartition extends AbstractXdbmPartition
             {
                 if ( oid.equals( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) )
                 {
-                    store.setAliasIndex( ( Index<String, ServerEntry> ) index );
+                    store.setAliasIndex( ( Index<String, ServerEntry, Long> ) index );
                 }
                 else if ( oid.equals( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ) )
                 {
-                    store.setPresenceIndex( ( Index<String, ServerEntry> ) index );
+                    store.setPresenceIndex( ( Index<String, ServerEntry, Long> ) index );
                 }
                 else if ( oid.equals( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) )
                 {
-                    store.setOneLevelIndex( ( Index<Long, ServerEntry> ) index );
+                    store.setOneLevelIndex( ( Index<Long, ServerEntry, Long> ) index );
                 }
                 else if ( oid.equals( ApacheSchemaConstants.APACHE_N_DN_AT_OID ) )
                 {
-                    store.setNdnIndex( ( Index<String, ServerEntry> ) index );
+                    store.setNdnIndex( ( Index<String, ServerEntry, Long> ) index );
                 }
                 else if ( oid.equals( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) )
                 {
-                    store.setOneAliasIndex( ( Index<Long, ServerEntry> ) index );
+                    store.setOneAliasIndex( ( Index<Long, ServerEntry, Long> ) index );
                 }
                 else if ( oid.equals( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) )
                 {
-                    store.setSubAliasIndex( ( Index<Long, ServerEntry> ) index );
+                    store.setSubAliasIndex( ( Index<Long, ServerEntry, Long> ) index );
                 }
                 else if ( oid.equals( ApacheSchemaConstants.APACHE_UP_DN_AT_OID ) )
                 {
-                    store.setUpdnIndex( ( Index<String, ServerEntry> ) index );
+                    store.setUpdnIndex( ( Index<String, ServerEntry, Long> ) index );
                 }
                 else if ( oid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
                 {
-                    store.addIndex( ( Index<String, ServerEntry> ) index );
+                    store.addIndex( ( Index<String, ServerEntry, Long> ) index );
                 }
                 else
                 {

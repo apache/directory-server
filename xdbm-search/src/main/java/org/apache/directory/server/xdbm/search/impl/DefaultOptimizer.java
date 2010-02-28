@@ -50,11 +50,11 @@ import org.apache.directory.server.xdbm.Store;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultOptimizer<E> implements Optimizer
+public class DefaultOptimizer<E, ID> implements Optimizer
 {
     /** the database this optimizer operates on */
-    private final Store<E> db;
-    private Long contextEntryId;
+    private final Store<E, ID> db;
+    private ID contextEntryId;
 
 
     /**
@@ -62,13 +62,13 @@ public class DefaultOptimizer<E> implements Optimizer
      *
      * @param db the database this optimizer works for.
      */
-    public DefaultOptimizer( Store<E> db ) throws Exception
+    public DefaultOptimizer( Store<E, ID> db ) throws Exception
     {
         this.db = db;
     }
 
 
-    private Long getContextEntryId()
+    private ID getContextEntryId() throws Exception
     {
         if ( contextEntryId == null )
         {
@@ -84,7 +84,7 @@ public class DefaultOptimizer<E> implements Optimizer
 
         if ( contextEntryId == null )
         {
-            return 1L;
+            return db.getDefaultId();
         }
 
         return contextEntryId;
@@ -275,7 +275,7 @@ public class DefaultOptimizer<E> implements Optimizer
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
-            Index<V, E> idx = ( Index<V, E> ) db.getUserIndex( node.getAttribute() );
+            Index<V, E, ID> idx = ( Index<V, E, ID> ) db.getUserIndex( node.getAttribute() );
             return idx.count( node.getValue().get() );
         }
 
@@ -298,7 +298,7 @@ public class DefaultOptimizer<E> implements Optimizer
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
-            Index<V, E> idx = ( Index<V, E> ) db.getUserIndex( node.getAttribute() );
+            Index<V, E, ID> idx = ( Index<V, E, ID> ) db.getUserIndex( node.getAttribute() );
             if ( isGreaterThan )
             {
                 return idx.greaterThanCount( node.getValue().get() );
@@ -348,7 +348,7 @@ public class DefaultOptimizer<E> implements Optimizer
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
-            Index<String, E> idx = db.getPresenceIndex();
+            Index<String, E, ID> idx = db.getPresenceIndex();
             return idx.count( node.getAttribute() );
         }
 
@@ -365,7 +365,7 @@ public class DefaultOptimizer<E> implements Optimizer
      */
     private long getScopeScan( ScopeNode node ) throws Exception
     {
-        Long id = db.getEntryId( node.getBaseDn() );
+        ID id = db.getEntryId( node.getBaseDn() );
         switch ( node.getScope() )
         {
             case OBJECT:

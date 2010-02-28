@@ -33,32 +33,32 @@ import org.apache.directory.server.core.entry.ServerEntry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class NotEvaluator implements Evaluator<NotNode, ServerEntry>
+public class NotEvaluator<ID> implements Evaluator<NotNode, ServerEntry, ID>
 {
     private final NotNode node;
-    private final Evaluator<? extends ExprNode, ServerEntry> childEvaluator;
+    private final Evaluator<? extends ExprNode, ServerEntry, ID> childEvaluator;
 
 
-    public NotEvaluator( NotNode node, Evaluator<? extends ExprNode, ServerEntry> childEvaluator )
+    public NotEvaluator( NotNode node, Evaluator<? extends ExprNode, ServerEntry, ID> childEvaluator )
     {
         this.node = node;
         this.childEvaluator = childEvaluator;
     }
 
 
-    public boolean evaluate( Long id ) throws Exception
+    public boolean evaluateId( ID id ) throws Exception
     {
-        return !childEvaluator.evaluate( id );
+        return !childEvaluator.evaluateId( id );
     }
 
 
-    public boolean evaluate( ServerEntry entry ) throws Exception
+    public boolean evaluateEntry( ServerEntry entry ) throws Exception
     {
-        return !childEvaluator.evaluate( entry );
+        return !childEvaluator.evaluateEntry( entry );
     }
 
 
-    public boolean evaluate( IndexEntry<?, ServerEntry> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, ServerEntry, ID> indexEntry ) throws Exception
     {
         return !childEvaluator.evaluate( indexEntry );
     }

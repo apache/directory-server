@@ -68,7 +68,7 @@ public class NotCursorTest
     private static final Logger LOG = LoggerFactory.getLogger( NotCursorTest.class.getSimpleName() );
 
     File wkdir;
-    Store<ServerEntry> store;
+    Store<ServerEntry, Long> store;
     static SchemaManager schemaManager = null;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
@@ -163,7 +163,7 @@ public class NotCursorTest
 
         ExprNode exprNode = FilterParser.parse( filter );
 
-        IndexCursor<?, ServerEntry> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?, ServerEntry, Long> cursor = cursorBuilder.build( exprNode );
 
         assertFalse( cursor.available() );
 
@@ -208,11 +208,11 @@ public class NotCursorTest
         NotNode notNode = new NotNode();
 
         ExprNode exprNode = new SubstringNode( "cn", "J", null );
-        Evaluator<? extends ExprNode, ServerEntry> eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store,
-            schemaManager );
+        Evaluator<? extends ExprNode, ServerEntry, Long> eval = new SubstringEvaluator( ( SubstringNode ) exprNode,
+            store, schemaManager );
         notNode.addNode( exprNode );
 
-        NotCursor cursor = new NotCursor( store, eval ); //cursorBuilder.build( andNode );
+        NotCursor<String, Long> cursor = new NotCursor( store, eval ); //cursorBuilder.build( andNode );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
@@ -288,7 +288,7 @@ public class NotCursorTest
 
         try
         {
-            cursor.after( new ForwardIndexEntry<Object, ServerEntry>() );
+            cursor.after( new ForwardIndexEntry<String, ServerEntry, Long>() );
             fail( "should fail with UnsupportedOperationException " );
         }
         catch ( UnsupportedOperationException uoe )
@@ -297,7 +297,7 @@ public class NotCursorTest
 
         try
         {
-            cursor.before( new ForwardIndexEntry<Object, ServerEntry>() );
+            cursor.before( new ForwardIndexEntry<String, ServerEntry, Long>() );
             fail( "should fail with UnsupportedOperationException " );
         }
         catch ( UnsupportedOperationException uoe )

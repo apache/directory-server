@@ -36,16 +36,16 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
+public class PresenceCursor<ID> extends AbstractIndexCursor<String, ServerEntry, ID>
 {
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_724 );
-    private final IndexCursor<String, ServerEntry> ndnCursor;
-    private final IndexCursor<String, ServerEntry> presenceCursor;
-    private final PresenceEvaluator presenceEvaluator;
+    private final IndexCursor<String, ServerEntry, ID> ndnCursor;
+    private final IndexCursor<String, ServerEntry, ID> presenceCursor;
+    private final PresenceEvaluator<ID> presenceEvaluator;
     private boolean available = false;
 
 
-    public PresenceCursor( Store<ServerEntry> db, PresenceEvaluator presenceEvaluator ) throws Exception
+    public PresenceCursor( Store<ServerEntry, ID> db, PresenceEvaluator<ID> presenceEvaluator ) throws Exception
     {
         this.presenceEvaluator = presenceEvaluator;
         AttributeType type = presenceEvaluator.getAttributeType();
@@ -74,7 +74,7 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
     }
 
 
-    public void beforeValue( Long id, String value ) throws Exception
+    public void beforeValue( ID id, String value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
         if ( presenceCursor != null )
@@ -87,7 +87,7 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
     }
 
 
-    public void before( IndexEntry<String, ServerEntry> element ) throws Exception
+    public void before( IndexEntry<String, ServerEntry, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );
         if ( presenceCursor != null )
@@ -100,7 +100,7 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
     }
 
 
-    public void afterValue( Long id, String value ) throws Exception
+    public void afterValue( ID id, String value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
         if ( presenceCursor != null )
@@ -113,7 +113,7 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
     }
 
 
-    public void after( IndexEntry<String, ServerEntry> element ) throws Exception
+    public void after( IndexEntry<String, ServerEntry, ID> element ) throws Exception
     {
         checkNotClosed( "after()" );
         if ( presenceCursor != null )
@@ -191,7 +191,7 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
         while ( ndnCursor.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?, ServerEntry> candidate = ndnCursor.get();
+            IndexEntry<?, ServerEntry, ID> candidate = ndnCursor.get();
             if ( presenceEvaluator.evaluate( candidate ) )
             {
                 return available = true;
@@ -213,7 +213,7 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
         while ( ndnCursor.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?, ServerEntry> candidate = ndnCursor.get();
+            IndexEntry<?, ServerEntry, ID> candidate = ndnCursor.get();
             if ( presenceEvaluator.evaluate( candidate ) )
             {
                 return available = true;
@@ -224,7 +224,7 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
     }
 
 
-    public IndexEntry<String, ServerEntry> get() throws Exception
+    public IndexEntry<String, ServerEntry, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
         if ( presenceCursor != null )
@@ -244,7 +244,7 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
              * value to be the value of the attribute in question.  So we will
              * set that accordingly here.
              */
-            IndexEntry<String, ServerEntry> indexEntry = ndnCursor.get();
+            IndexEntry<String, ServerEntry, ID> indexEntry = ndnCursor.get();
             indexEntry.setValue( presenceEvaluator.getAttributeType().getOid() );
             return indexEntry;
         }

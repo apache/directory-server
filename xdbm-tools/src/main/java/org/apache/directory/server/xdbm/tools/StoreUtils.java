@@ -20,13 +20,13 @@
 package org.apache.directory.server.xdbm.tools;
 
 
-import java.util.Set;
 import java.util.UUID;
 
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -38,7 +38,6 @@ import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.SchemaUtils;
 
 
 /**
@@ -65,7 +64,7 @@ public class StoreUtils
      * @param registries oid registries
      * @throws Exception on access exceptions
      */
-    public static void loadExampleData( Store<ServerEntry> store, SchemaManager schemaManager ) throws Exception
+    public static void loadExampleData( Store<ServerEntry, Long> store, SchemaManager schemaManager ) throws Exception
     {
         store.setSuffixDn( "o=Good Times Co." );
 
@@ -201,7 +200,7 @@ public class StoreUtils
      * @throws Exception if there are failures accessing the underlying store
      */
     @SuppressWarnings("unchecked")
-    public Entry getAttributes( Store store, Long id ) throws Exception
+    public Entry getAttributes( Store<Object, Long> store, Long id ) throws Exception
     {
         Entry entry = new DefaultClientEntry();
 
@@ -211,7 +210,7 @@ public class StoreUtils
         entry.put( "_parent", Long.toString( store.getParentId( id ) ) );
 
         // Get all standard index attribute to value mappings
-        for ( Index index : ( Set<Index> ) store.getUserIndices() )
+        for ( Index index : store.getUserIndices() )
         {
             Cursor<ForwardIndexEntry> list = index.reverseCursor();
             ForwardIndexEntry recordForward = new ForwardIndexEntry();
@@ -237,7 +236,7 @@ public class StoreUtils
 
         // Get all existence mappings for this id creating a special key
         // that looks like so 'existence[attribute]' and the value is set to id
-        Cursor<IndexEntry> list = store.getPresenceIndex().reverseCursor();
+        IndexCursor<String, Object, Long> list = store.getPresenceIndex().reverseCursor();
         ForwardIndexEntry recordForward = new ForwardIndexEntry();
         recordForward.setId( id );
         list.before( recordForward );
@@ -265,7 +264,7 @@ public class StoreUtils
 
         // Get all parent child mappings for this entry as the parent using the
         // key 'child' with many entries following it.
-        Cursor<IndexEntry> children = store.getOneLevelIndex().forwardCursor();
+        IndexCursor<Long, Object, Long> children = store.getOneLevelIndex().forwardCursor();
         ForwardIndexEntry longRecordForward = new ForwardIndexEntry();
         recordForward.setId( id );
         children.before( longRecordForward );
@@ -293,7 +292,7 @@ public class StoreUtils
      * @param entry the server entry
      * @throws Exception in case of any problems in adding the entry to the store
      */
-    public static void injectEntryInStore( Store<ServerEntry> store, ServerEntry entry ) throws Exception
+    public static void injectEntryInStore( Store<ServerEntry, Long> store, ServerEntry entry ) throws Exception
     {
         entry.add( SchemaConstants.ENTRY_CSN_AT, CSN_FACTORY.newInstance().toString() );
         entry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );

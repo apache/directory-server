@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class JdbmIndex<K, O> implements Index<K, O>
+public class JdbmIndex<K, O> implements Index<K, O, Long>
 {
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( JdbmIndex.class.getSimpleName() );
@@ -482,30 +482,30 @@ public class JdbmIndex<K, O> implements Index<K, O>
     // Index Cursor Operations
     // ------------------------------------------------------------------------
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, O> reverseCursor() throws Exception
+    public IndexCursor<K, O, Long> reverseCursor() throws Exception
     {
-        return new IndexCursorAdaptor<K, O>( ( Cursor ) reverse.cursor(), false );
+        return new IndexCursorAdaptor<K, O, Long>( ( Cursor ) reverse.cursor(), false );
     }
 
 
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, O> forwardCursor() throws Exception
+    public IndexCursor<K, O, Long> forwardCursor() throws Exception
     {
-        return new IndexCursorAdaptor<K, O>( ( Cursor ) forward.cursor(), true );
+        return new IndexCursorAdaptor<K, O, Long>( ( Cursor ) forward.cursor(), true );
     }
 
 
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, O> reverseCursor( Long id ) throws Exception
+    public IndexCursor<K, O, Long> reverseCursor( Long id ) throws Exception
     {
-        return new IndexCursorAdaptor<K, O>( ( Cursor ) reverse.cursor( id ), false );
+        return new IndexCursorAdaptor<K, O, Long>( ( Cursor ) reverse.cursor( id ), false );
     }
 
 
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, O> forwardCursor( K key ) throws Exception
+    public IndexCursor<K, O, Long> forwardCursor( K key ) throws Exception
     {
-        return new IndexCursorAdaptor<K, O>( ( Cursor ) forward.cursor( key ), true );
+        return new IndexCursorAdaptor<K, O, Long>( ( Cursor ) forward.cursor( key ), true );
     }
 
 

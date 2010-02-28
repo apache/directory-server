@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class JdbmPartition extends AbstractXdbmPartition
+public class JdbmPartition extends AbstractXdbmPartition<Long>
 {
 
     /**
@@ -62,8 +62,8 @@ public class JdbmPartition extends AbstractXdbmPartition
     {
         store.setWorkingDirectory( getPartitionDir() );
 
-        EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
-        CursorBuilder cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
+        EvaluatorBuilder<Long> evaluatorBuilder = new EvaluatorBuilder<Long>( store, schemaManager );
+        CursorBuilder<Long> cursorBuilder = new CursorBuilder<Long>( store, evaluatorBuilder );
 
         // setup optimizer and registries for parent
         if ( !optimizerEnabled )
@@ -72,10 +72,10 @@ public class JdbmPartition extends AbstractXdbmPartition
         }
         else
         {
-            optimizer = new DefaultOptimizer<ServerEntry>( store );
+            optimizer = new DefaultOptimizer<ServerEntry, Long>( store );
         }
 
-        searchEngine = new DefaultSearchEngine( store, cursorBuilder, evaluatorBuilder, optimizer );
+        searchEngine = new DefaultSearchEngine<Long>( store, cursorBuilder, evaluatorBuilder, optimizer );
 
         // initialize the store
         store.setCacheSize( cacheSize );
@@ -86,13 +86,13 @@ public class JdbmPartition extends AbstractXdbmPartition
         store.setSuffixDn( suffix.getNormName() );
         store.setWorkingDirectory( getPartitionDir() );
 
-        Set<Index<?, ServerEntry>> userIndices = new HashSet<Index<?, ServerEntry>>();
+        Set<Index<?, ServerEntry, Long>> userIndices = new HashSet<Index<?, ServerEntry, Long>>();
 
-        for ( Index<?, ServerEntry> obj : getIndexedAttributes() )
+        for ( Index<?, ServerEntry, Long> obj : getIndexedAttributes() )
         {
-            Index<?, ServerEntry> index;
+            Index<?, ServerEntry, Long> index;
 
-            if ( obj instanceof JdbmIndex )
+            if ( obj instanceof JdbmIndex<?, ?> )
             {
                 index = ( JdbmIndex<?, ServerEntry> ) obj;
             }
@@ -110,43 +110,43 @@ public class JdbmPartition extends AbstractXdbmPartition
             {
                 if ( oid.equals( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) )
                 {
-                    store.setAliasIndex( ( Index<String, ServerEntry> ) index );
+                    store.setAliasIndex( ( Index<String, ServerEntry, Long> ) index );
                 }
                 else if ( oid.equals( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ) )
                 {
-                    store.setPresenceIndex( ( Index<String, ServerEntry> ) index );
+                    store.setPresenceIndex( ( Index<String, ServerEntry, Long> ) index );
                 }
                 else if ( oid.equals( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) )
                 {
-                    store.setOneLevelIndex( ( Index<Long, ServerEntry> ) index );
+                    store.setOneLevelIndex( ( Index<Long, ServerEntry, Long> ) index );
                 }
                 else if ( oid.equals( ApacheSchemaConstants.APACHE_N_DN_AT_OID ) )
                 {
-                    store.setNdnIndex( ( Index<String, ServerEntry> ) index );
+                    store.setNdnIndex( ( Index<String, ServerEntry, Long> ) index );
                 }
                 else if ( oid.equals( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) )
                 {
-                    store.setOneAliasIndex( ( Index<Long, ServerEntry> ) index );
+                    store.setOneAliasIndex( ( Index<Long, ServerEntry, Long> ) index );
                 }
                 else if ( oid.equals( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) )
                 {
-                    store.setSubAliasIndex( ( Index<Long, ServerEntry> ) index );
+                    store.setSubAliasIndex( ( Index<Long, ServerEntry, Long> ) index );
                 }
                 else if ( oid.equals( ApacheSchemaConstants.APACHE_UP_DN_AT_OID ) )
                 {
-                    store.setUpdnIndex( ( Index<String, ServerEntry> ) index );
+                    store.setUpdnIndex( ( Index<String, ServerEntry, Long> ) index );
                 }
                 else if ( oid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
                 {
-                    store.setObjectClassIndex( ( Index<String, ServerEntry> ) index );
+                    store.setObjectClassIndex( ( Index<String, ServerEntry, Long> ) index );
                 }
                 else if ( oid.equals( SchemaConstants.ENTRY_CSN_AT_OID ) )
                 {
-                    store.setEntryCsnIndex( ( Index<String, ServerEntry> ) index );
+                    store.setEntryCsnIndex( ( Index<String, ServerEntry, Long> ) index );
                 }
                 else if ( oid.equals( SchemaConstants.ENTRY_UUID_AT_OID ) )
                 {
-                    store.setEntryUuidIndex( ( Index<String, ServerEntry> ) index );
+                    store.setEntryUuidIndex( ( Index<String, ServerEntry, Long> ) index );
                 }
                 else
                 {
@@ -165,19 +165,19 @@ public class JdbmPartition extends AbstractXdbmPartition
     }
 
 
-    public Index<String, ServerEntry> getObjectClassIndex()
+    public Index<String, ServerEntry, Long> getObjectClassIndex()
     {
         return store.getObjectClassIndex();
     }
 
 
-    public Index<String, ServerEntry> getEntryCsnIndex()
+    public Index<String, ServerEntry, Long> getEntryCsnIndex()
     {
         return store.getEntryCsnIndex();
     }
 
 
-    public Index<String, ServerEntry> getEntryUuidIndex()
+    public Index<String, ServerEntry, Long> getEntryUuidIndex()
     {
         return store.getEntryUuidIndex();
     }

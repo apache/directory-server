@@ -35,13 +35,13 @@ import org.apache.directory.server.xdbm.search.Evaluator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode, E>
+public class SubtreeScopeEvaluator<E, ID> implements Evaluator<ScopeNode, E, ID>
 {
     /** The ScopeNode containing initial search scope constraints */
     private final ScopeNode node;
 
     /** The entry identifier of the scope base */
-    private final Long baseId;
+    private final ID baseId;
 
     /** 
      * Whether or not to accept all candidates.  If this evaluator's baseId is
@@ -59,7 +59,7 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode, E>
     private final boolean dereferencing;
 
     /** The entry database/store */
-    private final Store<E> db;
+    private final Store<E, ID> db;
 
 
     /**
@@ -69,7 +69,7 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode, E>
      * @param db the database used to evaluate scope node
      * @throws Exception on db access failure
      */
-    public SubtreeScopeEvaluator( Store<E> db, ScopeNode node ) throws Exception
+    public SubtreeScopeEvaluator( Store<E, ID> db, ScopeNode node ) throws Exception
     {
         this.db = db;
         this.node = node;
@@ -84,10 +84,10 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode, E>
         dereferencing = node.getDerefAliases().isDerefInSearching() || node.getDerefAliases().isDerefAlways();
     }
 
-    private Long contextEntryId;
+    private ID contextEntryId;
 
 
-    private Long getContextEntryId()
+    private ID getContextEntryId() throws Exception
     {
         if ( contextEntryId == null )
         {
@@ -104,7 +104,7 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode, E>
 
         if ( contextEntryId == null )
         {
-            return 1L;
+            return db.getDefaultId();
         }
 
         return contextEntryId;
@@ -121,7 +121,7 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode, E>
      * @throws Exception if the index lookups fail.
      * @see Evaluator#evaluate(org.apache.directory.server.xdbm.IndexEntry)
      */
-    public boolean evaluate( IndexEntry<?, E> candidate ) throws Exception
+    public boolean evaluate( IndexEntry<?, E, ID> candidate ) throws Exception
     {
         /*
          * This condition catches situations where the candidate is equal to 
@@ -130,7 +130,7 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode, E>
          * to all it's subordinates since that would be the entire set of 
          * entries in the db.
          */
-        if ( baseIsContextEntry || baseId.longValue() == candidate.getId().longValue() )
+        if ( baseIsContextEntry || baseId.equals( candidate.getId() ) )
         {
             return true;
         }
@@ -193,7 +193,7 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode, E>
      * @throws Exception if the index lookups fail.
      * @see Evaluator#evaluate(org.apache.directory.server.xdbm.IndexEntry)
      */
-    public boolean evaluate( Long id ) throws Exception
+    public boolean evaluateId( ID id ) throws Exception
     {
         boolean isDescendant = db.getSubLevelIndex().forward( baseId, id );
 
@@ -253,7 +253,7 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode, E>
      * @throws Exception if the index lookups fail.
      * @see Evaluator#evaluate(org.apache.directory.server.xdbm.IndexEntry)
      */
-    public boolean evaluate( E candidate ) throws Exception
+    public boolean evaluateEntry( E candidate ) throws Exception
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_721 ) );
     }
@@ -265,7 +265,7 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode, E>
     }
 
 
-    public Long getBaseId()
+    public ID getBaseId()
     {
         return baseId;
     }

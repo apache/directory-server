@@ -89,7 +89,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class LdifPartition extends BTreePartition
+public class LdifPartition extends BTreePartition<Long>
 {
     /** A logger for this class */
     private static Logger LOG = LoggerFactory.getLogger( LdifPartition.class );
@@ -408,11 +408,11 @@ public class LdifPartition extends BTreePartition
         add( modifiedEntry );
 
         // Then, if there are some children, move then to the new place
-        IndexCursor<Long, ServerEntry> cursor = getSubLevelIndex().forwardCursor( entryIdOld );
+        IndexCursor<Long, ServerEntry, Long> cursor = getSubLevelIndex().forwardCursor( entryIdOld );
 
         while ( cursor.next() )
         {
-            IndexEntry<Long, ServerEntry> entry = cursor.get();
+            IndexEntry<Long, ServerEntry, Long> entry = cursor.get();
 
             // except the parent entry add the rest of entries
             if ( entry.getId() != entryIdOld )
@@ -759,7 +759,7 @@ public class LdifPartition extends BTreePartition
 
 
     @Override
-    public void addIndexOn( Index<Long, ServerEntry> index ) throws Exception
+    public void addIndexOn( Index<? extends Object, ServerEntry, Long> index ) throws Exception
     {
         wrappedPartition.addIndexOn( index );
     }
@@ -780,7 +780,7 @@ public class LdifPartition extends BTreePartition
 
 
     @Override
-    public Index<String, ServerEntry> getAliasIndex()
+    public Index<String, ServerEntry, Long> getAliasIndex()
     {
         return wrappedPartition.getAliasIndex();
     }
@@ -822,21 +822,21 @@ public class LdifPartition extends BTreePartition
 
 
     @Override
-    public Index<String, ServerEntry> getNdnIndex()
+    public Index<String, ServerEntry, Long> getNdnIndex()
     {
         return wrappedPartition.getNdnIndex();
     }
 
 
     @Override
-    public Index<Long, ServerEntry> getOneAliasIndex()
+    public Index<Long, ServerEntry, Long> getOneAliasIndex()
     {
         return wrappedPartition.getOneAliasIndex();
     }
 
 
     @Override
-    public Index<Long, ServerEntry> getOneLevelIndex()
+    public Index<Long, ServerEntry, Long> getOneLevelIndex()
     {
         return wrappedPartition.getOneLevelIndex();
     }
@@ -857,7 +857,7 @@ public class LdifPartition extends BTreePartition
 
 
     @Override
-    public Index<String, ServerEntry> getPresenceIndex()
+    public Index<String, ServerEntry, Long> getPresenceIndex()
     {
         return wrappedPartition.getPresenceIndex();
     }
@@ -871,21 +871,21 @@ public class LdifPartition extends BTreePartition
 
 
     @Override
-    public Index<Long, ServerEntry> getSubAliasIndex()
+    public Index<Long, ServerEntry, Long> getSubAliasIndex()
     {
         return wrappedPartition.getSubAliasIndex();
     }
 
 
     @Override
-    public Index<Long, ServerEntry> getSubLevelIndex()
+    public Index<Long, ServerEntry, Long> getSubLevelIndex()
     {
         return wrappedPartition.getSubLevelIndex();
     }
 
 
     @Override
-    public Index<?, ServerEntry> getSystemIndex( String id ) throws Exception
+    public Index<?, ServerEntry, Long> getSystemIndex( String id ) throws Exception
     {
         return wrappedPartition.getSystemIndex( id );
     }
@@ -899,14 +899,14 @@ public class LdifPartition extends BTreePartition
 
 
     @Override
-    public Index<String, ServerEntry> getUpdnIndex()
+    public Index<String, ServerEntry, Long> getUpdnIndex()
     {
         return wrappedPartition.getUpdnIndex();
     }
 
 
     @Override
-    public Index<?, ServerEntry> getUserIndex( String id ) throws Exception
+    public Index<? extends Object, ServerEntry, Long> getUserIndex( String id ) throws Exception
     {
         return wrappedPartition.getUserIndex( id );
     }
@@ -941,7 +941,7 @@ public class LdifPartition extends BTreePartition
 
 
     @Override
-    public IndexCursor<Long, ServerEntry> list( Long id ) throws Exception
+    public IndexCursor<Long, ServerEntry, Long> list( Long id ) throws Exception
     {
         return wrappedPartition.list( id );
     }
@@ -955,35 +955,35 @@ public class LdifPartition extends BTreePartition
 
 
     @Override
-    public void setAliasIndexOn( Index<String, ServerEntry> index ) throws Exception
+    public void setAliasIndexOn( Index<String, ServerEntry, Long> index ) throws Exception
     {
         wrappedPartition.setAliasIndexOn( index );
     }
 
 
     @Override
-    public void setNdnIndexOn( Index<String, ServerEntry> index ) throws Exception
+    public void setNdnIndexOn( Index<String, ServerEntry, Long> index ) throws Exception
     {
         wrappedPartition.setNdnIndexOn( index );
     }
 
 
     @Override
-    public void setOneAliasIndexOn( Index<Long, ServerEntry> index ) throws Exception
+    public void setOneAliasIndexOn( Index<Long, ServerEntry, Long> index ) throws Exception
     {
         wrappedPartition.setOneAliasIndexOn( index );
     }
 
 
     @Override
-    public void setOneLevelIndexOn( Index<Long, ServerEntry> index ) throws Exception
+    public void setOneLevelIndexOn( Index<Long, ServerEntry, Long> index ) throws Exception
     {
         wrappedPartition.setOneLevelIndexOn( index );
     }
 
 
     @Override
-    public void setPresenceIndexOn( Index<String, ServerEntry> index ) throws Exception
+    public void setPresenceIndexOn( Index<String, ServerEntry, Long> index ) throws Exception
     {
         wrappedPartition.setPresenceIndexOn( index );
     }
@@ -1004,14 +1004,14 @@ public class LdifPartition extends BTreePartition
 
 
     @Override
-    public void setSubAliasIndexOn( Index<Long, ServerEntry> index ) throws Exception
+    public void setSubAliasIndexOn( Index<Long, ServerEntry, Long> index ) throws Exception
     {
         wrappedPartition.setSubAliasIndexOn( index );
     }
 
 
     @Override
-    public void setUpdnIndexOn( Index<String, ServerEntry> index ) throws Exception
+    public void setUpdnIndexOn( Index<String, ServerEntry, Long> index ) throws Exception
     {
         wrappedPartition.setUpdnIndexOn( index );
     }

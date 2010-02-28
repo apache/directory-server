@@ -346,15 +346,6 @@ public final class SchemaPartition extends AbstractPartition
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.Partition#lookup(java.lang.Long)
-     */
-    public ClonedServerEntry lookup( Long id ) throws Exception
-    {
-        return wrapped.lookup( id );
-    }
-
-
     /**
      * {@inheritDoc}
      */

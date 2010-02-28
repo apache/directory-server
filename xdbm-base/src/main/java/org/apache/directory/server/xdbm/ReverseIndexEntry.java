@@ -27,10 +27,10 @@ package org.apache.directory.server.xdbm;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ReverseIndexEntry<V, O> implements IndexEntry<V, O>
+public class ReverseIndexEntry<V, O, ID> implements IndexEntry<V, O, ID>
 {
     /** The underlying Tuple */
-    private final Tuple<Long, V> tuple = new Tuple<Long, V>();
+    private final Tuple<ID, V> tuple = new Tuple<ID, V>();
 
     /** The indexed object if loaded from the store */
     private O obj;
@@ -44,7 +44,7 @@ public class ReverseIndexEntry<V, O> implements IndexEntry<V, O>
      * @param tuple the tuple for the ReverseIndexEntry
      * @param obj the resusitated object that is indexed if any
      */
-    public void setTuple( Tuple<Long, V> tuple, O obj )
+    public void setTuple( Tuple<ID, V> tuple, O obj )
     {
         this.tuple.setKey( tuple.getKey() );
         this.tuple.setValue( tuple.getValue() );
@@ -52,7 +52,7 @@ public class ReverseIndexEntry<V, O> implements IndexEntry<V, O>
     }
 
 
-    public Long getId()
+    public ID getId()
     {
         return tuple.getKey();
     }
@@ -64,7 +64,7 @@ public class ReverseIndexEntry<V, O> implements IndexEntry<V, O>
     }
 
 
-    public void setId( Long id )
+    public void setId( ID id )
     {
         tuple.setKey( id );
     }
@@ -93,7 +93,7 @@ public class ReverseIndexEntry<V, O> implements IndexEntry<V, O>
     }
 
 
-    public Tuple getTuple()
+    public Tuple<ID, V> getTuple()
     {
         return tuple;
     }
@@ -107,7 +107,7 @@ public class ReverseIndexEntry<V, O> implements IndexEntry<V, O>
     }
 
 
-    public void copy( IndexEntry<V, O> entry )
+    public void copy( IndexEntry<V, O, ID> entry )
     {
         this.obj = entry.getObject();
         tuple.setKey( entry.getId() );

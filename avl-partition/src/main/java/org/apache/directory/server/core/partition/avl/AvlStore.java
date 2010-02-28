@@ -74,7 +74,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AvlStore<E> implements Store<E>
+public class AvlStore<E> implements Store<E, Long>
 {
     /** static logger */
     private static final Logger LOG = LoggerFactory.getLogger( AvlStore.class );
@@ -120,10 +120,10 @@ public class AvlStore<E> implements Store<E>
     private AvlIndex<String, E> entryUuidIdx;
 
     /** a map of attributeType numeric ID to user userIndices */
-    private Map<String, AvlIndex<?, E>> userIndices = new HashMap<String, AvlIndex<?, E>>();
+    private Map<String, AvlIndex<? extends Object, E>> userIndices = new HashMap<String, AvlIndex<? extends Object, E>>();
 
     /** a map of attributeType numeric ID to system userIndices */
-    private Map<String, AvlIndex<?, E>> systemIndices = new HashMap<String, AvlIndex<?, E>>();
+    private Map<String, AvlIndex<? extends Object, E>> systemIndices = new HashMap<String, AvlIndex<? extends Object, E>>();
 
     /** true if initialized */
     private boolean initialized;
@@ -146,7 +146,6 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public void add( ServerEntry entry ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
@@ -256,7 +255,7 @@ public class AvlStore<E> implements Store<E>
 
             if ( hasUserIndexOn( attributeOid ) )
             {
-                Index<Object, E> idx = ( Index<Object, E> ) getUserIndex( attributeOid );
+                Index<Object, E, Long> idx = ( Index<Object, E, Long> ) getUserIndex( attributeOid );
 
                 // here lookup by attributeId is OK since we got attributeId from 
                 // the entry via the enumeration - it's in there as is for sure
@@ -278,15 +277,15 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public void addIndex( Index<?, E> index ) throws Exception
+    public void addIndex( Index<? extends Object, E, Long> index ) throws Exception
     {
-        if ( index instanceof AvlIndex )
+        if ( index instanceof AvlIndex<?, ?> )
         {
-            userIndices.put( index.getAttributeId(), ( AvlIndex<?, E> ) index );
+            userIndices.put( index.getAttributeId(), ( AvlIndex<? extends Object, E> ) index );
         }
         else
         {
-            userIndices.put( index.getAttributeId(), ( AvlIndex<?, E> ) convert( index ) );
+            userIndices.put( index.getAttributeId(), ( AvlIndex<? extends Object, E> ) convert( index ) );
         }
     }
 
@@ -344,7 +343,7 @@ public class AvlStore<E> implements Store<E>
 
             if ( hasUserIndexOn( attributeOid ) )
             {
-                Index<?, E> index = getUserIndex( attributeOid );
+                Index<?, E, Long> index = getUserIndex( attributeOid );
 
                 // here lookup by attributeId is ok since we got attributeId from 
                 // the entry via the enumeration - it's in there as is for sure
@@ -373,7 +372,7 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public Index<String, E> getAliasIndex()
+    public Index<String, E, Long> getAliasIndex()
     {
         return aliasIdx;
     }
@@ -437,7 +436,7 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public Index<String, E> getNdnIndex()
+    public Index<String, E, Long> getNdnIndex()
     {
         return ndnIdx;
     }
@@ -446,7 +445,7 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public Index<Long, E> getOneAliasIndex()
+    public Index<Long, E, Long> getOneAliasIndex()
     {
         return oneAliasIdx;
     }
@@ -455,7 +454,7 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public Index<Long, E> getOneLevelIndex()
+    public Index<Long, E, Long> getOneLevelIndex()
     {
         return oneLevelIdx;
     }
@@ -483,7 +482,7 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public Index<String, E> getPresenceIndex()
+    public Index<String, E, Long> getPresenceIndex()
     {
         return existenceIdx;
     }
@@ -501,7 +500,7 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public Index<Long, E> getSubAliasIndex()
+    public Index<Long, E, Long> getSubAliasIndex()
     {
         return subAliasIdx;
     }
@@ -510,7 +509,7 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public Index<Long, E> getSubLevelIndex()
+    public Index<Long, E, Long> getSubLevelIndex()
     {
         return subLevelIdx;
     }
@@ -578,7 +577,7 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public Index<?, E> getSystemIndex( String id ) throws IndexNotFoundException
+    public Index<?, E, Long> getSystemIndex( String id ) throws IndexNotFoundException
     {
         try
         {
@@ -603,7 +602,7 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public Index<String, E> getUpdnIndex()
+    public Index<String, E, Long> getUpdnIndex()
     {
         return updnIdx;
     }
@@ -612,7 +611,7 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public Index<?, E> getUserIndex( String id ) throws IndexNotFoundException
+    public Index<? extends Object, E, Long> getUserIndex( String id ) throws IndexNotFoundException
     {
         try
         {
@@ -636,9 +635,9 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public Set<Index<?, E>> getUserIndices()
+    public Set<Index<? extends Object, E, Long>> getUserIndices()
     {
-        return new HashSet<Index<?, E>>( userIndices.values() );
+        return new HashSet<Index<? extends Object, E, Long>>( userIndices.values() );
     }
 
 
@@ -806,9 +805,9 @@ public class AvlStore<E> implements Store<E>
     {
         if ( userIndices != null && userIndices.size() > 0 )
         {
-            Map<String, AvlIndex<?, E>> tmp = new HashMap<String, AvlIndex<?, E>>();
+            Map<String, AvlIndex<? extends Object, E>> tmp = new HashMap<String, AvlIndex<? extends Object, E>>();
 
-            for ( AvlIndex<?, E> index : userIndices.values() )
+            for ( AvlIndex<? extends Object, E> index : userIndices.values() )
             {
                 String oid = schemaManager.getAttributeTypeRegistry().getOidByName( index.getAttributeId() );
                 AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
@@ -831,7 +830,7 @@ public class AvlStore<E> implements Store<E>
         }
         else
         {
-            userIndices = new HashMap<String, AvlIndex<?, E>>();
+            userIndices = new HashMap<String, AvlIndex<? extends Object, E>>();
         }
     }
 
@@ -848,9 +847,9 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public IndexCursor<Long, E> list( Long id ) throws Exception
+    public IndexCursor<Long, E, Long> list( Long id ) throws Exception
     {
-        IndexCursor<Long, E> cursor = oneLevelIdx.forwardCursor( id );
+        IndexCursor<Long, E, Long> cursor = oneLevelIdx.forwardCursor( id );
         cursor.beforeValue( id, null );
         return cursor;
     }
@@ -911,11 +910,11 @@ public class AvlStore<E> implements Store<E>
             }
         }
 
-        Cursor<IndexEntry<Long, E>> children = list( id );
+        Cursor<IndexEntry<Long, E, Long>> children = list( id );
         while ( children.next() )
         {
             // Get the child and its id
-            IndexEntry<Long, E> rec = children.get();
+            IndexEntry<Long, E, Long> rec = children.get();
             Long childId = rec.getId();
 
             /* 
@@ -973,7 +972,7 @@ public class AvlStore<E> implements Store<E>
         }
         else if ( hasUserIndexOn( modsOid ) )
         {
-            Index<?, E> index = getUserIndex( modsOid );
+            Index<?, E, Long> index = getUserIndex( modsOid );
 
             for ( Value<?> value : mods )
             {
@@ -1036,7 +1035,7 @@ public class AvlStore<E> implements Store<E>
         }
         else if ( hasUserIndexOn( modsOid ) )
         {
-            Index<?, E> index = getUserIndex( modsOid );
+            Index<?, E, Long> index = getUserIndex( modsOid );
 
             for ( Value<?> value : mods )
             {
@@ -1134,7 +1133,7 @@ public class AvlStore<E> implements Store<E>
         }
         else if ( hasUserIndexOn( modsOid ) )
         {
-            Index<?, E> index = getUserIndex( modsOid );
+            Index<?, E, Long> index = getUserIndex( modsOid );
 
             // if the id exists in the index drop all existing attribute value index entries and add new ones
             if ( index.reverse( id ) )
@@ -1382,7 +1381,7 @@ public class AvlStore<E> implements Store<E>
 
             if ( hasUserIndexOn( newNormType ) )
             {
-                Index<?, E> index = getUserIndex( newNormType );
+                Index<?, E, Long> index = getUserIndex( newNormType );
                 ( ( Index ) index ).add( newNormValue, id );
 
                 // Make sure the altered entry shows the existence of the new attrib
@@ -1436,7 +1435,7 @@ public class AvlStore<E> implements Store<E>
 
                     if ( hasUserIndexOn( oldNormType ) )
                     {
-                        Index<?, E> index = getUserIndex( oldNormType );
+                        Index<?, E, Long> index = getUserIndex( oldNormType );
                         ( ( AvlIndex ) index ).drop( oldNormValue, id );
 
                         /*
@@ -1481,10 +1480,10 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public void setAliasIndex( Index<String, E> index ) throws Exception
+    public void setAliasIndex( Index<String, E, Long> index ) throws Exception
     {
         protect( "aliasIndex" );
-        if ( index instanceof AvlIndex )
+        if ( index instanceof AvlIndex<?, ?> )
         {
             this.aliasIdx = ( AvlIndex<String, E> ) index;
         }
@@ -1511,10 +1510,10 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public void setNdnIndex( Index<String, E> index ) throws Exception
+    public void setNdnIndex( Index<String, E, Long> index ) throws Exception
     {
         protect( "ndnIndex" );
-        if ( index instanceof AvlIndex )
+        if ( index instanceof AvlIndex<?, ?> )
         {
             this.ndnIdx = ( AvlIndex<String, E> ) index;
         }
@@ -1530,10 +1529,10 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public void setOneAliasIndex( Index<Long, E> index ) throws Exception
+    public void setOneAliasIndex( Index<Long, E, Long> index ) throws Exception
     {
         protect( "oneAliasIndex" );
-        if ( index instanceof AvlIndex )
+        if ( index instanceof AvlIndex<?, ?> )
         {
             this.oneAliasIdx = ( AvlIndex<Long, E> ) index;
         }
@@ -1549,10 +1548,10 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public void setOneLevelIndex( Index<Long, E> index ) throws Exception
+    public void setOneLevelIndex( Index<Long, E, Long> index ) throws Exception
     {
         protect( "oneLevelIndex" );
-        if ( index instanceof AvlIndex )
+        if ( index instanceof AvlIndex<?, ?> )
         {
             this.oneLevelIdx = ( AvlIndex<Long, E> ) index;
         }
@@ -1568,10 +1567,10 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public void setPresenceIndex( Index<String, E> index ) throws Exception
+    public void setPresenceIndex( Index<String, E, Long> index ) throws Exception
     {
         protect( "presenceIndex" );
-        if ( index instanceof AvlIndex )
+        if ( index instanceof AvlIndex<?, ?> )
         {
             this.existenceIdx = ( AvlIndex<String, E> ) index;
         }
@@ -1596,10 +1595,10 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public void setSubAliasIndex( Index<Long, E> index ) throws Exception
+    public void setSubAliasIndex( Index<Long, E, Long> index ) throws Exception
     {
         protect( "subAliasIndex" );
-        if ( index instanceof AvlIndex )
+        if ( index instanceof AvlIndex<?, ?> )
         {
             this.subAliasIdx = ( AvlIndex<Long, E> ) index;
         }
@@ -1615,10 +1614,10 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public void setSubLevelIndex( Index<Long, E> index ) throws Exception
+    public void setSubLevelIndex( Index<Long, E, Long> index ) throws Exception
     {
         protect( "subLevelIndex" );
-        if ( index instanceof AvlIndex )
+        if ( index instanceof AvlIndex<?, ?> )
         {
             this.subLevelIdx = ( AvlIndex<Long, E> ) index;
         }
@@ -1651,10 +1650,10 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public void setUpdnIndex( Index<String, E> index ) throws Exception
+    public void setUpdnIndex( Index<String, E, Long> index ) throws Exception
     {
         protect( "updnIndex" );
-        if ( index instanceof AvlIndex )
+        if ( index instanceof AvlIndex<?, ?> )
         {
             this.updnIdx = ( AvlIndex<String, E> ) index;
         }
@@ -1670,29 +1669,29 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public void setUserIndices( Set<Index<?, E>> userIndices )
+    public void setUserIndices( Set<Index<? extends Object, E, Long>> userIndices )
     {
         protect( "setUserIndices" );
 
-        for ( Index<?, E> index : userIndices )
+        for ( Index<? extends Object, E, Long> index : userIndices )
         {
-            if ( index instanceof AvlIndex )
+            if ( index instanceof AvlIndex<?, ?> )
             {
-                this.userIndices.put( index.getAttributeId(), ( AvlIndex<?, E> ) index );
+                this.userIndices.put( index.getAttributeId(), ( AvlIndex<? extends Object, E> ) index );
                 continue;
             }
 
             LOG.warn( "Supplied index {} is not a AvlIndex.  "
                 + "Will create new AvlIndex using copied configuration parameters.", index );
 
-            AvlIndex<?, E> avlIndex = ( AvlIndex<?, E> ) convert( index );
+            AvlIndex<Object, E> avlIndex = ( AvlIndex<Object, E> ) convert( index );
 
             this.userIndices.put( index.getAttributeId(), avlIndex );
         }
     }
 
 
-    private <K> AvlIndex<K, E> convert( Index<K, E> index )
+    private <K> AvlIndex<K, E> convert( Index<K, E, Long> index )
     {
         AvlIndex<K, E> avlIndex = new AvlIndex<K, E>();
         avlIndex.setAttributeId( index.getAttributeId() );
@@ -1925,7 +1924,7 @@ public class AvlStore<E> implements Store<E>
         }
 
         // find all the children of the childId
-        Cursor<IndexEntry<Long, E>> cursor = subLevelIdx.forwardCursor( childId );
+        Cursor<IndexEntry<Long, E, Long>> cursor = subLevelIdx.forwardCursor( childId );
 
         List<Long> childIds = new ArrayList<Long>();
         childIds.add( childId );
@@ -2064,29 +2063,29 @@ public class AvlStore<E> implements Store<E>
     }
 
 
-    public Index<String, E> getEntryCsnIndex()
+    public Index<String, E, Long> getEntryCsnIndex()
     {
         return entryCsnIdx;
     }
 
 
-    public Index<String, E> getEntryUuidIndex()
+    public Index<String, E, Long> getEntryUuidIndex()
     {
         return entryUuidIdx;
     }
 
 
-    public Index<String, E> getObjectClassIndex()
+    public Index<String, E, Long> getObjectClassIndex()
     {
         return objectClassIdx;
     }
 
 
-    public void setEntryCsnIndex( Index<String, E> index ) throws Exception
+    public void setEntryCsnIndex( Index<String, E, Long> index ) throws Exception
     {
         protect( "entryCsnIndex" );
 
-        if ( index instanceof AvlIndex )
+        if ( index instanceof AvlIndex<?, ?> )
         {
             this.entryCsnIdx = ( AvlIndex<String, E> ) index;
         }
@@ -2130,10 +2129,10 @@ public class AvlStore<E> implements Store<E>
     }
 
 
-    public void setObjectClassIndex( Index<String, E> index ) throws NamingException
+    public void setObjectClassIndex( Index<String, E, Long> index ) throws NamingException
     {
         protect( "objectClassIndex" );
-        if ( index instanceof AvlIndex )
+        if ( index instanceof AvlIndex<?, ?> )
         {
             this.objectClassIdx = ( AvlIndex<String, E> ) index;
         }
@@ -2146,10 +2145,10 @@ public class AvlStore<E> implements Store<E>
     }
 
 
-    public void setEntryUuidIndex( Index<String, E> index ) throws NamingException
+    public void setEntryUuidIndex( Index<String, E, Long> index ) throws NamingException
     {
         protect( "entryUuidIndex" );
-        if ( index instanceof AvlIndex )
+        if ( index instanceof AvlIndex<?, ?> )
         {
             this.entryUuidIdx = ( AvlIndex<String, E> ) index;
         }
@@ -2168,4 +2167,14 @@ public class AvlStore<E> implements Store<E>
     public void sync() throws Exception
     {
     }
+
+
+    /**
+     * @{inhertDoc}
+     */
+    public Long getDefaultId()
+    {
+        return 1L;
+    }
+
 }

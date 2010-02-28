@@ -37,26 +37,26 @@ import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class OneLevelScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
+public class OneLevelScopeCursor<ID> extends AbstractIndexCursor<ID, ServerEntry, ID>
 {
     /** Error message for unsupported operations */
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
     /** The entry database/store */
-    private final Store<ServerEntry> db;
+    private final Store<ServerEntry, ID> db;
 
     /** A onelevel ScopeNode Evaluator */
     @SuppressWarnings("unchecked")
     private final OneLevelScopeEvaluator evaluator;
 
     /** A Cursor over the entries in the scope of the search base */
-    private final IndexCursor<Long, ServerEntry> scopeCursor;
+    private final IndexCursor<ID, ServerEntry, ID> scopeCursor;
 
     /** A Cursor over entries brought into scope by alias dereferencing */
-    private final Cursor<IndexEntry<Long, ServerEntry>> dereferencedCursor;
+    private final Cursor<IndexEntry<ID, ServerEntry, ID>> dereferencedCursor;
 
     /** Currently active Cursor: we switch between two cursors */
-    private Cursor<IndexEntry<Long, ServerEntry>> cursor;
+    private Cursor<IndexEntry<ID, ServerEntry, ID>> cursor;
 
     /** Whether or not this Cursor is positioned so an entry is available */
     private boolean available = false;
@@ -69,8 +69,9 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    @SuppressWarnings("unchecked")
-    public OneLevelScopeCursor( Store<ServerEntry> db, OneLevelScopeEvaluator evaluator ) throws Exception
+    //@SuppressWarnings("unchecked")
+    public OneLevelScopeCursor( Store<ServerEntry, ID> db, OneLevelScopeEvaluator<ServerEntry, ID> evaluator )
+        throws Exception
     {
         this.db = db;
         this.evaluator = evaluator;
@@ -93,25 +94,25 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
     }
 
 
-    public void beforeValue( Long id, Long value ) throws Exception
+    public void beforeValue( ID id, ID value ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
 
 
-    public void afterValue( Long id, Long value ) throws Exception
+    public void afterValue( ID id, ID value ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
 
 
-    public void before( IndexEntry<Long, ServerEntry> element ) throws Exception
+    public void before( IndexEntry<ID, ServerEntry, ID> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
 
 
-    public void after( IndexEntry<Long, ServerEntry> element ) throws Exception
+    public void after( IndexEntry<ID, ServerEntry, ID> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
@@ -289,7 +290,7 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
     }
 
 
-    public IndexEntry<Long, ServerEntry> get() throws Exception
+    public IndexEntry<ID, ServerEntry, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
         if ( available )
