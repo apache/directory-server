@@ -38,6 +38,7 @@ import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupported
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.RDN;
 
 
 /**
@@ -394,34 +395,35 @@ public abstract class AbstractXdbmPartition extends BTreePartition
      */
     private void checkIsValidMove( LdapDN oldChildDn, LdapDN newParentDn ) throws Exception
     {
-        Long newParentId = getEntryId( newParentDn.toString() );
-        Long childId = getEntryId( oldChildDn.toString() );
-        Long oldParentId = getParentId( childId );
-        
-        if( childId.longValue() == newParentId.longValue() )
-        {
-            throw new LdapOperationNotSupportedException( "child entry DN cannot be same as parent entry DN", ResultCodeEnum.UNWILLING_TO_PERFORM );
-        }
-
-        IndexCursor idxCursor = getSubLevelIndex().forwardCursor( childId );
         boolean invalid = false;
-        while( idxCursor.next() )
+
+        LdapDN newParentDNClone = ( LdapDN ) newParentDn.clone();
+        newParentDNClone.remove( newParentDNClone.size() - 1 );
+        
+        if( newParentDn.size() >= oldChildDn.size() )
         {
-            ForwardIndexEntry<Long, Long> fwdIdxEntry = ( ForwardIndexEntry<Long, Long> ) idxCursor.get();
-            
-            if( fwdIdxEntry.getId().equals( newParentId ) )
+            for( int i=0; i < oldChildDn.size(); i++ )
             {
-                invalid = true;
-                break;
+                RDN nameRdn = oldChildDn.getRdn( i );
+                RDN ldapRdn = newParentDn.getRdn( i );
+
+                if ( nameRdn.compareTo( ldapRdn ) == 0 )
+                {
+                    invalid = true;
+                }
+                else
+                {
+                    invalid = false;
+                    break;
+                }
             }
         }
-
-        idxCursor.close();
         
-        if ( invalid )
+        if( invalid )
         {
             throw new LdapOperationNotSupportedException( "cannot place an entry below itself", ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
+        
     }
 
     
