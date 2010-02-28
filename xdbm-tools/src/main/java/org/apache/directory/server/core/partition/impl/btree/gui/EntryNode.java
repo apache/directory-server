@@ -55,7 +55,7 @@ public class EntryNode implements TreeNode
     private final Long id;
 
 
-    public EntryNode(Long id, EntryNode parent, BTreePartition partition, ServerEntry entry, Map<Long, EntryNode> map)
+    public EntryNode( Long id, EntryNode parent, BTreePartition partition, ServerEntry entry, Map<Long, EntryNode> map )
     {
         this( id, parent, partition, entry, map, null, null );
     }
@@ -81,8 +81,8 @@ public class EntryNode implements TreeNode
         try
         {
             List<ForwardIndexEntry> recordForwards = new ArrayList<ForwardIndexEntry>();
-            IndexCursor<Long,ServerEntry> childList = db.list( id );
-            
+            IndexCursor<Long, ServerEntry> childList = db.list( id );
+
             while ( childList.next() )
             {
                 IndexEntry old = childList.get();
@@ -90,7 +90,7 @@ public class EntryNode implements TreeNode
                 newRec.copy( old );
                 recordForwards.add( newRec );
             }
-            
+
             childList.close();
 
             Iterator list = recordForwards.iterator();
@@ -124,8 +124,8 @@ public class EntryNode implements TreeNode
                 }
                 else
                 {
-                    ServerEntry newEntry = db.lookup( (Long)rec.getId() );
-                    EntryNode child = new EntryNode( (Long)rec.getId(), this, db, newEntry, map );
+                    ServerEntry newEntry = db.lookup( ( Long ) rec.getId() );
+                    EntryNode child = new EntryNode( ( Long ) rec.getId(), this, db, newEntry, map );
                     children.add( child );
                 }
             }

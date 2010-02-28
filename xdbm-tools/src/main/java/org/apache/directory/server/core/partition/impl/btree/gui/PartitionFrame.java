@@ -116,9 +116,9 @@ public class PartitionFrame extends JFrame
     private Map<Long, EntryNode> nodes;
     private EntryNode root;
 
-    
     /** A handle on the global schemaManager */
     private SchemaManager schemaManager;
+
 
     /**
      * Creates new form JFrame
@@ -462,10 +462,10 @@ public class PartitionFrame extends JFrame
         {
             in = new FileReader( selected );
 
-            for ( LdifEntry entry:new LdifReader( in ) )
+            for ( LdifEntry entry : new LdifReader( in ) )
             {
                 String updn = entry.getDn().getName();
-                
+
                 LdapDN ndn = new LdapDN( StringTools.deepTrimToLower( updn ) );
 
                 ServerEntry attrs = new DefaultServerEntry( schemaManager, entry.getEntry() );
@@ -662,8 +662,8 @@ public class PartitionFrame extends JFrame
             limitMax = Integer.parseInt( limit );
         }
 
-        IndexCursor<Long,ServerEntry> cursor = partition
-                .getSearchEngine().cursor( new LdapDN( base ), AliasDerefMode.DEREF_ALWAYS, root, ctls );
+        IndexCursor<Long, ServerEntry> cursor = partition.getSearchEngine().cursor( new LdapDN( base ),
+            AliasDerefMode.DEREF_ALWAYS, root, ctls );
         String[] cols = new String[2];
         cols[0] = "id";
         cols[1] = "dn";
@@ -873,10 +873,10 @@ public class PartitionFrame extends JFrame
         entryTbl.setModel( model );
 
         // TODO use utility method to getIndices below
-//        model = new AttributesTableModel( partition.getIndices( id ), id, dn, false );
-//        idxTbl.setModel( model );
-//
-//        validate();
+        //        model = new AttributesTableModel( partition.getIndices( id ), id, dn, false );
+        //        idxTbl.setModel( model );
+        //
+        //        validate();
     }
 
 

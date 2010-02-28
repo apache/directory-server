@@ -38,7 +38,7 @@ public class IndexUtils
 {
     public static void printContents( Index<?, ServerEntry> idx ) throws Exception
     {
-        printContents( idx, System.out );    
+        printContents( idx, System.out );
     }
 
 

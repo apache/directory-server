@@ -52,6 +52,7 @@ public class StoreUtils
     /** CSN factory instance */
     private static final CsnFactory CSN_FACTORY = new CsnFactory( 0 );
 
+
     /**
      * Initializes and loads a store with the example data shown in
      * <a href="http://cwiki.apache.org/confluence/display/DIRxSRVx11/Structure+and+Organization">
@@ -70,7 +71,7 @@ public class StoreUtils
 
         LdapDN suffixDn = new LdapDN( "o=Good Times Co." );
         suffixDn.normalize( schemaManager.getNormalizerMapping() );
-        
+
         store.init( schemaManager );
 
         // Entry #1
@@ -81,7 +82,6 @@ public class StoreUtils
         entry.add( "postOfficeBox", "1" );
         injectEntryInStore( store, entry );
 
-        
         // Entry #2
         LdapDN dn = new LdapDN( "ou=Sales,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
@@ -101,7 +101,7 @@ public class StoreUtils
         entry.add( "postalCode", "1" );
         entry.add( "postOfficeBox", "1" );
         injectEntryInStore( store, entry );
-        
+
         // Entry #4
         dn = new LdapDN( "ou=Engineering,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
@@ -111,27 +111,27 @@ public class StoreUtils
         entry.add( "postalCode", "2" );
         entry.add( "postOfficeBox", "2" );
         injectEntryInStore( store, entry );
-        
+
         // Entry #5
         dn = new LdapDN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
         entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Sales" );
-        entry.add( "cn", "JOhnny WAlkeR");
-        entry.add( "sn", "WAlkeR");
+        entry.add( "cn", "JOhnny WAlkeR" );
+        entry.add( "sn", "WAlkeR" );
         entry.add( "postalCode", "3" );
         entry.add( "postOfficeBox", "3" );
         injectEntryInStore( store, entry );
-        
+
         // Entry #6
         dn = new LdapDN( "cn=JIM BEAN,ou=Sales,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
         entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Sales" );
-        entry.add( "cn",  "JIM BEAN");
-        entry.add( "surName", "BEAN");
+        entry.add( "cn", "JIM BEAN" );
+        entry.add( "surName", "BEAN" );
         entry.add( "postalCode", "4" );
         entry.add( "postOfficeBox", "4" );
         injectEntryInStore( store, entry );
@@ -145,15 +145,15 @@ public class StoreUtils
         entry.add( "postalCode", "5" );
         entry.add( "postOfficeBox", "5" );
         injectEntryInStore( store, entry );
-        
+
         // Entry #8
         dn = new LdapDN( "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
         entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Engineering" );
-        entry.add( "cn",  "Jack Daniels");
-        entry.add( "SN",  "Daniels");
+        entry.add( "cn", "Jack Daniels" );
+        entry.add( "SN", "Daniels" );
         entry.add( "postalCode", "6" );
         entry.add( "postOfficeBox", "6" );
         injectEntryInStore( store, entry );
@@ -166,7 +166,7 @@ public class StoreUtils
         entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "ou", "Apache" );
-        entry.add( "commonName",  "Jim Bean");
+        entry.add( "commonName", "Jim Bean" );
         entry.add( "aliasedObjectName", "cn=Jim Bean,ou=Sales,o=Good Times Co." );
         injectEntryInStore( store, entry );
 
@@ -175,7 +175,7 @@ public class StoreUtils
         dn.normalize( schemaManager.getNormalizerMapping() );
         entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
-        entry.add( "commonName",  "Jim Bean");
+        entry.add( "commonName", "Jim Bean" );
         entry.add( "aliasedObjectName", "cn=Jim Bean,ou=Sales,o=Good Times Co." );
         injectEntryInStore( store, entry );
 
@@ -185,12 +185,12 @@ public class StoreUtils
         entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "ou", "Engineering" );
-        entry.add( "2.5.4.3",  "Johnny Walker");
+        entry.add( "2.5.4.3", "Johnny Walker" );
         entry.add( "aliasedObjectName", "cn=Johnny Walker,ou=Sales,o=Good Times Co." );
         injectEntryInStore( store, entry );
     }
-    
-    
+
+
     /**
      * This is primarily a convenience method used to extract all the attributes
      * associated with an entry.
@@ -211,7 +211,7 @@ public class StoreUtils
         entry.put( "_parent", Long.toString( store.getParentId( id ) ) );
 
         // Get all standard index attribute to value mappings
-        for ( Index index : ( Set<Index> )store.getUserIndices() )
+        for ( Index index : ( Set<Index> ) store.getUserIndices() )
         {
             Cursor<ForwardIndexEntry> list = index.reverseCursor();
             ForwardIndexEntry recordForward = new ForwardIndexEntry();
@@ -229,7 +229,7 @@ public class StoreUtils
                 {
                     attr = new DefaultClientAttribute( attrId );
                 }
-                
+
                 attr.add( val );
                 entry.put( attr );
             }
@@ -242,7 +242,7 @@ public class StoreUtils
         recordForward.setId( id );
         list.before( recordForward );
         StringBuffer val = new StringBuffer();
-        
+
         while ( list.next() )
         {
             IndexEntry rec = list.get();
@@ -252,12 +252,12 @@ public class StoreUtils
 
             String valStr = val.toString();
             EntryAttribute attr = entry.get( valStr );
-            
+
             if ( attr == null )
             {
                 attr = new DefaultClientAttribute( valStr );
             }
-            
+
             attr.add( rec.getId().toString() );
             entry.put( attr );
             val.setLength( 0 );
@@ -272,7 +272,7 @@ public class StoreUtils
 
         EntryAttribute childAttr = new DefaultClientAttribute( "_child" );
         entry.put( childAttr );
-        
+
         while ( children.next() )
         {
             IndexEntry rec = children.get();
@@ -297,7 +297,7 @@ public class StoreUtils
     {
         entry.add( SchemaConstants.ENTRY_CSN_AT, CSN_FACTORY.newInstance().toString() );
         entry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
-        
+
         store.add( entry );
     }
 }
