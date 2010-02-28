@@ -20,6 +20,7 @@
 package org.apache.directory.server.operations.modifydn;
 
 
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getClientApiConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -30,11 +31,17 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.message.ModifyDnRequest;
+import org.apache.directory.ldap.client.api.message.ModifyDnResponse;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -65,7 +72,19 @@ import org.junit.runner.RunWith;
     "dn: ou=NewSuperior,ou=system",
     "objectClass: organizationalUnit",
     "objectClass: top",
-    "ou: NewSuperior"
+    "ou: NewSuperior",
+    
+    "dn: ou=parent,ou=system",
+    "changetype: add",
+    "objectClass: organizationalUnit",
+    "objectClass: top",
+    "ou: parent",
+    
+    "dn: ou=child,ou=parent,ou=system",
+    "changetype: add",
+    "objectClass: organizationalUnit",
+    "objectClass: top",
+    "ou: child"
     }
 )
 public class MoveIT extends AbstractLdapTestUnit 
@@ -118,9 +137,27 @@ public class MoveIT extends AbstractLdapTestUnit
         ctx.close();
     }
     
+    
     @Test
-    public void testDummy()
+    public void testIllegalMove() throws Exception
     {
-        
+
+    	LdapConnection con = getClientApiConnection( ldapServer );
+    
+    	//now do something bad: make the parent a child of its own child 
+    	ModifyDnResponse resp = con.move( "ou=parent,ou=system", "ou=child,ou=parent,ou=system" );
+    	assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, resp.getLdapResult().getResultCode() );
     }
+    
+    
+    @Test
+    public void testIllegalMoveToSameDN() throws Exception
+    {
+
+    	LdapConnection con = getClientApiConnection( ldapServer );
+    
+    	//now do something bad: try to move the entry to the same DN
+    	ModifyDnResponse resp = con.move( "ou=parent,ou=system", "ou=parent,ou=system" );
+        assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, resp.getLdapResult().getResultCode() );
+    }    
 }

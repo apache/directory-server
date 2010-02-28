@@ -35,6 +35,7 @@ import org.apache.directory.server.core.interceptor.context.UnbindOperationConte
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
+import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -370,6 +371,7 @@ public abstract class AbstractXdbmPartition extends BTreePartition
 
     public final void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws Exception
     {
+        checkIsValidMove( moveAndRenameContext.getDn(), moveAndRenameContext.getParent() );
         store.move( moveAndRenameContext.getDn(), moveAndRenameContext.getParent(), moveAndRenameContext.getNewRdn(),
             moveAndRenameContext.getDelOldDn() );
     }
@@ -377,10 +379,52 @@ public abstract class AbstractXdbmPartition extends BTreePartition
 
     public final void move( MoveOperationContext moveContext ) throws Exception
     {
+        checkIsValidMove( moveContext.getDn(), moveContext.getParent() );
         store.move( moveContext.getDn(), moveContext.getParent() );
     }
 
+    
+    /**
+     * 
+     * checks whether the moving of given entry is valid
+     *
+     * @param oldChildDn the entry's DN to be moved
+     * @param newParentDn new parent entry's DN
+     * @throws Exception
+     */
+    private void checkIsValidMove( LdapDN oldChildDn, LdapDN newParentDn ) throws Exception
+    {
+        Long newParentId = getEntryId( newParentDn.toString() );
+        Long childId = getEntryId( oldChildDn.toString() );
+        Long oldParentId = getParentId( childId );
+        
+        if( childId.longValue() == newParentId.longValue() )
+        {
+            throw new LdapOperationNotSupportedException( "child entry DN cannot be same as parent entry DN", ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
 
+        IndexCursor idxCursor = getSubLevelIndex().forwardCursor( childId );
+        boolean invalid = false;
+        while( idxCursor.next() )
+        {
+            ForwardIndexEntry<Long, Long> fwdIdxEntry = ( ForwardIndexEntry<Long, Long> ) idxCursor.get();
+            
+            if( fwdIdxEntry.getId().equals( newParentId ) )
+            {
+                invalid = true;
+                break;
+            }
+        }
+
+        idxCursor.close();
+        
+        if ( invalid )
+        {
+            throw new LdapOperationNotSupportedException( "cannot place an entry below itself", ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+    }
+
+    
     public final void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId )
         throws Exception
     {
