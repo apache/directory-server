@@ -170,7 +170,6 @@ public class SpringServerTest
      * Test a server.xml for JdbmPartition configuration
      */
     @Test
-    @Ignore // TODO: enable when start from server.xml is working again 
     public void testSpringServerJdbmPartition() throws Exception {
         // NOTE : This test will only work on systems which have a /tmp temp dir
         File tmpDir = getTmpDir();
