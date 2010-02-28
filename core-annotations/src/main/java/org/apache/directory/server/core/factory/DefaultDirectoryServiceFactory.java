@@ -62,7 +62,8 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
      */
     public static final DirectoryServiceFactory DEFAULT = new DefaultDirectoryServiceFactory();
 
-    /* default access */ DefaultDirectoryServiceFactory()
+
+    /* default access */DefaultDirectoryServiceFactory()
     {
         try
         {
@@ -71,13 +72,13 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
             // before starting up the service
             directoryService = new DefaultDirectoryService();
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             throw new RuntimeException( e );
         }
     }
-    
-    
+
+
     public void init( String name ) throws Exception
     {
         if ( ( directoryService != null ) && ( directoryService.isStarted() ) )
@@ -87,8 +88,8 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
 
         build( name );
     }
-    
-    
+
+
     /**
      * Build the working directory
      */
@@ -100,11 +101,11 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         {
             workingDirectory = System.getProperty( "java.io.tmpdir" ) + "/server-work-" + name;
         }
-        
+
         directoryService.setWorkingDirectory( new File( workingDirectory ) );
     }
-    
-    
+
+
     private void initSchema() throws Exception
     {
         SchemaPartition schemaPartition = directoryService.getSchemaService().getSchemaPartition();
@@ -129,7 +130,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         // to initialize the Partitions, as we won't be able to parse 
         // and normalize their suffix DN
         schemaManager.loadAllEnabled();
-        
+
         schemaPartition.setSchemaManager( schemaManager );
 
         List<Throwable> errors = schemaManager.getErrors();
@@ -139,8 +140,8 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
             throw new Exception( I18n.err( I18n.ERR_317, ExceptionUtils.printErrors( errors ) ) );
         }
     }
-    
-    
+
+
     private void initSystemPartition() throws Exception
     {
         // change the working directory to something that is unique
@@ -153,8 +154,8 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         ( ( JdbmPartition ) systemPartition ).setCacheSize( 500 );
         systemPartition.setSuffix( ServerDNConstants.SYSTEM_DN );
         systemPartition.setSchemaManager( directoryService.getSchemaManager() );
-        ( ( JdbmPartition ) systemPartition ).setPartitionDir( 
-            new File( directoryService.getWorkingDirectory(), "system" ) );
+        ( ( JdbmPartition ) systemPartition ).setPartitionDir( new File( directoryService.getWorkingDirectory(),
+            "system" ) );
 
         // Add objectClass attribute for the system partition
         Set<Index<?, ServerEntry>> indexedAttrs = new HashSet<Index<?, ServerEntry>>();
@@ -164,38 +165,37 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         directoryService.setSystemPartition( systemPartition );
     }
 
-    
+
     public void initJdbmPartition( String name, String suffix ) throws Exception
     {
         Partition partition = new JdbmPartition();
         partition.setId( name );
         partition.setSuffix( suffix );
         partition.setSchemaManager( directoryService.getSchemaManager() );
-        ( ( JdbmPartition ) partition ).setPartitionDir( 
-            new File( directoryService.getWorkingDirectory(), name ) );
+        ( ( JdbmPartition ) partition ).setPartitionDir( new File( directoryService.getWorkingDirectory(), name ) );
         directoryService.addPartition( partition );
     }
 
-    
+
     public void build( String name ) throws Exception
     {
         directoryService.setInstanceId( name );
         buildWorkingDirectory( name );
-        
+
         // Erase the working directory to be sure that we don't have some
         // remaining data from a previous run
         String workingDirectoryPath = directoryService.getWorkingDirectory().getPath();
         File workingDirectory = new File( workingDirectoryPath );
         FileUtils.deleteDirectory( workingDirectory );
-        
+
         // Init the service now
         initSchema();
         initSystemPartition();
-        
+
         directoryService.startup();
     }
 
-    
+
     public DirectoryService getDirectoryService() throws Exception
     {
         return directoryService;
