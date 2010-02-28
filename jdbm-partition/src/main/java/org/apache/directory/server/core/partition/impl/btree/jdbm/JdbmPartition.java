@@ -47,9 +47,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
  */
 public class JdbmPartition extends AbstractXdbmPartition
 {
-    
-    
-    
+
     /**
      * Creates a store based on JDBM B+Trees.
      */
@@ -60,7 +58,7 @@ public class JdbmPartition extends AbstractXdbmPartition
 
 
     @SuppressWarnings("unchecked")
-    public final void initialize( ) throws Exception
+    public final void initialize() throws Exception
     {
         store.setWorkingDirectory( getPartitionDir() );
 
@@ -68,7 +66,7 @@ public class JdbmPartition extends AbstractXdbmPartition
         CursorBuilder cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
 
         // setup optimizer and registries for parent
-        if ( ! optimizerEnabled )
+        if ( !optimizerEnabled )
         {
             optimizer = new NoOpOptimizer();
         }
@@ -78,77 +76,77 @@ public class JdbmPartition extends AbstractXdbmPartition
         }
 
         searchEngine = new DefaultSearchEngine( store, cursorBuilder, evaluatorBuilder, optimizer );
-        
+
         // initialize the store
         store.setCacheSize( cacheSize );
         store.setName( id );
-        
+
         // Normalize the suffix
         suffix.normalize( schemaManager.getNormalizerMapping() );
         store.setSuffixDn( suffix.getNormName() );
         store.setWorkingDirectory( getPartitionDir() );
 
-        Set<Index<?,ServerEntry>> userIndices = new HashSet<Index<?,ServerEntry>>();
-        
-        for ( Index<?,ServerEntry> obj : getIndexedAttributes() )
+        Set<Index<?, ServerEntry>> userIndices = new HashSet<Index<?, ServerEntry>>();
+
+        for ( Index<?, ServerEntry> obj : getIndexedAttributes() )
         {
-            Index<?,ServerEntry> index;
+            Index<?, ServerEntry> index;
 
             if ( obj instanceof JdbmIndex )
             {
-                index = ( JdbmIndex<?,ServerEntry> ) obj;
+                index = ( JdbmIndex<?, ServerEntry> ) obj;
             }
             else
             {
-                index = new JdbmIndex<Object,ServerEntry>();
+                index = new JdbmIndex<Object, ServerEntry>();
                 index.setAttributeId( obj.getAttributeId() );
                 index.setCacheSize( obj.getCacheSize() );
                 index.setWkDirPath( obj.getWkDirPath() );
             }
 
             String oid = schemaManager.getAttributeTypeRegistry().getOidByName( index.getAttributeId() );
-            
+
             if ( SYS_INDEX_OIDS.contains( oid ) )
             {
                 if ( oid.equals( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) )
                 {
-                    store.setAliasIndex( ( Index<String,ServerEntry> ) index );
+                    store.setAliasIndex( ( Index<String, ServerEntry> ) index );
                 }
                 else if ( oid.equals( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ) )
                 {
-                    store.setPresenceIndex( ( Index<String,ServerEntry> ) index );
+                    store.setPresenceIndex( ( Index<String, ServerEntry> ) index );
                 }
                 else if ( oid.equals( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) )
                 {
-                    store.setOneLevelIndex( ( Index<Long,ServerEntry> ) index );
+                    store.setOneLevelIndex( ( Index<Long, ServerEntry> ) index );
                 }
                 else if ( oid.equals( ApacheSchemaConstants.APACHE_N_DN_AT_OID ) )
                 {
-                    store.setNdnIndex( ( Index<String,ServerEntry> ) index );
+                    store.setNdnIndex( ( Index<String, ServerEntry> ) index );
                 }
                 else if ( oid.equals( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) )
                 {
-                    store.setOneAliasIndex( ( Index<Long,ServerEntry> ) index );
+                    store.setOneAliasIndex( ( Index<Long, ServerEntry> ) index );
                 }
                 else if ( oid.equals( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) )
                 {
-                    store.setSubAliasIndex( ( Index<Long,ServerEntry> ) index );
+                    store.setSubAliasIndex( ( Index<Long, ServerEntry> ) index );
                 }
                 else if ( oid.equals( ApacheSchemaConstants.APACHE_UP_DN_AT_OID ) )
                 {
-                    store.setUpdnIndex( ( Index<String,ServerEntry> ) index );
+                    store.setUpdnIndex( ( Index<String, ServerEntry> ) index );
                 }
                 else if ( oid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
                 {
-                    store.setObjectClassIndex( ( Index<String,ServerEntry> ) index );
+                    store.setObjectClassIndex( ( Index<String, ServerEntry> ) index );
                 }
                 else if ( oid.equals( SchemaConstants.ENTRY_CSN_AT_OID ) )
                 {
-                    store.setEntryCsnIndex( ( Index<String,ServerEntry> ) index );
+                    store.setEntryCsnIndex( ( Index<String, ServerEntry> ) index );
                 }
                 else if ( oid.equals( SchemaConstants.ENTRY_UUID_AT_OID ) )
                 {
-                    store.setEntryUuidIndex( ( Index<String,ServerEntry> ) index );
+                    store.setEntryUuidIndex( ( Index<String, ServerEntry> ) index );
                 }
                 else
                 {
@@ -159,7 +157,7 @@ public class JdbmPartition extends AbstractXdbmPartition
             {
                 userIndices.add( index );
             }
-            
+
             store.setUserIndices( userIndices );
         }
 
@@ -171,14 +169,14 @@ public class JdbmPartition extends AbstractXdbmPartition
     {
         return store.getObjectClassIndex();
     }
-         
-    
+
+
     public Index<String, ServerEntry> getEntryCsnIndex()
     {
         return store.getEntryCsnIndex();
     }
 
-    
+
     public Index<String, ServerEntry> getEntryUuidIndex()
     {
         return store.getEntryUuidIndex();
