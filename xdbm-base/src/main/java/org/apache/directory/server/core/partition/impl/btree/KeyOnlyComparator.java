@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.schema.comparators.SerializableComparato
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class KeyOnlyComparator<K,V> implements TupleComparator<K,V>, Serializable
+public class KeyOnlyComparator<K, V> implements TupleComparator<K, V>, Serializable
 {
     private static final long serialVersionUID = 3544956549803161397L;
 

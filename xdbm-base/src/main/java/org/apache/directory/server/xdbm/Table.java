@@ -20,7 +20,6 @@
 package org.apache.directory.server.xdbm;
 
 
-
 import java.util.Comparator;
 
 import org.apache.directory.shared.ldap.cursor.Cursor;
@@ -71,7 +70,7 @@ public interface Table<K, V>
      */
     boolean isDupsEnabled();
 
-    
+
     /**
      * Checks whether or not calls to count the number of keys greater than or
      * less than the key are exact.
@@ -84,13 +83,12 @@ public interface Table<K, V>
      * @return true if the count is an exact value or a worst case guess 
      */
     boolean isCountExact();
-    
+
 
     // ------------------------------------------------------------------------
     // Simple Table Key/Value Assertions 
     // ------------------------------------------------------------------------
 
-    
     /**
      * Checks to see if this table has one or more tuples with a specific key:
      * this is exactly the same as a get call with a check to see if the
@@ -248,7 +246,7 @@ public interface Table<K, V>
      * @return a Cursor over Tuples containing the key value pairs
      * @throws Exception if there are failures accessing underlying stores
      */
-    Cursor<Tuple<K,V>> cursor() throws Exception;
+    Cursor<Tuple<K, V>> cursor() throws Exception;
 
 
     /**
@@ -264,7 +262,7 @@ public interface Table<K, V>
      * @return a Cursor over Tuples containing the same key
      * @throws Exception if there are failures accessing underlying stores
      */
-    Cursor<Tuple<K,V>> cursor( K key ) throws Exception;
+    Cursor<Tuple<K, V>> cursor( K key ) throws Exception;
 
 
     /**
@@ -288,7 +286,6 @@ public interface Table<K, V>
     // Table Record Count Methods
     // ------------------------------------------------------------------------
 
-    
     /**
      * Gets the count of the number of records in this Table.
      *

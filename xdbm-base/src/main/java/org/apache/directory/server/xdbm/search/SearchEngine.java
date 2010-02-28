@@ -84,10 +84,8 @@ public interface SearchEngine<E>
      * @return enumeration over SearchResults
      * @throws Exception if the search fails
      */
-    IndexCursor<Long,E> cursor( LdapDN base,
-                             AliasDerefMode aliasDerefMode,
-                             ExprNode filter,
-                             SearchControls searchCtls ) throws Exception;
+    IndexCursor<Long, E> cursor( LdapDN base, AliasDerefMode aliasDerefMode, ExprNode filter, SearchControls searchCtls )
+        throws Exception;
 
 
     /**

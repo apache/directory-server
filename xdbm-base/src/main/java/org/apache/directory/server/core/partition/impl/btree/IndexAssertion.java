@@ -33,7 +33,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface IndexAssertion<K,E>
+public interface IndexAssertion<K, E>
 {
     /**
      * Tests to see if a perspective candidate should be returned based on 
@@ -47,5 +47,5 @@ public interface IndexAssertion<K,E>
      * @throws NamingException if their are failures while asserting the 
      * condition
      */
-    boolean assertCandidate( IndexEntry<K,E> entry ) throws Exception;
+    boolean assertCandidate( IndexEntry<K, E> entry ) throws Exception;
 }

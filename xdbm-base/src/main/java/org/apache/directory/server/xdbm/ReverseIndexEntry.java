@@ -27,10 +27,10 @@ package org.apache.directory.server.xdbm;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ReverseIndexEntry<V,O> implements IndexEntry<V,O>
+public class ReverseIndexEntry<V, O> implements IndexEntry<V, O>
 {
     /** The underlying Tuple */
-    private final Tuple<Long,V> tuple = new Tuple<Long,V>();
+    private final Tuple<Long, V> tuple = new Tuple<Long, V>();
 
     /** The indexed object if loaded from the store */
     private O obj;
@@ -44,7 +44,7 @@ public class ReverseIndexEntry<V,O> implements IndexEntry<V,O>
      * @param tuple the tuple for the ReverseIndexEntry
      * @param obj the resusitated object that is indexed if any
      */
-    public void setTuple( Tuple<Long,V> tuple, O obj )
+    public void setTuple( Tuple<Long, V> tuple, O obj )
     {
         this.tuple.setKey( tuple.getKey() );
         this.tuple.setValue( tuple.getValue() );

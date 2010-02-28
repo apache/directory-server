@@ -37,17 +37,17 @@ public abstract class AbstractIndexCursor<K, E> implements IndexCursor<K, E>
 {
     private ClosureMonitor monitor = new DefaultClosureMonitor();
 
-    
+
     public final void setClosureMonitor( ClosureMonitor monitor )
     {
         if ( monitor == null )
         {
             throw new NullPointerException( "monitor" );
         }
-        
+
         this.monitor = monitor;
     }
-    
+
 
     protected final void checkNotClosed( String operation ) throws Exception
     {

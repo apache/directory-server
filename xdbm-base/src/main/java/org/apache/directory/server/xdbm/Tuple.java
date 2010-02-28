@@ -73,7 +73,7 @@ public class Tuple<K, V>
      * @param key the new key to set
      * @return this Tuple itself to set and return
      */
-    public Tuple<K,V> setKey( K key )
+    public Tuple<K, V> setKey( K key )
     {
         this.key = key;
         return this;
@@ -97,7 +97,7 @@ public class Tuple<K, V>
      * @param value the new value to set
      * @return this Tuple itself to set and return
      */
-    public Tuple<K,V> setValue( V value )
+    public Tuple<K, V> setValue( V value )
     {
         this.value = value;
         return this;
@@ -113,14 +113,12 @@ public class Tuple<K, V>
      * @param value the new value to set
      * @return this Tuple itself to set and return
      */
-    public Tuple<K,V> setBoth( K key, V value )
+    public Tuple<K, V> setBoth( K key, V value )
     {
         this.key = key;
         this.value = value;
         return this;
     }
-
-
 
 
     /**
@@ -131,7 +129,7 @@ public class Tuple<K, V>
      * @param tupleToCopy the tuple to copy
      * @return this Tuple itself to set and return
      */
-    public Tuple<K,V> setBoth( Tuple<K,V> tupleToCopy )
+    public Tuple<K, V> setBoth( Tuple<K, V> tupleToCopy )
     {
         this.key = tupleToCopy.key;
         this.value = tupleToCopy.value;
@@ -144,7 +142,7 @@ public class Tuple<K, V>
         StringBuilder buf = new StringBuilder();
         buf.append( "Tuple( '" );
         buf.append( key );
-        buf.append(  "', '" );
+        buf.append( "', '" );
         buf.append( value );
         buf.append( "' )" );
         return buf.toString();

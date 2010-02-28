@@ -47,7 +47,7 @@ public class IndexAssertionEnumeration implements NamingEnumeration<IndexEntry>
     /** The iteration cursor */
     private final NamingEnumeration<ForwardIndexEntry> underlying;
     /** LUT used to avoid returning duplicates */
-    private final Map<Object,Object> candidates;
+    private final Map<Object, Object> candidates;
     /** */
     private final IndexAssertion assertion;
     /** */
@@ -59,7 +59,6 @@ public class IndexAssertionEnumeration implements NamingEnumeration<IndexEntry>
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
-
 
     public IndexAssertionEnumeration( NamingEnumeration<ForwardIndexEntry> underlying, IndexAssertion assertion )
         throws NamingException
@@ -76,7 +75,7 @@ public class IndexAssertionEnumeration implements NamingEnumeration<IndexEntry>
         boolean enableDupCheck ) throws NamingException
     {
         this.underlying = underlying;
-        candidates = new HashMap<Object,Object>();
+        candidates = new HashMap<Object, Object>();
         this.assertion = assertion;
         checkDups = enableDupCheck;
         prefetch();

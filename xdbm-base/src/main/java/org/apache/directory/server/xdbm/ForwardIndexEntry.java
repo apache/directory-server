@@ -27,10 +27,10 @@ package org.apache.directory.server.xdbm;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ForwardIndexEntry<V,O> implements IndexEntry<V,O>
+public class ForwardIndexEntry<V, O> implements IndexEntry<V, O>
 {
     /** The underlying Tuple */
-    private final Tuple<V,Long> tuple = new Tuple<V,Long>();
+    private final Tuple<V, Long> tuple = new Tuple<V, Long>();
 
     /** The referenced obj if loaded from the store */
     private O obj;
@@ -44,7 +44,7 @@ public class ForwardIndexEntry<V,O> implements IndexEntry<V,O>
      * @param tuple the tuple for the ForwardIndexEntry
      * @param entry the resusitated obj if any
      */
-    public void setTuple( Tuple<V,Long> tuple, O entry )
+    public void setTuple( Tuple<V, Long> tuple, O entry )
     {
         this.tuple.setKey( tuple.getKey() );
         this.tuple.setValue( tuple.getValue() );

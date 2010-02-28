@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-
 import java.util.Iterator;
 
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
@@ -41,7 +40,7 @@ import org.apache.directory.shared.ldap.cursor.CursorIterator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class IndexCursorAdaptor<K,O> implements IndexCursor<K,O>
+public class IndexCursorAdaptor<K, O> implements IndexCursor<K, O>
 {
     @SuppressWarnings("unchecked")
     final Cursor<Tuple> wrappedCursor;
@@ -63,7 +62,7 @@ public class IndexCursorAdaptor<K,O> implements IndexCursor<K,O>
         this.wrappedCursor = wrappedCursor;
         if ( forwardIndex )
         {
-            forwardEntry = new ForwardIndexEntry<K,O>();
+            forwardEntry = new ForwardIndexEntry<K, O>();
             reverseEntry = null;
         }
         else
@@ -159,13 +158,13 @@ public class IndexCursorAdaptor<K,O> implements IndexCursor<K,O>
     {
         if ( forwardEntry != null )
         {
-            Tuple<K,Long> tuple = wrappedCursor.get();
+            Tuple<K, Long> tuple = wrappedCursor.get();
             forwardEntry.setTuple( tuple, null );
             return forwardEntry;
         }
         else
         {
-            Tuple<Long,K> tuple = wrappedCursor.get();
+            Tuple<Long, K> tuple = wrappedCursor.get();
             reverseEntry.setTuple( tuple, null );
             return reverseEntry;
         }
@@ -176,8 +175,8 @@ public class IndexCursorAdaptor<K,O> implements IndexCursor<K,O>
     {
         return true;
     }
-    
-    
+
+
     public final void setClosureMonitor( ClosureMonitor monitor )
     {
         wrappedCursor.setClosureMonitor( monitor );
@@ -198,6 +197,6 @@ public class IndexCursorAdaptor<K,O> implements IndexCursor<K,O>
 
     public Iterator<IndexEntry<K, O>> iterator()
     {
-        return new CursorIterator<IndexEntry<K,O>>( this );
+        return new CursorIterator<IndexEntry<K, O>>( this );
     }
 }

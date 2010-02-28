@@ -18,9 +18,9 @@
  */
 package org.apache.directory.server.xdbm;
 
+
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
-
 
 
 /**
@@ -29,20 +29,21 @@ import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class EmptyIndexCursor<K,E> extends AbstractIndexCursor<K,E>
+public class EmptyIndexCursor<K, E> extends AbstractIndexCursor<K, E>
 {
     public boolean available()
     {
         return false;
     }
 
-    public void before( IndexEntry<K,E> element ) throws Exception
+
+    public void before( IndexEntry<K, E> element ) throws Exception
     {
         checkNotClosed( "before()" );
     }
 
 
-    public void after( IndexEntry<K,E> element ) throws Exception
+    public void after( IndexEntry<K, E> element ) throws Exception
     {
         checkNotClosed( "after()" );
     }
@@ -88,7 +89,7 @@ public class EmptyIndexCursor<K,E> extends AbstractIndexCursor<K,E>
     }
 
 
-    public IndexEntry<K,E> get() throws Exception
+    public IndexEntry<K, E> get() throws Exception
     {
         checkNotClosed( "get()" );
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_703 ) );
@@ -100,10 +101,12 @@ public class EmptyIndexCursor<K,E> extends AbstractIndexCursor<K,E>
         return false;
     }
 
+
     public void afterValue( Long id, K indexValue ) throws Exception
     {
         checkNotClosed( "after()" );
     }
+
 
     public void beforeValue( Long id, K indexValue ) throws Exception
     {

@@ -93,30 +93,28 @@ public abstract class BTreePartition implements Partition
     protected int cacheSize = -1;
     protected LdapDN suffix;
     private File partitionDir;
-    
+
     /** The rootDSE context */
     protected ServerEntry contextEntry;
-	private Set<Index<?,ServerEntry>> indexedAttributes;
+    private Set<Index<?, ServerEntry>> indexedAttributes;
 
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates a B-tree based context partition.
      */
     protected BTreePartition()
     {
-        indexedAttributes = new HashSet<Index<?,ServerEntry>>();
+        indexedAttributes = new HashSet<Index<?, ServerEntry>>();
     }
 
-    
+
     // ------------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
     // ------------------------------------------------------------------------
-
 
     /**
      * {@inheritDoc}
@@ -125,8 +123,8 @@ public abstract class BTreePartition implements Partition
     {
         this.schemaManager = schemaManager;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -134,8 +132,8 @@ public abstract class BTreePartition implements Partition
     {
         return schemaManager;
     }
-    
-    
+
+
     /**
      * Gets the directory in which this Partition stores files.
      *
@@ -145,8 +143,8 @@ public abstract class BTreePartition implements Partition
     {
         return partitionDir;
     }
-    
-    
+
+
     /**
      * Sets the directory in which this Partition stores files.
      *
@@ -156,24 +154,24 @@ public abstract class BTreePartition implements Partition
     {
         this.partitionDir = partitionDir;
     }
-    
-    
-    public void setIndexedAttributes( Set<Index<?,ServerEntry>> indexedAttributes )
+
+
+    public void setIndexedAttributes( Set<Index<?, ServerEntry>> indexedAttributes )
     {
         this.indexedAttributes = indexedAttributes;
     }
 
 
-    public void addIndexedAttributes( Index<?,ServerEntry>... indexes )
+    public void addIndexedAttributes( Index<?, ServerEntry>... indexes )
     {
-        for ( Index<?,ServerEntry> index : indexes )
+        for ( Index<?, ServerEntry> index : indexes )
         {
             indexedAttributes.add( index );
         }
     }
 
 
-    public Set<Index<?,ServerEntry>> getIndexedAttributes()
+    public Set<Index<?, ServerEntry>> getIndexedAttributes()
     {
         return indexedAttributes;
     }
@@ -223,12 +221,11 @@ public abstract class BTreePartition implements Partition
     {
         this.id = id;
     }
-    
-    
+
+
     // -----------------------------------------------------------------------
     // E N D   C O N F I G U R A T I O N   M E T H O D S
     // -----------------------------------------------------------------------
-
 
     // ------------------------------------------------------------------------
     // Public Accessors - not declared in any interfaces just for this class
@@ -250,14 +247,13 @@ public abstract class BTreePartition implements Partition
     // Partition Interface Method Implementations
     // ------------------------------------------------------------------------
 
-
     /**
      * {@inheritDoc}
      */
     public void delete( DeleteOperationContext opContext ) throws Exception
     {
         LdapDN dn = opContext.getDn();
-        
+
         Long id = getEntryId( dn.getNormName() );
 
         // don't continue if id is null
@@ -285,20 +281,17 @@ public abstract class BTreePartition implements Partition
 
     public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
     {
-        return new BaseEntryFilteringCursor( new ServerEntryCursorAdaptor( this, 
-            list( getEntryId( opContext.getDn().getNormName() ) ) ), opContext );
+        return new BaseEntryFilteringCursor( new ServerEntryCursorAdaptor( this, list( getEntryId( opContext.getDn()
+            .getNormName() ) ) ), opContext );
     }
 
 
     public EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
     {
         SearchControls searchCtls = opContext.getSearchControls();
-        IndexCursor<Long,ServerEntry> underlying;
+        IndexCursor<Long, ServerEntry> underlying;
 
-        underlying = searchEngine.cursor( 
-            opContext.getDn(),
-            opContext.getAliasDerefMode(),
-            opContext.getFilter(), 
+        underlying = searchEngine.cursor( opContext.getDn(), opContext.getAliasDerefMode(), opContext.getFilter(),
             searchCtls );
 
         return new BaseEntryFilteringCursor( new ServerEntryCursorAdaptor( this, underlying ), opContext );
@@ -308,12 +301,12 @@ public abstract class BTreePartition implements Partition
     public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
     {
         Long id = getEntryId( opContext.getDn().getNormName() );
-        
+
         if ( id == null )
         {
             return null;
         }
-        
+
         ClonedServerEntry entry = lookup( id );
 
         if ( ( opContext.getAttrsId() == null ) || ( opContext.getAttrsId().size() == 0 ) )
@@ -321,9 +314,9 @@ public abstract class BTreePartition implements Partition
             return entry;
         }
 
-        for ( AttributeType attributeType : ((ServerEntry)entry.getOriginalEntry()).getAttributeTypes() )
+        for ( AttributeType attributeType : ( ( ServerEntry ) entry.getOriginalEntry() ).getAttributeTypes() )
         {
-            if ( ! opContext.getAttrsId().contains( attributeType.getOid() ) )
+            if ( !opContext.getAttrsId().contains( attributeType.getOid() ) )
             {
                 entry.removeAttributes( attributeType );
             }
@@ -364,7 +357,7 @@ public abstract class BTreePartition implements Partition
     // Index Operations 
     // ------------------------------------------------------------------------
 
-    public abstract void addIndexOn( Index<Long,ServerEntry> index ) throws Exception;
+    public abstract void addIndexOn( Index<Long, ServerEntry> index ) throws Exception;
 
 
     public abstract boolean hasUserIndexOn( String attribute ) throws Exception;
@@ -373,7 +366,7 @@ public abstract class BTreePartition implements Partition
     public abstract boolean hasSystemIndexOn( String attribute ) throws Exception;
 
 
-    public abstract Index<String,ServerEntry> getPresenceIndex();
+    public abstract Index<String, ServerEntry> getPresenceIndex();
 
 
     /**
@@ -382,7 +375,7 @@ public abstract class BTreePartition implements Partition
      *
      * @return the one level Index
      */
-    public abstract Index<Long,ServerEntry> getOneLevelIndex();
+    public abstract Index<Long, ServerEntry> getOneLevelIndex();
 
 
     /**
@@ -391,7 +384,7 @@ public abstract class BTreePartition implements Partition
      *
      * @return the sub tree level Index
      */
-    public abstract Index<Long,ServerEntry> getSubLevelIndex();
+    public abstract Index<Long, ServerEntry> getSubLevelIndex();
 
 
     /**
@@ -400,7 +393,7 @@ public abstract class BTreePartition implements Partition
      *
      * @return the user provided distinguished name Index
      */
-    public abstract Index<String,ServerEntry> getUpdnIndex();
+    public abstract Index<String, ServerEntry> getUpdnIndex();
 
 
     /**
@@ -409,7 +402,7 @@ public abstract class BTreePartition implements Partition
      *
      * @return the normalized distinguished name Index
      */
-    public abstract Index<String,ServerEntry> getNdnIndex();
+    public abstract Index<String, ServerEntry> getNdnIndex();
 
 
     /**
@@ -419,7 +412,7 @@ public abstract class BTreePartition implements Partition
      * 
      * @return the one alias index
      */
-    public abstract Index<Long,ServerEntry> getOneAliasIndex();
+    public abstract Index<Long, ServerEntry> getOneAliasIndex();
 
 
     /**
@@ -429,7 +422,7 @@ public abstract class BTreePartition implements Partition
      * 
      * @return the sub alias index
      */
-    public abstract Index<Long,ServerEntry> getSubAliasIndex();
+    public abstract Index<Long, ServerEntry> getSubAliasIndex();
 
 
     /**
@@ -438,7 +431,7 @@ public abstract class BTreePartition implements Partition
      * 
      * @return the index on the ALIAS_ATTRIBUTE
      */
-    public abstract Index<String,ServerEntry> getAliasIndex();
+    public abstract Index<String, ServerEntry> getAliasIndex();
 
 
     /**
@@ -449,7 +442,7 @@ public abstract class BTreePartition implements Partition
      * @param index the index on the ALIAS_ATTRIBUTE
      * @throws Exception if there is a problem setting up the index
      */
-    public abstract void setAliasIndexOn( Index<String,ServerEntry> index ) throws Exception;
+    public abstract void setAliasIndexOn( Index<String, ServerEntry> index ) throws Exception;
 
 
     /**
@@ -459,7 +452,7 @@ public abstract class BTreePartition implements Partition
      * @param index the attribute existence Index
      * @throws Exception if there is a problem setting up the index
      */
-    public abstract void setPresenceIndexOn( Index<String,ServerEntry> index ) throws Exception;
+    public abstract void setPresenceIndexOn( Index<String, ServerEntry> index ) throws Exception;
 
 
     /**
@@ -469,7 +462,8 @@ public abstract class BTreePartition implements Partition
      * @param index the one level Index
      * @throws Exception if there is a problem setting up the index
      */
-    public abstract void setOneLevelIndexOn( Index<Long,ServerEntry> index ) throws Exception;
+    public abstract void setOneLevelIndexOn( Index<Long, ServerEntry> index ) throws Exception;
+
 
     // TODO - add sub level index setter
 
@@ -480,7 +474,7 @@ public abstract class BTreePartition implements Partition
      * @param index the updn Index
      * @throws Exception if there is a problem setting up the index
      */
-    public abstract void setUpdnIndexOn( Index<String,ServerEntry> index ) throws Exception;
+    public abstract void setUpdnIndexOn( Index<String, ServerEntry> index ) throws Exception;
 
 
     /**
@@ -490,7 +484,7 @@ public abstract class BTreePartition implements Partition
      * @param index the ndn Index
      * @throws Exception if there is a problem setting up the index
      */
-    public abstract void setNdnIndexOn( Index<String,ServerEntry> index ) throws Exception;
+    public abstract void setNdnIndexOn( Index<String, ServerEntry> index ) throws Exception;
 
 
     /**
@@ -502,7 +496,7 @@ public abstract class BTreePartition implements Partition
      * @param index a one level alias index
      * @throws Exception if there is a problem setting up the index
      */
-    public abstract void setOneAliasIndexOn( Index<Long,ServerEntry> index ) throws Exception;
+    public abstract void setOneAliasIndexOn( Index<Long, ServerEntry> index ) throws Exception;
 
 
     /**
@@ -514,7 +508,7 @@ public abstract class BTreePartition implements Partition
      * @param index a subtree alias index
      * @throws Exception if there is a problem setting up the index
      */
-    public abstract void setSubAliasIndexOn( Index<Long,ServerEntry> index ) throws Exception;
+    public abstract void setSubAliasIndexOn( Index<Long, ServerEntry> index ) throws Exception;
 
 
     /**
@@ -544,10 +538,10 @@ public abstract class BTreePartition implements Partition
     }
 
 
-    public abstract Index<?,ServerEntry> getUserIndex( String attribute ) throws Exception;
+    public abstract Index<?, ServerEntry> getUserIndex( String attribute ) throws Exception;
 
 
-    public abstract Index<?,ServerEntry> getSystemIndex( String attribute ) throws Exception;
+    public abstract Index<?, ServerEntry> getSystemIndex( String attribute ) throws Exception;
 
 
     public abstract Long getEntryId( String dn ) throws Exception;
@@ -588,7 +582,7 @@ public abstract class BTreePartition implements Partition
     public abstract void delete( Long id ) throws Exception;
 
 
-    public abstract IndexCursor<Long,ServerEntry> list( Long id ) throws Exception;
+    public abstract IndexCursor<Long, ServerEntry> list( Long id ) throws Exception;
 
 
     public abstract int getChildCount( Long id ) throws Exception;

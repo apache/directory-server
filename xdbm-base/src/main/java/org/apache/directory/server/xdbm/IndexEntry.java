@@ -26,7 +26,7 @@ package org.apache.directory.server.xdbm;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public interface IndexEntry<V,O>
+public interface IndexEntry<V, O>
 {
     /**
      * Gets the value referred to by this IndexEntry.

@@ -87,7 +87,6 @@ public interface Store<E>
      * store and it's indices to conduct search operations.
      */
 
-
     /**
      * Sets the working directory for the store
      */
@@ -104,13 +103,13 @@ public interface Store<E>
      * Stores the list of user index
      * @param userIndices The list of user index
      */
-    void setUserIndices( Set<Index<?,E>> userIndices );
+    void setUserIndices( Set<Index<?, E>> userIndices );
 
 
     /**
      * @return The list of user index
      */
-    Set<Index<?,E>> getUserIndices();
+    Set<Index<?, E>> getUserIndices();
 
 
     void setSuffixDn( String suffixDn );
@@ -201,7 +200,7 @@ public interface Store<E>
      * @param index The index to add
      * @throws Exception If the addition failed
      */
-    void addIndex( Index<?,E> index ) throws Exception;
+    void addIndex( Index<?, E> index ) throws Exception;
 
 
     //------------------------------------------------------------------------
@@ -210,7 +209,7 @@ public interface Store<E>
     /**
      * @return The Presence system index
      */
-    Index<String,E> getPresenceIndex();
+    Index<String, E> getPresenceIndex();
 
 
     /**
@@ -218,13 +217,13 @@ public interface Store<E>
      * @param index The Presence index
      * @throws Exception If the addition failed
      */
-    void setPresenceIndex( Index<String,E> index ) throws Exception;
+    void setPresenceIndex( Index<String, E> index ) throws Exception;
 
 
     /**
      * @return The OneLevel system index
      */
-    Index<Long,E> getOneLevelIndex();
+    Index<Long, E> getOneLevelIndex();
 
 
     /**
@@ -232,13 +231,13 @@ public interface Store<E>
      * @param index The OneLevel index
      * @throws Exception If the addition failed
      */
-    void setOneLevelIndex( Index<Long,E> index ) throws Exception;
+    void setOneLevelIndex( Index<Long, E> index ) throws Exception;
 
 
     /**
      * @return The SubLevel system index
      */
-    Index<Long,E> getSubLevelIndex();
+    Index<Long, E> getSubLevelIndex();
 
 
     /**
@@ -246,13 +245,13 @@ public interface Store<E>
      * @param index The SubLevel index
      * @throws Exception If the addition failed
      */
-    void setSubLevelIndex( Index<Long,E> index ) throws Exception;
+    void setSubLevelIndex( Index<Long, E> index ) throws Exception;
 
 
     /**
      * @return The Alias system index
      */
-    Index<String,E> getAliasIndex();
+    Index<String, E> getAliasIndex();
 
 
     /**
@@ -260,13 +259,13 @@ public interface Store<E>
      * @param index The Alias index
      * @throws Exception If the addition failed
      */
-    void setAliasIndex( Index<String,E> index ) throws Exception;
+    void setAliasIndex( Index<String, E> index ) throws Exception;
 
 
     /**
      * @return The OneAlias system index
      */
-    Index<Long,E> getOneAliasIndex();
+    Index<Long, E> getOneAliasIndex();
 
 
     /**
@@ -274,13 +273,13 @@ public interface Store<E>
      * @param index The OneAlias index
      * @throws Exception If the addition failed
      */
-    void setOneAliasIndex( Index<Long,E> index ) throws Exception;
+    void setOneAliasIndex( Index<Long, E> index ) throws Exception;
 
 
     /**
      * @return The SubAlias system index
      */
-    Index<Long,E> getSubAliasIndex();
+    Index<Long, E> getSubAliasIndex();
 
 
     /**
@@ -288,13 +287,13 @@ public interface Store<E>
      * @param index The SubAlias index
      * @throws Exception If the addition failed
      */
-    void setSubAliasIndex( Index<Long,E> index ) throws Exception;
+    void setSubAliasIndex( Index<Long, E> index ) throws Exception;
 
 
     /**
      * @return The UpDN system index
      */
-    Index<String,E> getUpdnIndex();
+    Index<String, E> getUpdnIndex();
 
 
     /**
@@ -302,13 +301,13 @@ public interface Store<E>
      * @param index The UpDn index
      * @throws Exception If the addition failed
      */
-    void setUpdnIndex( Index<String,E> index ) throws Exception;
+    void setUpdnIndex( Index<String, E> index ) throws Exception;
 
 
     /**
      * @return The Ndn system index
      */
-    Index<String,E> getNdnIndex();
+    Index<String, E> getNdnIndex();
 
 
     /**
@@ -316,51 +315,55 @@ public interface Store<E>
      * @param index The NDN index
      * @throws Exception If the addition failed
      */
-    void setNdnIndex( Index<String,E> index ) throws Exception;
+    void setNdnIndex( Index<String, E> index ) throws Exception;
 
 
     /**
      * @return The ObjectClass system index
      */
-    Index<String,E> getObjectClassIndex();
+    Index<String, E> getObjectClassIndex();
+
 
     /**
      * Set the ObjectClass index
      * @param index The ObjectClass index
      * @throws Exception If the addition failed
      */
-    void setObjectClassIndex( Index<String,E> index ) throws Exception;
+    void setObjectClassIndex( Index<String, E> index ) throws Exception;
 
-    
+
     /**
      * @return The EntryUUID system index
      */
-    Index<String,E> getEntryUuidIndex();
+    Index<String, E> getEntryUuidIndex();
+
 
     /**
      * Set the EntryUUID index
      * @param index The EntryUUID index
      * @throws Exception If the addition failed
      */
-    void setEntryUuidIndex( Index<String,E> index ) throws Exception;
+    void setEntryUuidIndex( Index<String, E> index ) throws Exception;
 
-    
+
     /**
      * @return The EntryCSN system index
      */
-    Index<String,E> getEntryCsnIndex();
+    Index<String, E> getEntryCsnIndex();
+
 
     /**
      * Set the EntryCSN index
      * @param index The EntryCSN index
      * @throws Exception If the addition failed
      */
-    void setEntryCsnIndex( Index<String,E> index ) throws Exception;
+    void setEntryCsnIndex( Index<String, E> index ) throws Exception;
+
 
     //------------------------------------------------------------------------
     // End of the system index
     //------------------------------------------------------------------------
-    
+
     /**
      * An iterator build on top of the User's index
      */
@@ -399,7 +402,7 @@ public interface Store<E>
      * @return The associated user index
      * @throws IndexNotFoundException If the index does not exist
      */
-    Index<?,E> getUserIndex( String id ) throws IndexNotFoundException;
+    Index<?, E> getUserIndex( String id ) throws IndexNotFoundException;
 
 
     /**
@@ -408,7 +411,7 @@ public interface Store<E>
      * @return The associated user index
      * @throws IndexNotFoundException If the index does not exist
      */
-    Index<?,E> getSystemIndex( String id ) throws IndexNotFoundException;
+    Index<?, E> getSystemIndex( String id ) throws IndexNotFoundException;
 
 
     Long getEntryId( String dn ) throws Exception;
@@ -470,7 +473,7 @@ public interface Store<E>
      * @return an IndexEntry Cursor over the child entries
      * @throws Exception on failures to access the underlying store
      */
-    IndexCursor<Long,E> list( Long id ) throws Exception;
+    IndexCursor<Long, E> list( Long id ) throws Exception;
 
 
     int getChildCount( Long id ) throws Exception;

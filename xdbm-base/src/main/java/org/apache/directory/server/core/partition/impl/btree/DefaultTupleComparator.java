@@ -29,7 +29,7 @@ import org.apache.directory.shared.ldap.schema.comparators.SerializableComparato
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DefaultTupleComparator<K,V> implements TupleComparator<K,V>
+public class DefaultTupleComparator<K, V> implements TupleComparator<K, V>
 {
     SerializableComparator<K> keyComparator;
     SerializableComparator<V> valueComparator;

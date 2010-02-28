@@ -19,9 +19,8 @@
  */
 package org.apache.directory.server.xdbm;
 
+
 import org.apache.directory.shared.ldap.cursor.Cursor;
-
-
 
 
 /**
@@ -31,7 +30,7 @@ import org.apache.directory.shared.ldap.cursor.Cursor;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public interface TupleCursor<K,V> extends Cursor<Tuple<K,V>>
+public interface TupleCursor<K, V> extends Cursor<Tuple<K, V>>
 {
     /**
      * An alternative to calling before(Tuple) which often may require

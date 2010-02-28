@@ -33,11 +33,11 @@ import org.apache.directory.shared.ldap.cursor.DefaultClosureMonitor;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public abstract class AbstractTupleCursor<K,V> implements TupleCursor<K,V>
+public abstract class AbstractTupleCursor<K, V> implements TupleCursor<K, V>
 {
     private ClosureMonitor monitor = new DefaultClosureMonitor();
 
-    
+
     public final void setClosureMonitor( ClosureMonitor monitor )
     {
         if ( monitor == null )
@@ -46,7 +46,7 @@ public abstract class AbstractTupleCursor<K,V> implements TupleCursor<K,V>
         }
         this.monitor = monitor;
     }
-    
+
 
     protected final void checkNotClosed( String operation ) throws Exception
     {
@@ -72,8 +72,8 @@ public abstract class AbstractTupleCursor<K,V> implements TupleCursor<K,V>
     }
 
 
-    public Iterator<Tuple<K,V>> iterator()
+    public Iterator<Tuple<K, V>> iterator()
     {
-        return new CursorIterator<Tuple<K,V>>( this );
+        return new CursorIterator<Tuple<K, V>>( this );
     }
 }

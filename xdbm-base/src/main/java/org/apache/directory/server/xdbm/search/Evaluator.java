@@ -49,7 +49,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface Evaluator<N extends ExprNode,E>
+public interface Evaluator<N extends ExprNode, E>
 {
     /**
      * Evaluates a candidate to determine if a filter expression selects it.

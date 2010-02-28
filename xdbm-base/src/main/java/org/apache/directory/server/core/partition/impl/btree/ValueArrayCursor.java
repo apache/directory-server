@@ -35,13 +35,13 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ValueArrayCursor<K,V> extends AbstractCursor<Tuple>
+public class ValueArrayCursor<K, V> extends AbstractCursor<Tuple>
 {
     private static final int BEFORE_FIRST = -1;
 
     private final K key;
     private final List<V> values;
-    private final Tuple<K,V> tuple = new Tuple<K,V>();
+    private final Tuple<K, V> tuple = new Tuple<K, V>();
 
     private int pos = BEFORE_FIRST;
 

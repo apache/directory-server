@@ -18,10 +18,9 @@
  */
 package org.apache.directory.server.xdbm;
 
+
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
-
-
 
 
 /**
@@ -35,10 +34,10 @@ public class SingletonIndexCursor<K, E> extends AbstractIndexCursor<K, E>
     private boolean beforeFirst = true;
     private boolean afterLast;
     private boolean onSingleton;
-    private final IndexEntry<K,E> singleton;
+    private final IndexEntry<K, E> singleton;
 
 
-    public SingletonIndexCursor( IndexEntry<K,E> singleton )
+    public SingletonIndexCursor( IndexEntry<K, E> singleton )
     {
         this.singleton = singleton;
     }
@@ -48,27 +47,27 @@ public class SingletonIndexCursor<K, E> extends AbstractIndexCursor<K, E>
     {
         return onSingleton;
     }
-    
 
-    public void before( IndexEntry<K,E> element ) throws Exception
+
+    public void before( IndexEntry<K, E> element ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
-    
-    
+
+
     public void beforeValue( Long id, K value ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
 
-    
+
     public void afterValue( Long id, K value ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
-    
 
-    public void after( IndexEntry<K,E> element ) throws Exception
+
+    public void after( IndexEntry<K, E> element ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
@@ -188,7 +187,7 @@ public class SingletonIndexCursor<K, E> extends AbstractIndexCursor<K, E>
     }
 
 
-    public IndexEntry<K,E> get() throws Exception
+    public IndexEntry<K, E> get() throws Exception
     {
         checkNotClosed( "()" );
         if ( onSingleton )

@@ -61,7 +61,6 @@ public class IndexEnumeration<T> implements NamingEnumeration<IndexEntry>
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-    
     public IndexEnumeration( NamingEnumeration<Tuple> list ) throws NamingException
     {
         this( list, false, null );
@@ -74,8 +73,7 @@ public class IndexEnumeration<T> implements NamingEnumeration<IndexEntry>
     }
 
 
-    public IndexEnumeration( NamingEnumeration<Tuple> list, boolean swapKeyVal, Pattern regex ) 
-        throws NamingException
+    public IndexEnumeration( NamingEnumeration<Tuple> list, boolean swapKeyVal, Pattern regex ) throws NamingException
     {
         re = regex;
         underlying = list;
@@ -153,7 +151,6 @@ public class IndexEnumeration<T> implements NamingEnumeration<IndexEntry>
     // ------------------------------------------------------------------------
     // Private Methods 
     // ------------------------------------------------------------------------
-
 
     private void prefetch() throws NamingException
     {

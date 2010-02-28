@@ -29,7 +29,7 @@ import org.apache.directory.shared.ldap.schema.comparators.SerializableComparato
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 539571 $
  */
-public class ForwardIndexComparator<K> implements TupleComparator<K,Long>
+public class ForwardIndexComparator<K> implements TupleComparator<K, Long>
 {
     private static final long serialVersionUID = 3257283621751633459L;
 

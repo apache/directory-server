@@ -384,7 +384,7 @@ public abstract class AbstractXdbmPartition extends BTreePartition
         store.move( moveContext.getDn(), moveContext.getParent() );
     }
 
-    
+
     /**
      * 
      * checks whether the moving of given entry is valid
@@ -399,10 +399,10 @@ public abstract class AbstractXdbmPartition extends BTreePartition
 
         LdapDN newParentDNClone = ( LdapDN ) newParentDn.clone();
         newParentDNClone.remove( newParentDNClone.size() - 1 );
-        
-        if( newParentDn.size() >= oldChildDn.size() )
+
+        if ( newParentDn.size() >= oldChildDn.size() )
         {
-            for( int i=0; i < oldChildDn.size(); i++ )
+            for ( int i = 0; i < oldChildDn.size(); i++ )
             {
                 RDN nameRdn = oldChildDn.getRdn( i );
                 RDN ldapRdn = newParentDn.getRdn( i );
@@ -418,15 +418,16 @@ public abstract class AbstractXdbmPartition extends BTreePartition
                 }
             }
         }
-        
-        if( invalid )
+
+        if ( invalid )
         {
-            throw new LdapOperationNotSupportedException( "cannot place an entry below itself", ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapOperationNotSupportedException( "cannot place an entry below itself",
+                ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
-        
+
     }
 
-    
+
     public final void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId )
         throws Exception
     {

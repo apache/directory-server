@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.schema.comparators.SerializableComparato
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface TupleComparator<K,V> extends Serializable
+public interface TupleComparator<K, V> extends Serializable
 {
     /**
      * Gets the comparator used to compare keys.  May be null in which

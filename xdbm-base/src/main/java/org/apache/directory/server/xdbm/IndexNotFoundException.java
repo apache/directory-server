@@ -44,7 +44,7 @@ public class IndexNotFoundException extends NamingException
      * 
      * @param indexName the name of the index that was not found 
      */
-    public IndexNotFoundException(String indexName)
+    public IndexNotFoundException( String indexName )
     {
         super( I18n.err( I18n.ERR_704, indexName ) );
         this.indexName = indexName;
@@ -57,7 +57,7 @@ public class IndexNotFoundException extends NamingException
      * @param message the message associated with the exception.
      * @param indexName the name of the index that was not found 
      */
-    public IndexNotFoundException(String message, String indexName)
+    public IndexNotFoundException( String message, String indexName )
     {
         super( message );
         this.indexName = indexName;
@@ -72,7 +72,7 @@ public class IndexNotFoundException extends NamingException
      * @param indexName the name of the index that was not found 
      * @param rootCause the root cause of this exception 
      */
-    public IndexNotFoundException(String message, String indexName, Throwable rootCause)
+    public IndexNotFoundException( String message, String indexName, Throwable rootCause )
     {
         this( message, indexName );
         setRootCause( rootCause );

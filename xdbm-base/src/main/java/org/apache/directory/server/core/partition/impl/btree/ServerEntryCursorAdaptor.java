@@ -42,14 +42,14 @@ public class ServerEntryCursorAdaptor implements Cursor<ServerEntry>
     private final Partition db;
     private final IndexCursor<Long, ServerEntry> indexCursor;
 
-    
+
     public ServerEntryCursorAdaptor( Partition db, IndexCursor<Long, ServerEntry> indexCursor )
     {
         this.db = db;
         this.indexCursor = indexCursor;
     }
-    
-    
+
+
     /* 
      * @see Cursor#after(java.lang.Object)
      */
@@ -94,12 +94,12 @@ public class ServerEntryCursorAdaptor implements Cursor<ServerEntry>
         indexCursor.beforeFirst();
     }
 
-    
+
     public final void setClosureMonitor( ClosureMonitor monitor )
     {
         indexCursor.setClosureMonitor( monitor );
     }
-    
+
 
     /* 
      * @see Cursor#close()
@@ -133,7 +133,7 @@ public class ServerEntryCursorAdaptor implements Cursor<ServerEntry>
      */
     public ServerEntry get() throws Exception
     {
-        IndexEntry<Long,ServerEntry> indexEntry = indexCursor.get();
+        IndexEntry<Long, ServerEntry> indexEntry = indexCursor.get();
 
         if ( indexEntry.getObject() == null )
         {

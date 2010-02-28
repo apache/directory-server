@@ -38,11 +38,11 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 public interface Index<K, O>
 {
     int DEFAULT_INDEX_CACHE_SIZE = 100;
-    
+
+
     // -----------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
     // -----------------------------------------------------------------------
-
 
     /**
      * Gets the attribute identifier set at configuration time for this index which may not
@@ -113,7 +113,6 @@ public interface Index<K, O>
     // -----------------------------------------------------------------------
     // E N D   C O N F I G U R A T I O N   M E T H O D S
     // -----------------------------------------------------------------------
-
 
     /**
      * Gets the attribute this Index is built upon.
