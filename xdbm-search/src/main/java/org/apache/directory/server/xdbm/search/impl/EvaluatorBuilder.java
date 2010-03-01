@@ -70,23 +70,23 @@ public class EvaluatorBuilder<ID>
     }
 
 
-    public Evaluator<? extends ExprNode, ServerEntry, ID> build( ExprNode node ) throws Exception
+    public <T> Evaluator<? extends ExprNode, ServerEntry, ID> build( ExprNode node ) throws Exception
     {
         switch ( node.getAssertionType() )
         {
             /* ---------- LEAF NODE HANDLING ---------- */
 
             case APPROXIMATE:
-                return new ApproximateEvaluator( ( ApproximateNode ) node, db, schemaManager );
+                return new ApproximateEvaluator<T, ID>( ( ApproximateNode<T> ) node, db, schemaManager );
 
             case EQUALITY:
-                return new EqualityEvaluator( ( EqualityNode ) node, db, schemaManager );
+                return new EqualityEvaluator<T, ID>( ( EqualityNode<T> ) node, db, schemaManager );
 
             case GREATEREQ:
-                return new GreaterEqEvaluator( ( GreaterEqNode ) node, db, schemaManager );
+                return new GreaterEqEvaluator<T, ID>( ( GreaterEqNode<T> ) node, db, schemaManager );
 
             case LESSEQ:
-                return new LessEqEvaluator( ( LessEqNode ) node, db, schemaManager );
+                return new LessEqEvaluator<T, ID>( ( LessEqNode<T> ) node, db, schemaManager );
 
             case PRESENCE:
                 return new PresenceEvaluator<ID>( ( PresenceNode ) node, db, schemaManager );
