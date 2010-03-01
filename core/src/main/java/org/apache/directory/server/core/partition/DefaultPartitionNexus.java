@@ -46,6 +46,7 @@ import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.filtering.CursorList;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -81,6 +82,9 @@ import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.P
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.cursor.EmptyCursor;
+import org.apache.directory.shared.ldap.cursor.ListCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -89,6 +93,7 @@ import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -727,6 +732,10 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         {
             boolean isObjectScope = searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
             
+            boolean isOnelevelScope = searchCtls.getSearchScope() == SearchControls.ONELEVEL_SCOPE;
+            
+            boolean isSublevelScope = searchCtls.getSearchScope() == SearchControls.SUBTREE_SCOPE;
+            
             // test for (objectClass=*)
             boolean isSearchAll = false;
             
@@ -830,6 +839,39 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
                 }
     
                 return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), opContext );
+            }
+            else if ( isObjectScope && ( ! isSearchAll ) )
+            {
+                return new BaseEntryFilteringCursor( new EmptyCursor<ServerEntry>(), opContext );
+            }
+            else if( isOnelevelScope )
+            {
+                List<EntryFilteringCursor> cursors = new ArrayList<EntryFilteringCursor>();
+                for ( Partition p : partitions.values() )
+                {
+                    opContext.setDn( p.getSuffixDn() );
+                    opContext.setScope( SearchScope.OBJECT );
+                    cursors.add( p.search( opContext ) );
+                }
+                
+                return new CursorList( cursors, opContext );
+            }
+            else if ( isSublevelScope )
+            {
+                List<EntryFilteringCursor> cursors = new ArrayList<EntryFilteringCursor>();
+                for ( Partition p : partitions.values() )
+                {
+                    ClonedServerEntry entry = p.lookup( new LookupOperationContext( directoryService.getAdminSession(), p.getSuffixDn() ) );
+                    if( entry != null )
+                    {
+                        Partition backend = getPartition( entry.getDn() );
+                        opContext.setDn( entry.getDn() );
+                        cursors.add( backend.search( opContext ) );
+                    }
+                }
+                
+                // don't feed the above Cursors' list to a BaseEntryFilteringCursor it is skipping the naming context entry of each partition 
+                return new CursorList( cursors, opContext );
             }
     
             // TODO : handle searches based on the RootDSE

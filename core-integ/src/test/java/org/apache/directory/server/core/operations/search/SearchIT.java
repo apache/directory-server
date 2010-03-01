@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.operations.search;
 
 
+import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.junit.Assert.assertEquals;
@@ -55,8 +56,6 @@ import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException
 import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.SearchRequestImpl;
-import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -1738,5 +1737,104 @@ public class SearchIT extends AbstractLdapTestUnit
        assertNull( attrs.get( SchemaConstants.ENTRY_UUID_AT ) );
        assertNull( attrs.get( SchemaConstants.CREATORS_NAME_AT ) );
    }
+
    
+   @Test
+   public void testSearchEmptyDNWithOneLevelScope() throws Exception
+   {
+       SearchControls controls = new SearchControls();
+       controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+       controls.setDerefLinkFlag( false );
+       
+       LdapContext nullRootCtx = getRootContext( service );
+       
+       NamingEnumeration<SearchResult> list = nullRootCtx.search( "", "(objectClass=*)", controls );
+       HashMap<String, Attributes> map = new HashMap<String, Attributes>();
+       
+       while ( list.hasMore() )
+       {
+           SearchResult result = list.next();
+           map.put( result.getName(), result.getAttributes() );
+       }
+       
+       assertEquals( 2, map.size() );
+       
+       assertTrue( map.containsKey( "ou=system" ) );
+       assertTrue( map.containsKey( "ou=schema" ) );
+   }
+   
+   
+   @Test
+   public void testSearchEmptyDNWithSubLevelScope() throws Exception
+   {
+       SearchControls controls = new SearchControls();
+       controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+       controls.setDerefLinkFlag( false );
+       
+       LdapContext nullRootCtx = getRootContext( service );
+       
+       NamingEnumeration<SearchResult> list = nullRootCtx.search( "", "(objectClass=organizationalUnit)", controls );
+       HashMap<String, Attributes> map = new HashMap<String, Attributes>();
+       
+       while ( list.hasMore() )
+       {
+           SearchResult result = list.next();
+           map.put( result.getName(), result.getAttributes() );
+       }
+
+       assertTrue( map.size() > 2 );
+
+       assertTrue( map.containsKey( "ou=system" ) );
+       assertTrue( map.containsKey( "ou=schema" ) );
+   }
+   
+   
+   @Test
+   public void testSearchEmptyDNWithObjectScopeAndNoObjectClassPresenceFilter() throws Exception
+   {
+       SearchControls controls = new SearchControls();
+       controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+       controls.setDerefLinkFlag( false );
+       
+       LdapContext nullRootCtx = getRootContext( service );
+       
+       NamingEnumeration<SearchResult> list = nullRootCtx.search( "", "(objectClass=domain)", controls );
+       HashMap<String, Attributes> map = new HashMap<String, Attributes>();
+       
+       while ( list.hasMore() )
+       {
+           SearchResult result = list.next();
+           map.put( result.getName(), result.getAttributes() );
+       }
+       
+       assertEquals( 0, map.size() );
+       
+       assertFalse( map.containsKey( "ou=system" ) );
+       assertFalse( map.containsKey( "ou=schema" ) );
+   }
+   
+   
+   @Test
+   public void testSearchEmptyDNWithOneLevelScopeAndNoObjectClassPresenceFilter() throws Exception
+   {
+       SearchControls controls = new SearchControls();
+       controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+       controls.setDerefLinkFlag( false );
+       
+       LdapContext nullRootCtx = getRootContext( service );
+       
+       NamingEnumeration<SearchResult> list = nullRootCtx.search( "", "(cn=*)", controls );
+       HashMap<String, Attributes> map = new HashMap<String, Attributes>();
+       
+       while ( list.hasMore() )
+       {
+           SearchResult result = list.next();
+           map.put( result.getName(), result.getAttributes() );
+       }
+       
+       assertEquals( 0, map.size() );
+       
+       assertFalse( map.containsKey( "ou=system" ) );
+       assertFalse( map.containsKey( "ou=schema" ) );
+   }
 }
