@@ -38,7 +38,6 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -149,7 +148,6 @@ public class ModifyMultipleChangesIT extends AbstractLdapTestUnit
      * we modify an attribute two times.
      */
     @Test
-    @Ignore
     public void testModifyMultipleChangeDeleteAddSnInMust() throws Exception 
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -169,7 +167,7 @@ public class ModifyMultipleChangesIT extends AbstractLdapTestUnit
         Attributes attrs = sysRoot.getAttributes( RDN_TORI_AMOS );
         Attribute attr = attrs.get( "sn" );
         assertNotNull( attr );
-        assertTrue( attr.contains( snNew ) );
+        assertTrue( attr.contains( snNew.get() ) );
         assertEquals( 1, attr.size() );
     }
 }
