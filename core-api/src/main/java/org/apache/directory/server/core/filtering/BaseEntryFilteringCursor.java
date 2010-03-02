@@ -373,8 +373,8 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     {
         boolean typesOnly = getOperationContext().isTypesOnly();
 
-        boolean returnAll = getOperationContext().getReturningAttributes() == null ||
-            ( getOperationContext().isAllOperationalAttributes() && getOperationContext().isAllUserAttributes() && ( ! typesOnly ) );
+        boolean returnAll = ( getOperationContext().getReturningAttributes() == null ||
+            ( getOperationContext().isAllOperationalAttributes() && getOperationContext().isAllUserAttributes() ) ) && ( ! typesOnly );
         
         if ( returnAll )
         {

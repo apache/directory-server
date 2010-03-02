@@ -200,6 +200,10 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
         {
             setReturningAttributes( searchControls.getReturningAttributes() );
         }
+        else
+        {
+            setReturningAttributes( SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
+        }
     }
 
     

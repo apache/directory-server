@@ -1731,8 +1731,8 @@ public class SearchIT extends AbstractLdapTestUnit
        assertNotNull( attrs.get( SchemaConstants.OU_AT ) );
        assertNotNull( attrs.get( "integerAttribute" ) );
 
-       assertNotNull( attrs.get( SchemaConstants.OU_AT ).get() );
-       assertNotNull( attrs.get( "integerAttribute" ).get() );
+       assertEquals( 0, attrs.get( SchemaConstants.OU_AT ).size() );
+       assertEquals( 0, attrs.get( "integerAttribute" ).size() );
        
        assertNull( attrs.get( SchemaConstants.ENTRY_UUID_AT ) );
        assertNull( attrs.get( SchemaConstants.CREATORS_NAME_AT ) );
