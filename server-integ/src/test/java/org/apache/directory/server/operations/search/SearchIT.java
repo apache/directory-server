@@ -20,6 +20,7 @@
 package org.apache.directory.server.operations.search;
 
 
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getClientApiConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -47,6 +48,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.exception.LdapException;
+import org.apache.directory.ldap.client.api.message.SearchRequest;
 import org.apache.directory.ldap.client.api.message.SearchResponse;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -77,168 +79,129 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 682556 $
  */
-@RunWith ( FrameworkRunner.class ) 
-@CreateLdapServer ( 
-    transports = 
+@RunWith(FrameworkRunner.class)
+@CreateLdapServer(
+    transports =
+      { 
+        @CreateTransport(protocol = "LDAP") 
+      })
+@ApplyLdifs(
     {
-        @CreateTransport( protocol = "LDAP" )
+
+        // Entry # 0
+        "dn: cn=Kate Bush,ou=system",
+        "objectClass: person",
+        "objectClass: organizationalPerson",
+        "objectClass: inetOrgPerson",
+        "objectClass: strongAuthenticationUser",
+        "objectClass: top",
+        "userCertificate:: NFZOXw==",
+        "cn: Kate Bush",
+        "description: this is a person",
+        "sn: Bush",
+        "jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAX",
+        " Q3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw",
+        " 5Mzg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2",
+        " NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABA",
+        " wEiAAIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/E",
+        " ABUBAQEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8",
+        " AigC14//Z",
+
+        // Entry # 2
+        "dn: cn=Tori Amos,ou=system",
+        "objectClass: person",
+        "objectClass: organizationalPerson",
+        "objectClass: inetOrgPerson",
+        "objectClass: strongAuthenticationUser",
+        "objectClass: top",
+        "userCertificate:: NFZOXw==",
+        "cn: Tori Amos",
+        "description: an American singer-songwriter",
+        "sn: Amos",
+        "jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAX",
+        " Q3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw",
+        " 5Mzg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2",
+        " NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABA",
+        " wEiAAIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/E",
+        " ABUBAQEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8",
+        " AigC14//Z",
+
+        // Entry # 3
+        "dn: cn=Rolling-Stones,ou=system",
+        "objectClass: person",
+        "objectClass: organizationalPerson",
+        "objectClass: inetOrgPerson",
+        "objectClass: strongAuthenticationUser",
+        "objectClass: top",
+        "userCertificate:: NFZOXw==",
+        "cn: Rolling-Stones",
+        "description: an English singer-songwriter",
+        "sn: Jagger",
+        "jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAX",
+        " Q3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw",
+        " 5Mzg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2",
+        " NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABA",
+        " wEiAAIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/E",
+        " ABUBAQEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8",
+        " AigC14//Z",
+
+        // Entry # 4
+        "dn: cn=Heather Nova,ou=system", "objectClass: person", "objectClass: organizationalPerson",
+        "objectClass: inetOrgPerson", "objectClass: strongAuthenticationUser", "objectClass: top",
+        "userCertificate:: NFZOXw==", "cn: Heather Nova",
+        "sn: Nova",
+        "jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAX",
+        " Q3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw",
+        " 5Mzg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2",
+        " NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABA",
+        " wEiAAIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/E",
+        " ABUBAQEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8",
+        " AigC14//Z",
+
+        // Entry #5
+        "dn: cn=Janis Joplin,ou=system", "objectClass: person", "objectClass: organizationalPerson",
+        "objectClass: inetOrgPerson", "objectClass: top", "objectClass: strongAuthenticationUser", "cn: Janis Joplin",
+        "sn: Joplin", "userCertificate:: ",
+
+        // Entry #6
+        "dn: cn=Kim Wilde,ou=system", "objectClass: person", "objectClass: top", "cn: Kim Wilde", "sn: Wilde",
+        "description: an American singer-songwriter+sexy blond"
+
     })
-@ApplyLdifs( {
-    
-    // Entry # 0
-    "dn: cn=Kate Bush,ou=system",
-    "objectClass: person",
-    "objectClass: organizationalPerson",
-    "objectClass: inetOrgPerson",
-    "objectClass: strongAuthenticationUser",
-    "objectClass: top",
-    "userCertificate:: NFZOXw==",
-    "cn: Kate Bush",
-    "description: this is a person",
-    "sn: Bush",
-    "jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAX",
-    " Q3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw",
-    " 5Mzg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2",
-    " NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABA",
-    " wEiAAIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/E",
-    " ABUBAQEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8",
-    " AigC14//Z",
-    
-    // Entry # 2
-    "dn: cn=Tori Amos,ou=system",
-    "objectClass: person",
-    "objectClass: organizationalPerson",
-    "objectClass: inetOrgPerson",
-    "objectClass: strongAuthenticationUser",
-    "objectClass: top",
-    "userCertificate:: NFZOXw==",
-    "cn: Tori Amos",
-    "description: an American singer-songwriter",
-    "sn: Amos",
-    "jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAX",
-    " Q3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw",
-    " 5Mzg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2",
-    " NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABA",
-    " wEiAAIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/E",
-    " ABUBAQEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8",
-    " AigC14//Z", 
-
-    // Entry # 3
-    "dn: cn=Rolling-Stones,ou=system",
-    "objectClass: person",
-    "objectClass: organizationalPerson",
-    "objectClass: inetOrgPerson",
-    "objectClass: strongAuthenticationUser",
-    "objectClass: top",
-    "userCertificate:: NFZOXw==",
-    "cn: Rolling-Stones",
-    "description: an English singer-songwriter",
-    "sn: Jagger",
-    "jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAX",
-    " Q3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw",
-    " 5Mzg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2",
-    " NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABA",
-    " wEiAAIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/E",
-    " ABUBAQEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8",
-    " AigC14//Z", 
-
-    // Entry # 4
-    "dn: cn=Heather Nova,ou=system",
-    "objectClass: person",
-    "objectClass: organizationalPerson",
-    "objectClass: inetOrgPerson",
-    "objectClass: strongAuthenticationUser",
-    "objectClass: top",
-    "userCertificate:: NFZOXw==",
-    "cn: Heather Nova",
-    "sn: Nova",
-    "jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAX",
-    " Q3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw",
-    " 5Mzg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2",
-    " NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABA",
-    " wEiAAIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/E",
-    " ABUBAQEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8",
-    " AigC14//Z",
-    
-    // Entry #5
-    "dn: cn=Janis Joplin,ou=system",
-    "objectClass: person",
-    "objectClass: organizationalPerson",
-    "objectClass: inetOrgPerson",
-    "objectClass: top",
-    "objectClass: strongAuthenticationUser",
-    "cn: Janis Joplin",
-    "sn: Joplin",
-    "userCertificate:: ",
-    
-    // Entry #6
-    "dn: cn=Kim Wilde,ou=system",
-    "objectClass: person",
-    "objectClass: top",
-    "cn: Kim Wilde",
-    "sn: Wilde",
-    "description: an American singer-songwriter+sexy blond"
-    
-    }
-)
-public class SearchIT extends AbstractLdapTestUnit 
+public class SearchIT extends AbstractLdapTestUnit
 {
     private static final String BASE = "ou=system";
-    
+
     public static LdapServer ldapServer;
-    
+
     private static final String RDN = "cn=Tori Amos";
     private static final String RDN2 = "cn=Rolling-Stones";
     private static final String HEATHER_RDN = "cn=Heather Nova";
     private static final String FILTER = "(objectclass=*)";
 
-
     private static final byte[] JPEG = new byte[]
-        {
-            (byte)0xff, (byte)0xd8, (byte)0xff, (byte)0xe0, 0x00, 0x10, 0x4a, 0x46, 
-            0x49, 0x46, 0x00, 0x01, 0x01, 0x01, 0x00, 0x48,
-            0x00, 0x48, 0x00, 0x00, (byte)0xff, (byte)0xe1, 0x00, 0x16, 
-            0x45, 0x78, 0x69, 0x66, 0x00, 0x00, 0x4d, 0x4d,
-            0x00, 0x2a, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 
-            0x00, 0x00, 0x00, 0x00, (byte)0xff, (byte)0xfe, 0x00, 0x17,
-            0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x64, 0x20, 
-            0x77, 0x69, 0x74, 0x68, 0x20, 0x54, 0x68, 0x65,
-            0x20, 0x47, 0x49, 0x4d, 0x50, (byte)0xff, (byte)0xdb, 0x00, 
-            0x43, 0x00, 0x10, 0x0b, 0x0c, 0x0e, 0x0c, 0x0a,
-            0x10, 0x0e, 0x0d, 0x0e, 0x12, 0x11, 0x10, 0x13, 
-            0x18, 0x28, 0x1a, 0x18, 0x16, 0x16, 0x18, 0x31,
-            0x23, 0x25, 0x1d, 0x28, 0x3a, 0x33, 0x3d, 0x3c, 
-            0x39, 0x33, 0x38, 0x37, 0x40, 0x48, 0x5c, 0x4e,
-            0x40, 0x44, 0x57, 0x45, 0x37, 0x38, 0x50, 0x6d, 
-            0x51, 0x57, 0x5f, 0x62, 0x67, 0x68, 0x67, 0x3e,
-            0x4d, 0x71, 0x79, 0x70, 0x64, 0x78, 0x5c, 0x65, 
-            0x67, 0x63, (byte)0xff, (byte)0xdb, 0x00, 0x43, 0x01, 0x11,
-            0x12, 0x12, 0x18, 0x15, 0x18, 0x2f, 0x1a, 0x1a, 
-            0x2f, 0x63, 0x42, 0x38, 0x42, 0x63, 0x63, 0x63,
-            0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 
-            0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63,
-            0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 
-            0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63,
-            0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 
-            0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, (byte)0xff,
-            (byte)0xc0, 0x00, 0x11, 0x08, 0x00, 0x01, 0x00, 0x01, 
-            0x03, 0x01, 0x22, 0x00, 0x02, 0x11, 0x01, 0x03,
-            0x11, 0x01, (byte)0xff, (byte)0xc4, 0x00, 0x15, 0x00, 0x01, 
-            0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-            0x05, (byte)0xff, (byte)0xc4, 0x00, 0x14, 0x10, 0x01, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte)0xff,
-            (byte)0xc4, 0x00, 0x15, 0x01, 0x01, 0x01, 0x00, 0x00, 
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x05, 0x06, (byte)0xff, (byte)0xc4, 
-            0x00, 0x14, 0x11, 0x01, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-            0x00, 0x00, 0x00, 0x00, (byte)0xff, (byte)0xda, 0x00, 0x0c,
-            0x03, 0x01, 0x00, 0x02, 0x11, 0x03, 0x11, 0x00, 
-            0x3f, 0x00, (byte)0x8a, 0x00, (byte)0xb5, (byte)0xe3, (byte)0xff, (byte)0xd9,
-        };
-                                            
+        { ( byte ) 0xff, ( byte ) 0xd8, ( byte ) 0xff, ( byte ) 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01,
+            0x01, 0x01, 0x00, 0x48, 0x00, 0x48, 0x00, 0x00, ( byte ) 0xff, ( byte ) 0xe1, 0x00, 0x16, 0x45, 0x78, 0x69,
+            0x66, 0x00, 0x00, 0x4d, 0x4d, 0x00, 0x2a, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            ( byte ) 0xff, ( byte ) 0xfe, 0x00, 0x17, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x64, 0x20, 0x77, 0x69, 0x74,
+            0x68, 0x20, 0x54, 0x68, 0x65, 0x20, 0x47, 0x49, 0x4d, 0x50, ( byte ) 0xff, ( byte ) 0xdb, 0x00, 0x43, 0x00,
+            0x10, 0x0b, 0x0c, 0x0e, 0x0c, 0x0a, 0x10, 0x0e, 0x0d, 0x0e, 0x12, 0x11, 0x10, 0x13, 0x18, 0x28, 0x1a, 0x18,
+            0x16, 0x16, 0x18, 0x31, 0x23, 0x25, 0x1d, 0x28, 0x3a, 0x33, 0x3d, 0x3c, 0x39, 0x33, 0x38, 0x37, 0x40, 0x48,
+            0x5c, 0x4e, 0x40, 0x44, 0x57, 0x45, 0x37, 0x38, 0x50, 0x6d, 0x51, 0x57, 0x5f, 0x62, 0x67, 0x68, 0x67, 0x3e,
+            0x4d, 0x71, 0x79, 0x70, 0x64, 0x78, 0x5c, 0x65, 0x67, 0x63, ( byte ) 0xff, ( byte ) 0xdb, 0x00, 0x43, 0x01,
+            0x11, 0x12, 0x12, 0x18, 0x15, 0x18, 0x2f, 0x1a, 0x1a, 0x2f, 0x63, 0x42, 0x38, 0x42, 0x63, 0x63, 0x63, 0x63,
+            0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63,
+            0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63,
+            0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, ( byte ) 0xff, ( byte ) 0xc0, 0x00, 0x11, 0x08,
+            0x00, 0x01, 0x00, 0x01, 0x03, 0x01, 0x22, 0x00, 0x02, 0x11, 0x01, 0x03, 0x11, 0x01, ( byte ) 0xff,
+            ( byte ) 0xc4, 0x00, 0x15, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x05, ( byte ) 0xff, ( byte ) 0xc4, 0x00, 0x14, 0x10, 0x01, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, ( byte ) 0xff, ( byte ) 0xc4,
+            0x00, 0x15, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x05, 0x06, ( byte ) 0xff, ( byte ) 0xc4, 0x00, 0x14, 0x11, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, ( byte ) 0xff, ( byte ) 0xda, 0x00, 0x0c, 0x03,
+            0x01, 0x00, 0x02, 0x11, 0x03, 0x11, 0x00, 0x3f, 0x00, ( byte ) 0x8a, 0x00, ( byte ) 0xb5, ( byte ) 0xe3,
+            ( byte ) 0xff, ( byte ) 0xd9, };
 
 
     /**
@@ -275,11 +238,12 @@ public class SearchIT extends AbstractLdapTestUnit
      * for binary attribute based searching.
      */
     @Test
-    public void testSearchByBinaryAttribute() throws Exception 
+    public void testSearchByBinaryAttribute() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
-        byte[] certData = new byte[] { 0x34, 0x56, 0x4e, 0x5f };
-        
+        byte[] certData = new byte[]
+            { 0x34, 0x56, 0x4e, 0x5f };
+
         // Search for kate by cn first
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -290,7 +254,8 @@ public class SearchIT extends AbstractLdapTestUnit
         assertFalse( enm.hasMore() );
         assertEquals( "cn=Kate Bush", sr.getName() );
 
-        enm = ctx.search( "", "(&(cn=Kate Bush)(userCertificate={0}))", new Object[] {certData}, controls );
+        enm = ctx.search( "", "(&(cn=Kate Bush)(userCertificate={0}))", new Object[]
+            { certData }, controls );
         assertTrue( enm.hasMore() );
         sr = ( SearchResult ) enm.next();
         assertNotNull( sr );
@@ -305,23 +270,23 @@ public class SearchIT extends AbstractLdapTestUnit
         expected.add( "cn=Tori Amos" );
         expected.add( "cn=Rolling-Stones" );
         expected.add( "cn=Heather Nova" );
-        
+
         while ( enm.hasMore() )
         {
             count++;
             sr = ( SearchResult ) enm.next();
             assertNotNull( sr );
-            
+
             assertTrue( expected.contains( sr.getName() ) );
             expected.remove( sr.getName() );
         }
-        
+
         assertEquals( 4, count );
         assertFalse( enm.hasMore() );
         assertEquals( 0, expected.size() );
     }
 
-    
+
     @Test
     public void testSearch() throws Exception
     {
@@ -329,48 +294,48 @@ public class SearchIT extends AbstractLdapTestUnit
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         controls.setTimeLimit( 10 );
-        
-        try 
+
+        try
         {
             ctx.search( "myBadDN", "(objectClass=*)", controls );
 
             fail(); // We should get an exception here
-        } 
-        catch ( InvalidNameException ine ) 
+        }
+        catch ( InvalidNameException ine )
         {
             // Expected.
-        } 
+        }
         catch ( NamingException ne )
         {
             fail();
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             fail();
         }
-        
+
         try
         {
             controls = new SearchControls();
             controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
             controls.setTimeLimit( 10 );
-            
+
             NamingEnumeration<SearchResult> result = ctx.search( "ou=system", "(objectClass=*)", controls );
 
-            assertTrue( result.hasMore() ); 
-        } 
-        catch ( InvalidNameException ine ) 
+            assertTrue( result.hasMore() );
+        }
+        catch ( InvalidNameException ine )
         {
             fail();
             // Expected.
-        } 
+        }
         catch ( NamingException ne )
         {
             fail();
         }
     }
 
-    
+
     /**
      * Performs a single level search from ou=system base and 
      * returns the set of DNs found.
@@ -381,7 +346,7 @@ public class SearchIT extends AbstractLdapTestUnit
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         NamingEnumeration<SearchResult> ii = ctx.search( "", filter, controls );
-        
+
         // collect all results 
         HashSet<String> results = new HashSet<String>();
         while ( ii.hasMore() )
@@ -389,11 +354,11 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = ii.next();
             results.add( result.getName() );
         }
-        
+
         return results;
     }
 
-    
+
     @Test
     public void testDirserver635() throws Exception
     {
@@ -421,7 +386,7 @@ public class SearchIT extends AbstractLdapTestUnit
         assertTrue( "contains cn=Tori Amos", results.contains( "cn=Tori Amos" ) );
     }
 
-    
+
     /**
      * Search operation with a base DN which contains a BER encoded value.
      */
@@ -459,7 +424,6 @@ public class SearchIT extends AbstractLdapTestUnit
         }
     }*/
 
-    
     /**
      * Search operation with a base DN which contains a BER encoded value.
      */
@@ -499,7 +463,7 @@ public class SearchIT extends AbstractLdapTestUnit
         }
     }
 
-    
+
     /**
      * Add a new attribute to a person entry.
      * 
@@ -589,7 +553,8 @@ public class SearchIT extends AbstractLdapTestUnit
         results = ctx.search( RDN2, "(cn=*ri*os)", ctls );
         assertFalse( results.hasMore() );
     }
-    
+
+
     /**
      * Search operation with a base DN with quotes
      *
@@ -619,7 +584,7 @@ public class SearchIT extends AbstractLdapTestUnit
             fail( e.getMessage() );
         }
     }
- 
+    
     
     /**
      * Tests for <a href="http://issues.apache.org/jira/browse/DIRSERVER-645">
@@ -638,14 +603,15 @@ public class SearchIT extends AbstractLdapTestUnit
         results = search( "(&(sn=Bush)(numberOfOctaves=4))" );
         assertEquals( "returned size of results", 0, results.size() );
     }
-    
-    
+
+
     @Test
     public void testSearchSchema() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[] { "objectClasses" } );
+        controls.setReturningAttributes( new String[]
+            { "objectClasses" } );
 
         LdapContext ctx = getWiredContext( ldapServer );
 
@@ -654,21 +620,21 @@ public class SearchIT extends AbstractLdapTestUnit
         SearchResult result = results.next();
         assertNotNull( result );
         assertFalse( results.hasMore() );
-        
+
         NamingEnumeration<? extends Attribute> attrs = result.getAttributes().getAll();
-        
+
         while ( attrs.hasMoreElements() )
         {
             Attribute attr = ( Attribute ) attrs.next();
             String ID = attr.getID();
             assertEquals( "objectClasses", ID );
         }
-        
+
         assertNotNull( result.getAttributes().get( "objectClasses" ) );
         assertEquals( 1, result.getAttributes().size() );
     }
-    
-    
+
+
     /**
      * Creates an access control subentry under ou=system whose subtree covers
      * the entire naming context.
@@ -685,7 +651,8 @@ public class SearchIT extends AbstractLdapTestUnit
         DirContext adminCtx = ctx;
 
         // modify ou=system to be an AP for an A/C AA if it is not already
-        Attributes ap = adminCtx.getAttributes( "", new String[] { "administrativeRole" } );
+        Attributes ap = adminCtx.getAttributes( "", new String[]
+            { "administrativeRole" } );
         Attribute administrativeRole = ap.get( "administrativeRole" );
         if ( administrativeRole == null || !administrativeRole.contains( SubentryInterceptor.AC_AREA ) )
         {
@@ -704,7 +671,7 @@ public class SearchIT extends AbstractLdapTestUnit
         subentry.put( "prescriptiveACI", aciItem );
         adminCtx.createSubcontext( "cn=" + cn, subentry );
     }
-    
+
 
     /**
      * Test case to demonstrate DIRSERVER-705 ("object class top missing in search
@@ -723,7 +690,7 @@ public class SearchIT extends AbstractLdapTestUnit
         String rdn = "cn=Kim Wilde";
 
         NamingEnumeration<SearchResult> result = ctx.search( rdn, filter, ctls );
-        
+
         if ( result.hasMore() )
         {
             SearchResult entry = result.next();
@@ -785,58 +752,36 @@ public class SearchIT extends AbstractLdapTestUnit
         LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // create a real access control subentry
-        createAccessControlSubentry( 
-            "anyBodyAdd", 
-            "{}", 
-            "{ " + 
-            "  identificationTag \"addAci\", " + 
-            "  precedence 14, " +
-            "  authenticationLevel none, " + 
-            "  itemOrUserFirst userFirst: " +
-            "  { " +
-            "    userClasses " + 
-            "    { " + 
-            "      allUsers " + 
-            "    }, " +
-            "    userPermissions " + 
-            "    { " + 
-            "      { " + 
-            "        protectedItems " + 
-            "        { " + 
-            "          entry, allUserAttributeTypesAndValues" + 
-            "        }, " +
-            "        grantsAndDenials " + 
-            "        { " + 
-            "          grantAdd, grantBrowse " +
-            "        } " +
-            "      } " +
-            "    } " + 
-            "  } " + 
-            "}"
-        );
-        
+        createAccessControlSubentry( "anyBodyAdd", "{}", "{ " + "  identificationTag \"addAci\", "
+            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
+            + "    userClasses " + "    { " + "      allUsers " + "    }, " + "    userPermissions " + "    { "
+            + "      { " + "        protectedItems " + "        { " + "          entry, allUserAttributeTypesAndValues"
+            + "        }, " + "        grantsAndDenials " + "        { " + "          grantAdd, grantBrowse "
+            + "        } " + "      } " + "    } " + "  } " + "}" );
+
         // prepare the subentry control to make the subentry visible
         SubentriesControl control = new SubentriesControl();
         control.setVisibility( true );
-        Control[] reqControls = new Control[] { control };
+        Control[] reqControls = new Control[]
+            { control };
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        
+
         ctx.setRequestControls( JndiUtils.toJndiControls( reqControls ) );
         NamingEnumeration<SearchResult> enm = ctx.search( "", "(objectClass=*)", searchControls );
         Set<String> results = new HashSet<String>();
-        
+
         while ( enm.hasMore() )
         {
             SearchResult result = enm.next();
             results.add( result.getName() );
         }
-        
+
         assertEquals( "expected results size of", 1, results.size() );
         assertTrue( results.contains( "cn=anyBodyAdd" ) );
     }
 
-    
+
     /**
      * Create a person entry with multivalued RDN and check its content. This
      * testcase was created to demonstrate DIRSERVER-628.
@@ -904,8 +849,8 @@ public class SearchIT extends AbstractLdapTestUnit
 
         ctx.destroySubcontext( rdn );
     }
-    
-    
+
+
     @Test
     public void testSearchJpeg() throws Exception
     {
@@ -914,31 +859,31 @@ public class SearchIT extends AbstractLdapTestUnit
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         NamingEnumeration<SearchResult> res = ctx.search( "", "(cn=Tori*)", controls );
-        
+
         // collect all results 
         while ( res.hasMore() )
         {
             SearchResult result = res.next();
 
             Attributes attrs = result.getAttributes();
-            
+
             NamingEnumeration<? extends Attribute> all = attrs.getAll();
-                
+
             while ( all.hasMoreElements() )
             {
                 Attribute attr = all.next();
-                
+
                 if ( "jpegPhoto".equalsIgnoreCase( attr.getID() ) )
                 {
-                    byte[] jpegVal = (byte[])attr.get();
-                    
+                    byte[] jpegVal = ( byte[] ) attr.get();
+
                     assertTrue( Arrays.equals( jpegVal, JPEG ) );
                 }
             }
         }
     }
-    
-    
+
+
     @Test
     public void testSearchOID() throws Exception
     {
@@ -947,7 +892,7 @@ public class SearchIT extends AbstractLdapTestUnit
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         NamingEnumeration<SearchResult> res = ctx.search( "", "(2.5.4.3=Tori*)", controls );
-        
+
         // ensure that the entry "cn=Tori Amos" was found
         assertTrue( res.hasMore() );
 
@@ -955,17 +900,17 @@ public class SearchIT extends AbstractLdapTestUnit
 
         // ensure that result is not null
         assertNotNull( result );
-        
+
         String rdn = result.getName();
-        
+
         // ensure that the entry "cn=Tori Amos" was found
         assertEquals( "cn=Tori Amos", rdn );
-        
+
         // ensure that no other value was found
         assertFalse( res.hasMore() );
     }
 
-    
+
     @Test
     public void testSearchAttrCN() throws Exception
     {
@@ -973,27 +918,28 @@ public class SearchIT extends AbstractLdapTestUnit
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setReturningAttributes( new String[]{"cn"} );
-        
+        controls.setReturningAttributes( new String[]
+            { "cn" } );
+
         NamingEnumeration<SearchResult> res = ctx.search( "", "(commonName=Tori*)", controls );
-        
+
         assertTrue( res.hasMore() );
-        
+
         SearchResult result = res.next();
 
         // ensure that result is not null
         assertNotNull( result );
-        
+
         Attributes attrs = result.getAttributes();
-        
+
         // ensure the one and only attribute is "cn"
         assertEquals( 1, attrs.size() );
         assertNotNull( attrs.get( "cn" ) );
         assertEquals( 1, attrs.get( "cn" ).size() );
-        assertEquals( "Tori Amos", ( String ) attrs.get("cn").get() );
+        assertEquals( "Tori Amos", ( String ) attrs.get( "cn" ).get() );
     }
 
-    
+
     @Test
     public void testSearchAttrName() throws Exception
     {
@@ -1001,30 +947,31 @@ public class SearchIT extends AbstractLdapTestUnit
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setReturningAttributes( new String[]{"name"} );
-        
+        controls.setReturningAttributes( new String[]
+            { "name" } );
+
         NamingEnumeration<SearchResult> res = ctx.search( "", "(commonName=Tori*)", controls );
-        
+
         assertTrue( res.hasMore() );
-        
+
         SearchResult result = res.next();
-        
+
         // ensure that result is not null
         assertNotNull( result );
-        
+
         Attributes attrs = result.getAttributes();
-        
+
         // ensure that "cn" and "sn" are returned
         assertEquals( 2, attrs.size() );
         assertNotNull( attrs.get( "cn" ) );
-        assertEquals( 1, attrs.get("cn").size() );
+        assertEquals( 1, attrs.get( "cn" ).size() );
         assertEquals( "Tori Amos", ( String ) attrs.get( "cn" ).get() );
         assertNotNull( attrs.get( "sn" ) );
         assertEquals( 1, attrs.get( "sn" ).size() );
         assertEquals( "Amos", ( String ) attrs.get( "sn" ).get() );
     }
 
-    
+
     @Test
     public void testSearchAttrCommonName() throws Exception
     {
@@ -1032,20 +979,20 @@ public class SearchIT extends AbstractLdapTestUnit
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setReturningAttributes( new String[] { "commonName" } );
-        
+        controls.setReturningAttributes( new String[]
+            { "commonName" } );
+
         NamingEnumeration<SearchResult> res = ctx.search( "", "(commonName=Tori*)", controls );
-        
+
         assertTrue( res.hasMore() );
-        
 
         SearchResult result = res.next();
-        
+
         // ensure that result is not null
         assertNotNull( result );
-        
+
         Attributes attrs = result.getAttributes();
-        
+
         // requested attribute was "commonName", but ADS returns "cn". 
         //       Other servers do the following:
         //       - OpenLDAP: also return "cn"
@@ -1053,11 +1000,11 @@ public class SearchIT extends AbstractLdapTestUnit
         //       - Sun Directory 5.2: return "commonName"
         // ensure the one and only attribute is "cn"
         assertEquals( 1, attrs.size() );
-        assertNotNull( attrs.get("cn") );
-        assertEquals( 1, attrs.get("cn").size() );
-        assertEquals( "Tori Amos", (String)attrs.get("cn").get() );
+        assertNotNull( attrs.get( "cn" ) );
+        assertEquals( 1, attrs.get( "cn" ).size() );
+        assertEquals( "Tori Amos", ( String ) attrs.get( "cn" ).get() );
     }
-    
+
 
     @Test
     public void testSearchAttrOID() throws Exception
@@ -1066,19 +1013,20 @@ public class SearchIT extends AbstractLdapTestUnit
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setReturningAttributes( new String[]{"2.5.4.3"} );
-        
+        controls.setReturningAttributes( new String[]
+            { "2.5.4.3" } );
+
         NamingEnumeration<SearchResult> res = ctx.search( "", "(commonName=Tori*)", controls );
-        
+
         assertTrue( res.hasMore() );
-        
+
         SearchResult result = res.next();
-        
+
         // ensure that result is not null
         assertNotNull( result );
-        
+
         Attributes attrs = result.getAttributes();
-        
+
         // requested attribute was "2.5.4.3", but ADS returns "cn". 
         //       Other servers do the following:
         //       - OpenLDAP: also return "cn"
@@ -1086,12 +1034,12 @@ public class SearchIT extends AbstractLdapTestUnit
         //       - Sun Directory 5.2: return "2.5.4.3"
         // ensure the one and only attribute is "cn"
         assertEquals( 1, attrs.size() );
-        assertNotNull( attrs.get("cn") );
-        assertEquals( 1, attrs.get("cn").size() );
-        assertEquals( "Tori Amos", (String)attrs.get("cn").get() );
+        assertNotNull( attrs.get( "cn" ) );
+        assertEquals( 1, attrs.get( "cn" ).size() );
+        assertEquals( "Tori Amos", ( String ) attrs.get( "cn" ).get() );
     }
-    
-    
+
+
     @Test
     public void testSearchAttrC_L() throws Exception
     {
@@ -1107,7 +1055,7 @@ public class SearchIT extends AbstractLdapTestUnit
         aaAttrs.put( "ou", "Collective Area" );
         aaAttrs.put( "administrativeRole", "collectiveAttributeSpecificArea" );
         DirContext aaCtx = ctx.createSubcontext( "ou=Collective Area", aaAttrs );
-        
+
         // create subentry
         Attributes subentry = new BasicAttributes( true );
         Attribute objectClass = new BasicAttribute( "objectClass" );
@@ -1119,32 +1067,33 @@ public class SearchIT extends AbstractLdapTestUnit
         subentry.put( "cn", "Collective Subentry" );
         subentry.put( "subtreeSpecification", "{ }" );
         aaCtx.createSubcontext( "cn=Collective Subentry", subentry );
-        
+
         // create real enty
         Attributes attributes = this.getPersonAttributes( "Bush", "Kate Bush" );
         aaCtx.createSubcontext( "cn=Kate Bush", attributes );
-        
+
         // search
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setReturningAttributes( new String[]{"c-l" } );
-        
+        controls.setReturningAttributes( new String[]
+            { "c-l" } );
+
         NamingEnumeration<SearchResult> res = aaCtx.search( "", "(cn=Kate Bush)", controls );
-        
+
         assertTrue( res.hasMore() );
-        
+
         SearchResult result = res.next();
-        
+
         // ensure that result is not null
         assertNotNull( result );
-        
+
         Attributes attrs = result.getAttributes();
-        
+
         // ensure the one and only attribute is "c-l"
         assertEquals( 1, attrs.size() );
-        assertNotNull( attrs.get("c-l") );
-        assertEquals( 1, attrs.get("c-l").size() );
-        assertEquals( "Munich", (String)attrs.get("c-l").get() );
+        assertNotNull( attrs.get( "c-l" ) );
+        assertEquals( 1, attrs.get( "c-l" ).size() );
+        assertEquals( "Munich", ( String ) attrs.get( "c-l" ).get() );
     }
 
 
@@ -1155,19 +1104,20 @@ public class SearchIT extends AbstractLdapTestUnit
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setReturningAttributes( new String[]{"*"} );
-        
+        controls.setReturningAttributes( new String[]
+            { "*" } );
+
         NamingEnumeration<SearchResult> res = ctx.search( "", "(commonName=Tori Amos)", controls );
-        
+
         assertTrue( res.hasMore() );
-        
+
         SearchResult result = res.next();
-        
+
         // ensure that result is not null
         assertNotNull( result );
-        
+
         Attributes attrs = result.getAttributes();
-        
+
         // ensure that all user attributes are returned
         assertEquals( 6, attrs.size() );
         assertNotNull( attrs.get( "cn" ) );
@@ -1188,19 +1138,20 @@ public class SearchIT extends AbstractLdapTestUnit
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setReturningAttributes( new String[]{"+"} );
-        
+        controls.setReturningAttributes( new String[]
+            { "+" } );
+
         NamingEnumeration<SearchResult> res = ctx.search( "", "(commonName=Tori Amos)", controls );
-        
+
         assertTrue( res.hasMore() );
-        
+
         SearchResult result = res.next();
-        
+
         // ensure that result is not null
         assertNotNull( result );
-        
+
         Attributes attrs = result.getAttributes();
-        
+
         // ensure that all operational attributes are returned
         // and no user attributes
         assertEquals( 4, attrs.size() );
@@ -1214,7 +1165,7 @@ public class SearchIT extends AbstractLdapTestUnit
         assertNotNull( attrs.get( "entryuuid" ) );
         assertNotNull( attrs.get( "entrycsn" ) );
     }
-    
+
 
     @Test
     public void testSearchAllAttrs() throws Exception
@@ -1223,19 +1174,20 @@ public class SearchIT extends AbstractLdapTestUnit
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setReturningAttributes( new String[]{"+", "*"} );
-        
+        controls.setReturningAttributes( new String[]
+            { "+", "*" } );
+
         NamingEnumeration<SearchResult> res = ctx.search( "", "(commonName=Tori Amos)", controls );
-        
+
         assertTrue( res.hasMore() );
-        
+
         SearchResult result = ( SearchResult ) res.next();
-        
+
         // ensure that result is not null
         assertNotNull( result );
-        
+
         Attributes attrs = result.getAttributes();
-        
+
         // ensure that all user attributes are returned
         assertEquals( 10, attrs.size() );
         assertNotNull( attrs.get( "cn" ) );
@@ -1257,7 +1209,7 @@ public class SearchIT extends AbstractLdapTestUnit
         LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        
+
         try
         {
             ctx.search( "cn=admin", "(objectClass=*)", controls );
@@ -1267,7 +1219,7 @@ public class SearchIT extends AbstractLdapTestUnit
             assertTrue( true );
         }
     }
-    
+
 
     @Test
     public void testSearchInvalidDN() throws Exception
@@ -1276,7 +1228,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        
+
         try
         {
             ctx.search( "myBadDN", "(objectClass=*)", controls );
@@ -1287,7 +1239,7 @@ public class SearchIT extends AbstractLdapTestUnit
             assertTrue( true );
         }
     }
-    
+
 
     /**
      * Check if operational attributes are present, if "+" is requested.
@@ -1353,8 +1305,8 @@ public class SearchIT extends AbstractLdapTestUnit
 
         result.close();
     }
-    
-    
+
+
     /**
      * Check if no error occurs if " " is requested.
      */
@@ -1372,7 +1324,7 @@ public class SearchIT extends AbstractLdapTestUnit
         result.close();
     }
 
-    
+
     /**
      * Check if no error occurs if "" is requested.
      */
@@ -1390,7 +1342,7 @@ public class SearchIT extends AbstractLdapTestUnit
         result.close();
     }
 
-    
+
     /**
      * Check if no error occurs if "" is requested.
      */
@@ -1407,7 +1359,7 @@ public class SearchIT extends AbstractLdapTestUnit
         result.close();
     }
 
-    
+
     /**
      * Check if user and operational attributes are present, if both "*" and "+" are requested.
      */
@@ -1416,7 +1368,7 @@ public class SearchIT extends AbstractLdapTestUnit
     {
         LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
         SearchControls ctls = new SearchControls();
- 
+
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
         ctls.setReturningAttributes( new String[]
             { "+", "*" } );
@@ -1457,7 +1409,7 @@ public class SearchIT extends AbstractLdapTestUnit
             Attributes attrs = entry.getAttributes();
 
             assertNotNull( attrs );
-            
+
             checkForAttributes( attrs, userAttrNames );
             checkForAttributes( attrs, opAttrNames );
         }
@@ -1468,8 +1420,8 @@ public class SearchIT extends AbstractLdapTestUnit
 
         result.close();
     }
-   
-    
+
+
     @Test
     public void testSubstringSearchWithEscapedCharsInFilter() throws Exception
     {
@@ -1523,9 +1475,9 @@ public class SearchIT extends AbstractLdapTestUnit
         attrs.put( "givenName", "Jim" );
         attrs.put( "sn", "Bean" );
         attrs.put( "cn", "jimbean" );
-        
+
         ctx.createSubcontext( "cn=jimbean", attrs );
-        
+
         try
         {
             ctx.search( "", "(cn=**)", new SearchControls() );
@@ -1537,7 +1489,7 @@ public class SearchIT extends AbstractLdapTestUnit
         }
     }
 
-    
+
     @Test
     public void testSubstringSearchWithEscapedAsterisksInFilter_DIRSERVER_1181() throws Exception
     {
@@ -1660,6 +1612,7 @@ public class SearchIT extends AbstractLdapTestUnit
         result.close();
     }
 
+
     /**
      * test an abandonned search request.
      */
@@ -1668,13 +1621,13 @@ public class SearchIT extends AbstractLdapTestUnit
     public void testAbandonnedRequest() throws Exception
     {
         LdapConnection asyncCnx = new LdapConnection( "localhost", ldapServer.getPort() );
-        
+
         try
         {
             // Use the client API as JNDI cannot be used to do a search without
             // first binding. (hmmm, even client API won't allow searching without binding)
             asyncCnx.bind( "uid=admin,ou=system", "secret" );
-            
+
             // First, add 1000 entries in the server
             for ( int i = 0; i < 1000; i++ )
             {
@@ -1687,14 +1640,14 @@ public class SearchIT extends AbstractLdapTestUnit
 
                 asyncCnx.add( kate );
             }
-            
+
             // Searches for all the entries in ou=system
             Cursor<SearchResponse> cursor = asyncCnx.search( "ou=system", "(ObjectClass=*)", SearchScope.SUBTREE, "*" );
 
             // Now loop on all the elements found, and abandon after 10 elements returned
             int count = 0;
-            
-            while ( cursor.next() ) 
+
+            while ( cursor.next() )
             {
                 count++;
 
@@ -1703,7 +1656,7 @@ public class SearchIT extends AbstractLdapTestUnit
                     //asyncCnx.abandon( msg.getMessageID() );
                 }
             }
-            
+
             assertEquals( 100, count );
         }
         catch ( LdapException e )
@@ -1712,7 +1665,7 @@ public class SearchIT extends AbstractLdapTestUnit
         }
         finally
         {
-           asyncCnx.unBind();
+            asyncCnx.unBind();
         }
     }
 
@@ -1724,13 +1677,65 @@ public class SearchIT extends AbstractLdapTestUnit
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setTimeLimit( 10 );
-        
+
         NamingEnumeration<SearchResult> result = ctx.search( "ou=system", "(description=*+*)", controls );
-        
+
         assertTrue( result.hasMore() );
-        
+
         SearchResult entry = result.next();
 
         assertEquals( "Kim Wilde", entry.getAttributes().get( "cn" ).get() );
+    }
+
+
+    @Test
+    public void testSearchSizeLimit() throws Exception
+    {
+        int sizeLimit = 7;
+        LdapConnection connection = getClientApiConnection( ldapServer );
+        SearchRequest req = new SearchRequest();
+        req.setBaseDn( "ou=system" );
+        req.setFilter( "(ou=*)" );
+        req.setScope( SearchScope.SUBTREE );
+        req.setSizeLimit( sizeLimit );
+
+        Cursor<SearchResponse> cursor = connection.search( req );
+        int i = 0;
+        while ( cursor.next() )
+        {
+            ++i;
+        }
+
+        assertEquals( sizeLimit, i );
+    }
+
+
+    @Test
+    @Ignore( "This test is failing because of the timing issue. Note that the SearchHandler handles time based searches correctly, this is just the below test's problem" )
+    public void testSearchTimeLimit() throws Exception, InterruptedException
+    {
+        LdapConnection connection = getClientApiConnection( ldapServer );
+        SearchRequest req = new SearchRequest();
+        req.setBaseDn( "ou=schema" );
+        req.setFilter( "(objectClass=*)" );
+        req.setScope( SearchScope.SUBTREE );
+
+        Cursor<SearchResponse> cursor = connection.search( req );
+        int count = 0;
+        while ( cursor.next() )
+        {
+            ++count;
+        }
+        cursor.close();
+
+        req.setTimeLimit( 1 );
+        cursor = connection.search( req );
+        int newCount = 0;
+        while ( cursor.next() )
+        {
+            ++newCount;
+        }
+
+        assertTrue( newCount < count );
     }
 }
