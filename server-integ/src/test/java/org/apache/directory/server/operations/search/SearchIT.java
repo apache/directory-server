@@ -1616,7 +1616,6 @@ public class SearchIT extends AbstractLdapTestUnit
     /**
      * test an abandonned search request.
      */
-    @Ignore
     @Test
     public void testAbandonnedRequest() throws Exception
     {
@@ -1653,14 +1652,16 @@ public class SearchIT extends AbstractLdapTestUnit
 
                 if ( count == 10 )
                 {
-                    //asyncCnx.abandon( msg.getMessageID() );
+                    // the message ID = 1 bind op + 1000 add ops + 1 search op
+                    asyncCnx.abandon( 1002 );
                 }
             }
 
-            assertEquals( 100, count );
+            assertEquals( 10, count );
         }
         catch ( LdapException e )
         {
+            e.printStackTrace();
             fail( "Should not have caught exception." );
         }
         finally
