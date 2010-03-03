@@ -28,7 +28,7 @@ import java.util.Set;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
@@ -479,10 +479,10 @@ public interface Store<E, ID>
     int getChildCount( ID id ) throws Exception;
 
 
-    LdapDN getSuffix();
+    DN getSuffix();
 
 
-    LdapDN getUpSuffix();
+    DN getUpSuffix();
 
 
     void setProperty( String propertyName, String propertyValue ) throws Exception;
@@ -491,10 +491,10 @@ public interface Store<E, ID>
     String getProperty( String propertyName ) throws Exception;
 
 
-    void modify( LdapDN dn, ModificationOperation modOp, ServerEntry mods ) throws Exception;
+    void modify( DN dn, ModificationOperation modOp, ServerEntry mods ) throws Exception;
 
 
-    void modify( LdapDN dn, List<Modification> mods ) throws Exception;
+    void modify( DN dn, List<Modification> mods ) throws Exception;
 
 
     /**
@@ -513,13 +513,13 @@ public interface Store<E, ID>
      * @param deleteOldRdn whether or not to remove the old RDN attr/val
      * @throws Exception if there are any errors propagating the name changes
      */
-    void rename( LdapDN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception;
+    void rename( DN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception;
 
 
-    void move( LdapDN oldChildDn, LdapDN newParentDn, RDN newRdn, boolean deleteOldRdn ) throws Exception;
+    void move( DN oldChildDn, DN newParentDn, RDN newRdn, boolean deleteOldRdn ) throws Exception;
 
 
-    void move( LdapDN oldChildDn, LdapDN newParentDn ) throws Exception;
+    void move( DN oldChildDn, DN newParentDn ) throws Exception;
 
 
     /**

@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.slf4j.Logger;
@@ -86,7 +86,7 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
             returningAttributes.add( new AttributeTypeOptions( passwordAT) );
             bindDn = (String)ldapSession.getSaslProperty( SaslConstants.SASL_USER_BASE_DN );
             
-            LdapDN baseDn = new LdapDN( bindDn );
+            DN baseDn = new DN( bindDn );
 
             EntryFilteringCursor cursor = adminSession.search( 
                 baseDn, 

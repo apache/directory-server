@@ -44,7 +44,7 @@ import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -170,6 +170,6 @@ public class GssapiMechanismHandler extends AbstractMechanismHandler
     private PrincipalStoreEntry findPrincipal( LdapServer ldapServer, GetPrincipal getPrincipal ) throws Exception
     {
         CoreSession adminSession = ldapServer.getDirectoryService().getAdminSession();
-        return ( PrincipalStoreEntry ) getPrincipal.execute( adminSession, new LdapDN( ldapServer.getSearchBaseDn() ) );
+        return ( PrincipalStoreEntry ) getPrincipal.execute( adminSession, new DN( ldapServer.getSearchBaseDn() ) );
     }
 }

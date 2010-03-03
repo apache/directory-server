@@ -24,7 +24,7 @@ package org.apache.directory.server.ldap.replication;
 import javax.naming.InvalidNameException;
 
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.LdapURL;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -60,7 +60,7 @@ public class ReplicaPeerConfiguration
     private LdapURL producer;
     
     /** The principal to use to connect to the producer */
-    private LdapDN principalDN;
+    private DN principalDN;
     
     /** The principal's password */
     private String password;
@@ -72,7 +72,7 @@ public class ReplicaPeerConfiguration
     private int port;
     
     /** The base DN used for replication */
-    private LdapDN baseDN;
+    private DN baseDN;
     
     /** A flag to tell the server to use an SSL connection */
     private boolean useSSL;
@@ -127,7 +127,7 @@ public class ReplicaPeerConfiguration
     /**
      * @return the baseDN
      */
-    public LdapDN getBaseDN()
+    public DN getBaseDN()
     {
         return baseDN;
     }
@@ -137,14 +137,14 @@ public class ReplicaPeerConfiguration
      */
     public void setPrincipalDN( String principalDN ) throws InvalidNameException
     {
-        this.principalDN = new LdapDN( principalDN );
+        this.principalDN = new DN( principalDN );
     }
 
 
     /**
      * @return the principalDN
      */
-    public LdapDN getPrincipalDN()
+    public DN getPrincipalDN()
     {
         return principalDN;
     }

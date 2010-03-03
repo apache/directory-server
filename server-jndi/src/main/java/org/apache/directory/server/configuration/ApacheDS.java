@@ -45,7 +45,7 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
@@ -258,7 +258,7 @@ public class ApacheDS
      */
     private void ensureLdifFileBase() throws Exception
     {
-        LdapDN dn = new LdapDN( ServerDNConstants.LDIF_FILES_DN );
+        DN dn = new DN( ServerDNConstants.LDIF_FILES_DN );
         ServerEntry entry = null;
         
         try
@@ -272,7 +272,7 @@ public class ApacheDS
 
         if ( entry == null )
         {
-            entry = directoryService.newEntry( new LdapDN( ServerDNConstants.LDIF_FILES_DN ) );
+            entry = directoryService.newEntry( new DN( ServerDNConstants.LDIF_FILES_DN ) );
             entry.add( SchemaConstants.OU_AT, "loadedLdifFiles" );
             entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.ORGANIZATIONAL_UNIT_OC );
     
@@ -286,13 +286,13 @@ public class ApacheDS
      * 
      * It is associated with the attributeType wrt to the underlying system.
      */
-    private LdapDN buildProtectedFileEntryDn( File ldif ) throws Exception
+    private DN buildProtectedFileEntryDn( File ldif ) throws Exception
     {
         String fileSep = File.separatorChar == '\\' ? 
                 ApacheSchemaConstants.WINDOWS_FILE_AT : 
                 ApacheSchemaConstants.UNIX_FILE_AT;
 
-        return  new LdapDN( fileSep + 
+        return  new DN( fileSep + 
                 "=" + 
                 StringTools.dumpHexPairs( StringTools.getBytesUtf8( getCanonical( ldif ) ) ) + 
                 "," + 
@@ -388,7 +388,7 @@ public class ApacheDS
         }
 
 
-        LdapDN dn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
+        DN dn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
         
         // Must normalize the dn or - IllegalStateException!
         dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );

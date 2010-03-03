@@ -25,7 +25,7 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,11 +74,11 @@ public class ModifyDnHandler extends LdapRequestHandler<InternalModifyDnRequest>
         
         try
         {
-            LdapDN newRdn = new LdapDN( req.getNewRdn().toString() );
+            DN newRdn = new DN( req.getNewRdn().toString() );
             newRdn.normalize( session.getCoreSession().getDirectoryService()
                 .getSchemaManager().getNormalizerMapping() );
             
-            LdapDN oldRdn = new LdapDN( req.getName().getRdn().toString() );
+            DN oldRdn = new DN( req.getName().getRdn().toString() );
             oldRdn.normalize( session.getCoreSession().getDirectoryService()
                 .getSchemaManager().getNormalizerMapping() );
             

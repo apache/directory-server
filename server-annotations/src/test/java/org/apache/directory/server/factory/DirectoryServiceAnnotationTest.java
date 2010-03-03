@@ -48,7 +48,7 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 
 
@@ -160,7 +160,7 @@ public class DirectoryServiceAnnotationTest
             }
         }
         
-        assertTrue( service.getAdminSession().exists( new LdapDN( "dc=example,dc=com" ) ) );
+        assertTrue( service.getAdminSession().exists( new DN( "dc=example,dc=com" ) ) );
 
         service.shutdown();
         FileUtils.deleteDirectory( service.getWorkingDirectory() );
@@ -227,7 +227,7 @@ public class DirectoryServiceAnnotationTest
             }
         }
         
-        assertTrue( service.getAdminSession().exists( new LdapDN( "dc=example,dc=com" ) ) );
+        assertTrue( service.getAdminSession().exists( new DN( "dc=example,dc=com" ) ) );
 
         // Now, get the server
         LdapServer ldapServer = ServerAnnotationProcessor.getLdapServer( service, 1024 );

@@ -38,7 +38,7 @@ import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
 import org.apache.mina.core.service.IoAcceptor;
@@ -440,7 +440,7 @@ public class KdcServer extends DirectoryBackedService
         PrincipalStore store;
 
         // TODO - for now ignoring this catalog crap
-        store = new DirectoryPrincipalStore( getDirectoryService(), new LdapDN(this.getSearchBaseDn())  );
+        store = new DirectoryPrincipalStore( getDirectoryService(), new DN(this.getSearchBaseDn())  );
         
         if ( ( transports == null ) || ( transports.size() == 0 ) )
         {

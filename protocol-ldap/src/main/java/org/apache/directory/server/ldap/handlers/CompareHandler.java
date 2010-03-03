@@ -24,7 +24,7 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.InternalCompareRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,7 @@ public class CompareHandler extends LdapRequestHandler<InternalCompareRequest>
 
     
     /**
-     * @see ReferralAwareRequestHandler#handleIgnoringReferrals(LdapSession, LdapDN, 
+     * @see ReferralAwareRequestHandler#handleIgnoringReferrals(LdapSession, DN, 
      * org.apache.directory.server.core.entry.ClonedServerEntry, 
      * org.apache.directory.shared.ldap.message.SingleReplyRequest)
      */

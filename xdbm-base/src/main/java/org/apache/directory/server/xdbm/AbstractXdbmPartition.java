@@ -37,7 +37,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 
 
@@ -393,11 +393,11 @@ public abstract class AbstractXdbmPartition<ID> extends BTreePartition<ID>
      * @param newParentDn new parent entry's DN
      * @throws Exception
      */
-    private void checkIsValidMove( LdapDN oldChildDn, LdapDN newParentDn ) throws Exception
+    private void checkIsValidMove( DN oldChildDn, DN newParentDn ) throws Exception
     {
         boolean invalid = false;
 
-        LdapDN newParentDNClone = ( LdapDN ) newParentDn.clone();
+        DN newParentDNClone = ( DN ) newParentDn.clone();
         newParentDNClone.remove( newParentDNClone.size() - 1 );
 
         if ( newParentDn.size() >= oldChildDn.size() )
@@ -428,7 +428,7 @@ public abstract class AbstractXdbmPartition<ID> extends BTreePartition<ID>
     }
 
 
-    public final void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId )
+    public final void bind( DN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId )
         throws Exception
     {
         if ( bindDn == null || credentials == null || mechanisms == null || saslAuthId == null )

@@ -63,7 +63,7 @@ import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchResponseDone;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchResponseEntry;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchResponseReference;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.LdapURL;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -1024,7 +1024,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
     /**
      * Handles processing with referrals without ManageDsaIT control.
      */
-    public void handleWithReferrals( LdapSession session, LdapDN reqTargetDn, InternalSearchRequest req ) throws NamingException
+    public void handleWithReferrals( LdapSession session, DN reqTargetDn, InternalSearchRequest req ) throws NamingException
     {
         InternalLdapResult result = req.getResultResponse().getLdapResult();
         ClonedServerEntry entry = null;
@@ -1262,13 +1262,13 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
      */
     private static boolean isSubSchemaSubEntrySearch( LdapSession session, InternalSearchRequest req ) throws Exception
     {
-        LdapDN base = req.getBase();
+        DN base = req.getBase();
         String baseNormForm = ( base.isNormalized() ? base.getNormName() : base.toNormName() );
 
         DirectoryService ds = session.getCoreSession().getDirectoryService();
         PartitionNexus nexus = ds.getPartitionNexus();
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        LdapDN subschemaSubentryDn = new LdapDN( subschemaSubentry.getString() );
+        DN subschemaSubentryDn = new DN( subschemaSubentry.getString() );
         subschemaSubentryDn.normalize( ds.getSchemaManager().getNormalizerMapping() );
         String subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
         

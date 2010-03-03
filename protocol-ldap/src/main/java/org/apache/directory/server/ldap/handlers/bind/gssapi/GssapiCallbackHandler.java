@@ -34,7 +34,7 @@ import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,13 +79,13 @@ public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
 
         // find the user's entry
         GetPrincipal getPrincipal = new GetPrincipal( new KerberosPrincipal( username ) );
-        PrincipalStoreEntry entry = ( PrincipalStoreEntry ) getPrincipal.execute( adminSession, new LdapDN( ldapSession
+        PrincipalStoreEntry entry = ( PrincipalStoreEntry ) getPrincipal.execute( adminSession, new DN( ldapSession
             .getLdapServer().getSearchBaseDn() ) );
         String bindDn = entry.getDistinguishedName();
 
         LOG.debug( "Converted username {} to DN {}.", username, bindDn );
 
-        LdapPrincipal ldapPrincipal = new LdapPrincipal( new LdapDN( entry.getDistinguishedName() ),
+        LdapPrincipal ldapPrincipal = new LdapPrincipal( new DN( entry.getDistinguishedName() ),
             AuthenticationLevel.STRONG, StringTools.EMPTY_BYTES );
         ldapSession.putSaslProperty( SaslConstants.SASL_AUTHENT_USER, ldapPrincipal );
         ldapSession.putSaslProperty( Context.SECURITY_PRINCIPAL, bindDn );

@@ -52,7 +52,7 @@ import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
@@ -91,7 +91,7 @@ public abstract class BTreePartition<ID> implements Partition
 
     protected String id;
     protected int cacheSize = -1;
-    protected LdapDN suffix;
+    protected DN suffix;
     private File partitionDir;
 
     /** The rootDSE context */
@@ -252,7 +252,7 @@ public abstract class BTreePartition<ID> implements Partition
      */
     public void delete( DeleteOperationContext opContext ) throws Exception
     {
-        LdapDN dn = opContext.getDn();
+        DN dn = opContext.getDn();
 
         ID id = getEntryId( dn.getNormName() );
 
@@ -516,7 +516,7 @@ public abstract class BTreePartition<ID> implements Partition
      */
     public void setSuffix( String suffix ) throws InvalidNameException
     {
-        this.suffix = new LdapDN( suffix );
+        this.suffix = new DN( suffix );
     }
 
 
@@ -532,7 +532,7 @@ public abstract class BTreePartition<ID> implements Partition
     /**
      * {@inheritDoc}
      */
-    public LdapDN getSuffixDn()
+    public DN getSuffixDn()
     {
         return suffix;
     }

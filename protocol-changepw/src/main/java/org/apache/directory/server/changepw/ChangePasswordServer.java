@@ -36,7 +36,7 @@ import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.transport.socket.DatagramAcceptor;
 import org.apache.mina.transport.socket.DatagramSessionConfig;
@@ -271,7 +271,7 @@ public class ChangePasswordServer extends DirectoryBackedService
      */
     public void start() throws IOException, InvalidNameException
     {
-        PrincipalStore store = new DirectoryPrincipalStore( getDirectoryService(), new LdapDN(this.getSearchBaseDn())  );
+        PrincipalStore store = new DirectoryPrincipalStore( getDirectoryService(), new DN(this.getSearchBaseDn())  );
         
         if ( ( transports == null ) || ( transports.size() == 0 ) )
         {

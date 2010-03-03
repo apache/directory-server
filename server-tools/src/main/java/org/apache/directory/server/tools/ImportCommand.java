@@ -63,7 +63,7 @@ import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -227,7 +227,7 @@ public class ImportCommand extends ToolCommand
 
         Entry entry = ldifEntry.getEntry();
 
-        addRequest.setEntryDn( new LdapDN( dn ) );
+        addRequest.setEntryDn( new DN( dn ) );
 
         // Copy the attributes
         for ( EntryAttribute attribute:entry )
@@ -294,7 +294,7 @@ public class ImportCommand extends ToolCommand
             System.out.println( "Deleting entry " + dn );
         }
 
-        delRequest.setEntry( new LdapDN( dn ) );
+        delRequest.setEntry( new DN( dn ) );
 
         delRequest.setMessageId( messageId );
 
@@ -349,13 +349,13 @@ public class ImportCommand extends ToolCommand
             System.out.println( "Modify DN of entry " + dn );
         }
 
-        modifyDNRequest.setEntry( new LdapDN( dn ) );
+        modifyDNRequest.setEntry( new DN( dn ) );
         modifyDNRequest.setDeleteOldRDN( entry.isDeleteOldRdn() );
         modifyDNRequest.setNewRDN( new RDN( entry.getNewRdn() ) );
 
         if ( StringTools.isEmpty( entry.getNewSuperior() ) == false )
         {
-            modifyDNRequest.setNewSuperior( new LdapDN( entry.getNewSuperior() ) );
+            modifyDNRequest.setNewSuperior( new DN( entry.getNewSuperior() ) );
         }
 
         modifyDNRequest.setMessageId( messageId );
@@ -409,7 +409,7 @@ public class ImportCommand extends ToolCommand
             System.out.println( "Modify of entry " + dn );
         }
 
-        modifyRequest.setObject( new LdapDN( dn ) );
+        modifyRequest.setObject( new DN( dn ) );
         modifyRequest.initModifications();
 
         for ( Modification modification: entry.getModificationItems() )
@@ -506,7 +506,7 @@ public class ImportCommand extends ToolCommand
         }
 
         bindRequest.setAuthentication( authentication );
-        bindRequest.setName( new LdapDN( user ) );
+        bindRequest.setName( new DN( user ) );
         bindRequest.setVersion( 3 );
 
         bindRequest.setMessageId( messageId );

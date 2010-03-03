@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.internal.InternalReferral;
 import org.apache.directory.shared.ldap.message.internal.InternalResultResponseRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.util.LdapURL;
 import org.slf4j.Logger;
@@ -125,12 +125,12 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
      * @return the farthest referral ancestor or null
      * @throws Exception if there are problems during this search
      */
-    public static final ClonedServerEntry getFarthestReferralAncestor( LdapSession session, LdapDN target ) 
+    public static final ClonedServerEntry getFarthestReferralAncestor( LdapSession session, DN target ) 
         throws Exception
     {
         ClonedServerEntry entry;
         ClonedServerEntry farthestReferralAncestor = null;
-        LdapDN dn = ( LdapDN ) target.clone();
+        DN dn = ( DN ) target.clone();
         
         try
         {
@@ -184,7 +184,7 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
      * @param referralAncestor the farthest referral ancestor of the missing 
      * entry  
      */
-    public InternalReferral getReferralOnAncestor( LdapSession session, LdapDN reqTargetDn, T req, 
+    public InternalReferral getReferralOnAncestor( LdapSession session, DN reqTargetDn, T req, 
         ClonedServerEntry referralAncestor ) throws Exception
     {
         LOG.debug( "Inside getReferralOnAncestor()" );
@@ -217,7 +217,7 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
                 LOG.error( I18n.err( I18n.ERR_165, ref, referralAncestor ) );
             }
             
-            LdapDN urlDn = new LdapDN( ldapUrl.getDn().getName() );
+            DN urlDn = new DN( ldapUrl.getDn().getName() );
             urlDn.normalize( session.getCoreSession().getDirectoryService().getSchemaManager()
                 .getNormalizerMapping() ); 
             
@@ -244,11 +244,11 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
              * name past the farthest referral DN which the target name extends.
              */
             int diff = reqTargetDn.size() - referralAncestor.getDn().size();
-            LdapDN extra = new LdapDN();
+            DN extra = new DN();
 
             // TODO - fix this by access unormalized RDN values
             // seems we have to do this because get returns normalized rdns
-            LdapDN reqUnnormalizedDn = new LdapDN( reqTargetDn.getName() );
+            DN reqUnnormalizedDn = new DN( reqTargetDn.getName() );
             for ( int jj = 0; jj < diff; jj++ )
             {
                 extra.add( reqUnnormalizedDn.get( referralAncestor.getDn().size() + jj ) );
@@ -317,7 +317,7 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
             }
             
             // Normalize the DN to check for same dn
-            LdapDN urlDn = new LdapDN( ldapUrl.getDn().getName() );
+            DN urlDn = new DN( ldapUrl.getDn().getName() );
             urlDn.normalize( session.getCoreSession().getDirectoryService().getSchemaManager()
                 .getNormalizerMapping() ); 
             
@@ -336,11 +336,11 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
              * name past the farthest referral DN which the target name extends.
              */
             int diff = req.getBase().size() - referralAncestor.getDn().size();
-            LdapDN extra = new LdapDN();
+            DN extra = new DN();
 
             // TODO - fix this by access unormalized RDN values
             // seems we have to do this because get returns normalized rdns
-            LdapDN reqUnnormalizedDn = new LdapDN( req.getBase().getName() );
+            DN reqUnnormalizedDn = new DN( req.getBase().getName() );
             for ( int jj = 0; jj < diff; jj++ )
             {
                 extra.add( reqUnnormalizedDn.get( referralAncestor.getDn().size() + jj ) );
@@ -408,7 +408,7 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
             
             if ( ( ne.getResolvedName() != null ) && setMatchedDn )
             {
-                result.setMatchedDn( ( LdapDN ) ne.getResolvedName() );
+                result.setMatchedDn( ( DN ) ne.getResolvedName() );
             }
         }
 
@@ -438,5 +438,5 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
     /**
      * Handles processing with referrals without ManageDsaIT control.
      */
-    public abstract void handleWithReferrals( LdapSession session, LdapDN reqTargetDn, T req ) throws NamingException;
+    public abstract void handleWithReferrals( LdapSession session, DN reqTargetDn, T req ) throws NamingException;
 }

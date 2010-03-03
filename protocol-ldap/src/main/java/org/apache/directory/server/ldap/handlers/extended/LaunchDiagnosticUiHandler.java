@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.extended.LaunchDiagnosticUiRequest;
 import org.apache.directory.shared.ldap.message.extended.LaunchDiagnosticUiResponse;
 import org.apache.directory.shared.ldap.message.internal.InternalExtendedRequest;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -90,7 +90,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
         requestor.getIoSession().write( new LaunchDiagnosticUiResponse( req.getMessageId() ) );
 
         PartitionNexus nexus = service.getPartitionNexus();
-        LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
         adminDn.normalize( service.getSchemaManager().getNormalizerMapping() );
         LdapPrincipal principal = new LdapPrincipal( adminDn, AuthenticationLevel.STRONG );
         CoreSession session = service.getSession( principal );
@@ -99,7 +99,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
             
         for ( String suffix:suffixes )
         {
-            LdapDN dn = new LdapDN( suffix );
+            DN dn = new DN( suffix );
             Partition partition = nexus.getPartition( dn );
             
             if ( partition instanceof BTreePartition )

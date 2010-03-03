@@ -42,7 +42,7 @@ import org.apache.directory.shared.ldap.message.internal.InternalReferral;
 import org.apache.directory.shared.ldap.message.internal.InternalRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalResultResponse;
 import org.apache.directory.shared.ldap.message.internal.InternalResultResponseRequest;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.session.IoSession;
@@ -277,7 +277,7 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
             
             if ( ( ne.getResolvedName() != null ) && setMatchedDn )
             {
-                result.setMatchedDn( ( LdapDN ) ne.getResolvedName() );
+                result.setMatchedDn( ( DN ) ne.getResolvedName() );
             }
             
             // Add the referrals if necessary

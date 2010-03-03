@@ -29,7 +29,7 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.bind.AbstractSaslServer;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.PrepareString;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -242,7 +242,7 @@ public class PlainSaslServer extends AbstractSaslServer
     private CoreSession authenticate( String user, String password ) throws InvalidNameException, Exception
     {
         BindOperationContext bindContext = new BindOperationContext( getLdapSession().getCoreSession() );
-        bindContext.setDn( new LdapDN( user ) );
+        bindContext.setDn( new DN( user ) );
         bindContext.setCredentials( StringTools.getBytesUtf8( password ) );
         
         getAdminSession().getDirectoryService().getOperationManager().bind( bindContext );
