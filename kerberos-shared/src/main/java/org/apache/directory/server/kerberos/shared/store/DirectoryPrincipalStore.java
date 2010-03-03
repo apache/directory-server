@@ -23,7 +23,7 @@ package org.apache.directory.server.kerberos.shared.store;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -37,7 +37,7 @@ public class DirectoryPrincipalStore implements PrincipalStore
 {
     /** The directory service backing store for this PrincipalStore. */
     private final DirectoryService directoryService;
-    private final LdapDN searchBaseDn;
+    private final DN searchBaseDn;
     
     
     /**
@@ -45,7 +45,7 @@ public class DirectoryPrincipalStore implements PrincipalStore
      *
      * @param directoryService backing store for this PrincipalStore
      */
-    public DirectoryPrincipalStore( DirectoryService directoryService, LdapDN searchBaseDn )
+    public DirectoryPrincipalStore( DirectoryService directoryService, DN searchBaseDn )
     {
         this.directoryService = directoryService;
         this.searchBaseDn = searchBaseDn;

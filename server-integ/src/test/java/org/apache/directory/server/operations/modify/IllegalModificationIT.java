@@ -41,7 +41,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -92,7 +92,7 @@ public class IllegalModificationIT extends AbstractLdapTestUnit
     {
         LdapConnection con = getClientApiConnection( ldapServer );
 
-        ModifyRequest modReq = new ModifyRequest( new LdapDN( DN ) );
+        ModifyRequest modReq = new ModifyRequest( new DN( DN ) );
         modReq.add( "description", "" );
 
         ModifyResponse resp = con.modify( modReq );

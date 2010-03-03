@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -94,12 +94,12 @@ public class DefaultSearchEngine<ID> implements SearchEngine<ServerEntry, ID>
 
 
     /**
-     * @see SearchEngine#cursor(LdapDN, AliasDerefMode, ExprNode, SearchControls)
+     * @see SearchEngine#cursor(DN, AliasDerefMode, ExprNode, SearchControls)
      */
-    public IndexCursor<ID, ServerEntry, ID> cursor( LdapDN base, AliasDerefMode aliasDerefMode, ExprNode filter,
+    public IndexCursor<ID, ServerEntry, ID> cursor( DN base, AliasDerefMode aliasDerefMode, ExprNode filter,
         SearchControls searchCtls ) throws Exception
     {
-        LdapDN effectiveBase;
+        DN effectiveBase;
         ID baseId = db.getEntryId( base.toString() );
 
         // Check that we have an entry, otherwise we can immediately get out
@@ -132,7 +132,7 @@ public class DefaultSearchEngine<ID> implements SearchEngine<ServerEntry, ID>
          */
         else
         {
-            effectiveBase = new LdapDN( aliasedBase );
+            effectiveBase = new DN( aliasedBase );
         }
 
         // --------------------------------------------------------------------

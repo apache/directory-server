@@ -40,7 +40,7 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntryModifier;
 import org.apache.directory.server.protocol.shared.store.DirectoryServiceOperation;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -72,7 +72,7 @@ public class GetPrincipal implements DirectoryServiceOperation
      * Note that the base is a relative path from the existing context.
      * It is not a DN.
      */
-    public Object execute( CoreSession session, LdapDN base ) throws Exception
+    public Object execute( CoreSession session, DN base ) throws Exception
     {
         if ( principal == null )
         {

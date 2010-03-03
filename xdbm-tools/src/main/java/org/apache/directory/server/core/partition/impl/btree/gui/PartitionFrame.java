@@ -72,7 +72,7 @@ import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -466,7 +466,7 @@ public class PartitionFrame extends JFrame
             {
                 String updn = entry.getDn().getName();
 
-                LdapDN ndn = new LdapDN( StringTools.deepTrimToLower( updn ) );
+                DN ndn = new DN( StringTools.deepTrimToLower( updn ) );
 
                 ServerEntry attrs = new DefaultServerEntry( schemaManager, entry.getEntry() );
 
@@ -662,7 +662,7 @@ public class PartitionFrame extends JFrame
             limitMax = Integer.parseInt( limit );
         }
 
-        IndexCursor<Long, ServerEntry, Long> cursor = partition.getSearchEngine().cursor( new LdapDN( base ),
+        IndexCursor<Long, ServerEntry, Long> cursor = partition.getSearchEngine().cursor( new DN( base ),
             AliasDerefMode.DEREF_ALWAYS, root, ctls );
         String[] cols = new String[2];
         cols[0] = "id";

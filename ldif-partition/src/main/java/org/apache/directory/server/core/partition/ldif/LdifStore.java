@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
@@ -166,7 +166,7 @@ public class LdifStore<E> implements Store<E, Long>
     }
 
 
-    private File getFile( LdapDN entryDn )
+    private File getFile( DN entryDn )
     {
         int size = entryDn.size();
 
@@ -233,31 +233,31 @@ public class LdifStore<E> implements Store<E, Long>
     }
 
 
-    public void modify( LdapDN dn, List<Modification> mods ) throws Exception
+    public void modify( DN dn, List<Modification> mods ) throws Exception
     {
         wrappedStore.modify( dn, mods );
     }
 
 
-    public void modify( LdapDN dn, ModificationOperation modOp, ServerEntry mods ) throws Exception
+    public void modify( DN dn, ModificationOperation modOp, ServerEntry mods ) throws Exception
     {
         wrappedStore.modify( dn, modOp, mods );
     }
 
 
-    public void move( LdapDN oldChildDn, LdapDN newParentDn, RDN newRdn, boolean deleteOldRdn ) throws Exception
+    public void move( DN oldChildDn, DN newParentDn, RDN newRdn, boolean deleteOldRdn ) throws Exception
     {
         wrappedStore.move( oldChildDn, newParentDn, newRdn, deleteOldRdn );
     }
 
 
-    public void move( LdapDN oldChildDn, LdapDN newParentDn ) throws Exception
+    public void move( DN oldChildDn, DN newParentDn ) throws Exception
     {
         wrappedStore.move( oldChildDn, newParentDn );
     }
 
 
-    public void rename( LdapDN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception
+    public void rename( DN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception
     {
         wrappedStore.rename( dn, newRdn, deleteOldRdn );
     }
@@ -552,7 +552,7 @@ public class LdifStore<E> implements Store<E, Long>
     }
 
 
-    public LdapDN getSuffix()
+    public DN getSuffix()
     {
         return wrappedStore.getSuffix();
     }
@@ -564,7 +564,7 @@ public class LdifStore<E> implements Store<E, Long>
     }
 
 
-    public LdapDN getUpSuffix()
+    public DN getUpSuffix()
     {
         return wrappedStore.getUpSuffix();
     }

@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
@@ -63,7 +63,7 @@ public class StoreUtils
      * @return the resultant server entry for the PrincipalStoreEntry argument
      * @throws Exception if there are problems accessing registries
      */
-    public static ServerEntry toServerEntry( CoreSession session, LdapDN dn, PrincipalStoreEntry principalEntry ) 
+    public static ServerEntry toServerEntry( CoreSession session, DN dn, PrincipalStoreEntry principalEntry ) 
         throws Exception
     {
         ServerEntry outAttrs = session.getDirectoryService().newEntry( dn );
@@ -119,7 +119,7 @@ public class StoreUtils
      * @return the server entry for the principal or null if non-existent
      * @throws Exception if there are problems while searching the directory
      */
-    public static ServerEntry findPrincipalEntry( CoreSession session, LdapDN searchBaseDn, String principal ) 
+    public static ServerEntry findPrincipalEntry( CoreSession session, DN searchBaseDn, String principal ) 
         throws Exception
     {
         EntryFilteringCursor cursor = null;

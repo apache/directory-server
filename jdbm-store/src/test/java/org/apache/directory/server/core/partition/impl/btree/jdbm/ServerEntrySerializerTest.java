@@ -34,7 +34,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.ServerEntrySerializer;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
@@ -124,7 +124,7 @@ public class ServerEntrySerializerTest
     
     @Test public void testSerializeEmtpyServerEntry() throws Exception
     {
-        LdapDN dn = LdapDN.EMPTY_LDAPDN;
+        DN dn = DN.EMPTY_DN;
         ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
@@ -139,7 +139,7 @@ public class ServerEntrySerializerTest
 
     @Test public void testSerializeDNServerEntry() throws Exception
     {
-        LdapDN dn = new LdapDN( "cn=text, dc=example, dc=com" );
+        DN dn = new DN( "cn=text, dc=example, dc=com" );
         dn.normalize( oids );
         
         ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
@@ -156,7 +156,7 @@ public class ServerEntrySerializerTest
 
     @Test public void testSerializeServerEntryOC() throws Exception
     {
-        LdapDN dn = new LdapDN( "cn=text, dc=example, dc=com" );
+        DN dn = new DN( "cn=text, dc=example, dc=com" );
         dn.normalize( oids );
         
         ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
@@ -174,7 +174,7 @@ public class ServerEntrySerializerTest
 
     @Test public void testSerializeServerEntry() throws Exception
     {
-        LdapDN dn = new LdapDN( "cn=text, dc=example, dc=com" );
+        DN dn = new DN( "cn=text, dc=example, dc=com" );
         dn.normalize( oids );
         
         ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
@@ -195,7 +195,7 @@ public class ServerEntrySerializerTest
 
     @Test public void testSerializeServerEntryWithEmptyDN() throws Exception
     {
-        LdapDN dn = new LdapDN( "" );
+        DN dn = new DN( "" );
         dn.normalize( oids );
         
         ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
@@ -216,7 +216,7 @@ public class ServerEntrySerializerTest
     
     @Test public void testSerializeServerEntryWithNoAttributes() throws Exception
     {
-        LdapDN dn = new LdapDN( "" );
+        DN dn = new DN( "" );
         dn.normalize( oids );
         
         ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
@@ -233,7 +233,7 @@ public class ServerEntrySerializerTest
     
     @Test public void testSerializeServerEntryWithAttributeNoValue() throws Exception
     {
-        LdapDN dn = new LdapDN( "" );
+        DN dn = new DN( "" );
         dn.normalize( oids );
         
         ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
@@ -252,7 +252,7 @@ public class ServerEntrySerializerTest
 
     @Test public void testSerializeServerEntryWithAttributeStringValue() throws Exception
     {
-        LdapDN dn = new LdapDN( "" );
+        DN dn = new DN( "" );
         dn.normalize( oids );
         
         ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
@@ -270,7 +270,7 @@ public class ServerEntrySerializerTest
 
     @Test public void testSerializeServerEntryWithAttributeBinaryValue() throws Exception
     {
-        LdapDN dn = new LdapDN( "" );
+        DN dn = new DN( "" );
         dn.normalize( oids );
         
         ServerEntry entry = new DefaultServerEntry( schemaManager, dn );

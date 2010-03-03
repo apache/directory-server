@@ -38,7 +38,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -164,8 +164,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         // JNDI issue: must use the name object here rather then string,
         // otherwise more backslashes are needed
         // works with both javax.naming.ldap.LdapName or 
-        // org.apache.directory.shared.ldap.name.LdapDN
-        LdapDN ldapRdn = new LdapDN( rdn );
+        // org.apache.directory.shared.ldap.name.DN
+        DN ldapRdn = new DN( rdn );
         ctx.createSubcontext( ldapRdn, attrs );
 
         SearchControls sctls = new SearchControls();
@@ -201,8 +201,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         // JNDI issue: must use the name object here rather then string,
         // otherwise more backslashes are needed
         // works with both javax.naming.ldap.LdapName or 
-        // org.apache.directory.shared.ldap.name.LdapDN
-        LdapDN ldapRdn = new LdapDN( rdn );
+        // org.apache.directory.shared.ldap.name.DN
+        DN ldapRdn = new DN( rdn );
         ctx.createSubcontext( ldapRdn, attrs );
 
         SearchControls sctls = new SearchControls();

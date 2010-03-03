@@ -84,7 +84,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -289,7 +289,7 @@ public class AddIT extends AbstractLdapTestUnit
         LdapConnection con = getClientApiConnection( ldapServer );
         
         String dn = "cn=Kate Bush," + BASE;
-        Entry kate = new DefaultClientEntry( new LdapDN( dn ) );
+        Entry kate = new DefaultClientEntry( new DN( dn ) );
 
         kate.add( "objectclass", "top", "person" );
         kate.add( "sn", "Bush" );
@@ -329,7 +329,7 @@ public class AddIT extends AbstractLdapTestUnit
         LdapConnection con = getClientApiConnection( ldapServer );
 
         String dn = "cn=Kate Bush," + BASE;
-        Entry kate = new DefaultClientEntry( new LdapDN( dn ) );
+        Entry kate = new DefaultClientEntry( new DN( dn ) );
         kate.add( "objectclass", "top", "person" );
         kate.add( "sn", "Bush" );
         kate.add( "cn", "Kate Bush" );
@@ -369,7 +369,7 @@ public class AddIT extends AbstractLdapTestUnit
         LdapConnection con = getClientApiConnection( ldapServer );
 
         String dn = "cn=Kate Bush," + BASE;
-        Entry kate = new DefaultClientEntry( new LdapDN( dn ) );
+        Entry kate = new DefaultClientEntry( new DN( dn ) );
         
         kate.add( "objectclass", "top", "person" );
         kate.add( "sn", "Bush" );
@@ -737,7 +737,7 @@ public class AddIT extends AbstractLdapTestUnit
             principalDn = "";
         }
         
-        LdapDN userDn = new LdapDN( principalDn );
+        DN userDn = new DN( principalDn );
         userDn.normalize( service.getSchemaManager().getNormalizerMapping() );
         LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
         
@@ -747,7 +747,7 @@ public class AddIT extends AbstractLdapTestUnit
         }
         
         CoreSession session = service.getSession( principal );
-        LdapContext ctx = new ServerLdapContext( service, session, new LdapDN( dn ) );
+        LdapContext ctx = new ServerLdapContext( service, session, new DN( dn ) );
         return ctx;
     }
     
@@ -1230,7 +1230,7 @@ public class AddIT extends AbstractLdapTestUnit
         LdapConnection con = getClientApiConnection( ldapServer );
         
         String dn = "cn=Kate Bush," + BASE;
-        Entry entry = new DefaultClientEntry( new LdapDN( dn ) );
+        Entry entry = new DefaultClientEntry( new DN( dn ) );
         entry.add( "objectclass", "top", "person" );
         entry.add( "sn", "Bush" );
         entry.add( "cn", "Kate Bush" );

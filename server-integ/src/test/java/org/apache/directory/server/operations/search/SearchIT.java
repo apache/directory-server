@@ -65,7 +65,7 @@ import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -1631,7 +1631,7 @@ public class SearchIT extends AbstractLdapTestUnit
             for ( int i = 0; i < 1000; i++ )
             {
                 String dn = "cn=user" + i + "," + BASE;
-                Entry kate = new DefaultClientEntry( new LdapDN( dn ) );
+                Entry kate = new DefaultClientEntry( new DN( dn ) );
 
                 kate.add( "objectclass", "top", "person" );
                 kate.add( "sn", "Bush" );

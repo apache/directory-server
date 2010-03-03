@@ -54,7 +54,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -323,7 +323,7 @@ public class LdifPartition extends BTreePartition<Long>
         modifyContext.setAlteredEntry( modifiedEntry );
 
         // just overwrite the existing file
-        LdapDN dn = modifyContext.getDn();
+        DN dn = modifyContext.getDn();
 
         // And write it back on disk
         FileWriter fw = new FileWriter( getFile( dn, DELETE ) );
@@ -338,7 +338,7 @@ public class LdifPartition extends BTreePartition<Long>
     @Override
     public void move( MoveOperationContext moveContext ) throws Exception
     {
-        LdapDN oldDn = moveContext.getDn();
+        DN oldDn = moveContext.getDn();
         Long id = getEntryId( oldDn.getNormName() );
 
         wrappedPartition.move( moveContext );
@@ -356,7 +356,7 @@ public class LdifPartition extends BTreePartition<Long>
     @Override
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws Exception
     {
-        LdapDN oldDn = moveAndRenameContext.getDn();
+        DN oldDn = moveAndRenameContext.getDn();
         Long id = getEntryId( oldDn.getNormName() );
 
         wrappedPartition.moveAndRename( moveAndRenameContext );
@@ -375,7 +375,7 @@ public class LdifPartition extends BTreePartition<Long>
     @Override
     public void rename( RenameOperationContext renameContext ) throws Exception
     {
-        LdapDN oldDn = renameContext.getDn();
+        DN oldDn = renameContext.getDn();
         Long id = getEntryId( oldDn.getNormName() );
 
         // Create the new entry 
@@ -401,7 +401,7 @@ public class LdifPartition extends BTreePartition<Long>
      * @param deleteOldEntry a flag to tell whether to delete the old entry files
      * @throws Exception
      */
-    private void entryMoved( LdapDN oldEntryDn, Entry modifiedEntry, Long entryIdOld, boolean deleteOldEntry )
+    private void entryMoved( DN oldEntryDn, Entry modifiedEntry, Long entryIdOld, boolean deleteOldEntry )
         throws Exception
     {
         // First, add the new entry
@@ -518,12 +518,12 @@ public class LdifPartition extends BTreePartition<Long>
     /**
      * Create the file name from the entry DN.
      */
-    private File getFile( LdapDN entryDn, boolean create ) throws NamingException
+    private File getFile( DN entryDn, boolean create ) throws NamingException
     {
         StringBuilder filePath = new StringBuilder();
         filePath.append( suffixDirectory ).append( File.separator );
 
-        LdapDN baseDn = ( LdapDN ) entryDn.getSuffix( suffix.size() );
+        DN baseDn = ( DN ) entryDn.getSuffix( suffix.size() );
 
         for ( int i = 0; i < baseDn.size() - 1; i++ )
         {
@@ -584,7 +584,7 @@ public class LdifPartition extends BTreePartition<Long>
      * 
      * We don't allow filename which length is > 255 chars.
      */
-    private String getFileName( LdapDN dn ) throws NamingException
+    private String getFileName( DN dn ) throws NamingException
     {
         StringBuilder sb = new StringBuilder();
         boolean isFirst = true;

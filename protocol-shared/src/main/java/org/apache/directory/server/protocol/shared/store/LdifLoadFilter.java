@@ -24,7 +24,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 import java.io.File;
 
@@ -47,5 +47,5 @@ public interface LdifLoadFilter
      * @return true if the entry will be created in the DIT, false if it is to be skipped
      * @throws NamingException
      */
-    boolean filter( File file, LdapDN dn, Entry entry, CoreSession coreSession ) throws NamingException;
+    boolean filter( File file, DN dn, Entry entry, CoreSession coreSession ) throws NamingException;
 }

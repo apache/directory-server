@@ -156,8 +156,8 @@ public class StoredProcedureIT extends AbstractLdapTestUnit
         
         JavaStoredProcUtils.loadStoredProcedureClass( spCtx, DITUtilitiesSP.class );
         
-        LdapDN people = new LdapDN( "ou=People" );
-        people = LdapDN.normalize(  people, oids );
+        DN people = new DN( "ou=People" );
+        people = DN.normalize(  people, oids );
         
         String spName = DITUtilitiesSP.class.getName() + ":deleteSubtree";
         Object[] params = new Object[] { new LdapContextParameter( "ou=system" ),

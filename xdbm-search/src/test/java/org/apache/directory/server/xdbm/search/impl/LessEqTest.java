@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.filter.LessEqNode;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -669,7 +669,7 @@ public class LessEqTest
         assertNotNull( evaluator.getNormalizer() );
         assertNotNull( evaluator.getLdapComparator() );
 
-        LdapDN dn = new LdapDN( "cn=jane doe,o=good times co." );
+        DN dn = new DN( "cn=jane doe,o=good times co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
         ServerEntry attrs = new DefaultServerEntry( schemaManager, dn );
         attrs.add( "objectClass", "person" );

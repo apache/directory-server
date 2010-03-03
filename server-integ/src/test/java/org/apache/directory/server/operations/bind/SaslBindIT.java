@@ -60,7 +60,7 @@ import org.apache.directory.shared.ldap.message.MessageEncoder;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.InternalBindResponse;
 import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -503,7 +503,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
              
              // Setup the bind request
              BindRequestImpl request = new BindRequestImpl( 1 ) ;
-             request.setName( new LdapDN( "uid=admin,ou=system" ) ) ;
+             request.setName( new DN( "uid=admin,ou=system" ) ) ;
              request.setSimple( false ) ;
              request.setCredentials( type1response ) ;
              request.setSaslMechanism( mechanism );
@@ -541,7 +541,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
              
              // Setup the bind request
              BindRequestImpl request = new BindRequestImpl( 2 ) ;
-             request.setName( new LdapDN( "uid=admin,ou=system" ) ) ;
+             request.setName( new DN( "uid=admin,ou=system" ) ) ;
              request.setSimple( false ) ;
              request.setCredentials( type3response ) ;
              request.setSaslMechanism( mechanism );

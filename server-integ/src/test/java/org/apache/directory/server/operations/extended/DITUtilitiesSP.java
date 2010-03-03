@@ -26,7 +26,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +50,7 @@ public class DITUtilitiesSP
      */
     public static void deleteSubtree( CoreSession session, Name rdn ) throws Exception
     {
-        EntryFilteringCursor results = session.list( (LdapDN)rdn, AliasDerefMode.DEREF_ALWAYS, null );
+        EntryFilteringCursor results = session.list( (DN)rdn, AliasDerefMode.DEREF_ALWAYS, null );
         
         results.beforeFirst();
         
@@ -62,7 +62,7 @@ public class DITUtilitiesSP
             deleteSubtree( session, childRdn );
         }
         
-        session.delete( (LdapDN)rdn );
+        session.delete( (DN)rdn );
         log.info( "Deleted: " + rdn );
     }
 }

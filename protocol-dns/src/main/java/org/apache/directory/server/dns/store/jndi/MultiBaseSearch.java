@@ -33,7 +33,7 @@ import org.apache.directory.server.protocol.shared.ServiceConfigurationException
 import org.apache.directory.server.protocol.shared.catalog.Catalog;
 import org.apache.directory.server.protocol.shared.catalog.GetCatalog;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +85,7 @@ public class MultiBaseSearch implements SearchStrategy
             GetRecords getRecords = new GetRecords( question );
             String baseDn = catalog.getBaseDn( question.getDomainName() );
             CoreSession session = directoryService.getSession();
-            DirContext dirContext = new ServerLdapContext( directoryService, session, new LdapDN( baseDn ) );
+            DirContext dirContext = new ServerLdapContext( directoryService, session, new DN( baseDn ) );
             return getRecords.execute( dirContext, null );
         }
         catch ( LdapNameNotFoundException lnnfe )
