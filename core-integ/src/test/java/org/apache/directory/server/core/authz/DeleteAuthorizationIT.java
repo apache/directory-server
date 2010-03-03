@@ -36,7 +36,7 @@ import javax.naming.directory.DirContext;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -90,7 +90,7 @@ public class DeleteAuthorizationIT extends AbstractLdapTestUnit
         try
         {
             // create the entry as the admin
-            LdapDN userName = new LdapDN( "uid=" + uid + ",ou=users,ou=system" );
+            DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
             adminContext.createSubcontext( entryRdn, testEntry );
 
             // delete the newly created context as the user

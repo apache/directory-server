@@ -53,7 +53,7 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.client.ClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -130,7 +130,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
         userEntry.put( "cn", "Emmanuel Lecharny" );
         
         // Core API entry
-        LdapDN dn = new LdapDN( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
+        DN dn = new DN( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
         serverEntry = new DefaultServerEntry( service.getSchemaManager(), dn );
 
         serverEntry.put( "ObjectClass", "top", "person" );
@@ -245,7 +245,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
             
             mods.add( mod );
             
-            session.modify( new LdapDN( "cn=Emmanuel Lecharny,ou=Roles,c=MNN,o=WW,ou=system" ), mods );
+            session.modify( new DN( "cn=Emmanuel Lecharny,ou=Roles,c=MNN,o=WW,ou=system" ), mods );
             fail();
         }
         catch ( NameNotFoundException nnfe )
@@ -273,7 +273,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
             
             mods.add( mod );
             
-            session.modify( new LdapDN( "cn=Emmanuel Lecharny,ou=Roles,c=MNN,o=WW,ou=system" ), mods, true );
+            session.modify( new DN( "cn=Emmanuel Lecharny,ou=Roles,c=MNN,o=WW,ou=system" ), mods, true );
             fail();
         }
         catch ( NameNotFoundException nnfe )
@@ -381,7 +381,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
             
             mods.add( mod );
             
-            session.modify( new LdapDN( "ou=Roles,o=MNN,c=WW,ou=system" ), mods, false );
+            session.modify( new DN( "ou=Roles,o=MNN,c=WW,ou=system" ), mods, false );
             fail();
         }
         catch ( ReferralException re )
@@ -420,7 +420,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
         
         mods.add( mod );
         
-        session.modify( new LdapDN( "ou=Roles,o=MNN,c=WW,ou=system" ), mods, true );
+        session.modify( new DN( "ou=Roles,o=MNN,c=WW,ou=system" ), mods, true );
         
         // Now try to retrieve this attribute
         Attributes result = MNNCtx.getAttributes( "ou=Roles", new String[]{ "description" } );

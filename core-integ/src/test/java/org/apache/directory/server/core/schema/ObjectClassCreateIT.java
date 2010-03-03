@@ -40,7 +40,7 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -101,7 +101,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
         attributes.put( "m-description", "Account Status" );
         
         // Inject the AT
-        LdapDN dn = new LdapDN( "ou=attributeTypes,cn=apachemeta" );
+        DN dn = new DN( "ou=attributeTypes,cn=apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=2.16.840.1.113730.3.2.22.249" );
         
         getSchemaContext( service ).createSubcontext( dn, attributes );
@@ -139,7 +139,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
         attributes.put( "m-may", "accountStatus" );
         
         // Inject the OC
-        dn = new LdapDN( "ou=objectClasses,cn=apachemeta" );
+        dn = new DN( "ou=objectClasses,cn=apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=2.16.840.1.113730.3.2.22" );
         
         getSchemaContext( service ).createSubcontext( dn, attributes );
@@ -152,9 +152,9 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
      * @return the dn of the objectClass container
      * @throws NamingException on error
      */
-    private LdapDN getObjectClassContainer( String schemaName ) throws NamingException
+    private DN getObjectClassContainer( String schemaName ) throws NamingException
     {
-        return new LdapDN( "ou=objectClasses,cn=" + schemaName );
+        return new DN( "ou=objectClasses,cn=" + schemaName );
     }
 
 
@@ -178,7 +178,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
         // This name is invalid
         attributes.put( "m-name", "http://example.com/users/accounts/L0" );
         
-        LdapDN dn = getObjectClassContainer( "apachemeta" );
+        DN dn = getObjectClassContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + testOID );
         
         try
@@ -213,7 +213,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
         // This name is invalid
         attributes.put( "m-name", "no-objectClasses" );
         
-        LdapDN dn = getObjectClassContainer( "apachemeta" );
+        DN dn = getObjectClassContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + testOID );
         
         try

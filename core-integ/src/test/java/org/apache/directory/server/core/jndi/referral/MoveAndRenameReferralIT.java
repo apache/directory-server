@@ -47,7 +47,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.junit.Before;
 import org.junit.Test;
@@ -149,7 +149,7 @@ public class MoveAndRenameReferralIT extends AbstractLdapTestUnit
         userEntry.put( "cn", "Emmanuel Lecharny" );
         
         // Core API entry
-        LdapDN dn = new LdapDN( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
+        DN dn = new DN( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
         serverEntry = new DefaultServerEntry( service.getSchemaManager(), dn );
 
         serverEntry.put( "ObjectClass", "top", "person" );
@@ -237,8 +237,8 @@ public class MoveAndRenameReferralIT extends AbstractLdapTestUnit
     public void testMoveAndRenameEntrySuperiorHasReferralAncestorCoreAPIWithoutManageDsaIT() throws Exception
     {
         CoreSession coreSession = service.getAdminSession();
-        LdapDN dn = new LdapDN( "cn=Emmanuel Lecharny,ou=apache,ou=Roles,o=MNN,c=WW,ou=system" );
-        LdapDN newParent = new LdapDN( "o=PNN,c=WW,ou=system" );
+        DN dn = new DN( "cn=Emmanuel Lecharny,ou=apache,ou=Roles,o=MNN,c=WW,ou=system" );
+        DN newParent = new DN( "o=PNN,c=WW,ou=system" );
         RDN newRdn = new RDN( "cn=Alex" );
         
         try
@@ -274,8 +274,8 @@ public class MoveAndRenameReferralIT extends AbstractLdapTestUnit
     public void testMoveAndRenameSuperiorHasReferralAncestorCoreAPIWithManageDsaIT() throws Exception
     {
         CoreSession coreSession = service.getAdminSession();
-        LdapDN dn = new LdapDN( "cn=Emmanuel Lecharny,ou=apache,ou=Roles,o=MNN,c=WW,ou=system" );
-        LdapDN newParent = new LdapDN( "o=PNN,c=WW,ou=system" ); 
+        DN dn = new DN( "cn=Emmanuel Lecharny,ou=apache,ou=Roles,o=MNN,c=WW,ou=system" );
+        DN newParent = new DN( "o=PNN,c=WW,ou=system" ); 
         RDN newRdn = new RDN( "cn=Alex" );
         
         try
@@ -425,8 +425,8 @@ public class MoveAndRenameReferralIT extends AbstractLdapTestUnit
     public void testMoveAndRenameIsReferralCoreAPIWithoutManageDsaIT() throws Exception
     {
         CoreSession coreSession = service.getAdminSession();
-        LdapDN dn = new LdapDN( "cn=Emmanuel Lecharny,ou=Roles,o=MNN,c=WW,ou=system" );
-        LdapDN newParent = new LdapDN( "o=PNN,c=WW,ou=system" );
+        DN dn = new DN( "cn=Emmanuel Lecharny,ou=Roles,o=MNN,c=WW,ou=system" );
+        DN newParent = new DN( "o=PNN,c=WW,ou=system" );
         RDN newRdn = new RDN( "cn=Alex" );
         
         try
@@ -462,8 +462,8 @@ public class MoveAndRenameReferralIT extends AbstractLdapTestUnit
     public void testMoveAndRenameIsReferralCoreAPIWithManageDsaIT() throws Exception
     {
         CoreSession coreSession = service.getAdminSession();
-        LdapDN dn = new LdapDN( "cn=Emmanuel Lecharny,ou=apache,ou=Roles,o=MNN,c=WW,ou=system" );
-        LdapDN newParent = new LdapDN( "o=PNN,c=WW,ou=system" ); 
+        DN dn = new DN( "cn=Emmanuel Lecharny,ou=apache,ou=Roles,o=MNN,c=WW,ou=system" );
+        DN newParent = new DN( "o=PNN,c=WW,ou=system" ); 
         RDN newRdn = new RDN( "cn=Alex" );
         
         try

@@ -39,7 +39,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -74,13 +74,13 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      * @param service the directory service core
      * @throws NamingException if there are problems instantiating 
      */
-    public ServerLdapContext( DirectoryService service, LdapPrincipal principal, LdapDN dn ) throws Exception
+    public ServerLdapContext( DirectoryService service, LdapPrincipal principal, DN dn ) throws Exception
     {
         super( service, principal, dn );
     }
 
 
-    public ServerLdapContext( DirectoryService service, CoreSession session, LdapDN bindDn ) throws Exception
+    public ServerLdapContext( DirectoryService service, CoreSession session, DN bindDn ) throws Exception
     {
         super( service, session, bindDn );
     }
@@ -105,7 +105,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         ServerLdapContext ctx = null;
         try
         {
-            ctx = new ServerLdapContext( getService(), getSession().getEffectivePrincipal(), ( LdapDN ) getDn() );
+            ctx = new ServerLdapContext( getService(), getSession().getEffectivePrincipal(), ( DN ) getDn() );
         }
         catch ( Exception e )
         {
@@ -179,7 +179,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      * permission is not allowed for this operation or the oid is not recognized,
      * or the attribute is not present in the entry ... you get the picture.
      */
-    public boolean compare( LdapDN name, String oid, Object value ) throws NamingException
+    public boolean compare( DN name, String oid, Object value ) throws NamingException
     {
         Value<?> val = null;
         
@@ -275,7 +275,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         
         try
         {
-            ctx = new ServerLdapContext( getService(), getSession().getEffectivePrincipal(), new LdapDN() );
+            ctx = new ServerLdapContext( getService(), getSession().getEffectivePrincipal(), new DN() );
         }
         catch ( Exception e )
         {

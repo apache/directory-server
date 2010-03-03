@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
 
@@ -321,7 +321,7 @@ public class ClonedServerEntry implements ServerEntry
     }
 
 
-    public LdapDN getDn()
+    public DN getDn()
     {
         return clonedEntry.getDn();
     }
@@ -393,7 +393,7 @@ public class ClonedServerEntry implements ServerEntry
     }
 
 
-    public void setDn( LdapDN dn )
+    public void setDn( DN dn )
     {
         clonedEntry.setDn( dn );
     }
@@ -487,9 +487,9 @@ public class ClonedServerEntry implements ServerEntry
     
     class EmptyEntry implements ServerEntry
     {
-        LdapDN dn;
+        DN dn;
         
-        EmptyEntry( LdapDN dn )
+        EmptyEntry( DN dn )
         {
             this.dn = dn;
         }
@@ -679,7 +679,7 @@ public class ClonedServerEntry implements ServerEntry
             return null;
         }
 
-        public LdapDN getDn()
+        public DN getDn()
         {
             return null;
         }
@@ -740,7 +740,7 @@ public class ClonedServerEntry implements ServerEntry
             return Collections.emptyList();
         }
 
-        public void setDn( LdapDN dn )
+        public void setDn( DN dn )
         {
             this.dn = dn;
         }

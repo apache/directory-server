@@ -24,7 +24,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.tree.DnBranchNode;
 import org.apache.directory.shared.ldap.util.tree.DnLeafNode;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
@@ -52,7 +52,7 @@ public class PartitionTreeTest
         /** A structure to hold all the partitions */
         DnBranchNode<Partition> partitionLookupTree = new DnBranchNode<Partition>();
         
-        LdapDN suffix = new LdapDN( "dc=example, dc=com" );
+        DN suffix = new DN( "dc=example, dc=com" );
         Partition partition = new JdbmPartition();
         partition.setSuffix( suffix.getName() );
         
@@ -79,13 +79,13 @@ public class PartitionTreeTest
         /** A structure to hold all the partitions */
         DnBranchNode<Partition> partitionLookupTree = new DnBranchNode<Partition>();
         
-        LdapDN suffix1 = new LdapDN( "dc=example, dc=com" );
+        DN suffix1 = new DN( "dc=example, dc=com" );
         Partition partition1 = new JdbmPartition();
         partition1.setSuffix( suffix1.getName() );
         
         partitionLookupTree.add( suffix1, partition1 );
         
-        LdapDN suffix2 = new LdapDN( "ou=system" );
+        DN suffix2 = new DN( "ou=system" );
         Partition partition2 = new JdbmPartition();
         partition2.setSuffix( suffix2.getName() );
         
@@ -118,13 +118,13 @@ public class PartitionTreeTest
         /** A structure to hold all the partitions */
         DnBranchNode<Partition> partitionLookupTree = new DnBranchNode<Partition>();
         
-        LdapDN suffix1 = new LdapDN( "dc=com" );
+        DN suffix1 = new DN( "dc=com" );
         Partition partition1 = new JdbmPartition();
         partition1.setSuffix( suffix1.getName() );
         
         partitionLookupTree.add( suffix1, partition1 );
         
-        LdapDN suffix2 = new LdapDN( "dc=example, dc=com" );
+        DN suffix2 = new DN( "dc=example, dc=com" );
         Partition partition2 = new JdbmPartition();
         partition2.setSuffix( suffix2.getName() );
         
@@ -148,13 +148,13 @@ public class PartitionTreeTest
         /** A structure to hold all the partitions */
         DnBranchNode<Partition> partitionLookupTree = new DnBranchNode<Partition>();
         
-        LdapDN suffix1 = new LdapDN( "dc=example1, dc=com" );
+        DN suffix1 = new DN( "dc=example1, dc=com" );
         Partition partition1 = new JdbmPartition();
         partition1.setSuffix( suffix1.getName() );
         
         partitionLookupTree.add( suffix1, partition1 );
         
-        LdapDN suffix2 = new LdapDN( "dc=example2, dc=com" );
+        DN suffix2 = new DN( "dc=example2, dc=com" );
         Partition partition2 = new JdbmPartition();
         partition2.setSuffix( suffix2.getName() );
         

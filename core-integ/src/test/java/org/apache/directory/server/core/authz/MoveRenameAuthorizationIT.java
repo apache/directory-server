@@ -39,7 +39,7 @@ import javax.naming.directory.DirContext;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -93,7 +93,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
             // create the new entry as the admin user
             adminContext.createSubcontext( entryRdn, testEntry );
 
-            LdapDN userName = new LdapDN( "uid=" + uid + ",ou=users,ou=system" );
+            DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
             DirContext userContext = getContextAs( userName, password );
             userContext.rename( entryRdn, newRdn );
 

@@ -23,7 +23,7 @@ package org.apache.directory.server.core.trigger;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +51,7 @@ public class BackupUtilitiesSP
     public static void backupDeleted( CoreSession session, ClonedServerEntry deletedEntry ) throws Exception
     {
         LOG.info( "User \"" + session.getEffectivePrincipal() + "\" has deleted entry \"" + deletedEntry + "\"" );
-        LdapDN backupDn = new LdapDN ( "ou=backupContext,ou=system" );
+        DN backupDn = new DN ( "ou=backupContext,ou=system" );
         String deletedEntryRdn = deletedEntry.getDn().get( deletedEntry.getDn().size() - 1 );
         ServerEntry entry = ( ServerEntry ) deletedEntry.getOriginalEntry().clone();
         backupDn.add( deletedEntryRdn );

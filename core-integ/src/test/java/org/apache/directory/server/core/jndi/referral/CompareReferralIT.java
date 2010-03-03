@@ -47,7 +47,7 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -127,7 +127,7 @@ public class CompareReferralIT extends AbstractLdapTestUnit
         userEntry.put( "cn", "Emmanuel Lecharny" );
         
         // Core API entry
-        LdapDN dn = new LdapDN( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
+        DN dn = new DN( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
         serverEntry = new DefaultServerEntry( service.getSchemaManager(), dn );
 
         serverEntry.put( "ObjectClass", "top", "person" );
@@ -231,7 +231,7 @@ public class CompareReferralIT extends AbstractLdapTestUnit
         
         try
         {
-            session.compare( new LdapDN( "cn=Emmanuel Lecharny,ou=Roles,o=MNN,c=WW,ou=system" ), "cn", "Emmanuel Lecharny", false );
+            session.compare( new DN( "cn=Emmanuel Lecharny,ou=Roles,o=MNN,c=WW,ou=system" ), "cn", "Emmanuel Lecharny", false );
             fail();
         }
         catch ( ReferralException re )
@@ -265,7 +265,7 @@ public class CompareReferralIT extends AbstractLdapTestUnit
         
         try
         {
-            session.compare( new LdapDN( "cn=Emmanuel Lecharny,ou=Roles,o=MNN,c=WW,ou=system" ), "cn", "Emmanuel Lecharny", true );
+            session.compare( new DN( "cn=Emmanuel Lecharny,ou=Roles,o=MNN,c=WW,ou=system" ), "cn", "Emmanuel Lecharny", true );
             fail();
         }
         catch ( PartialResultException pre )
@@ -385,7 +385,7 @@ public class CompareReferralIT extends AbstractLdapTestUnit
         
         try
         {
-            session.compare( new LdapDN( "ou=Roles,o=MNN,c=WW,ou=system" ), "ou", "roles", false );
+            session.compare( new DN( "ou=Roles,o=MNN,c=WW,ou=system" ), "ou", "roles", false );
             fail();
         }
         catch ( ReferralException re )
@@ -417,6 +417,6 @@ public class CompareReferralIT extends AbstractLdapTestUnit
     {
         CoreSession session = service.getAdminSession();
         
-        assertTrue( session.compare( new LdapDN( "ou=Roles,o=MNN,c=WW,ou=system" ), "ou", "roles", true ) );
+        assertTrue( session.compare( new DN( "ou=Roles,o=MNN,c=WW,ou=system" ), "ou", "roles", true ) );
     }
 }

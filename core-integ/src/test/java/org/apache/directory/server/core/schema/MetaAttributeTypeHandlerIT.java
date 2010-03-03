@@ -42,7 +42,7 @@ import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -85,7 +85,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-singleValue: FALSE",
             "m-usage: directoryOperation" );
         
-        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        DN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
         
         // Pre-checks
@@ -116,7 +116,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-singleValue: FALSE",
             "m-usage: directoryOperation" );
 
-        LdapDN dn = getAttributeTypeContainer( "notloaded" );
+        DN dn = getAttributeTypeContainer( "notloaded" );
         dn.add( "m-oid=" + OID );
         
         try
@@ -151,7 +151,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-singleValue: FALSE",
             "m-usage: directoryOperation" );
 
-        LdapDN dn = getAttributeTypeContainer( "nis" );
+        DN dn = getAttributeTypeContainer( "nis" );
         dn.add( "m-oid=" + OID );
         
         getSchemaContext( service ).createSubcontext( dn, attrs );
@@ -175,7 +175,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddAttributeTypeToEnabledSchema();
 
-        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        DN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
 
         // Check in Registries
@@ -207,7 +207,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddAttributeTypeToDisabledSchema();
 
-        LdapDN dn = getAttributeTypeContainer( "nis" );
+        DN dn = getAttributeTypeContainer( "nis" );
         dn.add( "m-oid=" + OID );
 
         // Check in Registries
@@ -235,7 +235,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddAttributeTypeToEnabledSchema();
 
-        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        DN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
         addDependeeAttributeType();
         
@@ -267,7 +267,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         assertEquals( at.getDescription(), DESCRIPTION0 );
         assertEquals( at.getSyntax().getOid(), SchemaConstants.INTEGER_SYNTAX );
 
-        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        DN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
         
         ModificationItem[] mods = new ModificationItem[2];
@@ -299,7 +299,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         assertEquals( at.getDescription(), DESCRIPTION0 );
         assertEquals( at.getSyntax().getOid(), SchemaConstants.INTEGER_SYNTAX );
 
-        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        DN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
         
         Attributes mods = new BasicAttributes( true );
@@ -329,10 +329,10 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddAttributeTypeToEnabledSchema();
 
         LdapContext schemaRoot = getSchemaContext( service );
-        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        DN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
         
-        LdapDN newdn = getAttributeTypeContainer( "apachemeta" );
+        DN newdn = getAttributeTypeContainer( "apachemeta" );
         newdn.add( "m-oid=" + NEW_OID );
         schemaRoot.rename( dn, newdn );
 
@@ -358,11 +358,11 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddAttributeTypeToEnabledSchema();
 
-        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        DN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
         addDependeeAttributeType();
         
-        LdapDN newdn = getAttributeTypeContainer( "apachemeta" );
+        DN newdn = getAttributeTypeContainer( "apachemeta" );
         newdn.add( "m-oid=" + NEW_OID );
         
         try
@@ -389,10 +389,10 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddAttributeTypeToEnabledSchema();
         
-        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        DN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
 
-        LdapDN newdn = getAttributeTypeContainer( "apache" );
+        DN newdn = getAttributeTypeContainer( "apache" );
         newdn.add( "m-oid=" + OID );
         
         getSchemaContext( service ).rename( dn, newdn );
@@ -411,10 +411,10 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddAttributeTypeToEnabledSchema();
         
-        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        DN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
 
-        LdapDN newdn = getAttributeTypeContainer( "apache" );
+        DN newdn = getAttributeTypeContainer( "apache" );
         newdn.add( "m-oid=" + NEW_OID );
         
         getSchemaContext( service ).rename( dn, newdn );
@@ -436,10 +436,10 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddAttributeTypeToEnabledSchema();
         
-        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        DN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
 
-        LdapDN top = new LdapDN();
+        DN top = new DN();
         top.add( "m-oid=" + OID );
         
         try
@@ -463,10 +463,10 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddAttributeTypeToEnabledSchema();
         
-        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        DN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
 
-        LdapDN newdn = new LdapDN( "ou=comparators,cn=apachemeta" );
+        DN newdn = new DN( "ou=comparators,cn=apachemeta" );
         newdn.add( "m-oid=" + OID );
         
         try
@@ -490,11 +490,11 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddAttributeTypeToEnabledSchema();
         
-        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        DN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
 
         // nis is inactive by default
-        LdapDN newdn = getAttributeTypeContainer( "nis" );
+        DN newdn = getAttributeTypeContainer( "nis" );
         newdn.add( "m-oid=" + OID );
         
         getSchemaContext( service ).rename( dn, newdn );
@@ -511,10 +511,10 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddAttributeTypeToEnabledSchema();
         addDependeeAttributeType();
         
-        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        DN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
 
-        LdapDN newdn = getAttributeTypeContainer( "apache" );
+        DN newdn = getAttributeTypeContainer( "apache" );
         newdn.add( "m-oid=" + OID );
         
         try
@@ -539,10 +539,10 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddAttributeTypeToEnabledSchema();
         addDependeeAttributeType();
         
-        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        DN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
 
-        LdapDN newdn = getAttributeTypeContainer( "apache" );
+        DN newdn = getAttributeTypeContainer( "apache" );
         newdn.add( "m-oid=" + NEW_OID );
         
         try
@@ -577,7 +577,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-usage: directoryOperation",
             "m-supAttributeType", OID );
         
-        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        DN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + DEPENDEE_OID );
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
@@ -597,13 +597,13 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddAttributeTypeToDisabledSchema();
         
         // nis is inactive by default
-        LdapDN dn = getAttributeTypeContainer( "nis" );
+        DN dn = getAttributeTypeContainer( "nis" );
         dn.add( "m-oid=" + OID );
 
         assertFalse( "attributeType OID should NOT be present when added to disabled nis schema", 
             service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
 
-        LdapDN newdn = getAttributeTypeContainer( "apachemeta" );
+        DN newdn = getAttributeTypeContainer( "apachemeta" );
         newdn.add( "m-oid=" + OID );
         
         getSchemaContext( service ).rename( dn, newdn );

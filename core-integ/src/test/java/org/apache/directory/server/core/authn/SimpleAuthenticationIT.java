@@ -37,7 +37,7 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
@@ -80,7 +80,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     {
         String userDn = "uid=admin,ou=system";
         LdapContext ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( "ou=system" ) );
+            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( "ou=system" ) );
         Attributes attrs = ctx.getAttributes( "uid=admin" );
         performAdminAccountChecks( attrs );
         assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), StringTools.getBytesUtf8( "secret" ) ) );
@@ -90,7 +90,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         service.startup();
 
         ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( "ou=system" ) );
+            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( "ou=system" ) );
         attrs = ctx.getAttributes( "uid=admin" );
         performAdminAccountChecks( attrs );
         assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), StringTools.getBytesUtf8( "secret" ) ) );
@@ -104,7 +104,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
         LdapContext ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
+            service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
 
         Attributes attrs = ctx.getAttributes( "" );
         Attribute ou = attrs.get( "ou" );
@@ -140,7 +140,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     {
         String userDn = "uid=admin,ou=system";
         assertNotNull( new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) ) );
+            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( userDn ) ) );
     }
 
 
@@ -156,7 +156,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
         assertNotNull( new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) ) );
+            service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) ) );
     }
 
 
@@ -167,7 +167,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         String userDn = "uid=akarasulu,ou=users,ou=system";
         
         LdapContext ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
+            service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
         assertNotNull( ctx );
         Attributes attrs = ctx.getAttributes( "" );
         Attribute ou = attrs.get( "ou" );
@@ -201,7 +201,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         try
         {
             new ServerLdapContext( service, 
-                service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
+                service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
             fail( "Authentication with old password should fail" );
         }
         catch ( NamingException e )
@@ -212,7 +212,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // close and try again now with new password (should fail)
         ctx.close();
         ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "newpwd".getBytes() ), new LdapDN( userDn ) ); 
+            service.getSession( new DN( userDn ), "newpwd".getBytes() ), new DN( userDn ) ); 
         attrs = ctx.getAttributes( "" );
         ou = attrs.get( "ou" );
         assertTrue( ou.contains( "Engineering" ) );
@@ -242,7 +242,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
         LdapContext ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) ); 
+            service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) ); 
 
         // Check that we can get the attributes
         Attributes attrs = ctx.getAttributes( "" );
@@ -260,7 +260,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         try
         {
             ctx = new ServerLdapContext( service, 
-                service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
+                service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
             fail( "Authentication with old password should fail" );
         }
         catch ( Exception e )
@@ -277,7 +277,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
 
         // try again now with new password (should be successfull)
         ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) );
+            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( userDn ) );
         attrs = ctx.getAttributes( "" );
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
@@ -286,7 +286,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // cache is updated (should be successfull)
         ctx.close();
         ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) ); 
+            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( userDn ) ); 
         attrs = ctx.getAttributes( "" );
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
@@ -299,7 +299,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
         LdapContext ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
+            service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
 
         // Check that we can get the attributes
         Attributes attrs = ctx.getAttributes( "" );
@@ -317,7 +317,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         try
         {
             ctx = new ServerLdapContext( service, 
-                service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
+                service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
             fail( "Authentication with old password should fail" );
         }
         catch ( Exception e )
@@ -334,7 +334,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
 
         // try again now with new password (should be successfull)
         ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) );
+            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( userDn ) );
         attrs = ctx.getAttributes( "" );
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
@@ -342,7 +342,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // close and try again now with new password, to check that the
         // cache is updated (should be successfull)
         ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) );
+            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( userDn ) );
         attrs = ctx.getAttributes( "" );
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
@@ -355,7 +355,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
         LdapContext ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
+            service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
 
         // Check that we can get the attributes
         Attributes attrs = ctx.getAttributes( "" );
@@ -373,7 +373,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         try
         {
             ctx = new ServerLdapContext( service, 
-                service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
+                service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
             fail( "Authentication with old password should fail" );
         }
         catch ( Exception e )
@@ -390,7 +390,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
 
         // try again now with new password (should be successful)
         ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "test123".getBytes() ), new LdapDN( userDn ) );
+            service.getSession( new DN( userDn ), "test123".getBytes() ), new DN( userDn ) );
         attrs = ctx.getAttributes( "" );
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
@@ -398,7 +398,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // close and try again now with new password, to check that the
         // cache is updated (should be successfull)
         ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "test123".getBytes() ), new LdapDN( userDn ) );
+            service.getSession( new DN( userDn ), "test123".getBytes() ), new DN( userDn ) );
         attrs = ctx.getAttributes( "" );
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
@@ -411,7 +411,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
         LdapContext ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
+            service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
 
         // Check that we can get the attributes
         Attributes attrs = ctx.getAttributes( "" );
@@ -429,7 +429,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         try
         {
             ctx = new ServerLdapContext( service, 
-                service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
+                service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
             fail( "Authentication with old password should fail" );
         }
         catch ( Exception e )
@@ -446,7 +446,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
 
         // try again now with new password (should be successfull)
         ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) );
+            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( userDn ) );
         attrs = ctx.getAttributes( "" );
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
@@ -454,7 +454,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // try again now with new password, to check that the
         // cache is updated (should be successfull)
         ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) );
+            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( userDn ) );
         attrs = ctx.getAttributes( "" );
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
@@ -467,7 +467,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
         LdapContext ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
+            service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
 
         // Check that we can get the attributes
         Attributes attrs = ctx.getAttributes( "" );
@@ -485,7 +485,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         try
         {
             ctx = new ServerLdapContext( service, 
-                service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
+                service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
             fail( "Authentication with old password should fail" );
         }
         catch ( Exception e )
@@ -502,7 +502,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
 
         // try again now with new password (should be successful)
         ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) );
+            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( userDn ) );
         attrs = ctx.getAttributes( "" );
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
@@ -510,7 +510,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // try again now with new password, to check that the
         // cache is updated (should be successfull)
         ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) );
+            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( userDn ) );
         attrs = ctx.getAttributes( "" );
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
@@ -523,7 +523,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
         LdapContext ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
+            service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
 
         // Check that we can get the attributes
         Attributes attrs = ctx.getAttributes( "" );
@@ -541,7 +541,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         try
         {
             ctx = new ServerLdapContext( service, 
-                service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
+                service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
             fail( "Authentication with old password should fail" );
         }
         catch ( Exception e )
@@ -558,7 +558,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
 
         // try again now with new password (should be successfull)
         ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) );
+            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( userDn ) );
         attrs = ctx.getAttributes( "" );
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
@@ -566,7 +566,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // try again now with new password, to check that the
         // cache is updated (should be successfull)
         ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) ); 
+            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( userDn ) ); 
         attrs = ctx.getAttributes( "" );
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
@@ -581,13 +581,13 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // bind as akarasulu
         String userDn = "uid=akarasulu,ou=users,ou=system";
         LdapContext ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
+            service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
         ctx.close();
 
         // bind as admin
         userDn = "uid=admin,ou=system";
         ctx = new ServerLdapContext( service, 
-            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) );
+            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( userDn ) );
 
         // now modify the password for akarasulu (while we're admin)
         Attribute userPasswordAttribute = new BasicAttribute( "userPassword", "newpwd" );
@@ -598,7 +598,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         try
         {
             ctx = new ServerLdapContext( service, 
-                service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
+                service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
             fail( "Authentication with old password should fail" );
         }
         catch ( Exception e )

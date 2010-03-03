@@ -23,7 +23,7 @@ import java.io.File;
 import java.util.Enumeration;
 
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Before;
@@ -50,7 +50,7 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
      *
      * @param dn the SchemaObject DN
      */
-    protected String getSchemaPath( LdapDN dn )
+    protected String getSchemaPath( DN dn )
     {
         StringBuilder sb = new StringBuilder();
         
@@ -76,7 +76,7 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
      *
      * @param dn The SchemaObject DN
      */
-    protected boolean isOnDisk( LdapDN dn )
+    protected boolean isOnDisk( DN dn )
     {
         // donot change the value of getSchemaPath to lowercase
         // on Linux this gives a wrong path
@@ -95,9 +95,9 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
      * @return the dn of the a schema entity container
      * @throws Exception on failure
      */
-    protected LdapDN getSchemaContainer( String schemaName ) throws Exception
+    protected DN getSchemaContainer( String schemaName ) throws Exception
     {
-        return new LdapDN( "cn=" + schemaName );
+        return new DN( "cn=" + schemaName );
     }
     
     
@@ -108,9 +108,9 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
      * @return the dn of the a schema's attributeType entity container
      * @throws Exception on failure
      */
-    protected LdapDN getAttributeTypeContainer( String schemaName ) throws Exception
+    protected DN getAttributeTypeContainer( String schemaName ) throws Exception
     {
-        return new LdapDN( "ou=attributeTypes,cn=" + schemaName );
+        return new DN( "ou=attributeTypes,cn=" + schemaName );
     }
 
 
@@ -121,9 +121,9 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
      * @return the dn to the ou under which comparators are found for a schema
      * @throws Exception if there are dn construction issues
      */
-    protected LdapDN getComparatorContainer( String schemaName ) throws Exception
+    protected DN getComparatorContainer( String schemaName ) throws Exception
     {
-        return new LdapDN( "ou=comparators,cn=" + schemaName );
+        return new DN( "ou=comparators,cn=" + schemaName );
     }
 
     
@@ -134,9 +134,9 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
      * @return the dn to the ou under which MatchingRules are found for a schema
      * @throws Exception if there are dn construction issues
      */
-    protected LdapDN getMatchingRuleContainer( String schemaName ) throws Exception
+    protected DN getMatchingRuleContainer( String schemaName ) throws Exception
     {
-        return new LdapDN( "ou=matchingRules,cn=" + schemaName );
+        return new DN( "ou=matchingRules,cn=" + schemaName );
     }
     
    
@@ -147,9 +147,9 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
      * @return the dn of the container which contains objectClasses
      * @throws Exception on error
      */
-    protected LdapDN getObjectClassContainer( String schemaName ) throws Exception
+    protected DN getObjectClassContainer( String schemaName ) throws Exception
     {
-        return new LdapDN( "ou=objectClasses,cn=" + schemaName );
+        return new DN( "ou=objectClasses,cn=" + schemaName );
     }
 
 
@@ -161,9 +161,9 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
      * @return  the name of the container with normalizer entries in it
      * @throws Exception on error
      */
-    protected LdapDN getNormalizerContainer( String schemaName ) throws Exception
+    protected DN getNormalizerContainer( String schemaName ) throws Exception
     {
-        return new LdapDN( "ou=normalizers,cn=" + schemaName );
+        return new DN( "ou=normalizers,cn=" + schemaName );
     }
 
 
@@ -174,9 +174,9 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
      * @return the dn of the container holding syntaxes for the schema
      * @throws Exception on dn parse errors
      */
-    protected LdapDN getSyntaxContainer( String schemaName ) throws Exception
+    protected DN getSyntaxContainer( String schemaName ) throws Exception
     {
-        return new LdapDN( "ou=syntaxes,cn=" + schemaName );
+        return new DN( "ou=syntaxes,cn=" + schemaName );
     }
     
     
@@ -187,8 +187,8 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
      * @return the dn of the container holding syntax checkers for the schema
      * @throws Exception on dn parse errors
      */
-    protected LdapDN getSyntaxCheckerContainer( String schemaName ) throws Exception
+    protected DN getSyntaxCheckerContainer( String schemaName ) throws Exception
     {
-        return new LdapDN( "ou=syntaxCheckers,cn=" + schemaName );
+        return new DN( "ou=syntaxCheckers,cn=" + schemaName );
     }
 }

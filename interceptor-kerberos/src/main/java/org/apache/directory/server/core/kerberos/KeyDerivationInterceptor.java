@@ -71,7 +71,7 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -128,7 +128,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      */
     public void add( NextInterceptor next, AddOperationContext addContext ) throws Exception
     {
-        LdapDN normName = addContext.getDn();
+        DN normName = addContext.getDn();
 
         ServerEntry entry = addContext.getEntry();
 
@@ -286,7 +286,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
     void lookupPrincipalAttributes( ModifyOperationContext modContext, ModifySubContext subContext )
         throws Exception
     {
-        LdapDN principalDn = modContext.getDn();
+        DN principalDn = modContext.getDn();
 
         LookupOperationContext lookupContext = modContext.newLookupContext( principalDn );
         lookupContext.setByPassed( USERLOOKUP_BYPASS );

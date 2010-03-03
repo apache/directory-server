@@ -32,7 +32,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -49,7 +49,7 @@ public class CoreContextFactory implements InitialContextFactory
     public synchronized Context getInitialContext( Hashtable env ) throws NamingException
     {
         env = ( Hashtable<String, Object> ) env.clone();
-        LdapDN principalDn = new LdapDN( getPrincipal( env ) );
+        DN principalDn = new DN( getPrincipal( env ) );
         byte[] credential = getCredential( env );
         String authentication = getAuthentication( env );
         String providerUrl = getProviderUrl( env );
@@ -70,7 +70,7 @@ public class CoreContextFactory implements InitialContextFactory
         try
         {
             CoreSession session = service.getSession( principalDn, credential );
-            ctx = new ServerLdapContext( service, session, new LdapDN( providerUrl ) );
+            ctx = new ServerLdapContext( service, session, new DN( providerUrl ) );
         }
         catch ( Exception e )
         {

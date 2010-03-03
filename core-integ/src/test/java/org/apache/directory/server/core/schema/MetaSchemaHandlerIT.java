@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -394,7 +394,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddEnabledValidSchema() throws Exception
     {
-        LdapDN dn = getSchemaContainer( "dummy" );
+        DN dn = getSchemaContainer( "dummy" );
 
         assertFalse( isOnDisk( dn ) );
 
@@ -415,7 +415,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddEnabledSchemaWithExistingEnabledDeps() throws Exception
     {
-        LdapDN dn = getSchemaContainer( "dummy" );
+        DN dn = getSchemaContainer( "dummy" );
 
         assertFalse( isOnDisk( dn ) );
 
@@ -443,7 +443,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddEnabledSchemaWithExistingDisabledDeps() throws Exception
     {
-        LdapDN dn = getSchemaContainer( "dummy" );
+        DN dn = getSchemaContainer( "dummy" );
 
         assertFalse( isOnDisk( dn ) );
 
@@ -477,7 +477,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddEnabledSchemaWithNotExistingDeps() throws Exception
     {
-        LdapDN dn = getSchemaContainer( "dummy" );
+        DN dn = getSchemaContainer( "dummy" );
 
         assertFalse( isOnDisk( dn ) );
 
@@ -514,7 +514,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testDeleteEnabledValidSchema() throws Exception
     {
-        LdapDN dn = getSchemaContainer( "dummy" );
+        DN dn = getSchemaContainer( "dummy" );
         LdapContext schemaRoot = getSchemaContext( service );
         
         // Create a schema we will delete

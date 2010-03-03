@@ -29,7 +29,7 @@ import junit.framework.Assert;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,7 +62,7 @@ public class AuthzAuthnIT extends AbstractLdapTestUnit
     {
         createUser( "billyd", "billyd" );
 
-        LdapDN userName = new LdapDN( "uid=billyd,ou=users,ou=system" ); 
+        DN userName = new DN( "uid=billyd,ou=users,ou=system" ); 
         try
         {
             // Authenticate to RootDSE
@@ -86,7 +86,7 @@ public class AuthzAuthnIT extends AbstractLdapTestUnit
     {
         createUser( "billyd", "billyd" );
         
-        LdapDN userName = new LdapDN( "uid=billyd,ou=users,ou=system" ); 
+        DN userName = new DN( "uid=billyd,ou=users,ou=system" ); 
         try
         {
             // Authenticate to "ou=system"
@@ -126,7 +126,7 @@ public class AuthzAuthnIT extends AbstractLdapTestUnit
             + "protectedItems { entry }, "
             + "grantsAndDenials { grantBrowse } } } } }" );
         
-        LdapDN userName = new LdapDN( "uid=billyd,ou=users,ou=system" ); 
+        DN userName = new DN( "uid=billyd,ou=users,ou=system" ); 
         try
         {
             // Authenticate to "ou=system"

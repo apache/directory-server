@@ -87,7 +87,7 @@ import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.AVA;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -114,7 +114,7 @@ public abstract class ServerContext implements EventContext
     private final Hashtable<String, Object> env;
 
     /** The distinguished name of this Context */
-    private final LdapDN dn;
+    private final DN dn;
 
     /** The set of registered NamingListeners */
     private final Map<NamingListener,DirectoryListener> listeners = 
@@ -190,7 +190,7 @@ public abstract class ServerContext implements EventContext
     public ServerContext( DirectoryService service, LdapPrincipal principal, Name dn ) throws Exception
     {
         this.service = service;
-        this.dn = ( LdapDN ) dn.clone();
+        this.dn = ( DN ) dn.clone();
 
         this.env = new Hashtable<String, Object>();
         this.env.put( PROVIDER_URL, dn.toString() );
@@ -198,7 +198,7 @@ public abstract class ServerContext implements EventContext
         session = new DefaultCoreSession( principal, service );
         OperationManager operationManager = service.getOperationManager();
         
-        if ( ! operationManager.hasEntry( new EntryOperationContext( session, ( LdapDN ) dn ) ) )
+        if ( ! operationManager.hasEntry( new EntryOperationContext( session, ( DN ) dn ) ) )
         {
             throw new NameNotFoundException( I18n.err( I18n.ERR_490, dn ) );
         }
@@ -208,14 +208,14 @@ public abstract class ServerContext implements EventContext
     public ServerContext( DirectoryService service, CoreSession session, Name dn ) throws Exception
     {
         this.service = service;
-        this.dn = ( LdapDN ) dn.clone();
+        this.dn = ( DN ) dn.clone();
         this.env = new Hashtable<String, Object>();
         this.env.put( PROVIDER_URL, dn.toString() );
         this.env.put( DirectoryService.JNDI_KEY, service );
         this.session = session;
         OperationManager operationManager = service.getOperationManager();
         
-        if ( ! operationManager.hasEntry( new EntryOperationContext( session, ( LdapDN ) dn ) ) )
+        if ( ! operationManager.hasEntry( new EntryOperationContext( session, ( DN ) dn ) ) )
         {
             throw new NameNotFoundException( I18n.err( I18n.ERR_490, dn ) );
         }
@@ -257,7 +257,7 @@ public abstract class ServerContext implements EventContext
      * @param entry
      * @param target
      */
-    protected void doAddOperation( LdapDN target, ServerEntry entry ) throws Exception
+    protected void doAddOperation( DN target, ServerEntry entry ) throws Exception
     {
         // setup the op context and populate with request controls
         AddOperationContext opCtx = new AddOperationContext( session, entry );
@@ -281,7 +281,7 @@ public abstract class ServerContext implements EventContext
      * Used to encapsulate [de]marshalling of controls before and after delete operations.
      * @param target
      */
-    protected void doDeleteOperation( LdapDN target ) throws Exception
+    protected void doDeleteOperation( DN target ) throws Exception
     {
         // setup the op context and populate with request controls
         DeleteOperationContext opCtx = new DeleteOperationContext( session, target );
@@ -309,7 +309,7 @@ public abstract class ServerContext implements EventContext
      * @param searchControls
      * @return NamingEnumeration
      */
-    protected EntryFilteringCursor doSearchOperation( LdapDN dn, AliasDerefMode aliasDerefMode,
+    protected EntryFilteringCursor doSearchOperation( DN dn, AliasDerefMode aliasDerefMode,
         ExprNode filter, SearchControls searchControls ) throws Exception
     {
         OperationManager operationManager = service.getOperationManager();
@@ -349,7 +349,7 @@ public abstract class ServerContext implements EventContext
             
             if ( result )
             {
-                ServerEntry emptyEntry = new DefaultServerEntry( service.getSchemaManager(), LdapDN.EMPTY_LDAPDN ); 
+                ServerEntry emptyEntry = new DefaultServerEntry( service.getSchemaManager(), DN.EMPTY_DN ); 
                 return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( emptyEntry ), (SearchOperationContext)opContext );
             }
             else
@@ -385,7 +385,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after list operations.
      */
-    protected EntryFilteringCursor doListOperation( LdapDN target ) throws Exception
+    protected EntryFilteringCursor doListOperation( DN target ) throws Exception
     {
         // setup the op context and populate with request controls
         ListOperationContext opCtx = new ListOperationContext( session, target );
@@ -403,7 +403,7 @@ public abstract class ServerContext implements EventContext
     }
 
 
-    protected ServerEntry doGetRootDSEOperation( LdapDN target ) throws Exception
+    protected ServerEntry doGetRootDSEOperation( DN target ) throws Exception
     {
         GetRootDSEOperationContext opCtx = new GetRootDSEOperationContext( session, target );
         opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
@@ -418,7 +418,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after lookup operations.
      */
-    protected ServerEntry doLookupOperation( LdapDN target ) throws Exception
+    protected ServerEntry doLookupOperation( DN target ) throws Exception
     {
         // setup the op context and populate with request controls
         LookupOperationContext opCtx;
@@ -439,7 +439,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after lookup operations.
      */
-    protected ServerEntry doLookupOperation( LdapDN target, String[] attrIds ) throws Exception
+    protected ServerEntry doLookupOperation( DN target, String[] attrIds ) throws Exception
     {
         // setup the op context and populate with request controls
         LookupOperationContext opCtx;
@@ -471,7 +471,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after bind operations.
      */
-    protected BindOperationContext doBindOperation( LdapDN bindDn, byte[] credentials, String saslMechanism, 
+    protected BindOperationContext doBindOperation( DN bindDn, byte[] credentials, String saslMechanism, 
         String saslAuthId ) throws Exception
     {
         // setup the op context and populate with request controls
@@ -496,7 +496,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after moveAndRename operations.
      */
-    protected void doMoveAndRenameOperation( LdapDN oldDn, LdapDN parent, RDN newRdn, boolean delOldDn )
+    protected void doMoveAndRenameOperation( DN oldDn, DN parent, RDN newRdn, boolean delOldDn )
         throws Exception
     {
         // setup the op context and populate with request controls
@@ -520,7 +520,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after modify operations.
      */
-    protected void doModifyOperation( LdapDN dn, List<Modification> modifications ) throws Exception
+    protected void doModifyOperation( DN dn, List<Modification> modifications ) throws Exception
     {
         // setup the op context and populate with request controls
         ModifyOperationContext opCtx = new ModifyOperationContext( session, dn, modifications );
@@ -542,7 +542,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after moveAndRename operations.
      */
-    protected void doMove( LdapDN oldDn, LdapDN target ) throws Exception
+    protected void doMove( DN oldDn, DN target ) throws Exception
     {
         // setup the op context and populate with request controls
         MoveOperationContext opCtx = new MoveOperationContext( session, oldDn, target );
@@ -564,7 +564,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after rename operations.
      */
-    protected void doRename( LdapDN oldDn, RDN newRdn, boolean delOldRdn ) throws Exception
+    protected void doRename( DN oldDn, RDN newRdn, boolean delOldRdn ) throws Exception
     {
         // setup the op context and populate with request controls
         RenameOperationContext opCtx = new RenameOperationContext( session, oldDn, newRdn, delOldRdn );
@@ -702,7 +702,7 @@ public abstract class ServerContext implements EventContext
      */
     public Context createSubcontext( String name ) throws NamingException
     {
-        return createSubcontext( new LdapDN( name ) );
+        return createSubcontext( new DN( name ) );
     }
 
 
@@ -711,7 +711,7 @@ public abstract class ServerContext implements EventContext
      */
     public Context createSubcontext( Name name ) throws NamingException
     {
-        LdapDN target = buildTarget( name );
+        DN target = buildTarget( name );
         ServerEntry serverEntry = service.newEntry( target );
         serverEntry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, JavaLdapSupport.JCONTAINER_ATTR );
 
@@ -772,7 +772,7 @@ public abstract class ServerContext implements EventContext
      */
     public void destroySubcontext( String name ) throws NamingException
     {
-        destroySubcontext( new LdapDN( name ) );
+        destroySubcontext( new DN( name ) );
     }
 
 
@@ -781,7 +781,7 @@ public abstract class ServerContext implements EventContext
      */
     public void destroySubcontext( Name name ) throws NamingException
     {
-        LdapDN target = buildTarget( name );
+        DN target = buildTarget( name );
 
         if ( target.size() == 0 )
         {
@@ -804,11 +804,11 @@ public abstract class ServerContext implements EventContext
      */
     public void bind( String name, Object obj ) throws NamingException
     {
-        bind( new LdapDN( name ), obj );
+        bind( new DN( name ), obj );
     }
 
 
-    private void injectRdnAttributeValues( LdapDN target, ServerEntry serverEntry ) throws NamingException
+    private void injectRdnAttributeValues( DN target, ServerEntry serverEntry ) throws NamingException
     {
         // Add all the RDN attributes and their values to this entry
         RDN rdn = target.getRdn( target.size() - 1 );
@@ -835,7 +835,7 @@ public abstract class ServerContext implements EventContext
         // First, use state factories to do a transformation
         DirStateFactory.Result res = DirectoryManager.getStateToBind( obj, name, this, env, null );
 
-        LdapDN target = buildTarget( name );
+        DN target = buildTarget( name );
 
         // let's be sure that the Attributes is case insensitive
         ServerEntry outServerEntry = ServerEntryUtils.toServerEntry( AttributeUtils.toCaseInsensitive( res
@@ -939,7 +939,7 @@ public abstract class ServerContext implements EventContext
      */
     public void rename( String oldName, String newName ) throws NamingException
     {
-        rename( new LdapDN( oldName ), new LdapDN( newName ) );
+        rename( new DN( oldName ), new DN( newName ) );
     }
 
 
@@ -948,8 +948,8 @@ public abstract class ServerContext implements EventContext
      */
     public void rename( Name oldName, Name newName ) throws NamingException
     {
-        LdapDN oldDn = buildTarget( oldName );
-        LdapDN newDn = buildTarget( newName );
+        DN oldDn = buildTarget( oldName );
+        DN newDn = buildTarget( newName );
 
         if ( oldDn.size() == 0 )
         {
@@ -957,9 +957,9 @@ public abstract class ServerContext implements EventContext
         }
 
         // calculate parents
-        LdapDN oldParent = (LdapDN)oldDn.clone();
+        DN oldParent = (DN)oldDn.clone();
         oldParent.remove( oldDn.size() - 1 );
-        LdapDN newParent = ( LdapDN ) newDn.clone();
+        DN newParent = ( DN ) newDn.clone();
         newParent.remove( newDn.size() - 1 );
 
         RDN oldRdn = oldDn.getRdn();
@@ -1029,7 +1029,7 @@ public abstract class ServerContext implements EventContext
      */
     public void rebind( String name, Object obj ) throws NamingException
     {
-        rebind( new LdapDN( name ), obj );
+        rebind( new DN( name ), obj );
     }
 
 
@@ -1038,7 +1038,7 @@ public abstract class ServerContext implements EventContext
      */
     public void rebind( Name name, Object obj ) throws NamingException
     {
-        LdapDN target = buildTarget( name );
+        DN target = buildTarget( name );
         OperationManager operationManager = service.getOperationManager();
         
         try
@@ -1062,7 +1062,7 @@ public abstract class ServerContext implements EventContext
      */
     public void unbind( String name ) throws NamingException
     {
-        unbind( new LdapDN( name ) );
+        unbind( new DN( name ) );
     }
 
 
@@ -1089,11 +1089,11 @@ public abstract class ServerContext implements EventContext
     {
         if ( StringTools.isEmpty( name ) )
         {
-            return lookup( LdapDN.EMPTY_LDAPDN );
+            return lookup( DN.EMPTY_DN );
         }
         else
         {
-            return lookup( new LdapDN( name ) );
+            return lookup( new DN( name ) );
         }
     }
 
@@ -1104,7 +1104,7 @@ public abstract class ServerContext implements EventContext
     public Object lookup( Name name ) throws NamingException
     {
         Object obj;
-        LdapDN target = buildTarget( name );
+        DN target = buildTarget( name );
 
         ServerEntry serverEntry = null;
 
@@ -1197,7 +1197,7 @@ public abstract class ServerContext implements EventContext
         {
             public Name parse( String name ) throws NamingException
             {
-                return new LdapDN( name );
+                return new DN( name );
             }
         };
     }
@@ -1217,7 +1217,7 @@ public abstract class ServerContext implements EventContext
         {
             public Name parse( String name ) throws NamingException
             {
-                return new LdapDN( name );
+                return new DN( name );
             }
         };
     }
@@ -1230,7 +1230,7 @@ public abstract class ServerContext implements EventContext
         { "unchecked" })
     public NamingEnumeration list( String name ) throws NamingException
     {
-        return list( new LdapDN( name ) );
+        return list( new DN( name ) );
     }
 
 
@@ -1260,7 +1260,7 @@ public abstract class ServerContext implements EventContext
         { "unchecked" })
     public NamingEnumeration listBindings( String name ) throws NamingException
     {
-        return listBindings( new LdapDN( name ) );
+        return listBindings( new DN( name ) );
     }
 
 
@@ -1272,7 +1272,7 @@ public abstract class ServerContext implements EventContext
     public NamingEnumeration listBindings( Name name ) throws NamingException
     {
         // Conduct a special one level search at base for all objects
-        LdapDN base = buildTarget( name );
+        DN base = buildTarget( name );
         PresenceNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -1294,7 +1294,7 @@ public abstract class ServerContext implements EventContext
      */
     public String composeName( String name, String prefix ) throws NamingException
     {
-        return composeName( new LdapDN( name ), new LdapDN( prefix ) ).toString();
+        return composeName( new DN( name ), new DN( prefix ) ).toString();
     }
 
 
@@ -1378,7 +1378,7 @@ public abstract class ServerContext implements EventContext
 
     public void addNamingListener( String name, int scope, NamingListener namingListener ) throws NamingException
     {
-        addNamingListener( new LdapDN( name ), scope, namingListener );
+        addNamingListener( new DN( name ), scope, namingListener );
     }
 
 
@@ -1430,9 +1430,9 @@ public abstract class ServerContext implements EventContext
      * @throws InvalidNameException if relativeName is not a valid name in
      *      the LDAP namespace.
      */
-    LdapDN buildTarget( Name relativeName ) throws InvalidNameException
+    DN buildTarget( Name relativeName ) throws InvalidNameException
     {
-        LdapDN target = ( LdapDN ) dn.clone();
+        DN target = ( DN ) dn.clone();
 
         // Add to left hand side of cloned DN the relative name arg
         target.addAllNormalized( target.size(), relativeName );

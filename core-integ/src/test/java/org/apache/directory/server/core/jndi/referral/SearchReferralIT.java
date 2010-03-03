@@ -48,7 +48,7 @@ import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -138,7 +138,7 @@ public class SearchReferralIT extends AbstractLdapTestUnit
         userEntry.put( "cn", "Emmanuel Lecharny" );
         
         // Core API entry
-        LdapDN dn = new LdapDN( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
+        DN dn = new DN( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
         serverEntry = new DefaultServerEntry( service.getSchemaManager(), dn );
 
         serverEntry.put( "ObjectClass", "top", "person" );
@@ -233,7 +233,7 @@ public class SearchReferralIT extends AbstractLdapTestUnit
     public void testSearchWithReferralAncestorCoreAPIWithoutManageDSAIt() throws Exception
     {
         CoreSession coreSession = service.getAdminSession();
-        LdapDN dn = new LdapDN( "ou=nobody,ou=apache,ou=roles,o=Mnn,c=WW,ou=system" );
+        DN dn = new DN( "ou=nobody,ou=apache,ou=roles,o=Mnn,c=WW,ou=system" );
         
         try
         {
@@ -268,7 +268,7 @@ public class SearchReferralIT extends AbstractLdapTestUnit
     public void testSearchWithReferralAncestorCoreAPIWithManageDSAIt() throws Exception
     {
         CoreSession coreSession = service.getAdminSession();
-        LdapDN dn = new LdapDN( "ou=nobody,ou=apache,ou=roles,o=Mnn,c=WW,ou=system" );
+        DN dn = new DN( "ou=nobody,ou=apache,ou=roles,o=Mnn,c=WW,ou=system" );
         
         try
         {
@@ -385,7 +385,7 @@ public class SearchReferralIT extends AbstractLdapTestUnit
     public void testSearchExistingReferralCoreAPIWithoutManageDsaIT() throws Exception
     {
         CoreSession coreSession = service.getAdminSession();
-        LdapDN dn = new LdapDN( "ou=roles,o=Mnn,c=WW,ou=system" );
+        DN dn = new DN( "ou=roles,o=Mnn,c=WW,ou=system" );
         
         try
         {
@@ -419,7 +419,7 @@ public class SearchReferralIT extends AbstractLdapTestUnit
     public void testSearchExistingReferralCoreAPIWithManageDsaIT() throws Exception
     {
         CoreSession coreSession = service.getAdminSession();
-        LdapDN dn = new LdapDN( "ou=roles,o=Mnn,c=WW,ou=system" );
+        DN dn = new DN( "ou=roles,o=Mnn,c=WW,ou=system" );
         
         EntryFilteringCursor cursor = coreSession.search( dn, "(ObjectClass=*)", true );
         

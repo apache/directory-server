@@ -41,7 +41,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 public class MockOperationManager implements OperationManager
 {
@@ -72,7 +72,7 @@ public class MockOperationManager implements OperationManager
     {
     }
 
-    public LdapDN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception
+    public DN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception
     {
         return null;
     }
@@ -82,7 +82,7 @@ public class MockOperationManager implements OperationManager
         return null;
     }
 
-    public LdapDN getSuffix( GetSuffixOperationContext opContext ) throws Exception
+    public DN getSuffix( GetSuffixOperationContext opContext ) throws Exception
     {
         return null;
     }

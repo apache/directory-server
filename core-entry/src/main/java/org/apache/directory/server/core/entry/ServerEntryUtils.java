@@ -42,7 +42,7 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
@@ -196,7 +196,7 @@ public class ServerEntryUtils
      * 
      * @throws InvalidAttributeIdentifierException If we get an invalid attribute
      */
-    public static ServerEntry toServerEntry( Attributes attributes, LdapDN dn, SchemaManager schemaManager ) 
+    public static ServerEntry toServerEntry( Attributes attributes, DN dn, SchemaManager schemaManager ) 
             throws InvalidAttributeIdentifierException
     {
         if ( attributes instanceof BasicAttributes )

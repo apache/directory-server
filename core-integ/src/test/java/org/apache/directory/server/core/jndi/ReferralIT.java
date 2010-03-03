@@ -59,7 +59,7 @@ import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -272,8 +272,8 @@ public class ReferralIT extends AbstractLdapTestUnit
         }
         catch ( PartialResultException pre )
         {
-            assertEquals( "cn=alex karasulu,ou=apache", ((LdapDN)pre.getRemainingName()).getName() );
-            assertEquals( LdapDN.EMPTY_LDAPDN, pre.getResolvedName() );
+            assertEquals( "cn=alex karasulu,ou=apache", ((DN)pre.getRemainingName()).getName() );
+            assertEquals( DN.EMPTY_DN, pre.getResolvedName() );
         }
     }
 
@@ -308,8 +308,8 @@ public class ReferralIT extends AbstractLdapTestUnit
         }
         catch ( LdapReferralException lre )
         {
-            assertEquals( "cn=alex karasulu,ou=apache", ((LdapDN)lre.getRemainingName()).getName() );
-            assertEquals( "ou=users,ou=system", ((LdapDN)lre.getResolvedName()).getName() );
+            assertEquals( "cn=alex karasulu,ou=apache", ((DN)lre.getRemainingName()).getName() );
+            assertEquals( "ou=users,ou=system", ((DN)lre.getResolvedName()).getName() );
         }
     }
 
@@ -329,7 +329,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         // Attempt to add a normal entry below the referral ancestor. We should
         // encounter referral errors with referral setting set to throw.
         // -------------------------------------------------------------------
-        LdapDN userDN = new LdapDN( "cn=alex karasulu,ou=apache,ou=users,ou=system" );
+        DN userDN = new DN( "cn=alex karasulu,ou=apache,ou=users,ou=system" );
         ServerEntry userEntry = new DefaultServerEntry( service.getSchemaManager(), userDN );
         
         userEntry.add(  "ObjectClass", "top", "person" );
@@ -343,8 +343,8 @@ public class ReferralIT extends AbstractLdapTestUnit
         }
         catch ( PartialResultException pre )
         {
-            assertEquals( "cn=alex karasulu,ou=apache", ((LdapDN)pre.getRemainingName()).getName() );
-            assertEquals( LdapDN.EMPTY_LDAPDN, pre.getResolvedName() );
+            assertEquals( "cn=alex karasulu,ou=apache", ((DN)pre.getRemainingName()).getName() );
+            assertEquals( DN.EMPTY_DN, pre.getResolvedName() );
         }
     }
 
@@ -431,7 +431,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         {
             if ( td.refCtx instanceof ServerLdapContext )
             {
-                LdapDN dn = new LdapDN( "cn=alex karasulu,ou=users,ou=system" );
+                DN dn = new DN( "cn=alex karasulu,ou=users,ou=system" );
                 ( ( ServerLdapContext ) td.refCtx ).compare( dn, "sn", "karasulu" );
             }
             else
@@ -471,7 +471,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         {
             if ( td.refCtx instanceof ServerLdapContext )
             {
-                LdapDN dn = new LdapDN( "cn=alex karasulu,ou=apache,ou=users,ou=system" );
+                DN dn = new DN( "cn=alex karasulu,ou=apache,ou=users,ou=system" );
                 ( ( ServerLdapContext ) td.refCtx ).compare( dn, "sn", "karasulu" );
             }
             else

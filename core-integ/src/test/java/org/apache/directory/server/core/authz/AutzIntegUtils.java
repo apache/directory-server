@@ -38,7 +38,7 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -112,7 +112,7 @@ public class AutzIntegUtils
         objectClass.add( "groupOfUniqueNames" );
         group.put( "uniqueMember", firstMemberDn );
         adminCtx.createSubcontext( "cn=" + cn + ",ou=groups", group );
-        return new LdapDN( "cn=" + cn + ",ou=groups,ou=system" );
+        return new DN( "cn=" + cn + ",ou=groups,ou=system" );
     }
 
 
@@ -154,7 +154,7 @@ public class AutzIntegUtils
         user.put( "sn", uid );
         user.put( "cn", uid );
         adminCtx.createSubcontext( "uid=" + uid + ",ou=users", user );
-        return new LdapDN( "uid=" + uid + ",ou=users,ou=system" );
+        return new DN( "uid=" + uid + ",ou=users,ou=system" );
     }
 
 
@@ -179,7 +179,7 @@ public class AutzIntegUtils
         // TODO might be ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED
         group.put( "uniqueMember", "uid=admin, ou=system" );
         adminCtx.createSubcontext( "cn=" + groupName + ",ou=groups", group );
-        return new LdapDN( "cn=" + groupName + ",ou=groups,ou=system" );
+        return new DN( "cn=" + groupName + ",ou=groups,ou=system" );
     }
 
 

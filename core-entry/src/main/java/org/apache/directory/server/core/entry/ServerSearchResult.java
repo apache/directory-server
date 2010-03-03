@@ -21,10 +21,10 @@ package org.apache.directory.server.core.entry;
 
 
 
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 /**
- * Creates a wrapper around a SearchResult object so that we can use the LdapDN
+ * Creates a wrapper around a SearchResult object so that we can use the DN
  * instead of parser it over and over
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public class ServerSearchResult
 {
     /** Distinguished name for this result */
-    private LdapDN dn;
+    private DN dn;
     
     /** The associated entry */
     private ServerEntry serverEntry;
@@ -45,7 +45,7 @@ public class ServerSearchResult
     private Object object;
     
 
-    public ServerSearchResult( LdapDN dn, Object obj, ServerEntry serverEntry )
+    public ServerSearchResult( DN dn, Object obj, ServerEntry serverEntry )
     {
         this.dn = dn;
         this.serverEntry = serverEntry;
@@ -53,7 +53,7 @@ public class ServerSearchResult
     }
 
 
-    public ServerSearchResult( LdapDN dn, Object obj, ServerEntry serverEntry, boolean isRelative )
+    public ServerSearchResult( DN dn, Object obj, ServerEntry serverEntry, boolean isRelative )
     {
         this.dn = dn;
         this.serverEntry = serverEntry;
@@ -62,7 +62,7 @@ public class ServerSearchResult
     }
 
 
-    public ServerSearchResult( LdapDN dn, String className, Object obj, ServerEntry serverEntry )
+    public ServerSearchResult( DN dn, String className, Object obj, ServerEntry serverEntry )
     {
         this.dn = dn;
         this.serverEntry = serverEntry;
@@ -70,7 +70,7 @@ public class ServerSearchResult
     }
 
 
-    public ServerSearchResult( LdapDN dn, String className, Object obj, ServerEntry serverEntry, boolean isRelative ) 
+    public ServerSearchResult( DN dn, String className, Object obj, ServerEntry serverEntry, boolean isRelative ) 
     {
         this.dn = dn;
         this.serverEntry = serverEntry;
@@ -81,7 +81,7 @@ public class ServerSearchResult
     /**
      * @return The result DN
      */
-    public LdapDN getDn()
+    public DN getDn()
     {
         return dn;
     }
@@ -131,7 +131,7 @@ public class ServerSearchResult
      */
     public String toString()
     {
-        String name = (dn == null ? "null" : ( dn == LdapDN.EMPTY_LDAPDN ? "\"\"" : dn.getName() ) );
+        String name = (dn == null ? "null" : ( dn == DN.EMPTY_DN ? "\"\"" : dn.getName() ) );
         return "ServerSearchResult : " + name + "\n" + serverEntry;
     }
 }

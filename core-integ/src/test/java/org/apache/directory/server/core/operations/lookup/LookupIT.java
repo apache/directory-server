@@ -27,7 +27,7 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -55,7 +55,7 @@ public class LookupIT extends AbstractLdapTestUnit
     @Test
     public void testLookupStar() throws Exception
     {
-        LdapDN dn = new LdapDN( "cn=test,ou=system" );
+        DN dn = new DN( "cn=test,ou=system" );
         Entry entry = service.getAdminSession().lookup( dn, new String[]{ "*" } );
         
         assertNotNull( entry );
@@ -78,7 +78,7 @@ public class LookupIT extends AbstractLdapTestUnit
     public void testLookupPlus() throws Exception
     {
         service.setDenormalizeOpAttrsEnabled( true );
-        LdapDN dn = new LdapDN( "cn=test,ou=system" );
+        DN dn = new DN( "cn=test,ou=system" );
         Entry entry = service.getAdminSession().lookup( dn, new String[]{ "+" } );
         
         assertNotNull( entry );
@@ -105,7 +105,7 @@ public class LookupIT extends AbstractLdapTestUnit
     @Test
     public void testLookupEmptyAtrid() throws Exception
     {
-        LdapDN dn = new LdapDN( "cn=test,ou=system" );
+        DN dn = new DN( "cn=test,ou=system" );
         Entry entry = service.getAdminSession().lookup( dn, new String[]{} );
         
         assertNotNull( entry );
@@ -126,7 +126,7 @@ public class LookupIT extends AbstractLdapTestUnit
     @Test
     public void testLookup() throws Exception
     {
-        LdapDN dn = new LdapDN( "cn=test,ou=system" );
+        DN dn = new DN( "cn=test,ou=system" );
         Entry entry = service.getAdminSession().lookup( dn );
         
         assertNotNull( entry );

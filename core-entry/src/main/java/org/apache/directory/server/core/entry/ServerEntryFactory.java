@@ -22,7 +22,7 @@ package org.apache.directory.server.core.entry;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -44,5 +44,5 @@ public interface ServerEntryFactory
      * Creates a new ServerEntry which has not yet been added to the 
      * directory.
      */
-    ServerEntry newEntry( LdapDN dn ) throws NamingException;
+    ServerEntry newEntry( DN dn ) throws NamingException;
 }

@@ -38,7 +38,7 @@ import javax.naming.directory.DirContext;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -85,7 +85,7 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
 
         try
         {
-            LdapDN userName = new LdapDN( "uid=" + uid + ",ou=users,ou=system" );
+            DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
             DirContext userContext = getContextAs( userName, password );
             userContext.createSubcontext( entryRdn, testEntry );
 

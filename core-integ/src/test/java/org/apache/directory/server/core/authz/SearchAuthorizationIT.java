@@ -55,7 +55,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -121,7 +121,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         Name[] childRdns = new Name[children.length];
         for ( int ii = 0; ii < children.length && count[0] < sizeLimit; ii++ )
         {
-            Name childRdn = new LdapDN();
+            Name childRdn = new DN();
             childRdn.addAll( parent );
             childRdn.add( "ou=" + ii );
             childRdns[ii] = childRdn;
@@ -178,7 +178,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         while ( results.hasMore() )
         {
             SearchResult result = results.next();
-            Name childRdn = new LdapDN( result.getName() );
+            Name childRdn = new DN( result.getName() );
             childRdn.remove( 0 );
             recursivelyDelete( childRdn );
         }
@@ -257,8 +257,8 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
             cons = new SearchControls();
         }
 
-        Name base = addSearchData( new LdapDN(), 3, 10 );
-        Name userDn = new LdapDN( "uid=" + uid + ",ou=users,ou=system" );
+        Name base = addSearchData( new DN(), 3, 10 );
+        Name userDn = new DN( "uid=" + uid + ",ou=users,ou=system" );
         try
         {
             results.clear();
@@ -306,9 +306,9 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
             cons = new SearchControls();
         }
 
-        Name base = addSearchData( new LdapDN(), 3, 10 );
+        Name base = addSearchData( new DN(), 3, 10 );
         addEntryACI( rdn, aci );
-        Name userDn = new LdapDN( "uid=" + uid + ",ou=users,ou=system" );
+        Name userDn = new DN( "uid=" + uid + ",ou=users,ou=system" );
         try
         {
             results.clear();
@@ -346,7 +346,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
     public void testAddSearchData() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-        Name base = addSearchData( new LdapDN(), 3, 10 );
+        Name base = addSearchData( new DN(), 3, 10 );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration<SearchResult> results = sysRoot.search( base, "(objectClass=*)", controls );
@@ -693,7 +693,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         // try a search operation which should fail without any prescriptive ACI
         SearchControls cons = new SearchControls();
         cons.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        LdapDN rdn = new LdapDN( "ou=tests" );
+        DN rdn = new DN( "ou=tests" );
         assertFalse( checkSearchAsWithEntryACI( "billyd", "billyd", cons, rdn, aci, 9 ) );
 
         // now add a subentry that enables anyone to search below ou=system
@@ -737,7 +737,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         // try a search operation which should fail without any prescriptive ACI
         SearchControls cons = new SearchControls();
         cons.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        LdapDN rdn = new LdapDN( "ou=tests" );
+        DN rdn = new DN( "ou=tests" );
         assertFalse( checkSearchAsWithEntryACI( "billyd", "billyd", cons, rdn, aci, 9 ) );
 
         // now add a subentry that enables anyone to search below ou=system
@@ -782,7 +782,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
      */
     private SearchResult checkCanSearhSubentryAs( String uid, String password, Name rdn ) throws Exception
     {
-        DirContext userCtx = getContextAs( new LdapDN( "uid=" + uid + ",ou=users,ou=system" ), password );
+        DirContext userCtx = getContextAs( new DN( "uid=" + uid + ",ou=users,ou=system" ), password );
         SearchControls cons = new SearchControls();
         cons.setSearchScope( SearchControls.OBJECT_SCOPE );
         SearchResult result = null;
@@ -828,7 +828,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
             + "grantsAndDenials { grantRead, grantReturnDN, grantBrowse } } } } }" );
 
         // check and see if we can access the subentry now
-        assertNotNull( checkCanSearhSubentryAs( "billyd", "billyd", new LdapDN( "cn=anybodySearch" ) ) );
+        assertNotNull( checkCanSearhSubentryAs( "billyd", "billyd", new DN( "cn=anybodySearch" ) ) );
 
         // now add a denial to prevent all users except the admin from accessing the subentry
         addSubentryACI( "{ " + "identificationTag \"searchAci\", " + "precedence 14, " + "authenticationLevel none, "
@@ -837,7 +837,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
             + "grantsAndDenials { denyRead, denyReturnDN, denyBrowse } } } } }" );
 
         // now we should not be able to access the subentry with a search
-        assertNull( checkCanSearhSubentryAs( "billyd", "billyd", new LdapDN( "cn=anybodySearch" ) ) );
+        assertNull( checkCanSearhSubentryAs( "billyd", "billyd", new DN( "cn=anybodySearch" ) ) );
     }
 
 
@@ -856,7 +856,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
                 + "grantsAndDenials { grantRead, grantReturnDN, grantBrowse, grantDiscloseOnError } } } } }" );
 
         // get a context as the user and try a lookup of a non-existant entry under ou=groups,ou=system
-        DirContext userCtx = getContextAs( new LdapDN( "uid=billyd,ou=users,ou=system" ), "billyd" );
+        DirContext userCtx = getContextAs( new DN( "uid=billyd,ou=users,ou=system" ), "billyd" );
         try
         {
             userCtx.lookup( "cn=blah,ou=groups" );
@@ -913,7 +913,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
             + "grantsAndDenials { grantRead, grantReturnDN, grantBrowse } } } } }" );
 
         // check and see if we can access the subentry now
-        assertNotNull( checkCanSearhSubentryAs( "billyd", "billyd", new LdapDN( "ou=phoneBook,uid=billyd,ou=users" ) ) );
+        assertNotNull( checkCanSearhSubentryAs( "billyd", "billyd", new DN( "ou=phoneBook,uid=billyd,ou=users" ) ) );
 
         // now add a denial to prevent all users except the admin from accessing the subentry
         addPrescriptiveACI( "anybodySearchTheirSubordinates", "{ " + "identificationTag \"anybodyDontSearchTheirSubordinates\", " + "precedence 14, " + "authenticationLevel none, "
@@ -922,6 +922,6 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
             + "grantsAndDenials { denyRead, denyReturnDN, denyBrowse } } } } }" );
 
         // now we should not be able to access the subentry with a search
-        assertNull( checkCanSearhSubentryAs( "billyd", "billyd", new LdapDN( "ou=phoneBook,uid=billyd,ou=users" ) ) );
+        assertNull( checkCanSearhSubentryAs( "billyd", "billyd", new DN( "ou=phoneBook,uid=billyd,ou=users" ) ) );
     }
 }

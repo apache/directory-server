@@ -32,7 +32,7 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +67,7 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
      */
     public void add( NextInterceptor next, AddOperationContext addContext ) throws Exception
     {
-        LdapDN normName = addContext.getDn();
+        DN normName = addContext.getDn();
 
         ServerEntry entry = addContext.getEntry();
 
@@ -111,7 +111,7 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
      */
     public void modify( NextInterceptor next, ModifyOperationContext modContext ) throws Exception
     {
-        LdapDN name = modContext.getDn();
+        DN name = modContext.getDn();
 
         List<Modification> mods = modContext.getModItems();
 

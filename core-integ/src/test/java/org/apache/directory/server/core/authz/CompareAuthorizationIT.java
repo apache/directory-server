@@ -38,7 +38,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -96,13 +96,13 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
         try
         {
             // create the entry as admin
-            LdapDN userName = new LdapDN( "uid=" + uid + ",ou=users,ou=system" );
+            DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
             adminContext.createSubcontext( entryRdn, testEntry );
 
             // compare the telephone numbers
             DirContext userContext = getContextAs( userName, password );
             ServerLdapContext ctx = ( ServerLdapContext ) userContext.lookup( "" );
-            ctx.compare( new LdapDN( entryRdn + ",ou=system" ), "telephoneNumber", number );
+            ctx.compare( new DN( entryRdn + ",ou=system" ), "telephoneNumber", number );
 
             // don't return compare result which can be false but true since op was permitted
             return true;
@@ -282,7 +282,7 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
         adminCtx.createSubcontext( "uid=bob,ou=users", user );
 
         ServerLdapContext ctx = ( ServerLdapContext ) adminCtx.lookup( "" );
-        assertTrue( ctx.compare( new LdapDN( "uid=bob,ou=users,ou=system" ), "userPassword", "bobspassword" ) );
+        assertTrue( ctx.compare( new DN( "uid=bob,ou=users,ou=system" ), "userPassword", "bobspassword" ) );
     }
 
 }

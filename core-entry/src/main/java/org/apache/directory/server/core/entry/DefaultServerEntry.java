@@ -38,8 +38,8 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.LdapDNSerializer;
+import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.DnSerializer;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -209,7 +209,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     /* no protection ! */ DefaultServerEntry()
     {
         schemaManager = null;
-        dn = LdapDN.EMPTY_LDAPDN;
+        dn = DN.EMPTY_DN;
     }
 
 
@@ -226,7 +226,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     public DefaultServerEntry( SchemaManager schemaManager )
     {
         this.schemaManager = schemaManager;
-        dn = LdapDN.EMPTY_LDAPDN;
+        dn = DN.EMPTY_DN;
 
         // Initialize the ObjectClass object
         initObjectClassAT( schemaManager );
@@ -255,11 +255,11 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         // We will clone the existing entry, because it may be normalized
         if ( entry.getDn() != null )
         {
-            dn = (LdapDN)entry.getDn().clone();
+            dn = (DN)entry.getDn().clone();
         }
         else
         {
-            dn = LdapDN.EMPTY_LDAPDN;
+            dn = DN.EMPTY_DN;
         }
         
         if ( !dn.isNormalized( ) )
@@ -322,11 +322,11 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @param registries The reference to the global registries
      * @param dn The DN for this serverEntry. Can be null.
      */
-    public DefaultServerEntry( SchemaManager schemaManager, LdapDN dn )
+    public DefaultServerEntry( SchemaManager schemaManager, DN dn )
     {
         if ( dn == null )
         {
-            dn = LdapDN.EMPTY_LDAPDN;
+            dn = DN.EMPTY_DN;
         }
         else
         {
@@ -357,11 +357,11 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @param dn The DN for this serverEntry. Can be null.
      * @param attributeTypes The list of attributes to create, without value.
      */
-    public DefaultServerEntry( SchemaManager schemaManager, LdapDN dn, AttributeType... attributeTypes )
+    public DefaultServerEntry( SchemaManager schemaManager, DN dn, AttributeType... attributeTypes )
     {
         if ( dn == null )
         {
-            dn = LdapDN.EMPTY_LDAPDN;
+            dn = DN.EMPTY_DN;
         }
         else
         {
@@ -399,11 +399,11 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @param attributeType The attribute to create, without value.
      * @param upId The User Provided ID fro this AttributeType
      */
-    public DefaultServerEntry( SchemaManager schemaManager, LdapDN dn, AttributeType attributeType, String upId )
+    public DefaultServerEntry( SchemaManager schemaManager, DN dn, AttributeType attributeType, String upId )
     {
         if ( dn == null )
         {
-            dn = LdapDN.EMPTY_LDAPDN;
+            dn = DN.EMPTY_DN;
         }
         else
         {
@@ -441,11 +441,11 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @param dn The DN for this serverEntry. Can be null.
      * @param upIds The list of attributes to create.
      */
-    public DefaultServerEntry( SchemaManager schemaManager, LdapDN dn, String... upIds )
+    public DefaultServerEntry( SchemaManager schemaManager, DN dn, String... upIds )
     {
         if ( dn == null )
         {
-            dn = LdapDN.EMPTY_LDAPDN;
+            dn = DN.EMPTY_DN;
         }
         else
         {
@@ -473,11 +473,11 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @param dn The DN for this serverEntry. Can be null
      * @param attributes The list of attributes to create
      */
-    public DefaultServerEntry( SchemaManager schemaManager, LdapDN dn, ServerAttribute... attributes )
+    public DefaultServerEntry( SchemaManager schemaManager, DN dn, ServerAttribute... attributes )
     {
         if ( dn == null )
         {
-            dn = LdapDN.EMPTY_LDAPDN;
+            dn = DN.EMPTY_DN;
         }
         else
         {
@@ -2271,7 +2271,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         // Clone the DN  first.
         if ( dn != null )
         {
-            clone.dn = (LdapDN)dn.clone();
+            clone.dn = (DN)dn.clone();
         }
         
         // clone the ServerAttribute Map
@@ -2321,7 +2321,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     {
         // First, the DN
         // Write the DN
-        LdapDNSerializer.serialize( dn, out );
+        DnSerializer.serialize( dn, out );
         
         // Then the attributes.
         out.writeInt( attributes.size() );
@@ -2369,7 +2369,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     public void deserialize( ObjectInput in ) throws IOException, ClassNotFoundException
     {
         // Read the DN
-        dn = LdapDNSerializer.deserialize( in );
+        dn = DnSerializer.deserialize( in );
         
         // Read the number of attributes
         int nbAttributes = in.readInt();

@@ -47,7 +47,7 @@ import javax.naming.directory.ModificationItem;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -105,7 +105,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         try
         {
             // create the entry as admin
-            LdapDN userName = new LdapDN( "uid=" + uid + ",ou=users,ou=system" );
+            DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
             adminContext.createSubcontext( entryRdn, testEntry );
 
             // modify the entry as the user
@@ -162,7 +162,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         try
         {
             // create the entry as admin
-            LdapDN userName = new LdapDN( "uid=" + uid + ",ou=users,ou=system" );
+            DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
             adminContext.createSubcontext( entryRdn, testEntry );
 
             // modify the entry as the user
@@ -201,7 +201,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         try
         {
             // modify the entry as the user
-            Name userEntry = new LdapDN( "uid=" + uid + ",ou=users,ou=system" );
+            Name userEntry = new DN( "uid=" + uid + ",ou=users,ou=system" );
             DirContext userContext = getContextAs( userEntry, password, userEntry.toString() );
             userContext.modifyAttributes( "", modOp, mods );
             return true;
@@ -230,7 +230,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         try
         {
             // modify the entry as the user
-            Name userEntry = new LdapDN( "uid=" + uid + ",ou=users,ou=system" );
+            Name userEntry = new DN( "uid=" + uid + ",ou=users,ou=system" );
             DirContext userContext = getContextAs( userEntry, password, userEntry.toString() );
             userContext.modifyAttributes( "", mods );
             return true;

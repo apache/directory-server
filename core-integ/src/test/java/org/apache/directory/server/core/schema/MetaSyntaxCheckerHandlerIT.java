@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
@@ -91,7 +91,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-oid", OID,
             "m-description: A test syntaxChecker" );
         
-        LdapDN dn = getSyntaxCheckerContainer( "apachemeta" );
+        DN dn = getSyntaxCheckerContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
@@ -115,7 +115,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-description: A test syntaxChecker" );
         
         // nis is by default inactive
-        LdapDN dn = getSyntaxCheckerContainer( "nis" );
+        DN dn = getSyntaxCheckerContainer( "nis" );
         dn.add( "m-oid" + "=" + OID );
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
@@ -137,7 +137,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-description: A test syntaxChecker" );
         
         // nis is by default inactive
-        LdapDN dn = getSyntaxCheckerContainer( "notloaded" );
+        DN dn = getSyntaxCheckerContainer( "notloaded" );
         dn.add( "m-oid" + "=" + OID );
 
         try
@@ -176,7 +176,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-oid", OID,
             "m-description: A test syntaxChecker" );
         
-        LdapDN dn = getSyntaxCheckerContainer( "apachemeta" );
+        DN dn = getSyntaxCheckerContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
@@ -208,7 +208,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-oid", OID,
             "m-description: A test syntaxChecker" );
         
-        LdapDN dn = getSyntaxCheckerContainer( "nis" );
+        DN dn = getSyntaxCheckerContainer( "nis" );
         dn.add( "m-oid" + "=" + OID );
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
@@ -220,7 +220,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testDeleteSyntaxCheckerFromEnabledSchema() throws Exception
     {
-        LdapDN dn = getSyntaxCheckerContainer( "apachemeta" );
+        DN dn = getSyntaxCheckerContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
         testAddSyntaxCheckerToEnabledSchema();
         
@@ -249,7 +249,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testDeleteSyntaxCheckerFromDisabledSchema() throws Exception
     {
-        LdapDN dn = getSyntaxCheckerContainer( "apachemeta" );
+        DN dn = getSyntaxCheckerContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
         testAddSyntaxCheckerToEnabledSchema();
         
@@ -279,11 +279,11 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Ignore
     public void testRenameSyntaxChecker() throws Exception
     {
-        LdapDN dn = getSyntaxCheckerContainer( "apachemeta" );
+        DN dn = getSyntaxCheckerContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
         testAddSyntaxCheckerToEnabledSchema();
         
-        LdapDN newdn = getSyntaxCheckerContainer( "apachemeta" );
+        DN newdn = getSyntaxCheckerContainer( "apachemeta" );
         newdn.add( "m-oid" + "=" + NEW_OID );
         getSchemaContext( service ).rename( dn, newdn );
 
@@ -312,10 +312,10 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddSyntaxCheckerToEnabledSchema();
         
-        LdapDN dn = getSyntaxCheckerContainer( "apachemeta" );
+        DN dn = getSyntaxCheckerContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
 
-        LdapDN newdn = getSyntaxCheckerContainer( "apache" );
+        DN newdn = getSyntaxCheckerContainer( "apache" );
         newdn.add( "m-oid" + "=" + OID );
         
         getSchemaContext( service ).rename( dn, newdn );
@@ -337,10 +337,10 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddSyntaxCheckerToEnabledSchema();
         
-        LdapDN dn = getSyntaxCheckerContainer( "apachemeta" );
+        DN dn = getSyntaxCheckerContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
 
-        LdapDN newdn = getSyntaxCheckerContainer( "apache" );
+        DN newdn = getSyntaxCheckerContainer( "apache" );
         newdn.add( "m-oid" + "=" + NEW_OID );
         
         getSchemaContext( service ).rename( dn, newdn );
@@ -365,7 +365,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddSyntaxCheckerToEnabledSchema();
         
-        LdapDN dn = getSyntaxCheckerContainer( "apachemeta" );
+        DN dn = getSyntaxCheckerContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
         
         ModificationItem[] mods = new ModificationItem[1];
@@ -390,7 +390,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddSyntaxCheckerToEnabledSchema();
         
-        LdapDN dn = getSyntaxCheckerContainer( "apachemeta" );
+        DN dn = getSyntaxCheckerContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
         
         Attributes mods = new BasicAttributes( true );
@@ -414,7 +414,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testDeleteSyntaxCheckerWhenInUse() throws Exception
     {
-        LdapDN scDn = getSyntaxCheckerContainer( "apachemeta" );
+        DN scDn = getSyntaxCheckerContainer( "apachemeta" );
         scDn.add( "m-oid" + "=" + OID );
         
         // Create a new SyntaxChecker
@@ -430,7 +430,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-oid", OID,
             "m-description: test" );
 
-        LdapDN sDn = getSyntaxContainer( "apachemeta" );
+        DN sDn = getSyntaxContainer( "apachemeta" );
         sDn.add( "m-oid" + "=" + OID );
 
         // Pre-checks
@@ -466,10 +466,10 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddSyntaxCheckerToEnabledSchema();
         schemaManager.getLdapSyntaxRegistry().register( new DummySyntax() );
         
-        LdapDN dn = getSyntaxCheckerContainer( "apachemeta" );
+        DN dn = getSyntaxCheckerContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
 
-        LdapDN newdn = getSyntaxCheckerContainer( "apache" );
+        DN newdn = getSyntaxCheckerContainer( "apache" );
         newdn.add( "m-oid" + "=" + OID );
         
         try
@@ -496,10 +496,10 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddSyntaxCheckerToEnabledSchema();
         schemaManager.getLdapSyntaxRegistry().register( new DummySyntax() );
         
-        LdapDN dn = getSyntaxCheckerContainer( "apachemeta" );
+        DN dn = getSyntaxCheckerContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
 
-        LdapDN newdn = getSyntaxCheckerContainer( "apache" );
+        DN newdn = getSyntaxCheckerContainer( "apache" );
         newdn.add( "m-oid" + "=" + NEW_OID );
         
         try
@@ -523,12 +523,12 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Ignore
     public void testRenameSyntaxCheckerWhenInUse() throws Exception
     {
-        LdapDN dn = getSyntaxCheckerContainer( "apachemeta" );
+        DN dn = getSyntaxCheckerContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
         testAddSyntaxCheckerToEnabledSchema();
         schemaManager.getLdapSyntaxRegistry().register( new DummySyntax() );
         
-        LdapDN newdn = getSyntaxCheckerContainer( "apachemeta" );
+        DN newdn = getSyntaxCheckerContainer( "apachemeta" );
         newdn.add( "m-oid" + "=" + NEW_OID );
         
         try
@@ -559,10 +559,10 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddSyntaxCheckerToEnabledSchema();
         
-        LdapDN dn = getSyntaxCheckerContainer( "apachemeta" );
+        DN dn = getSyntaxCheckerContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
 
-        LdapDN top = new LdapDN();
+        DN top = new DN();
         top.add( "m-oid" + "=" + OID );
         
         try
@@ -586,10 +586,10 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddSyntaxCheckerToEnabledSchema();
         
-        LdapDN dn = getSyntaxCheckerContainer( "apachemeta" );
+        DN dn = getSyntaxCheckerContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
 
-        LdapDN newdn = new LdapDN( "ou=comparators,cn=apachemeta" );
+        DN newdn = new DN( "ou=comparators,cn=apachemeta" );
         newdn.add( "m-oid" + "=" + OID );
         
         try
@@ -613,11 +613,11 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         testAddSyntaxCheckerToEnabledSchema();
         
-        LdapDN dn = getSyntaxCheckerContainer( "apachemeta" );
+        DN dn = getSyntaxCheckerContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
 
         // nis is inactive by default
-        LdapDN newdn = getSyntaxCheckerContainer( "nis" );
+        DN newdn = getSyntaxCheckerContainer( "nis" );
         newdn.add( "m-oid" + "=" + OID );
         
         getSchemaContext( service ).rename( dn, newdn );
@@ -634,13 +634,13 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddSyntaxCheckerToDisabledSchema();
         
         // nis is inactive by default
-        LdapDN dn = getSyntaxCheckerContainer( "nis" );
+        DN dn = getSyntaxCheckerContainer( "nis" );
         dn.add( "m-oid" + "=" + OID );
 
         assertFalse( "syntaxChecker OID should NOT be present when added to disabled nis schema", 
             schemaManager.getSyntaxCheckerRegistry().contains( OID ) );
 
-        LdapDN newdn = getSyntaxCheckerContainer( "apachemeta" );
+        DN newdn = getSyntaxCheckerContainer( "apachemeta" );
         newdn.add( "m-oid" + "=" + OID );
         
         getSchemaContext( service ).rename( dn, newdn );

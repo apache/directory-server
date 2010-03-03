@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.slf4j.Logger;
@@ -143,7 +143,7 @@ public class IntegrationUtils
             principalDn = "";
         }
 
-        LdapDN userDn = new LdapDN( principalDn );
+        DN userDn = new DN( principalDn );
         userDn.normalize( service.getSchemaManager().getNormalizerMapping() );
         LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
 
@@ -153,7 +153,7 @@ public class IntegrationUtils
         }
 
         CoreSession session = service.getSession( principal );
-        LdapContext ctx = new ServerLdapContext( service, session, new LdapDN( dn ) );
+        LdapContext ctx = new ServerLdapContext( service, session, new DN( dn ) );
         return ctx;
     }
 
@@ -166,7 +166,7 @@ public class IntegrationUtils
             principalDn = "";
         }
         
-        LdapDN userDn = new LdapDN( principalDn );
+        DN userDn = new DN( principalDn );
         userDn.normalize( service.getSchemaManager().getNormalizerMapping() );
         LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
         
@@ -200,7 +200,7 @@ public class IntegrationUtils
 
     public static void apply( DirectoryService service, LdifEntry entry ) throws Exception
     {
-        LdapDN dn = new LdapDN( entry.getDn() );
+        DN dn = new DN( entry.getDn() );
         CoreSession session = service.getAdminSession();
 
         switch( entry.getChangeType().getChangeType() )
@@ -223,7 +223,7 @@ public class IntegrationUtils
                     // It's a move. The superior have changed
                     // Let's see if it's a rename too
                     RDN oldRdn = dn.getRdn();
-                    LdapDN newSuperior = new LdapDN( entry.getNewSuperior() );
+                    DN newSuperior = new DN( entry.getNewSuperior() );
                     
                     if ( dn.size() == 0 )
                     {
@@ -261,7 +261,7 @@ public class IntegrationUtils
     public static LdifEntry getUserAddLdif( String dnstr, byte[] password, String cn, String sn )
             throws InvalidNameException, NamingException
     {
-        LdapDN dn = new LdapDN( dnstr );
+        DN dn = new DN( dnstr );
         LdifEntry ldif = new LdifEntry();
         ldif.setDn( dnstr );
         ldif.setChangeType( ChangeType.Add );
