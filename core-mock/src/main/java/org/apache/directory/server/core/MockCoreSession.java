@@ -411,7 +411,7 @@ public class MockCoreSession implements CoreSession
      */
     public boolean isAdministrator()
     {
-        String normName = getEffectivePrincipal().getJndiName().toNormName(); 
+        String normName = getEffectivePrincipal().getName(); 
         return normName.equals( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
     }
 
@@ -758,7 +758,7 @@ public class MockCoreSession implements CoreSession
 
     public boolean isAnonymous()
     {
-        return getEffectivePrincipal().getJndiName().isEmpty();
+        return getEffectivePrincipal().getName().isEmpty();
     }
 
 

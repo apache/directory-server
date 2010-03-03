@@ -47,7 +47,7 @@ public class SimpleTriggerExecutionAuthorizer implements TriggerExecutionAuthori
     
     public boolean hasPermission( OperationContext opContext ) throws NamingException
     {
-        LdapDN principalName = opContext.getSession().getEffectivePrincipal().getJndiName();
+        LdapDN principalName = opContext.getSession().getEffectivePrincipal().getClonedName();
         return principalName.equals( adminName );
     }
 }

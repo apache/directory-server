@@ -112,11 +112,11 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
 
     /**
      * Gets a cloned copy of the normalized distinguished name of this
-     * principal as a JNDI {@link LdapDN}.
+     * principal as a {@link LdapDN}.
      *
      * @return the normalized distinguished name of the principal as a JNDI {@link LdapDN}
      */
-    public LdapDN getJndiName()
+    public LdapDN getClonedName()
     {
         return ( LdapDN ) name.clone();
     }

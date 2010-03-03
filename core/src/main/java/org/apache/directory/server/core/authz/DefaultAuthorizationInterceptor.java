@@ -173,7 +173,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             return;
         }
 
-        LdapDN principalDn = getPrincipal().getJndiName();
+        LdapDN principalDn = getPrincipal().getClonedName();
 
         if ( name.isEmpty() )
         {
@@ -268,7 +268,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
     private void protectModifyAlterations( LdapDN dn ) throws Exception
     {
-        LdapDN principalDn = getPrincipal().getJndiName();
+        LdapDN principalDn = getPrincipal().getClonedName();
 
         if ( dn.isEmpty() )
         {
@@ -280,7 +280,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         if ( ! isAnAdministrator( principalDn ) )
         {
             // allow self modifications 
-            if ( dn.getNormName().equals( getPrincipal().getJndiName().getNormName() ) )
+            if ( dn.getNormName().equals( getPrincipal().getName() ) )
             {
                 return;
             }
@@ -357,7 +357,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
     private void protectDnAlterations( LdapDN dn ) throws Exception
     {
-        LdapDN principalDn = getPrincipal().getJndiName();
+        LdapDN principalDn = getPrincipal().getClonedName();
 
         if ( dn.isEmpty() )
         {
@@ -405,7 +405,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             return serverEntry;
         }
 
-        protectLookUp( opContext.getSession().getEffectivePrincipal().getJndiName(), opContext.getDn() );
+        protectLookUp( opContext.getSession().getEffectivePrincipal().getClonedName(), opContext.getDn() );
         return serverEntry;
     }
 
@@ -500,7 +500,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
     private boolean isSearchable( OperationContext opContext, ClonedServerEntry result ) throws Exception
     {
-        LdapDN principalDn = opContext.getSession().getEffectivePrincipal().getJndiName();
+        LdapDN principalDn = opContext.getSession().getEffectivePrincipal().getClonedName();
         LdapDN dn = result.getDn();
         
         if ( !dn.isNormalized() )

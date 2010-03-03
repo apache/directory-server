@@ -107,7 +107,7 @@ public class DefaultJournalStore implements JournalStore
             {
                 // Write the LdapPrincipal
                 writer.write( "# principal: " );
-                writer.write( principal.getJndiName().toString() );
+                writer.write( principal.getName() );
                 writer.write( '\n' );
                 
                 // Write the timestamp

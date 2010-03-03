@@ -461,7 +461,7 @@ public final class SchemaPartition extends AbstractPartition
      */
     private void updateSchemaModificationAttributes( OperationContext opContext ) throws Exception
     {
-        String modifiersName = opContext.getSession().getEffectivePrincipal().getJndiName().getNormName();
+        String modifiersName = opContext.getSession().getEffectivePrincipal().getName();
         String modifyTimestamp = DateUtils.getGeneralizedTime();
 
         List<Modification> mods = new ArrayList<Modification>( 2 );

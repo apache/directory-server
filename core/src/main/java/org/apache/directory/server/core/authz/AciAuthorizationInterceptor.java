@@ -230,7 +230,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
     private void protectCriticalEntries( LdapDN dn ) throws Exception
     {
-        LdapDN principalDn = getPrincipal().getJndiName();
+        LdapDN principalDn = getPrincipal().getClonedName();
 
         if ( dn.isEmpty() )
         {
@@ -423,7 +423,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         LdapPrincipal principal = addContext.getSession().getEffectivePrincipal();
-        LdapDN principalDn = principal.getJndiName();
+        LdapDN principalDn = principal.getClonedName();
         
         ServerEntry serverEntry = addContext.getEntry(); 
         //Attributes entry = ServerEntryUtils.toAttributesImpl( serverEntry );
@@ -500,7 +500,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapDN name = deleteContext.getDn();
         
         LdapPrincipal principal = deleteContext.getSession().getEffectivePrincipal();
-        LdapDN principalDn = principal.getJndiName();
+        LdapDN principalDn = principal.getClonedName();
 
         // bypass authz code if we are disabled
         if ( ! deleteContext.getSession().getDirectoryService().isAccessControlEnabled() )
@@ -545,7 +545,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         ClonedServerEntry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
         
         LdapPrincipal principal = opContext.getSession().getEffectivePrincipal();
-        LdapDN principalDn = principal.getJndiName();
+        LdapDN principalDn = principal.getClonedName();
 
         // bypass authz code if we are disabled
         if ( !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
@@ -680,7 +680,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         
         // TODO - eventually replace this with a check on session.isAnAdministrator()
         LdapPrincipal principal = entryContext.getSession().getEffectivePrincipal();
-        LdapDN principalDn = principal.getJndiName();
+        LdapDN principalDn = principal.getClonedName();
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
             return answer;
@@ -726,7 +726,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         }
 
         LdapPrincipal principal = lookupContext.getSession().getEffectivePrincipal();
-        LdapDN userName = principal.getJndiName();
+        LdapDN userName = principal.getClonedName();
         Set<LdapDN> userGroups = groupCache.getGroups( userName.toNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( lookupContext, tuples, lookupContext.getDn(), entry );
@@ -765,7 +765,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     public ClonedServerEntry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws Exception
     {
         LdapPrincipal principal = lookupContext.getSession().getEffectivePrincipal();
-        LdapDN principalDn = principal.getJndiName();
+        LdapDN principalDn = principal.getClonedName();
         
         if ( !principalDn.isNormalized() )
         {
@@ -797,7 +797,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         }
         
         LdapPrincipal principal = renameContext.getSession().getEffectivePrincipal();
-        LdapDN principalDn = principal.getJndiName();
+        LdapDN principalDn = principal.getClonedName();
         LdapDN newName = renameContext.getNewDn();
 
         // bypass authz code if we are disabled
@@ -846,7 +846,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         ClonedServerEntry entry = moveAndRenameContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
         
         LdapPrincipal principal = moveAndRenameContext.getSession().getEffectivePrincipal();
-        LdapDN principalDn = principal.getJndiName();
+        LdapDN principalDn = principal.getClonedName();
         LdapDN newName = ( LdapDN ) newParentName.clone();
         newName.add( moveAndRenameContext.getNewRdn().getUpName() );
 
@@ -927,7 +927,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapDN newName = ( LdapDN ) newParentName.clone();
         newName.add( oriChildName.get( oriChildName.size() - 1 ) );
         LdapPrincipal principal = moveContext.getSession().getEffectivePrincipal();
-        LdapDN principalDn = principal.getJndiName();
+        LdapDN principalDn = principal.getClonedName();
 
         // bypass authz code if we are disabled
         if ( !moveContext.getSession().getDirectoryService().isAccessControlEnabled() )
@@ -999,7 +999,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapPrincipal user = opContext.getSession().getEffectivePrincipal();
         EntryFilteringCursor cursor = next.list( opContext );
         
-        if ( isPrincipalAnAdministrator( user.getJndiName() ) || !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
+        if ( isPrincipalAnAdministrator( user.getClonedName() ) || !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             return cursor;
         }
@@ -1013,7 +1013,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
     {
         LdapPrincipal user = opContext.getSession().getEffectivePrincipal();
-        LdapDN principalDn = user.getJndiName();
+        LdapDN principalDn = user.getClonedName();
         EntryFilteringCursor cursor = next.search( opContext );
 
         boolean isSubschemaSubentryLookup = subschemaSubentryDn.equals( opContext.getDn().getNormName() );
@@ -1045,7 +1045,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         ClonedServerEntry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
 
         LdapPrincipal principal = opContext.getSession().getEffectivePrincipal();
-        LdapDN principalDn = principal.getJndiName();
+        LdapDN principalDn = principal.getClonedName();
 
         if ( isPrincipalAnAdministrator( principalDn ) || !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
@@ -1073,7 +1073,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         LdapPrincipal principal = opContext.getSession().getEffectivePrincipal();
-        LdapDN principalDn = principal.getJndiName();
+        LdapDN principalDn = principal.getClonedName();
         
         if ( isPrincipalAnAdministrator( principalDn ) || !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
@@ -1127,7 +1127,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
          */
         
         LdapPrincipal principal = opContext.getSession().getEffectivePrincipal();
-        LdapDN userDn = principal.getJndiName();
+        LdapDN userDn = principal.getClonedName();
         Set<LdapDN> userGroups = groupCache.getGroups( userDn.toNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( opContext, tuples, normName, clonedEntry.getOriginalEntry() );
