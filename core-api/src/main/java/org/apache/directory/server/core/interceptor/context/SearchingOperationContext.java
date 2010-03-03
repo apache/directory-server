@@ -39,6 +39,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,8 +56,6 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
     /** The LoggerFactory used by this Interceptor */
     private static Logger LOG = LoggerFactory.getLogger( SearchingOperationContext.class );
     
-    private static String[] EMPTY_STR_ARRAY = new String[0];
-
     /** A flag describing the way alias should be handled */
     protected AliasDerefMode aliasDerefMode = AliasDerefMode.DEREF_ALWAYS;
 
@@ -123,7 +122,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
     protected void setReturningAttributes( Collection<String> attributesIds ) 
         throws Exception
     {
-        setReturningAttributes( attributesIds.toArray( EMPTY_STR_ARRAY ) );
+        setReturningAttributes( attributesIds.toArray( StringTools.EMPTY_STRINGS ) );
     }
     
     
