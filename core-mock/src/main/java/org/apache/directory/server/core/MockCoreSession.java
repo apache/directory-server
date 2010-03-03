@@ -758,7 +758,7 @@ public class MockCoreSession implements CoreSession
 
     public boolean isAnonymous()
     {
-        return getEffectivePrincipal().getName().isEmpty();
+        return StringTools.isEmpty( getEffectivePrincipal().getName() );
     }
 
 
