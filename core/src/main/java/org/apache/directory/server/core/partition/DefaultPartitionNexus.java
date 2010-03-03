@@ -82,9 +82,7 @@ import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.P
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
-import org.apache.directory.shared.ldap.cursor.ListCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -714,12 +712,91 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         backend.rename( opContext );
     }
 
+    
+    private EntryFilteringCursor searchRootDSE( SearchOperationContext searchOperationContext ) throws Exception
+    {
+        SearchControls searchControls = searchOperationContext.getSearchControls();
+        
+        String[] ids = searchControls.getReturningAttributes();
+
+        // -----------------------------------------------------------
+        // If nothing is asked for then we just return the entry asis.
+        // We let other mechanisms filter out operational attributes.
+        // -----------------------------------------------------------
+        if ( ( ids == null ) || ( ids.length == 0 ) )
+        {
+            ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
+            return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( rootDSE ), searchOperationContext );
+        }
+        
+        // -----------------------------------------------------------
+        // Collect all the real attributes besides 1.1, +, and * and
+        // note if we've seen these special attributes as well.
+        // -----------------------------------------------------------
+
+        Set<String> realIds = new HashSet<String>();
+        boolean allUserAttributes = searchOperationContext.isAllUserAttributes();
+        boolean allOperationalAttributes = searchOperationContext.isAllOperationalAttributes();
+        boolean noAttribute = searchOperationContext.isNoAttributes();
+
+        for ( String id:ids )
+        {
+            String idTrimmed = id.trim();
+            
+            try
+            {
+                realIds.add( schemaManager.getAttributeTypeRegistry().getOidByName( idTrimmed ) );
+            }
+            catch ( Exception e )
+            {
+                realIds.add( idTrimmed );
+            }
+        }
+
+        // return nothing
+        if ( noAttribute )
+        {
+            ServerEntry serverEntry = new DefaultServerEntry( schemaManager, LdapDN.EMPTY_LDAPDN );
+            return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), searchOperationContext );
+        }
+        
+        // return everything
+        if ( allUserAttributes && allOperationalAttributes )
+        {
+            ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
+            return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( rootDSE ), searchOperationContext );
+        }
+        
+        ServerEntry serverEntry = new DefaultServerEntry( schemaManager, LdapDN.EMPTY_LDAPDN );
+        
+        ServerEntry rootDSE = getRootDSE( new GetRootDSEOperationContext( searchOperationContext.getSession() ) );
+        
+        for ( EntryAttribute attribute:rootDSE )
+        {
+            AttributeType type = schemaManager.lookupAttributeTypeRegistry( attribute.getUpId() );
+            
+            if ( realIds.contains( type.getOid() ) )
+            {
+                serverEntry.put( attribute );
+            }
+            else if ( allUserAttributes && ( type.getUsage() == UsageEnum.USER_APPLICATIONS ) )
+            {
+                serverEntry.put( attribute );
+            }
+            else if ( allOperationalAttributes && ( type.getUsage() != UsageEnum.USER_APPLICATIONS ) )
+            {
+                serverEntry.put( attribute );
+            }
+        }
+
+        return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), searchOperationContext );
+    }
+    
 
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#search(org.apache.directory.server.core.interceptor.context.SearchOperationContext)
      */
-    public EntryFilteringCursor search( SearchOperationContext opContext )
-        throws Exception
+    public EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
     {
         LdapDN base = opContext.getDn();
         SearchControls searchCtls = opContext.getSearchControls();
@@ -730,6 +807,9 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         // case and remove this code.
         if ( base.size() == 0 )
         {
+            // We are searching from the rootDSE. We have to distinguish three cases :
+            // 1) The scope is OBJECT : we have to return the rootDSE entry, filtered
+            // 2) The scope is ONELEVEL : we have to return all the Namin
             boolean isObjectScope = searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
             
             boolean isOnelevelScope = searchCtls.getSearchScope() == SearchControls.ONELEVEL_SCOPE;
@@ -749,96 +829,9 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
              * if basedn is "", filter is "(objectclass=*)" and scope is object
              * then we have a request for the rootDSE
              */
-            if ( filter instanceof PresenceNode && isObjectScope && isSearchAll )
+            if ( ( filter instanceof PresenceNode)  && isObjectScope && isSearchAll )
             {
-                String[] ids = searchCtls.getReturningAttributes();
-    
-                // -----------------------------------------------------------
-                // If nothing is asked for then we just return the entry asis.
-                // We let other mechanisms filter out operational attributes.
-                // -----------------------------------------------------------
-                if ( ( ids == null ) || ( ids.length == 0 ) )
-                {
-                    ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
-                    return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( rootDSE ), opContext );
-                }
-                
-                // -----------------------------------------------------------
-                // Collect all the real attributes besides 1.1, +, and * and
-                // note if we've seen these special attributes as well.
-                // -----------------------------------------------------------
-    
-                Set<String> realIds = new HashSet<String>();
-                boolean containsAsterisk = false;
-                boolean containsPlus = false;
-                boolean containsOneDotOne = false;
-                
-                for ( String id:ids )
-                {
-                    String idTrimmed = id.trim();
-                    
-                    if ( idTrimmed.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) )
-                    {
-                        containsAsterisk = true;
-                    }
-                    else if ( idTrimmed.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
-                    {
-                        containsPlus = true;
-                    }
-                    else if ( idTrimmed.equals( SchemaConstants.NO_ATTRIBUTE ) )
-                    {
-                        containsOneDotOne = true;
-                    }
-                    else
-                    {
-                        try
-                        {
-                            realIds.add( schemaManager.getAttributeTypeRegistry().getOidByName( idTrimmed ) );
-                        }
-                        catch ( Exception e )
-                        {
-                            realIds.add( idTrimmed );
-                        }
-                    }
-                }
-    
-                // return nothing
-                if ( containsOneDotOne )
-                {
-                    ServerEntry serverEntry = new DefaultServerEntry( schemaManager, base );
-                    return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), opContext );
-                }
-                
-                // return everything
-                if ( containsAsterisk && containsPlus )
-                {
-                    ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
-                    return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( rootDSE ), opContext );
-                }
-                
-                ServerEntry serverEntry = new DefaultServerEntry( schemaManager, opContext.getDn() );
-                
-                ServerEntry rootDSE = getRootDSE( new GetRootDSEOperationContext( opContext.getSession() ) );
-                
-                for ( EntryAttribute attribute:rootDSE )
-                {
-                    AttributeType type = schemaManager.lookupAttributeTypeRegistry( attribute.getUpId() );
-                    
-                    if ( realIds.contains( type.getOid() ) )
-                    {
-                        serverEntry.put( attribute );
-                    }
-                    else if ( containsAsterisk && ( type.getUsage() == UsageEnum.USER_APPLICATIONS ) )
-                    {
-                        serverEntry.put( attribute );
-                    }
-                    else if ( containsPlus && ( type.getUsage() != UsageEnum.USER_APPLICATIONS ) )
-                    {
-                        serverEntry.put( attribute );
-                    }
-                }
-    
-                return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), opContext );
+                return searchRootDSE( opContext );
             }
             else if ( isObjectScope && ( ! isSearchAll ) )
             {
