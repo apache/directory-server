@@ -33,7 +33,10 @@ import org.apache.directory.server.i18n.I18n;
  */
 public enum ReferralHandlingMode
 {
-    THROW( "throw" ), FOLLOW( "follow" ), IGNORE( "ignore" ), THROW_FINDING_BASE( "throw-finding-base" );
+    THROW( "throw" ), 
+    FOLLOW( "follow" ), 
+    IGNORE( "ignore" ), 
+    THROW_FINDING_BASE( "throw-finding-base" );
     
     /** 
      * The JNDI Context.REFERRAL key's value.
