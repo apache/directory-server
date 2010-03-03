@@ -78,7 +78,7 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -183,7 +183,7 @@ public class ConfigPartitionReader
         LdapServer server = new LdapServer();
         server.setServiceId( getString( "ads-serverId", ldapServerEntry ) );
 
-        LdapDN transportsDN = new LdapDN( getString( "ads-transports", ldapServerEntry ) );
+        DN transportsDN = new DN( getString( "ads-transports", ldapServerEntry ) );
         transportsDN.normalize( schemaManager.getNormalizerMapping() );
         Transport[] transports = getTransports( transportsDN );
         server.setTransports( transports );
@@ -224,7 +224,7 @@ public class ConfigPartitionReader
 
         kdcServer.setServiceId( getString( "ads-serverId", kdcEntry ) );
 
-        LdapDN transportsDN = new LdapDN( getString( "ads-transports", kdcEntry ) );
+        DN transportsDN = new DN( getString( "ads-transports", kdcEntry ) );
         transportsDN.normalize( schemaManager.getNormalizerMapping() );
         Transport[] transports = getTransports( transportsDN );
         kdcServer.setTransports( transports );
@@ -366,7 +366,7 @@ public class ConfigPartitionReader
 
         dnsServer.setServiceId( getString( "ads-serverId", dnsEntry ) );
 
-        LdapDN transportsDN = new LdapDN( getString( "ads-transports", dnsEntry ) );
+        DN transportsDN = new DN( getString( "ads-transports", dnsEntry ) );
         transportsDN.normalize( schemaManager.getNormalizerMapping() );
         Transport[] transports = getTransports( transportsDN );
         dnsServer.setTransports( transports );
@@ -441,7 +441,7 @@ public class ConfigPartitionReader
 
         ntpServer.setServiceId( getString( "ads-serverId", ntpEntry ) );
 
-        LdapDN transportsDN = new LdapDN( getString( "ads-transports", ntpEntry ) );
+        DN transportsDN = new DN( getString( "ads-transports", ntpEntry ) );
         transportsDN.normalize( schemaManager.getNormalizerMapping() );
         Transport[] transports = getTransports( transportsDN );
         ntpServer.setTransports( transports );
@@ -497,7 +497,7 @@ public class ConfigPartitionReader
 
         if ( webAppsAttr != null )
         {
-            LdapDN webAppsDN = new LdapDN( webAppsAttr.getString() );
+            DN webAppsDN = new DN( webAppsAttr.getString() );
             webAppsDN.normalize( schemaManager.getNormalizerMapping() );
 
             Set<WebApp> webApps = getWebApps( webAppsDN );
@@ -544,12 +544,12 @@ public class ConfigPartitionReader
         dirService.setInstanceId( getString( "ads-directoryServiceId", dsEntry ) );
         dirService.setReplicaId( getInt( "ads-dsReplicaId", dsEntry ) );
 
-        LdapDN interceptorsDN = new LdapDN( dsEntry.get( "ads-dsInterceptors" ).getString() );
+        DN interceptorsDN = new DN( dsEntry.get( "ads-dsInterceptors" ).getString() );
         interceptorsDN.normalize( configPartition.getSchemaManager().getNormalizerMapping() );
         List<Interceptor> interceptors = getInterceptors( interceptorsDN );
         dirService.setInterceptors( interceptors );
 
-        LdapDN partitionsDN = new LdapDN( dsEntry.get( "ads-dsPartitions" ).getString() );
+        DN partitionsDN = new DN( dsEntry.get( "ads-dsPartitions" ).getString() );
         partitionsDN.normalize( configPartition.getSchemaManager().getNormalizerMapping() );
 
         Map<String, Partition> partitions = getPartitions( partitionsDN );
@@ -583,7 +583,7 @@ public class ConfigPartitionReader
 
         if ( changeLogAttr != null )
         {
-            LdapDN clDN = new LdapDN( changeLogAttr.getString() );
+            DN clDN = new DN( changeLogAttr.getString() );
             clDN.normalize( schemaManager.getNormalizerMapping() );
             ChangeLog cl = getChangeLog( clDN );
             dirService.setChangeLog( cl );
@@ -600,7 +600,7 @@ public class ConfigPartitionReader
 
         if ( journalAttr != null )
         {
-            LdapDN journalDN = new LdapDN( journalAttr.getString() );
+            DN journalDN = new DN( journalAttr.getString() );
             journalDN.normalize( schemaManager.getNormalizerMapping() );
             dirService.setJournal( getJournal( journalDN ) );
         }
@@ -660,7 +660,7 @@ public class ConfigPartitionReader
      * @return a list of instantiated Interceptor objects
      * @throws Exception
      */
-    private List<Interceptor> getInterceptors( LdapDN interceptorsDN ) throws Exception
+    private List<Interceptor> getInterceptors( DN interceptorsDN ) throws Exception
     {
         PresenceNode filter = new PresenceNode( "ads-interceptorId" );
         SearchControls controls = new SearchControls();
@@ -706,7 +706,7 @@ public class ConfigPartitionReader
     }
 
 
-    private Map<String, Partition> getPartitions( LdapDN partitionsDN ) throws Exception
+    private Map<String, Partition> getPartitions( DN partitionsDN ) throws Exception
     {
         PresenceNode filter = new PresenceNode( "ads-partitionId" );
         SearchControls controls = new SearchControls();
@@ -778,14 +778,14 @@ public class ConfigPartitionReader
 
         String indexesDN = partitionEntry.get( "ads-partitionIndexedAttributes" ).getString();
 
-        Set<Index<?, ServerEntry, Long>> indexedAttributes = getIndexes( new LdapDN( indexesDN ) );
+        Set<Index<?, ServerEntry, Long>> indexedAttributes = getIndexes( new DN( indexesDN ) );
         partition.setIndexedAttributes( indexedAttributes );
 
         return partition;
     }
 
 
-    private Set<Index<?, ServerEntry, Long>> getIndexes( LdapDN indexesDN ) throws Exception
+    private Set<Index<?, ServerEntry, Long>> getIndexes( DN indexesDN ) throws Exception
     {
         PresenceNode filter = new PresenceNode( "ads-indexAttributeId" );
         SearchControls controls = new SearchControls();
@@ -837,7 +837,7 @@ public class ConfigPartitionReader
     }
 
 
-    private Transport[] getTransports( LdapDN transportsDN ) throws Exception
+    private Transport[] getTransports( DN transportsDN ) throws Exception
     {
         PresenceNode filter = new PresenceNode( "ads-transportId" );
         SearchControls controls = new SearchControls();
@@ -918,7 +918,7 @@ public class ConfigPartitionReader
     }
 
 
-    private ChangeLog getChangeLog( LdapDN changelogDN ) throws Exception
+    private ChangeLog getChangeLog( DN changelogDN ) throws Exception
     {
         long id = configPartition.getEntryId( changelogDN.getNormName() );
         Entry clEntry = configPartition.lookup( id );
@@ -942,7 +942,7 @@ public class ConfigPartitionReader
     }
 
 
-    private Journal getJournal( LdapDN journalDN ) throws Exception
+    private Journal getJournal( DN journalDN ) throws Exception
     {
         long id = configPartition.getEntryId( journalDN.getNormName() );
         Entry jlEntry = configPartition.lookup( id );
@@ -1018,7 +1018,7 @@ public class ConfigPartitionReader
     }
 
 
-    private Set<WebApp> getWebApps( LdapDN webAppsDN ) throws Exception
+    private Set<WebApp> getWebApps( DN webAppsDN ) throws Exception
     {
         PresenceNode filter = new PresenceNode( "ads-httpWarFile" );
         SearchControls controls = new SearchControls();
