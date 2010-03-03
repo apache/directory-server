@@ -30,7 +30,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -103,7 +103,7 @@ public interface OperationContext
     /**
      * @return The associated DN
      */
-    LdapDN getDn();
+    DN getDn();
     
     
     /**
@@ -111,7 +111,7 @@ public interface OperationContext
      *
      * @param dn The DN to set
      */
-    void setDn( LdapDN dn );
+    void setDn( DN dn );
 
     
     /**
@@ -294,22 +294,22 @@ public interface OperationContext
     // -----------------------------------------------------------------------
     
     
-    LookupOperationContext newLookupContext( LdapDN dn );
+    LookupOperationContext newLookupContext( DN dn );
 
     
-    ClonedServerEntry lookup( LdapDN dn, Collection<String> byPass ) throws Exception;
+    ClonedServerEntry lookup( DN dn, Collection<String> byPass ) throws Exception;
     
     
     ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws Exception;
     
     
-    void modify( LdapDN dn, List<Modification> mods, Collection<String> byPass ) throws Exception;
+    void modify( DN dn, List<Modification> mods, Collection<String> byPass ) throws Exception;
     
     
     void add( ServerEntry entry, Collection<String> byPass ) throws Exception;
     
     
-    void delete( LdapDN dn, Collection<String> byPass ) throws Exception;
+    void delete( DN dn, Collection<String> byPass ) throws Exception;
 
 
     /**
@@ -320,7 +320,7 @@ public interface OperationContext
      * @return true if the entry exists, false if it does not
      * @throws Exception on failure to perform this operation
      */
-    boolean hasEntry( LdapDN dn, Collection<String> byPass ) throws Exception;
+    boolean hasEntry( DN dn, Collection<String> byPass ) throws Exception;
     
     
     /**

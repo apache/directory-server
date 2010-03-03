@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.PreferencesDictionary;
 
@@ -69,7 +69,7 @@ public class ServerSystemPreferences extends AbstractPreferences
     /** maps changes based on key: key->list of mods (on same key) */
     private HashMap<String, List<Modification>> keyToChange = new HashMap<String, List<Modification>>( 3 );
     
-    private LdapDN dn;
+    private DN dn;
     
     private DirectoryService directoryService;
     
@@ -86,7 +86,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         
         try
         {
-            dn = new LdapDN( "prefNodeName=sysPrefRoot,ou=system" );
+            dn = new DN( "prefNodeName=sysPrefRoot,ou=system" );
         }
         catch ( InvalidNameException e )
         {
@@ -113,10 +113,10 @@ public class ServerSystemPreferences extends AbstractPreferences
         super( parent, name );
 
         this.directoryService = parent.directoryService;
-        LdapDN parentDn = ( ( ServerSystemPreferences ) parent() ).dn;
+        DN parentDn = ( ( ServerSystemPreferences ) parent() ).dn;
         try
         {
-            dn = new LdapDN( "prefNodeName=" + name + "," + parentDn.getName() );
+            dn = new DN( "prefNodeName=" + name + "," + parentDn.getName() );
             dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
             
             if ( ! directoryService.getAdminSession().exists( dn ) )

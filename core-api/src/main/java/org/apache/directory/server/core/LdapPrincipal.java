@@ -28,7 +28,7 @@ import java.security.Principal;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -44,7 +44,7 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
     private static final long serialVersionUID = 3906650782395676720L;
 
     /** the normalized distinguished name of the principal */
-    private LdapDN name;
+    private DN name;
 
     /** the no name anonymous user whose DN is the empty String */
     public static final LdapPrincipal ANONYMOUS = new LdapPrincipal();
@@ -67,7 +67,7 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
      * @param name the normalized distinguished name of the principal
      * @param authenticationLevel the authentication level for this principal
      */
-    public LdapPrincipal( LdapDN name, AuthenticationLevel authenticationLevel )
+    public LdapPrincipal( DN name, AuthenticationLevel authenticationLevel )
     {
         this.name = name;
         
@@ -89,7 +89,7 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
      * @param authenticationLevel the authentication level for this principal
      * @param userPassword The user password
      */
-    public LdapPrincipal( LdapDN name, AuthenticationLevel authenticationLevel, byte[] userPassword )
+    public LdapPrincipal( DN name, AuthenticationLevel authenticationLevel, byte[] userPassword )
     {
         this.name = name;
         this.authenticationLevel = authenticationLevel;
@@ -104,7 +104,7 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
      */
     public LdapPrincipal()
     {
-        name = new LdapDN();
+        name = new DN();
         authenticationLevel = AuthenticationLevel.NONE;
         userPassword = null;
     }
@@ -112,13 +112,13 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
 
     /**
      * Gets a cloned copy of the normalized distinguished name of this
-     * principal as a {@link LdapDN}.
+     * principal as a {@link DN}.
      *
-     * @return the cloned distinguished name of the principal as a {@link LdapDN}
+     * @return the cloned distinguished name of the principal as a {@link DN}
      */
-    public LdapDN getClonedName()
+    public DN getClonedName()
     {
-        return ( LdapDN ) name.clone();
+        return ( DN ) name.clone();
     }
 
 
@@ -192,7 +192,7 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
     public void readExternal( ObjectInput in ) throws IOException , ClassNotFoundException
     {
         // Read the name
-        name = (LdapDN)in.readObject();
+        name = (DN)in.readObject();
         
         // read the authentication level
         int level = in.readInt();
@@ -214,7 +214,7 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
         // Write the name
         if ( name == null )
         {
-            out.writeObject( LdapDN.EMPTY_LDAPDN );
+            out.writeObject( DN.EMPTY_DN );
         }
         else
         {

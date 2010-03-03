@@ -25,7 +25,7 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.internal.InternalDeleteRequest;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -58,7 +58,7 @@ public class DeleteOperationContext extends AbstractChangeOperationContext
      *
      * @param deleteDn The entry DN to delete
      */
-    public DeleteOperationContext( CoreSession session, LdapDN deleteDn )
+    public DeleteOperationContext( CoreSession session, DN deleteDn )
     {
         super( session, deleteDn );
     }

@@ -32,13 +32,13 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 
 
 public class ModifyStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
-    private LdapDN modifiedEntryName;
+    private DN modifiedEntryName;
     private List<Modification> modifications;
     private ServerEntry oldEntry;
     
@@ -62,7 +62,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
-            return new LdapDN( modifiedEntryName.getName() );
+            return new DN( modifiedEntryName.getName() );
         }
     };
     

@@ -37,7 +37,7 @@ import org.apache.directory.server.core.replication.ReplicationConfiguration;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.csn.Csn;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -196,7 +196,7 @@ public interface DirectoryService extends ServerEntryFactory
      *
      * @return a logical session as a specific user
      */
-    CoreSession getSession( LdapDN principalDn, byte[] credentials ) throws Exception;
+    CoreSession getSession( DN principalDn, byte[] credentials ) throws Exception;
 
     
     /**
@@ -207,7 +207,7 @@ public interface DirectoryService extends ServerEntryFactory
      *
      * @return a logical session as a specific user
      */
-    CoreSession getSession( LdapDN principalDn, byte[] credentials, String saslMechanism, String saslAuthId ) 
+    CoreSession getSession( DN principalDn, byte[] credentials, String saslMechanism, String saslAuthId ) 
         throws Exception;
 
     

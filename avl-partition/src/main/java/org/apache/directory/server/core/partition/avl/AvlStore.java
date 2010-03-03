@@ -54,7 +54,7 @@ import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.AVA;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -135,10 +135,10 @@ public class AvlStore<E> implements Store<E, Long>
      * TODO we need to check out why we have so many suffix 
      * dn and string accessor/mutators on both Store and Partition
      * interfaces.  I think a lot of this comes from the fact 
-     * that we implemented LdapDN to have both the up and norm
+     * that we implemented DN to have both the up and norm
      * names.
      */
-    private LdapDN suffixDn;
+    private DN suffixDn;
 
     private String name;
 
@@ -153,7 +153,7 @@ public class AvlStore<E> implements Store<E, Long>
             throw new Exception( I18n.err( I18n.ERR_215 ) );
         }
 
-        LdapDN normName = entry.getDn();
+        DN normName = entry.getDn();
 
         Long id;
         Long parentId;
@@ -166,7 +166,7 @@ public class AvlStore<E> implements Store<E, Long>
         // entry sequences start at 1.
         //
 
-        LdapDN parentDn = null;
+        DN parentDn = null;
 
         if ( normName.getNormName().equals( suffixDn.getNormName() ) )
         {
@@ -174,7 +174,7 @@ public class AvlStore<E> implements Store<E, Long>
         }
         else
         {
-            parentDn = ( LdapDN ) normName.clone();
+            parentDn = ( DN ) normName.clone();
             parentDn.remove( parentDn.size() - 1 );
             parentId = getEntryId( parentDn.getNormName() );
         }
@@ -518,7 +518,7 @@ public class AvlStore<E> implements Store<E, Long>
     /**
      * {@inheritDoc}
      */
-    public LdapDN getSuffix()
+    public DN getSuffix()
     {
         if ( suffixDn == null )
         {
@@ -527,7 +527,7 @@ public class AvlStore<E> implements Store<E, Long>
 
         try
         {
-            return new LdapDN( suffixDn.getNormName() );
+            return new DN( suffixDn.getNormName() );
         }
         catch ( InvalidNameException e )
         {
@@ -542,7 +542,7 @@ public class AvlStore<E> implements Store<E, Long>
     /**
      * {@inheritDoc}
      */
-    public LdapDN getUpSuffix()
+    public DN getUpSuffix()
     {
         if ( suffixDn == null )
         {
@@ -551,7 +551,7 @@ public class AvlStore<E> implements Store<E, Long>
 
         try
         {
-            return new LdapDN( suffixDn.getName() );
+            return new DN( suffixDn.getName() );
         }
         catch ( InvalidNameException e )
         {
@@ -874,7 +874,7 @@ public class AvlStore<E> implements Store<E, Long>
      * which affects alias userIndices.
      * @throws NamingException if something goes wrong
      */
-    private void modifyDn( Long id, LdapDN updn, boolean isMove ) throws Exception
+    private void modifyDn( Long id, DN updn, boolean isMove ) throws Exception
     {
         String aliasTarget;
 
@@ -906,7 +906,7 @@ public class AvlStore<E> implements Store<E, Long>
 
             if ( null != aliasTarget )
             {
-                addAliasIndices( id, new LdapDN( getEntryDn( id ) ), aliasTarget );
+                addAliasIndices( id, new DN( getEntryDn( id ) ), aliasTarget );
             }
         }
 
@@ -921,11 +921,11 @@ public class AvlStore<E> implements Store<E, Long>
              * Calculate the DN for the child's new name by copying the parents
              * new name and adding the child's old upRdn to new name as its RDN
              */
-            LdapDN childUpdn = ( LdapDN ) updn.clone();
-            LdapDN oldUpdn = new LdapDN( getEntryUpdn( childId ) );
+            DN childUpdn = ( DN ) updn.clone();
+            DN oldUpdn = new DN( getEntryUpdn( childId ) );
 
             String rdn = oldUpdn.get( oldUpdn.size() - 1 );
-            LdapDN rdnDN = new LdapDN( rdn );
+            DN rdnDN = new DN( rdn );
             rdnDN.normalize( schemaManager.getNormalizerMapping() );
             childUpdn.add( rdnDN.getRdn() );
 
@@ -997,7 +997,7 @@ public class AvlStore<E> implements Store<E, Long>
         if ( modsOid.equals( SchemaConstants.ALIASED_OBJECT_NAME_AT_OID ) )
         {
             String ndnStr = ndnIdx.reverseLookup( id );
-            addAliasIndices( id, new LdapDN( ndnStr ), mods.getString() );
+            addAliasIndices( id, new DN( ndnStr ), mods.getString() );
         }
     }
 
@@ -1177,12 +1177,12 @@ public class AvlStore<E> implements Store<E, Long>
         if ( modsOid.equals( aliasAttributeOid ) && mods.size() > 0 )
         {
             String ndnStr = ndnIdx.reverseLookup( id );
-            addAliasIndices( id, new LdapDN( ndnStr ), mods.getString() );
+            addAliasIndices( id, new DN( ndnStr ), mods.getString() );
         }
     }
 
 
-    public void modify( LdapDN dn, ModificationOperation modOp, ServerEntry mods ) throws Exception
+    public void modify( DN dn, ModificationOperation modOp, ServerEntry mods ) throws Exception
     {
         if ( mods instanceof ClonedServerEntry )
         {
@@ -1220,7 +1220,7 @@ public class AvlStore<E> implements Store<E, Long>
     }
 
 
-    public void modify( LdapDN dn, List<Modification> mods ) throws Exception
+    public void modify( DN dn, List<Modification> mods ) throws Exception
     {
         Long id = getEntryId( dn.toString() );
         modify( id, mods );
@@ -1258,11 +1258,11 @@ public class AvlStore<E> implements Store<E, Long>
     }
 
 
-    public void move( LdapDN oldChildDn, LdapDN newParentDn, RDN newRdn, boolean deleteOldRdn ) throws Exception
+    public void move( DN oldChildDn, DN newParentDn, RDN newRdn, boolean deleteOldRdn ) throws Exception
     {
         Long childId = getEntryId( oldChildDn.toString() );
         rename( oldChildDn, newRdn, deleteOldRdn );
-        LdapDN newUpdn = move( oldChildDn, childId, newParentDn );
+        DN newUpdn = move( oldChildDn, childId, newParentDn );
 
         // Update the current entry
         ServerEntry entry = lookup( childId );
@@ -1271,10 +1271,10 @@ public class AvlStore<E> implements Store<E, Long>
     }
 
 
-    public void move( LdapDN oldChildDn, LdapDN newParentDn ) throws Exception
+    public void move( DN oldChildDn, DN newParentDn ) throws Exception
     {
         Long childId = getEntryId( oldChildDn.toString() );
-        LdapDN newUpdn = move( oldChildDn, childId, newParentDn );
+        DN newUpdn = move( oldChildDn, childId, newParentDn );
 
         // Update the current entry
         ServerEntry entry = lookup( childId );
@@ -1297,7 +1297,7 @@ public class AvlStore<E> implements Store<E, Long>
      * @param newParentDn the normalized dn of the new parent for the child
      * @throws NamingException if something goes wrong
      */
-    private LdapDN move( LdapDN oldChildDn, Long childId, LdapDN newParentDn ) throws Exception
+    private DN move( DN oldChildDn, Long childId, DN newParentDn ) throws Exception
     {
         // Get the child and the new parent to be entries and Ids
         Long newParentId = getEntryId( newParentDn.toString() );
@@ -1327,9 +1327,9 @@ public class AvlStore<E> implements Store<E, Long>
          * user provided RDN & the new parent's UPDN.  Basically add the child's
          * UpRdn String to the tail of the new parent's Updn Name.
          */
-        LdapDN childUpdn = new LdapDN( getEntryUpdn( childId ) );
+        DN childUpdn = new DN( getEntryUpdn( childId ) );
         String childRdn = childUpdn.get( childUpdn.size() - 1 );
-        LdapDN newUpdn = new LdapDN( getEntryUpdn( newParentId ) );
+        DN newUpdn = new DN( getEntryUpdn( newParentId ) );
         newUpdn.add( newUpdn.size(), childRdn );
 
         // Call the modifyDn operation with the new updn
@@ -1356,11 +1356,11 @@ public class AvlStore<E> implements Store<E, Long>
      * @throws Exception if there are any errors propagating the name changes
      */
     @SuppressWarnings("unchecked")
-    public void rename( LdapDN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception
+    public void rename( DN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception
     {
         Long id = getEntryId( dn.getNormName() );
         ServerEntry entry = lookup( id );
-        LdapDN updn = entry.getDn();
+        DN updn = entry.getDn();
 
         /* 
          * H A N D L E   N E W   R D N
@@ -1462,7 +1462,7 @@ public class AvlStore<E> implements Store<E, Long>
          *    entry and its descendants
          */
 
-        LdapDN newUpdn = ( LdapDN ) updn.clone(); // copy da old updn
+        DN newUpdn = ( DN ) updn.clone(); // copy da old updn
         newUpdn.remove( newUpdn.size() - 1 ); // remove old upRdn
         newUpdn.add( newRdn.getUpName() ); // add da new upRdn
 
@@ -1638,7 +1638,7 @@ public class AvlStore<E> implements Store<E, Long>
         protect( "suffixDn" );
         try
         {
-            this.suffixDn = new LdapDN( suffixDn );
+            this.suffixDn = new DN( suffixDn );
         }
         catch ( InvalidNameException e )
         {
@@ -1737,15 +1737,15 @@ public class AvlStore<E> implements Store<E, Long>
      * not allowed due to chaining or cycle formation.
      * @throws Exception if the wrappedCursor btrees cannot be altered
      */
-    private void addAliasIndices( Long aliasId, LdapDN aliasDn, String aliasTarget ) throws Exception
+    private void addAliasIndices( Long aliasId, DN aliasDn, String aliasTarget ) throws Exception
     {
-        LdapDN normalizedAliasTargetDn; // Name value of aliasedObjectName
+        DN normalizedAliasTargetDn; // Name value of aliasedObjectName
         Long targetId; // Id of the aliasedObjectName
-        LdapDN ancestorDn; // Name of an alias entry relative
+        DN ancestorDn; // Name of an alias entry relative
         Long ancestorId; // Id of an alias entry relative
 
         // Access aliasedObjectName, normalize it and generate the Name 
-        normalizedAliasTargetDn = new LdapDN( aliasTarget );
+        normalizedAliasTargetDn = new DN( aliasTarget );
         normalizedAliasTargetDn.normalize( schemaManager.getNormalizerMapping() );
 
         /*
@@ -1823,12 +1823,12 @@ public class AvlStore<E> implements Store<E, Long>
          * index.  If the target is not a sibling of the alias then we add the
          * index entry maping the parent's id to the aliased target id.
          */
-        ancestorDn = ( LdapDN ) aliasDn.clone();
+        ancestorDn = ( DN ) aliasDn.clone();
         ancestorDn.remove( aliasDn.size() - 1 );
         ancestorId = getEntryId( ancestorDn.toNormName() );
 
         // check if alias parent and aliased entry are the same
-        LdapDN normalizedAliasTargetParentDn = ( LdapDN ) normalizedAliasTargetDn.clone();
+        DN normalizedAliasTargetParentDn = ( DN ) normalizedAliasTargetDn.clone();
         normalizedAliasTargetParentDn.remove( normalizedAliasTargetDn.size() - 1 );
         if ( !aliasDn.startsWith( normalizedAliasTargetParentDn ) )
         {
@@ -1872,7 +1872,7 @@ public class AvlStore<E> implements Store<E, Long>
         String targetDn = aliasIdx.reverseLookup( aliasId );
         Long targetId = getEntryId( targetDn );
         String aliasDn = getEntryDn( aliasId );
-        LdapDN ancestorDn = ( LdapDN ) new LdapDN( aliasDn ).getPrefix( 1 );
+        DN ancestorDn = ( DN ) new DN( aliasDn ).getPrefix( 1 );
         Long ancestorId = getEntryId( ancestorDn.toString() );
 
         /*
@@ -1891,7 +1891,7 @@ public class AvlStore<E> implements Store<E, Long>
 
         while ( !ancestorDn.equals( suffixDn ) )
         {
-            ancestorDn = ( LdapDN ) ancestorDn.getPrefix( 1 );
+            ancestorDn = ( DN ) ancestorDn.getPrefix( 1 );
             ancestorId = getEntryId( ancestorDn.toString() );
 
             subAliasIdx.drop( ancestorId, targetId );
@@ -1972,7 +1972,7 @@ public class AvlStore<E> implements Store<E, Long>
      * @param movedBase the base at which the move occured - the moved node
      * @throws NamingException if system userIndices fail
      */
-    private void dropMovedAliasIndices( final LdapDN movedBase ) throws Exception
+    private void dropMovedAliasIndices( final DN movedBase ) throws Exception
     {
         //        // Find all the aliases from movedBase down
         //        IndexAssertion<Object,E> isBaseDescendant = new IndexAssertion<Object,E>()
@@ -2012,7 +2012,7 @@ public class AvlStore<E> implements Store<E, Long>
      * @param movedBase the base where the move occured
      * @throws Exception if userIndices fail
      */
-    private void dropAliasIndices( Long aliasId, LdapDN movedBase ) throws Exception
+    private void dropAliasIndices( Long aliasId, DN movedBase ) throws Exception
     {
         String targetDn = aliasIdx.reverseLookup( aliasId );
         Long targetId = getEntryId( targetDn );
@@ -2022,7 +2022,7 @@ public class AvlStore<E> implements Store<E, Long>
          * Start droping index tuples with the first ancestor right above the 
          * moved base.  This is the first ancestor effected by the move.
          */
-        LdapDN ancestorDn = ( LdapDN ) movedBase.getPrefix( 1 );
+        DN ancestorDn = ( DN ) movedBase.getPrefix( 1 );
         Long ancestorId = getEntryId( ancestorDn.toString() );
 
         /*
@@ -2046,7 +2046,7 @@ public class AvlStore<E> implements Store<E, Long>
 
         while ( !ancestorDn.equals( suffixDn ) )
         {
-            ancestorDn = ( LdapDN ) ancestorDn.getPrefix( 1 );
+            ancestorDn = ( DN ) ancestorDn.getPrefix( 1 );
             ancestorId = getEntryId( ancestorDn.toString() );
 
             subAliasIdx.drop( ancestorId, targetId );

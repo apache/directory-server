@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
@@ -87,9 +87,9 @@ public class GroupCache
     private Map<String, OidNormalizer> normalizerMap;
 
     /** the normalized dn of the administrators group */
-    private LdapDN administratorsGroupDn;
+    private DN administratorsGroupDn;
 
-    private static final Set<LdapDN> EMPTY_GROUPS = new HashSet<LdapDN>();
+    private static final Set<DN> EMPTY_GROUPS = new HashSet<DN>();
 
 
     /**
@@ -113,9 +113,9 @@ public class GroupCache
     }
 
 
-    private LdapDN parseNormalized( String name ) throws NamingException
+    private DN parseNormalized( String name ) throws NamingException
     {
-        LdapDN dn = new LdapDN( name );
+        DN dn = new DN( name );
         dn.normalize( normalizerMap );
         return dn;
     }
@@ -136,7 +136,7 @@ public class GroupCache
 
         for ( String suffix:suffixes )
         {
-            LdapDN baseDn = new LdapDN( suffix ).normalize( normalizerMap );
+            DN baseDn = new DN( suffix ).normalize( normalizerMap );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             
@@ -147,7 +147,7 @@ public class GroupCache
             while ( results.next() )
             {
                 ServerEntry result = results.get();
-                LdapDN groupDn = result.getDn().normalize( normalizerMap );
+                DN groupDn = result.getDn().normalize( normalizerMap );
                 EntryAttribute members = getMemberAttribute( result );
 
                 if ( members != null )
@@ -282,7 +282,7 @@ public class GroupCache
      * @param entry the group entry's attributes
      * @throws NamingException if there are problems accessing the attr values
      */
-    public void groupAdded( LdapDN name, ServerEntry entry ) throws NamingException
+    public void groupAdded( DN name, ServerEntry entry ) throws NamingException
     {
         EntryAttribute members = getMemberAttribute( entry );
 
@@ -309,7 +309,7 @@ public class GroupCache
      * @param name the normalized DN of the group entry
      * @param entry the attributes of entry being deleted
      */
-    public void groupDeleted( LdapDN name, ServerEntry entry ) throws NamingException
+    public void groupDeleted( DN name, ServerEntry entry ) throws NamingException
     {
         EntryAttribute members = getMemberAttribute( entry );
 
@@ -374,7 +374,7 @@ public class GroupCache
      * @param entry the group entry being modified
      * @throws NamingException if there are problems accessing attribute  values
      */
-    public void groupModified( LdapDN name, List<Modification> mods, ServerEntry entry, SchemaManager schemaManager )
+    public void groupModified( DN name, List<Modification> mods, ServerEntry entry, SchemaManager schemaManager )
         throws NamingException
     {
         EntryAttribute members = null;
@@ -429,7 +429,7 @@ public class GroupCache
      * @param mods the modifications being performed
      * @throws NamingException if there are problems accessing attribute  values
      */
-    public void groupModified( LdapDN name, ModificationOperation modOp, ServerEntry mods ) throws NamingException
+    public void groupModified( DN name, ModificationOperation modOp, ServerEntry mods ) throws NamingException
     {
         EntryAttribute members = getMemberAttribute( mods );
 
@@ -459,7 +459,7 @@ public class GroupCache
      * @param principalDn the normalized DN of the user to check if they are an admin
      * @return true if the principal is an admin or the admin
      */
-    public final boolean isPrincipalAnAdministrator( LdapDN principalDn )
+    public final boolean isPrincipalAnAdministrator( DN principalDn )
     {
         if ( principalDn.getNormName().equals( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED ) )
         {
@@ -486,9 +486,9 @@ public class GroupCache
      * @return a Set of Name objects representing the groups
      * @throws NamingException if there are problems accessing attribute  values
      */
-    public Set<LdapDN> getGroups( String member ) throws NamingException
+    public Set<DN> getGroups( String member ) throws NamingException
     {
-        LdapDN normMember;
+        DN normMember;
 
         try
         {
@@ -503,7 +503,7 @@ public class GroupCache
             return EMPTY_GROUPS;
         }
 
-        Set<LdapDN> memberGroups = null;
+        Set<DN> memberGroups = null;
 
         for ( String group : groups.keySet() )
         {
@@ -518,7 +518,7 @@ public class GroupCache
             {
                 if ( memberGroups == null )
                 {
-                    memberGroups = new HashSet<LdapDN>();
+                    memberGroups = new HashSet<DN>();
                 }
 
                 memberGroups.add( parseNormalized( group ) );
@@ -534,7 +534,7 @@ public class GroupCache
     }
 
 
-    public boolean groupRenamed( LdapDN oldName, LdapDN newName )
+    public boolean groupRenamed( DN oldName, DN newName )
     {
         Set<String> members = groups.remove( oldName.getNormName() );
 

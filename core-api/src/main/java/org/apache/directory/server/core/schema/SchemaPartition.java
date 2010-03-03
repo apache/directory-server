@@ -55,7 +55,7 @@ import org.apache.directory.shared.ldap.codec.controls.CascadeControl;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.util.DateUtils;
@@ -122,7 +122,7 @@ public final class SchemaPartition extends AbstractPartition
     private RegistrySynchronizerAdaptor synchronizer;
 
     /** A static DN for the ou=schemaModifications entry */
-    private static LdapDN schemaModificationDN;
+    private static DN schemaModificationDN;
 
 
     /**
@@ -175,7 +175,7 @@ public final class SchemaPartition extends AbstractPartition
     /**
      * Always returns {@link ServerDNConstants#OU_SCHEMA_DN_NORMALIZED}: '2.5.4.11=schema'.
      */
-    public final LdapDN getSuffixDn()
+    public final DN getSuffixDn()
     {
         return wrapped.getSuffixDn();
     }
@@ -244,7 +244,7 @@ public final class SchemaPartition extends AbstractPartition
             throw new RuntimeException( e );
         }
 
-        schemaModificationDN = new LdapDN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
+        schemaModificationDN = new DN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
         schemaModificationDN.normalize( schemaManager.getNormalizerMapping() );
     }
 

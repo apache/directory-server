@@ -25,18 +25,18 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 public class SimpleTriggerExecutionAuthorizer implements TriggerExecutionAuthorizer
 {
-    private static LdapDN adminName;
+    private static DN adminName;
     
     static
     {
         try
         {
-            adminName = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+            adminName = new DN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
         }
         catch ( InvalidNameException e )
         {
@@ -47,7 +47,7 @@ public class SimpleTriggerExecutionAuthorizer implements TriggerExecutionAuthori
     
     public boolean hasPermission( OperationContext opContext ) throws NamingException
     {
-        LdapDN principalName = opContext.getSession().getEffectivePrincipal().getClonedName();
+        DN principalName = opContext.getSession().getEffectivePrincipal().getClonedName();
         return principalName.equals( adminName );
     }
 }

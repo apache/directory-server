@@ -33,7 +33,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -48,7 +48,7 @@ public abstract class AbstractOperationContext implements OperationContext
     protected static final Control[] EMPTY_CONTROLS = new Control[0];
 
     /** The DN associated with the context */
-    protected LdapDN dn;
+    protected DN dn;
     
     /** The entry associated with the target entry of this OperationContext */
     protected ClonedServerEntry entry;
@@ -89,7 +89,7 @@ public abstract class AbstractOperationContext implements OperationContext
      *
      * @param dn The associated DN
      */
-    public AbstractOperationContext( CoreSession session, LdapDN dn )
+    public AbstractOperationContext( CoreSession session, DN dn )
     {
         this.dn = dn;
         this.session = session;
@@ -121,7 +121,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * @return The associated DN
      */
-    public LdapDN getDn()
+    public DN getDn()
     {
         return dn;
     }
@@ -132,7 +132,7 @@ public abstract class AbstractOperationContext implements OperationContext
      *
      * @param dn The DN to set
      */
-    public void setDn( LdapDN dn )
+    public void setDn( DN dn )
     {
         this.dn = dn;
     }
@@ -283,7 +283,7 @@ public abstract class AbstractOperationContext implements OperationContext
     }
     
     
-    public boolean hasEntry( LdapDN dn, Collection<String> byPassed ) throws Exception
+    public boolean hasEntry( DN dn, Collection<String> byPassed ) throws Exception
     {
         EntryOperationContext opContext = new EntryOperationContext( session, dn );
         setup( opContext );
@@ -301,7 +301,7 @@ public abstract class AbstractOperationContext implements OperationContext
     }
     
     
-    public void delete( LdapDN dn, Collection<String> byPassed ) throws Exception
+    public void delete( DN dn, Collection<String> byPassed ) throws Exception
     {
         DeleteOperationContext opContext = new DeleteOperationContext( session, dn );
         setup( opContext );
@@ -310,7 +310,7 @@ public abstract class AbstractOperationContext implements OperationContext
     }
     
     
-    public void modify( LdapDN dn, List<Modification> mods, Collection<String> byPassed ) throws Exception
+    public void modify( DN dn, List<Modification> mods, Collection<String> byPassed ) throws Exception
     {
         ModifyOperationContext opContext = new ModifyOperationContext( session, dn, mods );
         setup( opContext );
@@ -320,7 +320,7 @@ public abstract class AbstractOperationContext implements OperationContext
     
     
     // TODO - need synchronization here and where we update links
-    public LookupOperationContext newLookupContext( LdapDN dn )
+    public LookupOperationContext newLookupContext( DN dn )
     {
         LookupOperationContext opContext = new LookupOperationContext( session, dn );
         setup( opContext );
@@ -338,7 +338,7 @@ public abstract class AbstractOperationContext implements OperationContext
     }
 
 
-    public ClonedServerEntry lookup( LdapDN dn, Collection<String> byPassed ) throws Exception
+    public ClonedServerEntry lookup( DN dn, Collection<String> byPassed ) throws Exception
     {
         LookupOperationContext opContext = newLookupContext( dn );
         opContext.setByPassed( byPassed );

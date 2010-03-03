@@ -49,7 +49,7 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.AVA;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -171,7 +171,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext opContext )
         throws Exception
     {
-        LdapDN rdn = new LdapDN();
+        DN rdn = new DN();
         rdn.add( opContext.getNewRdn() );
         rdn.normalize( schemaManager.getNormalizerMapping() );
         opContext.setNewRdn( rdn.getRdn() );
@@ -275,7 +275,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public LdapDN getMatchedName ( NextInterceptor nextInterceptor, GetMatchedNameOperationContext opContext ) throws Exception
+    public DN getMatchedName ( NextInterceptor nextInterceptor, GetMatchedNameOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
         return nextInterceptor.getMatchedName( opContext );
@@ -285,7 +285,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public LdapDN getSuffix ( NextInterceptor nextInterceptor, GetSuffixOperationContext opContext ) throws Exception
+    public DN getSuffix ( NextInterceptor nextInterceptor, GetSuffixOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
         return nextInterceptor.getSuffix( opContext );
@@ -347,7 +347,7 @@ public class NormalizationInterceptor extends BaseInterceptor
      * @param dn the DN
      * @param entry the entry
      */
-    private void addRdnAttributesToEntry( LdapDN dn, ServerEntry entry ) throws Exception
+    private void addRdnAttributesToEntry( DN dn, ServerEntry entry ) throws Exception
     {
         if ( dn == null || entry == null )
         {

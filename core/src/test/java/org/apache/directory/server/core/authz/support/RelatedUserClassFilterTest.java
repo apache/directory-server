@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -55,10 +55,10 @@ public class RelatedUserClassFilterTest
 
     private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
 
-    private static LdapDN GROUP_NAME;
-    private static LdapDN USER_NAME;
-    private static final Set<LdapDN> USER_NAMES = new HashSet<LdapDN>();
-    private static final Set<LdapDN> GROUP_NAMES = new HashSet<LdapDN>();
+    private static DN GROUP_NAME;
+    private static DN USER_NAME;
+    private static final Set<DN> USER_NAMES = new HashSet<DN>();
+    private static final Set<DN> GROUP_NAMES = new HashSet<DN>();
 
     private static SubtreeEvaluator SUBTREE_EVALUATOR;
 
@@ -72,8 +72,8 @@ public class RelatedUserClassFilterTest
         
         try
         {
-            GROUP_NAME = new LdapDN( "ou=test,ou=groups,ou=system" );
-            USER_NAME = new LdapDN( "ou=test, ou=users, ou=system" );
+            GROUP_NAME = new DN( "ou=test,ou=groups,ou=system" );
+            USER_NAME = new DN( "ou=test, ou=users, ou=system" );
         }
         catch ( NamingException e )
         {
@@ -111,7 +111,7 @@ public class RelatedUserClassFilterTest
         assertEquals( 1, filter.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null,
             AuthenticationLevel.NONE, USER_NAME, null, null, null, null, null ).size() );
         assertEquals( 0, filter.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null,
-            AuthenticationLevel.NONE, new LdapDN( "ou=unrelated" ), null, null, null, null, null ).size() );
+            AuthenticationLevel.NONE, new DN( "ou=unrelated" ), null, null, null, null, null ).size() );
     }
     
     
@@ -121,9 +121,9 @@ public class RelatedUserClassFilterTest
         Collection<ACITuple> tuples = getTuples( UserClass.PARENT_OF_ENTRY );
 
         assertEquals( 1, filter.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null,
-            AuthenticationLevel.NONE, new LdapDN( "ou=phoneBook, ou=test, ou=users, ou=system" ), null, null, null, null, null ).size() );
+            AuthenticationLevel.NONE, new DN( "ou=phoneBook, ou=test, ou=users, ou=system" ), null, null, null, null, null ).size() );
         assertEquals( 0, filter.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null,
-            AuthenticationLevel.NONE, new LdapDN( "ou=unrelated" ), null, null, null, null, null ).size() );
+            AuthenticationLevel.NONE, new DN( "ou=unrelated" ), null, null, null, null, null ).size() );
     }
 
 
@@ -134,7 +134,7 @@ public class RelatedUserClassFilterTest
         assertEquals( 1, filter.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null,
             AuthenticationLevel.NONE, null, null, null, null, null, null ).size() );
         assertEquals( 0, filter.filter( null, tuples, OperationScope.ENTRY, null, null,
-            new LdapDN( "ou=unrelateduser, ou=users" ), null, AuthenticationLevel.NONE, USER_NAME, null, null, null,
+            new DN( "ou=unrelateduser, ou=users" ), null, AuthenticationLevel.NONE, USER_NAME, null, null, null,
             null, null ).size() );
     }
 
@@ -146,8 +146,8 @@ public class RelatedUserClassFilterTest
         assertEquals( 1, filter.filter( null, tuples, OperationScope.ENTRY, null, GROUP_NAMES, USER_NAME, null,
             AuthenticationLevel.NONE, null, null, null, null, null, null ).size() );
 
-        Set<LdapDN> wrongGroupNames = new HashSet<LdapDN>();
-        wrongGroupNames.add( new LdapDN( "ou=unrelatedgroup" ) );
+        Set<DN> wrongGroupNames = new HashSet<DN>();
+        wrongGroupNames.add( new DN( "ou=unrelatedgroup" ) );
 
         assertEquals( 0, filter.filter( null, tuples, OperationScope.ENTRY, null, wrongGroupNames, USER_NAME, null,
             AuthenticationLevel.NONE, USER_NAME, null, null, null, null, null ).size() );
@@ -211,11 +211,11 @@ public class RelatedUserClassFilterTest
         }
         else
         {
-            Set<LdapDN> names = new HashSet<LdapDN>();
+            Set<DN> names = new HashSet<DN>();
             
             try
             {
-                names.add( new LdapDN( "dummy=dummy" ) );
+                names.add( new DN( "dummy=dummy" ) );
             }
             catch ( NamingException e )
             {

@@ -48,7 +48,7 @@ import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifRevertor;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.slf4j.Logger;
@@ -195,7 +195,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
      */
     private ServerEntry getAttributes( OperationContext opContext ) throws Exception
     {
-        LdapDN dn = opContext.getDn();
+        DN dn = opContext.getDn();
         ClonedServerEntry serverEntry;
 
         // @todo make sure we're not putting in operational attributes that cannot be user modified

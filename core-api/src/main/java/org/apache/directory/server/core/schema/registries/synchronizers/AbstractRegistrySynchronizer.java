@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -105,7 +105,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      * @return true if the schema is loaded
      * @throws Exception If The DN is not a SchemaObject DN
      */
-    protected boolean isSchemaLoaded( LdapDN dn ) throws Exception
+    protected boolean isSchemaLoaded( DN dn ) throws Exception
     {
         return schemaManager.isSchemaLoaded( getSchemaName( dn ) );
     }
@@ -149,7 +149,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      * @return The schema name
      * @throws NamingException If we got an error
      */
-    protected String getSchemaName( LdapDN dn ) throws NamingException
+    protected String getSchemaName( DN dn ) throws NamingException
     {
         if ( dn.size() < 2 )
         {
@@ -196,7 +196,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     /**
      * Checks that the parent DN is a valid DN
      */
-    protected void checkParent( LdapDN newParent, SchemaManager schemaManager, String objectType ) throws NamingException
+    protected void checkParent( DN newParent, SchemaManager schemaManager, String objectType ) throws NamingException
     {
         if ( newParent.size() != 3 )
         {
@@ -322,14 +322,14 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         throws Exception;
     
     
-    /*public final boolean modify( LdapDN name, ModificationOperation modOp, ServerEntry mods, ServerEntry entry, ServerEntry targetEntry, 
+    /*public final boolean modify( DN name, ModificationOperation modOp, ServerEntry mods, ServerEntry entry, ServerEntry targetEntry, 
         boolean cascade ) throws Exception
     {
         return modify( name, entry, targetEntry, cascade );
     }
 
 
-    public final boolean modify( LdapDN name, List<Modification> mods, ServerEntry entry,
+    public final boolean modify( DN name, List<Modification> mods, ServerEntry entry,
         ServerEntry targetEntry, boolean cascade ) throws Exception
     {
         return modify( name, entry, targetEntry, cascade );
@@ -343,7 +343,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         
         for ( ServerEntry result : results )
         {
-            LdapDN dn = result.getDn();
+            DN dn = result.getDn();
             dn.normalize( schemaManager.getNormalizerMapping() );
             oids.add( ( String ) dn.getRdn().getNormValue() );
         }

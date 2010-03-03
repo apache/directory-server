@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifRevertor;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.util.DateUtils;
@@ -103,7 +103,7 @@ public class MemoryChangeLogStoreTest
         forward.putAttribute( "objectClass", "organizationalUnit" );
         forward.putAttribute( "ou", "system" );
 
-        LdifEntry reverse = LdifRevertor.reverseAdd( new LdapDN( forward.getDn() ) );
+        LdifEntry reverse = LdifRevertor.reverseAdd( new DN( forward.getDn() ) );
         assertEquals( 1, store.log( new LdapPrincipal(), forward, reverse ).getRevision() );
         assertEquals( 1, store.getCurrentRevision() );
     }
@@ -112,10 +112,10 @@ public class MemoryChangeLogStoreTest
     @Test
     public void testChangeLogSerialization() throws NamingException, IOException, ClassNotFoundException
     {
-        LdapDN systemDn = new LdapDN( "ou=system" );
+        DN systemDn = new DN( "ou=system" );
         systemDn.normalize( oidsMap );
         
-        LdapDN adminDn = new LdapDN( "uid=admin, ou=system" );
+        DN adminDn = new DN( "uid=admin, ou=system" );
         adminDn.normalize( oidsMap );
 
         LdifEntry forward = new LdifEntry();
@@ -124,7 +124,7 @@ public class MemoryChangeLogStoreTest
         forward.putAttribute( "objectClass", "organizationalUnit" );
         forward.putAttribute( "ou", "system" );
         
-        LdapDN reverseDn = new LdapDN( forward.getDn() );
+        DN reverseDn = new DN( forward.getDn() );
         reverseDn.normalize( oidsMap );
 
         LdifEntry reverse = LdifRevertor.reverseAdd( reverseDn );

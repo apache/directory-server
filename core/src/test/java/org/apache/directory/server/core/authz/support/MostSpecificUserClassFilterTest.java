@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.junit.Test;
 
@@ -50,7 +50,7 @@ import org.junit.Test;
  */
 public class MostSpecificUserClassFilterTest
 {
-    private static final Set<LdapDN> EMPTY_NAME_SET = Collections.unmodifiableSet( new HashSet<LdapDN>() );
+    private static final Set<DN> EMPTY_NAME_SET = Collections.unmodifiableSet( new HashSet<DN>() );
     private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
     private static final Collection<UserClass> EMPTY_USER_CLASS_COLLECTION = Collections.unmodifiableCollection( new ArrayList<UserClass>() );
     private static final Collection<SubtreeSpecification> EMPTY_SUBTREE_SPECIFICATION_COLLECTION = Collections.unmodifiableCollection( new ArrayList<SubtreeSpecification>() );

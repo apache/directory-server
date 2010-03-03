@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.LdapURL;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -132,7 +132,7 @@ public class ReferralInterceptor extends BaseInterceptor
             throw new NamingException( message );
         }
 
-        LdapDN dn = ldapUrl.getDn();
+        DN dn = ldapUrl.getDn();
 
         if ( ( dn == null ) || dn.isEmpty() )
         {
@@ -209,7 +209,7 @@ public class ReferralInterceptor extends BaseInterceptor
         directoryService.setReferralManager( referralManager );
 
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        LdapDN subschemaSubentryDn = new LdapDN( subschemaSubentry.getString() );
+        DN subschemaSubentryDn = new DN( subschemaSubentry.getString() );
         subschemaSubentryDn.normalize( schemaManager.getNormalizerMapping() );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
     }
@@ -295,9 +295,9 @@ public class ReferralInterceptor extends BaseInterceptor
      **/
     public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
     {
-        LdapDN oldName = opContext.getDn();
+        DN oldName = opContext.getDn();
 
-        LdapDN newName = ( LdapDN ) opContext.getParent().clone();
+        DN newName = ( DN ) opContext.getParent().clone();
         newName.add( oldName.get( oldName.size() - 1 ) );
 
         // Check if the entry is a referral itself
@@ -328,7 +328,7 @@ public class ReferralInterceptor extends BaseInterceptor
      **/
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws Exception
     {
-        LdapDN newName = ( LdapDN ) opContext.getParent().clone();
+        DN newName = ( DN ) opContext.getParent().clone();
         newName.add( opContext.getNewRdn() );
 
         // Check if the entry is a referral itself
@@ -382,14 +382,14 @@ public class ReferralInterceptor extends BaseInterceptor
      */
     public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
-        LdapDN name = opContext.getDn();
+        DN name = opContext.getDn();
         
         // handle a normal modify without following referrals
         next.modify( opContext );
 
         // Check if we are trying to modify the schema or the rootDSE,
         // if so, we don't modify the referralManager
-        if ( ( name == LdapDN.EMPTY_LDAPDN ) || ( subschemaSubentryDnNorm.equals( name.getNormName() ) ) )
+        if ( ( name == DN.EMPTY_DN ) || ( subschemaSubentryDnNorm.equals( name.getNormName() ) ) )
         {
             // Do nothing
             return;
@@ -432,7 +432,7 @@ public class ReferralInterceptor extends BaseInterceptor
         next.addContextPartition( opContext );
 
         Partition partition = opContext.getPartition();
-        LdapDN suffix = partition.getSuffixDn();
+        DN suffix = partition.getSuffixDn();
         
         // add referrals immediately after adding the new partition
         referralManager.init( directoryService, new String[]{ suffix.getNormName() } );
@@ -448,7 +448,7 @@ public class ReferralInterceptor extends BaseInterceptor
         throws Exception
     {
         // get the partition suffix
-        LdapDN suffix = opContext.getDn();
+        DN suffix = opContext.getDn();
 
         // remove referrals immediately before removing the partition
         referralManager.remove( directoryService, suffix );

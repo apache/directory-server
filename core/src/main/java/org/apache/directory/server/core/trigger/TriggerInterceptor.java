@@ -52,7 +52,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -115,7 +115,7 @@ public class TriggerInterceptor extends BaseInterceptor
      * @param proxy the partition nexus proxy 
      */
     private void addPrescriptiveTriggerSpecs( OperationContext opContext, List<TriggerSpecification> triggerSpecs, 
-        LdapDN dn, ServerEntry entry ) throws Exception
+        DN dn, ServerEntry entry ) throws Exception
     {
         
         /*
@@ -129,7 +129,7 @@ public class TriggerInterceptor extends BaseInterceptor
          */
         if ( entry.contains( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
-            LdapDN parentDn = ( LdapDN ) dn.clone();
+            DN parentDn = ( DN ) dn.clone();
             parentDn.remove( dn.size() - 1 );
             
             entry = opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS );
@@ -257,7 +257,7 @@ public class TriggerInterceptor extends BaseInterceptor
     
     public void add( NextInterceptor next, AddOperationContext addContext ) throws Exception
     {
-        LdapDN name = addContext.getDn();
+        DN name = addContext.getDn();
         ServerEntry entry = addContext.getEntry();
         
         // Bypass trigger handling if the service is disabled.
@@ -292,7 +292,7 @@ public class TriggerInterceptor extends BaseInterceptor
     
     public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws Exception
     {
-        LdapDN name = deleteContext.getDn();
+        DN name = deleteContext.getDn();
         
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
@@ -332,7 +332,7 @@ public class TriggerInterceptor extends BaseInterceptor
             return;
         }
         
-        LdapDN normName = opContext.getDn();
+        DN normName = opContext.getDn();
         
         // Gather supplementary data.
         ClonedServerEntry modifiedEntry = opContext.lookup( normName, ByPassConstants.LOOKUP_BYPASS );
@@ -357,7 +357,7 @@ public class TriggerInterceptor extends BaseInterceptor
 
     public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws Exception
     {
-        LdapDN name = renameContext.getDn();
+        DN name = renameContext.getDn();
         RDN newRdn = renameContext.getNewRdn();
         boolean deleteOldRn = renameContext.getDelOldDn();
         
@@ -372,12 +372,12 @@ public class TriggerInterceptor extends BaseInterceptor
         ServerEntry renamedEntry = (ServerEntry)renameContext.getEntry().getClonedEntry();
         
         // @TODO : To be completely reviewed !!!
-        LdapDN oldRDN = new LdapDN( name.getRdn().getUpName() );
-        LdapDN oldSuperiorDN = ( LdapDN ) name.clone();
+        DN oldRDN = new DN( name.getRdn().getUpName() );
+        DN oldSuperiorDN = ( DN ) name.clone();
         oldSuperiorDN.remove( oldSuperiorDN.size() - 1 );
-        LdapDN newSuperiorDN = ( LdapDN ) oldSuperiorDN.clone();
-        LdapDN oldDN = ( LdapDN ) name.clone();
-        LdapDN newDN = ( LdapDN ) name.clone();
+        DN newSuperiorDN = ( DN ) oldSuperiorDN.clone();
+        DN oldDN = ( DN ) name.clone();
+        DN newDN = ( DN ) name.clone();
         newDN.add( newRdn );
         
         StoredProcedureParameterInjector injector = new ModifyDNStoredProcedureParameterInjector(
@@ -403,8 +403,8 @@ public class TriggerInterceptor extends BaseInterceptor
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) 
         throws Exception
     {
-        LdapDN oriChildName = opContext.getDn();
-        LdapDN parent = opContext.getParent();
+        DN oriChildName = opContext.getDn();
+        DN parent = opContext.getParent();
         RDN newRdn = opContext.getNewRdn();
         boolean deleteOldRn = opContext.getDelOldDn();
 
@@ -418,12 +418,12 @@ public class TriggerInterceptor extends BaseInterceptor
         // Gather supplementary data.        
         ClonedServerEntry movedEntry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
         
-        LdapDN oldRDN = new LdapDN( oriChildName.getRdn().getUpName() );
-        LdapDN oldSuperiorDN = ( LdapDN ) oriChildName.clone();
+        DN oldRDN = new DN( oriChildName.getRdn().getUpName() );
+        DN oldSuperiorDN = ( DN ) oriChildName.clone();
         oldSuperiorDN.remove( oldSuperiorDN.size() - 1 );
-        LdapDN newSuperiorDN = ( LdapDN ) parent.clone();
-        LdapDN oldDN = ( LdapDN ) oriChildName.clone();
-        LdapDN newDN = ( LdapDN ) parent.clone();
+        DN newSuperiorDN = ( DN ) parent.clone();
+        DN oldDN = ( DN ) oriChildName.clone();
+        DN newDN = ( DN ) parent.clone();
         newDN.add( newRdn.getUpName() );
 
         StoredProcedureParameterInjector injector = new ModifyDNStoredProcedureParameterInjector(
@@ -486,19 +486,19 @@ public class TriggerInterceptor extends BaseInterceptor
             return;
         }
         
-        LdapDN oriChildName = opContext.getDn();
-        LdapDN newParentName = opContext.getParent();
+        DN oriChildName = opContext.getDn();
+        DN newParentName = opContext.getParent();
         
         // Gather supplementary data.        
         ClonedServerEntry movedEntry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
         
-        LdapDN oldRDN = new LdapDN( oriChildName.getRdn().getUpName() );
+        DN oldRDN = new DN( oriChildName.getRdn().getUpName() );
         RDN newRDN = new RDN( oriChildName.getRdn().getUpName() );
-        LdapDN oldSuperiorDN = ( LdapDN ) oriChildName.clone();
+        DN oldSuperiorDN = ( DN ) oriChildName.clone();
         oldSuperiorDN.remove( oldSuperiorDN.size() - 1 );
-        LdapDN newSuperiorDN = ( LdapDN ) newParentName.clone();
-        LdapDN oldDN = ( LdapDN ) oriChildName.clone();
-        LdapDN newDN = ( LdapDN ) newParentName.clone();
+        DN newSuperiorDN = ( DN ) newParentName.clone();
+        DN oldDN = ( DN ) oriChildName.clone();
+        DN newDN = ( DN ) newParentName.clone();
         newDN.add( newRDN.getUpName() );
 
         StoredProcedureParameterInjector injector = new ModifyDNStoredProcedureParameterInjector(

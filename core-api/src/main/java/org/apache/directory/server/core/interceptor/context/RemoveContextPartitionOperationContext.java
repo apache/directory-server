@@ -21,7 +21,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -48,7 +48,7 @@ public class RemoveContextPartitionOperationContext extends AbstractOperationCon
      * @param registries
      * @param dn The Entry DN from which the partition should be removed
      */
-    public RemoveContextPartitionOperationContext( CoreSession session, LdapDN dn )
+    public RemoveContextPartitionOperationContext( CoreSession session, DN dn )
     {
         super( session, dn );
     }

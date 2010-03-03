@@ -43,7 +43,7 @@ import org.apache.directory.server.core.interceptor.context.RemoveContextPartiti
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -71,13 +71,13 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#getMatchedName( NextInterceptor, GetMatchedNameOperationContext )}.
      */
-    LdapDN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception;
+    DN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#getSuffix( NextInterceptor, GetSuffixOperationContext )}.
      */
-    LdapDN getSuffix( GetSuffixOperationContext opContext ) throws Exception;
+    DN getSuffix( GetSuffixOperationContext opContext ) throws Exception;
 
 
     /**

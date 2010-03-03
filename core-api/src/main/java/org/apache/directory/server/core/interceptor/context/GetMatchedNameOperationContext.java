@@ -21,7 +21,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -46,7 +46,7 @@ public class GetMatchedNameOperationContext extends AbstractOperationContext
      *
      * @param dn The DN to match
      */
-    public GetMatchedNameOperationContext( CoreSession session, LdapDN dn )
+    public GetMatchedNameOperationContext( CoreSession session, DN dn )
     {
         super( session, dn );
     }

@@ -20,7 +20,7 @@
 package org.apache.directory.server.core;
 
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 /**
  * An interface for managing referrals in the server
@@ -62,7 +62,7 @@ public interface ReferralManager
      * @param dn The entry's DN we want to check
      * @return <code>true</code> if the DN is associated with a referral
      */
-    boolean isReferral( LdapDN dn );
+    boolean isReferral( DN dn );
     
     
     /**
@@ -74,7 +74,7 @@ public interface ReferralManager
      * @param dn The DN we want to check for a referral in its partents
      * @return <code>true</code> if there is a parent referral
      */
-    boolean hasParentReferral( LdapDN dn );
+    boolean hasParentReferral( DN dn );
     
     
     /**
@@ -83,7 +83,7 @@ public interface ReferralManager
      * @param dn The DN from which we want to get the parent referral
      * @return The parent referral of null if none is found
      */
-    ServerEntry getParentReferral( LdapDN dn );
+    ServerEntry getParentReferral( DN dn );
     
     
     /**
@@ -122,5 +122,5 @@ public interface ReferralManager
      * @param suffixes The partition DN to remove
      * @exception If the removal failed
      */
-    void remove( DirectoryService directoryService, LdapDN suffix ) throws Exception;
+    void remove( DirectoryService directoryService, DN suffix ) throws Exception;
 }

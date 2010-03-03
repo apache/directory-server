@@ -44,7 +44,7 @@ import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.SingletonEnumeration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +79,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
 
     private ServerEntry getTlsEntry() throws Exception
     {
-        LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
+        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
         adminDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
         LdapPrincipal principal = new LdapPrincipal( adminDn, AuthenticationLevel.SIMPLE );
         CoreSession session = directoryService.getSession( principal );

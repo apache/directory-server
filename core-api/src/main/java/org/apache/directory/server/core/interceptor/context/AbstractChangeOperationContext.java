@@ -23,7 +23,7 @@ package org.apache.directory.server.core.interceptor.context;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.changelog.ChangeLogEvent;
 import org.apache.directory.server.core.changelog.LogChange;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -46,7 +46,7 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
     }
 
     
-    public AbstractChangeOperationContext( CoreSession session, LdapDN dn )
+    public AbstractChangeOperationContext( CoreSession session, DN dn )
     {
         super( session, dn );
     }

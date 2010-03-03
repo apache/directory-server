@@ -25,7 +25,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public class MoveOperationContext extends AbstractChangeOperationContext
 {
     /** The parent DN */
-    private LdapDN parent;
+    private DN parent;
     
 
     /**
@@ -53,7 +53,7 @@ public class MoveOperationContext extends AbstractChangeOperationContext
     /**
      * Creates a new instance of MoveOperationContext.
      */
-    public MoveOperationContext( CoreSession session, LdapDN oldDn, LdapDN parent )
+    public MoveOperationContext( CoreSession session, DN oldDn, DN parent )
     {
         super( session, oldDn );
         this.parent = parent;
@@ -91,7 +91,7 @@ public class MoveOperationContext extends AbstractChangeOperationContext
     /**
      *  @return The parent DN
      */
-    public LdapDN getParent()
+    public DN getParent()
     {
         return parent;
     }
@@ -102,7 +102,7 @@ public class MoveOperationContext extends AbstractChangeOperationContext
      *
      * @param parent The parent
      */
-    public void setParent( LdapDN parent )
+    public void setParent( DN parent )
     {
         this.parent = parent;
     }

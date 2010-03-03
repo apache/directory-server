@@ -26,7 +26,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * {@link AuthenticationInterceptor} interceptor.
  * <p>
  * {@link AuthenticationInterceptor} authenticates users by calling
- * {@link #authenticate(LdapDN,ServerContext)}, and then {@link Authenticator}
+ * {@link #authenticate(DN,ServerContext)}, and then {@link Authenticator}
  * checks JNDI {@link Context} environment properties
  * ({@link Context#SECURITY_PRINCIPAL} and {@link Context#SECURITY_CREDENTIALS})
  * of current {@link Context}.
@@ -76,7 +76,7 @@ public interface Authenticator
      * 
      * @param bindDn the already normalized distinguished name of the bind principal
      */
-    void invalidateCache( LdapDN bindDn );
+    void invalidateCache( DN bindDn );
 
     
     /**

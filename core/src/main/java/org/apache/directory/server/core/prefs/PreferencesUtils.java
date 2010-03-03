@@ -24,7 +24,7 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -45,7 +45,7 @@ class PreferencesUtils
      */
     public static Name toSysDn( String absPrefPath ) throws NamingException
     {
-        LdapDN dn = new LdapDN( ServerDNConstants.SYSPREFROOT_SYSTEM_DN );
+        DN dn = new DN( ServerDNConstants.SYSPREFROOT_SYSTEM_DN );
 
         String[] comps = absPrefPath.split( "/" );
 

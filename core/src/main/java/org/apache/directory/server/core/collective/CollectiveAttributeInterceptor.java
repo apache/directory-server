@@ -45,7 +45,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
@@ -80,11 +80,11 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         public boolean accept( SearchingOperationContext operation, ClonedServerEntry result )
             throws Exception
         {
-            LdapDN name = result.getDn();
+            DN name = result.getDn();
             
             if ( name.isNormalized() == false )
             {
-                name = LdapDN.normalize( name, schemaManager.getNormalizerMapping() );
+                name = DN.normalize( name, schemaManager.getNormalizerMapping() );
             }
             
             String[] retAttrs = operation.getSearchControls().getReturningAttributes();
@@ -197,7 +197,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         for ( Value<?> value:collectiveAttributeSubentries )
         {
             String subentryDnStr = value.getString();
-            LdapDN subentryDn = new LdapDN( subentryDnStr );
+            DN subentryDn = new DN( subentryDnStr );
             
             /*
              * TODO - Instead of hitting disk here can't we leverage the 

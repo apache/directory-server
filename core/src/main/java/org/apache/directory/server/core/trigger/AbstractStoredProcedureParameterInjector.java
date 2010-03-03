@@ -32,7 +32,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter.Generic_LDAP_CONTEXT;
 
@@ -55,7 +55,7 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
     protected Name getOperationPrincipal() throws NamingException
     {
         Principal principal = opContext.getSession().getEffectivePrincipal();
-        Name userName = new LdapDN( principal.getName() );
+        Name userName = new DN( principal.getName() );
         return userName;
     }
     
@@ -110,7 +110,7 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
         public Object inject(  OperationContext opContext, StoredProcedureParameter param ) throws Exception
         {
             Generic_LDAP_CONTEXT ldapCtxParam = ( Generic_LDAP_CONTEXT ) param;
-            LdapDN ldapCtxName = ldapCtxParam.getCtxName();
+            DN ldapCtxName = ldapCtxParam.getCtxName();
             return opContext.lookup( ldapCtxName, ByPassConstants.LOOKUP_BYPASS );
         }
     };

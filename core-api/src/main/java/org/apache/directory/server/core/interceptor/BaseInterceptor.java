@@ -49,7 +49,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -137,7 +137,7 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public LdapDN getMatchedName ( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception
+    public DN getMatchedName ( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception
     {
         return next.getMatchedName( opContext );
     }
@@ -149,7 +149,7 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public LdapDN getSuffix( NextInterceptor next, GetSuffixOperationContext opContext ) throws Exception
+    public DN getSuffix( NextInterceptor next, GetSuffixOperationContext opContext ) throws Exception
     {
         return next.getSuffix( opContext );
     }

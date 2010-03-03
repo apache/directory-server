@@ -51,7 +51,7 @@ import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -103,9 +103,9 @@ public class TupleCache
     }
 
 
-    private LdapDN parseNormalized( SchemaManager schemaManager, String name ) throws NamingException
+    private DN parseNormalized( SchemaManager schemaManager, String name ) throws NamingException
     {
-        LdapDN dn = new LdapDN( name );
+        DN dn = new DN( name );
         dn.normalize( schemaManager.getNormalizerMapping() );
         return dn;
     }
@@ -120,7 +120,7 @@ public class TupleCache
 
         for ( String suffix:suffixes )
         {
-            LdapDN baseDn = parseNormalized( session.getDirectoryService().getSchemaManager(), suffix );
+            DN baseDn = parseNormalized( session.getDirectoryService().getSchemaManager(), suffix );
             ExprNode filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, 
                 new ClientStringValue( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
@@ -131,7 +131,7 @@ public class TupleCache
             while ( results.next() )
             {
                 ServerEntry result = results.get();
-                LdapDN subentryDn = result.getDn().normalize( session.getDirectoryService().getSchemaManager().
+                DN subentryDn = result.getDn().normalize( session.getDirectoryService().getSchemaManager().
                         getNormalizerMapping() );
                 EntryAttribute aci = result.get( prescriptiveAciAT );
 
@@ -175,7 +175,7 @@ public class TupleCache
     }
 
 
-    public void subentryAdded( LdapDN normName, ServerEntry entry ) throws NamingException
+    public void subentryAdded( DN normName, ServerEntry entry ) throws NamingException
     {
         // only do something if the entry contains prescriptiveACI
         EntryAttribute aciAttr = entry.get( prescriptiveAciAT );
@@ -211,7 +211,7 @@ public class TupleCache
     }
 
 
-    public void subentryDeleted( LdapDN normName, ServerEntry entry ) throws NamingException
+    public void subentryDeleted( DN normName, ServerEntry entry ) throws NamingException
     {
         if ( !hasPrescriptiveACI( entry ) )
         {
@@ -222,7 +222,7 @@ public class TupleCache
     }
 
 
-    public void subentryModified( LdapDN normName, List<Modification> mods, ServerEntry entry ) throws NamingException
+    public void subentryModified( DN normName, List<Modification> mods, ServerEntry entry ) throws NamingException
     {
         if ( !hasPrescriptiveACI( entry ) )
         {
@@ -240,7 +240,7 @@ public class TupleCache
     }
 
 
-    public void subentryModified( LdapDN normName, ServerEntry mods, ServerEntry entry ) throws NamingException
+    public void subentryModified( DN normName, ServerEntry mods, ServerEntry entry ) throws NamingException
     {
         if ( !hasPrescriptiveACI( entry ) )
         {
@@ -267,7 +267,7 @@ public class TupleCache
     }
 
 
-    public void subentryRenamed( LdapDN oldName, LdapDN newName )
+    public void subentryRenamed( DN oldName, DN newName )
     {
         tuples.put( newName.toString(), tuples.remove( oldName.toString() ) );
     }

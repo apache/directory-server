@@ -21,7 +21,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -46,7 +46,7 @@ public class GetSuffixOperationContext extends AbstractOperationContext
      *
      * @param dn The DN to get the suffix from
      */
-    public GetSuffixOperationContext( CoreSession session, LdapDN dn )
+    public GetSuffixOperationContext( CoreSession session, DN dn )
     {
         super( session, dn );
     }

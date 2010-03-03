@@ -42,7 +42,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -55,7 +55,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
 public class NullPartition extends AbstractPartition
 {
     private String id;
-    private LdapDN suffix;
+    private DN suffix;
     
 
     /**
@@ -103,7 +103,7 @@ public class NullPartition extends AbstractPartition
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#getSuffix()
      */
-    public LdapDN getSuffixDn()
+    public DN getSuffixDn()
     {
         return suffix;
     }
@@ -307,7 +307,7 @@ public class NullPartition extends AbstractPartition
      */
     public void setSuffix( String suffix ) throws InvalidNameException
     {
-        this.suffix = new LdapDN( suffix );
+        this.suffix = new DN( suffix );
     }
 
 

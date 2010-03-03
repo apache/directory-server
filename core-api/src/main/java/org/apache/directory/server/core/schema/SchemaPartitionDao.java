@@ -8,7 +8,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
@@ -59,7 +59,7 @@ public interface SchemaPartitionDao
     String findSchema( String entityName ) throws Exception;
 
 
-    LdapDN findDn( String entityName ) throws Exception;
+    DN findDn( String entityName ) throws Exception;
 
 
     /**

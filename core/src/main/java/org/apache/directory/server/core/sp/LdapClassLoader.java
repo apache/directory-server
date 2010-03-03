@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +65,7 @@ public class LdapClassLoader extends ClassLoader
     private static final Logger log = LoggerFactory.getLogger( LdapClassLoader.class );
     public static String defaultSearchContextsConfig = "cn=classLoaderDefaultSearchContext,ou=configuration,ou=system";
     
-    private LdapDN defaultSearchDn;
+    private DN defaultSearchDn;
     private DirectoryService directoryService;
 
     
@@ -73,12 +73,12 @@ public class LdapClassLoader extends ClassLoader
     {
         super( LdapClassLoader.class.getClassLoader() );
         this.directoryService = directoryService;
-        defaultSearchDn = new LdapDN( defaultSearchContextsConfig );
+        defaultSearchDn = new DN( defaultSearchContextsConfig );
         defaultSearchDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
     }
 
     
-    private byte[] findClassInDIT( List<LdapDN> searchContexts, String name ) throws ClassNotFoundException
+    private byte[] findClassInDIT( List<DN> searchContexts, String name ) throws ClassNotFoundException
     {
         // Set up the search filter
         BranchNode filter = new AndNode( );
@@ -89,7 +89,7 @@ public class LdapClassLoader extends ClassLoader
         
         try
         {
-            for ( LdapDN base : searchContexts )
+            for ( DN base : searchContexts )
             {
                 EntryFilteringCursor cursor = null;
                 try
@@ -155,12 +155,12 @@ public class LdapClassLoader extends ClassLoader
             
             if ( configEntry != null )
             {
-                List<LdapDN> searchContexts = new ArrayList<LdapDN>();
+                List<DN> searchContexts = new ArrayList<DN>();
                 EntryAttribute attr = configEntry.get( "classLoaderDefaultSearchContext" );
                 
                 for ( Value<?> val : attr )
                 {
-                    LdapDN dn = new LdapDN( val.getString() );
+                    DN dn = new DN( val.getString() );
                     dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
                     searchContexts.add( dn );
                 }
@@ -179,7 +179,7 @@ public class LdapClassLoader extends ClassLoader
             
             if ( classBytes == null )
             {
-                List<LdapDN> namingContexts = new ArrayList<LdapDN>();
+                List<DN> namingContexts = new ArrayList<DN>();
                 
                 // TODO - why is this an operation????  Why can't we just list these damn things
                 // who went stupid crazy making everything into a damn operation  !!!! grrrr 
@@ -189,7 +189,7 @@ public class LdapClassLoader extends ClassLoader
 
                 for ( String suffix:suffixes )
                 {
-                    LdapDN dn = new LdapDN( suffix );
+                    DN dn = new DN( suffix );
                     dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
                     namingContexts.add( dn );
                 }

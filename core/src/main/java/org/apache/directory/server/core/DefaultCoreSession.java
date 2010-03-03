@@ -65,7 +65,7 @@ import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest
 import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalUnbindRequest;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
@@ -229,7 +229,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public boolean compare( LdapDN dn, String oid, Object value ) throws Exception
+    public boolean compare( DN dn, String oid, Object value ) throws Exception
     {
         OperationManager operationManager = directoryService.getOperationManager();
         
@@ -242,7 +242,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public boolean compare( LdapDN dn, String oid, Object value, boolean ignoreReferral ) throws Exception
+    public boolean compare( DN dn, String oid, Object value, boolean ignoreReferral ) throws Exception
     {
         CompareOperationContext opContext =  
                 new CompareOperationContext( this, dn, oid, 
@@ -258,7 +258,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void delete( LdapDN dn ) throws Exception
+    public void delete( DN dn ) throws Exception
     {
         delete( dn, LogChange.TRUE );
     }
@@ -267,7 +267,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void delete( LdapDN dn, LogChange log ) throws Exception
+    public void delete( DN dn, LogChange log ) throws Exception
     {
         DeleteOperationContext opContext = new DeleteOperationContext( this, dn );
 
@@ -281,7 +281,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void delete( LdapDN dn, boolean ignoreReferral  ) throws Exception
+    public void delete( DN dn, boolean ignoreReferral  ) throws Exception
     {
         delete( dn, ignoreReferral, LogChange.TRUE );
     }
@@ -290,7 +290,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void delete( LdapDN dn, boolean ignoreReferral, LogChange log ) throws Exception
+    public void delete( DN dn, boolean ignoreReferral, LogChange log ) throws Exception
     {
         DeleteOperationContext opContext = new DeleteOperationContext( this, dn );
         
@@ -439,9 +439,9 @@ public class DefaultCoreSession implements CoreSession
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.CoreSession#list(org.apache.directory.shared.ldap.name.LdapDN, org.apache.directory.shared.ldap.message.AliasDerefMode, java.util.Set)
+     * @see org.apache.directory.server.core.CoreSession#list(org.apache.directory.shared.ldap.name.DN, org.apache.directory.shared.ldap.message.AliasDerefMode, java.util.Set)
      */
-    public EntryFilteringCursor list( LdapDN dn, AliasDerefMode aliasDerefMode,
+    public EntryFilteringCursor list( DN dn, AliasDerefMode aliasDerefMode,
         Set<AttributeTypeOptions> returningAttributes ) throws Exception
     {
         OperationManager operationManager = directoryService.getOperationManager();
@@ -451,9 +451,9 @@ public class DefaultCoreSession implements CoreSession
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.CoreSession#list(org.apache.directory.shared.ldap.name.LdapDN, org.apache.directory.shared.ldap.message.AliasDerefMode, java.util.Set, int, int)
+     * @see org.apache.directory.server.core.CoreSession#list(org.apache.directory.shared.ldap.name.DN, org.apache.directory.shared.ldap.message.AliasDerefMode, java.util.Set, int, int)
      */
-    public EntryFilteringCursor list( LdapDN dn, AliasDerefMode aliasDerefMode,
+    public EntryFilteringCursor list( DN dn, AliasDerefMode aliasDerefMode,
         Set<AttributeTypeOptions> returningAttributes, int sizeLimit, int timeLimit ) throws Exception
     {
         ListOperationContext opContext = new ListOperationContext( this, dn, aliasDerefMode, returningAttributes );
@@ -467,7 +467,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public ClonedServerEntry lookup( LdapDN dn ) throws Exception
+    public ClonedServerEntry lookup( DN dn ) throws Exception
     {
         OperationManager operationManager = directoryService.getOperationManager();
         return operationManager.lookup( new LookupOperationContext( this, dn ) );
@@ -477,7 +477,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public ClonedServerEntry lookup( LdapDN dn, String[] attrId ) throws Exception
+    public ClonedServerEntry lookup( DN dn, String[] attrId ) throws Exception
     {
         OperationManager operationManager = directoryService.getOperationManager();
         return operationManager.lookup( 
@@ -488,7 +488,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void modify( LdapDN dn, List<Modification> mods ) throws Exception
+    public void modify( DN dn, List<Modification> mods ) throws Exception
     {
         modify( dn, mods, LogChange.TRUE );
     }
@@ -497,7 +497,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void modify( LdapDN dn, List<Modification> mods, LogChange log ) throws Exception
+    public void modify( DN dn, List<Modification> mods, LogChange log ) throws Exception
     {
         if ( mods == null )
         {
@@ -523,7 +523,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void modify( LdapDN dn, List<Modification> mods, boolean ignoreReferral ) throws Exception
+    public void modify( DN dn, List<Modification> mods, boolean ignoreReferral ) throws Exception
     {
         modify( dn, mods, ignoreReferral, LogChange.TRUE );
     }
@@ -532,7 +532,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void modify( LdapDN dn, List<Modification> mods, boolean ignoreReferral, LogChange log ) throws Exception
+    public void modify( DN dn, List<Modification> mods, boolean ignoreReferral, LogChange log ) throws Exception
     {
         if ( mods == null )
         {
@@ -559,7 +559,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void move( LdapDN dn, LdapDN newParent ) throws Exception
+    public void move( DN dn, DN newParent ) throws Exception
     {
         move( dn, newParent, LogChange.TRUE );
     }
@@ -568,7 +568,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void move( LdapDN dn, LdapDN newParent, LogChange log ) throws Exception
+    public void move( DN dn, DN newParent, LogChange log ) throws Exception
     {
         MoveOperationContext opContext = new MoveOperationContext( this, dn, newParent );
         
@@ -582,7 +582,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void move( LdapDN dn, LdapDN newParent, boolean ignoreReferral ) throws Exception
+    public void move( DN dn, DN newParent, boolean ignoreReferral ) throws Exception
     {
         move( dn, newParent, ignoreReferral, LogChange.TRUE );
     }
@@ -591,7 +591,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void move( LdapDN dn, LdapDN newParent, boolean ignoreReferral, LogChange log ) throws Exception
+    public void move( DN dn, DN newParent, boolean ignoreReferral, LogChange log ) throws Exception
     {
         OperationManager operationManager = directoryService.getOperationManager();
         MoveOperationContext opContext = new MoveOperationContext( this, dn, newParent );
@@ -606,7 +606,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void moveAndRename( LdapDN dn, LdapDN newParent, RDN newRdn, boolean deleteOldRdn ) throws Exception
+    public void moveAndRename( DN dn, DN newParent, RDN newRdn, boolean deleteOldRdn ) throws Exception
     {
         moveAndRename( dn, newParent, newRdn, deleteOldRdn, LogChange.TRUE );
     }
@@ -615,7 +615,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void moveAndRename( LdapDN dn, LdapDN newParent, RDN newRdn, boolean deleteOldRdn, LogChange log ) throws Exception
+    public void moveAndRename( DN dn, DN newParent, RDN newRdn, boolean deleteOldRdn, LogChange log ) throws Exception
     {
         MoveAndRenameOperationContext opContext = 
             new MoveAndRenameOperationContext( this, dn, newParent, newRdn, deleteOldRdn );
@@ -630,7 +630,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void moveAndRename( LdapDN dn, LdapDN newParent, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral ) throws Exception
+    public void moveAndRename( DN dn, DN newParent, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral ) throws Exception
     {
         moveAndRename( dn, newParent, newRdn, deleteOldRdn, ignoreReferral, LogChange.TRUE );
     }
@@ -639,7 +639,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void moveAndRename( LdapDN dn, LdapDN newParent, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log ) throws Exception
+    public void moveAndRename( DN dn, DN newParent, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log ) throws Exception
     {
         OperationManager operationManager = directoryService.getOperationManager();
         MoveAndRenameOperationContext opContext = new MoveAndRenameOperationContext( this, dn, newParent, newRdn, deleteOldRdn );
@@ -654,7 +654,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void rename( LdapDN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception
+    public void rename( DN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception
     {
         rename( dn, newRdn, deleteOldRdn, LogChange.TRUE );
     }
@@ -663,7 +663,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void rename( LdapDN dn, RDN newRdn, boolean deleteOldRdn, LogChange log ) throws Exception
+    public void rename( DN dn, RDN newRdn, boolean deleteOldRdn, LogChange log ) throws Exception
     {
         RenameOperationContext opContext = new RenameOperationContext( this, dn, newRdn, deleteOldRdn );
         
@@ -678,7 +678,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void rename( LdapDN dn, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral ) throws Exception
+    public void rename( DN dn, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral ) throws Exception
     {
         rename( dn, newRdn, deleteOldRdn, ignoreReferral, LogChange.TRUE );
     }
@@ -687,7 +687,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void rename( LdapDN dn, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log ) throws Exception
+    public void rename( DN dn, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log ) throws Exception
     {
         OperationManager operationManager = directoryService.getOperationManager();
         RenameOperationContext opContext = new RenameOperationContext( this, dn, newRdn, deleteOldRdn );
@@ -702,7 +702,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor search( LdapDN dn, String filter ) throws Exception
+    public EntryFilteringCursor search( DN dn, String filter ) throws Exception
     {
         return search( dn, filter, true );
     }
@@ -711,7 +711,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor search( LdapDN dn, String filter, boolean ignoreReferrals ) throws Exception
+    public EntryFilteringCursor search( DN dn, String filter, boolean ignoreReferrals ) throws Exception
     {
         OperationManager operationManager = directoryService.getOperationManager();
         ExprNode filterNode = FilterParser.parse( filter ); 
@@ -731,9 +731,9 @@ public class DefaultCoreSession implements CoreSession
     
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.CoreSession#search(org.apache.directory.shared.ldap.name.LdapDN, org.apache.directory.shared.ldap.filter.SearchScope, org.apache.directory.shared.ldap.filter.ExprNode, org.apache.directory.shared.ldap.message.AliasDerefMode, java.util.Set)
+     * @see org.apache.directory.server.core.CoreSession#search(org.apache.directory.shared.ldap.name.DN, org.apache.directory.shared.ldap.filter.SearchScope, org.apache.directory.shared.ldap.filter.ExprNode, org.apache.directory.shared.ldap.message.AliasDerefMode, java.util.Set)
      */
-    public EntryFilteringCursor search( LdapDN dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
+    public EntryFilteringCursor search( DN dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
         Set<AttributeTypeOptions> returningAttributes ) throws Exception
     {
         OperationManager operationManager = directoryService.getOperationManager();
@@ -743,9 +743,9 @@ public class DefaultCoreSession implements CoreSession
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.CoreSession#search(org.apache.directory.shared.ldap.name.LdapDN, org.apache.directory.shared.ldap.filter.SearchScope, org.apache.directory.shared.ldap.filter.ExprNode, org.apache.directory.shared.ldap.message.AliasDerefMode, java.util.Set, int, int)
+     * @see org.apache.directory.server.core.CoreSession#search(org.apache.directory.shared.ldap.name.DN, org.apache.directory.shared.ldap.filter.SearchScope, org.apache.directory.shared.ldap.filter.ExprNode, org.apache.directory.shared.ldap.message.AliasDerefMode, java.util.Set, int, int)
      */
-    public EntryFilteringCursor search( LdapDN dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
+    public EntryFilteringCursor search( DN dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
         Set<AttributeTypeOptions> returningAttributes, int sizeLimit, int timeLimit ) throws Exception
     {
         SearchOperationContext opContext = new SearchOperationContext( this, dn, scope, filter, 
@@ -800,7 +800,7 @@ public class DefaultCoreSession implements CoreSession
     }
 
 
-    public boolean exists( LdapDN dn ) throws Exception
+    public boolean exists( DN dn ) throws Exception
     {
         EntryOperationContext opContext = new EntryOperationContext( this, dn );
         OperationManager operationManager = directoryService.getOperationManager();

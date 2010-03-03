@@ -22,7 +22,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -47,7 +47,7 @@ public class EntryOperationContext extends AbstractOperationContext
      *
      * @param entryDn The Entry DN to unbind
      */
-    public EntryOperationContext( CoreSession session, LdapDN entryDn )
+    public EntryOperationContext( CoreSession session, DN entryDn )
     {
         super( session, entryDn );
     }

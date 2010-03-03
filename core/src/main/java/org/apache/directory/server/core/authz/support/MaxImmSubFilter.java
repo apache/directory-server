@@ -48,7 +48,7 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -79,11 +79,11 @@ public class MaxImmSubFilter implements ACITupleFilter
             Collection<ACITuple> tuples, 
             OperationScope scope, 
             OperationContext opContext,
-            Collection<LdapDN> userGroupNames, 
-            LdapDN userName, 
+            Collection<DN> userGroupNames, 
+            DN userName, 
             ServerEntry userEntry, 
             AuthenticationLevel authenticationLevel,
-            LdapDN entryName, 
+            DN entryName, 
             String attrId, 
             Value<?> attrValue, 
             ServerEntry entry, 
@@ -154,7 +154,7 @@ public class MaxImmSubFilter implements ACITupleFilter
     }
 
 
-    private int getImmSubCount( SchemaManager schemaManager, OperationContext opContext, LdapDN entryName ) throws Exception
+    private int getImmSubCount( SchemaManager schemaManager, OperationContext opContext, DN entryName ) throws Exception
     {
         int cnt = 0;
         EntryFilteringCursor results = null;
@@ -162,7 +162,7 @@ public class MaxImmSubFilter implements ACITupleFilter
         try
         {
             SearchOperationContext searchContext = new SearchOperationContext( opContext.getSession(), 
-                ( LdapDN ) entryName.getPrefix( 1 ), AliasDerefMode.DEREF_ALWAYS, 
+                ( DN ) entryName.getPrefix( 1 ), AliasDerefMode.DEREF_ALWAYS, 
                 childrenFilter, childrenSearchControls );
             searchContext.setByPassed( SEARCH_BYPASS );
             results = opContext.getSession().getDirectoryService().getOperationManager().search( searchContext );

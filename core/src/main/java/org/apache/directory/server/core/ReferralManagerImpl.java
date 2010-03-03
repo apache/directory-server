@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.tree.DnBranchNode;
 
 
@@ -154,7 +154,7 @@ public class ReferralManagerImpl implements ReferralManager
         for ( String suffix:suffixes )
         {
             // We will store each entry's DN into the Referral tree
-            LdapDN suffixDn = new LdapDN( suffix );
+            DN suffixDn = new DN( suffix );
             suffixDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
             EntryFilteringCursor cursor = nexus.search( new SearchOperationContext( adminSession, suffixDn, AliasDerefMode.DEREF_ALWAYS,
                 referralFilter, searchControl ) );
@@ -182,7 +182,7 @@ public class ReferralManagerImpl implements ReferralManager
     /**
      * {@inheritDoc}
      */
-    public void remove( DirectoryService directoryService, LdapDN suffix ) throws Exception
+    public void remove( DirectoryService directoryService, DN suffix ) throws Exception
     {
         ExprNode referralFilter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, 
             new ClientStringValue( SchemaConstants.REFERRAL_OC ) );
@@ -215,7 +215,7 @@ public class ReferralManagerImpl implements ReferralManager
     /**
      * {@inheritDoc}
      */
-    public boolean hasParentReferral( LdapDN dn )
+    public boolean hasParentReferral( DN dn )
     {
         return referrals.hasParentElement( dn );
     }
@@ -224,7 +224,7 @@ public class ReferralManagerImpl implements ReferralManager
     /**
      * {@inheritDoc}
      */
-    public ServerEntry getParentReferral( LdapDN dn )
+    public ServerEntry getParentReferral( DN dn )
     {
         if ( !hasParentReferral( dn ) )
         {
@@ -238,7 +238,7 @@ public class ReferralManagerImpl implements ReferralManager
     /**
      * {@inheritDoc}
      */
-    public boolean isReferral( LdapDN dn )
+    public boolean isReferral( DN dn )
     {
         ServerEntry parent = referrals.getParentElement( dn );
         

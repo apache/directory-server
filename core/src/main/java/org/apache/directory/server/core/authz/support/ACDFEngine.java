@@ -48,7 +48,7 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 
@@ -129,10 +129,10 @@ public class ACDFEngine
     public void checkPermission( 
         SchemaManager schemaManager, 
         OperationContext opContext, 
-        Collection<LdapDN> userGroupNames, 
-        LdapDN username,
+        Collection<DN> userGroupNames, 
+        DN username,
         AuthenticationLevel authenticationLevel, 
-        LdapDN entryName, 
+        DN entryName, 
         String attrId, 
         Value<?> attrValue, 
         Collection<MicroOperation> microOperations, 
@@ -187,10 +187,10 @@ public class ACDFEngine
     public boolean hasPermission( 
         SchemaManager schemaManager, 
         OperationContext opContext, 
-        Collection<LdapDN> userGroupNames, 
-        LdapDN userName,
+        Collection<DN> userGroupNames, 
+        DN userName,
         AuthenticationLevel authenticationLevel, 
-        LdapDN entryName, 
+        DN entryName, 
         String attrId, 
         Value<?> attrValue, 
         Collection<MicroOperation> microOperations, 

@@ -11,7 +11,7 @@ import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationC
 import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -70,7 +70,7 @@ public interface PartitionNexus extends Partition
      * @return the partition containing the entry represented by the dn
      * @throws Exception if there is no partition for the dn
      */
-    public Partition getPartition( LdapDN dn ) throws Exception;
+    public Partition getPartition( DN dn ) throws Exception;
 
 
     /**
@@ -83,7 +83,7 @@ public interface PartitionNexus extends Partition
      * the empty string distinguished name if no match was found.
      * @throws Exception if there are any problems
      */
-    public LdapDN getMatchedName( GetMatchedNameOperationContext matchedNameContext ) throws Exception;
+    public DN getMatchedName( GetMatchedNameOperationContext matchedNameContext ) throws Exception;
 
 
     /**
@@ -97,7 +97,7 @@ public interface PartitionNexus extends Partition
      * naming context was found for dn.
      * @throws Exception if there are any problems
      */
-    public LdapDN getSuffix( GetSuffixOperationContext getSuffixContext ) throws Exception;
+    public DN getSuffix( GetSuffixOperationContext getSuffixContext ) throws Exception;
 
 
     /**

@@ -55,7 +55,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
@@ -81,17 +81,17 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     /**
      * the base distinguished {@link Name} for all users
      */
-    private static LdapDN USER_BASE_DN;
+    private static DN USER_BASE_DN;
 
     /**
      * the base distinguished {@link Name} for all groups
      */
-    private static LdapDN GROUP_BASE_DN;
+    private static DN GROUP_BASE_DN;
 
     /**
      * the distinguished {@link Name} for the administrator group
      */
-    private static LdapDN ADMIN_GROUP_DN;
+    private static DN ADMIN_GROUP_DN;
 
     private Set<String> administrators = new HashSet<String>(2);
     
@@ -115,13 +115,13 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         nexus = directoryService.getPartitionNexus();
         SchemaManager schemaManager = directoryService.getSchemaManager();
 
-        USER_BASE_DN = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
+        USER_BASE_DN = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
         USER_BASE_DN.normalize( schemaManager.getNormalizerMapping() );
         
-        GROUP_BASE_DN = new LdapDN( ServerDNConstants.GROUPS_SYSTEM_DN );
+        GROUP_BASE_DN = new DN( ServerDNConstants.GROUPS_SYSTEM_DN );
         GROUP_BASE_DN.normalize( schemaManager.getNormalizerMapping() );
      
-        ADMIN_GROUP_DN = new LdapDN( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
+        ADMIN_GROUP_DN = new DN( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
         ADMIN_GROUP_DN.normalize( schemaManager.getNormalizerMapping() );
 
         uniqueMemberAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.UNIQUE_MEMBER_AT_OID );
@@ -134,7 +134,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     {
         // read in the administrators and cache their normalized names
         Set<String> newAdministrators = new HashSet<String>( 2 );
-        LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
         adminDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
         CoreSession adminSession = new DefaultCoreSession( 
             new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
@@ -150,7 +150,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         
         for ( Value<?> value:uniqueMember )
         {
-            LdapDN memberDn = new LdapDN( value.getString() );
+            DN memberDn = new DN( value.getString() );
             memberDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
             newAdministrators.add( memberDn.getNormName() );
         }
@@ -165,7 +165,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
     public void delete( NextInterceptor nextInterceptor, DeleteOperationContext opContext ) throws Exception
     {
-        LdapDN name = opContext.getDn();
+        DN name = opContext.getDn();
         
         if ( opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
@@ -173,7 +173,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             return;
         }
 
-        LdapDN principalDn = getPrincipal().getClonedName();
+        DN principalDn = getPrincipal().getClonedName();
 
         if ( name.isEmpty() )
         {
@@ -220,13 +220,13 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
     
-    private boolean isTheAdministrator( LdapDN normalizedDn )
+    private boolean isTheAdministrator( DN normalizedDn )
     {
         return normalizedDn.getNormName().equals( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
     }
     
     
-    private boolean isAnAdministrator( LdapDN normalizedDn )
+    private boolean isAnAdministrator( DN normalizedDn )
     {
         return isTheAdministrator( normalizedDn ) || administrators.contains( normalizedDn.getNormName() );
 
@@ -248,7 +248,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     {
         if ( !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
-            LdapDN dn = opContext.getDn();
+            DN dn = opContext.getDn();
             
             protectModifyAlterations( dn );
             nextInterceptor.modify( opContext );
@@ -266,9 +266,9 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private void protectModifyAlterations( LdapDN dn ) throws Exception
+    private void protectModifyAlterations( DN dn ) throws Exception
     {
-        LdapDN principalDn = getPrincipal().getClonedName();
+        DN principalDn = getPrincipal().getClonedName();
 
         if ( dn.isEmpty() )
         {
@@ -355,9 +355,9 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private void protectDnAlterations( LdapDN dn ) throws Exception
+    private void protectDnAlterations( DN dn ) throws Exception
     {
-        LdapDN principalDn = getPrincipal().getClonedName();
+        DN principalDn = getPrincipal().getClonedName();
 
         if ( dn.isEmpty() )
         {
@@ -410,7 +410,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private void protectLookUp( LdapDN principalDn, LdapDN normalizedDn ) throws Exception
+    private void protectLookUp( DN principalDn, DN normalizedDn ) throws Exception
     {
         if ( !isAnAdministrator( principalDn ) )
         {
@@ -500,8 +500,8 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
     private boolean isSearchable( OperationContext opContext, ClonedServerEntry result ) throws Exception
     {
-        LdapDN principalDn = opContext.getSession().getEffectivePrincipal().getClonedName();
-        LdapDN dn = result.getDn();
+        DN principalDn = opContext.getSession().getEffectivePrincipal().getClonedName();
+        DN dn = result.getDn();
         
         if ( !dn.isNormalized() )
         {

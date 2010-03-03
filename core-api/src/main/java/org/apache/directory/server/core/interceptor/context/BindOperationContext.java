@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -62,7 +62,7 @@ public class BindOperationContext implements OperationContext
     private static final Control[] EMPTY_CONTROLS = new Control[0];
 
     /** The DN associated with the context */
-    private LdapDN dn;
+    private DN dn;
     
     /** The associated request's controls */
     private Map<String, Control> requestControls = new HashMap<String, Control>(4);
@@ -242,7 +242,7 @@ public class BindOperationContext implements OperationContext
     /**
      * @return The associated DN
      */
-    public LdapDN getDn()
+    public DN getDn()
     {
         return dn;
     }
@@ -253,7 +253,7 @@ public class BindOperationContext implements OperationContext
      *
      * @param dn The DN to set
      */
-    public void setDn( LdapDN dn )
+    public void setDn( DN dn )
     {
         this.dn = dn;
     }
@@ -383,7 +383,7 @@ public class BindOperationContext implements OperationContext
     }
     
     
-    public LookupOperationContext newLookupContext( LdapDN dn )
+    public LookupOperationContext newLookupContext( DN dn )
     {
         return new LookupOperationContext( session, dn );
     }
@@ -395,7 +395,7 @@ public class BindOperationContext implements OperationContext
     }
 
 
-    public ClonedServerEntry lookup( LdapDN dn, Collection<String> byPassed ) throws Exception
+    public ClonedServerEntry lookup( DN dn, Collection<String> byPassed ) throws Exception
     {
         LookupOperationContext opContext = newLookupContext( dn );
         opContext.setByPassed( byPassed );
@@ -465,13 +465,13 @@ public class BindOperationContext implements OperationContext
     }
 
 
-    public void delete( LdapDN dn, Collection<String> bypass ) throws Exception
+    public void delete( DN dn, Collection<String> bypass ) throws Exception
     {
         throw new NotImplementedException();
     }
 
 
-    public void modify( LdapDN dn, List<Modification> mods, Collection<String> bypass ) throws Exception
+    public void modify( DN dn, List<Modification> mods, Collection<String> bypass ) throws Exception
     {
         throw new NotImplementedException();
     }
@@ -486,7 +486,7 @@ public class BindOperationContext implements OperationContext
     }
     
     
-    public boolean hasEntry( LdapDN dn, Collection<String> byPassed ) throws Exception
+    public boolean hasEntry( DN dn, Collection<String> byPassed ) throws Exception
     {
         EntryOperationContext opContext = new EntryOperationContext( session, dn );
         setup( opContext );

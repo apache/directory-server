@@ -41,7 +41,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -62,13 +62,13 @@ public interface OperationManager
     /**
      * TODO document after determining if this method should be here.
      */
-    LdapDN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception;
+    DN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception;
 
 
     /**
      * TODO document after determining if this method should be here.
      */
-    LdapDN getSuffix ( GetSuffixOperationContext opContext ) throws Exception;
+    DN getSuffix ( GetSuffixOperationContext opContext ) throws Exception;
 
 
     /**

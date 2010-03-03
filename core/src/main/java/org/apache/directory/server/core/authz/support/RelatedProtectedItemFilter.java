@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
@@ -75,11 +75,11 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
             Collection<ACITuple> tuples, 
             OperationScope scope, 
             OperationContext opContext,
-            Collection<LdapDN> userGroupNames, 
-            LdapDN userName, 
+            Collection<DN> userGroupNames, 
+            DN userName, 
             ServerEntry userEntry,
             AuthenticationLevel authenticationLevel, 
-            LdapDN entryName, 
+            DN entryName, 
             String attrId,
             Value<?> attrValue, 
             ServerEntry entry, 
@@ -106,7 +106,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
     }
 
 
-    private boolean isRelated( ACITuple tuple, OperationScope scope, LdapDN userName, LdapDN entryName, String attrId,
+    private boolean isRelated( ACITuple tuple, OperationScope scope, DN userName, DN entryName, String attrId,
                                Value<?> attrValue, ServerEntry entry ) throws NamingException, InternalError
     {
         String oid = null;

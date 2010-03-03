@@ -22,7 +22,7 @@ package org.apache.directory.server.core.schema.registries.synchronizers;
 
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 
 
@@ -84,8 +84,8 @@ public interface RegistrySynchronizer
     boolean modify( ModifyOperationContext opContext, ServerEntry targetEntry, boolean cascaded )
         throws Exception;
     
-    void moveAndRename( LdapDN oriChildName, LdapDN newParentName, RDN newRn, boolean deleteOldRn, ServerEntry entry,
+    void moveAndRename( DN oriChildName, DN newParentName, RDN newRn, boolean deleteOldRn, ServerEntry entry,
         boolean cascaded ) throws Exception;
     
-    void move( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascaded ) throws Exception;
+    void move( DN oriChildName, DN newParentName, ServerEntry entry, boolean cascaded ) throws Exception;
 }

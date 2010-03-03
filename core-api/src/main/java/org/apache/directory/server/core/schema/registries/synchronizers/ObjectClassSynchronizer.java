@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -70,7 +70,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     public boolean modify( ModifyOperationContext opContext, ServerEntry targetEntry, boolean cascade )
         throws Exception
     {
-        LdapDN name = opContext.getDn();
+        DN name = opContext.getDn();
         ServerEntry entry = opContext.getEntry();
         String oid = getOid( entry );
         ObjectClass oc = factory.getObjectClass( schemaManager, targetEntry, schemaManager.getRegistries(),
@@ -94,8 +94,8 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
      */
     public void add( ServerEntry entry ) throws Exception
     {
-        LdapDN dn = entry.getDn();
-        LdapDN parentDn = ( LdapDN ) dn.clone();
+        DN dn = entry.getDn();
+        DN parentDn = ( DN ) dn.clone();
         parentDn.remove( parentDn.size() - 1 );
 
         // The parent DN must be ou=objectclasses,cn=<schemaName>,ou=schema
@@ -143,8 +143,8 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
      */
     public void delete( ServerEntry entry, boolean cascade ) throws Exception
     {
-        LdapDN dn = entry.getDn();
-        LdapDN parentDn = ( LdapDN ) dn.clone();
+        DN dn = entry.getDn();
+        DN parentDn = ( DN ) dn.clone();
         parentDn.remove( parentDn.size() - 1 );
 
         // The parent DN must be ou=objectclasses,cn=<schemaName>,ou=schema
@@ -215,7 +215,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
 
         // Inject the new DN
-        LdapDN newDn = new LdapDN( targetEntry.getDn() );
+        DN newDn = new DN( targetEntry.getDn() );
         newDn.remove( newDn.size() - 1 );
         newDn.add( newRdn );
 
@@ -243,7 +243,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, RDN newRdn, boolean deleteOldRn,
+    public void moveAndRename( DN oriChildName, DN newParentName, RDN newRdn, boolean deleteOldRn,
         ServerEntry entry, boolean cascade ) throws Exception
     {
         checkNewParent( newParentName );
@@ -289,7 +289,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) throws Exception
+    public void move( DN oriChildName, DN newParentName, ServerEntry entry, boolean cascade ) throws Exception
     {
         checkNewParent( newParentName );
         String oldSchemaName = getSchemaName( oriChildName );
@@ -329,7 +329,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    private void checkNewParent( LdapDN newParent ) throws NamingException
+    private void checkNewParent( DN newParent ) throws NamingException
     {
         if ( newParent.size() != 3 )
         {

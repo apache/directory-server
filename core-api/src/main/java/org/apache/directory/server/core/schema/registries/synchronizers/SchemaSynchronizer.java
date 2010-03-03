@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -104,7 +104,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     private final AttributeType modifyTimestampAT;
     
     /** A static DN referencing ou=schema */
-    private final LdapDN ouSchemaDN;
+    private final DN ouSchemaDN;
 
     /**
      * Creates and initializes a new instance of Schema synchronizer
@@ -125,7 +125,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         modifiersNameAT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.MODIFIERS_NAME_AT );
         modifyTimestampAT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.MODIFY_TIMESTAMP_AT );
         
-        ouSchemaDN = new LdapDN( SchemaConstants.OU_SCHEMA );
+        ouSchemaDN = new DN( SchemaConstants.OU_SCHEMA );
         ouSchemaDN.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
     }
 
@@ -168,7 +168,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     }
 
 
-    public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, RDN newRn, boolean deleteOldRn, ServerEntry entry, boolean cascaded ) throws NamingException
+    public void moveAndRename( DN oriChildName, DN newParentName, RDN newRn, boolean deleteOldRn, ServerEntry entry, boolean cascaded ) throws NamingException
     {
 
     }
@@ -182,8 +182,8 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      */
     public void add( ServerEntry entry ) throws Exception
     {
-        LdapDN dn = entry.getDn();
-        LdapDN parentDn = ( LdapDN ) dn.clone();
+        DN dn = entry.getDn();
+        DN parentDn = ( DN ) dn.clone();
         parentDn.remove( parentDn.size() - 1 );
         parentDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
 
@@ -366,7 +366,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * Moves are not allowed for metaSchema objects so this always throws an
      * UNWILLING_TO_PERFORM LdapException.
      */
-    public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, 
+    public void moveAndRename( DN oriChildName, DN newParentName, String newRn, boolean deleteOldRn, 
         ServerEntry entry, boolean cascade ) throws NamingException
     {
         throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_383 ),
@@ -378,7 +378,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * Moves are not allowed for metaSchema objects so this always throws an
      * UNWILLING_TO_PERFORM LdapException.
      */
-    public void move( LdapDN oriChildName, LdapDN newParentName, 
+    public void move( DN oriChildName, DN newParentName, 
         ServerEntry entry, boolean cascade ) throws NamingException
     {
         throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_383 ),
@@ -416,7 +416,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     private boolean modifyDisable( ModifyOperationContext opContext, ModificationOperation modOp, 
         EntryAttribute disabledInMods, EntryAttribute disabledInEntry ) throws Exception
     {
-        LdapDN name = opContext.getDn();
+        DN name = opContext.getDn();
         
         switch ( modOp )
         {
@@ -497,7 +497,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     }
 
 
-    private String getSchemaName( LdapDN schema )
+    private String getSchemaName( DN schema )
     {
         return ( String ) schema.getRdn().getNormValue();
     }
@@ -506,10 +506,10 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     /**
      * Build the DN to access a schemaObject path for a specific schema 
      */
-    private LdapDN buildDn( SchemaObjectType schemaObjectType, String schemaName ) throws NamingException
+    private DN buildDn( SchemaObjectType schemaObjectType, String schemaName ) throws NamingException
     {
         
-        LdapDN path = new LdapDN( 
+        DN path = new DN( 
             SchemaConstants.OU_SCHEMA,
             "cn=" + schemaName,
             schemaObjectType.getRdn()
@@ -549,7 +549,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         modifications.add( modifyTimestampMod );
         
         // Call the modify operation
-        LdapDN dn = buildDn( schemaObject.getObjectType(), schemaObject.getName() );
+        DN dn = buildDn( schemaObject.getObjectType(), schemaObject.getName() );
         
         ModifyOperationContext modifyContext = new ModifyOperationContext( session, dn, modifications );
         modifyContext.setByPassed( ByPassConstants.BYPASS_ALL_COLLECTION );

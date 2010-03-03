@@ -61,7 +61,7 @@ import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.LdapURL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +91,7 @@ public class DefaultOperationManager implements OperationManager
     }
     
     
-    private LdapReferralException buildReferralException( ServerEntry parentEntry, LdapDN childDn ) 
+    private LdapReferralException buildReferralException( ServerEntry parentEntry, DN childDn ) 
         throws NamingException, LdapURLEncodingException
     {
         // Get the Ref attributeType
@@ -110,7 +110,7 @@ public class DefaultOperationManager implements OperationManager
             // So we have to take the RDN one by one, and create a 
             // new DN with the type and value UP form
             
-            LdapDN urlDn = (LdapDN)ldapUrl.getDn().addAll( childDn );
+            DN urlDn = (DN)ldapUrl.getDn().addAll( childDn );
             
             ldapUrl.setDn( urlDn );
             urls.add( ldapUrl.toString() );
@@ -127,7 +127,7 @@ public class DefaultOperationManager implements OperationManager
     
     
     private LdapReferralException buildReferralExceptionForSearch( 
-        ServerEntry parentEntry, LdapDN childDn, SearchScope scope ) 
+        ServerEntry parentEntry, DN childDn, SearchScope scope ) 
         throws NamingException, LdapURLEncodingException
     {
         // Get the Ref attributeType
@@ -145,7 +145,7 @@ public class DefaultOperationManager implements OperationManager
                 
                 StringBuilder urlString = new StringBuilder();
     
-                if ( ( ldapUrl.getDn() == null ) || ( ldapUrl.getDn() == LdapDN.EMPTY_LDAPDN) )
+                if ( ( ldapUrl.getDn() == null ) || ( ldapUrl.getDn() == DN.EMPTY_DN) )
                 {
                     ldapUrl.setDn( parentEntry.getDn() );
                 }
@@ -156,7 +156,7 @@ public class DefaultOperationManager implements OperationManager
                     // So we have to take the RDN one by one, and create a 
                     // new DN with the type and value UP form
                     
-                    LdapDN urlDn = (LdapDN)ldapUrl.getDn().addAll( childDn );
+                    DN urlDn = (DN)ldapUrl.getDn().addAll( childDn );
                     
                     ldapUrl.setDn( urlDn );
                 }
@@ -197,12 +197,12 @@ public class DefaultOperationManager implements OperationManager
     }
 
 
-    private PartialResultException buildPartialResultException( LdapDN childDn )
+    private PartialResultException buildPartialResultException( DN childDn )
     {
         PartialResultException pre = new PartialResultException( I18n.err( I18n.ERR_315 ) );
         
         pre.setRemainingName( childDn );
-        pre.setResolvedName( LdapDN.EMPTY_LDAPDN );
+        pre.setResolvedName( DN.EMPTY_DN );
         
         return pre;
     }
@@ -222,7 +222,7 @@ public class DefaultOperationManager implements OperationManager
         try
         {
             // Normalize the opContext DN
-            LdapDN dn = opContext.getDn();
+            DN dn = opContext.getDn();
             dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // We have to deal with the referral first
@@ -231,7 +231,7 @@ public class DefaultOperationManager implements OperationManager
             if ( directoryService.getReferralManager().hasParentReferral( dn ) )
             {
                 ServerEntry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
-                LdapDN childDn = (LdapDN)dn.getSuffix( parentEntry.getDn().size() );
+                DN childDn = (DN)dn.getSuffix( parentEntry.getDn().size() );
 
                 // Depending on the Context.REFERRAL property value, we will throw
                 // a different exception.
@@ -307,7 +307,7 @@ public class DefaultOperationManager implements OperationManager
         try
         {
             // Normalize the opContext DN
-            LdapDN dn = opContext.getDn();
+            DN dn = opContext.getDn();
             dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // We have to deal with the referral first
@@ -319,7 +319,7 @@ public class DefaultOperationManager implements OperationManager
             if ( parentEntry != null )
             {
                 // We have found a parent referral for the current DN 
-                LdapDN childDn = (LdapDN)dn.getSuffix( parentEntry.getDn().size() );
+                DN childDn = (DN)dn.getSuffix( parentEntry.getDn().size() );
     
                 if ( directoryService.getReferralManager().isReferral( dn ) )
                 {
@@ -387,7 +387,7 @@ public class DefaultOperationManager implements OperationManager
         try
         {
             // Normalize the opContext DN
-            LdapDN dn = opContext.getDn();
+            DN dn = opContext.getDn();
             dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // We have to deal with the referral first
@@ -398,7 +398,7 @@ public class DefaultOperationManager implements OperationManager
             if ( parentEntry != null )
             {
                 // We have found a parent referral for the current DN 
-                LdapDN childDn = (LdapDN)dn.getSuffix( parentEntry.getDn().size() );
+                DN childDn = (DN)dn.getSuffix( parentEntry.getDn().size() );
     
                 if ( directoryService.getReferralManager().isReferral( dn ) )
                 {
@@ -458,7 +458,7 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public LdapDN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception
+    public DN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception
     {
         LOG.debug( ">> GetMatchedNameOperation : {}", opContext );
         
@@ -505,7 +505,7 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public LdapDN getSuffix( GetSuffixOperationContext opContext ) throws Exception
+    public DN getSuffix( GetSuffixOperationContext opContext ) throws Exception
     {
         LOG.debug( ">> GetSuffixOperation : {}", opContext );
         
@@ -632,7 +632,7 @@ public class DefaultOperationManager implements OperationManager
         try
         {
             // Normalize the opContext DN
-            LdapDN dn = opContext.getDn();
+            DN dn = opContext.getDn();
             dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // We have to deal with the referral first
@@ -644,7 +644,7 @@ public class DefaultOperationManager implements OperationManager
             if ( parentEntry != null )
             {
                 // We have found a parent referral for the current DN 
-                LdapDN childDn = (LdapDN)dn.getSuffix( parentEntry.getDn().size() );
+                DN childDn = (DN)dn.getSuffix( parentEntry.getDn().size() );
     
                 if ( directoryService.getReferralManager().isReferral( dn ) )
                 {
@@ -715,7 +715,7 @@ public class DefaultOperationManager implements OperationManager
         try
         {
             // Normalize the opContext DN
-            LdapDN dn = opContext.getDn();
+            DN dn = opContext.getDn();
             dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // We have to deal with the referral first
@@ -727,7 +727,7 @@ public class DefaultOperationManager implements OperationManager
             if ( parentEntry != null )
             {
                 // We have found a parent referral for the current DN 
-                LdapDN childDn = (LdapDN)dn.getSuffix( parentEntry.getDn().size() );
+                DN childDn = (DN)dn.getSuffix( parentEntry.getDn().size() );
     
                 if ( directoryService.getReferralManager().isReferral( dn ) )
                 {
@@ -769,7 +769,7 @@ public class DefaultOperationManager implements OperationManager
             
             // Now, check the destination
             // Normalize the opContext DN
-            LdapDN parentDn = opContext.getParent();
+            DN parentDn = opContext.getParent();
             parentDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // If he parent DN is a referral, or has a referral ancestor, we have to issue a AffectMultipleDsas result
@@ -817,7 +817,7 @@ public class DefaultOperationManager implements OperationManager
         try
         {
             // Normalize the opContext DN
-            LdapDN dn = opContext.getDn();
+            DN dn = opContext.getDn();
             dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // We have to deal with the referral first
@@ -829,7 +829,7 @@ public class DefaultOperationManager implements OperationManager
             if ( parentEntry != null )
             {
                 // We have found a parent referral for the current DN 
-                LdapDN childDn = (LdapDN)dn.getSuffix( parentEntry.getDn().size() );
+                DN childDn = (DN)dn.getSuffix( parentEntry.getDn().size() );
     
                 if ( directoryService.getReferralManager().isReferral( dn ) )
                 {
@@ -871,7 +871,7 @@ public class DefaultOperationManager implements OperationManager
             
             // Now, check the destination
             // Normalize the opContext DN
-            LdapDN parentDn = opContext.getParent();
+            DN parentDn = opContext.getParent();
             parentDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // If he parent DN is a referral, or has a referral ancestor, we have to issue a AffectMultipleDsas result
@@ -921,14 +921,14 @@ public class DefaultOperationManager implements OperationManager
         try
         {
             // Normalize the opContext DN
-            LdapDN dn = opContext.getDn();
+            DN dn = opContext.getDn();
             dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // Inject the newDn into the operation context
             // Inject the new DN into the context
             if ( !dn.isEmpty() )
             {
-                LdapDN newDn = (LdapDN)dn.clone();
+                DN newDn = (DN)dn.clone();
                 newDn.remove( dn.size() - 1 );
                 newDn.add( opContext.getNewRdn() );
                 opContext.setNewDn( newDn );
@@ -943,7 +943,7 @@ public class DefaultOperationManager implements OperationManager
             if ( parentEntry != null )
             {
                 // We have found a parent referral for the current DN 
-                LdapDN childDn = (LdapDN)dn.getSuffix( parentEntry.getDn().size() );
+                DN childDn = (DN)dn.getSuffix( parentEntry.getDn().size() );
     
                 if ( directoryService.getReferralManager().isReferral( dn ) )
                 {
@@ -1013,7 +1013,7 @@ public class DefaultOperationManager implements OperationManager
         try
         {
             // Normalize the opContext DN
-            LdapDN dn = opContext.getDn();
+            DN dn = opContext.getDn();
             dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // We have to deal with the referral first
@@ -1025,7 +1025,7 @@ public class DefaultOperationManager implements OperationManager
             if ( parentEntry != null )
             {
                 // We have found a parent referral for the current DN 
-                LdapDN childDn = (LdapDN)dn.getSuffix( parentEntry.getDn().size() );
+                DN childDn = (DN)dn.getSuffix( parentEntry.getDn().size() );
     
                 if ( directoryService.getReferralManager().isReferral( dn ) )
                 {

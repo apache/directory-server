@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 
@@ -48,7 +48,7 @@ import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
  */
 public class RelatedUserClassFilter implements ACITupleFilter
 {
-    private static final LdapDN ROOTDSE_NAME = LdapDN.EMPTY_LDAPDN;
+    private static final DN ROOTDSE_NAME = DN.EMPTY_DN;
 
     private final SubtreeEvaluator subtreeEvaluator;
 
@@ -64,11 +64,11 @@ public class RelatedUserClassFilter implements ACITupleFilter
             Collection<ACITuple> tuples, 
             OperationScope scope, 
             OperationContext opContext,
-            Collection<LdapDN> userGroupNames, 
-            LdapDN userName, 
+            Collection<DN> userGroupNames, 
+            DN userName, 
             ServerEntry userEntry, 
             AuthenticationLevel authenticationLevel,
-            LdapDN entryName, 
+            DN entryName, 
             String attrId, 
             Value<?> attrValue, 
             ServerEntry entry, 
@@ -116,8 +116,8 @@ public class RelatedUserClassFilter implements ACITupleFilter
     }
 
 
-    private boolean isRelated( Collection<LdapDN> userGroupNames, LdapDN userName, ServerEntry userEntry, 
-        LdapDN entryName, Collection<UserClass> userClasses ) throws NamingException
+    private boolean isRelated( Collection<DN> userGroupNames, DN userName, ServerEntry userEntry, 
+        DN entryName, Collection<UserClass> userClasses ) throws NamingException
     {
         for ( UserClass userClass : userClasses )
         {
@@ -151,7 +151,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
             {
                 UserClass.UserGroup userGroupUserClass = ( UserClass.UserGroup ) userClass;
                 
-                for ( LdapDN userGroupName : userGroupNames )
+                for ( DN userGroupName : userGroupNames )
                 {
                     if ( userGroupName != null && userGroupUserClass.getNames().contains( userGroupName ) )
                     {
@@ -177,7 +177,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
     }
 
 
-    private boolean matchUserClassSubtree( LdapDN userName, ServerEntry userEntry, UserClass.Subtree subtree )
+    private boolean matchUserClassSubtree( DN userName, ServerEntry userEntry, UserClass.Subtree subtree )
         throws NamingException
     {
         for ( SubtreeSpecification subtreeSpec : subtree.getSubtreeSpecifications() )

@@ -57,7 +57,7 @@ import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,15 +109,15 @@ public class InterceptorChain
         }
 
 
-        public LdapDN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception
+        public DN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception
         {
-            return ( LdapDN ) nexus.getMatchedName( opContext ).clone();
+            return ( DN ) nexus.getMatchedName( opContext ).clone();
         }
 
 
-        public LdapDN getSuffix( NextInterceptor next, GetSuffixOperationContext opContext ) throws Exception
+        public DN getSuffix( NextInterceptor next, GetSuffixOperationContext opContext ) throws Exception
         {
-            return ( LdapDN ) nexus.getSuffix( opContext ).clone();
+            return ( DN ) nexus.getSuffix( opContext ).clone();
         }
 
 
@@ -562,7 +562,7 @@ public class InterceptorChain
     }
 
 
-    public LdapDN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception
+    public DN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -584,7 +584,7 @@ public class InterceptorChain
     }
 
 
-    public LdapDN getSuffix( GetSuffixOperationContext opContext ) throws Exception
+    public DN getSuffix( GetSuffixOperationContext opContext ) throws Exception
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -1104,7 +1104,7 @@ public class InterceptorChain
                 }
 
 
-                public LdapDN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception
+                public DN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1125,7 +1125,7 @@ public class InterceptorChain
                 }
 
 
-                public LdapDN getSuffix( GetSuffixOperationContext opContext ) throws Exception
+                public DN getSuffix( GetSuffixOperationContext opContext ) throws Exception
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.interceptor;

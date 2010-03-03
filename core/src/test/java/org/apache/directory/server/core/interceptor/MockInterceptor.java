@@ -42,7 +42,7 @@ import org.apache.directory.server.core.interceptor.context.RemoveContextPartiti
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 import javax.naming.NamingException;
 import java.util.Set;
@@ -90,14 +90,14 @@ public class MockInterceptor implements Interceptor
     }
 
 
-    public LdapDN getMatchedName ( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception
+    public DN getMatchedName ( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception
     {
         test.interceptors.add( this );
         return next.getMatchedName( opContext );
     }
 
 
-    public LdapDN getSuffix ( NextInterceptor next, GetSuffixOperationContext opContext ) throws Exception
+    public DN getSuffix ( NextInterceptor next, GetSuffixOperationContext opContext ) throws Exception
     {
         test.interceptors.add( this );
         return next.getSuffix( opContext );

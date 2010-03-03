@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
@@ -61,7 +61,7 @@ public class CollectiveAttributesSchemaChecker
         this.schemaManager = schemaManager;
     }
     
-    /* package scope*/ void checkAdd( LdapDN normName, ServerEntry entry ) throws Exception
+    /* package scope*/ void checkAdd( DN normName, ServerEntry entry ) throws Exception
     {
         if ( entry.hasObjectClass( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
         {
@@ -78,7 +78,7 @@ public class CollectiveAttributesSchemaChecker
     }
     
     
-    public void checkModify( OperationContext opContext, LdapDN normName, List<Modification> mods ) throws Exception
+    public void checkModify( OperationContext opContext, DN normName, List<Modification> mods ) throws Exception
     {
         ServerEntry originalEntry = opContext.lookup( normName, ByPassConstants.LOOKUP_BYPASS );
         ServerEntry targetEntry = (ServerEntry)SchemaUtils.getTargetEntry( mods, originalEntry );

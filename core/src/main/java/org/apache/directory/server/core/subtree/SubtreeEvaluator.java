@@ -28,7 +28,7 @@ import javax.naming.NamingException;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.event.Evaluator;
 import org.apache.directory.server.core.event.ExpressionEvaluator;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
@@ -75,7 +75,7 @@ public class SubtreeEvaluator
         throws NamingException
     {
         // TODO: Try to make this cast unnecessary.
-        LdapDN entryLdapDn = (LdapDN) entryDn;
+        DN dnEntryDn = (DN) entryDn;
         
         /* =====================================================================
          * NOTE: Regarding the overall approach, we try to narrow down the
@@ -101,7 +101,7 @@ public class SubtreeEvaluator
         }
         else if ( apDn.equals( entryDn ) )
         {
-            apRelativeRdn = new LdapDN();
+            apRelativeRdn = new DN();
         }
         else
         {
@@ -122,7 +122,7 @@ public class SubtreeEvaluator
         }
         else if ( apRelativeRdn.equals( subtree.getBase() ) )
         {
-            baseRelativeRdn = new LdapDN();
+            baseRelativeRdn = new DN();
         }
         else if ( !NamespaceTools.isDescendant( subtree.getBase(), apRelativeRdn ) )
         {
@@ -195,7 +195,7 @@ public class SubtreeEvaluator
          */
         if ( subtree.getRefinement() != null )
         {
-            return evaluator.evaluate( subtree.getRefinement(), entryLdapDn.toNormName(), entry );
+            return evaluator.evaluate( subtree.getRefinement(), dnEntryDn.toNormName(), entry );
         }
 
         /*

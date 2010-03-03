@@ -26,7 +26,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -57,8 +57,8 @@ public class ScopeEvaluator implements Evaluator
             case ONELEVEL:
                 if ( dn.endsWith( snode.getBaseDn() ) )
                 {
-                    LdapDN candidateDn = new LdapDN( dn );
-                    LdapDN scopeDn = new LdapDN( snode.getBaseDn() );
+                    DN candidateDn = new DN( dn );
+                    DN scopeDn = new DN( snode.getBaseDn() );
                     return ( scopeDn.size() + 1 ) == candidateDn.size();
                 }
             

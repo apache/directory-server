@@ -58,7 +58,7 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.AVA;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -114,7 +114,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
     private DirectoryService service;
 
-    private LdapDN subschemaSubentryDn;
+    private DN subschemaSubentryDn;
     
     /** The schemaManager */
     private SchemaManager schemaManager;
@@ -140,7 +140,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = service.getPartitionNexus()
                 .getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        subschemaSubentryDn = new LdapDN( subschemaSubentry.getString() );
+        subschemaSubentryDn = new DN( subschemaSubentry.getString() );
         subschemaSubentryDn.normalize( schemaManager.getNormalizerMapping() );
         
         CREATE_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATE_TIMESTAMP_AT );
@@ -337,7 +337,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     {
         nextInterceptor.rename( opContext );
 
-        LdapDN newDn = opContext.getNewDn();
+        DN newDn = opContext.getNewDn();
         
         // add operational attributes after call in case the operation fails
         ServerEntry serverEntry = new DefaultServerEntry( schemaManager, newDn );
@@ -475,7 +475,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
     private void filter( LookupOperationContext lookupContext, ServerEntry entry ) throws Exception
     {
-        LdapDN dn = lookupContext.getDn();
+        DN dn = lookupContext.getDn();
         List<String> ids = lookupContext.getAttrsId();
         
         // still need to protect against returning op attrs when ids is null
@@ -514,7 +514,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             if ( attr != null )
             {
-                LdapDN creatorsName = new LdapDN( attr.getString() );
+                DN creatorsName = new DN( attr.getString() );
                 
                 attr.clear();
                 attr.add( denormalizeTypes( creatorsName ).getName() );
@@ -524,7 +524,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             
             if ( attr != null )
             {
-                LdapDN modifiersName = new LdapDN( attr.getString() );
+                DN modifiersName = new DN( attr.getString() );
 
                 attr.clear();
                 attr.add( denormalizeTypes( modifiersName ).getName() );
@@ -534,7 +534,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             
             if ( attr != null )
             {
-                LdapDN modifiersName = new LdapDN( attr.getString() );
+                DN modifiersName = new DN( attr.getString() );
 
                 attr.clear();
                 attr.add( denormalizeTypes( modifiersName ).getName() );
@@ -551,9 +551,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      * @return the distinuished name denormalized
      * @throws Exception if there are problems denormalizing
      */
-    public LdapDN denormalizeTypes( LdapDN dn ) throws Exception
+    public DN denormalizeTypes( DN dn ) throws Exception
     {
-        LdapDN newDn = new LdapDN();
+        DN newDn = new DN();
         
         for ( int ii = 0; ii < dn.size(); ii++ )
         {

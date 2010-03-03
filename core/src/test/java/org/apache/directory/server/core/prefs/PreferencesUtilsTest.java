@@ -24,7 +24,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.prefs.PreferencesUtils;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -53,7 +53,7 @@ public class PreferencesUtilsTest
         
         String test = "/org/apache/kerberos/";
 
-        LdapDN dn = ( LdapDN ) PreferencesUtils.toSysDn( test );
+        DN dn = ( DN ) PreferencesUtils.toSysDn( test );
 
         assertEquals( expectedDN, dn.getName() );
 
@@ -61,7 +61,7 @@ public class PreferencesUtilsTest
 
         test = "/org/apache/kerberos";
 
-        dn = ( LdapDN ) PreferencesUtils.toSysDn( test );
+        dn = ( DN ) PreferencesUtils.toSysDn( test );
 
         assertEquals( expectedDN, dn.getName() );
 
@@ -69,7 +69,7 @@ public class PreferencesUtilsTest
 
         test = "/";
 
-        dn = ( LdapDN ) PreferencesUtils.toSysDn( test );
+        dn = ( DN ) PreferencesUtils.toSysDn( test );
 
         assertEquals( ServerDNConstants.SYSPREFROOT_SYSTEM_DN, dn.getName() );
 
@@ -77,7 +77,7 @@ public class PreferencesUtilsTest
 
         test = "//////";
 
-        dn = ( LdapDN ) PreferencesUtils.toSysDn( test );
+        dn = ( DN ) PreferencesUtils.toSysDn( test );
 
         assertEquals( ServerDNConstants.SYSPREFROOT_SYSTEM_DN, dn.getName() );
 

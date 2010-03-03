@@ -26,7 +26,7 @@ import java.util.List;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -65,7 +65,7 @@ public class LookupOperationContext extends AbstractOperationContext
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public LookupOperationContext( CoreSession session, LdapDN dn )
+    public LookupOperationContext( CoreSession session, DN dn )
     {
         super( session, dn );
     }
@@ -88,7 +88,7 @@ public class LookupOperationContext extends AbstractOperationContext
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public LookupOperationContext( CoreSession session, LdapDN dn, String attrsId[] )
+    public LookupOperationContext( CoreSession session, DN dn, String attrsId[] )
     {
         super( session, dn );
         setAttrsId( attrsId );

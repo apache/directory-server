@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.loader.ldif.JarLdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
@@ -89,7 +89,7 @@ public class RestrictedByFilterTest
             fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
 
-        LdapDN entryName = new LdapDN( "ou=test, ou=system" );
+        DN entryName = new DN( "ou=test, ou=system" );
         PROTECTED_ITEMS.add( new ProtectedItem.MaxImmSub( 2 ) );
         ENTRY = new DefaultServerEntry( schemaManager, entryName );
 

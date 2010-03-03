@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
@@ -77,7 +77,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     public boolean modify( ModifyOperationContext opContext, ServerEntry targetEntry, boolean cascade )
         throws Exception
     {
-        LdapDN name = opContext.getDn();
+        DN name = opContext.getDn();
         ServerEntry entry = opContext.getEntry();
         String oid = getOid( entry );
         LdapSyntax syntax = factory.getSyntax( schemaManager, targetEntry, schemaManager.getRegistries(),
@@ -101,8 +101,8 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
      */
     public void add( ServerEntry entry ) throws Exception
     {
-        LdapDN dn = entry.getDn();
-        LdapDN parentDn = ( LdapDN ) dn.clone();
+        DN dn = entry.getDn();
+        DN parentDn = ( DN ) dn.clone();
         parentDn.remove( parentDn.size() - 1 );
 
         // The parent DN must be ou=syntaxes,cn=<schemaName>,ou=schema
@@ -201,8 +201,8 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
      */
     public void delete( ServerEntry entry, boolean cascade ) throws Exception
     {
-        LdapDN dn = entry.getDn();
-        LdapDN parentDn = ( LdapDN ) dn.clone();
+        DN dn = entry.getDn();
+        DN parentDn = ( DN ) dn.clone();
         parentDn.remove( parentDn.size() - 1 );
 
         // The parent DN must be ou=syntaxes,cn=<schemaName>,ou=schema
@@ -290,7 +290,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, RDN newRn, boolean deleteOldRn,
+    public void moveAndRename( DN oriChildName, DN newParentName, RDN newRn, boolean deleteOldRn,
         ServerEntry entry, boolean cascade ) throws Exception
     {
         checkNewParent( newParentName );
@@ -336,7 +336,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) throws Exception
+    public void move( DN oriChildName, DN newParentName, ServerEntry entry, boolean cascade ) throws Exception
     {
         checkNewParent( newParentName );
         String oid = getOid( entry );
@@ -379,7 +379,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    private void checkNewParent( LdapDN newParent ) throws NamingException
+    private void checkNewParent( DN newParent ) throws NamingException
     {
         if ( newParent.size() != 3 )
         {

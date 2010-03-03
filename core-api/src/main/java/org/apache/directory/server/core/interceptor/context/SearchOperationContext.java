@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 
 
@@ -96,7 +96,7 @@ public class SearchOperationContext extends SearchingOperationContext
      * @param filter the filter AST to use for the search
      * @param searchControls the search controls
      */
-    public SearchOperationContext( CoreSession session, LdapDN dn, AliasDerefMode aliasDerefMode, ExprNode filter,
+    public SearchOperationContext( CoreSession session, DN dn, AliasDerefMode aliasDerefMode, ExprNode filter,
                                    SearchControls searchControls ) throws Exception
     {
         super( session, dn, aliasDerefMode, searchControls );
@@ -114,7 +114,7 @@ public class SearchOperationContext extends SearchingOperationContext
      * @param aliasDerefMode the alias dereferencing mode
      * @param returningAttributes the attributes to return
      */
-    public SearchOperationContext( CoreSession session, LdapDN dn, SearchScope scope,
+    public SearchOperationContext( CoreSession session, DN dn, SearchScope scope,
         ExprNode filter, AliasDerefMode aliasDerefMode, Set<AttributeTypeOptions> returningAttributes )
     {
         super( session, dn, aliasDerefMode, returningAttributes );

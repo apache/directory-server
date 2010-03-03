@@ -28,17 +28,17 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 
 
 public class DeleteStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
-    private LdapDN deletedEntryName;
+    private DN deletedEntryName;
     private ServerEntry deletedEntry;
 
     
-    public DeleteStoredProcedureParameterInjector( OperationContext opContext, LdapDN deletedEntryName ) 
+    public DeleteStoredProcedureParameterInjector( OperationContext opContext, DN deletedEntryName ) 
         throws Exception
     {
         super( opContext );
@@ -54,7 +54,7 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws Exception
         {
             // Return a safe copy constructed with user provided name.
-            return new LdapDN( deletedEntryName.getName() );
+            return new DN( deletedEntryName.getName() );
         }
     };
     

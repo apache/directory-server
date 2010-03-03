@@ -22,7 +22,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -39,7 +39,7 @@ public abstract class EmptyOperationContext extends AbstractOperationContext
      */
     public EmptyOperationContext( CoreSession session )
     {
-        super( session, LdapDN.EMPTY_LDAPDN );
+        super( session, DN.EMPTY_DN );
     }
     
 
@@ -48,9 +48,9 @@ public abstract class EmptyOperationContext extends AbstractOperationContext
      *
      * @param dn The DN to set
      */
-    public void setDn( LdapDN dn )
+    public void setDn( DN dn )
     {
-        if ( dn.equals( LdapDN.EMPTY_LDAPDN ) )
+        if ( dn.equals( DN.EMPTY_DN ) )
         {
             return;
         }

@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.loader.ldif.JarLdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
@@ -97,7 +97,7 @@ public class MaxValueCountFilterTest
     @Before 
     public void setup() throws NamingException
     {
-        LdapDN entryName = new LdapDN( "ou=test, ou=system" );
+        DN entryName = new DN( "ou=test, ou=system" );
         ENTRY = new DefaultServerEntry( schemaManager, entryName );
         FULL_ENTRY = new DefaultServerEntry( schemaManager, entryName );
         

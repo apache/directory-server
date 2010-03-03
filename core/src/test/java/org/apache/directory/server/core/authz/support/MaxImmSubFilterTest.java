@@ -89,7 +89,7 @@ import org.apache.directory.shared.ldap.cursor.CursorIterator;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.junit.BeforeClass;
@@ -110,8 +110,8 @@ public class MaxImmSubFilterTest
 
     private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
 
-    private static final LdapDN ROOTDSE_NAME = new LdapDN();
-    private static LdapDN ENTRY_NAME;
+    private static final DN ROOTDSE_NAME = new DN();
+    private static DN ENTRY_NAME;
     private static Collection<ProtectedItem> PROTECTED_ITEMS = new ArrayList<ProtectedItem>();
     private static ServerEntry ENTRY;
     
@@ -124,7 +124,7 @@ public class MaxImmSubFilterTest
     {
         service = new DefaultDirectoryService();
 
-        ENTRY_NAME = new LdapDN( "ou=test, ou=system" );
+        ENTRY_NAME = new DN( "ou=test, ou=system" );
         PROTECTED_ITEMS.add( new ProtectedItem.MaxImmSub( 2 ) );
         ENTRY = new DefaultServerEntry( service.getSchemaManager(), ENTRY_NAME );
     }
@@ -214,7 +214,7 @@ public class MaxImmSubFilterTest
         public MockOperation( int count ) throws Exception 
         {
             this.count = count;
-            this.session = new DefaultCoreSession( new LdapPrincipal( new LdapDN(), AuthenticationLevel.STRONG ), 
+            this.session = new DefaultCoreSession( new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ), 
                 new MockDirectoryService( count ) );
         }
 
@@ -253,7 +253,7 @@ public class MaxImmSubFilterTest
         }
 
 
-        public LdapDN getDn()
+        public DN getDn()
         {
             return null;
         }
@@ -337,7 +337,7 @@ public class MaxImmSubFilterTest
         }
 
 
-        public ClonedServerEntry lookup( LdapDN dn, Collection<String> bypass ) throws Exception
+        public ClonedServerEntry lookup( DN dn, Collection<String> bypass ) throws Exception
         {
             return null;
         }
@@ -349,7 +349,7 @@ public class MaxImmSubFilterTest
         }
 
 
-        public LookupOperationContext newLookupContext( LdapDN dn )
+        public LookupOperationContext newLookupContext( DN dn )
         {
             return null;
         }
@@ -365,7 +365,7 @@ public class MaxImmSubFilterTest
         }
 
 
-        public void setDn( LdapDN dn )
+        public void setDn( DN dn )
         {
         }
 
@@ -411,17 +411,17 @@ public class MaxImmSubFilterTest
         }
 
 
-        public void delete( LdapDN dn, Collection<String> bypass ) throws Exception
+        public void delete( DN dn, Collection<String> bypass ) throws Exception
         {
         }
 
 
-        public void modify( LdapDN dn, List<Modification> mods, Collection<String> bypass ) throws Exception
+        public void modify( DN dn, List<Modification> mods, Collection<String> bypass ) throws Exception
         {
         }
 
 
-        public boolean hasEntry( LdapDN dn, Collection<String> byPass ) throws Exception
+        public boolean hasEntry( DN dn, Collection<String> byPass ) throws Exception
         {
             return false;
         }
@@ -766,7 +766,7 @@ public class MaxImmSubFilterTest
         }
 
 
-        public ServerEntry newEntry( LdapDN dn ) throws NamingException
+        public ServerEntry newEntry( DN dn ) throws NamingException
         {
             return null;
         }
@@ -795,13 +795,13 @@ public class MaxImmSubFilterTest
         }
 
 
-        public CoreSession getSession( LdapDN principalDn, byte[] credentials ) throws Exception
+        public CoreSession getSession( DN principalDn, byte[] credentials ) throws Exception
         {
             return null;
         }
 
         
-        public CoreSession getSession( LdapDN principalDn, byte[] credentials, String saslMechanism, String saslAuthId )
+        public CoreSession getSession( DN principalDn, byte[] credentials, String saslMechanism, String saslAuthId )
             throws Exception
         {
             return null;
@@ -920,7 +920,7 @@ public class MaxImmSubFilterTest
         {
         }
 
-        public LdapDN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception
+        public DN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception
         {
             return null;
         }
@@ -930,7 +930,7 @@ public class MaxImmSubFilterTest
             return null;
         }
 
-        public LdapDN getSuffix( GetSuffixOperationContext opContext ) throws Exception
+        public DN getSuffix( GetSuffixOperationContext opContext ) throws Exception
         {
             return null;
         }

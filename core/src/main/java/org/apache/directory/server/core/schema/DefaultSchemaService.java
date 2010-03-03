@@ -33,7 +33,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
@@ -68,7 +68,7 @@ public class DefaultSchemaService implements SchemaService
     private SchemaPartition schemaPartition;
 
     /** the normalized name for the schema modification attributes */
-    private LdapDN schemaModificationAttributesDN;
+    private DN schemaModificationAttributesDN;
     
     /** A lock to avid concurrent generation of the SubschemaSubentry */
     private Object schemaSubentrLock = new Object();
@@ -92,7 +92,7 @@ public class DefaultSchemaService implements SchemaService
             return true;
         }
 
-        LdapDN dn = new LdapDN( dnString ).normalize( schemaPartition.getSchemaManager().getNormalizerMapping() );
+        DN dn = new DN( dnString ).normalize( schemaPartition.getSchemaManager().getNormalizerMapping() );
         return dn.getNormName().equals( ServerDNConstants.CN_SCHEMA_DN_NORMALIZED );
     }
 
@@ -378,7 +378,7 @@ public class DefaultSchemaService implements SchemaService
     {
         try
         {
-            schemaModificationAttributesDN = new LdapDN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
+            schemaModificationAttributesDN = new DN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
             schemaModificationAttributesDN.normalize( 
                 getSchemaManager().getNormalizerMapping() );
         }
@@ -415,7 +415,7 @@ public class DefaultSchemaService implements SchemaService
         }
 
         Set<String> setOids = new HashSet<String>();
-        ServerEntry attrs = new DefaultServerEntry( getSchemaManager(), LdapDN.EMPTY_LDAPDN );
+        ServerEntry attrs = new DefaultServerEntry( getSchemaManager(), DN.EMPTY_DN );
         boolean returnAllOperationalAttributes = false;
 
         synchronized( lock )

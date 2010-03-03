@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
@@ -79,13 +79,13 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     private final AttributeType descAT;
     private final AttributeType fqcnAT;
 
-    private static Map<String, LdapDN> staticAttributeTypeDNs = new HashMap<String, LdapDN>();
-    private static Map<String, LdapDN> staticMatchingRulesDNs = new HashMap<String, LdapDN>();
-    private static Map<String, LdapDN> staticObjectClassesDNs = new HashMap<String, LdapDN>();
-    private static Map<String, LdapDN> staticComparatorsDNs = new HashMap<String, LdapDN>();
-    private static Map<String, LdapDN> staticNormalizersDNs = new HashMap<String, LdapDN>();
-    private static Map<String, LdapDN> staticSyntaxCheckersDNs = new HashMap<String, LdapDN>();
-    private static Map<String, LdapDN> staticSyntaxesDNs = new HashMap<String, LdapDN>();
+    private static Map<String, DN> staticAttributeTypeDNs = new HashMap<String, DN>();
+    private static Map<String, DN> staticMatchingRulesDNs = new HashMap<String, DN>();
+    private static Map<String, DN> staticObjectClassesDNs = new HashMap<String, DN>();
+    private static Map<String, DN> staticComparatorsDNs = new HashMap<String, DN>();
+    private static Map<String, DN> staticNormalizersDNs = new HashMap<String, DN>();
+    private static Map<String, DN> staticSyntaxCheckersDNs = new HashMap<String, DN>();
+    private static Map<String, DN> staticSyntaxesDNs = new HashMap<String, DN>();
 
 
     public PartitionSchemaLoader( Partition partition, SchemaManager schemaManager ) throws Exception
@@ -117,43 +117,43 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     {
 
         // Initialize AttributeType Dns
-        LdapDN dn = new LdapDN( SchemaConstants.ATTRIBUTES_TYPE_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
+        DN dn = new DN( SchemaConstants.ATTRIBUTES_TYPE_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
 
         dn.normalize( schemaManager.getNormalizerMapping() );
         staticAttributeTypeDNs.put( schemaName, dn );
 
         // Initialize ObjectClasses Dns
-        dn = new LdapDN( SchemaConstants.OBJECT_CLASSES_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
+        dn = new DN( SchemaConstants.OBJECT_CLASSES_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
 
         dn.normalize( schemaManager.getNormalizerMapping() );
         staticObjectClassesDNs.put( schemaName, dn );
 
         // Initialize MatchingRules Dns
-        dn = new LdapDN( SchemaConstants.MATCHING_RULES_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
+        dn = new DN( SchemaConstants.MATCHING_RULES_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
 
         dn.normalize( schemaManager.getNormalizerMapping() );
         staticMatchingRulesDNs.put( schemaName, dn );
 
         // Initialize Comparators Dns
-        dn = new LdapDN( SchemaConstants.COMPARATORS_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
+        dn = new DN( SchemaConstants.COMPARATORS_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
 
         dn.normalize( schemaManager.getNormalizerMapping() );
         staticComparatorsDNs.put( schemaName, dn );
 
         // Initialize Normalizers Dns
-        dn = new LdapDN( SchemaConstants.NORMALIZERS_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
+        dn = new DN( SchemaConstants.NORMALIZERS_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
 
         dn.normalize( schemaManager.getNormalizerMapping() );
         staticNormalizersDNs.put( schemaName, dn );
 
         // Initialize SyntaxCheckers Dns
-        dn = new LdapDN( SchemaConstants.SYNTAX_CHECKERS_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
+        dn = new DN( SchemaConstants.SYNTAX_CHECKERS_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
 
         dn.normalize( schemaManager.getNormalizerMapping() );
         staticSyntaxCheckersDNs.put( schemaName, dn );
 
         // Initialize Syntaxes Dns
-        dn = new LdapDN( SchemaConstants.SYNTAXES_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
+        dn = new DN( SchemaConstants.SYNTAXES_PATH, "cn=" + schemaName, SchemaConstants.OU_SCHEMA );
 
         dn.normalize( schemaManager.getNormalizerMapping() );
         staticSyntaxesDNs.put( schemaName, dn );
@@ -164,13 +164,13 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /**
      * Helper class used to update the static DNs for each kind of Schema Object
      */
-    private LdapDN updateDNs( Map<String, LdapDN> staticDNs, String path, Schema schema ) throws NamingException
+    private DN updateDNs( Map<String, DN> staticDNs, String path, Schema schema ) throws NamingException
     {
-        LdapDN dn = staticDNs.get( schema.getSchemaName() );
+        DN dn = staticDNs.get( schema.getSchemaName() );
 
         if ( dn == null )
         {
-            dn = new LdapDN( path, "cn=" + schema.getSchemaName(), SchemaConstants.OU_SCHEMA );
+            dn = new DN( path, "cn=" + schema.getSchemaName(), SchemaConstants.OU_SCHEMA );
 
             dn.normalize( schemaManager.getNormalizerMapping() );
             staticDNs.put( schema.getSchemaName(), dn );
@@ -312,7 +312,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
         for ( Schema schema : schemas )
         {
-            LdapDN dn = updateDNs( staticAttributeTypeDNs, SchemaConstants.ATTRIBUTES_TYPE_PATH, schema );
+            DN dn = updateDNs( staticAttributeTypeDNs, SchemaConstants.ATTRIBUTES_TYPE_PATH, schema );
 
             // Check that we don't have an entry in the Dit for this schema
             if ( !partition.hasEntry( new EntryOperationContext( null, dn ) ) )
@@ -352,7 +352,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
         for ( Schema schema : schemas )
         {
-            LdapDN dn = updateDNs( staticComparatorsDNs, SchemaConstants.COMPARATORS_PATH, schema );
+            DN dn = updateDNs( staticComparatorsDNs, SchemaConstants.COMPARATORS_PATH, schema );
 
             if ( !partition.hasEntry( new EntryOperationContext( null, dn ) ) )
             {
@@ -411,7 +411,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
         for ( Schema schema : schemas )
         {
-            LdapDN dn = updateDNs( staticMatchingRulesDNs, SchemaConstants.MATCHING_RULES_PATH, schema );
+            DN dn = updateDNs( staticMatchingRulesDNs, SchemaConstants.MATCHING_RULES_PATH, schema );
 
             if ( !partition.hasEntry( new EntryOperationContext( null, dn ) ) )
             {
@@ -470,7 +470,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
         for ( Schema schema : schemas )
         {
-            LdapDN dn = updateDNs( staticNormalizersDNs, SchemaConstants.NORMALIZERS_PATH, schema );
+            DN dn = updateDNs( staticNormalizersDNs, SchemaConstants.NORMALIZERS_PATH, schema );
 
             if ( !partition.hasEntry( new EntryOperationContext( null, dn ) ) )
             {
@@ -507,7 +507,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
         for ( Schema schema : schemas )
         {
-            LdapDN dn = updateDNs( staticObjectClassesDNs, SchemaConstants.OBJECT_CLASSES_PATH, schema );
+            DN dn = updateDNs( staticObjectClassesDNs, SchemaConstants.OBJECT_CLASSES_PATH, schema );
 
             if ( !partition.hasEntry( new EntryOperationContext( null, dn ) ) )
             {
@@ -544,7 +544,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
         for ( Schema schema : schemas )
         {
-            LdapDN dn = updateDNs( staticSyntaxesDNs, SchemaConstants.SYNTAXES_PATH, schema );
+            DN dn = updateDNs( staticSyntaxesDNs, SchemaConstants.SYNTAXES_PATH, schema );
 
             if ( !partition.hasEntry( new EntryOperationContext( null, dn ) ) )
             {
@@ -581,7 +581,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
         for ( Schema schema : schemas )
         {
-            LdapDN dn = updateDNs( staticSyntaxCheckersDNs, SchemaConstants.SYNTAX_CHECKERS_PATH, schema );
+            DN dn = updateDNs( staticSyntaxCheckersDNs, SchemaConstants.SYNTAX_CHECKERS_PATH, schema );
 
             if ( !partition.hasEntry( new EntryOperationContext( null, dn ) ) )
             {
@@ -643,7 +643,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     }
 
 
-    private ClonedServerEntry lookupPartition( LdapDN dn ) throws Exception
+    private ClonedServerEntry lookupPartition( DN dn ) throws Exception
     {
         return partition.lookup( new LookupOperationContext( null, dn ) );
     }

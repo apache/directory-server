@@ -26,7 +26,7 @@ import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.message.internal.InternalCompareRequest;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -62,7 +62,7 @@ public class CompareOperationContext extends AbstractOperationContext
      * Creates a new instance of CompareOperationContext.
      *
      */
-    public CompareOperationContext( CoreSession session, LdapDN dn )
+    public CompareOperationContext( CoreSession session, DN dn )
     {
         super( session, dn );
     }
@@ -85,7 +85,7 @@ public class CompareOperationContext extends AbstractOperationContext
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public CompareOperationContext( CoreSession session, LdapDN dn, String oid )
+    public CompareOperationContext( CoreSession session, DN dn, String oid )
     {
         super( session, dn );
         this.oid = oid;
@@ -97,7 +97,7 @@ public class CompareOperationContext extends AbstractOperationContext
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public CompareOperationContext( CoreSession session, LdapDN dn, String oid, Value<?> value )
+    public CompareOperationContext( CoreSession session, DN dn, String oid, Value<?> value )
     {
         super( session, dn );
         this.oid = oid;

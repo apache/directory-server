@@ -23,7 +23,7 @@ package org.apache.directory.server.core.authn;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -117,7 +117,7 @@ public abstract class AbstractAuthenticator implements Authenticator
     /**
      * Does nothing leaving it so subclasses can override.
      */
-    public void invalidateCache( LdapDN bindDn )
+    public void invalidateCache( DN bindDn )
     {
     }
 }

@@ -27,7 +27,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.internal.InternalAddRequest;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -56,7 +56,7 @@ public class AddOperationContext extends AbstractChangeOperationContext
      * @param session the current Session 
      * @param dn the name of the entry being added
      */
-    public AddOperationContext( CoreSession session, LdapDN dn )
+    public AddOperationContext( CoreSession session, DN dn )
     {
         super( session, dn );
     }
@@ -82,7 +82,7 @@ public class AddOperationContext extends AbstractChangeOperationContext
      * @param dn the name of the entry being added
      * @param entry the entry being added
      */
-    public AddOperationContext( CoreSession session, LdapDN dn, ServerEntry entry )
+    public AddOperationContext( CoreSession session, DN dn, ServerEntry entry )
     {
         super( session, dn );
         this.entry = new ClonedServerEntry( entry );

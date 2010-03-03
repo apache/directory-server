@@ -24,7 +24,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -83,11 +83,11 @@ public class DitStructureRuleSynchronizer extends AbstractRegistrySynchronizer
 
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaChangeHandler#move(
-     * org.apache.directory.shared.ldap.name.LdapDN, 
-     * org.apache.directory.shared.ldap.name.LdapDN, 
+     * org.apache.directory.shared.ldap.name.DN, 
+     * org.apache.directory.shared.ldap.name.DN, 
      * java.lang.String, boolean, javax.naming.directory.Attributes)
      */
-    public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, RDN newRn, boolean deleteOldRn,
+    public void moveAndRename( DN oriChildName, DN newParentName, RDN newRn, boolean deleteOldRn,
         ServerEntry entry, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
@@ -96,11 +96,11 @@ public class DitStructureRuleSynchronizer extends AbstractRegistrySynchronizer
 
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaChangeHandler#move(
-     * org.apache.directory.shared.ldap.name.LdapDN, 
-     * org.apache.directory.shared.ldap.name.LdapDN, 
+     * org.apache.directory.shared.ldap.name.DN, 
+     * org.apache.directory.shared.ldap.name.DN, 
      * javax.naming.directory.Attributes)
      */
-    public void move( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, 
+    public void move( DN oriChildName, DN newParentName, ServerEntry entry, 
         boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub

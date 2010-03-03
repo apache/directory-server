@@ -93,7 +93,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -223,7 +223,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         schemaManager = directoryService.getSchemaManager();
         
         // Initialize and normalize the localy used DNs
-        LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
+        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
         adminDn.normalize( schemaManager.getNormalizerMapping() );
             
         initializeSystemPartition( directoryService );
@@ -303,7 +303,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         
         
         // Add root context entry for system partition
-        LdapDN systemSuffixDn = new LdapDN( ServerDNConstants.SYSTEM_DN );
+        DN systemSuffixDn = new DN( ServerDNConstants.SYSTEM_DN );
         systemSuffixDn.normalize( schemaManager.getNormalizerMapping() );
         ServerEntry systemEntry = new DefaultServerEntry( schemaManager, systemSuffixDn );
 
@@ -321,7 +321,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         systemEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
         systemEntry.put( NamespaceTools.getRdnAttribute( ServerDNConstants.SYSTEM_DN ),
             NamespaceTools.getRdnValue( ServerDNConstants.SYSTEM_DN ) );
-        LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
         adminDn.normalize( schemaManager.getNormalizerMapping() );
         CoreSession adminSession = new DefaultCoreSession( 
             new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
@@ -378,12 +378,12 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         {
             try
             {
-                LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+                DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
                 adminDn.normalize( schemaManager.getNormalizerMapping() );
                 CoreSession adminSession = new DefaultCoreSession( 
                     new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
                 removeContextPartition( new RemoveContextPartitionOperationContext( 
-                    adminSession, new LdapDN( suffix ) ) );
+                    adminSession, new DN( suffix ) ) );
             }
             catch ( Exception e )
             {
@@ -434,9 +434,9 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#getSuffixDn()
      */
-    public LdapDN getSuffixDn()
+    public DN getSuffixDn()
     {
-        return LdapDN.EMPTY_LDAPDN;
+        return DN.EMPTY_DN;
     }
 
     
@@ -593,7 +593,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
      */
     public boolean hasEntry( EntryOperationContext opContext ) throws Exception
     {
-        LdapDN dn = opContext.getDn();
+        DN dn = opContext.getDn();
         
         if ( IS_DEBUG )
         {
@@ -625,7 +625,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
      */
     public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
     {
-        LdapDN dn = opContext.getDn();
+        DN dn = opContext.getDn();
         
         if ( dn.size() == 0 )
         {
@@ -756,7 +756,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         // return nothing
         if ( noAttribute )
         {
-            ServerEntry serverEntry = new DefaultServerEntry( schemaManager, LdapDN.EMPTY_LDAPDN );
+            ServerEntry serverEntry = new DefaultServerEntry( schemaManager, DN.EMPTY_DN );
             return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), searchOperationContext );
         }
         
@@ -767,7 +767,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
             return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( rootDSE ), searchOperationContext );
         }
         
-        ServerEntry serverEntry = new DefaultServerEntry( schemaManager, LdapDN.EMPTY_LDAPDN );
+        ServerEntry serverEntry = new DefaultServerEntry( schemaManager, DN.EMPTY_DN );
         
         ServerEntry rootDSE = getRootDSE( new GetRootDSEOperationContext( searchOperationContext.getSession() ) );
         
@@ -798,7 +798,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
      */
     public EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
     {
-        LdapDN base = opContext.getDn();
+        DN base = opContext.getDn();
         SearchControls searchCtls = opContext.getSearchControls();
         ExprNode filter = opContext.getFilter();
         
@@ -918,7 +918,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         
         synchronized ( partitionLookupTree )
         {
-            LdapDN partitionSuffix = partition.getSuffixDn();
+            DN partitionSuffix = partition.getSuffixDn();
             
             if ( partitionSuffix == null )
             {
@@ -999,9 +999,9 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.PartitionNexus#getPartition(org.apache.directory.shared.ldap.name.LdapDN)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#getPartition(org.apache.directory.shared.ldap.name.DN)
      */
-    public Partition getPartition( LdapDN dn ) throws Exception
+    public Partition getPartition( DN dn ) throws Exception
     {
         Partition parent = partitionLookupTree.getParentElement( dn );
         
@@ -1019,9 +1019,9 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#getMatchedName(org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext)
      */
-    public LdapDN getMatchedName( GetMatchedNameOperationContext matchedNameContext ) throws Exception
+    public DN getMatchedName( GetMatchedNameOperationContext matchedNameContext ) throws Exception
     {
-        LdapDN dn = ( LdapDN ) matchedNameContext.getDn().clone();
+        DN dn = ( DN ) matchedNameContext.getDn().clone();
         
         while ( dn.size() > 0 )
         {
@@ -1040,7 +1040,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#getSuffix(org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext)
      */
-    public LdapDN getSuffix( GetSuffixOperationContext getSuffixContext ) throws Exception
+    public DN getSuffix( GetSuffixOperationContext getSuffixContext ) throws Exception
     {
         Partition backend = getPartition( getSuffixContext.getDn() );
         return backend.getSuffixDn();

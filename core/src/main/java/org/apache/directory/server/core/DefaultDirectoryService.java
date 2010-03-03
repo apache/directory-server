@@ -89,7 +89,7 @@ import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
@@ -141,7 +141,7 @@ public class DefaultDirectoryService implements DirectoryService
     private OperationManager operationManager = new DefaultOperationManager( this );
 
     /** the distinguished name of the administrative user */
-    private LdapDN adminDn;
+    private DN adminDn;
     
     /** session used as admin for internal operations */
     private CoreSession adminSession;
@@ -660,7 +660,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
     
     
-    public CoreSession getSession( LdapDN principalDn, byte[] credentials ) 
+    public CoreSession getSession( DN principalDn, byte[] credentials ) 
         throws Exception
     {
         if ( ! started )
@@ -677,7 +677,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
     
     
-    public CoreSession getSession( LdapDN principalDn, byte[] credentials, String saslMechanism, String saslAuthId ) 
+    public CoreSession getSession( DN principalDn, byte[] credentials, String saslMechanism, String saslAuthId ) 
         throws Exception
     {
         if ( ! started )
@@ -724,7 +724,7 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * We handle the ModDN/ModRDN operation for the revert here. 
      */
-    private void moddn( LdapDN oldDn, LdapDN newDn, boolean delOldRdn ) throws Exception
+    private void moddn( DN oldDn, DN newDn, boolean delOldRdn ) throws Exception
     {
         if ( oldDn.size() == 0 )
         {
@@ -732,9 +732,9 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         // calculate parents
-        LdapDN oldBase = ( LdapDN ) oldDn.clone();
+        DN oldBase = ( DN ) oldDn.clone();
         oldBase.remove( oldDn.size() - 1 );
-        LdapDN newBase = ( LdapDN ) newDn.clone();
+        DN newBase = ( DN ) newDn.clone();
         newBase.remove( newDn.size() - 1 );
 
         // Compute the RDN for each of the DN
@@ -755,7 +755,7 @@ public class DefaultDirectoryService implements DirectoryService
         }
         else
         {
-            LdapDN target = ( LdapDN ) newDn.clone();
+            DN target = ( DN ) newDn.clone();
             target.remove( newDn.size() - 1 );
 
             if ( newRdn.equals( oldRdn ) )
@@ -837,8 +837,8 @@ public class DefaultDirectoryService implements DirectoryService
                             // NO BREAK - both ModDN and ModRDN handling is the same
                         
                         case ChangeType.MODRDN_ORDINAL :
-                            LdapDN forwardDn = event.getForwardLdif().getDn();
-                            LdapDN reverseDn = reverse.getDn();
+                            DN forwardDn = event.getForwardLdif().getDn();
+                            DN reverseDn = reverse.getDn();
                             
                             moddn( reverseDn, forwardDn, reverse.isDeleteOldRdn() );
     
@@ -1067,7 +1067,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public ServerEntry newEntry( LdapDN dn ) 
+    public ServerEntry newEntry( DN dn ) 
     {
         return new DefaultServerEntry( schemaManager, dn );
     }
@@ -1124,7 +1124,7 @@ public class DefaultDirectoryService implements DirectoryService
         // -------------------------------------------------------------------
 
         Map<String,OidNormalizer> oidsMap = schemaManager.getNormalizerMapping();
-        LdapDN userDn = new LdapDN( ServerDNConstants.USERS_SYSTEM_DN );
+        DN userDn = new DN( ServerDNConstants.USERS_SYSTEM_DN );
         userDn.normalize( oidsMap );
         
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, userDn ) ) )
@@ -1150,7 +1150,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system groups area
         // -------------------------------------------------------------------
 
-        LdapDN groupDn = new LdapDN( ServerDNConstants.GROUPS_SYSTEM_DN );
+        DN groupDn = new DN( ServerDNConstants.GROUPS_SYSTEM_DN );
         groupDn.normalize( oidsMap );
         
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, groupDn ) ) )
@@ -1176,7 +1176,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create administrator group
         // -------------------------------------------------------------------
 
-        LdapDN name = new LdapDN( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
+        DN name = new DN( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
         name.normalize( oidsMap );
         
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, name ) ) )
@@ -1226,7 +1226,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system configuration area
         // -------------------------------------------------------------------
 
-        LdapDN configurationDn = new LdapDN( "ou=configuration,ou=system" );
+        DN configurationDn = new DN( "ou=configuration,ou=system" );
         configurationDn.normalize( oidsMap );
         
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, configurationDn ) ) )
@@ -1249,7 +1249,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system configuration area for partition information
         // -------------------------------------------------------------------
 
-        LdapDN partitionsDn = new LdapDN( "ou=partitions,ou=configuration,ou=system" );
+        DN partitionsDn = new DN( "ou=partitions,ou=configuration,ou=system" );
         partitionsDn.normalize( oidsMap );
         
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, partitionsDn ) ) )
@@ -1271,7 +1271,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system configuration area for services
         // -------------------------------------------------------------------
 
-        LdapDN servicesDn = new LdapDN( "ou=services,ou=configuration,ou=system" );
+        DN servicesDn = new DN( "ou=services,ou=configuration,ou=system" );
         servicesDn.normalize( oidsMap );
         
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, servicesDn ) ) )
@@ -1294,7 +1294,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system configuration area for interceptors
         // -------------------------------------------------------------------
 
-        LdapDN interceptorsDn = new LdapDN( "ou=interceptors,ou=configuration,ou=system" );
+        DN interceptorsDn = new DN( "ou=interceptors,ou=configuration,ou=system" );
         interceptorsDn.normalize( oidsMap );
         
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, interceptorsDn ) ) )
@@ -1317,7 +1317,7 @@ public class DefaultDirectoryService implements DirectoryService
         // create system preferences area
         // -------------------------------------------------------------------
 
-        LdapDN sysPrefRootDn = new LdapDN( ServerDNConstants.SYSPREFROOT_SYSTEM_DN );
+        DN sysPrefRootDn = new DN( ServerDNConstants.SYSPREFROOT_SYSTEM_DN );
         sysPrefRootDn.normalize( oidsMap );
         
         if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, sysPrefRootDn ) ) )
@@ -1352,7 +1352,7 @@ public class DefaultDirectoryService implements DirectoryService
         // Warn if the default password is not changed.
         boolean needToChangeAdminPassword = false;
 
-        LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
+        DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
         adminDn.normalize( schemaManager.getNormalizerMapping() );
         
         ServerEntry adminEntry = partitionNexus.lookup( new LookupOperationContext( adminSession, adminDn ) );
@@ -1427,12 +1427,12 @@ public class DefaultDirectoryService implements DirectoryService
         partitions.add( schemaService.getSchemaPartition() );
         systemPartition.getSuffixDn().normalize( schemaManager.getNormalizerMapping() );
 
-        adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN ).normalize( schemaManager.getNormalizerMapping() );
+        adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN ).normalize( schemaManager.getNormalizerMapping() );
         adminDn.normalize( schemaManager.getNormalizerMapping() );
         adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), this );
         
         // @TODO - NOTE: Need to find a way to instantiate without dependency on DPN
-        partitionNexus = new DefaultPartitionNexus( new DefaultServerEntry( schemaManager, LdapDN.EMPTY_LDAPDN ) );
+        partitionNexus = new DefaultPartitionNexus( new DefaultServerEntry( schemaManager, DN.EMPTY_DN ) );
         partitionNexus.setDirectoryService( this );
         partitionNexus.initialize( );
         //partitionNexus.addContextPartition( new AddContextPartitionOperationContext( adminSession, schemaService.getSchemaPartition() ) );
@@ -1555,9 +1555,9 @@ public class DefaultDirectoryService implements DirectoryService
         try
         {
             Entry entry = readEntry( ldif );
-            LdapDN ldapDn = new LdapDN( dn );
+            DN newDn = new DN( dn );
             
-            entry.setDn( ldapDn );
+            entry.setDn( newDn );
             
             // TODO Let's get rid of this Attributes crap
             ServerEntry serverEntry = new DefaultServerEntry( schemaManager, entry );

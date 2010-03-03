@@ -34,7 +34,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
@@ -100,7 +100,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
      *
      * @param dn The DN to get the suffix from
      */
-    public SearchingOperationContext( CoreSession session, LdapDN dn )
+    public SearchingOperationContext( CoreSession session, DN dn )
     {
         super( session, dn );
     }
@@ -112,7 +112,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
      * @param dn The DN to get the suffix from
      * @param aliasDerefMode the alias dereferencing mode to use
      */
-    public SearchingOperationContext( CoreSession session, LdapDN dn, AliasDerefMode aliasDerefMode )
+    public SearchingOperationContext( CoreSession session, DN dn, AliasDerefMode aliasDerefMode )
     {
         super( session, dn );
         this.aliasDerefMode = aliasDerefMode;
@@ -186,7 +186,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
      * @param aliasDerefMode the alias dereferencing mode to use
      * @throws NamingException 
      */
-    public SearchingOperationContext( CoreSession session, LdapDN dn, AliasDerefMode aliasDerefMode, 
+    public SearchingOperationContext( CoreSession session, DN dn, AliasDerefMode aliasDerefMode, 
         SearchControls searchControls ) throws Exception
     {
         super( session, dn );
@@ -214,7 +214,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
      * @param aliasDerefMode the alias dereferencing mode to use
      * @throws NamingException 
      */
-    public SearchingOperationContext( CoreSession session, LdapDN dn, AliasDerefMode aliasDerefMode,
+    public SearchingOperationContext( CoreSession session, DN dn, AliasDerefMode aliasDerefMode,
         Set<AttributeTypeOptions> returningAttributes )
     {
         super( session, dn );

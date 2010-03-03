@@ -44,7 +44,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.normalization.FilterNormalizingVisitor;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
@@ -290,7 +290,7 @@ public class EventInterceptor extends BaseInterceptor
     }
     
     
-    List<RegistrationEntry> getSelectingRegistrations( LdapDN name, ServerEntry entry ) throws Exception
+    List<RegistrationEntry> getSelectingRegistrations( DN name, ServerEntry entry ) throws Exception
     {
         if ( registrations.isEmpty() )
         {

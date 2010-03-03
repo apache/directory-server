@@ -26,7 +26,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 
 
@@ -45,7 +45,7 @@ public class RenameOperationContext extends AbstractChangeOperationContext
     private RDN newRdn;
 
     /** Cached copy of the new DN */
-    private LdapDN newDn;
+    private DN newDn;
 
     /** The flag to remove the old DN Attribute  */
     private boolean delOldDn;
@@ -70,7 +70,7 @@ public class RenameOperationContext extends AbstractChangeOperationContext
      * @param newRdn the new RDN to use for the target
      * @param delOldDn true if we delete the old RDN value
      */
-    public RenameOperationContext( CoreSession session, LdapDN oldDn, RDN newRdn, boolean delOldDn )
+    public RenameOperationContext( CoreSession session, DN oldDn, RDN newRdn, boolean delOldDn )
     {
         super( session, oldDn );
         this.newRdn = newRdn;
@@ -124,7 +124,7 @@ public class RenameOperationContext extends AbstractChangeOperationContext
     /**
      * @return The new DN either computed if null or already computed
      */
-    public LdapDN getNewDn() throws Exception
+    public DN getNewDn() throws Exception
     {
         return newDn;
     }
@@ -153,7 +153,7 @@ public class RenameOperationContext extends AbstractChangeOperationContext
      * Set the new DN
      * @param newDn The new DN
      */
-    public void setNewDn( LdapDN newDn )
+    public void setNewDn( DN newDn )
     {
         this.newDn = newDn;
     }

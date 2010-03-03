@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -51,11 +51,11 @@ public interface ACITupleFilter
      * @param tuples the collection of tuples to filter
      * @param scope the scope of the operation to be performed
      * @param proxy the proxy interceptor for this filter to access the DIT
-     * @param userGroupNames the collection of group ({@link LdapDN})s which the current user belongs to
-     * @param userName the {@link LdapDN} of the current user
+     * @param userGroupNames the collection of group ({@link DN})s which the current user belongs to
+     * @param userName the {@link DN} of the current user
      * @param userEntry the {@link ServerEntry} of the current user entry in the DIT
      * @param authenticationLevel the level of authentication of the current user
-     * @param entryName the {@link LdapDN} of the entry the current user accesses
+     * @param entryName the {@link DN} of the entry the current user accesses
      * @param attrId the attribute ID the current user accesses
      * @param attrValue the value of the attribute the current user accesses
      * @param entry the {@link ServerEntry} of the entry the current user accesses
@@ -69,11 +69,11 @@ public interface ACITupleFilter
             Collection<ACITuple> tuples, 
             OperationScope scope, 
             OperationContext opContext,
-            Collection<LdapDN> userGroupNames, 
-            LdapDN userName, 
+            Collection<DN> userGroupNames, 
+            DN userName, 
             ServerEntry userEntry,
             AuthenticationLevel authenticationLevel, 
-            LdapDN entryName, 
+            DN entryName, 
             String attrId,
             Value<?> attrValue, 
             ServerEntry entry, 

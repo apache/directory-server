@@ -53,7 +53,7 @@ import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.csn.Csn;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.junit.After;
@@ -107,10 +107,10 @@ public class InterceptorChainTest
     @Test
     public void testNoBypass() throws Exception
     {
-        LdapDN dn = new LdapDN( "ou=system" );
+        DN dn = new DN( "ou=system" );
         DirectoryService ds = new MockDirectoryService();
         DefaultCoreSession session = new DefaultCoreSession( 
-            new LdapPrincipal( new LdapDN(), AuthenticationLevel.STRONG ), ds );
+            new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ), ds );
         LookupOperationContext opContext = new LookupOperationContext( session, dn );
         InvocationStack.getInstance().push( opContext );
 
@@ -133,10 +133,10 @@ public class InterceptorChainTest
     @Test
     public void testSingleBypass() throws Exception
     {
-        LdapDN dn = new LdapDN( "ou=system" );
+        DN dn = new DN( "ou=system" );
         DirectoryService ds = new MockDirectoryService();
         DefaultCoreSession session = new DefaultCoreSession( 
-            new LdapPrincipal( new LdapDN(), AuthenticationLevel.STRONG ), ds );
+            new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ), ds );
         LookupOperationContext opContext = new LookupOperationContext( session, dn );
         opContext.setByPassed( Collections.singleton( "0" ) );
         InvocationStack.getInstance().push( opContext );
@@ -160,10 +160,10 @@ public class InterceptorChainTest
     @Test
     public void testAdjacentDoubleBypass() throws Exception
     {
-        LdapDN dn = new LdapDN( "ou=system" );
+        DN dn = new DN( "ou=system" );
         DirectoryService ds = new MockDirectoryService();
         DefaultCoreSession session = new DefaultCoreSession( 
-            new LdapPrincipal( new LdapDN(), AuthenticationLevel.STRONG ), ds );
+            new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ), ds );
         LookupOperationContext opContext = new LookupOperationContext( session, dn );
         Set<String> bypass = new HashSet<String>();
         bypass.add( "0" );
@@ -190,10 +190,10 @@ public class InterceptorChainTest
     @Test
     public void testFrontAndBackDoubleBypass() throws Exception
     {
-        LdapDN dn = new LdapDN( "ou=system" );
+        DN dn = new DN( "ou=system" );
         DirectoryService ds = new MockDirectoryService();
         DefaultCoreSession session = new DefaultCoreSession( 
-            new LdapPrincipal( new LdapDN(), AuthenticationLevel.STRONG ), ds );
+            new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ), ds );
         LookupOperationContext opContext = new LookupOperationContext( session, dn );
         Set<String> bypass = new HashSet<String>();
         bypass.add( "0" );
@@ -219,10 +219,10 @@ public class InterceptorChainTest
     @Test
     public void testDoubleBypass() throws Exception
     {
-        LdapDN dn = new LdapDN( "ou=system" );
+        DN dn = new DN( "ou=system" );
         DirectoryService ds = new MockDirectoryService();
         DefaultCoreSession session = new DefaultCoreSession( 
-            new LdapPrincipal( new LdapDN(), AuthenticationLevel.STRONG ), ds );
+            new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ), ds );
         LookupOperationContext opContext = new LookupOperationContext( session, dn );
         Set<String> bypass = new HashSet<String>();
         bypass.add( "1" );
@@ -248,10 +248,10 @@ public class InterceptorChainTest
     @Test
     public void testCompleteBypass() throws Exception
     {
-        LdapDN dn = new LdapDN( "ou=system" );
+        DN dn = new DN( "ou=system" );
         DirectoryService ds = new MockDirectoryService();
         DefaultCoreSession session = new DefaultCoreSession( 
-            new LdapPrincipal( new LdapDN(), AuthenticationLevel.STRONG ), ds );
+            new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ), ds );
         LookupOperationContext opContext = new LookupOperationContext( session, dn );
         opContext.setByPassed( ByPassConstants.BYPASS_ALL_COLLECTION );
         InvocationStack.getInstance().push( opContext );
@@ -400,7 +400,7 @@ public class InterceptorChainTest
         }
 
 
-        public LdapContext getJndiContext( LdapDN principalDn, String principal, byte[] credential,
+        public LdapContext getJndiContext( DN principalDn, String principal, byte[] credential,
             String authentication, String baseName ) throws NamingException
         {
             return null;
@@ -572,7 +572,7 @@ public class InterceptorChainTest
         }
 
 
-        public ServerEntry newEntry( LdapDN dn ) throws NamingException
+        public ServerEntry newEntry( DN dn ) throws NamingException
         {
             return null;
         }
@@ -602,13 +602,13 @@ public class InterceptorChainTest
         }
 
 
-        public CoreSession getSession( LdapDN principalDn, byte[] credentials ) throws Exception
+        public CoreSession getSession( DN principalDn, byte[] credentials ) throws Exception
         {
             return null;
         }
 
 
-        public CoreSession getSession( LdapDN principalDn, byte[] credentials, String saslMechanism, String saslAuthId )
+        public CoreSession getSession( DN principalDn, byte[] credentials, String saslMechanism, String saslAuthId )
             throws Exception
         {
             return null;

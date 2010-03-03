@@ -55,7 +55,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -610,7 +610,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
             if ( userEntry == null )
             {
-                LdapDN dn = opContext.getDn();
+                DN dn = opContext.getDn();
                 String upDn = ( dn == null ? "" : dn.getName() );
 
                 throw new LdapAuthenticationException( I18n.err( I18n.ERR_231, upDn ) );
@@ -739,7 +739,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * Remove the principal form the cache. This is used when the user changes
      * his password.
      */
-    public void invalidateCache( LdapDN bindDn )
+    public void invalidateCache( DN bindDn )
     {
         synchronized ( credentialCache )
         {

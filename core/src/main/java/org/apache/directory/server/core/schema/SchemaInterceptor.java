@@ -89,7 +89,7 @@ import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.AVA;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
@@ -154,12 +154,12 @@ public class SchemaInterceptor extends BaseInterceptor
     private String subschemaSubentryDnNorm;
 
     /** The SubschemaSubentry DN */
-    private LdapDN subschemaSubentryDn;
+    private DN subschemaSubentryDn;
 
     /**
      * the normalized name for the schema modification attributes
      */
-    private LdapDN schemaModificationAttributesDN;
+    private DN schemaModificationAttributesDN;
 
     /** The schema manager */
     private SchemaSubentryManager schemaSubEntryManager;
@@ -167,7 +167,7 @@ public class SchemaInterceptor extends BaseInterceptor
     private SchemaService schemaService;
 
     /** the base DN (normalized) of the schema partition */
-    private LdapDN schemaBaseDN;
+    private DN schemaBaseDN;
 
     /** A map used to store all the objectClasses superiors */
     private Map<String, List<ObjectClass>> superiors;
@@ -205,17 +205,17 @@ public class SchemaInterceptor extends BaseInterceptor
         filters.add( binaryAttributeFilter );
         filters.add( topFilter );
 
-        schemaBaseDN = new LdapDN( SchemaConstants.OU_SCHEMA );
+        schemaBaseDN = new DN( SchemaConstants.OU_SCHEMA );
         schemaBaseDN.normalize( schemaManager.getNormalizerMapping() );
         schemaService = directoryService.getSchemaService();
 
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        subschemaSubentryDn = new LdapDN( subschemaSubentry.getString() );
+        subschemaSubentryDn = new DN( subschemaSubentry.getString() );
         subschemaSubentryDn.normalize( schemaManager.getNormalizerMapping() );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
-        schemaModificationAttributesDN = new LdapDN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
+        schemaModificationAttributesDN = new DN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
         schemaModificationAttributesDN.normalize( schemaManager.getNormalizerMapping() );
 
         computeSuperiors();
@@ -678,7 +678,7 @@ public class SchemaInterceptor extends BaseInterceptor
     public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext )
         throws Exception
     {
-        LdapDN base = opContext.getDn();
+        DN base = opContext.getDn();
         SearchControls searchCtls = opContext.getSearchControls();
         ExprNode filter = opContext.getFilter();
 
@@ -1107,7 +1107,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
     public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
     {
-        LdapDN oldDn = opContext.getDn();
+        DN oldDn = opContext.getDn();
         RDN newRdn = opContext.getNewRdn();
         boolean deleteOldRn = opContext.getDelOldDn();
         ServerEntry entry =  (ServerEntry)opContext.getEntry().getClonedEntry();
@@ -1185,7 +1185,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Modify an entry, applying the given modifications, and check if it's OK
      */
-    private void checkModifyEntry( LdapDN dn, ServerEntry currentEntry, List<Modification> mods ) throws Exception
+    private void checkModifyEntry( DN dn, ServerEntry currentEntry, List<Modification> mods ) throws Exception
     {
         // The first step is to check that the modifications are valid :
         // - the ATs are present in the schema
@@ -1381,7 +1381,7 @@ public class SchemaInterceptor extends BaseInterceptor
         
         // First, check that the entry is either a subschemaSubentry or a schema element.
         // This is the case if it's a child of cn=schema or ou=schema
-        LdapDN dn = opContext.getDn();
+        DN dn = opContext.getDn();
         
         // Gets the stored entry on which the modification must be applied
         if ( dn.equals( subschemaSubentryDn ) )
@@ -1546,7 +1546,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * 
      * We also check the syntaxes
      */
-    private void check( LdapDN dn, ServerEntry entry ) throws Exception
+    private void check( DN dn, ServerEntry entry ) throws Exception
     {
         // ---------------------------------------------------------------
         // First, make sure all attributes are valid schema defined attributes
@@ -1678,7 +1678,7 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     public void add( NextInterceptor next, AddOperationContext addContext ) throws Exception
     {
-        LdapDN name = addContext.getDn();
+        DN name = addContext.getDn();
         ServerEntry entry = addContext.getEntry();
 
         check( name, entry );
@@ -1735,7 +1735,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
     
     
-    private String getSchemaName( LdapDN dn ) throws NamingException
+    private String getSchemaName( DN dn ) throws NamingException
     {
         if ( dn.size() < 2 )
         {
@@ -1754,7 +1754,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * @return true if the objectClass values require the attribute, false otherwise
      * @throws Exception if the attribute is not recognized
      */
-    private void assertAllAttributesAllowed( LdapDN dn, ServerEntry entry, Set<String> allowed ) throws Exception
+    private void assertAllAttributesAllowed( DN dn, ServerEntry entry, Set<String> allowed ) throws Exception
     {
         // Never check the attributes if the extensibleObject objectClass is
         // declared for this entry
@@ -1812,7 +1812,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Checks to see the presence of all required attributes within an entry.
      */
-    private void assertRequiredAttributesPresent( LdapDN dn, Entry entry, Set<String> must ) throws Exception
+    private void assertRequiredAttributesPresent( DN dn, Entry entry, Set<String> must ) throws Exception
     {
         for ( EntryAttribute attribute : entry )
         {
@@ -1833,7 +1833,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * inheritance tree
      * - we must have at least one STRUCTURAL OC
      */
-    private void assertObjectClasses( LdapDN dn, List<ObjectClass> ocs ) throws Exception
+    private void assertObjectClasses( DN dn, List<ObjectClass> ocs ) throws Exception
     {
         Set<ObjectClass> structuralObjectClasses = new HashSet<ObjectClass>();
 
@@ -1944,7 +1944,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
     
     
-    private void assertRdn( LdapDN dn, ServerEntry entry ) throws Exception
+    private void assertRdn( DN dn, ServerEntry entry ) throws Exception
     {
         for ( AVA atav : dn.getRdn() )
         {

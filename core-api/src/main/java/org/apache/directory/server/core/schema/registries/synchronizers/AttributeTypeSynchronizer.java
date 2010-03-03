@@ -27,7 +27,7 @@ import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -67,8 +67,8 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
      */
     public void add( ServerEntry entry ) throws Exception
     {
-        LdapDN dn = entry.getDn();
-        LdapDN parentDn = ( LdapDN ) dn.clone();
+        DN dn = entry.getDn();
+        DN parentDn = ( DN ) dn.clone();
         parentDn.remove( parentDn.size() - 1 );
 
         // The parent DN must be ou=attributetypes,cn=<schemaName>,ou=schema
@@ -115,7 +115,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     public boolean modify( ModifyOperationContext opContext, ServerEntry targetEntry, boolean cascade )
         throws Exception
     {
-        LdapDN name = opContext.getDn();
+        DN name = opContext.getDn();
         ServerEntry entry = opContext.getEntry();
         String schemaName = getSchemaName( name );
         String oid = getOid( entry );
@@ -143,8 +143,8 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
      */
     public void delete( ServerEntry entry, boolean cascade ) throws Exception
     {
-        LdapDN dn = entry.getDn();
-        LdapDN parentDn = ( LdapDN ) dn.clone();
+        DN dn = entry.getDn();
+        DN parentDn = ( DN ) dn.clone();
         parentDn.remove( parentDn.size() - 1 );
 
         // The parent DN must be ou=attributetypes,cn=<schemaName>,ou=schema
@@ -206,7 +206,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
 
         // Inject the new DN
-        LdapDN newDn = new LdapDN( targetEntry.getDn() );
+        DN newDn = new DN( targetEntry.getDn() );
         newDn.remove( newDn.size() - 1 );
         newDn.add( newRdn );
         targetEntry.setDn( newDn );
@@ -235,7 +235,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, RDN newRn, boolean deleteOldRn,
+    public void moveAndRename( DN oriChildName, DN newParentName, RDN newRn, boolean deleteOldRn,
         ServerEntry entry, boolean cascade ) throws Exception
     {
         checkParent( newParentName, schemaManager, SchemaConstants.ATTRIBUTE_TYPE );
@@ -287,7 +287,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) throws Exception
+    public void move( DN oriChildName, DN newParentName, ServerEntry entry, boolean cascade ) throws Exception
     {
         checkParent( newParentName, schemaManager, SchemaConstants.ATTRIBUTE_TYPE );
         String oldSchemaName = getSchemaName( oriChildName );

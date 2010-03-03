@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -58,11 +58,11 @@ public class MostSpecificProtectedItemFilter implements ACITupleFilter
             Collection<ACITuple> tuples, 
             OperationScope scope, 
             OperationContext opContext,
-            Collection<LdapDN> userGroupNames, 
-            LdapDN userName, 
+            Collection<DN> userGroupNames, 
+            DN userName, 
             ServerEntry userEntry, 
             AuthenticationLevel authenticationLevel,
-            LdapDN entryName, 
+            DN entryName, 
             String attrId, 
             Value<?> attrValue, 
             ServerEntry entry, 

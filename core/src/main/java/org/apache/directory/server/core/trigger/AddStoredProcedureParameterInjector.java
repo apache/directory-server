@@ -26,17 +26,17 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 
 
 public class AddStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
-    private LdapDN addedEntryName;
+    private DN addedEntryName;
     private ServerEntry addedEntry;
     
     
-    public AddStoredProcedureParameterInjector( OperationContext opContext, LdapDN addedEntryName, 
+    public AddStoredProcedureParameterInjector( OperationContext opContext, DN addedEntryName, 
         ServerEntry addedEntry )
     {
         super( opContext );
@@ -53,7 +53,7 @@ public class AddStoredProcedureParameterInjector extends AbstractStoredProcedure
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
-            return new LdapDN( addedEntryName.getName() );
+            return new DN( addedEntryName.getName() );
         }
     };
     

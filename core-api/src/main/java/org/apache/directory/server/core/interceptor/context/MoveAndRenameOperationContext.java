@@ -24,7 +24,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 
 
@@ -38,10 +38,10 @@ import org.apache.directory.shared.ldap.name.RDN;
 public class MoveAndRenameOperationContext extends RenameOperationContext
 {
     /** The parent DN */
-    private LdapDN parent;
+    private DN parent;
 
     /** Cached calculated new DN after move and rename */
-    private LdapDN newDn;
+    private DN newDn;
 
     /**
      * Creates a new instance of MoveAndRenameOperationContext.
@@ -60,7 +60,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
      * @param newRdn the new rdn to use for the target once renamed
      * @param delOldRdn true if the old rdn value is deleted, false otherwise
      */
-    public MoveAndRenameOperationContext( CoreSession session, LdapDN oldDn, LdapDN parent, RDN newRdn, boolean delOldRdn )
+    public MoveAndRenameOperationContext( CoreSession session, DN oldDn, DN parent, RDN newRdn, boolean delOldRdn )
     {
         super( session, oldDn, newRdn, delOldRdn );
         this.parent = parent;
@@ -92,7 +92,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
     /**
      *  @return The parent DN
      */
-    public LdapDN getParent()
+    public DN getParent()
     {
         return parent;
     }
@@ -103,7 +103,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
      *
      * @param parent The parent
      */
-    public void setParent( LdapDN parent )
+    public void setParent( DN parent )
     {
         this.parent = parent;
     }
@@ -115,11 +115,11 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
      * @return the normalized new name after move and rename
      * @throws Exception if the name cannot be normalized
      */
-    public LdapDN getNewDn() throws Exception
+    public DN getNewDn() throws Exception
     {
         if ( newDn == null )
         {
-            newDn = new LdapDN( getParent().getName() );
+            newDn = new DN( getParent().getName() );
             newDn.add( getNewRdn().getUpName() );
             newDn.normalize( session.getDirectoryService()
                 .getSchemaManager().getNormalizerMapping() );

@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
@@ -187,9 +187,9 @@ public class SchemaSubentryManager
     
     
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeManager#modifySchemaSubentry(org.apache.directory.server.core.interceptor.context.ModifyOperationContext, org.apache.directory.shared.ldap.name.LdapDN, int, org.apache.directory.server.core.entry.ServerEntry, org.apache.directory.server.core.entry.ServerEntry, org.apache.directory.server.core.entry.ServerEntry, boolean)
+     * @see org.apache.directory.server.core.schema.SchemaChangeManager#modifySchemaSubentry(org.apache.directory.server.core.interceptor.context.ModifyOperationContext, org.apache.directory.shared.ldap.name.DN, int, org.apache.directory.server.core.entry.ServerEntry, org.apache.directory.server.core.entry.ServerEntry, org.apache.directory.server.core.entry.ServerEntry, boolean)
      */
-    public void modifySchemaSubentry( ModifyOperationContext opContext, LdapDN name, int modOp, ServerEntry mods, 
+    public void modifySchemaSubentry( ModifyOperationContext opContext, DN name, int modOp, ServerEntry mods, 
         ServerEntry subentry, ServerEntry targetSubentry, boolean doCascadeModify ) throws Exception
     {
         Set<AttributeType> attributeTypes = mods.getAttributeTypes();

@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
@@ -73,7 +73,7 @@ public class SchemaChecker
      * @throws NamingException if modify operations leave the entry inconsistent
      * without a STRUCTURAL objectClass
      */
-    public static void preventStructuralClassRemovalOnModifyReplace( SchemaManager schemaManager, LdapDN name, ModificationOperation mod,
+    public static void preventStructuralClassRemovalOnModifyReplace( SchemaManager schemaManager, DN name, ModificationOperation mod,
         ServerAttribute attribute ) throws NamingException
     {
         if ( mod != ModificationOperation.REPLACE_ATTRIBUTE )
@@ -136,7 +136,7 @@ public class SchemaChecker
      * without a STRUCTURAL objectClass
      */
     public static void preventStructuralClassRemovalOnModifyReplace( 
-        ObjectClassRegistry registry, LdapDN name, ModificationOperation mod, ServerEntry entry ) throws NamingException
+        ObjectClassRegistry registry, DN name, ModificationOperation mod, ServerEntry entry ) throws NamingException
     {
         if ( mod != ModificationOperation.REPLACE_ATTRIBUTE )
         {
@@ -198,7 +198,7 @@ public class SchemaChecker
      * @throws NamingException if modify operations leave the entry inconsistent
      * without a STRUCTURAL objectClass
      */
-    public static void preventStructuralClassRemovalOnModifyRemove( SchemaManager schemaManager, LdapDN name, ModificationOperation mod,
+    public static void preventStructuralClassRemovalOnModifyRemove( SchemaManager schemaManager, DN name, ModificationOperation mod,
         EntryAttribute attribute, EntryAttribute entryObjectClasses ) throws NamingException
     {
         if ( mod != ModificationOperation.REMOVE_ATTRIBUTE )
@@ -381,7 +381,7 @@ public class SchemaChecker
      * @param oidRegistry
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
-    public static void preventRdnChangeOnModifyReplace( LdapDN name, ModificationOperation mod, 
+    public static void preventRdnChangeOnModifyReplace( DN name, ModificationOperation mod, 
         ServerAttribute attribute, SchemaManager schemaManager )
         throws NamingException
     {
@@ -456,7 +456,7 @@ public class SchemaChecker
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
     public static void preventRdnChangeOnModifyReplace( 
-        LdapDN name, ModificationOperation mod, ServerEntry entry, 
+        DN name, ModificationOperation mod, ServerEntry entry, 
         SchemaManager schemaManager )
         throws NamingException
     {
@@ -532,7 +532,7 @@ public class SchemaChecker
      * @param attribute the attribute being modified
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
-    public static void preventRdnChangeOnModifyRemove( LdapDN name, ModificationOperation mod, ServerAttribute attribute, 
+    public static void preventRdnChangeOnModifyRemove( DN name, ModificationOperation mod, ServerAttribute attribute, 
         SchemaManager schemaManager ) throws NamingException
     {
         if ( mod != ModificationOperation.REMOVE_ATTRIBUTE )
@@ -605,7 +605,7 @@ public class SchemaChecker
      * @param oidRegistry
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
-    public static void preventRdnChangeOnModifyRemove( LdapDN name, ModificationOperation mod, 
+    public static void preventRdnChangeOnModifyRemove( DN name, ModificationOperation mod, 
         ServerEntry entry, SchemaManager schemaManager )
         throws NamingException
     {
@@ -671,7 +671,7 @@ public class SchemaChecker
      * attribute is not an rdn attribute
      * @throws NamingException if the name is malformed in any way
      */
-    private static String getRdnValue( String id, LdapDN name, SchemaManager schemaManager ) throws NamingException
+    private static String getRdnValue( String id, DN name, SchemaManager schemaManager ) throws NamingException
     {
         // Transform the rdnAttrId to it's OID counterPart
         String idOid = schemaManager.getAttributeTypeRegistry().getOidByName( id );
@@ -715,7 +715,7 @@ public class SchemaChecker
      * @return the set of attributes composing the Rdn for the name
      * @throws NamingException if the syntax of the Rdn is incorrect
      */
-    private static Set<String> getRdnAttributes( LdapDN name ) throws NamingException
+    private static Set<String> getRdnAttributes( DN name ) throws NamingException
     {
         String[] comps = NamespaceTools.getCompositeComponents( name.get( name.size() - 1 ) );
         Set<String> attributes = new HashSet<String>();

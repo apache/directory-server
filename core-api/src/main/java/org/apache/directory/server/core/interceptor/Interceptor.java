@@ -43,7 +43,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 import java.util.Set;
 
@@ -143,13 +143,13 @@ public interface Interceptor
     /**
      * Filters {@link DefaultPartitionNexus#getMatchedName( GetMatchedNameOperationContext )} call.
      */
-    LdapDN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception;
+    DN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception;
 
 
     /**
      * Filters {@link DefaultPartitionNexus#getSuffix( GetSuffixOperationContext )} call.
      */
-    LdapDN getSuffix ( NextInterceptor next, GetSuffixOperationContext opContext ) throws Exception;
+    DN getSuffix ( NextInterceptor next, GetSuffixOperationContext opContext ) throws Exception;
 
 
     /**

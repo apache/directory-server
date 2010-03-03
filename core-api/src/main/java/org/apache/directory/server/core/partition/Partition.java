@@ -37,7 +37,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -115,14 +115,14 @@ public interface Partition
 
 
     /**
-     * Gets the normalized suffix as an LdapDN for this Partition after it has 
-     * been initialized.  Attempts to get this LdapDN before initialization 
+     * Gets the normalized suffix as an DN for this Partition after it has 
+     * been initialized.  Attempts to get this DN before initialization 
      * throw an IllegalStateException.
      *
      * @return the suffix for this Partition.
      * @throws IllegalStateException if the Partition has not been initialized
      */
-    LdapDN getSuffixDn();
+    DN getSuffixDn();
 
 
     /**

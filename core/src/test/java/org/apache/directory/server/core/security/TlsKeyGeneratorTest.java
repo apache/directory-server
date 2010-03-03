@@ -30,7 +30,7 @@ import java.security.cert.X509Certificate;
 
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
@@ -92,7 +92,7 @@ public class TlsKeyGeneratorTest
     @Test
     public void testAll() throws Exception
     {
-        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, new LdapDN() );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, new DN() );
         TlsKeyGenerator.addKeyPair( entry );
         LOG.debug( "Entry: {}", entry );
         assertTrue( entry.contains( SchemaConstants.OBJECT_CLASS_AT, TlsKeyGenerator.TLS_KEY_INFO_OC ) );

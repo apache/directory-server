@@ -24,7 +24,7 @@ import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 
@@ -147,7 +147,7 @@ public interface ChangeLogSearchEngine
      * @return the set of changes that occurred on an entry
      * @throws Exception if there are failures accessing the store
      */
-    Cursor<ChangeLogEvent> find( LdapDN dn, RevisionOrder order ) throws Exception;
+    Cursor<ChangeLogEvent> find( DN dn, RevisionOrder order ) throws Exception;
     
     
     /**
@@ -159,7 +159,7 @@ public interface ChangeLogSearchEngine
      * @return the set of changes that occurred on an entry and/or it's descendants depending on the scope
      * @throws Exception if there are failures accessing the store
      */
-    Cursor<ChangeLogEvent> find( LdapDN base, Scope scope, RevisionOrder order ) throws Exception;
+    Cursor<ChangeLogEvent> find( DN base, Scope scope, RevisionOrder order ) throws Exception;
     
 
     /**

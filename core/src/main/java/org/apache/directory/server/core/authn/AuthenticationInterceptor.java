@@ -59,7 +59,7 @@ import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -227,7 +227,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public LdapDN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception
+    public DN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
@@ -251,7 +251,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public LdapDN getSuffix( NextInterceptor next, GetSuffixOperationContext opContext ) throws Exception
+    public DN getSuffix( NextInterceptor next, GetSuffixOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
@@ -311,7 +311,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
     
-    private void invalidateAuthenticatorCaches( LdapDN principalDn )
+    private void invalidateAuthenticatorCaches( DN principalDn )
     {
         for ( String authMech : authenticatorsMapByType.keySet() )
         {
@@ -513,7 +513,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.info( "Cannot bind to the server " );
         }
 
-        LdapDN dn = opContext.getDn();
+        DN dn = opContext.getDn();
         String upDn = ( dn == null ? "" : dn.getName() );
         throw new LdapAuthenticationException( I18n.err( I18n.ERR_229, upDn ) );
     }

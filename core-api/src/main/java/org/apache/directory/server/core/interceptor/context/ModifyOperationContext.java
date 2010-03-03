@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -72,7 +72,7 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
      * @param dn the dn of the entry to be modified
      * @param modItems the modifications to be performed on the entry
      */
-    public ModifyOperationContext( CoreSession session, LdapDN dn, List<Modification> modItems )
+    public ModifyOperationContext( CoreSession session, DN dn, List<Modification> modItems )
     {
         super( session, dn );
 

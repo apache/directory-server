@@ -25,7 +25,7 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.interceptor.context.OperationContext;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 
@@ -33,16 +33,16 @@ import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
     private boolean deleteOldRn;
-    private LdapDN oldRDN;
+    private DN oldRDN;
     private RDN newRDN;
-    private LdapDN oldSuperiorDN;
-    private LdapDN newSuperiorDN;
-    private LdapDN oldDN;
-    private LdapDN newDN;
+    private DN oldSuperiorDN;
+    private DN newSuperiorDN;
+    private DN oldDN;
+    private DN newDN;
 
 
     public ModifyDNStoredProcedureParameterInjector( OperationContext opContext, boolean deleteOldRn,
-        LdapDN oldRDN, RDN newRDN, LdapDN oldSuperiorDN, LdapDN newSuperiorDN, LdapDN oldDN, LdapDN newDN)
+        DN oldRDN, RDN newRDN, DN oldSuperiorDN, DN newSuperiorDN, DN oldDN, DN newDN)
     {
         super( opContext );
         this.deleteOldRn = deleteOldRn;
@@ -71,7 +71,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
-            return new LdapDN( oldDN.getName() );
+            return new DN( oldDN.getName() );
         }
     };
 
@@ -83,7 +83,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
-            return new LdapDN( newRDN.getUpName() );
+            return new DN( newRDN.getUpName() );
         }
     };
 
@@ -107,7 +107,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
-            return new LdapDN( newSuperiorDN.getName() );
+            return new DN( newSuperiorDN.getName() );
         }
     };
     
@@ -119,7 +119,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
-            return new LdapDN( oldRDN.getName() );
+            return new DN( oldRDN.getName() );
         }
     };
     
@@ -131,7 +131,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
-            return new LdapDN( oldSuperiorDN.getName() );
+            return new DN( oldSuperiorDN.getName() );
         }
     };
     
@@ -143,7 +143,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
-            return new LdapDN( newDN.getName() );
+            return new DN( newDN.getName() );
         }
     };
     

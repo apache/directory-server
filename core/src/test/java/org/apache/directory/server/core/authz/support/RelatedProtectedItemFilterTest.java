@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.loader.ldif.JarLdifSchemaLoader;
@@ -70,10 +70,10 @@ public class RelatedProtectedItemFilterTest
     private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ACITuple>() );
     private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
 
-    private static LdapDN GROUP_NAME;
-    private static LdapDN USER_NAME;
-    private static Set<LdapDN> USER_NAMES = new HashSet<LdapDN>();
-    private static Set<LdapDN> GROUP_NAMES = new HashSet<LdapDN>();
+    private static DN GROUP_NAME;
+    private static DN USER_NAME;
+    private static Set<DN> USER_NAMES = new HashSet<DN>();
+    private static Set<DN> GROUP_NAMES = new HashSet<DN>();
 
     private static SchemaManager schemaManager;
     //private static AttributeTypeRegistry atRegistryA;
@@ -103,8 +103,8 @@ public class RelatedProtectedItemFilterTest
 
         OID_REGISTRY = schemaManager.getGlobalOidRegistry();
 
-        GROUP_NAME = new LdapDN( "ou=test,ou=groups,ou=system" );
-        USER_NAME = new LdapDN( "ou=test, ou=users, ou=system" );
+        GROUP_NAME = new DN( "ou=test,ou=groups,ou=system" );
+        USER_NAME = new DN( "ou=test, ou=users, ou=system" );
         
         filterA = new RelatedProtectedItemFilter( new RefinementEvaluator( new RefinementLeafEvaluator(
             OID_REGISTRY ) ), new ExpressionEvaluator( OID_REGISTRY, schemaManager ), OID_REGISTRY, schemaManager );
@@ -303,11 +303,11 @@ public class RelatedProtectedItemFilterTest
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.RangeOfValues( new PresenceNode( "cn" ) ) );
 
         Assert.assertEquals( 1, filterA.filter( tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null,
-            new LdapDN( "ou=testEntry" ), null, null, entry, null ).size() );
+            new DN( "ou=testEntry" ), null, null, entry, null ).size() );
 
         entry.remove( "cn" );
         Assert.assertEquals( 0, filterA.filter( service.getRegistries(), tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, new LdapDN( "ou=testEntry" ), null, null, entry, null ).size() );
+            null, null, new DN( "ou=testEntry" ), null, null, entry, null ).size() );
     }
     */
 
