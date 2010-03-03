@@ -162,8 +162,13 @@ public class TcpTransport extends AbstractTransport
     /**
      * @return The associated SocketAcceptor
      */
-    public SocketAcceptor getSocketAcceptor()
+    public SocketAcceptor getAcceptor()
     {
+        if( ( acceptor != null ) && acceptor.isDisposed() )
+        {
+            acceptor = createAcceptor( getAddress(), getPort(), getNbThreads(), getBackLog() );
+        }
+
         return acceptor == null ? null : (SocketAcceptor)acceptor;
     }
     

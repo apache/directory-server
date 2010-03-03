@@ -184,10 +184,7 @@ public abstract class AbstractTransport implements Transport
     /**
      * {@inheritDoc}
      */
-    public IoAcceptor getAcceptor()
-    {
-        return acceptor;
-    }
+    public abstract IoAcceptor getAcceptor();
     
     
     /**

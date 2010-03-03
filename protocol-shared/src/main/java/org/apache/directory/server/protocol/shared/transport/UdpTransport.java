@@ -88,8 +88,13 @@ public class UdpTransport extends AbstractTransport
     /**
      * @return The associated DatagramAcceptor
      */
-    public DatagramAcceptor getDatagramAcceptor()
+    public DatagramAcceptor getAcceptor()
     {
+        if( ( acceptor != null ) && acceptor.isDisposed() )
+        {
+            acceptor = createAcceptor( getAddress(), getPort() );
+        }
+        
         return acceptor == null ? null : (DatagramAcceptor)acceptor;
     }
     
