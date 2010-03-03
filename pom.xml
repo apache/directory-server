@@ -24,6 +24,7 @@
   <name>ApacheDS 1.5 Build With Dependencies</name>
   <inceptionYear>2003</inceptionYear>
   <packaging>pom</packaging>
+
   <modules>
     <module>project</module>
     <module>shared</module>
