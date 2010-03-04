@@ -22,21 +22,21 @@ package org.apache.directory.server.core.authn;
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.apply;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.message.ModifyRequest;
+import org.apache.directory.ldap.client.api.message.SearchResultEntry;
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.server.core.jndi.ServerLdapContext;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -51,22 +51,24 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP") })
 public class SimpleAuthenticationIT extends AbstractLdapTestUnit
 {
     /**
      * Checks all attributes of the admin account entry minus the userPassword
      * attribute.
      *
-     * @param attrs the entries attributes
+     * @param entry the entries attributes
      */
-    protected void performAdminAccountChecks( Attributes attrs )
+    protected void performAdminAccountChecks( Entry entry )
     {
-        assertTrue( attrs.get( "objectClass" ).contains( "top" ) );
-        assertTrue( attrs.get( "objectClass" ).contains( "person" ) );
-        assertTrue( attrs.get( "objectClass" ).contains( "organizationalPerson" ) );
-        assertTrue( attrs.get( "objectClass" ).contains( "inetOrgPerson" ) );
-        assertTrue( attrs.get( "displayName" ).contains( "Directory Superuser" ) );
+        assertTrue( entry.get( "objectClass" ).contains( "top" ) );
+        assertTrue( entry.get( "objectClass" ).contains( "person" ) );
+        assertTrue( entry.get( "objectClass" ).contains( "organizationalPerson" ) );
+        assertTrue( entry.get( "objectClass" ).contains( "inetOrgPerson" ) );
+        assertTrue( entry.get( "displayName" ).contains( "Directory Superuser" ) );
     }
 
 
@@ -79,22 +81,25 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     public void testAdminAccountCreation() throws Exception
     {
         String userDn = "uid=admin,ou=system";
-        LdapContext ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( "ou=system" ) );
-        Attributes attrs = ctx.getAttributes( "uid=admin" );
-        performAdminAccountChecks( attrs );
-        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), StringTools.getBytesUtf8( "secret" ) ) );
-        ctx.close();
+        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
+        connection.bind( userDn, "secret" );
 
-        service.shutdown();
-        service.startup();
+        Entry entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
+        performAdminAccountChecks( entry );
+        assertTrue( ArrayUtils.isEquals( entry.get( "userPassword" ).get().getBytes(), StringTools
+            .getBytesUtf8( "secret" ) ) );
+        connection.close();
 
-        ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( "ou=system" ) );
-        attrs = ctx.getAttributes( "uid=admin" );
-        performAdminAccountChecks( attrs );
-        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), StringTools.getBytesUtf8( "secret" ) ) );
-        ctx.close();
+        ldapServer.stop();
+        ldapServer.start();
+
+        connection = new LdapConnection( "localhost", ldapServer.getPort() );
+        connection.bind( userDn, "secret" );
+        entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
+        performAdminAccountChecks( entry );
+        assertTrue( ArrayUtils.isEquals( entry.get( "userPassword" ).get().getBytes(), StringTools
+            .getBytesUtf8( "secret" ) ) );
+        connection.close();
     }
 
 
@@ -103,29 +108,30 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     {
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapContext ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
+        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
+        connection.bind( userDn, "test" );
 
-        Attributes attrs = ctx.getAttributes( "" );
-        Attribute ou = attrs.get( "ou" );
+        Entry entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
+        EntryAttribute ou = entry.get( "ou" );
         assertTrue( ou.contains( "Engineering" ) );
         assertTrue( ou.contains( "People" ) );
 
-        Attribute objectClass = attrs.get( "objectClass" );
+        EntryAttribute objectClass = entry.get( "objectClass" );
         assertTrue( objectClass.contains( "top" ) );
         assertTrue( objectClass.contains( "person" ) );
         assertTrue( objectClass.contains( "organizationalPerson" ) );
         assertTrue( objectClass.contains( "inetOrgPerson" ) );
 
-        assertTrue( attrs.get( "telephonenumber" ).contains( "+1 408 555 4798" ) );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
-        assertTrue( attrs.get( "givenname" ).contains( "Alex" ) );
-        assertTrue( attrs.get( "mail" ).contains( "akarasulu@apache.org" ) );
-        assertTrue( attrs.get( "l" ).contains( "Bogusville" ) );
-        assertTrue( attrs.get( "sn" ).contains( "Karasulu" ) );
-        assertTrue( attrs.get( "cn" ).contains( "Alex Karasulu" ) );
-        assertTrue( attrs.get( "facsimiletelephonenumber" ).contains( "+1 408 555 9751" ) );
-        assertTrue( attrs.get( "roomnumber" ).contains( "4612" ) );
+        assertTrue( entry.get( "telephonenumber" ).contains( "+1 408 555 4798" ) );
+        assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
+        assertTrue( entry.get( "givenname" ).contains( "Alex" ) );
+        assertTrue( entry.get( "mail" ).contains( "akarasulu@apache.org" ) );
+        assertTrue( entry.get( "l" ).contains( "Bogusville" ) );
+        assertTrue( entry.get( "sn" ).contains( "Karasulu" ) );
+        assertTrue( entry.get( "cn" ).contains( "Alex Karasulu" ) );
+        assertTrue( entry.get( "facsimiletelephonenumber" ).contains( "+1 408 555 9751" ) );
+        assertTrue( entry.get( "roomnumber" ).contains( "4612" ) );
+        connection.close();
     }
 
 
@@ -139,8 +145,10 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     public void test8PassPrincAuthTypeSimple() throws Exception
     {
         String userDn = "uid=admin,ou=system";
-        assertNotNull( new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( userDn ) ) );
+        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
+        connection.bind( userDn, "secret" );
+        assertTrue( connection.isAuthenticated() );
+        connection.close();
     }
 
 
@@ -155,8 +163,10 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     {
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        assertNotNull( new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) ) );
+        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
+        connection.bind( userDn, "test" );
+        assertTrue( connection.isAuthenticated() );
+        connection.close();
     }
 
 
@@ -165,74 +175,66 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     {
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        
-        LdapContext ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
-        assertNotNull( ctx );
-        Attributes attrs = ctx.getAttributes( "" );
-        Attribute ou = attrs.get( "ou" );
+
+        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
+        connection.bind( userDn, "test" );
+
+        Entry entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
+        EntryAttribute ou = entry.get( "ou" );
         assertTrue( ou.contains( "Engineering" ) );
         assertTrue( ou.contains( "People" ) );
 
-        Attribute objectClass = attrs.get( "objectClass" );
+        EntryAttribute objectClass = entry.get( "objectClass" );
         assertTrue( objectClass.contains( "top" ) );
         assertTrue( objectClass.contains( "person" ) );
         assertTrue( objectClass.contains( "organizationalPerson" ) );
         assertTrue( objectClass.contains( "inetOrgPerson" ) );
 
-        assertTrue( attrs.get( "telephonenumber" ).contains( "+1 408 555 4798" ) );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
-        assertTrue( attrs.get( "givenname" ).contains( "Alex" ) );
-        assertTrue( attrs.get( "mail" ).contains( "akarasulu@apache.org" ) );
-        assertTrue( attrs.get( "l" ).contains( "Bogusville" ) );
-        assertTrue( attrs.get( "sn" ).contains( "Karasulu" ) );
-        assertTrue( attrs.get( "cn" ).contains( "Alex Karasulu" ) );
-        assertTrue( attrs.get( "facsimiletelephonenumber" ).contains( "+1 408 555 9751" ) );
-        assertTrue( attrs.get( "roomnumber" ).contains( "4612" ) );
+        assertTrue( entry.get( "telephonenumber" ).contains( "+1 408 555 4798" ) );
+        assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
+        assertTrue( entry.get( "givenname" ).contains( "Alex" ) );
+        assertTrue( entry.get( "mail" ).contains( "akarasulu@apache.org" ) );
+        assertTrue( entry.get( "l" ).contains( "Bogusville" ) );
+        assertTrue( entry.get( "sn" ).contains( "Karasulu" ) );
+        assertTrue( entry.get( "cn" ).contains( "Alex Karasulu" ) );
+        assertTrue( entry.get( "facsimiletelephonenumber" ).contains( "+1 408 555 9751" ) );
+        assertTrue( entry.get( "roomnumber" ).contains( "4612" ) );
 
         // now modify the password for akarasulu
-        Attribute userPasswordAttribute = new BasicAttribute( "userPassword", "newpwd" );
-        ctx.modifyAttributes( "", new ModificationItem[] {
-            new ModificationItem( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+        ModifyRequest modReq = new ModifyRequest( new DN( userDn ) );
+        modReq.replace( "userPassword", "newpwd" );
+        connection.modify( modReq );
 
         // close and try with old password (should fail)
-        ctx.close();
+        connection.close();
 
-        try
-        {
-            new ServerLdapContext( service, 
-                service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
-            fail( "Authentication with old password should fail" );
-        }
-        catch ( NamingException e )
-        {
-            // we should fail
-        }
+        connection.bind( userDn, "test" );
+        assertFalse( connection.isAuthenticated() );
 
         // close and try again now with new password (should fail)
-        ctx.close();
-        ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "newpwd".getBytes() ), new DN( userDn ) ); 
-        attrs = ctx.getAttributes( "" );
-        ou = attrs.get( "ou" );
+        connection.close();
+        connection.bind( userDn, "newpwd" );
+
+        entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
+        ou = entry.get( "ou" );
         assertTrue( ou.contains( "Engineering" ) );
         assertTrue( ou.contains( "People" ) );
 
-        objectClass = attrs.get( "objectClass" );
+        objectClass = entry.get( "objectClass" );
         assertTrue( objectClass.contains( "top" ) );
         assertTrue( objectClass.contains( "person" ) );
         assertTrue( objectClass.contains( "organizationalPerson" ) );
         assertTrue( objectClass.contains( "inetOrgPerson" ) );
 
-        assertTrue( attrs.get( "telephonenumber" ).contains( "+1 408 555 4798" ) );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
-        assertTrue( attrs.get( "givenname" ).contains( "Alex" ) );
-        assertTrue( attrs.get( "mail" ).contains( "akarasulu@apache.org" ) );
-        assertTrue( attrs.get( "l" ).contains( "Bogusville" ) );
-        assertTrue( attrs.get( "sn" ).contains( "Karasulu" ) );
-        assertTrue( attrs.get( "cn" ).contains( "Alex Karasulu" ) );
-        assertTrue( attrs.get( "facsimiletelephonenumber" ).contains( "+1 408 555 9751" ) );
-        assertTrue( attrs.get( "roomnumber" ).contains( "4612" ) );
+        assertTrue( entry.get( "telephonenumber" ).contains( "+1 408 555 4798" ) );
+        assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
+        assertTrue( entry.get( "givenname" ).contains( "Alex" ) );
+        assertTrue( entry.get( "mail" ).contains( "akarasulu@apache.org" ) );
+        assertTrue( entry.get( "l" ).contains( "Bogusville" ) );
+        assertTrue( entry.get( "sn" ).contains( "Karasulu" ) );
+        assertTrue( entry.get( "cn" ).contains( "Alex Karasulu" ) );
+        assertTrue( entry.get( "facsimiletelephonenumber" ).contains( "+1 408 555 9751" ) );
+        assertTrue( entry.get( "roomnumber" ).contains( "4612" ) );
     }
 
 
@@ -241,55 +243,42 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     {
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapContext ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) ); 
+        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
+        connection.bind( userDn, "test" );
 
         // Check that we can get the attributes
-        Attributes attrs = ctx.getAttributes( "" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+
+        Entry entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
+        assertNotNull( entry );
+        assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
         // now modify the password for akarasulu : 'secret', encrypted using SHA
-        Attribute userPasswordAttribute = new BasicAttribute( "userPassword", "{SHA}5en6G6MezRroT3XKqkdPOmY/BfQ=" );
-        ctx.modifyAttributes( "", new ModificationItem[] {
-            new ModificationItem( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+        ModifyRequest modReq = new ModifyRequest( new DN( userDn ) );
+        modReq.replace( "userPassword", "{SHA}5en6G6MezRroT3XKqkdPOmY/BfQ=" );
+        connection.modify( modReq );
 
         // close and try with old password (should fail)
-        ctx.close();
+        connection.close();
 
-        try
-        {
-            ctx = new ServerLdapContext( service, 
-                service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
-            fail( "Authentication with old password should fail" );
-        }
-        catch ( Exception e )
-        {
-            // we should fail
-        }
-        finally
-        {
-            if ( ctx != null )
-            {
-                ctx.close();
-            }
-        }
+        connection.bind( userDn, "test" );
+        assertFalse( connection.isAuthenticated() );
+        connection.close();
 
         // try again now with new password (should be successfull)
-        ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( userDn ) );
-        attrs = ctx.getAttributes( "" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+        connection.bind( userDn, "secret" );
+        assertTrue( connection.isAuthenticated() );
+        entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
+        assertNotNull( entry );
+        assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
         // close and try again now with new password, to check that the
         // cache is updated (should be successfull)
-        ctx.close();
-        ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( userDn ) ); 
-        attrs = ctx.getAttributes( "" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+        connection.close();
+        connection.bind( userDn, "secret" );
+        assertTrue( connection.isAuthenticated() );
+        entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
+        assertNotNull( entry );
+        assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
     }
 
 
@@ -298,110 +287,80 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     {
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapContext ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
+        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
+        connection.bind( userDn, "test" );
 
         // Check that we can get the attributes
-        Attributes attrs = ctx.getAttributes( "" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+        Entry entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
+        assertNotNull( entry );
+        assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
         // now modify the password for akarasulu : 'secret', encrypted using SHA
-        BasicAttribute userPasswordAttribute = new BasicAttribute( "userPassword", "{SSHA}mjVVxasFkk59wMW4L1Ldt+YCblfhULHs03WW7g==" );
-        ctx.modifyAttributes( "", new ModificationItem[] {
-            new ModificationItem( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+        ModifyRequest modReq = new ModifyRequest( new DN( userDn ) );
+        modReq.replace( "userPassword", "{SSHA}mjVVxasFkk59wMW4L1Ldt+YCblfhULHs03WW7g==" );
+        connection.modify( modReq );
 
         // close and try with old password (should fail)
-        ctx.close();
+        connection.close();
 
-        try
-        {
-            ctx = new ServerLdapContext( service, 
-                service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
-            fail( "Authentication with old password should fail" );
-        }
-        catch ( Exception e )
-        {
-            // we should fail
-        }
-        finally
-        {
-            if ( ctx != null )
-            {
-                ctx.close();
-            }
-        }
+        connection.bind( userDn, "test" );
+        assertFalse( connection.isAuthenticated() );
+        connection.close();
 
         // try again now with new password (should be successfull)
-        ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( userDn ) );
-        attrs = ctx.getAttributes( "" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+        connection.bind( userDn, "secret" );
+        entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
+        assertNotNull( entry );
+        assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
         // close and try again now with new password, to check that the
         // cache is updated (should be successfull)
-        ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( userDn ) );
-        attrs = ctx.getAttributes( "" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+        connection.close();
+        connection.bind( userDn, "secret" );
+        entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
+        assertNotNull( entry );
+        assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
     }
-    
-    
+
+
     @Test
     public void testSSHA4BytesSalt() throws Exception
     {
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapContext ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
+        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
+        connection.bind( userDn, "test" );
 
         // Check that we can get the attributes
-        Attributes attrs = ctx.getAttributes( "" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+        Entry entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
+        assertNotNull( entry );
+        assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
         // now modify the password for akarasulu : 'test123', encrypted using SHA with a 4 bytes salt
-        BasicAttribute userPasswordAttribute = new BasicAttribute( "userPassword", "{SSHA}0TT388zsWzHKtMEpIU/8/W68egchNEWp" );
-        ctx.modifyAttributes( "", new ModificationItem[] {
-            new ModificationItem( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+        ModifyRequest modReq = new ModifyRequest( new DN( userDn ) );
+        modReq.replace( "userPassword", "{SSHA}0TT388zsWzHKtMEpIU/8/W68egchNEWp" );
+        connection.modify( modReq );
 
         // close and try with old password (should fail)
-        ctx.close();
+        connection.close();
 
-        try
-        {
-            ctx = new ServerLdapContext( service, 
-                service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
-            fail( "Authentication with old password should fail" );
-        }
-        catch ( Exception e )
-        {
-            // we should fail
-        }
-        finally
-        {
-            if ( ctx != null )
-            {
-                ctx.close();
-            }
-        }
+        connection.bind( userDn, "test" );
+        assertFalse( connection.isAuthenticated() );
+        connection.close();
 
         // try again now with new password (should be successful)
-        ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "test123".getBytes() ), new DN( userDn ) );
-        attrs = ctx.getAttributes( "" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+        connection.bind( userDn, "test123" );
+        entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
+        assertNotNull( entry );
+        assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
         // close and try again now with new password, to check that the
         // cache is updated (should be successfull)
-        ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "test123".getBytes() ), new DN( userDn ) );
-        attrs = ctx.getAttributes( "" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+        connection.close();
+        connection.bind( userDn, "test123" );
+        entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
+        assertNotNull( entry );
+        assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
     }
 
 
@@ -410,54 +369,40 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     {
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapContext ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
+        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
+        connection.bind( userDn, "test" );
 
         // Check that we can get the attributes
-        Attributes attrs = ctx.getAttributes( "" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+        Entry entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
+        assertNotNull( entry );
+        assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
         // now modify the password for akarasulu : 'secret', encrypted using MD5
-        Attribute userPasswordAttribute = new BasicAttribute( "userPassword", "{MD5}Xr4ilOzQ4PCOq3aQ0qbuaQ==" );
-        ctx.modifyAttributes( "", new ModificationItem[] {
-            new ModificationItem( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+        ModifyRequest modReq = new ModifyRequest( new DN( userDn ) );
+        modReq.replace( "userPassword", "{MD5}Xr4ilOzQ4PCOq3aQ0qbuaQ==" );
+        connection.modify( modReq );
 
         // close and try with old password (should fail)
-        ctx.close();
+        connection.close();
 
-        try
-        {
-            ctx = new ServerLdapContext( service, 
-                service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
-            fail( "Authentication with old password should fail" );
-        }
-        catch ( Exception e )
-        {
-            // we should fail
-        }
-        finally
-        {
-            if ( ctx != null )
-            {
-                ctx.close();
-            }
-        }
+        connection.bind( userDn, "test" );
+        assertFalse( connection.isAuthenticated() );
+        connection.close();
 
         // try again now with new password (should be successfull)
-        ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( userDn ) );
-        attrs = ctx.getAttributes( "" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+        connection.bind( userDn, "secret" );
+        entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
+        assertNotNull( entry );
+        assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
         // try again now with new password, to check that the
         // cache is updated (should be successfull)
-        ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( userDn ) );
-        attrs = ctx.getAttributes( "" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+
+        connection.close();
+        connection.bind( userDn, "secret" );
+        entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
+        assertNotNull( entry );
+        assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
     }
 
 
@@ -466,54 +411,39 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     {
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapContext ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
+        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
+        connection.bind( userDn, "test" );
 
         // Check that we can get the attributes
-        Attributes attrs = ctx.getAttributes( "" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+        Entry entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
+        assertNotNull( entry );
+        assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
         // now modify the password for akarasulu : 'secret', encrypted using SMD5
-        Attribute userPasswordAttribute = new BasicAttribute( "userPassword", "{SMD5}tQ9wo/VBuKsqBtylMMCcORbnYOJFMyDJ" );
-        ctx.modifyAttributes( "", new ModificationItem[] {
-            new ModificationItem( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+        ModifyRequest modReq = new ModifyRequest( new DN( userDn ) );
+        modReq.replace( "userPassword", "{SMD5}tQ9wo/VBuKsqBtylMMCcORbnYOJFMyDJ" );
+        connection.modify( modReq );
 
         // close and try with old password (should fail)
-        ctx.close();
+        connection.close();
 
-        try
-        {
-            ctx = new ServerLdapContext( service, 
-                service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
-            fail( "Authentication with old password should fail" );
-        }
-        catch ( Exception e )
-        {
-            // we should fail
-        }
-        finally
-        {
-            if ( ctx != null )
-            {
-                ctx.close();
-            }
-        }
+        connection.bind( userDn, "test" );
+        assertFalse( connection.isAuthenticated() );
+        connection.close();
 
         // try again now with new password (should be successful)
-        ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( userDn ) );
-        attrs = ctx.getAttributes( "" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+        connection.bind( userDn, "secret" );
+        entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
+        assertNotNull( entry );
+        assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
         // try again now with new password, to check that the
         // cache is updated (should be successfull)
-        ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( userDn ) );
-        attrs = ctx.getAttributes( "" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+        connection.close();
+        connection.bind( userDn, "secret" );
+        entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
+        assertNotNull( entry );
+        assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
     }
 
 
@@ -522,54 +452,38 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     {
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapContext ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
+        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
+        connection.bind( userDn, "test" );
 
         // Check that we can get the attributes
-        Attributes attrs = ctx.getAttributes( "" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+        Entry entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
+        assertNotNull( entry );
+        assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
         // now modify the password for akarasulu : 'secret', encrypted using CRYPT
-        Attribute userPasswordAttribute = new BasicAttribute( "userPassword", "{crypt}qFkH8Z1woBlXw" );
-        ctx.modifyAttributes( "", new ModificationItem[] {
-            new ModificationItem( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+        ModifyRequest modReq = new ModifyRequest( new DN( userDn ) );
+        modReq.replace( "userPassword", "{crypt}qFkH8Z1woBlXw" );
+        connection.modify( modReq );
 
         // close and try with old password (should fail)
-        ctx.close();
+        connection.close();
 
-        try
-        {
-            ctx = new ServerLdapContext( service, 
-                service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
-            fail( "Authentication with old password should fail" );
-        }
-        catch ( Exception e )
-        {
-            // we should fail
-        }
-        finally
-        {
-            if ( ctx != null )
-            {
-                ctx.close();
-            }
-        }
+        connection.bind( userDn, "test" );
+        assertFalse( connection.isAuthenticated() );
+        connection.close();
 
         // try again now with new password (should be successfull)
-        ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( userDn ) );
-        attrs = ctx.getAttributes( "" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+        connection.bind( userDn, "secret" );
+        entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
+        assertNotNull( entry );
+        assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
 
         // try again now with new password, to check that the
         // cache is updated (should be successfull)
-        ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( userDn ) ); 
-        attrs = ctx.getAttributes( "" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+        connection.bind( userDn, "secret" );
+        entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
+        assertNotNull( entry );
+        assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
     }
 
 
@@ -580,37 +494,22 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
 
         // bind as akarasulu
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapContext ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
-        ctx.close();
+        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
+        connection.bind( userDn, "test" );
+        connection.close();
 
         // bind as admin
-        userDn = "uid=admin,ou=system";
-        ctx = new ServerLdapContext( service, 
-            service.getSession( new DN( userDn ), "secret".getBytes() ), new DN( userDn ) );
+        String adminUserDn = "uid=admin,ou=system";
+        connection.bind( adminUserDn, "secret" );
 
         // now modify the password for akarasulu (while we're admin)
-        Attribute userPasswordAttribute = new BasicAttribute( "userPassword", "newpwd" );
-        ctx.modifyAttributes( "", new ModificationItem[] {
-            new ModificationItem( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
-        ctx.close();
+        ModifyRequest modReq = new ModifyRequest( new DN( userDn ) );
+        modReq.replace( "userPassword", "newpwd" );
+        connection.modify( modReq );
+        connection.close();
 
-        try
-        {
-            ctx = new ServerLdapContext( service, 
-                service.getSession( new DN( userDn ), "test".getBytes() ), new DN( userDn ) );
-            fail( "Authentication with old password should fail" );
-        }
-        catch ( Exception e )
-        {
-            // we should fail
-        }
-        finally
-        {
-            if ( ctx != null )
-            {
-                ctx.close();
-            }
-        }
+        connection.bind( userDn, "test" );
+        assertFalse( connection.isAuthenticated() );
+        connection.close();
     }
 }
