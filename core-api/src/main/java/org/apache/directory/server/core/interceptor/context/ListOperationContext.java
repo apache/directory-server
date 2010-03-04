@@ -65,7 +65,8 @@ public class ListOperationContext extends SearchingOperationContext
      */
     public ListOperationContext( CoreSession session, DN dn, AliasDerefMode aliasDerefMode )
     {
-        super( session, dn, aliasDerefMode );
+        super( session, dn );
+        this.aliasDerefMode = aliasDerefMode;
     }
 
     
@@ -80,7 +81,8 @@ public class ListOperationContext extends SearchingOperationContext
     public ListOperationContext( CoreSession session, DN dn, AliasDerefMode aliasDerefMode,
         Set<AttributeTypeOptions> returningAttributes )
     {
-        super( session, dn, aliasDerefMode, returningAttributes );
+        super( session, dn, returningAttributes );
+        this.aliasDerefMode = aliasDerefMode;
     }
 
 

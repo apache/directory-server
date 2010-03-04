@@ -29,7 +29,6 @@ import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
@@ -113,9 +112,9 @@ public class SearchOperationContext extends SearchingOperationContext
      * @param returningAttributes the attributes to return
      */
     public SearchOperationContext( CoreSession session, DN dn, SearchScope scope,
-        ExprNode filter, AliasDerefMode aliasDerefMode, Set<AttributeTypeOptions> returningAttributes )
+        ExprNode filter, Set<AttributeTypeOptions> returningAttributes )
     {
-        super( session, dn, aliasDerefMode, returningAttributes );
+        super( session, dn, returningAttributes );
         super.setScope( scope );
         this.filter = filter;
     }

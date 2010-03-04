@@ -107,54 +107,13 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
 
 
     /**
-     * Creates a new instance of SearchingOperationContext.
-     *
-     * @param dn The DN to get the suffix from
-     * @param aliasDerefMode the alias dereferencing mode to use
-     */
-    public SearchingOperationContext( CoreSession session, DN dn, AliasDerefMode aliasDerefMode )
-    {
-        super( session, dn );
-        this.aliasDerefMode = aliasDerefMode;
-    }
-
-    
-    /**
      * Creates a new instance of ListOperationContext.
      *
      * @param dn The DN to get the suffix from
      * @param aliasDerefMode the alias dereferencing mode to use
      * @throws NamingException 
      */
-    public SearchingOperationContext( CoreSession session, DN dn, AliasDerefMode aliasDerefMode, 
-        SearchControls searchControls ) throws Exception
-    {
-        super( session, dn );
-        this.aliasDerefMode = aliasDerefMode;
-        this.scope = SearchScope.getSearchScope( searchControls.getSearchScope() );
-        this.timeLimit = searchControls.getTimeLimit();
-        this.sizeLimit = searchControls.getCountLimit();
-        
-        if ( searchControls.getReturningAttributes() != null )
-        {
-            setReturningAttributes( searchControls.getReturningAttributes() );
-        }
-        else
-        {
-            setReturningAttributes( SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
-        }
-    }
-
-    
-    /**
-     * Creates a new instance of ListOperationContext.
-     *
-     * @param dn The DN to get the suffix from
-     * @param aliasDerefMode the alias dereferencing mode to use
-     * @throws NamingException 
-     */
-    public SearchingOperationContext( CoreSession session, DN dn, 
-        SearchControls searchControls ) throws Exception
+    public SearchingOperationContext( CoreSession session, DN dn, SearchControls searchControls ) throws Exception
     {
         super( session, dn );
         this.scope = SearchScope.getSearchScope( searchControls.getSearchScope() );
@@ -180,11 +139,9 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
      * @param aliasDerefMode the alias dereferencing mode to use
      * @throws NamingException 
      */
-    public SearchingOperationContext( CoreSession session, DN dn, AliasDerefMode aliasDerefMode,
-        Set<AttributeTypeOptions> returningAttributes )
+    public SearchingOperationContext( CoreSession session, DN dn, Set<AttributeTypeOptions> returningAttributes )
     {
         super( session, dn );
-        this.aliasDerefMode = aliasDerefMode;
         this.returningAttributes = returningAttributes;
     }
 

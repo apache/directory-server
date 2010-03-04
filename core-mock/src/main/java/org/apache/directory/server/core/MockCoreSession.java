@@ -715,17 +715,12 @@ public class MockCoreSession implements CoreSession
         OperationManager operationManager = directoryService.getOperationManager();
         ExprNode filterNode = FilterParser.parse( filter ); 
         
-        SearchOperationContext opContext = new SearchOperationContext( 
-            this, 
-            dn, 
-            SearchScope.OBJECT, 
-            filterNode, 
-            AliasDerefMode.DEREF_ALWAYS, 
-            null );
-        
-        setReferralHandling( opContext, ignoreReferrals );
+        SearchOperationContext searchOperationContext = new SearchOperationContext( this, dn, SearchScope.OBJECT, 
+            filterNode, null );
+        searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
+        setReferralHandling( searchOperationContext, ignoreReferrals );
 
-        return operationManager.search( opContext );
+        return operationManager.search( searchOperationContext );
     }
     
 
@@ -736,8 +731,12 @@ public class MockCoreSession implements CoreSession
         Set<AttributeTypeOptions> returningAttributes ) throws Exception
     {
         OperationManager operationManager = directoryService.getOperationManager();
-        return operationManager.search( new SearchOperationContext( this, dn, scope, filter, 
-            aliasDerefMode, returningAttributes ) );
+        
+        SearchOperationContext searchOperationContext = new SearchOperationContext( this, dn, scope, 
+            filter, returningAttributes );
+        searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
+
+        return operationManager.search( searchOperationContext );
     }
 
 
@@ -747,12 +746,14 @@ public class MockCoreSession implements CoreSession
     public EntryFilteringCursor search( DN dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
         Set<AttributeTypeOptions> returningAttributes, int sizeLimit, int timeLimit ) throws Exception
     {
-        SearchOperationContext opContext = new SearchOperationContext( this, dn, scope, filter, 
-            aliasDerefMode, returningAttributes );
-        opContext.setSizeLimit( sizeLimit );
-        opContext.setTimeLimit( timeLimit );
         OperationManager operationManager = directoryService.getOperationManager();
-        return operationManager.search( opContext );
+        
+        SearchOperationContext searchOperationContext = new SearchOperationContext( this, dn, scope, filter, returningAttributes );
+        searchOperationContext.setSizeLimit( sizeLimit );
+        searchOperationContext.setTimeLimit( timeLimit );
+        searchOperationContext.setAliasDerefMode( aliasDerefMode );
+
+        return operationManager.search( searchOperationContext );
     }
 
 
