@@ -156,8 +156,10 @@ public class ReferralManagerImpl implements ReferralManager
             // We will store each entry's DN into the Referral tree
             DN suffixDn = new DN( suffix );
             suffixDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
-            EntryFilteringCursor cursor = nexus.search( new SearchOperationContext( adminSession, suffixDn, AliasDerefMode.DEREF_ALWAYS,
-                referralFilter, searchControl ) );
+            
+            SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, suffixDn, referralFilter, searchControl );
+            searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
+            EntryFilteringCursor cursor = nexus.search( searchOperationContext );
             
             // Move to the first entry in the cursor
             cursor.beforeFirst();
@@ -196,8 +198,10 @@ public class ReferralManagerImpl implements ReferralManager
         PartitionNexus nexus = directoryService.getPartitionNexus();
 
         // We will store each entry's DN into the Referral tree
-        EntryFilteringCursor cursor = nexus.search( new SearchOperationContext( adminSession, suffix, AliasDerefMode.DEREF_ALWAYS,
-            referralFilter, searchControl ) );
+        SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, suffix,
+            referralFilter, searchControl );
+        searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
+        EntryFilteringCursor cursor = nexus.search( searchOperationContext );
         
         // Move to the first entry in the cursor
         cursor.beforeFirst();

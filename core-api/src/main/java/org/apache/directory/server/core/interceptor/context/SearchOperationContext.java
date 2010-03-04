@@ -79,11 +79,11 @@ public class SearchOperationContext extends SearchingOperationContext
         
         if ( requestControls.containsKey( ManageDsaITControl.CONTROL_OID ) )
         {
-            ignoreReferral();
+            throwReferral = false;
         }
         else
         {
-            throwReferral();
+            throwReferral = true;
         }
     }
 
@@ -91,15 +91,13 @@ public class SearchOperationContext extends SearchingOperationContext
     /**
      * Creates a new instance of SearchOperationContext.
      * 
-     * @param aliasDerefMode the alias dereferencing mode
      * @param dn the dn of the search base
      * @param filter the filter AST to use for the search
      * @param searchControls the search controls
      */
-    public SearchOperationContext( CoreSession session, DN dn, AliasDerefMode aliasDerefMode, ExprNode filter,
-                                   SearchControls searchControls ) throws Exception
+    public SearchOperationContext( CoreSession session, DN dn, ExprNode filter, SearchControls searchControls ) throws Exception
     {
-        super( session, dn, aliasDerefMode, searchControls );
+        super( session, dn, searchControls );
         this.filter = filter;
     }
 

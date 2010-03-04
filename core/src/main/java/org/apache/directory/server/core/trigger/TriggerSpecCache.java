@@ -128,8 +128,12 @@ public class TriggerSpecCache
             adminDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
             CoreSession adminSession = new DefaultCoreSession( 
                 new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
-            EntryFilteringCursor results = nexus.search( new SearchOperationContext( 
-                adminSession, baseDn, AliasDerefMode.DEREF_ALWAYS, filter, ctls ) );
+
+            SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, baseDn,
+                filter, ctls );
+            searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
+            
+            EntryFilteringCursor results = nexus.search( searchOperationContext );
             
             while ( results.next() )
             {

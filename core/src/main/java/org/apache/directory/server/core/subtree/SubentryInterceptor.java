@@ -173,8 +173,11 @@ public class SubentryInterceptor extends BaseInterceptor
             CoreSession adminSession = new DefaultCoreSession( 
                 new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
 
-            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( adminSession,
-                suffixDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
+            SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, suffixDn,
+                filter, controls );
+            searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+            
+            EntryFilteringCursor subentries = nexus.search( searchOperationContext );
 
             while ( subentries.next() )
             {
@@ -473,8 +476,11 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
 
-            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( addContext.getSession(),
-                baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
+            SearchOperationContext searchOperationContext = new SearchOperationContext( addContext.getSession(), baseDn,
+                filter, controls );
+            searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+            
+            EntryFilteringCursor subentries = nexus.search( searchOperationContext );
 
             while ( subentries.next() )
             {
@@ -611,8 +617,11 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
 
-            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( opContext.getSession(),
-                baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
+            SearchOperationContext searchOperationContext = new SearchOperationContext( opContext.getSession(), baseDn,
+                filter, controls );
+            searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+            
+            EntryFilteringCursor subentries = nexus.search( searchOperationContext );
 
             while ( subentries.next() )
             {
@@ -652,8 +661,12 @@ public class SubentryInterceptor extends BaseInterceptor
         ExprNode filter = new PresenceNode( "administrativeRole" );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        EntryFilteringCursor aps = nexus.search( new SearchOperationContext( opContext.getSession(), name,
-            AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
+
+        SearchOperationContext searchOperationContext = new SearchOperationContext( opContext.getSession(), name,
+            filter, controls );
+        searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+        
+        EntryFilteringCursor aps = nexus.search( searchOperationContext );
 
         if ( aps.next() )
         {
@@ -771,8 +784,12 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
-            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( opContext.getSession(),
-                baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
+            
+            SearchOperationContext searchOperationContext = new SearchOperationContext( opContext.getSession(), baseDn,
+                filter, controls );
+            searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+            
+            EntryFilteringCursor subentries = nexus.search( searchOperationContext );
 
             while ( subentries.next() )
             {
@@ -846,8 +863,12 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
-            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( opContext.getSession(),
-                baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
+
+            SearchOperationContext searchOperationContext = new SearchOperationContext( opContext.getSession(), baseDn,
+                filter, controls );
+            searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+            
+            EntryFilteringCursor subentries = nexus.search( searchOperationContext );
 
             while ( subentries.next() )
             {
@@ -920,8 +941,12 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
-            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( opContext.getSession(),
-                baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
+
+            SearchOperationContext searchOperationContext = new SearchOperationContext( opContext.getSession(), baseDn,
+                filter, controls );
+            searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+            
+            EntryFilteringCursor subentries = nexus.search( searchOperationContext );
 
             while ( subentries.next() )
             {
@@ -1054,8 +1079,12 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
-            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( opContext.getSession(),
-                oldBaseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
+
+            SearchOperationContext searchOperationContext = new SearchOperationContext( opContext.getSession(), oldBaseDn,
+                filter, controls );
+            searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+            
+            EntryFilteringCursor subentries = nexus.search( searchOperationContext );
 
             while ( subentries.next() )
             {
@@ -1075,8 +1104,12 @@ public class SubentryInterceptor extends BaseInterceptor
             ServerEntry operational = getSubentryOperatationalAttributes( name, subentry );
             DN newBaseDn = ( DN ) apName.clone();
             newBaseDn.addAll( ssNew.getBase() );
-            subentries = nexus.search( new SearchOperationContext( opContext.getSession(), newBaseDn,
-                AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
+            
+            searchOperationContext = new SearchOperationContext( opContext.getSession(), newBaseDn,
+                filter, controls );
+            searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+            
+            subentries = nexus.search( searchOperationContext );
             
             while ( subentries.next() )
             {

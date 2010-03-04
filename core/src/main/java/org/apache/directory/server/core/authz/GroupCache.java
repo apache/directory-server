@@ -140,9 +140,10 @@ public class GroupCache
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             
-            
-            EntryFilteringCursor results = nexus.search( new SearchOperationContext( session,
-                baseDn, AliasDerefMode.DEREF_ALWAYS, filter, ctls ) );
+            SearchOperationContext searchOperationContext = new SearchOperationContext( session,
+                baseDn, filter, ctls );
+            searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
+            EntryFilteringCursor results = nexus.search( searchOperationContext );
 
             while ( results.next() )
             {

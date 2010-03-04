@@ -341,8 +341,9 @@ public abstract class ServerContext implements EventContext
             boolean result = operationManager.compare( (CompareOperationContext)opContext );
 
             // setup the op context and populate with request controls
-            opContext = new SearchOperationContext( session, dn, aliasDerefMode, filter,
+            opContext = new SearchOperationContext( session, dn, filter,
                 searchControls );
+            ((SearchOperationContext)opContext).setAliasDerefMode( aliasDerefMode );
             opContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
             
             ( ( SearchOperationContext ) opContext ).setTypesOnly(  typesOnly );
@@ -362,8 +363,8 @@ public abstract class ServerContext implements EventContext
             // It's a Search
             
             // setup the op context and populate with request controls
-            opContext = new SearchOperationContext( session, dn, aliasDerefMode, filter,
-                searchControls );
+            opContext = new SearchOperationContext( session, dn, filter, searchControls );
+            ( ( SearchOperationContext ) opContext ).setAliasDerefMode( aliasDerefMode );
             opContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
             ( ( SearchOperationContext ) opContext ).setTypesOnly(  typesOnly );
             

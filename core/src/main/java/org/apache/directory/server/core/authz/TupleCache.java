@@ -125,8 +125,12 @@ public class TupleCache
                 new ClientStringValue( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            EntryFilteringCursor results = nexus.search( new SearchOperationContext( session,
-                baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, ctls ) );
+            
+            SearchOperationContext searchOperationContext = new SearchOperationContext( session,
+                baseDn, filter, ctls );
+            searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+
+            EntryFilteringCursor results = nexus.search( searchOperationContext );
 
             while ( results.next() )
             {
