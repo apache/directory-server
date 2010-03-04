@@ -281,13 +281,13 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
     /**
      * Return the server size limit
      */
-    private int getServerSizeLimit( LdapSession session, InternalSearchRequest request )
+    private long getServerSizeLimit( LdapSession session, InternalSearchRequest request )
     {
         if ( session.getCoreSession().isAnAdministrator() )
         {
             if ( request.getSizeLimit() == NO_SIZE_LIMIT )
             {
-                return Integer.MAX_VALUE;
+                return Long.MAX_VALUE;
             }
             else
             {
@@ -298,7 +298,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
         {
             if ( ldapServer.getMaxSizeLimit() == NO_SIZE_LIMIT )
             {
-                return Integer.MAX_VALUE;
+                return Long.MAX_VALUE;
             }
             else
             {
@@ -309,9 +309,9 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
     
     
     private void readResults( LdapSession session, InternalSearchRequest req, InternalLdapResult ldapResult,
-    EntryFilteringCursor cursor, int sizeLimit ) throws Exception
+    EntryFilteringCursor cursor, long sizeLimit ) throws Exception
     {
-        int count = 0;
+        long count = 0;
 
         while ( (count < sizeLimit ) && cursor.next() )
         {
@@ -354,13 +354,13 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
     
     
     private void readPagedResults( LdapSession session, InternalSearchRequest req, InternalLdapResult ldapResult,  
-        EntryFilteringCursor cursor, int sizeLimit, int pagedLimit, boolean isPaged, 
+        EntryFilteringCursor cursor, long sizeLimit, int pagedLimit, boolean isPaged, 
         PagedSearchContext pagedContext, PagedResultsControl pagedResultsControl ) throws Exception
     {
         req.addAbandonListener( new SearchAbandonListener( ldapServer, cursor ) );
         setTimeLimitsOnCursor( req, session, cursor );
         LOG.debug( "using <{},{}> for size limit", sizeLimit, pagedLimit );
-        int cookieValue = 0;
+        long cookieValue = 0;
         
         int count = pagedContext.getCurrentPosition();
         int pageCount = 0;
@@ -504,7 +504,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
             return null;
         }
         
-        int cookieValue = cookieInstance.getCookieValue();
+        long cookieValue = cookieInstance.getCookieValue();
         
         return session.removePagedSearchContext( cookieValue );
     }
@@ -521,11 +521,11 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
 
         // Get the size limits
         // Don't bother setting size limits for administrators that don't ask for it
-        int serverLimit = getServerSizeLimit( session, req );
+        long serverLimit = getServerSizeLimit( session, req );
         
-        int requestLimit = req.getSizeLimit() == 0 ?
-            Integer.MAX_VALUE : req.getSizeLimit();
-        int sizeLimit = min( serverLimit, requestLimit );
+        long requestLimit = req.getSizeLimit() == 0L ?
+            Long.MAX_VALUE : req.getSizeLimit();
+        long sizeLimit = min( serverLimit, requestLimit );
 
         int pagedLimit = pagedSearchControl.getSize();
         EntryFilteringCursor cursor = null;
@@ -546,7 +546,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
         // was a simple search
         
         // Case 1
-        if ( pagedLimit == 0 )
+        if ( pagedLimit == 0L )
         {
             // An abandoned paged search
             return abandonPagedSearch( session, req );
@@ -738,15 +738,15 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
         {
             // Get the size limits
             // Don't bother setting size limits for administrators that don't ask for it
-            int serverLimit = getServerSizeLimit( session, req );
+            long serverLimit = getServerSizeLimit( session, req );
             
-            int requestLimit = req.getSizeLimit() == 0 ?
-                Integer.MAX_VALUE : req.getSizeLimit();
+            long requestLimit = req.getSizeLimit() == 0L ?
+                Long.MAX_VALUE : req.getSizeLimit();
 
             req.addAbandonListener( new SearchAbandonListener( ldapServer, cursor ) );
             setTimeLimitsOnCursor( req, session, cursor );
             LOG.debug( "using <{},{}> for size limit", requestLimit, serverLimit );
-            int sizeLimit = min( requestLimit, serverLimit );
+            long sizeLimit = min( requestLimit, serverLimit );
             
             readResults( session, req, ldapResult, cursor, sizeLimit );
         }

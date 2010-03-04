@@ -27,6 +27,7 @@ import javax.naming.directory.SearchControls;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
@@ -96,8 +97,21 @@ public class SearchOperationContext extends SearchingOperationContext
      */
     public SearchOperationContext( CoreSession session, DN dn, ExprNode filter, SearchControls searchControls ) throws Exception
     {
-        super( session, dn, searchControls );
+        super( session, dn );
         this.filter = filter;
+        scope = SearchScope.getSearchScope( searchControls.getSearchScope() );
+        timeLimit = searchControls.getTimeLimit();
+        sizeLimit = searchControls.getCountLimit();
+        typesOnly = searchControls.getReturningObjFlag();
+
+        if ( searchControls.getReturningAttributes() != null )
+        {
+            setReturningAttributes( searchControls.getReturningAttributes() );
+        }
+        else
+        {
+            setReturningAttributes( SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
+        }
     }
 
 

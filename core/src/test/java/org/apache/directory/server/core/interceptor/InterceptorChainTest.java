@@ -511,12 +511,12 @@ public class InterceptorChainTest
         }
 
 
-        public void setMaxSizeLimit( int maxSizeLimit )
+        public void setMaxSizeLimit( long maxSizeLimit )
         {
         }
 
 
-        public int getMaxSizeLimit()
+        public long getMaxSizeLimit()
         {
             return 0;
         }

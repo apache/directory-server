@@ -107,31 +107,6 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
 
 
     /**
-     * Creates a new instance of ListOperationContext.
-     *
-     * @param dn The DN to get the suffix from
-     * @param aliasDerefMode the alias dereferencing mode to use
-     * @throws NamingException 
-     */
-    public SearchingOperationContext( CoreSession session, DN dn, SearchControls searchControls ) throws Exception
-    {
-        super( session, dn );
-        this.scope = SearchScope.getSearchScope( searchControls.getSearchScope() );
-        this.timeLimit = searchControls.getTimeLimit();
-        this.sizeLimit = searchControls.getCountLimit();
-
-        if ( searchControls.getReturningAttributes() != null )
-        {
-            setReturningAttributes( searchControls.getReturningAttributes() );
-        }
-        else
-        {
-            setReturningAttributes( SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
-        }
-    }
-
-    
-    /**
      * Creates a new instance of a SearchingOperationContext using one level 
      * scope, with attributes to return.
      *

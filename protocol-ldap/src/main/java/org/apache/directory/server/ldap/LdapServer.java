@@ -116,7 +116,7 @@ public class LdapServer extends DirectoryBackedService
     private static final Logger LOG = LoggerFactory.getLogger( LdapServer.class.getName() );
 
     /** Value (0) for configuration where size limit is unlimited. */
-    public static final int NO_SIZE_LIMIT = 0;
+    public static final long NO_SIZE_LIMIT = 0;
 
     /** Value (0) for configuration where time limit is unlimited. */
     public static final int NO_TIME_LIMIT = 0;
@@ -125,7 +125,7 @@ public class LdapServer extends DirectoryBackedService
     public static final String SERVICE_NAME = "ldap";
     
     /** The default maximum size limit. */
-    private static final int MAX_SIZE_LIMIT_DEFAULT = 100;
+    private static final long MAX_SIZE_LIMIT_DEFAULT = 100;
 
     /** The default maximum time limit. */
     private static final int MAX_TIME_LIMIT_DEFAULT = 10000;
@@ -149,7 +149,7 @@ public class LdapServer extends DirectoryBackedService
      * The maximum size limit. 
      * @see {@link LdapServer#MAX_SIZE_LIMIT_DEFAULT }
      */
-    private int maxSizeLimit = MAX_SIZE_LIMIT_DEFAULT; 
+    private long maxSizeLimit = MAX_SIZE_LIMIT_DEFAULT; 
 
     /** 
      * The maximum time limit.
@@ -749,7 +749,7 @@ public class LdapServer extends DirectoryBackedService
      *
      * @param maxSizeLimit the maximum number of entries to return for search
      */
-    public void setMaxSizeLimit( int maxSizeLimit )
+    public void setMaxSizeLimit( long maxSizeLimit )
     {
         this.maxSizeLimit = maxSizeLimit;
     }
@@ -760,7 +760,7 @@ public class LdapServer extends DirectoryBackedService
      *
      * @return The maximum size limit.
      */
-    public int getMaxSizeLimit()
+    public long getMaxSizeLimit()
     {
         return maxSizeLimit;
     }

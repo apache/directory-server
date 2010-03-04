@@ -57,9 +57,9 @@ public class SyncreplConfiguration
     /** a comma separated string of attribute names */
     private String attributes;
 
-    /** the numer for setting the limit on numer of search results to be fteched
+    /** the number for setting the limit on number of search results to be fetched
      * default value is 0 (i.e no limit) */
-    private int searchSizeLimit = 0;
+    private long searchSizeLimit = 0L;
 
     /** the timeout value to be used while doing a search 
      * default value is 0 (i.e no limit)*/
@@ -218,7 +218,7 @@ public class SyncreplConfiguration
     /**
      * @return the searchSizeLimit
      */
-    public int getSearchSizeLimit()
+    public long getSearchSizeLimit()
     {
         return searchSizeLimit;
     }
@@ -226,7 +226,7 @@ public class SyncreplConfiguration
     /**
      * @param searchSizeLimit the searchSizeLimit to set
      */
-    public void setSearchSizeLimit( int searchSizeLimit )
+    public void setSearchSizeLimit( long searchSizeLimit )
     {
         this.searchSizeLimit = searchSizeLimit;
     }

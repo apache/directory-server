@@ -58,7 +58,7 @@ public @interface CreateLdapServer
     Class<?> factory() default DefaultLdapServerFactory.class;
     
     /** The maximum size limit.*/
-    int maxSizeLimit() default 1000;
+    long maxSizeLimit() default 1000;
     
     /** The maximum time limit. */
     int maxTimeLimit() default 1000;

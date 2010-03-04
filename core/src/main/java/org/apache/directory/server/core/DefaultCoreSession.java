@@ -457,7 +457,7 @@ public class DefaultCoreSession implements CoreSession
      * @see org.apache.directory.server.core.CoreSession#list(org.apache.directory.shared.ldap.name.DN, org.apache.directory.shared.ldap.message.AliasDerefMode, java.util.Set, int, int)
      */
     public EntryFilteringCursor list( DN dn, AliasDerefMode aliasDerefMode,
-        Set<AttributeTypeOptions> returningAttributes, int sizeLimit, int timeLimit ) throws Exception
+        Set<AttributeTypeOptions> returningAttributes, long sizeLimit, int timeLimit ) throws Exception
     {
         OperationManager operationManager = directoryService.getOperationManager();
 
@@ -751,7 +751,7 @@ public class DefaultCoreSession implements CoreSession
      * @see org.apache.directory.server.core.CoreSession#search(org.apache.directory.shared.ldap.name.DN, org.apache.directory.shared.ldap.filter.SearchScope, org.apache.directory.shared.ldap.filter.ExprNode, org.apache.directory.shared.ldap.message.AliasDerefMode, java.util.Set, int, int)
      */
     public EntryFilteringCursor search( DN dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
-        Set<AttributeTypeOptions> returningAttributes, int sizeLimit, int timeLimit ) throws Exception
+        Set<AttributeTypeOptions> returningAttributes, long sizeLimit, int timeLimit ) throws Exception
     {
         OperationManager operationManager = directoryService.getOperationManager();
 
@@ -918,6 +918,7 @@ public class DefaultCoreSession implements CoreSession
         OperationManager operationManager = directoryService.getOperationManager();
         EntryFilteringCursor cursor = operationManager.search( opContext );
         searchRequest.getResultResponse().addAll( opContext.getResponseControls() );
+        
         return cursor;
     }
 

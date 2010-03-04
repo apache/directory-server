@@ -1692,7 +1692,7 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testSearchSizeLimit() throws Exception
     {
-        int sizeLimit = 7;
+        long sizeLimit = 7;
         LdapConnection connection = getClientApiConnection( ldapServer );
         SearchRequest req = new SearchRequest();
         req.setBaseDn( "ou=system" );
@@ -1701,7 +1701,8 @@ public class SearchIT extends AbstractLdapTestUnit
         req.setSizeLimit( sizeLimit );
 
         Cursor<SearchResponse> cursor = connection.search( req );
-        int i = 0;
+        long i = 0;
+        
         while ( cursor.next() )
         {
             ++i;

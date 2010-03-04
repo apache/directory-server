@@ -166,7 +166,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
 
     
     private int oldMaxTimeLimit;
-    private int oldMaxSizeLimit;
+    private long oldMaxSizeLimit;
     private DelayInducingInterceptor delayInterceptor;
 
     
@@ -443,7 +443,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
      * Do a search request from the ou=actors,ou=system base, with a principal
      * which is the administrator.
      */
-    private Set<String> getActorsWithLimit( String filter, int timeLimitMillis, int sizeLimit ) throws Exception
+    private Set<String> getActorsWithLimit( String filter, int timeLimitMillis, long sizeLimit ) throws Exception
     {
         DirContext ctx = getWiredContext( ldapServer );
         Set<String> results = new HashSet<String>();
@@ -467,7 +467,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
      * Do a search request from the ou=actors,ou=system base, with a principal
      * which is not the administrator.
      */
-    private Set<String> getActorsWithLimitNonAdmin( String filter, int timeLimitMillis, int sizeLimit ) 
+    private Set<String> getActorsWithLimitNonAdmin( String filter, int timeLimitMillis, long sizeLimit ) 
         throws Exception
     {
         DirContext ctx = getWiredContext( ldapServer, "uid=jblack,ou=actors,ou=system", "secret" );

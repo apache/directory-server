@@ -37,7 +37,7 @@ public class ReplicationProvider
     private ReplicationType type = ReplicationType.REFRESH_AND_PERSIST;
     
     /** The sizeLimit for the searchRequest. Default to unlimited. */
-    private int sizeLimit = 0;
+    private long sizeLimit = 0;
     
     /** The timeLimit for the search request. Default to unlimited. */
     private int timeLimit = 0;
@@ -112,7 +112,7 @@ public class ReplicationProvider
     /**
      * @return the sizeLimit
      */
-    public int getSizeLimit()
+    public long getSizeLimit()
     {
         return sizeLimit;
     }
@@ -121,7 +121,7 @@ public class ReplicationProvider
     /**
      * @param sizeLimit the sizeLimit to set
      */
-    public void setSizeLimit( int sizeLimit )
+    public void setSizeLimit( long sizeLimit )
     {
         this.sizeLimit = sizeLimit;
     }

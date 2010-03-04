@@ -699,7 +699,7 @@ public interface CoreSession
      * @throws Exception if there are failures while listing children
      */
     EntryFilteringCursor list( DN dn, AliasDerefMode aliasDerefMode, 
-        Set<AttributeTypeOptions> returningAttributes, int sizeLimit, int timeLimit ) throws Exception;
+        Set<AttributeTypeOptions> returningAttributes, long sizeLimit, int timeLimit ) throws Exception;
     
     
     /**
@@ -765,7 +765,7 @@ public interface CoreSession
      * @throws Exception if there are failures while listing children
      */
     EntryFilteringCursor search( DN dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode, 
-        Set<AttributeTypeOptions> returningAttributes, int sizeLimit, int timeLimit ) throws Exception;
+        Set<AttributeTypeOptions> returningAttributes, long sizeLimit, int timeLimit ) throws Exception;
 
 
     EntryFilteringCursor search( InternalSearchRequest searchRequest ) throws Exception;

@@ -456,7 +456,7 @@ public class LdapSession
      * @param contextId The context ID to remove
      * @return The removed context if any found
      */
-    public PagedSearchContext removePagedSearchContext( int contextId )
+    public PagedSearchContext removePagedSearchContext( long contextId )
     {
         synchronized ( pagedSearchContexts )
         {

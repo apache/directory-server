@@ -115,17 +115,18 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
     }
 
 
-    private void recursivelyAddSearchData( Name parent, Attributes[] children, final int sizeLimit, int[] count )
+    private void recursivelyAddSearchData( Name parent, Attributes[] children, final long sizeLimit, long[] count )
         throws Exception
     {
         Name[] childRdns = new Name[children.length];
-        for ( int ii = 0; ii < children.length && count[0] < sizeLimit; ii++ )
+        
+        for ( int i = 0; ( i < children.length ) && ( count[0] < sizeLimit ); i++ )
         {
             Name childRdn = new DN();
             childRdn.addAll( parent );
-            childRdn.add( "ou=" + ii );
-            childRdns[ii] = childRdn;
-            getSystemContext( service ).createSubcontext( childRdn, children[ii] );
+            childRdn.add( "ou=" + i );
+            childRdns[i] = childRdn;
+            getSystemContext( service ).createSubcontext( childRdn, children[i] );
             count[0]++;
         }
 
@@ -134,9 +135,9 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
             return;
         }
 
-        for ( int ii = 0; ii < children.length && count[0] < sizeLimit; ii++ )
+        for ( int i = 0; ( i < children.length ) && ( count[0] < sizeLimit ); i++ )
         {
-            recursivelyAddSearchData( childRdns[ii], children, sizeLimit, count );
+            recursivelyAddSearchData( childRdns[i], children, sizeLimit, count );
         }
     }
 
@@ -153,12 +154,12 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
      * @return the immediate child node created under parent which contains the subtree
      * @throws NamingException on error
      */
-    private Name addSearchData( Name parent, int branchingFactor, int sizelimit ) throws Exception
+    private Name addSearchData( Name parent, int branchingFactor, long sizelimit ) throws Exception
     {
         parent = ( Name ) parent.clone();
         parent.add( "ou=tests" );
         getSystemContext( service ).createSubcontext( parent, getTestNodes( 1 )[0] );
-        recursivelyAddSearchData( parent, getTestNodes( branchingFactor ), sizelimit, new int[]
+        recursivelyAddSearchData( parent, getTestNodes( branchingFactor ), sizelimit, new long[]
             { 1 } );
         return parent;
     }
