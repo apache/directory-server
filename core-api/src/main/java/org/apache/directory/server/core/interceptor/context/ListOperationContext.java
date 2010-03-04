@@ -25,7 +25,6 @@ import java.util.Set;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
-import org.apache.directory.shared.ldap.message.AliasDerefMode;
 
 
 /**
@@ -58,19 +57,6 @@ public class ListOperationContext extends SearchingOperationContext
 
 
     /**
-     * Creates a new instance of ListOperationContext.
-     *
-     * @param dn The DN to get the suffix from
-     * @param aliasDerefMode the alias dereferencing mode to use
-     */
-    public ListOperationContext( CoreSession session, DN dn, AliasDerefMode aliasDerefMode )
-    {
-        super( session, dn );
-        this.aliasDerefMode = aliasDerefMode;
-    }
-
-    
-    /**
      * Creates a new instance of ListOperationContext with attributes to return.
      *
      * @param session the session associated with this {@link OperationContext}
@@ -78,11 +64,9 @@ public class ListOperationContext extends SearchingOperationContext
      * @param aliasDerefMode the alias dereferencing mode to use
      * @param returningAttributes the attributes to return
      */
-    public ListOperationContext( CoreSession session, DN dn, AliasDerefMode aliasDerefMode,
-        Set<AttributeTypeOptions> returningAttributes )
+    public ListOperationContext( CoreSession session, DN dn, Set<AttributeTypeOptions> returningAttributes )
     {
         super( session, dn, returningAttributes );
-        this.aliasDerefMode = aliasDerefMode;
     }
 
 

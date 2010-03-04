@@ -445,8 +445,11 @@ public class DefaultCoreSession implements CoreSession
         Set<AttributeTypeOptions> returningAttributes ) throws Exception
     {
         OperationManager operationManager = directoryService.getOperationManager();
-        return operationManager.list( 
-            new ListOperationContext( this, dn, aliasDerefMode, returningAttributes ) );
+
+        ListOperationContext listOperationContext = new ListOperationContext( this, dn, returningAttributes );
+        listOperationContext.setAliasDerefMode( aliasDerefMode );
+        
+        return operationManager.list( listOperationContext );
     }
 
 
@@ -456,11 +459,14 @@ public class DefaultCoreSession implements CoreSession
     public EntryFilteringCursor list( DN dn, AliasDerefMode aliasDerefMode,
         Set<AttributeTypeOptions> returningAttributes, int sizeLimit, int timeLimit ) throws Exception
     {
-        ListOperationContext opContext = new ListOperationContext( this, dn, aliasDerefMode, returningAttributes );
-        opContext.setSizeLimit( sizeLimit );
-        opContext.setTimeLimit( timeLimit );
         OperationManager operationManager = directoryService.getOperationManager();
-        return operationManager.list( opContext );
+
+        ListOperationContext listOperationContext = new ListOperationContext( this, dn, returningAttributes );
+        listOperationContext.setSizeLimit( sizeLimit );
+        listOperationContext.setTimeLimit( timeLimit );
+        listOperationContext.setAliasDerefMode( aliasDerefMode );
+        
+        return operationManager.list( listOperationContext );
     }
 
 
