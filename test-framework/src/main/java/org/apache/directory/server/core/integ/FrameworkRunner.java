@@ -188,11 +188,14 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 {
                     LdapServer suiteServer = suite.getLdapServer();
 
-                    for ( Transport transport : suiteServer.getTransports() )
+                    if ( suiteServer != null )
                     {
-                        if ( minPort <= transport.getPort() )
+                        for ( Transport transport : suiteServer.getTransports() )
                         {
-                            minPort = transport.getPort();
+                            if ( minPort <= transport.getPort() )
+                            {
+                                minPort = transport.getPort();
+                            }
                         }
                     }
                 }
