@@ -60,12 +60,6 @@
       <artifactId>commons-io</artifactId>
       <version>${commons.io.version}</version>
     </dependency>
-    
-    <dependency>
-      <groupId>org.apache.directory.client.ldap</groupId>
-      <artifactId>ldap-client-api</artifactId>
-      <version>0.1-SNAPSHOT</version>
-    </dependency> 
   </dependencies>
 
   <profiles>
