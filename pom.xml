@@ -19,17 +19,11 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.directory.server</groupId>
-  <version>1.5</version>
+  <version>1.5.6-SNAPSHOT</version>
   <artifactId>1.5-with-dependencies</artifactId>
   <name>ApacheDS 1.5 Build With Dependencies</name>
   <inceptionYear>2003</inceptionYear>
   <packaging>pom</packaging>
-
-  <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/trunk-with-dependencies</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/trunk-with-dependencies</developerConnection>
-    <url>http://svn.apache.org/viewvc/directory/apacheds/trunk-with-dependencies</url>
-  </scm>
 
   <modules>
     <module>project</module>
@@ -39,4 +33,23 @@
     <module>ldap-client</module>
     <!-- module>kerberos-client</module -->
   </modules>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <scm>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/trunk-with-dependencies</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/trunk-with-dependencies</developerConnection>
+    <url>http://svn.apache.org/viewvc/directory/apacheds/trunk-with-dependencies</url>
+  </scm>
+
 </project>
