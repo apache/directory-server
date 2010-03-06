@@ -25,6 +25,12 @@
   <inceptionYear>2003</inceptionYear>
   <packaging>pom</packaging>
 
+  <scm>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/trunk-with-dependencies</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/trunk-with-dependencies</developerConnection>
+    <url>http://svn.apache.org/viewvc/directory/apacheds/trunk-with-dependencies</url>
+  </scm>
+
   <modules>
     <module>project</module>
     <module>shared</module>
