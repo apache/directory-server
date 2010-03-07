@@ -26,6 +26,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -215,8 +217,8 @@ public class PresenceTest
         assertEquals( SchemaConstants.CN_AT_OID, cursor.get().getValue() );
 
         node = new PresenceNode( SchemaConstants.OU_AT_OID );
-        evaluator = new PresenceEvaluator( node, store, schemaManager );
-        cursor = new PresenceCursor( store, evaluator );
+        evaluator = new PresenceEvaluator<Long>( node, store, schemaManager );
+        cursor = new PresenceCursor<Long>( store, evaluator );
 
         assertTrue( cursor.isElementReused() );
 
@@ -254,6 +256,37 @@ public class PresenceTest
         assertFalse( cursor.isClosed() );
         cursor.close();
         assertTrue( cursor.isClosed() );
+    }
+
+
+    @Test
+    public void testSystemIndexedServerEntry() throws Exception
+    {
+        testSystemIndexedServerEntry( SchemaConstants.OBJECT_CLASS_AT_OID );
+        testSystemIndexedServerEntry( SchemaConstants.ENTRY_UUID_AT_OID );
+        testSystemIndexedServerEntry( SchemaConstants.ENTRY_CSN_AT_OID );
+    }
+
+
+    public void testSystemIndexedServerEntry( String oid ) throws Exception
+    {
+        PresenceNode node = new PresenceNode( oid );
+        PresenceEvaluator<Long> evaluator = new PresenceEvaluator<Long>( node, store, schemaManager );
+        PresenceCursor<Long> cursor = new PresenceCursor<Long>( store, evaluator );
+
+        assertEquals( node, evaluator.getExpression() );
+        assertTrue( cursor.isElementReused() );
+
+        cursor.beforeFirst();
+
+        List<Long> ids = new ArrayList<Long>();
+        while ( cursor.next() && cursor.available() )
+        {
+            ids.add( cursor.get().getId() );
+        }
+        assertEquals( 11, ids.size() );
+        assertFalse( cursor.next() );
+        assertFalse( cursor.available() );
     }
 
 
@@ -322,8 +355,8 @@ public class PresenceTest
         // ----------- organizationName attribute
 
         node = new PresenceNode( SchemaConstants.O_AT_OID );
-        evaluator = new PresenceEvaluator( node, store, schemaManager );
-        cursor = new PresenceCursor( store, evaluator );
+        evaluator = new PresenceEvaluator<Long>( node, store, schemaManager );
+        cursor = new PresenceCursor<Long>( store, evaluator );
 
         assertTrue( cursor.isElementReused() );
 
@@ -351,6 +384,32 @@ public class PresenceTest
         assertFalse( evaluator.evaluate( entry ) );
         entry = new ForwardIndexEntry<String, ServerEntry, Long>();
         entry.setValue( SchemaConstants.CN_AT_OID );
+        entry.setId( ( long ) 5 );
+        assertTrue( evaluator.evaluate( entry ) );
+    }
+
+
+    @Test
+    public void testEvaluatorSystemIndexed() throws Exception
+    {
+        testEvaluatorSystemIndexed( SchemaConstants.OBJECT_CLASS_AT_OID );
+        testEvaluatorSystemIndexed( SchemaConstants.ENTRY_UUID_AT_OID );
+        testEvaluatorSystemIndexed( SchemaConstants.ENTRY_CSN_AT_OID );
+    }
+
+
+    private void testEvaluatorSystemIndexed( String oid ) throws Exception
+    {
+        PresenceNode node = new PresenceNode( oid );
+        PresenceEvaluator<Long> evaluator = new PresenceEvaluator<Long>( node, store, schemaManager );
+
+        ForwardIndexEntry<String, ServerEntry, Long> entry = new ForwardIndexEntry<String, ServerEntry, Long>();
+        // no need to set a value or id, because the evaluator must always evaluate to true
+        // as each entry contains an objectClass, entryUUID, and entryCSN attribute
+        assertTrue( evaluator.evaluate( entry ) );
+
+        entry = new ForwardIndexEntry<String, ServerEntry, Long>();
+        entry.setValue( oid );
         entry.setId( ( long ) 5 );
         assertTrue( evaluator.evaluate( entry ) );
     }

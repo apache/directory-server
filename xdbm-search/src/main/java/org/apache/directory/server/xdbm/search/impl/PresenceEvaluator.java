@@ -119,6 +119,13 @@ public class PresenceEvaluator<ID> implements Evaluator<PresenceNode, ServerEntr
     // wrapper or the raw normalized value
     public boolean evaluateEntry( ServerEntry entry ) throws Exception
     {
+        if ( db.hasSystemIndexOn( node.getAttribute() ) )
+        {
+            // we don't maintain a presence index for objectClass, entryUUID, and entryCSN
+            // however as every entry has such an attribute this evaluator always evaluates to true
+            return true;
+        }
+
         // get the attribute
         ServerAttribute attr = ( ServerAttribute ) entry.get( type );
 

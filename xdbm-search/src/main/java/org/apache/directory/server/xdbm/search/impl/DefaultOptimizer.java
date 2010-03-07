@@ -273,9 +273,9 @@ public class DefaultOptimizer<E, ID> implements Optimizer
     @SuppressWarnings("unchecked")
     private <V> long getEqualityScan( SimpleNode<V> node ) throws Exception
     {
-        if ( db.hasUserIndexOn( node.getAttribute() ) )
+        if ( db.hasIndexOn( node.getAttribute() ) )
         {
-            Index<V, E, ID> idx = ( Index<V, E, ID> ) db.getUserIndex( node.getAttribute() );
+            Index<V, E, ID> idx = ( Index<V, E, ID> ) db.getIndex( node.getAttribute() );
             return idx.count( node.getValue().get() );
         }
 
@@ -296,9 +296,9 @@ public class DefaultOptimizer<E, ID> implements Optimizer
     @SuppressWarnings("unchecked")
     private <V> long getGreaterLessScan( SimpleNode<V> node, boolean isGreaterThan ) throws Exception
     {
-        if ( db.hasUserIndexOn( node.getAttribute() ) )
+        if ( db.hasIndexOn( node.getAttribute() ) )
         {
-            Index<V, E, ID> idx = ( Index<V, E, ID> ) db.getUserIndex( node.getAttribute() );
+            Index<V, E, ID> idx = ( Index<V, E, ID> ) db.getIndex( node.getAttribute() );
             if ( isGreaterThan )
             {
                 return idx.greaterThanCount( node.getValue().get() );
@@ -326,9 +326,9 @@ public class DefaultOptimizer<E, ID> implements Optimizer
     @SuppressWarnings("unchecked")
     private long getFullScan( LeafNode node ) throws Exception
     {
-        if ( db.hasUserIndexOn( node.getAttribute() ) )
+        if ( db.hasIndexOn( node.getAttribute() ) )
         {
-            Index idx = db.getUserIndex( node.getAttribute() );
+            Index idx = db.getIndex( node.getAttribute() );
             return idx.count();
         }
 
@@ -350,6 +350,13 @@ public class DefaultOptimizer<E, ID> implements Optimizer
         {
             Index<String, E, ID> idx = db.getPresenceIndex();
             return idx.count( node.getAttribute() );
+        }
+        else if ( db.hasSystemIndexOn( node.getAttribute() ) )
+        {
+            // the system indices (objectClass, entryUUID, entryCSN) are maintained for
+            // each entry, so we could just return the index count
+            Index<?, E, ID> idx = db.getSystemIndex( node.getAttribute() );
+            return idx.count();
         }
 
         return Long.MAX_VALUE;

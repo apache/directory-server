@@ -66,9 +66,9 @@ public class EqualityCursor<V, ID> extends AbstractIndexCursor<V, ServerEntry, I
 
         String attribute = equalityEvaluator.getExpression().getAttribute();
         Value<V> value = equalityEvaluator.getExpression().getValue();
-        if ( db.hasUserIndexOn( attribute ) )
+        if ( db.hasIndexOn( attribute ) )
         {
-            Index<V, ServerEntry, ID> userIndex = ( Index<V, ServerEntry, ID> ) db.getUserIndex( attribute );
+            Index<V, ServerEntry, ID> userIndex = ( Index<V, ServerEntry, ID> ) db.getIndex( attribute );
             userIdxCursor = userIndex.forwardCursor( value.get() );
             ndnIdxCursor = null;
         }

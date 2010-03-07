@@ -854,6 +854,12 @@ public class JdbmStore<E> implements Store<E, Long>
     }
 
 
+    public boolean hasIndexOn( String id ) throws NamingException
+    {
+        return hasUserIndexOn( id ) || hasSystemIndexOn( id );
+    }
+
+
     public boolean hasUserIndexOn( String id ) throws NamingException
     {
         return userIndices.containsKey( schemaManager.getAttributeTypeRegistry().getOidByName( id ) );
@@ -863,6 +869,32 @@ public class JdbmStore<E> implements Store<E, Long>
     public boolean hasSystemIndexOn( String id ) throws NamingException
     {
         return systemIndices.containsKey( schemaManager.getAttributeTypeRegistry().getOidByName( id ) );
+    }
+
+
+    public Index<?, E, Long> getIndex( String id ) throws IndexNotFoundException
+    {
+        try
+        {
+            id = schemaManager.getAttributeTypeRegistry().getOidByName( id );
+        }
+        catch ( NamingException e )
+        {
+            String msg = I18n.err( I18n.ERR_128, id );
+            LOG.error( msg, e );
+            throw new IndexNotFoundException( msg, id, e );
+        }
+
+        if ( userIndices.containsKey( id ) )
+        {
+            return userIndices.get( id );
+        }
+        if ( systemIndices.containsKey( id ) )
+        {
+            return systemIndices.get( id );
+        }
+
+        throw new IndexNotFoundException( I18n.err( I18n.ERR_3, id, name ) );
     }
 
 

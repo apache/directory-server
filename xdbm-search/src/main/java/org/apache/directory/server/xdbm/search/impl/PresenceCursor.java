@@ -50,6 +50,9 @@ public class PresenceCursor<ID> extends AbstractIndexCursor<String, ServerEntry,
         this.presenceEvaluator = presenceEvaluator;
         AttributeType type = presenceEvaluator.getAttributeType();
 
+        // we don't maintain a presence index for objectClass, entryUUID, and entryCSN
+        // as it doesn't make sense because every entry has such an attribute
+        // instead for those attributes and all un-indexed attributes we use the ndn index
         if ( db.hasUserIndexOn( type.getOid() ) )
         {
             presenceCursor = db.getPresenceIndex().forwardCursor( type.getOid() );

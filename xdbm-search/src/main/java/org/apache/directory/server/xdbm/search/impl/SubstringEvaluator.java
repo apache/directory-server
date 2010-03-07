@@ -75,6 +75,7 @@ public class SubstringEvaluator<ID> implements Evaluator<SubstringNode, ServerEn
      * @param registries the set of registries
      * @throws Exception if there are failures accessing resources and the db
      */
+    @SuppressWarnings("unchecked")
     public SubstringEvaluator( SubstringNode node, Store<ServerEntry, ID> db, SchemaManager schemaManager )
         throws Exception
     {
@@ -104,10 +105,9 @@ public class SubstringEvaluator<ID> implements Evaluator<SubstringNode, ServerEn
         // compile the regular expression to search for a matching attribute
         regex = node.getRegex( normalizer );
 
-        if ( db.hasUserIndexOn( node.getAttribute() ) )
+        if ( db.hasIndexOn( node.getAttribute() ) )
         {
-            //noinspection unchecked
-            idx = ( Index<String, ServerEntry, ID> ) db.getUserIndex( node.getAttribute() );
+            idx = ( Index<String, ServerEntry, ID> ) db.getIndex( node.getAttribute() );
         }
         else
         {
@@ -116,12 +116,12 @@ public class SubstringEvaluator<ID> implements Evaluator<SubstringNode, ServerEn
     }
 
 
+    @SuppressWarnings("unchecked")
     public boolean evaluate( IndexEntry<?, ServerEntry, ID> indexEntry ) throws Exception
     {
 
         if ( idx == null )
         {
-            //noinspection unchecked
             return evaluateWithoutIndex( ( IndexEntry<String, ServerEntry, ID> ) indexEntry );
         }
         else
@@ -136,7 +136,6 @@ public class SubstringEvaluator<ID> implements Evaluator<SubstringNode, ServerEn
 
         if ( idx == null )
         {
-            //noinspection unchecked
             return evaluateWithoutIndex( id );
         }
         else

@@ -56,6 +56,7 @@ public class ApproximateEvaluator<T, ID> implements Evaluator<ApproximateNode<T>
     private final Index<T, ServerEntry, ID> idx;
 
 
+    @SuppressWarnings("unchecked")
     public ApproximateEvaluator( ApproximateNode<T> node, Store<ServerEntry, ID> db, SchemaManager schemaManager )
         throws Exception
     {
@@ -63,10 +64,9 @@ public class ApproximateEvaluator<T, ID> implements Evaluator<ApproximateNode<T>
         this.node = node;
         this.schemaManager = schemaManager;
 
-        if ( db.hasUserIndexOn( node.getAttribute() ) )
+        if ( db.hasIndexOn( node.getAttribute() ) )
         {
-            //noinspection unchecked
-            idx = ( Index<T, ServerEntry, ID> ) db.getUserIndex( node.getAttribute() );
+            idx = ( Index<T, ServerEntry, ID> ) db.getIndex( node.getAttribute() );
             type = null;
             normalizer = null;
             ldapComparator = null;

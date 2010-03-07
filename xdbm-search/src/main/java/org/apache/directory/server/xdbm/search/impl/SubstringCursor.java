@@ -48,14 +48,15 @@ public class SubstringCursor<ID> extends AbstractIndexCursor<String, ServerEntry
 
 
     @SuppressWarnings("unchecked")
-    public SubstringCursor( Store<ServerEntry, ID> db, final SubstringEvaluator<ID> substringEvaluator ) throws Exception
+    public SubstringCursor( Store<ServerEntry, ID> db, final SubstringEvaluator<ID> substringEvaluator )
+        throws Exception
     {
         evaluator = substringEvaluator;
-        hasIndex = db.hasUserIndexOn( evaluator.getExpression().getAttribute() );
+        hasIndex = db.hasIndexOn( evaluator.getExpression().getAttribute() );
 
         if ( hasIndex )
         {
-            wrapped = ( ( Index<String, ServerEntry, ID> ) db.getUserIndex( evaluator.getExpression().getAttribute() ) )
+            wrapped = ( ( Index<String, ServerEntry, ID> ) db.getIndex( evaluator.getExpression().getAttribute() ) )
                 .forwardCursor();
         }
         else

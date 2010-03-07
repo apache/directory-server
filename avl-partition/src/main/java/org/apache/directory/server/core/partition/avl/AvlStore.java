@@ -595,7 +595,34 @@ public class AvlStore<E> implements Store<E, Long>
         }
 
         throw new IndexNotFoundException( I18n.err( I18n.ERR_2, id, name ) );
+    }
 
+
+    /**
+     * {@inheritDoc}
+     */
+    public Index<?, E, Long> getIndex( String id ) throws IndexNotFoundException
+    {
+        try
+        {
+            id = schemaManager.getAttributeTypeRegistry().getOidByName( id );
+        }
+        catch ( NamingException e )
+        {
+            LOG.error( I18n.err( I18n.ERR_1, id ), e.getLocalizedMessage() );
+            throw new IndexNotFoundException( I18n.err( I18n.ERR_1, id ), id, e );
+        }
+
+        if ( userIndices.containsKey( id ) )
+        {
+            return userIndices.get( id );
+        }
+        if ( systemIndices.containsKey( id ) )
+        {
+            return systemIndices.get( id );
+        }
+
+        throw new IndexNotFoundException( I18n.err( I18n.ERR_2, id, name ) );
     }
 
 
@@ -638,6 +665,15 @@ public class AvlStore<E> implements Store<E, Long>
     public Set<Index<? extends Object, E, Long>> getUserIndices()
     {
         return new HashSet<Index<? extends Object, E, Long>>( userIndices.values() );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasIndexOn( String id ) throws Exception
+    {
+        return hasUserIndexOn( id ) || hasSystemIndexOn( id );
     }
 
 

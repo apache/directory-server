@@ -69,6 +69,7 @@ public class EqualityEvaluator<T, ID> implements Evaluator<EqualityNode<T>, Serv
     private final Index<T, ServerEntry, ID> idx;
 
 
+    @SuppressWarnings("unchecked")
     public EqualityEvaluator( EqualityNode<T> node, Store<ServerEntry, ID> db, SchemaManager schemaManager )
         throws Exception
     {
@@ -76,10 +77,9 @@ public class EqualityEvaluator<T, ID> implements Evaluator<EqualityNode<T>, Serv
         this.node = node;
         this.schemaManager = schemaManager;
 
-        if ( db.hasUserIndexOn( node.getAttribute() ) )
+        if ( db.hasIndexOn( node.getAttribute() ) )
         {
-            //noinspection unchecked
-            idx = ( Index<T, ServerEntry, ID> ) db.getUserIndex( node.getAttribute() );
+            idx = ( Index<T, ServerEntry, ID> ) db.getIndex( node.getAttribute() );
             type = null;
             normalizer = null;
             comparator = null;

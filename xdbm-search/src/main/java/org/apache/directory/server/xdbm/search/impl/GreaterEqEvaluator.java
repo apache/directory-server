@@ -56,6 +56,7 @@ public class GreaterEqEvaluator<T, ID> implements Evaluator<GreaterEqNode<T>, Se
     private final Index<Object, ServerEntry, ID> idx;
 
 
+    @SuppressWarnings("unchecked")
     public GreaterEqEvaluator( GreaterEqNode<T> node, Store<ServerEntry, ID> db, SchemaManager schemaManager )
         throws Exception
     {
@@ -64,10 +65,9 @@ public class GreaterEqEvaluator<T, ID> implements Evaluator<GreaterEqNode<T>, Se
         this.schemaManager = schemaManager;
         this.type = schemaManager.lookupAttributeTypeRegistry( node.getAttribute() );
 
-        if ( db.hasUserIndexOn( node.getAttribute() ) )
+        if ( db.hasIndexOn( node.getAttribute() ) )
         {
-            //noinspection unchecked
-            idx = ( Index<Object, ServerEntry, ID> ) db.getUserIndex( node.getAttribute() );
+            idx = ( Index<Object, ServerEntry, ID> ) db.getIndex( node.getAttribute() );
         }
         else
         {

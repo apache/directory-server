@@ -377,6 +377,16 @@ public interface Store<E, ID>
 
 
     /**
+     * Tells if an index is already present in the User's <strong>or</strong> System's index list
+     * @param id The index we are looking for
+     * @return <code>true</code> if the index is already present in the
+     * User's <strong>or</strong> System's index list 
+     * @throws Exception If something went wrong
+     */
+    boolean hasIndexOn( String id ) throws Exception;
+
+
+    /**
      * Tells if an index is already present in the User's index list
      * @param id The index we are looking for
      * @return <code>true</code> if the index is already present in the
@@ -397,6 +407,15 @@ public interface Store<E, ID>
 
 
     /**
+     * Get the user <strong>or</strong> system index associated with the given name
+     * @param id The index name we are looking for
+     * @return The associated user <strong>or</strong> system index
+     * @throws IndexNotFoundException If the index does not exist
+     */
+    Index<?, E, ID> getIndex( String id ) throws IndexNotFoundException;
+
+
+    /**
      * Get the user index associated with the given name
      * @param id The index name we are looking for
      * @return The associated user index
@@ -406,9 +425,9 @@ public interface Store<E, ID>
 
 
     /**
-     * Get the user index associated with the given name
+     * Get the system index associated with the given name
      * @param id The index name we are looking for
-     * @return The associated user index
+     * @return The associated system index
      * @throws IndexNotFoundException If the index does not exist
      */
     Index<?, E, ID> getSystemIndex( String id ) throws IndexNotFoundException;
