@@ -229,7 +229,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         }
         catch ( LdapAuthenticationException lae )
         {
-            lae.printStackTrace();
+            // lae.printStackTrace();
         	assertTrue(org.apache.directory.server.i18n.I18n.err(org.apache.directory.server.i18n.I18n.ERR_229), 
         			lae.getMessage().startsWith(org.apache.directory.server.i18n.I18n.ERR_229));
         }
