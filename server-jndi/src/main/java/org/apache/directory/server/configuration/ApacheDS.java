@@ -140,7 +140,7 @@ public class ApacheDS
                 
                 if( p.getSchemaManager() == null )
                 {
-                    LOG.warn( "setting the schema manager for partition {}", p.getSuffix() );
+                    LOG.info( "setting the schema manager for partition {}", p.getSuffix() );
                     p.setSchemaManager( schemaManager );
                 }
             }
@@ -154,7 +154,7 @@ public class ApacheDS
 
             if( sysPartition.getSchemaManager() == null )
             {
-                LOG.warn( "setting the schema manager for partition {}", sysPartition.getSuffix() );
+                LOG.info( "setting the schema manager for partition {}", sysPartition.getSuffix() );
                 sysPartition.setSchemaManager( schemaManager );
             }
             
