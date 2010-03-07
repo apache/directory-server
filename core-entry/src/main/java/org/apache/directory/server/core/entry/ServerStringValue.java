@@ -231,7 +231,7 @@ public class ServerStringValue extends ClientStringValue
             catch ( NamingException ne )
             {
                 String message = "Cannot normalize the value :" + ne.getLocalizedMessage();
-                LOG.warn( message );
+                LOG.info( message );
                 normalized = false;
             }
         }
