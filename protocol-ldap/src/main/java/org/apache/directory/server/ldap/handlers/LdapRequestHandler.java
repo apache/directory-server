@@ -128,6 +128,14 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
     {
         LdapSession ldapSession = ldapServer.getLdapSessionManager().getLdapSession( session );
         
+        if( ldapSession == null )
+        {
+            // in some cases the session is becoming null though the client is sending the UnbindRequest
+            // before closing
+            LOG.info( "ignoring the message {} received from null session", message  );
+            return;
+        }
+        
         // First check that the client hasn't issued a previous BindRequest, unless it
         // was a SASL BindRequest
         if ( ldapSession.isAuthPending() )
