@@ -29,7 +29,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith( FrameworkSuite.class )
-@Suite.SuiteClasses( { TestClassServer.class } )
+@Suite.SuiteClasses( { TestClassServer.class, TestMultiLevelDS.class } )
 @CreateDS( 
     name = "SuiteDS",
     partitions =
