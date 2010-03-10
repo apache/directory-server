@@ -195,7 +195,7 @@ public class TriggerSpecCache
             
         }
         
-        triggerSpecs.put( normName.toString(), subentryTriggerSpecs );
+        triggerSpecs.put( normName.getNormName(), subentryTriggerSpecs );
     }
 
 
@@ -248,6 +248,6 @@ public class TriggerSpecCache
 
     public void subentryRenamed( DN oldName, DN newName )
     {
-        triggerSpecs.put( newName.toString(), triggerSpecs.remove( oldName.toString() ) );
+        triggerSpecs.put( newName.getNormName(), triggerSpecs.remove( oldName.getNormName() ) );
     }
 }

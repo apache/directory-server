@@ -231,7 +231,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
             {
                 ProtectedItem.RangeOfValues rov = ( ProtectedItem.RangeOfValues ) item;
                 
-                if ( entryEvaluator.evaluate( rov.getFilter(), entryName.toString(), entry ) )
+                if ( entryEvaluator.evaluate( rov.getFilter(), entryName.getNormName(), entry ) )
                 {
                     return true;
                 }

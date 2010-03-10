@@ -273,6 +273,6 @@ public class TupleCache
 
     public void subentryRenamed( DN oldName, DN newName )
     {
-        tuples.put( newName.toString(), tuples.remove( oldName.toString() ) );
+        tuples.put( newName.getNormName(), tuples.remove( oldName.getNormName() ) );
     }
 }

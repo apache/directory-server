@@ -470,7 +470,7 @@ public class PartitionFrame extends JFrame
 
                 ServerEntry attrs = new DefaultServerEntry( schemaManager, entry.getEntry() );
 
-                if ( null == partition.getEntryId( ndn.toString() ) )
+                if ( null == partition.getEntryId( ndn.getNormName() ) )
                 {
                     partition.add( new AddOperationContext( null, attrs ) );
                     load();
