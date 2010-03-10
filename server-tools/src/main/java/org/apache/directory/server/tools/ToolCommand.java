@@ -24,8 +24,7 @@ import java.io.File;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
-import org.apache.directory.daemon.InstallLayout;
-import org.apache.directory.daemon.InstanceLayout;
+import org.apache.directory.daemon.InstallationLayout;
 import org.apache.directory.server.configuration.ApacheDS;
 
 
@@ -42,7 +41,7 @@ public abstract class ToolCommand
     private boolean verboseEnabled = false;
     private boolean quietEnabled = false;
     private String version;
-    private InstallLayout layout;
+    private InstallationLayout layout;
     private ApacheDS apacheDS;
 
     private InstanceLayout instanceLayout;
@@ -67,17 +66,17 @@ public abstract class ToolCommand
 
     public void setLayout( File installationDirectory )
     {
-        this.layout = new InstallLayout( installationDirectory );
+        this.layout = new InstallationLayout( installationDirectory );
     }
 
 
     public void setLayout( String installationPath )
     {
-        this.layout = new InstallLayout( new File( installationPath ) );
+        this.layout = new InstallationLayout( new File( installationPath ) );
     }
 
 
-    public void setLayout( InstallLayout layout )
+    public void setLayout( InstallationLayout layout )
     {
         this.layout = layout;
     }
@@ -95,7 +94,7 @@ public abstract class ToolCommand
     }
 
 
-    public InstallLayout getLayout()
+    public InstallationLayout getLayout()
     {
         return layout;
     }

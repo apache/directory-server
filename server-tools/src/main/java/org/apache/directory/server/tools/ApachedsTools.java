@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.directory.daemon.InstanceLayout;
 import org.apache.directory.server.i18n.I18n;
 
 
@@ -107,7 +106,7 @@ public class ApachedsTools
 
         if ( cmdline.getOptionValue( 'z' ) != null )
         {
-            cmd.setInstanceLayout( new InstanceLayout( cmd.getLayout(), new File( cmdline.getOptionValue( 'z' ) ) ) );
+            cmd.setInstanceLayout( new InstanceLayout( new File( cmdline.getOptionValue( 'z' ) ) ) );
         }
         
         cmd.execute( cmdline );
