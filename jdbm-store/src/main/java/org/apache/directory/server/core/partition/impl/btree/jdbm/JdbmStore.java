@@ -854,6 +854,12 @@ public class JdbmStore<E> implements Store<E, Long>
     }
 
 
+    public boolean hasIndexOn( String id ) throws NamingException
+    {
+        return hasUserIndexOn( id ) || hasSystemIndexOn( id );
+    }
+
+
     public boolean hasUserIndexOn( String id ) throws NamingException
     {
         return userIndices.containsKey( schemaManager.getAttributeTypeRegistry().getOidByName( id ) );
@@ -863,6 +869,32 @@ public class JdbmStore<E> implements Store<E, Long>
     public boolean hasSystemIndexOn( String id ) throws NamingException
     {
         return systemIndices.containsKey( schemaManager.getAttributeTypeRegistry().getOidByName( id ) );
+    }
+
+
+    public Index<?, E, Long> getIndex( String id ) throws IndexNotFoundException
+    {
+        try
+        {
+            id = schemaManager.getAttributeTypeRegistry().getOidByName( id );
+        }
+        catch ( NamingException e )
+        {
+            String msg = I18n.err( I18n.ERR_128, id );
+            LOG.error( msg, e );
+            throw new IndexNotFoundException( msg, id, e );
+        }
+
+        if ( userIndices.containsKey( id ) )
+        {
+            return userIndices.get( id );
+        }
+        if ( systemIndices.containsKey( id ) )
+        {
+            return systemIndices.get( id );
+        }
+
+        throw new IndexNotFoundException( I18n.err( I18n.ERR_3, id, name ) );
     }
 
 
@@ -1194,7 +1226,7 @@ public class JdbmStore<E> implements Store<E, Long>
         {
             parentDn = ( DN ) entryDn.clone();
             parentDn.remove( parentDn.size() - 1 );
-            parentId = getEntryId( parentDn.toString() );
+            parentId = getEntryId( parentDn.getNormName() );
         }
 
         // don't keep going if we cannot find the parent Id
@@ -1669,7 +1701,7 @@ public class JdbmStore<E> implements Store<E, Long>
             throw new Exception( I18n.err( I18n.ERR_215 ) );
         }
 
-        Long id = getEntryId( dn.toString() );
+        Long id = getEntryId( dn.getNormName() );
         ServerEntry entry = ( ServerEntry ) master.get( id );
 
         for ( AttributeType attributeType : mods.getAttributeTypes() )
@@ -1707,7 +1739,7 @@ public class JdbmStore<E> implements Store<E, Long>
 
     public void modify( DN dn, List<Modification> mods ) throws Exception
     {
-        Long id = getEntryId( dn.toString() );
+        Long id = getEntryId( dn.getNormName() );
         ServerEntry entry = ( ServerEntry ) master.get( id );
 
         for ( Modification mod : mods )
@@ -1975,7 +2007,7 @@ public class JdbmStore<E> implements Store<E, Long>
 
     public void move( DN oldChildDn, DN newParentDn, RDN newRdn, boolean deleteOldRdn ) throws Exception
     {
-        Long childId = getEntryId( oldChildDn.toString() );
+        Long childId = getEntryId( oldChildDn.getNormName() );
         rename( oldChildDn, newRdn, deleteOldRdn );
         DN newUpdn = move( oldChildDn, childId, newParentDn );
 
@@ -1993,7 +2025,7 @@ public class JdbmStore<E> implements Store<E, Long>
 
     public void move( DN oldChildDn, DN newParentDn ) throws Exception
     {
-        Long childId = getEntryId( oldChildDn.toString() );
+        Long childId = getEntryId( oldChildDn.getNormName() );
         DN newUpdn = move( oldChildDn, childId, newParentDn );
 
         // Update the current entry
@@ -2025,7 +2057,7 @@ public class JdbmStore<E> implements Store<E, Long>
     private DN move( DN oldChildDn, Long childId, DN newParentDn ) throws Exception
     {
         // Get the child and the new parent to be entries and Ids
-        Long newParentId = getEntryId( newParentDn.toString() );
+        Long newParentId = getEntryId( newParentDn.getNormName() );
         Long oldParentId = getParentId( childId );
 
         /*
@@ -2146,7 +2178,7 @@ public class JdbmStore<E> implements Store<E, Long>
         //            }
         //        };
 
-        Long movedBaseId = getEntryId( movedBase.toString() );
+        Long movedBaseId = getEntryId( movedBase.getNormName() );
 
         if ( aliasIdx.reverseLookup( movedBaseId ) != null )
         {
@@ -2185,7 +2217,7 @@ public class JdbmStore<E> implements Store<E, Long>
          * moved base.  This is the first ancestor effected by the move.
          */
         DN ancestorDn = ( DN ) movedBase.getPrefix( 1 );
-        Long ancestorId = getEntryId( ancestorDn.toString() );
+        Long ancestorId = getEntryId( ancestorDn.getNormName() );
 
         /*
          * We cannot just drop all tuples in the one level and subtree userIndices
@@ -2209,7 +2241,7 @@ public class JdbmStore<E> implements Store<E, Long>
         while ( !ancestorDn.equals( upSuffix ) )
         {
             ancestorDn = ( DN ) ancestorDn.getPrefix( 1 );
-            ancestorId = getEntryId( ancestorDn.toString() );
+            ancestorId = getEntryId( ancestorDn.getNormName() );
 
             subAliasIdx.drop( ancestorId, targetId );
         }

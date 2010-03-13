@@ -364,14 +364,12 @@ public class MiscBindIT extends AbstractLdapTestUnit
             }
 
 
-            @SuppressWarnings("unused")
             public byte[] getValue()
             {
                 return new byte[0];
             }
 
 
-            @SuppressWarnings("unused")
             public void setValue( byte[] value )
             {
             }

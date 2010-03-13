@@ -235,7 +235,7 @@ public class GroupCache
 
             try
             {
-                memberDn = parseNormalized( memberDn ).toString();
+                memberDn = parseNormalized( memberDn ).getNormName();
             }
             catch ( NamingException e )
             {
@@ -263,7 +263,7 @@ public class GroupCache
 
             try
             {
-                memberDn = parseNormalized( memberDn ).toString();
+                memberDn = parseNormalized( memberDn ).getNormName();
             }
             catch ( NamingException e )
             {

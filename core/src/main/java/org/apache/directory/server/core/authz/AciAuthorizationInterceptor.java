@@ -522,7 +522,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return;
         }
 
-        Set<DN> userGroups = groupCache.getGroups( principalDn.toString() );
+        Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( deleteContext, tuples, name, entry.getOriginalEntry() );
         addEntryAciTuples( tuples, entry );
@@ -569,7 +569,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return;
         }
 
-        Set<DN> userGroups = groupCache.getGroups( principalDn.toString() );
+        Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( opContext, tuples, name, entry.getOriginalEntry() );
         addEntryAciTuples( tuples, entry );
@@ -720,7 +720,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     private void checkLookupAccess( LookupOperationContext lookupContext, ServerEntry entry ) throws Exception
     {
         // no permissions checks on the RootDSE
-        if ( lookupContext.getDn().toString().trim().equals( "" ) )
+        if ( lookupContext.getDn().getNormName().trim().equals( "" ) )
         {
             return;
         }
@@ -821,7 +821,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return;
         }
 
-        Set<DN> userGroups = groupCache.getGroups( principalDn.toString() );
+        Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( renameContext, tuples, oldName, originalEntry );
         addEntryAciTuples( tuples, originalEntry );
@@ -868,7 +868,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return;
         }
 
-        Set<DN> userGroups = groupCache.getGroups( principalDn.toString() );
+        Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( moveAndRenameContext, tuples, oriChildName, entry.getOriginalEntry() );
         addEntryAciTuples( tuples, entry );
@@ -947,7 +947,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return;
         }
 
-        Set<DN> userGroups = groupCache.getGroups( principalDn.toString() );
+        Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( moveContext, tuples, oriChildName, entry.getOriginalEntry() );
         addEntryAciTuples( tuples, entry );
@@ -1091,7 +1091,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         {
             entry = opContext.lookup( matched, ByPassConstants.GETMATCHEDDN_BYPASS );
             
-            Set<DN> userGroups = groupCache.getGroups( principalDn.toString() );
+            Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
             Collection<ACITuple> tuples = new HashSet<ACITuple>();
             addPerscriptiveAciTuples( opContext, tuples, matched, entry.getOriginalEntry() );
             addEntryAciTuples( tuples, entry );

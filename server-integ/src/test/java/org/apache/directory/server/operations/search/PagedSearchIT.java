@@ -30,6 +30,7 @@ import java.util.List;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.OperationNotSupportedException;
+import javax.naming.SizeLimitExceededException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -268,9 +269,9 @@ public class PagedSearchIT extends AbstractLdapTestUnit
                     results.add( result );
                 }
             }
-            catch ( Exception e )
+            catch ( SizeLimitExceededException e )
             {
-                e.printStackTrace();
+                // e.printStackTrace();
                 hasSizeLimitException = true;
                 break;
             }

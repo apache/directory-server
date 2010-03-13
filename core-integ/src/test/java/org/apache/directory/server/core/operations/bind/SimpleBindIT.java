@@ -42,6 +42,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
+import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
@@ -189,7 +190,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         }
         catch ( InvalidNameException ine )
         {
-            assertEquals( "ERR_04201 No more characters available at position 5", ine.getMessage() );
+        	assertTrue(I18n.err(I18n.ERR_04201), ine.getMessage().startsWith(I18n.ERR_04201));
         }
         catch ( NamingException ne )
         {
@@ -228,8 +229,9 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         }
         catch ( LdapAuthenticationException lae )
         {
-            lae.printStackTrace();
-            assertEquals( "ERR_229 Cannot authenticate user uid=unknown,ou=system", lae.getMessage() );
+            // lae.printStackTrace();
+        	assertTrue(org.apache.directory.server.i18n.I18n.err(org.apache.directory.server.i18n.I18n.ERR_229), 
+        			lae.getMessage().startsWith(org.apache.directory.server.i18n.I18n.ERR_229));
         }
         catch ( NamingException ne )
         {

@@ -188,11 +188,14 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 {
                     LdapServer suiteServer = suite.getLdapServer();
 
-                    for ( Transport transport : suiteServer.getTransports() )
+                    if ( suiteServer != null )
                     {
-                        if ( minPort <= transport.getPort() )
+                        for ( Transport transport : suiteServer.getTransports() )
                         {
-                            minPort = transport.getPort();
+                            if ( minPort <= transport.getPort() )
+                            {
+                                minPort = transport.getPort();
+                            }
                         }
                     }
                 }
@@ -293,9 +296,19 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             // Check if this method has a dedicated DSBuilder
             DirectoryService methodDS = DSAnnotationProcessor.getDirectoryService( methodDescription );
 
+            // give #1 priority to method level DS if present
+            if ( methodDS != null )
+            {
+                // Apply all the LDIFs
+                DSAnnotationProcessor.applyLdifs( suiteDescription, methodDS );
+                DSAnnotationProcessor.applyLdifs( classDescription, methodDS );
+                DSAnnotationProcessor.applyLdifs( methodDescription, methodDS );
+
+                directoryService = methodDS;
+            }
             // we don't support method level LdapServer so
             // we check for the presence of Class level LdapServer first 
-            if ( classLdapServer != null )
+            else if ( classLdapServer != null )
             {
                 directoryService = classLdapServer.getDirectoryService();
 
@@ -310,15 +323,6 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 revision = getCurrentRevision( directoryService );
 
                 DSAnnotationProcessor.applyLdifs( methodDescription, directoryService );
-            }
-            else if ( methodDS != null )
-            {
-                // Apply all the LDIFs
-                DSAnnotationProcessor.applyLdifs( suiteDescription, methodDS );
-                DSAnnotationProcessor.applyLdifs( classDescription, methodDS );
-                DSAnnotationProcessor.applyLdifs( methodDescription, methodDS );
-
-                directoryService = methodDS;
             }
             else if ( classDS != null )
             {
@@ -350,15 +354,20 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
             Field ldapServerField = getTestClass().getJavaClass().getField( LDAP_SERVER_FIELD_NAME );
 
+            dirServiceField.set( getTestClass().getJavaClass(), directoryService );
+
             if ( classLdapServer != null )
             {
-                dirServiceField.set( getTestClass().getJavaClass(), classLdapServer.getDirectoryService() );
+                // setting the directoryService is required to inject the correct level DS instance in the class or suite level LdapServer
+                classLdapServer.setDirectoryService( directoryService );
+                
                 ldapServerField.set( getTestClass().getJavaClass(), classLdapServer );
             }
             else if ( classKdcServer != null )
             {
-                dirServiceField.set( getTestClass().getJavaClass(), classKdcServer.getDirectoryService() );
-
+             // setting the directoryService is required to inject the correct level DS instance in the class or suite level KdcServer
+                classKdcServer.setDirectoryService( directoryService );
+                
                 Field kdcServerField = getTestClass().getJavaClass().getField( KDC_SERVER_FIELD_NAME );
                 kdcServerField.set( getTestClass().getJavaClass(), classKdcServer );
             }

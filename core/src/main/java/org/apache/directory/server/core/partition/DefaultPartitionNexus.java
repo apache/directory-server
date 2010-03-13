@@ -925,7 +925,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
                 throw new ConfigurationException( I18n.err( I18n.ERR_267, partition.getId() ) );
             }
             
-            partitions.put( partitionSuffix.toString(), partition );
+            partitions.put( partitionSuffix.getNormName(), partition );
             partitionLookupTree.add( partition.getSuffixDn(), partition );
 
             EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );

@@ -56,17 +56,18 @@ public class LessEqEvaluator<T, ID> implements Evaluator<LessEqNode<T>, ServerEn
     private final Index<T, ServerEntry, ID> idx;
 
 
-    public LessEqEvaluator( LessEqNode<T> node, Store<ServerEntry, ID> db, SchemaManager schemaManager ) throws Exception
+    @SuppressWarnings("unchecked")
+    public LessEqEvaluator( LessEqNode<T> node, Store<ServerEntry, ID> db, SchemaManager schemaManager )
+        throws Exception
     {
         this.db = db;
         this.node = node;
         this.schemaManager = schemaManager;
         this.type = schemaManager.lookupAttributeTypeRegistry( node.getAttribute() );
 
-        if ( db.hasUserIndexOn( node.getAttribute() ) )
+        if ( db.hasIndexOn( node.getAttribute() ) )
         {
-            //noinspection unchecked
-            idx = ( Index<T, ServerEntry, ID> ) db.getUserIndex( node.getAttribute() );
+            idx = ( Index<T, ServerEntry, ID> ) db.getIndex( node.getAttribute() );
         }
         else
         {

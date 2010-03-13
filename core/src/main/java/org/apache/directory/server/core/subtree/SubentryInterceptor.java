@@ -198,7 +198,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 }
 
                 dnName.normalize( schemaManager.getNormalizerMapping() );
-                subentryCache.setSubentry( dnName.toString(), ss, getSubentryTypes( subentry ) );
+                subentryCache.setSubentry( dnName.getNormName(), ss, getSubentryTypes( subentry ) );
             }
         }
     }
@@ -353,7 +353,7 @@ public class SubentryInterceptor extends BaseInterceptor
                         subentryAttrs.put( operational );
                     }
 
-                    operational.add( subentryDn.toString() );
+                    operational.add( subentryDn.getNormName() );
                 }
                 if ( subentry.isSchemaSubentry() )
                 {
@@ -366,7 +366,7 @@ public class SubentryInterceptor extends BaseInterceptor
                         subentryAttrs.put( operational );
                     }
 
-                    operational.add( subentryDn.toString() );
+                    operational.add( subentryDn.getNormName() );
                 }
                 if ( subentry.isCollectiveSubentry() )
                 {
@@ -379,7 +379,7 @@ public class SubentryInterceptor extends BaseInterceptor
                         subentryAttrs.put( operational );
                     }
 
-                    operational.add( subentryDn.toString() );
+                    operational.add( subentryDn.getNormName() );
                 }
                 if ( subentry.isTriggerSubentry() )
                 {
@@ -392,7 +392,7 @@ public class SubentryInterceptor extends BaseInterceptor
                         subentryAttrs.put( operational );
                     }
 
-                    operational.add( subentryDn.toString() );
+                    operational.add( subentryDn.getNormName() );
                 }
             }
         }
@@ -527,7 +527,7 @@ public class SubentryInterceptor extends BaseInterceptor
                             entry.put( operational );
                         }
 
-                        operational.add( subentryDn.toString() );
+                        operational.add( subentryDn.getNormName() );
                     }
 
                     if ( subentry.isSchemaSubentry() )
@@ -541,7 +541,7 @@ public class SubentryInterceptor extends BaseInterceptor
                             entry.put( operational );
                         }
 
-                        operational.add( subentryDn.toString() );
+                        operational.add( subentryDn.getNormName() );
                     }
 
                     if ( subentry.isCollectiveSubentry() )
@@ -555,7 +555,7 @@ public class SubentryInterceptor extends BaseInterceptor
                             entry.put( operational );
                         }
 
-                        operational.add( subentryDn.toString() );
+                        operational.add( subentryDn.getNormName() );
                     }
 
                     if ( subentry.isTriggerSubentry() )
@@ -569,7 +569,7 @@ public class SubentryInterceptor extends BaseInterceptor
                             entry.put( operational );
                         }
 
-                        operational.add( subentryDn.toString() );
+                        operational.add( subentryDn.getNormName() );
                     }
                 }
             }
@@ -920,7 +920,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
         {
-            Subentry subentry = subentryCache.getSubentry( oriChildName.toString() );
+            Subentry subentry = subentryCache.getSubentry( oriChildName.getNormName() );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
             DN apName = ( DN ) oriChildName.clone();
             apName.remove( apName.size() - 1 );
@@ -1052,7 +1052,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) && isSubtreeSpecificationModification )
         {
-            SubtreeSpecification ssOld = subentryCache.removeSubentry( name.toString() ).getSubtreeSpecification();
+            SubtreeSpecification ssOld = subentryCache.removeSubentry( name.getNormName() ).getSubtreeSpecification();
             SubtreeSpecification ssNew;
 
             try
@@ -1250,44 +1250,44 @@ public class SubentryInterceptor extends BaseInterceptor
         {
             if ( operational.get( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ) == null )
             {
-                operational.put( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT, name.toString() );
+                operational.put( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT, name.getNormName() );
             }
             else
             {
-                operational.get( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ).add( name.toString() );
+                operational.get( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ).add( name.getNormName() );
             }
         }
         if ( subentry.isSchemaSubentry() )
         {
             if ( operational.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ) == null )
             {
-                operational.put( SchemaConstants.SUBSCHEMA_SUBENTRY_AT, name.toString() );
+                operational.put( SchemaConstants.SUBSCHEMA_SUBENTRY_AT, name.getNormName() );
             }
             else
             {
-                operational.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).add( name.toString() );
+                operational.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).add( name.getNormName() );
             }
         }
         if ( subentry.isCollectiveSubentry() )
         {
             if ( operational.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) == null )
             {
-                operational.put( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT, name.toString() );
+                operational.put( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT, name.getNormName() );
             }
             else
             {
-                operational.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ).add( name.toString() );
+                operational.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ).add( name.getNormName() );
             }
         }
         if ( subentry.isTriggerSubentry() )
         {
             if ( operational.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) == null )
             {
-                operational.put( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT, name.toString() );
+                operational.put( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT, name.getNormName() );
             }
             else
             {
-                operational.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ).add( name.toString() );
+                operational.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ).add( name.getNormName() );
             }
         }
 
@@ -1406,7 +1406,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             DN ndn = new DN( dn );
             ndn.normalize( schemaManager.getNormalizerMapping() );
-            String normalizedDn = ndn.toString();
+            String normalizedDn = ndn.getNormName();
             return !subentryCache.hasSubentry( normalizedDn );
         }
     }

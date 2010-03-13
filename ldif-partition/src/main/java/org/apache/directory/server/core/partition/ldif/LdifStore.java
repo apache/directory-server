@@ -401,6 +401,12 @@ public class LdifStore<E> implements Store<E, Long>
     }
 
 
+    public Index<?, E, Long> getIndex( String id ) throws IndexNotFoundException
+    {
+        return wrappedStore.getIndex( id );
+    }
+
+
     public Index<?, E, Long> getSystemIndex( String id ) throws IndexNotFoundException
     {
         return wrappedStore.getSystemIndex( id );
@@ -422,6 +428,12 @@ public class LdifStore<E> implements Store<E, Long>
     public Set<Index<?, E, Long>> getUserIndices()
     {
         return wrappedStore.getUserIndices();
+    }
+
+
+    public boolean hasIndexOn( String id ) throws Exception
+    {
+        return wrappedStore.hasIndexOn( id );
     }
 
 

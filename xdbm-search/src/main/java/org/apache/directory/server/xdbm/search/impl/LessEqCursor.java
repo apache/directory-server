@@ -71,9 +71,9 @@ public class LessEqCursor<V, ID> extends AbstractIndexCursor<V, ServerEntry, ID>
         this.lessEqEvaluator = lessEqEvaluator;
 
         String attribute = lessEqEvaluator.getExpression().getAttribute();
-        if ( db.hasUserIndexOn( attribute ) )
+        if ( db.hasIndexOn( attribute ) )
         {
-            userIdxCursor = ( ( Index<V, ServerEntry, ID> ) db.getUserIndex( attribute ) ).forwardCursor();
+            userIdxCursor = ( ( Index<V, ServerEntry, ID> ) db.getIndex( attribute ) ).forwardCursor();
             ndnIdxCursor = null;
         }
         else

@@ -60,16 +60,16 @@ public class ApproximateCursor<V, ID> extends AbstractIndexCursor<V, ServerEntry
     private boolean available = false;
 
 
+    @SuppressWarnings("unchecked")
     public ApproximateCursor( Store<ServerEntry, ID> db, ApproximateEvaluator<V, ID> approximateEvaluator ) throws Exception
     {
         this.approximateEvaluator = approximateEvaluator;
 
         String attribute = approximateEvaluator.getExpression().getAttribute();
         Value<V> value = approximateEvaluator.getExpression().getValue();
-        if ( db.hasUserIndexOn( attribute ) )
+        if ( db.hasIndexOn( attribute ) )
         {
-            //noinspection unchecked
-            Index<V, ServerEntry, ID> index = ( Index<V, ServerEntry, ID> ) db.getUserIndex( attribute );
+            Index<V, ServerEntry, ID> index = ( Index<V, ServerEntry, ID> ) db.getIndex( attribute );
             userIdxCursor = index.forwardCursor( value.get() );
             ndnIdxCursor = null;
         }
