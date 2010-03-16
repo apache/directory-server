@@ -20,6 +20,10 @@ package org.apache.directory.server.core.changelog;
 
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,11 +32,10 @@ import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifRevertor;
@@ -44,9 +47,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
 
 
 /**
@@ -110,7 +110,7 @@ public class MemoryChangeLogStoreTest
     
     
     @Test
-    public void testChangeLogSerialization() throws NamingException, IOException, ClassNotFoundException
+    public void testChangeLogSerialization() throws LdapException, IOException, ClassNotFoundException
     {
         DN systemDn = new DN( "ou=system" );
         systemDn.normalize( oidsMap );

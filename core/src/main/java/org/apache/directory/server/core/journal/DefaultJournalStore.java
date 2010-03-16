@@ -26,10 +26,9 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 
@@ -124,7 +123,7 @@ public class DefaultJournalStore implements JournalStore
                 writer.write( LdifUtils.convertToLdif( forward, 80 ) );
                 writer.flush();
             }
-            catch ( NamingException ne )
+            catch ( LdapException ne )
             {
                 return false;
             }

@@ -24,11 +24,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.GreaterEqNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -131,7 +130,7 @@ public class RefinementLeafEvaluatorTest
             assertFalse( evaluator.evaluate( new GreaterEqNode( "", new ClientStringValue( "" ) ), objectClasses ) );
             fail( "should never get here due to an NE" );
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
         }
 
@@ -140,7 +139,7 @@ public class RefinementLeafEvaluatorTest
             assertFalse( evaluator.evaluate( new EqualityNode( "", new ClientStringValue( "" ) ), objectClasses ) );
             fail( "should never get here due to an NE" );
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
         }
 
@@ -159,7 +158,7 @@ public class RefinementLeafEvaluatorTest
             assertFalse( evaluator.evaluate( new EqualityNode( "cn", new ClientStringValue( "" ) ), objectClasses ) );
             fail( "should never get here due to an IAE" );
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             assertTrue( true );
         }

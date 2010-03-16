@@ -29,14 +29,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -594,7 +593,7 @@ public class SchemaCheckerTest
 
     class MockOidRegistry extends OidRegistry
     {
-        public String getOid( String name ) throws NamingException
+        public String getOid( String name ) throws LdapException
         {
             return StringTools.deepTrimToLower( name );
         }
@@ -604,12 +603,12 @@ public class SchemaCheckerTest
             return true;
         }
 
-        public String getPrimaryName( String oid ) throws NamingException
+        public String getPrimaryName( String oid ) throws LdapException
         {
             return oid;
         }
 
-        public List<String> getNameSet( String oid ) throws NamingException
+        public List<String> getNameSet( String oid ) throws LdapException
         {
             return Collections.singletonList( oid );
         }
@@ -633,7 +632,7 @@ public class SchemaCheckerTest
             return null;
         }
 
-        public void unregister( String numericOid ) throws NamingException
+        public void unregister( String numericOid ) throws LdapException
         {
         }
     }

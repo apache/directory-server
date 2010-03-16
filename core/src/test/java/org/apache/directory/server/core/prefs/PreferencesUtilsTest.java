@@ -20,14 +20,12 @@
 package org.apache.directory.server.core.prefs;
 
 
-import javax.naming.NamingException;
+import static org.junit.Assert.assertEquals;
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.prefs.PreferencesUtils;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -42,10 +40,10 @@ public class PreferencesUtilsTest
      * Tests to confirm the toSysDn() method can translate an absolute
      * preference node path into an LDAP distinguished name.
      *
-     * @throws NamingException if there are problems transforming the name
+     * @throws LdapException if there are problems transforming the name
      */
     @Test
-    public void testToSysDn() throws NamingException
+    public void testToSysDn() throws LdapException
     {
         // simple test
         String expectedDN = "prefNodeName=kerberos,prefNodeName=apache,prefNodeName=org," +

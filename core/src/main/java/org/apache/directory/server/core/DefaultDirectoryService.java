@@ -1507,8 +1507,7 @@ public class DefaultDirectoryService implements DirectoryService
                     continue;
                 }
 
-                EntryAttribute attribute = AttributeUtils.toClientAttribute( 
-                    LdifReader.parseAttributeValue( addedLine ) );
+                EntryAttribute attribute = LdifReader.parseAttributeValue( addedLine );
                 EntryAttribute oldAttribute = entry.get( attribute.getId() );
 
                 if ( oldAttribute != null )
