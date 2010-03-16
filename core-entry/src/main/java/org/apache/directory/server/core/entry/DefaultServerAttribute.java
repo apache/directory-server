@@ -389,16 +389,13 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
             {
                 Value<String> newValue = new ServerStringValue( attributeType, val );
                 
-                if ( !contains( newValue ) )
+                if ( add( newValue ) != 0 )
                 {
-                    if ( add( newValue ) != 0 )
-                    {
-                        nbAdded++;
-                    }
-                    else
-                    {
-                        LOG.error( I18n.err( I18n.ERR_94, val ) );
-                    }
+                    nbAdded++;
+                }
+                else
+                {
+                    LOG.error( I18n.err( I18n.ERR_94, val ) );
                 }
             }
             
@@ -429,20 +426,16 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 {
                     Value<String> nullSV = new ServerStringValue( attributeType, (String)null );
                     
-                    if ( !values.contains( nullSV ) )
+                    if ( values.add( nullSV ) )
                     {
-                        values.add( nullSV );
                         nbAdded++;
                     }
                 }
                 else if ( val instanceof ServerStringValue )
                 {
-                    if ( !values.contains( val ) )
+                    if ( values.add( val ) )
                     {
-                        if ( values.add( val ) )
-                        {
-                            nbAdded++;
-                        }
+                        nbAdded++;
                     }
                 }
                 else if ( val instanceof ClientStringValue )
@@ -450,12 +443,9 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                     // If we get a Client value, convert it to a Server value first 
                     Value<String> serverStringValue = new ServerStringValue( attributeType, val.getString() ); 
                     
-                    if ( !values.contains( serverStringValue ) )
+                    if ( values.add( serverStringValue ) )
                     {
-                        if ( values.add( serverStringValue ) )
-                        {
-                            nbAdded++;
-                        }
+                        nbAdded++;
                     }
                 }
                 else
@@ -470,9 +460,8 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 {
                     Value<byte[]> nullSV = new ServerBinaryValue( attributeType, (byte[])null );
                     
-                    if ( !values.contains( nullSV ) )
+                    if ( values.add( nullSV ) )
                     {
-                        values.add( nullSV );
                         nbAdded++;
                     }
                 }
@@ -480,22 +469,16 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 {
                     Value<byte[]> serverBinaryValue = new ServerBinaryValue( attributeType, val.getBytes() ); 
                     
-                    if ( !values.contains( serverBinaryValue ) )
+                    if ( values.add( serverBinaryValue ) )
                     {
-                        if ( values.add( serverBinaryValue ) )
-                        {
-                            nbAdded++;
-                        }
+                        nbAdded++;
                     }
                 }
                 else if ( val instanceof ServerBinaryValue )
                 {
-                    if ( !values.contains( val ) )
+                    if ( values.add( val ) )
                     {
-                        if ( values.add( val ) )
-                        {
-                            nbAdded++;
-                        }
+                        nbAdded++;
                     }
                 }
                 else
