@@ -28,9 +28,6 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
-import javax.naming.InvalidNameException;
-import javax.naming.NamingException;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -59,6 +56,8 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
@@ -146,7 +145,7 @@ public class ImportCommand extends ToolCommand
     }
 
 
-    private LdapMessageCodec readResponse( ByteBuffer bb ) throws IOException, DecoderException, NamingException
+    private LdapMessageCodec readResponse( ByteBuffer bb ) throws IOException, DecoderException
     {
 
         LdapMessageCodec messageResp = null;
@@ -213,8 +212,8 @@ public class ImportCommand extends ToolCommand
      * @param msgId
      *            message id number
      */
-    private int addEntry( LdifEntry ldifEntry, int messageId ) throws IOException, DecoderException, InvalidNameException,
-        NamingException, EncoderException
+    private int addEntry( LdifEntry ldifEntry, int messageId ) throws IOException, DecoderException, LdapException,
+        EncoderException
     {
         AddRequestCodec addRequest = new AddRequestCodec();
 
@@ -283,7 +282,7 @@ public class ImportCommand extends ToolCommand
      *            message id number
      */
     private int deleteEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
-        InvalidNameException, NamingException, EncoderException
+        LdapInvalidDnException, EncoderException
     {
         DelRequestCodec delRequest = new DelRequestCodec();
 
@@ -338,7 +337,7 @@ public class ImportCommand extends ToolCommand
      *            message id number
      */
     private int changeModRDNEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
-        InvalidNameException, NamingException, EncoderException
+        LdapInvalidDnException, EncoderException
     {
         ModifyDNRequestCodec modifyDNRequest = new ModifyDNRequestCodec();
 
@@ -398,7 +397,7 @@ public class ImportCommand extends ToolCommand
      * @param msgId message id number
      */
     private int changeModifyEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
-        InvalidNameException, NamingException, EncoderException
+         LdapInvalidDnException, EncoderException
     {
         ModifyRequestCodec modifyRequest = new ModifyRequestCodec();
 
@@ -465,7 +464,7 @@ public class ImportCommand extends ToolCommand
      *            message id number
      */
     private int changeEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
-        InvalidNameException, NamingException, EncoderException
+        LdapException, EncoderException
     {
         switch ( entry.getChangeType().getChangeType() )
         {
@@ -494,7 +493,7 @@ public class ImportCommand extends ToolCommand
      * 
      * @param messageId The message Id
      */
-    private void bind( int messageId ) throws NamingException, EncoderException, DecoderException, IOException
+    private void bind( int messageId ) throws LdapInvalidDnException, EncoderException, DecoderException, IOException
     {
         BindRequestCodec bindRequest = new BindRequestCodec();
         LdapAuthentication authentication = null;
@@ -545,12 +544,11 @@ public class ImportCommand extends ToolCommand
      * 
      * @param messageId
      *            The message Id
-     * @throws InvalidNameException
      * @throws EncoderException
      * @throws DecoderException
      * @throws IOException
      */
-    private void unbind( int messageId ) throws InvalidNameException, EncoderException, DecoderException, IOException
+    private void unbind( int messageId ) throws EncoderException, DecoderException, IOException
     {
         UnBindRequestCodec unbindRequest = new UnBindRequestCodec();
 
