@@ -55,7 +55,7 @@ import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
@@ -828,7 +828,7 @@ public class JdbmStoreTest
     }
 
 
-    @Test(expected = LdapNameNotFoundException.class)
+    @Test(expected = LdapNoSuchObjectException.class)
     public void testAddWithoutParentId() throws Exception
     {
         DN dn = new DN( "cn=Marting King,ou=Not Present,o=Good Times Co." );

@@ -39,8 +39,8 @@ import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
-import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
-import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
+import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalBindResponse;
@@ -197,12 +197,12 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
             ResultCodeEnum code = null;
             InternalLdapResult result = bindRequest.getResultResponse().getLdapResult();
 
-            if ( e instanceof LdapOperationNotSupportedException )
+            if ( e instanceof LdapUnwillingToPerformException )
             {
                 code = ResultCodeEnum.UNWILLING_TO_PERFORM;
                 result.setResultCode( code );
             }
-            else if ( e instanceof LdapInvalidNameException )
+            else if ( e instanceof LdapInvalidDnException )
             {
                 code = ResultCodeEnum.INVALID_DN_SYNTAX;
                 result.setResultCode( code );

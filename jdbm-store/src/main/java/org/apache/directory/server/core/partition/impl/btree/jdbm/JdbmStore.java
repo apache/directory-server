@@ -53,7 +53,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -1232,7 +1232,7 @@ public class JdbmStore<E> implements Store<E, Long>
         // don't keep going if we cannot find the parent Id
         if ( parentId == null )
         {
-            throw new LdapNameNotFoundException( I18n.err( I18n.ERR_216, parentDn ) );
+            throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_216, parentDn ) );
         }
 
         EntryAttribute objectClass = entry.get( OBJECT_CLASS_AT );

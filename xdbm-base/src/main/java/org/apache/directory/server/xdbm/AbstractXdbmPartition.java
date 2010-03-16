@@ -35,7 +35,7 @@ import org.apache.directory.server.core.interceptor.context.UnbindOperationConte
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
-import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
@@ -421,7 +421,7 @@ public abstract class AbstractXdbmPartition<ID> extends BTreePartition<ID>
 
         if ( invalid )
         {
-            throw new LdapOperationNotSupportedException( "cannot place an entry below itself",
+            throw new LdapUnwillingToPerformException( "cannot place an entry below itself",
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 

@@ -51,7 +51,7 @@ import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -259,7 +259,7 @@ public abstract class BTreePartition<ID> implements Partition
         // don't continue if id is null
         if ( id == null )
         {
-            throw new LdapNameNotFoundException( I18n.err( I18n.ERR_699, dn ) );
+            throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_699, dn ) );
         }
 
         if ( getChildCount( id ) > 0 )
