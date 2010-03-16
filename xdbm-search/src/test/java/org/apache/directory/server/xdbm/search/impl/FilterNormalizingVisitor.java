@@ -23,11 +23,10 @@ package org.apache.directory.server.xdbm.search.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -153,7 +152,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
 
             return normalized;
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             log.warn( "Failed to normalize filter value: {}", ne.getMessage(), ne );
             return null;
@@ -175,7 +174,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
             node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
             return node;
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             log.warn( "Failed to normalize filter node attribute: {}, error: {}", node.getAttribute(), ne.getMessage() );
             return null;
@@ -216,7 +215,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
             node.setValue( normalized );
             return node;
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             log.warn( "Failed to normalize filter node attribute: {}, error: {}", node.getAttribute(), ne.getMessage() );
             return null;
@@ -314,7 +313,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
 
             return node;
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             log.warn( "Failed to normalize filter node attribute: {}, error: {}", node.getAttribute(), ne.getMessage() );
             return null;
@@ -338,7 +337,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
             node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
             return node;
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             log.warn( "Failed to normalize filter node attribute: {}, error: {}", node.getAttribute(), ne.getMessage() );
             return null;

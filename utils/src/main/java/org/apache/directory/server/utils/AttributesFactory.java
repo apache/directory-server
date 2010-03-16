@@ -22,8 +22,6 @@ package org.apache.directory.server.utils;
 
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -31,6 +29,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
@@ -57,7 +56,7 @@ import org.apache.directory.shared.ldap.util.DateUtils;
  */
 public class AttributesFactory
 {
-    public ServerEntry getAttributes( SchemaObject obj, Schema schema, SchemaManager schemaManager ) throws NamingException
+    public ServerEntry getAttributes( SchemaObject obj, Schema schema, SchemaManager schemaManager ) throws LdapException
     {
         if ( obj instanceof LdapSyntax )
         {
@@ -96,7 +95,7 @@ public class AttributesFactory
     }
     
     
-    public ServerEntry getAttributes( Schema schema, SchemaManager schemaManager ) throws NamingException
+    public ServerEntry getAttributes( Schema schema, SchemaManager schemaManager ) throws LdapException
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager );
 
@@ -142,7 +141,7 @@ public class AttributesFactory
     }
 
     
-    public ServerEntry getAttributes( LdapSyntax syntax, Schema schema, SchemaManager schemaManager ) throws NamingException
+    public ServerEntry getAttributes( LdapSyntax syntax, Schema schema, SchemaManager schemaManager ) throws LdapException
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager );
 
@@ -186,9 +185,9 @@ public class AttributesFactory
      * 
      * @param matchingRule
      * @return Attributes
-     * @throws NamingException
+     * @throws LdapException
      */
-    public ServerEntry getAttributes( MatchingRule matchingRule, Schema schema, SchemaManager schemaManager ) throws NamingException
+    public ServerEntry getAttributes( MatchingRule matchingRule, Schema schema, SchemaManager schemaManager ) throws LdapException
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager );
 
@@ -261,9 +260,9 @@ public class AttributesFactory
      * 
      * @param attributeType
      * @return Attributes
-     * @throws NamingException
+     * @throws LdapException
      */
-    public ServerEntry getAttributes( AttributeType attributeType, Schema schema, SchemaManager schemaManager ) throws NamingException
+    public ServerEntry getAttributes( AttributeType attributeType, Schema schema, SchemaManager schemaManager ) throws LdapException
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager );
 
@@ -321,9 +320,9 @@ public class AttributesFactory
      * 
      * @param objectClass the objectClass to produce a meta schema entry for
      * @return the attributes of the metaSchema entry representing the objectClass
-     * @throws NamingException if there are any problems
+     * @throws LdapException if there are any problems
      */
-    public ServerEntry getAttributes( ObjectClass objectClass, Schema schema, SchemaManager schemaManager ) throws NamingException
+    public ServerEntry getAttributes( ObjectClass objectClass, Schema schema, SchemaManager schemaManager ) throws LdapException
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager );
 
@@ -377,7 +376,7 @@ public class AttributesFactory
     }
     
     
-    private final void injectCommon( SchemaObject object, ServerEntry entry, SchemaManager schemaManager ) throws NamingException
+    private final void injectCommon( SchemaObject object, ServerEntry entry, SchemaManager schemaManager ) throws LdapException
     {
         injectNames( object.getNames(), entry, schemaManager );
         entry.put( MetaSchemaConstants.M_OBSOLETE_AT, getBoolean( object.isObsolete() ) );
@@ -390,7 +389,7 @@ public class AttributesFactory
     }
     
     
-    private final void injectNames( List<String> names, ServerEntry entry, SchemaManager schemaManager ) throws NamingException
+    private final void injectNames( List<String> names, ServerEntry entry, SchemaManager schemaManager ) throws LdapException
     {
         if ( ( names == null ) || ( names.size() == 0 ) )
         {
