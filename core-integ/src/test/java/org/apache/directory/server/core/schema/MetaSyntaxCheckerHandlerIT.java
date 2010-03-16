@@ -39,8 +39,8 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
-import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
+import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -449,7 +449,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             getSchemaContext( service ).destroySubcontext( scDn );
             fail( "should not be able to delete a syntaxChecker in use" );
         }
-        catch( LdapOperationNotSupportedException e ) 
+        catch( LdapUnwillingToPerformException e ) 
         {
             assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
@@ -477,7 +477,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             getSchemaContext( service ).rename( dn, newdn );
             fail( "should not be able to move a syntaxChecker in use" );
         }
-        catch( LdapOperationNotSupportedException e ) 
+        catch( LdapUnwillingToPerformException e ) 
         {
             assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
@@ -507,7 +507,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             getSchemaContext( service ).rename( dn, newdn );
             fail( "should not be able to move a syntaxChecker in use" );
         }
-        catch( LdapOperationNotSupportedException e ) 
+        catch( LdapUnwillingToPerformException e ) 
         {
             assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
@@ -536,7 +536,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             getSchemaContext( service ).rename( dn, newdn );
             fail( "should not be able to rename a syntaxChecker in use" );
         }
-        catch( LdapOperationNotSupportedException e ) 
+        catch( LdapUnwillingToPerformException e ) 
         {
             assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
@@ -570,7 +570,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             getSchemaContext( service ).rename( dn, top );
             fail( "should not be able to move a syntaxChecker up to ou=schema" );
         }
-        catch( LdapInvalidNameException e ) 
+        catch( LdapInvalidDnException e ) 
         {
             assertEquals( e.getResultCode(), ResultCodeEnum.NAMING_VIOLATION );
         }
@@ -597,7 +597,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             getSchemaContext( service ).rename( dn, newdn );
             fail( "should not be able to move a syntaxChecker into comparators container" );
         }
-        catch( LdapInvalidNameException e ) 
+        catch( LdapInvalidDnException e ) 
         {
             assertEquals( e.getResultCode(), ResultCodeEnum.NAMING_VIOLATION );
         }

@@ -44,8 +44,8 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
-import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
+import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
@@ -189,7 +189,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
         if ( !parentDn.equals( ouSchemaDN ) )
         {
-            throw new LdapInvalidNameException( I18n.err( I18n.ERR_380, ouSchemaDN.getName(),
+            throw new LdapInvalidDnException( I18n.err( I18n.ERR_380, ouSchemaDN.getName(),
                 parentDn.toNormName() ), ResultCodeEnum.NAMING_VIOLATION );
         }
 
@@ -263,7 +263,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         {
             String msg = I18n.err( I18n.ERR_381, dependents ); 
             LOG.warn( msg );
-            throw new LdapOperationNotSupportedException(
+            throw new LdapUnwillingToPerformException(
                 msg,
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
@@ -291,7 +291,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
         if ( ! rdnAttributeOid.equals( cnAT.getOid() ) )
         {
-            throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_382, rdnAttribute ),
+            throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_382, rdnAttribute ),
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
@@ -318,7 +318,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         Set<String> dependents = schemaManager.listDependentSchemaNames( schemaName );
         if ( ! dependents.isEmpty() )
         {
-            throw new LdapOperationNotSupportedException( 
+            throw new LdapUnwillingToPerformException( 
                 "Cannot allow a rename on " + schemaName + " schema while it has depentents.",
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
@@ -369,7 +369,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     public void moveAndRename( DN oriChildName, DN newParentName, String newRn, boolean deleteOldRn, 
         ServerEntry entry, boolean cascade ) throws NamingException
     {
-        throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_383 ),
+        throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_383 ),
             ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
 
@@ -381,7 +381,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     public void move( DN oriChildName, DN newParentName, 
         ServerEntry entry, boolean cascade ) throws NamingException
     {
-        throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_383 ),
+        throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_383 ),
             ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
 
@@ -575,7 +575,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
             // This is not possible. We can't enable a schema which is not loaded.
             String msg = I18n.err( I18n.ERR_85, schemaName );
             LOG.error( msg );
-            throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapUnwillingToPerformException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
         return schemaManager.disable( schemaName );
@@ -596,7 +596,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         
         if ( ! dependents.isEmpty() )
         {
-            throw new LdapOperationNotSupportedException(
+            throw new LdapUnwillingToPerformException(
                 "Cannot disable schema with enabled dependents: " + dependents,
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
@@ -691,7 +691,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
                 
                 if ( ! loaded.containsKey( dependency ) )
                 {
-                    throw new LdapOperationNotSupportedException( 
+                    throw new LdapUnwillingToPerformException( 
                         "Unwilling to perform operation on enabled schema with disabled or missing dependencies: " 
                         + dependency, ResultCodeEnum.UNWILLING_TO_PERFORM );
                 }
@@ -705,7 +705,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
                 
                 if ( schemaManager.getLoadedSchema( StringTools.toLowerCase( dependency ) ) == null )
                 {
-                    throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_385, dependency ), 
+                    throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_385, dependency ), 
                         ResultCodeEnum.UNWILLING_TO_PERFORM );
                 }
             }

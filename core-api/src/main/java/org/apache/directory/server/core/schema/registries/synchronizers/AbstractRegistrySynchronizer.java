@@ -33,9 +33,9 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
-import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -200,20 +200,20 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         if ( newParent.size() != 3 )
         {
-            throw new LdapInvalidNameException( I18n.err( I18n.ERR_337 ), ResultCodeEnum.NAMING_VIOLATION );
+            throw new LdapInvalidDnException( I18n.err( I18n.ERR_337 ), ResultCodeEnum.NAMING_VIOLATION );
         }
         
         RDN rdn = newParent.getRdn();
         
         if ( ! schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
         {
-            throw new LdapInvalidNameException( I18n.err( I18n.ERR_338, objectType ), 
+            throw new LdapInvalidDnException( I18n.err( I18n.ERR_338, objectType ), 
                 ResultCodeEnum.NAMING_VIOLATION );
         }
         
         if ( ! ( ( String ) rdn.getNormValue() ).equalsIgnoreCase( OBJECT_TYPE_TO_PATH.get( objectType ) ) )
         {
-            throw new LdapInvalidNameException( I18n.err( I18n.ERR_339, objectType,  OBJECT_TYPE_TO_PATH.get( objectType ) ), 
+            throw new LdapInvalidDnException( I18n.err( I18n.ERR_339, objectType,  OBJECT_TYPE_TO_PATH.get( objectType ) ), 
                 ResultCodeEnum.NAMING_VIOLATION );
         }
     }
@@ -264,7 +264,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
                 String msg = I18n.err( I18n.ERR_341, schemaObject.getName(), schemaName );
                 LOG.warn( msg );
             
-                throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+                throw new LdapUnwillingToPerformException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
             
             schemaObjects.add( schemaObjectWrapper );
@@ -275,7 +275,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
             String msg = I18n.err( I18n.ERR_342, schemaObject.getName(), schemaName );
             LOG.warn( msg );
         
-            throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapUnwillingToPerformException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
     }
 
@@ -299,7 +299,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
                 String msg = I18n.err( I18n.ERR_343, schemaObject.getName(), schemaName );
                 LOG.warn( msg );
             
-                throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+                throw new LdapUnwillingToPerformException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
             
             schemaObjects.remove( schemaObjectWrapper );
@@ -310,7 +310,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
             String msg = I18n.err( I18n.ERR_342, schemaObject.getName(), schemaName );
             LOG.warn( msg );
         
-            throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapUnwillingToPerformException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
     }
 

@@ -43,7 +43,7 @@ import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -182,7 +182,7 @@ public class MixedCaseITest extends AbstractLdapTestUnit
             ctxRoot.search( dn, "(objectClass=*)", sc );
             fail( "Search should throw exception." );
         }
-        catch ( LdapNameNotFoundException e )
+        catch ( LdapNoSuchObjectException e )
         {
             // ignore
         }

@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -467,7 +467,7 @@ public class ServerEntryUtils
                     // The attributeType does not exist in the schema.
                     // It's an error
                     String message = I18n.err( I18n.ERR_467, id );
-                    throw new LdapInvalidAttributeIdentifierException( message );
+                    throw new LdapInvalidAttributeTypeException( message );
                 }
                 else
                 {

@@ -39,8 +39,8 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
+import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -203,7 +203,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             IntegrationUtils.enableSchema( service, "wrong" );
             fail();
         }
-        catch ( LdapNameNotFoundException lnnfe )
+        catch ( LdapNoSuchObjectException lnnfe )
         {
             // Expected
             assertTrue( true );
@@ -313,7 +313,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             IntegrationUtils.disableSchema( service, "wrong" );
             fail();
         }
-        catch ( LdapNameNotFoundException lnnfe )
+        catch ( LdapNoSuchObjectException lnnfe )
         {
             // Expected
             assertTrue( true );
@@ -461,7 +461,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             schemaRoot.createSubcontext( "cn=dummy", dummySchema );
             fail();
         }
-        catch ( LdapOperationNotSupportedException lonse )
+        catch ( LdapUnwillingToPerformException lonse )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, lonse.getResultCode() );
         }
@@ -495,7 +495,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             schemaRoot.createSubcontext( "cn=dummy", dummySchema );
             fail();
         }
-        catch ( LdapOperationNotSupportedException lonse )
+        catch ( LdapUnwillingToPerformException lonse )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, lonse.getResultCode() );
         }
@@ -606,7 +606,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         {
             schemaRoot.createSubcontext( "cn=dummy", dummySchema );
         } 
-        catch( LdapOperationNotSupportedException e )
+        catch( LdapUnwillingToPerformException e )
         {
             assertTrue( e.getResultCode().equals( ResultCodeEnum.UNWILLING_TO_PERFORM ) );
         }
@@ -670,7 +670,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             schemaRoot.createSubcontext( "cn=dummy", dummySchema );
             fail( "should not be able to add enabled schema with deps on disabled schemas" );
         }
-        catch( LdapOperationNotSupportedException e )
+        catch( LdapUnwillingToPerformException e )
         {
             assertTrue( e.getResultCode().equals( ResultCodeEnum.UNWILLING_TO_PERFORM ) );
         }
@@ -742,7 +742,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             schemaRoot.destroySubcontext( "cn=dummy" );
             fail( "should not be able to delete a schema with dependents" );
         }
-        catch ( LdapOperationNotSupportedException e )
+        catch ( LdapUnwillingToPerformException e )
         {
             assertTrue( e.getResultCode().equals( ResultCodeEnum.UNWILLING_TO_PERFORM ) );
         }
@@ -774,7 +774,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             schemaRoot.createSubcontext( "cn=dummy", dummySchema );
             fail( "should not be able to add enabled schema with deps on missing schemas" );
         }
-        catch( LdapOperationNotSupportedException e )
+        catch( LdapUnwillingToPerformException e )
         {
             assertTrue( e.getResultCode().equals( ResultCodeEnum.UNWILLING_TO_PERFORM ) );
         }
@@ -840,7 +840,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             schemaRoot.modifyAttributes( "cn=nis", mods );
             fail( "attempt to disable schema with enabled dependents should fail" );
         }
-        catch ( LdapOperationNotSupportedException e )
+        catch ( LdapUnwillingToPerformException e )
         {
             assertTrue( e.getResultCode().equals( ResultCodeEnum.UNWILLING_TO_PERFORM ) );
         }
@@ -887,7 +887,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             schemaRoot.lookup( "cn=samba" );
             fail( "the samba schema should not be present after a rename to foo" );
         }
-        catch( LdapNameNotFoundException e )
+        catch( LdapNoSuchObjectException e )
         {
         }
     }
@@ -910,7 +910,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             schemaRoot.rename( "cn=nis", "cn=foo" );
             fail( "should not be able to rename nis which has samba as it's dependent" );
         }
-        catch ( LdapOperationNotSupportedException e )
+        catch ( LdapUnwillingToPerformException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
@@ -923,7 +923,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             schemaRoot.lookup( "cn=foo" );
             fail( "the foo schema should not be present after rejecting the rename" );
         }
-        catch( LdapNameNotFoundException e )
+        catch( LdapNoSuchObjectException e )
         {
         }
     }
@@ -957,7 +957,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             schemaRoot.lookup( "cn=samba" );
             fail( "the samba schema should not be present after a rename to foo" );
         }
-        catch( LdapNameNotFoundException e )
+        catch( LdapNoSuchObjectException e )
         {
         }
     }
@@ -987,7 +987,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             schemaRoot.modifyAttributes( "cn=nis", mods );
             fail( "Should not be able to add bogus dependency to schema" );
         }
-        catch ( LdapOperationNotSupportedException e )
+        catch ( LdapUnwillingToPerformException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
@@ -1017,7 +1017,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             schemaRoot.modifyAttributes( "cn=nis", mods );
             fail( "Should not be able to add disabled dependency to schema" );
         }
-        catch ( LdapOperationNotSupportedException e )
+        catch ( LdapUnwillingToPerformException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }

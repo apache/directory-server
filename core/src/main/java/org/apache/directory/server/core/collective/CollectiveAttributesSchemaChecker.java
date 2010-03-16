@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -112,7 +112,7 @@ public class CollectiveAttributesSchemaChecker
             {
                 if ( !schemaManager.getAttributeTypeRegistry().contains( attr.getUpId() ) )
                 {
-                    throw new LdapInvalidAttributeIdentifierException();
+                    throw new LdapInvalidAttributeTypeException();
                 }
                 else
                 {

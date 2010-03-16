@@ -60,8 +60,8 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
-import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.exception.LdapEntryAlreadyExistsException;
+import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -148,7 +148,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             getRootContext( service ).destroySubcontext( getSubschemaSubentryDN() );
             fail( "You are not allowed to delete the global schema subentry" );
         }
-        catch( LdapOperationNotSupportedException e )
+        catch( LdapUnwillingToPerformException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
@@ -168,7 +168,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             getRootContext( service ).createSubcontext( getSubschemaSubentryDN(), getSubschemaSubentryAttributes() );
             fail( "You are not allowed to add the global schema subentry which exists by default" );
         }
-        catch( LdapNameAlreadyBoundException e )
+        catch( LdapEntryAlreadyExistsException e )
         {
             assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, e.getResultCode() );
         }
@@ -188,7 +188,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             getRootContext( service ).rename( getSubschemaSubentryDN(), "cn=schema,ou=system" );
             fail( "You are not allowed to rename the global schema subentry which is fixed" );
         }
-        catch( LdapOperationNotSupportedException e )
+        catch( LdapUnwillingToPerformException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
@@ -208,7 +208,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             getRootContext( service ).rename( getSubschemaSubentryDN(), "cn=blah,ou=schema" );
             fail( "You are not allowed to move the global schema subentry which is fixed" );
         }
-        catch( LdapOperationNotSupportedException e )
+        catch( LdapUnwillingToPerformException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
@@ -218,7 +218,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             getRootContext( service ).rename( getSubschemaSubentryDN(), "cn=schema,ou=schema" );
             fail( "You are not allowed to move the global schema subentry which is fixed" );
         }
-        catch( LdapOperationNotSupportedException e )
+        catch( LdapUnwillingToPerformException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
@@ -354,7 +354,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             modify( DirContext.REPLACE_ATTRIBUTE, descriptions, "syntaxCheckers" );
             fail( "modify REPLACE operations should not be allowed" );
         }
-        catch ( LdapOperationNotSupportedException e )
+        catch ( LdapUnwillingToPerformException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
@@ -518,7 +518,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             modify( DirContext.REPLACE_ATTRIBUTE, descriptions, "comparators" );
             fail( "modify REPLACE operations should not be allowed" );
         }
-        catch ( LdapOperationNotSupportedException e )
+        catch ( LdapUnwillingToPerformException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
@@ -673,7 +673,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             modify( DirContext.REPLACE_ATTRIBUTE, descriptions, "normalizers" );
             fail( "modify REPLACE operations should not be allowed" );
         }
-        catch ( LdapOperationNotSupportedException e )
+        catch ( LdapUnwillingToPerformException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
@@ -810,7 +810,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             modify( DirContext.ADD_ATTRIBUTE, descriptions, "ldapSyntaxes" );
             fail( "should not be able to add syntaxes without their syntaxCheckers" );
         }
-        catch( LdapOperationNotSupportedException e )
+        catch( LdapUnwillingToPerformException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
@@ -865,7 +865,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             modify( DirContext.REPLACE_ATTRIBUTE, descriptions, "ldapSyntaxes" );
             fail( "modify REPLACE operations should not be allowed" );
         }
-        catch ( LdapOperationNotSupportedException e )
+        catch ( LdapUnwillingToPerformException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
@@ -981,7 +981,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             modify( DirContext.ADD_ATTRIBUTE, descriptions, "matchingRules" );
             fail( "Cannot add matchingRule with bogus non-existant syntax" );
         }
-        catch( LdapOperationNotSupportedException e )
+        catch( LdapUnwillingToPerformException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
@@ -1075,7 +1075,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             modify( DirContext.REPLACE_ATTRIBUTE, descriptions, "matchingRules" );
             fail( "modify REPLACE operations should not be allowed" );
         }
-        catch ( LdapOperationNotSupportedException e )
+        catch ( LdapUnwillingToPerformException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
@@ -1196,7 +1196,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
             fail( "Cannot add attributeType with bogus non-existant syntax" );
         }
-        catch( LdapOperationNotSupportedException e )
+        catch( LdapUnwillingToPerformException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
@@ -1219,7 +1219,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
             fail( "Cannot add attributeType with bogus non-existant syntax" );
         }
-        catch( LdapOperationNotSupportedException e )
+        catch( LdapUnwillingToPerformException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
@@ -1242,7 +1242,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
             fail( "Cannot add attributeType with bogus non-existant equality MatchingRule" );
         }
-        catch( LdapOperationNotSupportedException e )
+        catch( LdapUnwillingToPerformException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
@@ -1265,7 +1265,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
             fail( "Cannot add attributeType with bogus non-existant ordering MatchingRule" );
         }
-        catch( LdapOperationNotSupportedException e )
+        catch( LdapUnwillingToPerformException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
@@ -1288,7 +1288,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
             fail( "Cannot add attributeType with bogus non-existant substrings MatchingRule" );
         }
-        catch( LdapOperationNotSupportedException e )
+        catch( LdapUnwillingToPerformException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
@@ -1364,7 +1364,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             modify( DirContext.REPLACE_ATTRIBUTE, descriptions, "attributeTypes" );
             fail( "modify REPLACE operations should not be allowed" );
         }
-        catch ( LdapOperationNotSupportedException e )
+        catch ( LdapUnwillingToPerformException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
@@ -1611,7 +1611,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
             fail( "Cannot add objectClass with bogus non-existant super" );
         }
-        catch( LdapOperationNotSupportedException e )
+        catch( LdapUnwillingToPerformException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
@@ -1712,7 +1712,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
             fail( "Cannot add objectClass with bogus non-existant attributeTypes" );
         }
-        catch( LdapOperationNotSupportedException e )
+        catch( LdapUnwillingToPerformException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
@@ -1737,7 +1737,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
             fail( "Cannot add objectClass with bogus non-existant attributeTypes" );
         }
-        catch( LdapOperationNotSupportedException e )
+        catch( LdapUnwillingToPerformException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
@@ -1821,7 +1821,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             modify( DirContext.REPLACE_ATTRIBUTE, descriptions, "objectClasses" );
             fail( "modify REPLACE operations should not be allowed" );
         }
-        catch ( LdapOperationNotSupportedException e )
+        catch ( LdapUnwillingToPerformException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }

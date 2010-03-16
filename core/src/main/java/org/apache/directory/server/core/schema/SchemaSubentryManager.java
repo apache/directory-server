@@ -35,7 +35,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -176,7 +176,7 @@ public class SchemaSubentryManager
                     break; 
                     
                 case REPLACE_ATTRIBUTE :
-                    throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_283 ), 
+                    throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_283 ), 
                         ResultCodeEnum.UNWILLING_TO_PERFORM );
                 
                 default:
@@ -215,7 +215,7 @@ public class SchemaSubentryManager
                 break;
                 
             case( DirContext.REPLACE_ATTRIBUTE ):
-                throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_283 ), 
+                throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_283 ), 
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             
             default:

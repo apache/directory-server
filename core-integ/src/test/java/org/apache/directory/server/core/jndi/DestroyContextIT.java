@@ -30,7 +30,7 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -88,7 +88,7 @@ public class DestroyContextIT extends AbstractLdapTestUnit
         }
         catch ( NamingException e )
         {
-            assertTrue( e instanceof LdapNameNotFoundException );
+            assertTrue( e instanceof LdapNoSuchObjectException );
         }
 
         /*
@@ -103,7 +103,7 @@ public class DestroyContextIT extends AbstractLdapTestUnit
         }
         catch ( NamingException e )
         {
-            assertTrue( e instanceof LdapNameNotFoundException );
+            assertTrue( e instanceof LdapNoSuchObjectException );
         }
 
         /*
@@ -118,7 +118,7 @@ public class DestroyContextIT extends AbstractLdapTestUnit
         }
         catch ( NamingException e )
         {
-            assertTrue( e instanceof LdapNameNotFoundException );
+            assertTrue( e instanceof LdapNoSuchObjectException );
         }
 
         /*
@@ -133,7 +133,7 @@ public class DestroyContextIT extends AbstractLdapTestUnit
         }
         catch ( NamingException e )
         {
-            assertTrue( e instanceof LdapNameNotFoundException );
+            assertTrue( e instanceof LdapNoSuchObjectException );
         }
     }
 

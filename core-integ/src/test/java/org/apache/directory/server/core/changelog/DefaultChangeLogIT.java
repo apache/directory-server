@@ -41,7 +41,7 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -182,7 +182,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         }
         catch ( NamingException ne )
         {
-            assertTrue( ne instanceof LdapNameNotFoundException );
+            assertTrue( ne instanceof LdapNoSuchObjectException );
         }
     }
 
@@ -402,7 +402,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         }
         catch ( NamingException ne )
         {
-            assertTrue( ne instanceof LdapNameNotFoundException );
+            assertTrue( ne instanceof LdapNoSuchObjectException );
         }
     }
 }

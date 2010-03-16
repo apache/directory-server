@@ -56,10 +56,10 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
-import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.exception.LdapEntryAlreadyExistsException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
-import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 
@@ -139,13 +139,13 @@ public class ExceptionInterceptor extends BaseInterceptor
         
         if ( subschemSubentryDn.getNormName().equals( name.getNormName() ) )
         {
-            throw new LdapNameAlreadyBoundException( I18n.err( I18n.ERR_249 ) );
+            throw new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_249 ) );
         }
         
         // check if the entry already exists
         if ( nextInterceptor.hasEntry( new EntryOperationContext( opContext.getSession(), name ) ) )
         {
-            LdapNameAlreadyBoundException ne = new LdapNameAlreadyBoundException( I18n.err( I18n.ERR_250, name.getName() ) );
+            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_250, name.getName() ) );
             ne.setResolvedName( new DN( name.getName() ) );
             throw ne;
         }
@@ -183,7 +183,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             }
             catch ( Exception e )
             {
-                LdapNameNotFoundException e2 = new LdapNameNotFoundException( I18n.err( I18n.ERR_251, 
+                LdapNoSuchObjectException e2 = new LdapNoSuchObjectException( I18n.err( I18n.ERR_251, 
                     parentDn.getName() ) );
                 e2.setResolvedName( new DN( nexus.getMatchedName( 
                     new GetMatchedNameOperationContext( opContext.getSession(), parentDn ) ).getName() ) );
@@ -223,7 +223,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         
         if ( name.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
         {
-            throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_253, subschemSubentryDn ),
+            throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_253, subschemSubentryDn ),
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
@@ -367,7 +367,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         
         if ( dn.equals( subschemSubentryDn ) )
         {
-            throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_255, subschemSubentryDn,
+            throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_255, subschemSubentryDn,
                 subschemSubentryDn ), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
@@ -376,8 +376,8 @@ public class ExceptionInterceptor extends BaseInterceptor
         {
             // This is a nonsense : we can't rename an entry which does not exist
             // on the server
-            LdapNameNotFoundException ldnfe;
-            ldnfe = new LdapNameNotFoundException( I18n.err( I18n.ERR_256, dn.getName() ) );
+            LdapNoSuchObjectException ldnfe;
+            ldnfe = new LdapNoSuchObjectException( I18n.err( I18n.ERR_256, dn.getName() ) );
             ldnfe.setResolvedName( new DN( dn.getName() ) );
             throw ldnfe;
         }
@@ -387,8 +387,8 @@ public class ExceptionInterceptor extends BaseInterceptor
         
         if ( nextInterceptor.hasEntry( new EntryOperationContext( opContext.getSession(), newDn ) ) )
         {
-            LdapNameAlreadyBoundException e;
-            e = new LdapNameAlreadyBoundException( I18n.err( I18n.ERR_257, newDn.getName() ) );
+            LdapEntryAlreadyExistsException e;
+            e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_257, newDn.getName() ) );
             e.setResolvedName( new DN( newDn.getName() ) );
             throw e;
         }
@@ -417,7 +417,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         
         if ( oriChildName.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
         {
-            throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_258, subschemSubentryDn,
+            throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_258, subschemSubentryDn,
                 subschemSubentryDn ), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
@@ -441,8 +441,8 @@ public class ExceptionInterceptor extends BaseInterceptor
             DN upTarget = ( DN ) newParentName.clone();
             upTarget.add( upRdn );
 
-            LdapNameAlreadyBoundException e;
-            e = new LdapNameAlreadyBoundException( I18n.err( I18n.ERR_257, upTarget.getName() ) );
+            LdapEntryAlreadyExistsException e;
+            e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_257, upTarget.getName() ) );
             e.setResolvedName( new DN( upTarget.getName() ) );
             throw e;
         }
@@ -471,7 +471,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         if ( oriChildName.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
         {
-            throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_258, subschemSubentryDn,
+            throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_258, subschemSubentryDn,
                 subschemSubentryDn ), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
@@ -493,8 +493,8 @@ public class ExceptionInterceptor extends BaseInterceptor
             DN upTarget = ( DN ) parent.clone();
             upTarget.add( opContext.getNewRdn() );
 
-            LdapNameAlreadyBoundException e;
-            e = new LdapNameAlreadyBoundException( I18n.err( I18n.ERR_257, upTarget.getName() ) );
+            LdapEntryAlreadyExistsException e;
+            e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_257, upTarget.getName() ) );
             e.setResolvedName( new DN( upTarget.getName() ) );
             throw e;
         }
@@ -544,7 +544,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
 
     /**
-     * Asserts that an entry is present and as a side effect if it is not, creates a LdapNameNotFoundException, which is
+     * Asserts that an entry is present and as a side effect if it is not, creates a LdapNoSuchObjectException, which is
      * used to set the before exception on the invocation - eventually the exception is thrown.
      *
      * @param msg        the message to prefix to the distinguished name for explanation
@@ -562,15 +562,15 @@ public class ExceptionInterceptor extends BaseInterceptor
         
         if ( ! opContext.hasEntry( dn, ByPassConstants.HAS_ENTRY_BYPASS ) )
         {
-            LdapNameNotFoundException e;
+            LdapNoSuchObjectException e;
 
             if ( msg != null )
             {
-                e = new LdapNameNotFoundException( msg + dn.getName() );
+                e = new LdapNoSuchObjectException( msg + dn.getName() );
             }
             else
             {
-                e = new LdapNameNotFoundException( dn.getName() );
+                e = new LdapNoSuchObjectException( dn.getName() );
             }
 
             e.setResolvedName( 

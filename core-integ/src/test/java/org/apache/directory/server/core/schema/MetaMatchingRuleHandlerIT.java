@@ -37,7 +37,7 @@ import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -402,7 +402,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
 //            super.schemaRoot.destroySubcontext( dn );
 //            fail( "should not be able to delete a syntax in use" );
 //        }
-//        catch( LdapOperationNotSupportedException e ) 
+//        catch( LdapUnwillingToPerformException e ) 
 //        {
 //            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
 //        }
@@ -428,7 +428,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
 //            super.schemaRoot.rename( dn, newdn );
 //            fail( "should not be able to move a syntax in use" );
 //        }
-//        catch( LdapOperationNotSupportedException e ) 
+//        catch( LdapUnwillingToPerformException e ) 
 //        {
 //            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
 //        }
@@ -454,7 +454,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
 //            super.schemaRoot.rename( dn, newdn );
 //            fail( "should not be able to move a syntax in use" );
 //        }
-//        catch( LdapOperationNotSupportedException e ) 
+//        catch( LdapUnwillingToPerformException e ) 
 //        {
 //            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
 //        }
@@ -488,7 +488,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
 //            super.schemaRoot.rename( dn, newdn );
 //            fail( "should not be able to rename a syntax in use" );
 //        }
-//        catch( LdapOperationNotSupportedException e ) 
+//        catch( LdapUnwillingToPerformException e ) 
 //        {
 //            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
 //        }
@@ -520,7 +520,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
             getSchemaContext( service ).rename( dn, top );
             fail( "should not be able to move a matchingRule up to ou=schema" );
         }
-        catch( LdapInvalidNameException e ) 
+        catch( LdapInvalidDnException e ) 
         {
             assertEquals( e.getResultCode(), ResultCodeEnum.NAMING_VIOLATION );
         }
@@ -547,7 +547,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
             getSchemaContext( service ).rename( dn, newdn );
             fail( "should not be able to move a matchingRule into comparators container" );
         }
-        catch( LdapInvalidNameException e ) 
+        catch( LdapInvalidDnException e ) 
         {
             assertEquals( e.getResultCode(), ResultCodeEnum.NAMING_VIOLATION );
         }

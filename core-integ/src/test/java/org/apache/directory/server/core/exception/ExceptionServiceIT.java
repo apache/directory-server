@@ -43,8 +43,8 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
-import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.exception.LdapEntryAlreadyExistsException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -99,7 +99,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
             getSystemContext( service ).search( "ou=blah", "(objectClass=*)", ctls );
             fail( "Execution should never get here due to exception!" );
         }
-        catch ( LdapNameNotFoundException e )
+        catch ( LdapNoSuchObjectException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
@@ -156,7 +156,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
             sysRoot.rename( "ou=users", "ou=users,ou=groups" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch ( LdapNameAlreadyBoundException e )
+        catch ( LdapEntryAlreadyExistsException e )
         {
             assertEquals( "ou=users,ou=groups,ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, e.getResultCode() );
@@ -176,7 +176,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
             sysRoot.removeFromEnvironment( "java.naming.ldap.deleteRDN" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch ( LdapNameAlreadyBoundException e )
+        catch ( LdapEntryAlreadyExistsException e )
         {
             assertEquals( "ou=uzerz,ou=groups,ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, e.getResultCode() );
@@ -199,7 +199,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
             sysRoot.rename( "ou=blah", "ou=blah,ou=groups" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch ( LdapNameNotFoundException e )
+        catch ( LdapNoSuchObjectException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
@@ -212,7 +212,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
             sysRoot.removeFromEnvironment( "java.naming.ldap.deleteRDN" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch ( LdapNameNotFoundException e )
+        catch ( LdapNoSuchObjectException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
@@ -242,7 +242,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
         catch ( NamingException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
-            assertTrue( e instanceof LdapNameNotFoundException );
+            assertTrue( e instanceof LdapNoSuchObjectException );
         }
     }
 
@@ -267,7 +267,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
             sysRoot.rename( "ou=users", "ou=groups" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch ( LdapNameAlreadyBoundException e )
+        catch ( LdapEntryAlreadyExistsException e )
         {
             assertEquals( "ou=groups,ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, e.getResultCode() );
@@ -290,7 +290,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
             sysRoot.rename( "ou=blah", "ou=asdf" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch ( LdapNameNotFoundException e )
+        catch ( LdapNoSuchObjectException e )
         {
             assertEquals( "ou=blah,ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
@@ -320,7 +320,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
         catch ( NamingException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
-            assertTrue( e instanceof LdapNameNotFoundException );
+            assertTrue( e instanceof LdapNoSuchObjectException );
         }
     }
 
@@ -351,7 +351,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
             sysRoot.modifyAttributes( "ou=blah", DirContext.ADD_ATTRIBUTE, attrs );
             fail( "Execution should never get here due to exception!" );
         }
-        catch ( LdapNameNotFoundException e )
+        catch ( LdapNoSuchObjectException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
@@ -365,7 +365,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
             sysRoot.modifyAttributes( "ou=blah", mods );
             fail( "Execution should never get here due to exception!" );
         }
-        catch ( LdapNameNotFoundException e )
+        catch ( LdapNoSuchObjectException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
@@ -426,7 +426,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
             sysRoot.lookup( "ou=blah" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch ( LdapNameNotFoundException e )
+        catch ( LdapNoSuchObjectException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
@@ -471,7 +471,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
             sysRoot.list( "ou=blah" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch ( LdapNameNotFoundException e )
+        catch ( LdapNoSuchObjectException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
@@ -578,7 +578,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
             createSubContext( "ou", "blah");
             fail( "Execution should never get here due to exception!" );
         }
-        catch ( LdapNameAlreadyBoundException e )
+        catch ( LdapEntryAlreadyExistsException e )
         {
             assertEquals( "ou=blah,ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, e.getResultCode() );
@@ -650,7 +650,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
             sysRoot.destroySubcontext( "ou=blah" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch ( LdapNameNotFoundException e )
+        catch ( LdapNoSuchObjectException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
@@ -679,7 +679,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
             sysRoot.lookup( "ou=blah" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch ( LdapNameNotFoundException e )
+        catch ( LdapNoSuchObjectException e )
         {
             assertEquals( "ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );

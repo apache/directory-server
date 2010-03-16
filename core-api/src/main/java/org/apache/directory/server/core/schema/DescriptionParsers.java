@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
@@ -245,35 +245,35 @@ public class DescriptionParsers
             // if the supertype is provided make sure it exists in some schema
             if ( ( attributeType.getSuperiorOid() != null ) && !schemaManager.getAttributeTypeRegistry().contains( attributeType.getSuperiorOid() ) )
             {
-                throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_409, attributeType.getSuperiorOid() ),
+                throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_409, attributeType.getSuperiorOid() ),
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
             // if the syntax is provided by the description make sure it exists in some schema
             if ( attributeType.getSyntaxOid() != null && !schemaManager.getLdapSyntaxRegistry().contains( attributeType.getSyntaxOid() ) )
             {
-                throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_410, attributeType.getSyntaxOid() ),
+                throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_410, attributeType.getSyntaxOid() ),
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
             // if the matchingRule is provided make sure it exists in some schema
             if ( attributeType.getEqualityOid() != null && !schemaManager.getMatchingRuleRegistry().contains( attributeType.getEqualityOid() ) )
             {
-                throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_411, attributeType.getEqualityOid() ),
+                throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_411, attributeType.getEqualityOid() ),
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
             // if the matchingRule is provided make sure it exists in some schema
             if ( attributeType.getOrderingOid() != null && !schemaManager.getMatchingRuleRegistry().contains( attributeType.getOrderingOid() ) )
             {
-                throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_412, attributeType.getOrderingOid() ),
+                throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_412, attributeType.getOrderingOid() ),
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
             // if the matchingRule is provided make sure it exists in some schema
             if ( attributeType.getSubstringOid() != null && !schemaManager.getMatchingRuleRegistry().contains( attributeType.getSubstringOid() ) )
             {
-                throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_413, attributeType.getSubstringOid() ),
+                throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_413, attributeType.getSubstringOid() ),
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
@@ -284,7 +284,7 @@ public class DescriptionParsers
             {
                 if ( attributeType.getSuperiorOid() == null )
                 {
-                    throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_414 ), ResultCodeEnum.UNWILLING_TO_PERFORM );
+                    throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_414 ), ResultCodeEnum.UNWILLING_TO_PERFORM );
                 }
                 else
                 {
@@ -293,7 +293,7 @@ public class DescriptionParsers
 
                     if ( superType == null )
                     {
-                        throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_415 ), ResultCodeEnum.UNWILLING_TO_PERFORM );
+                        throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_415 ), ResultCodeEnum.UNWILLING_TO_PERFORM );
                     }
                 }
             }
@@ -304,7 +304,7 @@ public class DescriptionParsers
             // if a supertype exists then it must resolve a proper syntax somewhere in the hierarchy.
             if ( attributeType.getSyntaxOid() == null && attributeType.getSuperiorOid() == null )
             {
-                throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_416 ), ResultCodeEnum.UNWILLING_TO_PERFORM );
+                throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_416 ), ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
             List<Throwable> errors = new ArrayList<Throwable>();
@@ -317,7 +317,7 @@ public class DescriptionParsers
             if ( ( attributeType.getExtensions() == null )
                 || ( attributeType.getExtensions().get( MetaSchemaConstants.X_SCHEMA ) == null ) )
             {
-                throw new LdapOperationNotSupportedException(
+                throw new LdapUnwillingToPerformException(
                     "Cannot permit the addition of an attributeType not associated with a schema ",
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
@@ -381,7 +381,7 @@ public class DescriptionParsers
 
                     if ( !schemaManager.getObjectClassRegistry().contains( superiorOid ) )
                     {
-                        throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_418, superiorOid ),
+                        throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_418, superiorOid ),
                             ResultCodeEnum.UNWILLING_TO_PERFORM );
                     }
                 }
@@ -394,7 +394,7 @@ public class DescriptionParsers
                 {
                     if ( !schemaManager.getAttributeTypeRegistry().contains( mayAttrOid ) )
                     {
-                        throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_419, mayAttrOid ),
+                        throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_419, mayAttrOid ),
                             ResultCodeEnum.UNWILLING_TO_PERFORM );
                     }
                 }
@@ -407,7 +407,7 @@ public class DescriptionParsers
                 {
                     if ( !schemaManager.getAttributeTypeRegistry().contains( mustAttrOid ) )
                     {
-                        throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_420, mustAttrOid ),
+                        throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_420, mustAttrOid ),
                             ResultCodeEnum.UNWILLING_TO_PERFORM );
                     }
                 }
@@ -504,7 +504,7 @@ public class DescriptionParsers
 
             if ( !schemaManager.getSyntaxCheckerRegistry().contains( ldapSyntax.getOid() ) )
             {
-                throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_423 ), ResultCodeEnum.UNWILLING_TO_PERFORM );
+                throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_423 ), ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
             ldapSyntax.setHumanReadable( isHumanReadable( ldapSyntax ) );
@@ -553,7 +553,7 @@ public class DescriptionParsers
 
             if ( !schemaManager.getLdapSyntaxRegistry().contains( matchingRule.getSyntaxOid() ) )
             {
-                throw new LdapOperationNotSupportedException( I18n.err( I18n.ERR_425, matchingRule.getSyntaxOid() ),
+                throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_425, matchingRule.getSyntaxOid() ),
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 

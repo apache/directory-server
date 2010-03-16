@@ -71,7 +71,7 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
-import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
@@ -1556,7 +1556,7 @@ public class SchemaInterceptor extends BaseInterceptor
         {
             if ( !schemaManager.getAttributeTypeRegistry().contains( attributeType.getName() ) )
             {
-                throw new LdapInvalidAttributeIdentifierException( I18n.err( I18n.ERR_275, 
+                throw new LdapInvalidAttributeTypeException( I18n.err( I18n.ERR_275, 
                     attributeType.getName() ) );
             }
         }

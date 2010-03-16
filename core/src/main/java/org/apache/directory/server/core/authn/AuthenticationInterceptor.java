@@ -57,7 +57,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -444,7 +444,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             // This is a case where the Bind request contains a DN, but no password.
             // We don't check the DN, we just return a UnwillingToPerform error
             // Cf RFC 4513, chap. 5.1.2
-            throw new LdapOperationNotSupportedException( "Cannot Bind for DN " + opContext.getDn().getName(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapUnwillingToPerformException( "Cannot Bind for DN " + opContext.getDn().getName(), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
         Collection<Authenticator> authenticators = getAuthenticators( level.getName() );

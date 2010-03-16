@@ -42,7 +42,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
@@ -655,7 +655,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     /**
      * Add an AT in an entry which does not exist
      */
-    @Test( expected = LdapNameNotFoundException.class )
+    @Test( expected = LdapNoSuchObjectException.class )
     public void testModifyAddNotExistingEntry() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );

@@ -53,7 +53,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
@@ -367,7 +367,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
             sysRoot.lookup( base );
             fail();
         }
-        catch ( LdapNameNotFoundException e )
+        catch ( LdapNoSuchObjectException e )
         {
         }
     }

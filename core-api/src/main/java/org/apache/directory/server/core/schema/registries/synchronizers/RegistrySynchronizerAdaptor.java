@@ -38,9 +38,9 @@ import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
-import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
@@ -191,7 +191,7 @@ public class RegistrySynchronizerAdaptor
             {
                 String msg = I18n.err( I18n.ERR_81 );
                 LOG.error( msg );
-                throw new LdapInvalidNameException( msg, ResultCodeEnum.NAMING_VIOLATION );
+                throw new LdapInvalidDnException( msg, ResultCodeEnum.NAMING_VIOLATION );
             }
             
             String ouValue = ( String ) opContext.getDn().getRdn().getNormValue();
@@ -201,7 +201,7 @@ public class RegistrySynchronizerAdaptor
             {
                 String msg = I18n.err( I18n.ERR_82, VALID_OU_VALUES );
                 LOG.error( msg );
-                throw new LdapInvalidNameException( msg, ResultCodeEnum.NAMING_VIOLATION );
+                throw new LdapInvalidDnException( msg, ResultCodeEnum.NAMING_VIOLATION );
             }
             
             // this is a valid container.
@@ -211,7 +211,7 @@ public class RegistrySynchronizerAdaptor
         
         String msg = I18n.err( I18n.ERR_83, opContext.getDn() );
         LOG.error( msg );
-        throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+        throw new LdapUnwillingToPerformException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
     
 
@@ -255,14 +255,14 @@ public class RegistrySynchronizerAdaptor
             
             if ( ! VALID_OU_VALUES.contains( ouValue ) )
             {
-                throw new LdapInvalidNameException( I18n.err( I18n.ERR_379, VALID_OU_VALUES ),
+                throw new LdapInvalidDnException( I18n.err( I18n.ERR_379, VALID_OU_VALUES ),
                     ResultCodeEnum.NAMING_VIOLATION );
             }
             
             return;
         }
 
-        throw new LdapOperationNotSupportedException( ResultCodeEnum.UNWILLING_TO_PERFORM );
+        throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
     
 
@@ -304,7 +304,7 @@ public class RegistrySynchronizerAdaptor
         
         LOG.error( String.format( I18n.err( I18n.ERR_84 ), 
             opContext.getDn(), entry, opContext.getModItems() ) );
-        throw new LdapOperationNotSupportedException( ResultCodeEnum.UNWILLING_TO_PERFORM );
+        throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
 
 
@@ -339,7 +339,7 @@ public class RegistrySynchronizerAdaptor
             return;
         }
         
-        throw new LdapOperationNotSupportedException( ResultCodeEnum.UNWILLING_TO_PERFORM );
+        throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
 
 
@@ -368,7 +368,7 @@ public class RegistrySynchronizerAdaptor
             return;
         }
         
-        throw new LdapOperationNotSupportedException( ResultCodeEnum.UNWILLING_TO_PERFORM );
+        throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
 
 
@@ -399,6 +399,6 @@ public class RegistrySynchronizerAdaptor
             return;
         }
         
-        throw new LdapOperationNotSupportedException( ResultCodeEnum.UNWILLING_TO_PERFORM );
+        throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
 }

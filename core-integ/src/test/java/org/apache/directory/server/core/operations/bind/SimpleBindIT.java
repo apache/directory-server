@@ -45,7 +45,7 @@ import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -382,7 +382,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         {
             new InitialDirContext(env);
         }
-        catch ( LdapNameNotFoundException lnnfe )
+        catch ( LdapNoSuchObjectException lnnfe )
         {
             assertTrue( true );
         }

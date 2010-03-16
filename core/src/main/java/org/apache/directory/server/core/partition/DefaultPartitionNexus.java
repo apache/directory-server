@@ -86,8 +86,8 @@ import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
@@ -534,7 +534,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         // complain if we do not recognize the attribute being compared
         if ( !schemaManager.getAttributeTypeRegistry().contains( compareContext.getOid() ) )
         {
-            throw new LdapInvalidAttributeIdentifierException( I18n.err( I18n.ERR_266, compareContext.getOid() ) );
+            throw new LdapInvalidAttributeTypeException( I18n.err( I18n.ERR_266, compareContext.getOid() ) );
         }
 
         AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( compareContext.getOid() );
@@ -868,7 +868,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
             }
     
             // TODO : handle searches based on the RootDSE
-            throw new LdapNameNotFoundException();
+            throw new LdapNoSuchObjectException();
         }
     
         base.normalize( schemaManager.getNormalizerMapping() );
@@ -1007,7 +1007,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         
         if ( parent == null )
         {
-            throw new LdapNameNotFoundException( I18n.err( I18n.ERR_268, dn ) );
+            throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_268, dn ) );
         }
         else
         {
