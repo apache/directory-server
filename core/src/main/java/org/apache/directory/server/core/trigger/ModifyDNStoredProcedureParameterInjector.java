@@ -22,9 +22,8 @@ package org.apache.directory.server.core.trigger;
 
 import java.util.Map;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
@@ -68,7 +67,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
      */
     MicroInjector $entryInjector = new MicroInjector()
     {
-        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
+        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
             return new DN( oldDN.getName() );
@@ -80,7 +79,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
      */
     MicroInjector $newrdnInjector = new MicroInjector()
     {
-        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
+        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
             return new DN( newRDN.getUpName() );
@@ -92,7 +91,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
      */
     MicroInjector $deleteoldrdnInjector = new MicroInjector()
     {
-        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
+        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
             return deleteOldRn;
@@ -104,7 +103,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
      */
     MicroInjector $newSuperiorInjector = new MicroInjector()
     {
-        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
+        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
             return new DN( newSuperiorDN.getName() );
@@ -116,7 +115,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
      */
     MicroInjector $oldRDNInjector = new MicroInjector()
     {
-        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
+        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
             return new DN( oldRDN.getName() );
@@ -128,7 +127,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
      */
     MicroInjector $oldSuperiorDNInjector = new MicroInjector()
     {
-        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
+        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
             return new DN( oldSuperiorDN.getName() );
@@ -140,7 +139,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
      */
     MicroInjector $newDNInjector = new MicroInjector()
     {
-        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
+        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
             return new DN( newDN.getName() );

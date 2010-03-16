@@ -30,9 +30,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.naming.NamingException;
-import javax.naming.NoPermissionException;
-import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -71,8 +68,10 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
+import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.filter.ApproximateNode;
@@ -537,7 +536,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     String message = I18n.err( I18n.ERR_47 );
                     LOG.error( message );
-                    throw new NamingException( message );
+                    throw new LdapException( message );
                 }
             }
         }
@@ -553,7 +552,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     String message = I18n.err( I18n.ERR_48 );
                     LOG.error( message );
-                    throw new NamingException( message );
+                    throw new LdapException( message );
                 }
             }
         }
@@ -573,7 +572,7 @@ public class SchemaInterceptor extends BaseInterceptor
         {
             String message = I18n.err( I18n.ERR_49 );
             LOG.error( message );
-            throw new NamingException( message );
+            throw new LdapException( message );
         }
 
         if ( filter.isLeaf() )
@@ -598,7 +597,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     String message = I18n.err( I18n.ERR_50 );
                     LOG.error( message );
-                    throw new NamingException( message );
+                    throw new LdapException( message );
                 }
             }
             else if ( filter instanceof PresenceNode )
@@ -638,7 +637,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     String message = I18n.err( I18n.ERR_51 );
                     LOG.error( message );
-                    throw new NamingException( message );
+                    throw new LdapException( message );
                 }
             }
             else if ( filter instanceof ApproximateNode )
@@ -1154,7 +1153,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
                 if ( !attributeType.isUserModifiable() )
                 {
-                    throw new NoPermissionException( "Cannot modify the attribute '" + atav.getUpType() + "'" );
+                    throw new LdapNoPermissionException( "Cannot modify the attribute '" + atav.getUpType() + "'" );
                 }
             }
         }
@@ -1208,7 +1207,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     String msg = I18n.err( I18n.ERR_52, attributeType );
                     LOG.error( msg );
-                    throw new NoPermissionException( msg );
+                    throw new LdapNoPermissionException( msg );
                 }
             }
             
@@ -1221,8 +1220,8 @@ public class SchemaInterceptor extends BaseInterceptor
                         // The value syntax is incorrect : this is an error
                         String msg = I18n.err( I18n.ERR_53, attributeType );
                         LOG.error( msg );
-                        throw new LdapInvalidAttributeValueException( msg, 
-                            ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                        throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, 
+                            msg );
                     }
 
                     EntryAttribute currentAttribute = tempEntry.get( attributeType );
@@ -1449,7 +1448,7 @@ public class SchemaInterceptor extends BaseInterceptor
                                 result.remove( attribute );
                             }
                         }
-                        catch ( NamingException ne )
+                        catch ( LdapException ne )
                         {
                             // Do nothings
                         }
@@ -1642,7 +1641,7 @@ public class SchemaInterceptor extends BaseInterceptor
                             {
                                 String message = I18n.err( I18n.ERR_57 );
                                 LOG.error( message );
-                                throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+                                throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, message );
                             }
                             
                             break;
@@ -1652,7 +1651,7 @@ public class SchemaInterceptor extends BaseInterceptor
                             {
                                 String message = I18n.err( I18n.ERR_58 );
                                 LOG.error( message );
-                                throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+                                throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, message );
                             }
                             
                             break;
@@ -1661,12 +1660,12 @@ public class SchemaInterceptor extends BaseInterceptor
                             break;
                     }
                 }
-                catch ( NamingException ne )
+                catch ( LdapException ne )
                 {
                     // The superior OC does not exist : this is an error
                     String message = I18n.err( I18n.ERR_59 );
                     LOG.error( message );
-                    throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+                    throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, message );
                 }
             }
         }
@@ -1735,11 +1734,11 @@ public class SchemaInterceptor extends BaseInterceptor
     }
     
     
-    private String getSchemaName( DN dn ) throws NamingException
+    private String getSchemaName( DN dn ) throws LdapException
     {
         if ( dn.size() < 2 )
         {
-            throw new NamingException( I18n.err( I18n.ERR_276 ) );
+            throw new LdapException( I18n.err( I18n.ERR_276 ) );
         }
         
         RDN rdn = dn.getRdn( 1 );
@@ -1775,8 +1774,8 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 if ( !allowed.contains( attrOid ) )
                 {
-                    throw new LdapSchemaViolationException( I18n.err( I18n.ERR_277, attribute.getUpId(),
-                        dn.getName() ), ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+                    throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, I18n.err( I18n.ERR_277, attribute.getUpId(),
+                            dn.getName() ) );
                 }
             }
         }
@@ -1786,7 +1785,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Checks to see number of values of an attribute conforms to the schema
      */
-    private void assertNumberOfAttributeValuesValid( Entry entry ) throws InvalidAttributeValueException, Exception
+    private void assertNumberOfAttributeValuesValid( Entry entry ) throws LdapInvalidAttributeValueException
     {
         for ( EntryAttribute attribute : entry )
         {
@@ -1798,13 +1797,12 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Checks to see numbers of values of attributes conforms to the schema
      */
-    private void assertNumberOfAttributeValuesValid( EntryAttribute attribute ) throws InvalidAttributeValueException,
-        Exception
+    private void assertNumberOfAttributeValuesValid( EntryAttribute attribute ) throws LdapInvalidAttributeValueException
     {
         if ( attribute.size() > 1 && ( ( ServerAttribute ) attribute ).getAttributeType().isSingleValued() )
         {
-            throw new LdapInvalidAttributeValueException( I18n.err( I18n.ERR_278, attribute.getUpId() ),
-                ResultCodeEnum.CONSTRAINT_VIOLATION );
+            throw new LdapInvalidAttributeValueException( ResultCodeEnum.CONSTRAINT_VIOLATION,
+                I18n.err( I18n.ERR_278, attribute.getUpId() ) );
         }
     }
 
@@ -1821,8 +1819,8 @@ public class SchemaInterceptor extends BaseInterceptor
 
         if ( must.size() != 0 )
         {
-            throw new LdapSchemaViolationException( I18n.err( I18n.ERR_279, must, dn.getName() ),
-                ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION,
+                I18n.err( I18n.ERR_279, must, dn.getName() ) );
         }
     }
 
@@ -1864,7 +1862,7 @@ public class SchemaInterceptor extends BaseInterceptor
         {
             String message = I18n.err( I18n.ERR_60, dn );
             LOG.error( message );
-            throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, message );
         }
 
         // --------------------------------------------------------------------
@@ -1896,7 +1894,7 @@ public class SchemaInterceptor extends BaseInterceptor
         {
             String message = I18n.err( I18n.ERR_61, dn, remaining );
             LOG.error( message );
-            throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, message );
         }
     }
 
@@ -1937,7 +1935,7 @@ public class SchemaInterceptor extends BaseInterceptor
                     String message = I18n.err( I18n.ERR_280, value.getString(), attribute.getUpId() );
                     LOG.info( message );
 
-                    throw new LdapInvalidAttributeValueException( message, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                    throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, message );
                 }
             }
         }
@@ -1954,7 +1952,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 String message = I18n.err( I18n.ERR_62, dn, atav.getUpType() );
                 LOG.error( message );
-                throw new LdapSchemaViolationException( message, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
+                throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, message );
             }
         }
     }
@@ -1989,12 +1987,12 @@ public class SchemaInterceptor extends BaseInterceptor
                 }
                 catch ( UnsupportedEncodingException uee )
                 {
-                    throw new NamingException( I18n.err( I18n.ERR_281 ) );
+                    throw new LdapException( I18n.err( I18n.ERR_281 ) );
                 }
             }
             else
             {
-                throw new NamingException( I18n.err( I18n.ERR_282 ) );
+                throw new LdapException( I18n.err( I18n.ERR_282 ) );
             }
         }
 
@@ -2034,14 +2032,14 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     String message = I18n.err( I18n.ERR_63 );
                     LOG.error( message );
-                    throw new NamingException( message );
+                    throw new LdapException( message );
                 }
             }
             else
             {
                 String message = I18n.err( I18n.ERR_64 );
                 LOG.error( message );
-                throw new NamingException( message );
+                throw new LdapException( message );
             }
         }
 

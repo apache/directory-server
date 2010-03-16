@@ -34,7 +34,6 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
@@ -54,11 +53,11 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapAliasException;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapEntryAlreadyExistsException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -146,7 +145,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         if ( nextInterceptor.hasEntry( new EntryOperationContext( opContext.getSession(), name ) ) )
         {
             LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_250, name.getName() ) );
-            ne.setResolvedName( new DN( name.getName() ) );
+            //ne.setResolvedName( new DN( name.getName() ) );
             throw ne;
         }
         
@@ -185,8 +184,8 @@ public class ExceptionInterceptor extends BaseInterceptor
             {
                 LdapNoSuchObjectException e2 = new LdapNoSuchObjectException( I18n.err( I18n.ERR_251, 
                     parentDn.getName() ) );
-                e2.setResolvedName( new DN( nexus.getMatchedName( 
-                    new GetMatchedNameOperationContext( opContext.getSession(), parentDn ) ).getName() ) );
+                //e2.setResolvedName( new DN( nexus.getMatchedName( 
+                  //  new GetMatchedNameOperationContext( opContext.getSession(), parentDn ) ).getName() ) );
                 throw e2;
             }
             
@@ -195,9 +194,8 @@ public class ExceptionInterceptor extends BaseInterceptor
             if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
             {
                 String msg = I18n.err( I18n.ERR_252, name.getName() );
-                ResultCodeEnum rc = ResultCodeEnum.ALIAS_PROBLEM;
-                LdapNamingException e = new LdapNamingException( msg, rc );
-                e.setResolvedName( new DN( parentDn.getName() ) );
+                LdapAliasException e = new LdapAliasException( msg );
+                //e.setResolvedName( new DN( parentDn.getName() ) );
                 throw e;
             }
             else
@@ -223,8 +221,8 @@ public class ExceptionInterceptor extends BaseInterceptor
         
         if ( name.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
         {
-            throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_253, subschemSubentryDn ),
-                ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
+                I18n.err( I18n.ERR_253, subschemSubentryDn ) );
         }
         
         // check if entry to delete exists
@@ -245,7 +243,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         if ( hasChildren )
         {
             LdapContextNotEmptyException e = new LdapContextNotEmptyException();
-            e.setResolvedName( new DN( name.getName() ) );
+            //e.setResolvedName( new DN( name.getName() ) );
             throw e;
         }
 
@@ -367,8 +365,8 @@ public class ExceptionInterceptor extends BaseInterceptor
         
         if ( dn.equals( subschemSubentryDn ) )
         {
-            throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_255, subschemSubentryDn,
-                subschemSubentryDn ), ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_255, subschemSubentryDn,
+                    subschemSubentryDn ) );
         }
         
         // Check to see if the renamed entry exists
@@ -378,7 +376,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             // on the server
             LdapNoSuchObjectException ldnfe;
             ldnfe = new LdapNoSuchObjectException( I18n.err( I18n.ERR_256, dn.getName() ) );
-            ldnfe.setResolvedName( new DN( dn.getName() ) );
+            //ldnfe.setResolvedName( new DN( dn.getName() ) );
             throw ldnfe;
         }
         
@@ -389,7 +387,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         {
             LdapEntryAlreadyExistsException e;
             e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_257, newDn.getName() ) );
-            e.setResolvedName( new DN( newDn.getName() ) );
+            //e.setResolvedName( new DN( newDn.getName() ) );
             throw e;
         }
 
@@ -417,8 +415,8 @@ public class ExceptionInterceptor extends BaseInterceptor
         
         if ( oriChildName.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
         {
-            throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_258, subschemSubentryDn,
-                subschemSubentryDn ), ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_258, subschemSubentryDn,
+                    subschemSubentryDn ) );
         }
         
         // check if child to move exists
@@ -443,7 +441,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
             LdapEntryAlreadyExistsException e;
             e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_257, upTarget.getName() ) );
-            e.setResolvedName( new DN( upTarget.getName() ) );
+            //e.setResolvedName( new DN( upTarget.getName() ) );
             throw e;
         }
 
@@ -471,8 +469,8 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         if ( oriChildName.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
         {
-            throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_258, subschemSubentryDn,
-                subschemSubentryDn ), ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_258, subschemSubentryDn,
+                    subschemSubentryDn ) );
         }
         
         // check if child to move exists
@@ -495,7 +493,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
             LdapEntryAlreadyExistsException e;
             e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_257, upTarget.getName() ) );
-            e.setResolvedName( new DN( upTarget.getName() ) );
+            //e.setResolvedName( new DN( upTarget.getName() ) );
             throw e;
         }
 
@@ -573,10 +571,10 @@ public class ExceptionInterceptor extends BaseInterceptor
                 e = new LdapNoSuchObjectException( dn.getName() );
             }
 
-            e.setResolvedName( 
-                new DN( 
-                    opContext.getSession().getDirectoryService().getOperationManager().getMatchedName( 
-                        new GetMatchedNameOperationContext( opContext.getSession(), dn ) ).getName() ) );
+            //e.setResolvedName( 
+            //    new DN( 
+            //        opContext.getSession().getDirectoryService().getOperationManager().getMatchedName( 
+            //            new GetMatchedNameOperationContext( opContext.getSession(), dn ) ).getName() ) );
             throw e;
         }
     }

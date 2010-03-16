@@ -23,12 +23,12 @@ package org.apache.directory.server.core.event;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidSearchFilterException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -64,7 +64,7 @@ public class SubstringEvaluator implements Evaluator
     /**
      * @see Evaluator#evaluate( ExprNode, String, ServerEntry )
      */
-    public boolean evaluate( ExprNode node, String dn, ServerEntry entry ) throws NamingException
+    public boolean evaluate( ExprNode node, String dn, ServerEntry entry ) throws LdapException
     {
         Pattern regex = null;
         SubstringNode snode = (SubstringNode)node;
@@ -96,8 +96,8 @@ public class SubstringEvaluator implements Evaluator
         }
         catch ( PatternSyntaxException pse )
         {
-            NamingException ne = new NamingException( I18n.err( I18n.ERR_248, node ) );
-            ne.setRootCause( pse );
+            LdapInvalidSearchFilterException ne = new LdapInvalidSearchFilterException( I18n.err( I18n.ERR_248, node ) );
+            ne.initCause( pse );
             throw ne;
         }
 

@@ -25,9 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.naming.NamingException;
-
-import org.apache.directory.server.core.authz.support.ACITupleFilter;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 
 
@@ -40,7 +38,7 @@ import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
  */
 class DummyOidRegistry extends OidRegistry
 {
-    public String getOid( String name ) throws NamingException
+    public String getOid( String name ) throws LdapException
     {
         return name.toLowerCase();
     }
@@ -52,13 +50,13 @@ class DummyOidRegistry extends OidRegistry
     }
 
 
-    public String getPrimaryName( String oid ) throws NamingException
+    public String getPrimaryName( String oid ) throws LdapException
     {
         return oid;
     }
 
 
-    public List<String> getNameSet( String oid ) throws NamingException
+    public List<String> getNameSet( String oid ) throws LdapException
     {
         List<String> list = new ArrayList<String>();
         list.add( oid );
@@ -99,7 +97,7 @@ class DummyOidRegistry extends OidRegistry
     }
 
 
-    public void unregister( String numericOid ) throws NamingException
+    public void unregister( String numericOid ) throws LdapException
     {
     }
 }

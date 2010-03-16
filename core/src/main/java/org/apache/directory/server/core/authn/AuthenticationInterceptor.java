@@ -444,7 +444,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             // This is a case where the Bind request contains a DN, but no password.
             // We don't check the DN, we just return a UnwillingToPerform error
             // Cf RFC 4513, chap. 5.1.2
-            throw new LdapUnwillingToPerformException( "Cannot Bind for DN " + opContext.getDn().getName(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, "Cannot Bind for DN " + opContext.getDn().getName() );
         }
 
         Collection<Authenticator> authenticators = getAuthenticators( level.getName() );

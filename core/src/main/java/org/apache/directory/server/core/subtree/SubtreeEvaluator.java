@@ -22,12 +22,10 @@ package org.apache.directory.server.core.subtree;
 
 import java.util.Iterator;
 
-import javax.naming.Name;
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.event.Evaluator;
 import org.apache.directory.server.core.event.ExpressionEvaluator;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
@@ -54,7 +52,6 @@ public class SubtreeEvaluator
      *
      * @param oidRegistry a registry used to lookup objectClass names for OIDs
      * @param attrRegistry registry to be looked up
-     * @throws NamingException 
      */
     public SubtreeEvaluator( OidRegistry oidRegistry, SchemaManager schemaManager )
     {
@@ -69,10 +66,10 @@ public class SubtreeEvaluator
      * @param apDn the distinguished name of the administrative point containing the subentry
      * @param entryDn the distinguished name of the candidate entry
      * @return true if the entry is selected by the specification, false if it is not
-     * @throws javax.naming.NamingException if errors are encountered while evaluating selection
+     * @throws LdapException if errors are encountered while evaluating selection
      */
-    public boolean evaluate( SubtreeSpecification subtree, Name apDn, Name entryDn, ServerEntry entry )
-        throws NamingException
+    public boolean evaluate( SubtreeSpecification subtree, DN apDn, DN entryDn, ServerEntry entry )
+        throws LdapException
     {
         // TODO: Try to make this cast unnecessary.
         DN dnEntryDn = (DN) entryDn;
@@ -93,7 +90,7 @@ public class SubtreeEvaluator
          * administrative point.  In the process we calculate the relative
          * distinguished name relative to the administrative point.
          */
-        Name apRelativeRdn;
+        DN apRelativeRdn;
         
         if ( !NamespaceTools.isDescendant( apDn, entryDn ) )
         {
@@ -114,7 +111,7 @@ public class SubtreeEvaluator
          * relative name of the entry with respect to the base rdn.  With the
          * baseRelativeRdn we can later make comparisons with specific exclusions.
          */
-        Name baseRelativeRdn;
+        DN baseRelativeRdn;
         
         if ( subtree.getBase() != null && subtree.getBase().size() == 0 )
         {
@@ -168,7 +165,7 @@ public class SubtreeEvaluator
         
         while ( list.hasNext() )
         {
-            Name chopBefore = ( Name ) list.next();
+            DN chopBefore = ( DN ) list.next();
             
             if ( NamespaceTools.isDescendant( chopBefore, baseRelativeRdn ) )
             {
@@ -180,7 +177,7 @@ public class SubtreeEvaluator
         
         while ( list.hasNext() )
         {
-            Name chopAfter = ( Name ) list.next();
+            DN chopAfter = ( DN ) list.next();
             
             if ( NamespaceTools.isDescendant( chopAfter, baseRelativeRdn ) && !chopAfter.equals( baseRelativeRdn ) )
             {

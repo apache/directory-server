@@ -36,6 +36,7 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.junit.BeforeClass;
@@ -75,7 +76,7 @@ public class RelatedUserClassFilterTest
             GROUP_NAME = new DN( "ou=test,ou=groups,ou=system" );
             USER_NAME = new DN( "ou=test, ou=users, ou=system" );
         }
-        catch ( NamingException e )
+        catch ( LdapInvalidDnException e )
         {
             throw new Error();
         }
@@ -217,7 +218,7 @@ public class RelatedUserClassFilterTest
             {
                 names.add( new DN( "dummy=dummy" ) );
             }
-            catch ( NamingException e )
+            catch ( LdapInvalidDnException e )
             {
                 throw new Error();
             }

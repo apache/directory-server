@@ -31,7 +31,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.naming.Context;
-import javax.naming.NamingException;
 
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.server.core.LdapPrincipal;
@@ -190,7 +189,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * Get the password either from cache or from backend.
      * @param principalDN The DN from which we want the password
      * @return A byte array which can be empty if the password was not found
-     * @throws NamingException If we have a problem during the lookup operation
+     * @throws Exception If we have a problem during the lookup operation
      */
     private LdapPrincipal getStoredPassword( BindOperationContext opContext ) throws Exception
     {
@@ -587,7 +586,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * Local function which request the password from the backend
      * @param principalDn the principal to lookup
      * @return the credentials from the backend
-     * @throws NamingException if there are problems accessing backend
+     * @throws Exception if there are problems accessing backend
      */
     private byte[] lookupUserPassword( BindOperationContext opContext ) throws Exception
     {
@@ -620,7 +619,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             LOG.error( I18n.err( I18n.ERR_6, cause.getLocalizedMessage() ) );
             LdapAuthenticationException e = new LdapAuthenticationException( cause.getLocalizedMessage() );
-            e.setRootCause( e );
+            e.initCause( e );
             throw e;
         }
 

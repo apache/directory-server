@@ -21,9 +21,8 @@
 package org.apache.directory.server.core.sp.java;
 
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.exception.LdapException;
 
 
 /**
@@ -54,7 +53,7 @@ public class LdapJavaStoredProcClassLoader extends ClassLoader
         {
             classBytes = javaByteCodeAttr.getBytes();
         }
-        catch ( NamingException e )
+        catch ( LdapException e )
         {
             throw new ClassNotFoundException();
         }

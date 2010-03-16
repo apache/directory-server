@@ -25,8 +25,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -59,7 +58,7 @@ public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<Attr
     }
 
 
-    public AttributeType lookup( final String id ) throws NamingException
+    public AttributeType lookup( final String id ) throws LdapException
     {
         Normalizer normalizer = new DeepTrimToLowerNormalizer( "1.1.1" );
 
@@ -89,7 +88,7 @@ public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<Attr
     }
 
 
-    public String getSchemaName( String id ) throws NamingException
+    public String getSchemaName( String id ) throws LdapException
     {
         return "dummy";
     }
@@ -113,13 +112,13 @@ public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<Attr
     }
 
 
-    public Iterator<AttributeType> descendants( String ancestorId ) throws NamingException
+    public Iterator<AttributeType> descendants( String ancestorId ) throws LdapException
     {
         return null;
     }
 
 
-    public boolean hasDescendants( String ancestorId ) throws NamingException
+    public boolean hasDescendants( String ancestorId ) throws LdapException
     {
         return false;
     }
@@ -131,36 +130,36 @@ public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<Attr
     }
 
 
-    public AttributeType unregister( String numericOid ) throws NamingException
+    public AttributeType unregister( String numericOid ) throws LdapException
     {
     	return null;
     }
 
 
-    public void register( AttributeType attributeType ) throws NamingException
+    public void register( AttributeType attributeType ) throws LdapException
     {
     }
 
 
-    public Set<String> getBinaryAttributes() throws NamingException
+    public Set<String> getBinaryAttributes() throws LdapException
     {
         return null;
     }
 
     
     public void unregisterDescendants( AttributeType attributeType, AttributeType ancestor ) 
-    throws NamingException
+    throws LdapException
     {
     }
 
     
     public void registerDescendants( AttributeType attributeType, AttributeType ancestor ) 
-    throws NamingException
+    throws LdapException
     {
     }
     
     
-    public void addMappingFor( AttributeType attributeType ) throws NamingException
+    public void addMappingFor( AttributeType attributeType ) throws LdapException
     {
     }
 

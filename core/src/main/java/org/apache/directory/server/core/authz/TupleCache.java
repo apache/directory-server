@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.naming.NamingException;
+import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.CoreSession;
@@ -46,6 +47,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -103,7 +105,7 @@ public class TupleCache
     }
 
 
-    private DN parseNormalized( SchemaManager schemaManager, String name ) throws NamingException
+    private DN parseNormalized( SchemaManager schemaManager, String name ) throws LdapException
     {
         DN dn = new DN( name );
         dn.normalize( schemaManager.getNormalizerMapping() );
@@ -154,7 +156,7 @@ public class TupleCache
     }
 
 
-    private boolean hasPrescriptiveACI( ServerEntry entry ) throws NamingException
+    private boolean hasPrescriptiveACI( ServerEntry entry ) throws LdapException
     {
         // only do something if the entry contains prescriptiveACI
         EntryAttribute aci = entry.get( prescriptiveAciAT );
@@ -167,7 +169,7 @@ public class TupleCache
                 // should not be necessary because of schema interceptor but schema checking
                 // can be turned off and in this case we must protect against being able to
                 // add access control information to anything other than an AC subentry
-                throw new LdapSchemaViolationException( "", ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+                throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, "" );
             }
             else
             {
@@ -179,7 +181,7 @@ public class TupleCache
     }
 
 
-    public void subentryAdded( DN normName, ServerEntry entry ) throws NamingException
+    public void subentryAdded( DN normName, ServerEntry entry ) throws LdapException
     {
         // only do something if the entry contains prescriptiveACI
         EntryAttribute aciAttr = entry.get( prescriptiveAciAT );
@@ -215,7 +217,7 @@ public class TupleCache
     }
 
 
-    public void subentryDeleted( DN normName, ServerEntry entry ) throws NamingException
+    public void subentryDeleted( DN normName, ServerEntry entry ) throws LdapException
     {
         if ( !hasPrescriptiveACI( entry ) )
         {
@@ -226,7 +228,7 @@ public class TupleCache
     }
 
 
-    public void subentryModified( DN normName, List<Modification> mods, ServerEntry entry ) throws NamingException
+    public void subentryModified( DN normName, List<Modification> mods, ServerEntry entry ) throws LdapException
     {
         if ( !hasPrescriptiveACI( entry ) )
         {
@@ -244,7 +246,7 @@ public class TupleCache
     }
 
 
-    public void subentryModified( DN normName, ServerEntry mods, ServerEntry entry ) throws NamingException
+    public void subentryModified( DN normName, ServerEntry mods, ServerEntry entry ) throws LdapException
     {
         if ( !hasPrescriptiveACI( entry ) )
         {

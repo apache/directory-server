@@ -27,11 +27,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.naming.Name;
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter.Generic_LDAP_CONTEXT;
@@ -52,10 +50,10 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
     }
     
     
-    protected Name getOperationPrincipal() throws NamingException
+    protected DN getOperationPrincipal() throws LdapInvalidDnException
     {
         Principal principal = opContext.getSession().getEffectivePrincipal();
-        Name userName = new DN( principal.getName() );
+        DN userName = new DN( principal.getName() );
         return userName;
     }
     

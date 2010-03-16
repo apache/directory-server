@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -43,6 +42,8 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
@@ -96,7 +97,7 @@ public class GroupCache
      * Creates a static group cache.
      *
      * @param directoryService the directory service core
-     * @throws NamingException if there are failures on initialization 
+     * @throws LdapException if there are failures on initialization 
      */
     public GroupCache( CoreSession session ) throws Exception
     {
@@ -113,7 +114,7 @@ public class GroupCache
     }
 
 
-    private DN parseNormalized( String name ) throws NamingException
+    private DN parseNormalized( String name ) throws LdapException
     {
         DN dn = new DN( name );
         dn.normalize( normalizerMap );
@@ -180,7 +181,7 @@ public class GroupCache
      * @param entry the entry inspected for member attributes
      * @return the member attribute
      */
-    private EntryAttribute getMemberAttribute( ServerEntry entry ) throws NamingException
+    private EntryAttribute getMemberAttribute( ServerEntry entry ) throws LdapException
     {
         EntryAttribute oc = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
@@ -223,9 +224,9 @@ public class GroupCache
      *
      * @param memberSet the set of member Dns (Strings)
      * @param members the member attribute values being added
-     * @throws NamingException if there are problems accessing the attr values
+     * @throws LdapException if there are problems accessing the attr values
      */
-    private void addMembers( Set<String> memberSet, EntryAttribute members ) throws NamingException
+    private void addMembers( Set<String> memberSet, EntryAttribute members ) throws LdapException
     {
         for ( Value<?> value : members )
         {
@@ -237,7 +238,7 @@ public class GroupCache
             {
                 memberDn = parseNormalized( memberDn ).getNormName();
             }
-            catch ( NamingException e )
+            catch ( LdapException e )
             {
                 LOG.warn( "Malformed member DN in groupOf[Unique]Names entry.  Member not added to GroupCache.", e );
             }
@@ -252,9 +253,9 @@ public class GroupCache
      *
      * @param memberSet the set of normalized member DNs
      * @param members the set of member values
-     * @throws NamingException if there are problems accessing the attr values
+     * @throws LdapException if there are problems accessing the attr values
      */
-    private void removeMembers( Set<String> memberSet, EntryAttribute members ) throws NamingException
+    private void removeMembers( Set<String> memberSet, EntryAttribute members ) throws LdapException
     {
         for ( Value<?> value : members )
         {
@@ -265,7 +266,7 @@ public class GroupCache
             {
                 memberDn = parseNormalized( memberDn ).getNormName();
             }
-            catch ( NamingException e )
+            catch ( LdapException e )
             {
                 LOG.warn( "Malformed member DN in groupOf[Unique]Names entry.  Member not removed from GroupCache.", e );
             }
@@ -281,9 +282,9 @@ public class GroupCache
      *
      * @param name the user provided name for the group entry
      * @param entry the group entry's attributes
-     * @throws NamingException if there are problems accessing the attr values
+     * @throws LdapException if there are problems accessing the attr values
      */
-    public void groupAdded( DN name, ServerEntry entry ) throws NamingException
+    public void groupAdded( DN name, ServerEntry entry ) throws LdapException
     {
         EntryAttribute members = getMemberAttribute( entry );
 
@@ -310,7 +311,7 @@ public class GroupCache
      * @param name the normalized DN of the group entry
      * @param entry the attributes of entry being deleted
      */
-    public void groupDeleted( DN name, ServerEntry entry ) throws NamingException
+    public void groupDeleted( DN name, ServerEntry entry ) throws LdapException
     {
         EntryAttribute members = getMemberAttribute( entry );
 
@@ -335,10 +336,10 @@ public class GroupCache
      * @param memberSet the set of members to be altered
      * @param modOp the type of modify operation being performed
      * @param members the members being added, removed or replaced
-     * @throws NamingException if there are problems accessing attribute values
+     * @throws LdapException if there are problems accessing attribute values
      */
     private void modify( Set<String> memberSet, ModificationOperation modOp, EntryAttribute members )
-        throws NamingException
+        throws LdapException
     {
 
         switch ( modOp )
@@ -373,10 +374,10 @@ public class GroupCache
      * @param name the normalized name of the group entry modified
      * @param mods the modification operations being performed
      * @param entry the group entry being modified
-     * @throws NamingException if there are problems accessing attribute  values
+     * @throws LdapException if there are problems accessing attribute  values
      */
     public void groupModified( DN name, List<Modification> mods, ServerEntry entry, SchemaManager schemaManager )
-        throws NamingException
+        throws LdapException
     {
         EntryAttribute members = null;
         String memberAttrId = null;
@@ -428,9 +429,9 @@ public class GroupCache
      * @param name the normalized name of the group entry modified
      * @param modOp the modify operation being performed
      * @param mods the modifications being performed
-     * @throws NamingException if there are problems accessing attribute  values
+     * @throws LdapException if there are problems accessing attribute  values
      */
-    public void groupModified( DN name, ModificationOperation modOp, ServerEntry mods ) throws NamingException
+    public void groupModified( DN name, ModificationOperation modOp, ServerEntry mods ) throws LdapException
     {
         EntryAttribute members = getMemberAttribute( mods );
 
@@ -485,9 +486,9 @@ public class GroupCache
      *
      * @param member the member (user) to get the groups for
      * @return a Set of Name objects representing the groups
-     * @throws NamingException if there are problems accessing attribute  values
+     * @throws LdapException if there are problems accessing attribute  values
      */
-    public Set<DN> getGroups( String member ) throws NamingException
+    public Set<DN> getGroups( String member ) throws LdapException
     {
         DN normMember;
 
@@ -495,7 +496,7 @@ public class GroupCache
         {
             normMember = parseNormalized( member );
         }
-        catch ( NamingException e )
+        catch ( LdapException e )
         {
             LOG
                 .warn(

@@ -30,11 +30,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Security;
-import java.util.Date;
-
-import javax.naming.NamingException;
-import javax.security.auth.x500.X500Principal;
-
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -42,11 +37,15 @@ import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Date;
+
+import javax.security.auth.x500.X500Principal;
 
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.x509.X509V1CertificateGenerator;
 import org.slf4j.Logger;
@@ -105,9 +104,9 @@ public class TlsKeyGenerator
      *
      * @param entry the TLS key/cert entry
      * @return the X509 certificate associated with that entry
-     * @throws NamingException if there are problems accessing or decoding
+     * @throws LdapException if there are problems accessing or decoding
      */
-    public static X509Certificate getCertificate( ServerEntry entry ) throws NamingException
+    public static X509Certificate getCertificate( ServerEntry entry ) throws LdapException
     {
         X509Certificate cert = null;
         CertificateFactory certFactory = null;
@@ -118,8 +117,8 @@ public class TlsKeyGenerator
         }
         catch ( Exception e )
         {
-            NamingException ne = new NamingException( I18n.err( I18n.ERR_286 ) );
-            ne.setRootCause( e );
+            LdapException ne = new LdapException( I18n.err( I18n.ERR_286 ) );
+            ne.initCause( e );
             throw ne;
         }
 
@@ -132,8 +131,8 @@ public class TlsKeyGenerator
         }
         catch ( CertificateException e )
         {
-            NamingException ne = new NamingException( I18n.err( I18n.ERR_287 ) );
-            ne.setRootCause( e );
+            LdapException ne = new LdapException( I18n.err( I18n.ERR_287 ) );
+            ne.initCause( e );
             throw ne;
         }
         
@@ -146,9 +145,9 @@ public class TlsKeyGenerator
      *
      * @param entry an entry of the tlsKeyInfo objectClass
      * @return the private and public key pair
-     * @throws NamingException if there are format or access issues
+     * @throws LdapException if there are format or access issues
      */
-    public static KeyPair getKeyPair( ServerEntry entry ) throws NamingException
+    public static KeyPair getKeyPair( ServerEntry entry ) throws LdapException
     {
         PublicKey publicKey = null;
         PrivateKey privateKey = null;
@@ -160,8 +159,8 @@ public class TlsKeyGenerator
         }
         catch ( Exception e )
         {
-            NamingException ne = new NamingException( I18n.err( I18n.ERR_288, ALGORITHM ) );
-            ne.setRootCause( e );
+            LdapException ne = new LdapException( I18n.err( I18n.ERR_288, ALGORITHM ) );
+            ne.initCause( e );
             throw ne;
         }
         
@@ -172,8 +171,8 @@ public class TlsKeyGenerator
         }
         catch ( Exception e )
         {
-            NamingException ne = new NamingException( I18n.err( I18n.ERR_289 ) );
-            ne.setRootCause( e );
+            LdapException ne = new LdapException( I18n.err( I18n.ERR_289 ) );
+            ne.initCause( e );
             throw ne;
         }
     
@@ -184,8 +183,8 @@ public class TlsKeyGenerator
         }
         catch ( InvalidKeySpecException e )
         {
-            NamingException ne = new NamingException( I18n.err( I18n.ERR_290 ) );
-            ne.setRootCause( e );
+            LdapException ne = new LdapException( I18n.err( I18n.ERR_290 ) );
+            ne.initCause( e );
             throw ne;
         }
         
@@ -205,9 +204,9 @@ public class TlsKeyGenerator
      * concerns.
      * 
      * @param entry the entry to add security attributes to
-     * @throws NamingException on problems generating the content in the entry
+     * @throws LdapException on problems generating the content in the entry
      */
-    public static void addKeyPair( ServerEntry entry ) throws NamingException
+    public static void addKeyPair( ServerEntry entry ) throws LdapException
     {
         EntryAttribute objectClass = entry.get( SchemaConstants.OBJECT_CLASS_AT );
         
@@ -227,8 +226,8 @@ public class TlsKeyGenerator
         }
         catch ( NoSuchAlgorithmException e )
         {
-            NamingException ne = new NamingException( I18n.err( I18n.ERR_291 ) );
-            ne.setRootCause( e );
+            LdapException ne = new LdapException( I18n.err( I18n.ERR_291 ) );
+            ne.initCause( e );
             throw ne;
         }
 
@@ -271,8 +270,8 @@ public class TlsKeyGenerator
         }
         catch ( Exception e )
         {
-            NamingException ne = new NamingException( I18n.err( I18n.ERR_292 ) );
-            ne.setRootCause( e );
+            LdapException ne = new LdapException( I18n.err( I18n.ERR_292 ) );
+            ne.initCause( e );
             throw ne;
         }
         
@@ -286,7 +285,7 @@ public class TlsKeyGenerator
      * TODO the code is duplicate atm, will eliminate this redundancy after finding
      * a better thought (an instant one is to call this method from the aboveaddKeyPair(entry) and remove the impl there)
      */
-    public static void addKeyPair( ServerEntry entry, String issuerDN, String subjectDN, String keyAlgo ) throws NamingException
+    public static void addKeyPair( ServerEntry entry, String issuerDN, String subjectDN, String keyAlgo ) throws LdapException
     {
         EntryAttribute objectClass = entry.get( SchemaConstants.OBJECT_CLASS_AT );
         
@@ -306,8 +305,8 @@ public class TlsKeyGenerator
         }
         catch ( NoSuchAlgorithmException e )
         {
-            NamingException ne = new NamingException( I18n.err( I18n.ERR_291 ) );
-            ne.setRootCause( e );
+            LdapException ne = new LdapException( I18n.err( I18n.ERR_291 ) );
+            ne.initCause( e );
             throw ne;
         }
 
@@ -351,8 +350,8 @@ public class TlsKeyGenerator
         }
         catch ( Exception e )
         {
-            NamingException ne = new NamingException( I18n.err( I18n.ERR_292 ) );
-            ne.setRootCause( e );
+            LdapException ne = new LdapException( I18n.err( I18n.ERR_292 ) );
+            ne.initCause( e );
             throw ne;
         }
         

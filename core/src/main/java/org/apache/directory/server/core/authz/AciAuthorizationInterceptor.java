@@ -71,9 +71,8 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -337,7 +336,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             {
                 String msg = I18n.err( I18n.ERR_10, aciString );
                 LOG.error( msg, e );
-                throw new LdapNamingException( msg, ResultCodeEnum.OPERATIONS_ERROR );
+                throw new LdapOperationErrorException( msg );
             }
 
             tuples.addAll( item.toTuples() );
@@ -390,7 +389,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             {
                 String msg = I18n.err( I18n.ERR_11, aciString );
                 LOG.error( msg, e );
-                throw new LdapNamingException( msg, ResultCodeEnum.OPERATIONS_ERROR );
+                throw new LdapOperationErrorException( msg );
             }
 
             tuples.addAll( item.toTuples() );

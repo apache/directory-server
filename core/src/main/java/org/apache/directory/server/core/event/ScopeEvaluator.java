@@ -20,10 +20,10 @@
 package org.apache.directory.server.core.event;
 
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidSearchFilterException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.name.DN;
@@ -45,7 +45,7 @@ public class ScopeEvaluator implements Evaluator
     /**
      * @see Evaluator#evaluate(ExprNode , String, ServerEntry)
      */
-    public boolean evaluate( ExprNode node, String dn, ServerEntry record ) throws NamingException
+    public boolean evaluate( ExprNode node, String dn, ServerEntry record ) throws LdapException
     {
         ScopeNode snode = ( ScopeNode ) node;
 
@@ -66,7 +66,7 @@ public class ScopeEvaluator implements Evaluator
                 return dn.endsWith( snode.getBaseDn() );
             
             default:
-                throw new NamingException( I18n.err( I18n.ERR_247 ) );
+                throw new LdapInvalidSearchFilterException( I18n.err( I18n.ERR_247 ) );
         }
     }
 }

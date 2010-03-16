@@ -23,8 +23,6 @@ package org.apache.directory.server.core.authz.support;
 import java.util.Collection;
 import java.util.Iterator;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.subtree.SubtreeEvaluator;
@@ -34,6 +32,7 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
@@ -74,7 +73,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
             ServerEntry entry, 
             Collection<MicroOperation> microOperations,
             ServerEntry entryView )
-        throws NamingException
+        throws LdapException
     {
         if ( tuples.size() == 0 )
         {
@@ -117,7 +116,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
 
 
     private boolean isRelated( Collection<DN> userGroupNames, DN userName, ServerEntry userEntry, 
-        DN entryName, Collection<UserClass> userClasses ) throws NamingException
+        DN entryName, Collection<UserClass> userClasses ) throws LdapException
     {
         for ( UserClass userClass : userClasses )
         {
@@ -178,7 +177,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
 
 
     private boolean matchUserClassSubtree( DN userName, ServerEntry userEntry, UserClass.Subtree subtree )
-        throws NamingException
+        throws LdapException
     {
         for ( SubtreeSpecification subtreeSpec : subtree.getSubtreeSpecifications() )
         {

@@ -35,6 +35,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -73,7 +74,7 @@ public class CollectiveAttributesSchemaChecker
             /*
              * TODO: Replace the Exception and the ResultCodeEnum with the correct ones.
              */
-            throw new LdapSchemaViolationException( I18n.err( I18n.ERR_241 ), ResultCodeEnum.OTHER );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OTHER, I18n.err( I18n.ERR_241 ) );
         }
     }
     
@@ -95,12 +96,12 @@ public class CollectiveAttributesSchemaChecker
             /*
              * TODO: Replace the Exception and the ResultCodeEnum with the correct ones.
              */
-            throw new LdapSchemaViolationException( I18n.err( I18n.ERR_242 ), ResultCodeEnum.OTHER);
+            throw new LdapSchemaViolationException( ResultCodeEnum.OTHER, I18n.err( I18n.ERR_242 ));
         }
     }
     
     
-    private boolean addsAnyCollectiveAttributes( List<Modification> mods ) throws NamingException
+    private boolean addsAnyCollectiveAttributes( List<Modification> mods ) throws LdapException
     {
         for ( Modification mod:mods )
         {

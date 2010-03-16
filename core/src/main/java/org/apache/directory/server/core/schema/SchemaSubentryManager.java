@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.core.entry.ServerAttribute;
@@ -176,8 +175,8 @@ public class SchemaSubentryManager
                     break; 
                     
                 case REPLACE_ATTRIBUTE :
-                    throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_283 ), 
-                        ResultCodeEnum.UNWILLING_TO_PERFORM );
+                    throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, 
+                        I18n.err( I18n.ERR_283 ) );
                 
                 default:
                     throw new IllegalStateException( I18n.err( I18n.ERR_284, mod.getOperation() ) );
@@ -215,8 +214,8 @@ public class SchemaSubentryManager
                 break;
                 
             case( DirContext.REPLACE_ATTRIBUTE ):
-                throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_283 ), 
-                    ResultCodeEnum.UNWILLING_TO_PERFORM );
+                throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, 
+                    I18n.err( I18n.ERR_283 ) );
             
             default:
                 throw new IllegalStateException( I18n.err( I18n.ERR_284, modOp ) );
@@ -231,7 +230,7 @@ public class SchemaSubentryManager
      * @param mods the attribute with the modifications
      * @param doCascadeModify determines if a cascading operation should be performed
      * to effect all dependents on the changed entity
-     * @throws NamingException if there are problems updating the registries and the
+     * @throws Exception if there are problems updating the registries and the
      * schema partition
      */
     private void modifyRemoveOperation( ModifyOperationContext opContext, String opAttrOid, 
@@ -342,7 +341,7 @@ public class SchemaSubentryManager
      * @param mods the attribute with the modifications
      * @param doCascadeModify determines if a cascading operation should be performed
      * to effect all dependents on the changed entity
-     * @throws NamingException if there are problems updating the registries and the
+     * @throws Exception if there are problems updating the registries and the
      * schema partition
      */
     private void modifyAddOperation( ModifyOperationContext opContext, String opAttrOid, 

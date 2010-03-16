@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.NamingException;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
@@ -36,6 +35,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -69,7 +69,7 @@ public class LdapClassLoader extends ClassLoader
     private DirectoryService directoryService;
 
     
-    public LdapClassLoader( DirectoryService directoryService ) throws NamingException
+    public LdapClassLoader( DirectoryService directoryService ) throws LdapException
     {
         super( LdapClassLoader.class.getClassLoader() );
         this.directoryService = directoryService;
@@ -148,7 +148,7 @@ public class LdapClassLoader extends ClassLoader
             {
                 configEntry = directoryService.getAdminSession().lookup( defaultSearchDn );
             }
-            catch ( NamingException e )
+            catch ( LdapException e )
             {
                 log.debug( "No configuration data found for class loader default search contexts." );
             }

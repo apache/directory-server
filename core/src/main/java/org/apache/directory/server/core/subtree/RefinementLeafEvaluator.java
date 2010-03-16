@@ -28,6 +28,7 @@ import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
@@ -66,9 +67,9 @@ public class RefinementLeafEvaluator
      * @param objectClasses the objectClass attribute's values
      * @return true if the leaf node selects the entry based on objectClass values, false
      * if it rejects the entry
-     * @throws NamingException
+     * @throws LdapException
      */
-    public boolean evaluate( SimpleNode node, EntryAttribute objectClasses ) throws NamingException
+    public boolean evaluate( SimpleNode node, EntryAttribute objectClasses ) throws LdapException
     {
         if ( node == null )
         {
@@ -77,12 +78,12 @@ public class RefinementLeafEvaluator
         
         if ( !( node instanceof EqualityNode ) )
         {
-            throw new NamingException( I18n.err( I18n.ERR_301, node ) );
+            throw new LdapException( I18n.err( I18n.ERR_301, node ) );
         }
         
         if ( !node.getAttribute().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
         {
-            throw new NamingException( I18n.err( I18n.ERR_302, node.getAttribute() ) );
+            throw new LdapException( I18n.err( I18n.ERR_302, node.getAttribute() ) );
         }
 
         if ( null == objectClasses )

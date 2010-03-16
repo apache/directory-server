@@ -20,11 +20,10 @@
 package org.apache.directory.server.core.trigger;
 
 
-import javax.naming.InvalidNameException;
-import javax.naming.NamingException;
-
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 
 
@@ -38,14 +37,14 @@ public class SimpleTriggerExecutionAuthorizer implements TriggerExecutionAuthori
         {
             adminName = new DN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
         }
-        catch ( InvalidNameException e )
+        catch ( LdapInvalidDnException e )
         {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
     
-    public boolean hasPermission( OperationContext opContext ) throws NamingException
+    public boolean hasPermission( OperationContext opContext ) throws LdapException
     {
         DN principalName = opContext.getSession().getEffectivePrincipal().getClonedName();
         return principalName.equals( adminName );

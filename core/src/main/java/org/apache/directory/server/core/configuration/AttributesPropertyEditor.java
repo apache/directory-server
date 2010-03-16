@@ -32,6 +32,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
@@ -124,7 +125,7 @@ public class AttributesPropertyEditor extends PropertyEditorSupport
                         oldAttribute.add( attribute.get() );
                         entry.put( oldAttribute );
                     }
-                    catch (NamingException ne)
+                    catch ( LdapException ne )
                     {
                         // Do nothing
                     }
@@ -135,7 +136,7 @@ public class AttributesPropertyEditor extends PropertyEditorSupport
                     {
                         entry.put( attribute );
                     }
-                    catch ( NamingException ne )
+                    catch ( LdapException ne )
                     {
                         // Do nothing...
                     }

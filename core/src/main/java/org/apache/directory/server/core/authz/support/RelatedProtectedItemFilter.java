@@ -40,6 +40,7 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -85,7 +86,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
             ServerEntry entry, 
             Collection<MicroOperation> microOperations,
             ServerEntry entryView )
-        throws NamingException
+        throws LdapException, NamingException
     {
         if ( tuples.size() == 0 )
         {
@@ -107,7 +108,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
 
 
     private boolean isRelated( ACITuple tuple, OperationScope scope, DN userName, DN entryName, String attrId,
-                               Value<?> attrValue, ServerEntry entry ) throws NamingException, InternalError
+                               Value<?> attrValue, ServerEntry entry ) throws LdapException, NamingException, InternalError
     {
         String oid = null;
         

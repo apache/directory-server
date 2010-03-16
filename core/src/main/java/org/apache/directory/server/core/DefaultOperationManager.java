@@ -24,10 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.NamingException;
 import javax.naming.PartialResultException;
-import javax.naming.ReferralException;
-import javax.naming.ServiceUnavailableException;
 
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -57,8 +54,10 @@ import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
+import org.apache.directory.shared.ldap.exception.LdapAffectMultipleDsaException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
+import org.apache.directory.shared.ldap.exception.LdapServiceUnavailableException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -92,7 +91,7 @@ public class DefaultOperationManager implements OperationManager
     
     
     private LdapReferralException buildReferralException( ServerEntry parentEntry, DN childDn ) 
-        throws NamingException, LdapURLEncodingException
+        throws LdapInvalidDnException, LdapURLEncodingException
     {
         // Get the Ref attributeType
         EntryAttribute refs = parentEntry.get( SchemaConstants.REF_AT );
@@ -118,9 +117,9 @@ public class DefaultOperationManager implements OperationManager
         
         // Return with an exception
         LdapReferralException lre = new LdapReferralException( urls );
-        lre.setRemainingName( childDn );
-        lre.setResolvedName( parentEntry.getDn() );
-        lre.setResolvedObj( parentEntry );
+        //lre.setRemainingName( childDn );
+        //lre.setResolvedName( parentEntry.getDn() );
+        //lre.setResolvedObj( parentEntry );
         
         return lre;
     }
@@ -128,7 +127,7 @@ public class DefaultOperationManager implements OperationManager
     
     private LdapReferralException buildReferralExceptionForSearch( 
         ServerEntry parentEntry, DN childDn, SearchScope scope ) 
-        throws NamingException, LdapURLEncodingException
+        throws LdapInvalidDnException, LdapURLEncodingException
     {
         // Get the Ref attributeType
         EntryAttribute refs = parentEntry.get( SchemaConstants.REF_AT );
@@ -189,9 +188,9 @@ public class DefaultOperationManager implements OperationManager
         
         // Return with an exception
         LdapReferralException lre = new LdapReferralException( urls );
-        lre.setRemainingName( childDn );
-        lre.setResolvedName( parentEntry.getDn() );
-        lre.setResolvedObj( parentEntry );
+        //lre.setRemainingName( childDn );
+        //lre.setResolvedName( parentEntry.getDn() );
+        //lre.setResolvedObj( parentEntry );
         
         return lre;
     }
@@ -201,8 +200,8 @@ public class DefaultOperationManager implements OperationManager
     {
         PartialResultException pre = new PartialResultException( I18n.err( I18n.ERR_315 ) );
         
-        pre.setRemainingName( childDn );
-        pre.setResolvedName( DN.EMPTY_DN );
+        //pre.setRemainingName( childDn );
+        //pre.setResolvedName( DN.EMPTY_DN );
         
         return pre;
     }
@@ -247,7 +246,7 @@ public class DefaultOperationManager implements OperationManager
                     // Unlock the referral manager
                     directoryService.getReferralManager().unlock();
                     
-                    ReferralException exception = buildReferralException( parentEntry, childDn );
+                    LdapReferralException exception = buildReferralException( parentEntry, childDn );
                     throw exception;
                 }
             }
@@ -331,7 +330,7 @@ public class DefaultOperationManager implements OperationManager
                         // Unlock the referral manager
                         directoryService.getReferralManager().unlock();
                         
-                        ReferralException exception = buildReferralException( parentEntry, childDn );
+                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
                         throw exception;
                     }
                 }
@@ -351,7 +350,7 @@ public class DefaultOperationManager implements OperationManager
                         // Unlock the referral manager
                         directoryService.getReferralManager().unlock();
                         
-                        ReferralException exception = buildReferralException( parentEntry, childDn );
+                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
                         throw exception;
                     }
                 }
@@ -410,7 +409,7 @@ public class DefaultOperationManager implements OperationManager
                         // Unlock the referral manager
                         directoryService.getReferralManager().unlock();
                         
-                        ReferralException exception = buildReferralException( parentEntry, childDn );
+                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
                         throw exception;
                     }
                 }
@@ -432,7 +431,7 @@ public class DefaultOperationManager implements OperationManager
                         // Unlock the referral manager
                         directoryService.getReferralManager().unlock();
                         
-                        ReferralException exception = buildReferralException( parentEntry, childDn );
+                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
                         throw exception;
                     }
                 }
@@ -656,7 +655,7 @@ public class DefaultOperationManager implements OperationManager
                         // Unlock the referral manager
                         directoryService.getReferralManager().unlock();
                         
-                        ReferralException exception = buildReferralException( parentEntry, childDn );
+                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
                         throw exception;
                     }
                 }
@@ -678,7 +677,7 @@ public class DefaultOperationManager implements OperationManager
                         // Unlock the referral manager
                         directoryService.getReferralManager().unlock();
                         
-                        ReferralException exception = buildReferralException( parentEntry, childDn );
+                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
                         throw exception;
                     }
                 }
@@ -739,7 +738,7 @@ public class DefaultOperationManager implements OperationManager
                         // Unlock the referral manager
                         directoryService.getReferralManager().unlock();
                         
-                        ReferralException exception = buildReferralException( parentEntry, childDn );
+                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
                         throw exception;
                     }
                 }
@@ -761,7 +760,7 @@ public class DefaultOperationManager implements OperationManager
                         // Unlock the referral manager
                         directoryService.getReferralManager().unlock();
                         
-                        ReferralException exception = buildReferralException( parentEntry, childDn );
+                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
                         throw exception;
                     }
                 }
@@ -780,8 +779,8 @@ public class DefaultOperationManager implements OperationManager
                 // Unlock the referral manager
                 directoryService.getReferralManager().unlock();
 
-                LdapNamingException exception = new LdapNamingException( ResultCodeEnum.AFFECTS_MULTIPLE_DSAS );
-                exception.setRemainingName( dn );
+                LdapAffectMultipleDsaException exception = new LdapAffectMultipleDsaException();
+                //exception.setRemainingName( dn );
                 
                 throw exception;
             }
@@ -841,7 +840,7 @@ public class DefaultOperationManager implements OperationManager
                         // Unlock the referral manager
                         directoryService.getReferralManager().unlock();
                         
-                        ReferralException exception = buildReferralException( parentEntry, childDn );
+                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
                         throw exception;
                     }
                 }
@@ -863,7 +862,7 @@ public class DefaultOperationManager implements OperationManager
                         // Unlock the referral manager
                         directoryService.getReferralManager().unlock();
                         
-                        ReferralException exception = buildReferralException( parentEntry, childDn );
+                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
                         throw exception;
                     }
                 }
@@ -884,8 +883,8 @@ public class DefaultOperationManager implements OperationManager
 
                 // The parent DN is a referral, we have to issue a AffectMultipleDsas result
                 // as stated by RFC 3296 Section 5.6.2
-                LdapNamingException exception = new LdapNamingException( ResultCodeEnum.AFFECTS_MULTIPLE_DSAS );
-                exception.setRemainingName( dn );
+                LdapAffectMultipleDsaException exception = new LdapAffectMultipleDsaException();
+                //exception.setRemainingName( dn );
                 
                 throw exception;
             }
@@ -955,7 +954,7 @@ public class DefaultOperationManager implements OperationManager
                         // Unlock the referral manager
                         directoryService.getReferralManager().unlock();
                         
-                        ReferralException exception = buildReferralException( parentEntry, childDn );
+                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
                         throw exception;
                     }
                 }
@@ -977,7 +976,7 @@ public class DefaultOperationManager implements OperationManager
                         // Unlock the referral manager
                         directoryService.getReferralManager().unlock();
                         
-                        ReferralException exception = buildReferralException( parentEntry, childDn );
+                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
                         throw exception;
                     }
                 }
@@ -1037,7 +1036,7 @@ public class DefaultOperationManager implements OperationManager
                         // Unlock the referral manager
                         directoryService.getReferralManager().unlock();
                         
-                        ReferralException exception = buildReferralExceptionForSearch( parentEntry, childDn, opContext.getScope() );
+                        LdapReferralException exception = buildReferralExceptionForSearch( parentEntry, childDn, opContext.getScope() );
                         throw exception;
                     }
                 }
@@ -1059,7 +1058,7 @@ public class DefaultOperationManager implements OperationManager
                         // Unlock the referral manager
                         directoryService.getReferralManager().unlock();
                         
-                        ReferralException exception = buildReferralExceptionForSearch( parentEntry, childDn, opContext.getScope() );
+                        LdapReferralException exception = buildReferralExceptionForSearch( parentEntry, childDn, opContext.getScope() );
                         throw exception;
                     }
                 }
@@ -1104,11 +1103,11 @@ public class DefaultOperationManager implements OperationManager
     }
 
 
-    private void ensureStarted() throws ServiceUnavailableException
+    private void ensureStarted() throws LdapServiceUnavailableException
     {
         if ( ! directoryService.isStarted() )
         {
-            throw new ServiceUnavailableException( I18n.err( I18n.ERR_316 ) );
+            throw new LdapServiceUnavailableException( ResultCodeEnum.UNAVAILABLE, I18n.err( I18n.ERR_316 ) );
         }
     }
     

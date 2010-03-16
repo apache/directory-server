@@ -212,7 +212,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 // Wrong !
                 String message = I18n.err( I18n.ERR_30, SchemaConstants.ENTRY_UUID_AT );
                 LOG.error( message );
-                throw new LdapSchemaViolationException( message, ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
+                throw new LdapSchemaViolationException( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, message );
             }
         }
         else
@@ -227,7 +227,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 // Wrong !
                 String message =  I18n.err( I18n.ERR_30, SchemaConstants.ENTRY_CSN_AT );
                 LOG.error( message );
-                throw new LdapSchemaViolationException( message, ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
+                throw new LdapSchemaViolationException( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, message );
             }
         }
         else
@@ -260,14 +260,14 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             {
                 String message = I18n.err( I18n.ERR_31 );
                 LOG.error( message );
-                throw new LdapSchemaViolationException( message, ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
+                throw new LdapSchemaViolationException( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, message );
             }
 
             if ( attributeType.equals( MODIFY_TIMESTAMP_ATTRIBUTE_TYPE ) )
             {
                 String message = I18n.err( I18n.ERR_32 );
                 LOG.error( message );
-                throw new LdapSchemaViolationException( message, ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
+                throw new LdapSchemaViolationException( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, message );
             }
         }
         

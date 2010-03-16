@@ -23,10 +23,9 @@ package org.apache.directory.server.core.normalization;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -154,7 +153,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
 
             return normalized;
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             log.warn( "Failed to normalize filter value: {}", ne.getLocalizedMessage(), ne );
             return null;
@@ -169,7 +168,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
      * @param node the node to visit
      * @return The visited node
      */
-    private ExprNode visitPresenceNode( PresenceNode node ) throws NamingException
+    private ExprNode visitPresenceNode( PresenceNode node ) throws LdapException
     {
         node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
         return node;
@@ -187,7 +186,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
      * @param node the node to visit
      * @return the visited node
      */
-    private ExprNode visitSimpleNode( SimpleNode node ) throws NamingException
+    private ExprNode visitSimpleNode( SimpleNode node ) throws LdapException
     {
         // still need this check here in case the top level is a leaf node
         // with an undefined attributeType for its attribute
@@ -219,7 +218,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
      * @param node the node to visit
      * @return the visited node
      */
-    private ExprNode visitSubstringNode( SubstringNode node ) throws NamingException
+    private ExprNode visitSubstringNode( SubstringNode node ) throws LdapException
     {
         // still need this check here in case the top level is a leaf node
         // with an undefined attributeType for its attribute
@@ -309,7 +308,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
      * @param node the node to visit
      * @return the visited node
      */
-    private ExprNode visitExtensibleNode( ExtensibleNode node ) throws NamingException
+    private ExprNode visitExtensibleNode( ExtensibleNode node ) throws LdapException
     {
         node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
 
@@ -472,7 +471,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
 	            return null;
 	        }
     	}
-    	catch( NamingException e )
+    	catch( LdapException e )
     	{
     		throw new RuntimeException( e );
     	}

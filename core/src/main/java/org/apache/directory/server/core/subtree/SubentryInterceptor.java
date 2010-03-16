@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.Name;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
@@ -212,8 +211,8 @@ public class SubentryInterceptor extends BaseInterceptor
 
         if ( oc == null )
         {
-            throw new LdapSchemaViolationException( I18n.err( I18n.ERR_305 ),
-                ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION,
+                I18n.err( I18n.ERR_305 ) );
         }
 
         if ( oc.contains( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) )
@@ -452,7 +451,7 @@ public class SubentryInterceptor extends BaseInterceptor
             {
                 String msg = I18n.err( I18n.ERR_307, name.getName() );
                 LOG.warn( msg );
-                throw new LdapInvalidAttributeValueException( msg, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, msg );
             }
 
             subentryCache.setSubentry( name.getNormName(), ss, getSubentryTypes( entry ) );
@@ -678,7 +677,7 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    private List<Modification> getModsOnEntryRdnChange( Name oldName, Name newName, ServerEntry entry )
+    private List<Modification> getModsOnEntryRdnChange( DN oldName, DN newName, ServerEntry entry )
         throws Exception
     {
         List<Modification> modList = new ArrayList<Modification>();
@@ -701,7 +700,7 @@ public class SubentryInterceptor extends BaseInterceptor
         while ( subentries.hasNext() )
         {
             String subentryDn = subentries.next();
-            Name apDn = new DN( subentryDn );
+            DN apDn = new DN( subentryDn );
             apDn.remove( apDn.size() - 1 );
             SubtreeSpecification ss = subentryCache.getSubentry( subentryDn ).getSubtreeSpecification();
             boolean isOldNameSelected = evaluator.evaluate( ss, apDn, oldName, entry );
@@ -811,7 +810,7 @@ public class SubentryInterceptor extends BaseInterceptor
             {
                 String msg = I18n.err( I18n.ERR_308 );
                 LOG.warn( msg );
-                throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
+                throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
             }
 
             next.rename( opContext );
@@ -889,7 +888,7 @@ public class SubentryInterceptor extends BaseInterceptor
             {
                 String msg = I18n.err( I18n.ERR_308 );
                 LOG.warn( msg );
-                throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
+                throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
             }
 
             next.moveAndRename( opContext );
@@ -967,7 +966,7 @@ public class SubentryInterceptor extends BaseInterceptor
             {
                 String msg = I18n.err( I18n.ERR_308 );
                 LOG.warn( msg );
-                throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
+                throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
             }
 
             next.move( opContext );
@@ -1063,7 +1062,7 @@ public class SubentryInterceptor extends BaseInterceptor
             {
                 String msg = I18n.err( I18n.ERR_71 );
                 LOG.error( msg, e );
-                throw new LdapInvalidAttributeValueException( msg, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, msg );
             }
 
             subentryCache.setSubentry( name.toNormName(), ssNew, getSubentryTypes( entry, mods ) );
@@ -1147,7 +1146,7 @@ public class SubentryInterceptor extends BaseInterceptor
     // Utility Methods
     // -----------------------------------------------------------------------
 
-    private List<Modification> getOperationalModsForReplace( Name oldName, Name newName, Subentry subentry,
+    private List<Modification> getOperationalModsForReplace( DN oldName, DN newName, Subentry subentry,
         ServerEntry entry ) throws Exception
     {
         List<Modification> modList = new ArrayList<Modification>();
@@ -1453,7 +1452,7 @@ public class SubentryInterceptor extends BaseInterceptor
         while ( subentries.hasNext() )
         {
             String subentryDn = subentries.next();
-            Name apDn = new DN( subentryDn );
+            DN apDn = new DN( subentryDn );
             apDn.remove( apDn.size() - 1 );
             SubtreeSpecification ss = subentryCache.getSubentry( subentryDn ).getSubtreeSpecification();
             boolean isOldEntrySelected = evaluator.evaluate( ss, apDn, name, oldEntry );

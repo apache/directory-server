@@ -30,6 +30,8 @@ import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidSearchFilterException;
 import org.apache.directory.shared.ldap.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -107,7 +109,7 @@ public class LeafEvaluator implements Evaluator
     /**
      * @see Evaluator#evaluate(ExprNode, String, ServerEntry)
      */
-    public boolean evaluate( ExprNode node, String dn, ServerEntry entry ) throws NamingException
+    public boolean evaluate( ExprNode node, String dn, ServerEntry entry ) throws LdapException
     {
         if ( node instanceof ScopeNode )
         {
@@ -141,7 +143,7 @@ public class LeafEvaluator implements Evaluator
         }
         else
         {
-            throw new NamingException( I18n.err( I18n.ERR_245, node ) );
+            throw new LdapInvalidSearchFilterException( I18n.err( I18n.ERR_245, node ) );
         }
     }
 
@@ -155,11 +157,11 @@ public class LeafEvaluator implements Evaluator
      * @param isGreater true if it is a greater than or equal to comparison,
      *      false if it is a less than or equal to comparison.
      * @return the ava evaluation on the perspective candidate
-     * @throws javax.naming.NamingException if there is a database access failure
+     * @throws LdapException if there is a database access failure
      */
     @SuppressWarnings("unchecked")
     private boolean evalGreaterOrLesser( SimpleNode<?> node, ServerEntry entry, boolean isGreaterOrLesser )
-        throws NamingException
+        throws LdapException
     {
         String attrId = node.getAttribute();
 
@@ -225,7 +227,7 @@ public class LeafEvaluator implements Evaluator
      * @param entry the perspective candidate
      * @return the ava evaluation on the perspective candidate
      */
-    private boolean evalPresence( String attrId, ServerEntry entry ) throws NamingException
+    private boolean evalPresence( String attrId, ServerEntry entry ) throws LdapException
     {
         if ( entry == null )
         {
@@ -243,10 +245,10 @@ public class LeafEvaluator implements Evaluator
      * @param node the equality node to evaluate
      * @param entry the perspective candidate
      * @return the ava evaluation on the perspective candidate
-     * @throws javax.naming.NamingException if there is a database access failure
+     * @throws LdapException if there is a database access failure
      */
     @SuppressWarnings("unchecked")
-    private boolean evalEquality( EqualityNode<?> node, ServerEntry entry ) throws NamingException
+    private boolean evalEquality( EqualityNode<?> node, ServerEntry entry ) throws LdapException
     {
         Normalizer normalizer = getNormalizer( node.getAttribute() );
         Comparator comparator = getComparator( node.getAttribute() );
@@ -319,9 +321,9 @@ public class LeafEvaluator implements Evaluator
      *
      * @param attrId the attribute identifier
      * @return the comparator for equality matching
-     * @throws javax.naming.NamingException if there is a failure
+     * @throws LdapException if there is a failure
      */
-    private LdapComparator<? super Object> getComparator( String attrId ) throws NamingException
+    private LdapComparator<? super Object> getComparator( String attrId ) throws LdapException
     {
         MatchingRule mrule = getMatchingRule( attrId, EQUALITY_MATCH );
         return mrule.getLdapComparator();
@@ -333,9 +335,9 @@ public class LeafEvaluator implements Evaluator
      *
      * @param attrId the attribute identifier
      * @return the normalizer for equality matching
-     * @throws javax.naming.NamingException if there is a failure
+     * @throws LdapException if there is a failure
      */
-    private Normalizer getNormalizer( String attrId ) throws NamingException
+    private Normalizer getNormalizer( String attrId ) throws LdapException
     {
         MatchingRule mrule = getMatchingRule( attrId, EQUALITY_MATCH );
         return mrule.getNormalizer();
@@ -347,9 +349,9 @@ public class LeafEvaluator implements Evaluator
      *
      * @param attrId the attribute identifier
      * @return the matching rule
-     * @throws javax.naming.NamingException if there is a failure
+     * @throws LdapException if there is a failure
      */
-    private MatchingRule getMatchingRule( String attrId, int matchType ) throws NamingException
+    private MatchingRule getMatchingRule( String attrId, int matchType ) throws LdapException
     {
         MatchingRule mrule = null;
         AttributeType type = schemaManager.lookupAttributeTypeRegistry( attrId );
@@ -369,7 +371,7 @@ public class LeafEvaluator implements Evaluator
                 break;
 
             default:
-                throw new NamingException( I18n.err( I18n.ERR_246, matchType ) );
+                throw new LdapException( I18n.err( I18n.ERR_246, matchType ) );
         }
 
         if ( ( mrule == null ) && ( matchType != EQUALITY_MATCH ) )

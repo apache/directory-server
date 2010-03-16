@@ -25,8 +25,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
@@ -38,6 +36,7 @@ import org.apache.directory.server.utils.AttributesFactory;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
@@ -97,7 +96,7 @@ public class SchemaSubentryModifier
     }
     
     
-    private DN getDn( SchemaObject obj ) throws NamingException
+    private DN getDn( SchemaObject obj ) throws LdapInvalidDnException
     {
         StringBuffer buf = new StringBuffer();
         buf.append( "m-oid=" ).append( obj.getOid() ).append( ",ou=" );

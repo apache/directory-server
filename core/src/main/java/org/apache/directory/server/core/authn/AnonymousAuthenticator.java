@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.authn;
 
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.i18n.I18n;
@@ -50,7 +48,7 @@ public class AnonymousAuthenticator extends AbstractAuthenticator
      * If the context is not configured to allow anonymous connections,
      * this method throws a {@link javax.naming.NoPermissionException}.
      */
-    public LdapPrincipal authenticate( BindOperationContext opContext ) throws NamingException
+    public LdapPrincipal authenticate( BindOperationContext opContext ) throws LdapNoPermissionException
     {
         // We only allow Anonymous binds if the service allows them
         if ( getDirectoryService().isAllowAnonymousAccess() )

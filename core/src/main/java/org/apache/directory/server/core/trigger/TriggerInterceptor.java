@@ -50,8 +50,8 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
+import org.apache.directory.shared.ldap.exception.LdapOtherException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
@@ -180,7 +180,7 @@ public class TriggerInterceptor extends BaseInterceptor
             {
                 String msg = I18n.err( I18n.ERR_72, triggerString );
                 LOG.error( msg, e );
-                throw new LdapNamingException( msg, ResultCodeEnum.OPERATIONS_ERROR );
+                throw new LdapOperationErrorException( msg );
             }
 
             triggerSpecs.add( item );
@@ -608,8 +608,8 @@ public class TriggerInterceptor extends BaseInterceptor
         }
         catch ( Exception e )
         {
-            LdapNamingException lne = new LdapNamingException( ResultCodeEnum.OTHER );
-            lne.setRootCause( e );
+            LdapOtherException lne = new LdapOtherException( e.getMessage() );
+            lne.initCause( e );
             throw lne;
         }
     }

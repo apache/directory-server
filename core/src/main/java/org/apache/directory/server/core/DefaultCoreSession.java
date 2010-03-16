@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.changelog.LogChange;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
@@ -53,6 +51,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
@@ -185,7 +184,7 @@ public class DefaultCoreSession implements CoreSession
     }
 
     
-    private Value<?> convertToValue( String oid, Object value ) throws NamingException
+    private Value<?> convertToValue( String oid, Object value ) throws LdapException
     {
         Value<?> val = null;
         
@@ -204,7 +203,7 @@ public class DefaultCoreSession implements CoreSession
             }
             else
             {
-                throw new NamingException( I18n.err( I18n.ERR_309, oid ) );
+                throw new LdapException( I18n.err( I18n.ERR_309, oid ) );
             }
         }
         else
@@ -219,7 +218,7 @@ public class DefaultCoreSession implements CoreSession
             }
             else
             {
-                throw new NamingException( I18n.err( I18n.ERR_309, oid ) );
+                throw new LdapException( I18n.err( I18n.ERR_309, oid ) );
             }
         }
         

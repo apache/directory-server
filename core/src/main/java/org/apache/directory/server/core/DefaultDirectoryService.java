@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
@@ -85,6 +85,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
@@ -855,7 +856,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             String message = I18n.err( I18n.ERR_77, revision );
             LOG.error( message );
-            throw new NamingException( message );
+            throw new LdapException( message );
         }
 
         return changeLog.getCurrentRevision();
@@ -869,7 +870,7 @@ public class DefaultDirectoryService implements DirectoryService
     
 
     /**
-     * @throws NamingException if the LDAP server cannot be started
+     * @throws Exception if the LDAP server cannot be started
      */
     public synchronized void startup() throws Exception
     {
@@ -1079,7 +1080,7 @@ public class DefaultDirectoryService implements DirectoryService
      * had to be created, then we are not starting for the first time.
      *
      * @return true if the bootstrap entries had to be created, false otherwise
-     * @throws javax.naming.NamingException if entries cannot be created
+     * @throws Exception if entries cannot be created
      */
     private boolean createBootstrapEntries() throws Exception
     {
@@ -1345,7 +1346,7 @@ public class DefaultDirectoryService implements DirectoryService
 
     /**
      * Displays security warning messages if any possible secutiry issue is found.
-     * @throws NamingException if there are failures parsing and accessing internal structures
+     * @throws Exception if there are failures parsing and accessing internal structures
      */
     private void showSecurityWarnings() throws Exception
     {
@@ -1380,7 +1381,7 @@ public class DefaultDirectoryService implements DirectoryService
      *
      * @todo this may no longer be needed when JNDI is not used for bootstrapping
      * 
-     * @throws NamingException if the creation of test entries fails.
+     * @throws Exception if the creation of test entries fails.
      */
     private void createTestEntries() throws Exception
     {
@@ -1412,7 +1413,7 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * Kicks off the initialization of the entire system.
      *
-     * @throws javax.naming.NamingException if there are problems along the way
+     * @throws Exception if there are problems along the way
      */
     private void initialize() throws Exception
     {
@@ -1517,7 +1518,7 @@ public class DefaultDirectoryService implements DirectoryService
                         oldAttribute.add( attribute.get() );
                         entry.put( oldAttribute );
                     }
-                    catch ( NamingException ne )
+                    catch ( LdapException ne )
                     {
                         // Do nothing
                     }
@@ -1528,7 +1529,7 @@ public class DefaultDirectoryService implements DirectoryService
                     {
                         entry.put( attribute );
                     }
-                    catch ( NamingException ne )
+                    catch ( LdapException ne )
                     {
                         // TODO do nothing ...
                     }

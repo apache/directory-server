@@ -22,10 +22,10 @@ package org.apache.directory.server.core.trigger;
 
 import java.util.Map;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 
@@ -50,7 +50,7 @@ public class AddStoredProcedureParameterInjector extends AbstractStoredProcedure
     
     MicroInjector $entryInjector = new MicroInjector()
     {
-        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
+        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
             return new DN( addedEntryName.getName() );
@@ -60,7 +60,7 @@ public class AddStoredProcedureParameterInjector extends AbstractStoredProcedure
     
     MicroInjector $attributesInjector = new MicroInjector()
     {
-        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
+        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
         {
             return addedEntry.clone();
         }

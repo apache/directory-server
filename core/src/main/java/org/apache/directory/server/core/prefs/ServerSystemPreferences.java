@@ -28,9 +28,6 @@ import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import javax.naming.InvalidNameException;
-import javax.naming.NamingException;
-
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
@@ -44,6 +41,8 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -88,7 +87,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         {
             dn = new DN( "prefNodeName=sysPrefRoot,ou=system" );
         }
-        catch ( InvalidNameException e )
+        catch ( LdapInvalidDnException e )
         {
             // never happens
         }
@@ -97,7 +96,7 @@ public class ServerSystemPreferences extends AbstractPreferences
     }
 
     
-    public void close() throws NamingException
+    public void close() throws LdapException
     {
     }
 
@@ -278,7 +277,7 @@ public class ServerSystemPreferences extends AbstractPreferences
             Modification mi = new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, attr );
             addDelta( mi );
         }
-        catch ( NamingException e )
+        catch ( LdapException e )
         {
             e.printStackTrace();
         }
@@ -352,7 +351,7 @@ public class ServerSystemPreferences extends AbstractPreferences
             Modification mi = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attr );
             addDelta( mi );
         }
-        catch ( NamingException e )
+        catch ( LdapException e )
         {
             e.printStackTrace();
         }

@@ -25,8 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.i18n.I18n;
@@ -34,6 +32,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -70,11 +69,11 @@ public class SchemaChecker
      * @param mod the type of modification operation being performed (should be
      * REMOVE_ATTRIBUTE)
      * @param attribute the attribute being modified
-     * @throws NamingException if modify operations leave the entry inconsistent
+     * @throws LdapException if modify operations leave the entry inconsistent
      * without a STRUCTURAL objectClass
      */
     public static void preventStructuralClassRemovalOnModifyReplace( SchemaManager schemaManager, DN name, ModificationOperation mod,
-        ServerAttribute attribute ) throws NamingException
+        ServerAttribute attribute ) throws LdapException
     {
         if ( mod != ModificationOperation.REPLACE_ATTRIBUTE )
         {
@@ -97,7 +96,7 @@ public class SchemaChecker
                 log.info( msg + ".  Raising LdapSchemaViolationException." );
             }
             
-            throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED, msg );
         }
 
         // check that there is at least one structural objectClass in the replacement set
@@ -118,7 +117,7 @@ public class SchemaChecker
         {
             log.info( msg + ".  Raising LdapSchemaViolationException." );
         }
-        throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
+        throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED, msg );
     }
 
 
@@ -132,11 +131,11 @@ public class SchemaChecker
      * @param mod the type of modification operation being performed (should be
      * REMOVE_ATTRIBUTE)
      * @param entry the entry being modified
-     * @throws NamingException if modify operations leave the entry inconsistent
+     * @throws LdapException if modify operations leave the entry inconsistent
      * without a STRUCTURAL objectClass
      */
     public static void preventStructuralClassRemovalOnModifyReplace( 
-        ObjectClassRegistry registry, DN name, ModificationOperation mod, ServerEntry entry ) throws NamingException
+        ObjectClassRegistry registry, DN name, ModificationOperation mod, ServerEntry entry ) throws LdapException
     {
         if ( mod != ModificationOperation.REPLACE_ATTRIBUTE )
         {
@@ -159,7 +158,7 @@ public class SchemaChecker
             {
                 log.info( msg + ".  Raising LdapSchemaViolationException." );
             }
-            throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED, msg );
         }
 
         // check that there is at least one structural objectClass in the replacement set
@@ -180,7 +179,7 @@ public class SchemaChecker
         {
             log.info( msg + ".  Raising LdapSchemaViolationException." );
         }
-        throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
+        throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED, msg );
     }
 
 
@@ -195,11 +194,11 @@ public class SchemaChecker
      * REMOVE_ATTRIBUTE)
      * @param attribute the attribute being modified
      * @param entryObjectClasses the entry being modified
-     * @throws NamingException if modify operations leave the entry inconsistent
+     * @throws LdapException if modify operations leave the entry inconsistent
      * without a STRUCTURAL objectClass
      */
     public static void preventStructuralClassRemovalOnModifyRemove( SchemaManager schemaManager, DN name, ModificationOperation mod,
-        EntryAttribute attribute, EntryAttribute entryObjectClasses ) throws NamingException
+        EntryAttribute attribute, EntryAttribute entryObjectClasses ) throws LdapException
     {
         if ( mod != ModificationOperation.REMOVE_ATTRIBUTE )
         {
@@ -241,7 +240,7 @@ public class SchemaChecker
                 log.info( msg + ".  Raising LdapSchemaViolationException." );
             }
             
-            throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED, msg );
         }
 
         // remove all the objectClass attribute values from a cloned copy and then
@@ -275,7 +274,7 @@ public class SchemaChecker
             log.info( msg + ".  Raising LdapSchemaViolationException." );
         }
         
-        throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
+        throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED, msg );
     }
 
 
@@ -379,11 +378,11 @@ public class SchemaChecker
      * @param mod the modification operation being performed (should be REPLACE_ATTRIBUTE )
      * @param attribute the attribute being modified
      * @param oidRegistry
-     * @throws NamingException if the modify operation is removing an Rdn attribute
+     * @throws LdapException if the modify operation is removing an Rdn attribute
      */
     public static void preventRdnChangeOnModifyReplace( DN name, ModificationOperation mod, 
         ServerAttribute attribute, SchemaManager schemaManager )
-        throws NamingException
+        throws LdapException
     {
         if ( mod != ModificationOperation.REPLACE_ATTRIBUTE )
         {
@@ -409,7 +408,7 @@ public class SchemaChecker
             {
                 log.info( msg + ". SchemaChecker is throwing a schema violation exception." );
             }
-            throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
+            throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
         }
 
         // from here on the modify operation replaces specific values
@@ -429,7 +428,7 @@ public class SchemaChecker
                 {
                     log.info( msg + ". SchemaChecker is throwing a schema violation exception." );
                 }
-                throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
+                throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
             }
         }
     }
@@ -453,12 +452,12 @@ public class SchemaChecker
      * @param mod the modification operation being performed (should be REPLACE_ATTRIBUTE )
      * @param entry
      * @param oidRegistry
-     * @throws NamingException if the modify operation is removing an Rdn attribute
+     * @throws LdapException if the modify operation is removing an Rdn attribute
      */
     public static void preventRdnChangeOnModifyReplace( 
         DN name, ModificationOperation mod, ServerEntry entry, 
         SchemaManager schemaManager )
-        throws NamingException
+        throws LdapException
     {
         if ( mod != ModificationOperation.REPLACE_ATTRIBUTE )
         {
@@ -487,7 +486,7 @@ public class SchemaChecker
                         log.info( msg + ". SchemaChecker is throwing a schema violation exception." );
                     }
                     
-                    throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
+                    throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
                 }
 
                 // from here on the modify operation replaces specific values
@@ -506,7 +505,7 @@ public class SchemaChecker
                         log.info( msg + ". SchemaChecker is throwing a schema violation exception." );
                     }
                     
-                    throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
+                    throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
                 }
             }
         }
@@ -530,10 +529,10 @@ public class SchemaChecker
      * @param name the distinguished name of the attribute being modified
      * @param mod the modification operation being performed (should be REMOVE_ATTRIBUTE )
      * @param attribute the attribute being modified
-     * @throws NamingException if the modify operation is removing an Rdn attribute
+     * @throws LdapException if the modify operation is removing an Rdn attribute
      */
     public static void preventRdnChangeOnModifyRemove( DN name, ModificationOperation mod, ServerAttribute attribute, 
-        SchemaManager schemaManager ) throws NamingException
+        SchemaManager schemaManager ) throws LdapException
     {
         if ( mod != ModificationOperation.REMOVE_ATTRIBUTE )
         {
@@ -560,7 +559,7 @@ public class SchemaChecker
                 log.info( msg + ". SchemaChecker is throwing a schema violation exception." );
             }
             
-            throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
+            throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
         }
 
         // from here on the modify operation only deletes specific values
@@ -579,7 +578,7 @@ public class SchemaChecker
                     log.info( msg + ". SchemaChecker is throwing a schema violation exception." );
                 }
                 
-                throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
+                throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
             }
         }
     }
@@ -603,11 +602,11 @@ public class SchemaChecker
      * @param mod the modification operation being performed (should be REMOVE_ATTRIBUTE )
      * @param entry
      * @param oidRegistry
-     * @throws NamingException if the modify operation is removing an Rdn attribute
+     * @throws LdapException if the modify operation is removing an Rdn attribute
      */
     public static void preventRdnChangeOnModifyRemove( DN name, ModificationOperation mod, 
         ServerEntry entry, SchemaManager schemaManager )
-        throws NamingException
+        throws LdapException
     {
         if ( mod != ModificationOperation.REMOVE_ATTRIBUTE )
         {
@@ -633,7 +632,7 @@ public class SchemaChecker
                     {
                         log.info( msg + ". SchemaChecker is throwing a schema violation exception." );
                     }
-                    throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
+                    throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
                 }
 
                 // from here on the modify operation only deletes specific values
@@ -652,7 +651,7 @@ public class SchemaChecker
                         {
                             log.info( msg + ". SchemaChecker is throwing a schema violation exception." );
                         }
-                        throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
+                        throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
                     }
                 }
             }
@@ -669,9 +668,9 @@ public class SchemaChecker
      * @param oidRegistry the OID registry
      * @return the Rdn attribute value corresponding to the id, or null if the
      * attribute is not an rdn attribute
-     * @throws NamingException if the name is malformed in any way
+     * @throws LdapException if the name is malformed in any way
      */
-    private static String getRdnValue( String id, DN name, SchemaManager schemaManager ) throws NamingException
+    private static String getRdnValue( String id, DN name, SchemaManager schemaManager ) throws LdapException
     {
         // Transform the rdnAttrId to it's OID counterPart
         String idOid = schemaManager.getAttributeTypeRegistry().getOidByName( id );
@@ -679,7 +678,7 @@ public class SchemaChecker
         if ( idOid == null )
         {
             log.error( I18n.err( I18n.ERR_43, id ) );
-            throw new NamingException( I18n.err( I18n.ERR_44, id ) );
+            throw new LdapException( I18n.err( I18n.ERR_44, id ) );
         }
 
         String[] comps = NamespaceTools.getCompositeComponents( name.get( name.size() - 1 ) );
@@ -694,7 +693,7 @@ public class SchemaChecker
             if ( rdnAttrOid == null )
             {
                 log.error( I18n.err( I18n.ERR_43, rdnAttrOid ) );
-                throw new NamingException( I18n.err( I18n.ERR_44, rdnAttrOid ) );
+                throw new LdapException( I18n.err( I18n.ERR_44, rdnAttrOid ) );
             }
 
             if ( rdnAttrOid.equalsIgnoreCase( idOid ) )
@@ -713,9 +712,9 @@ public class SchemaChecker
      *
      * @param name the distinguished name of an entry
      * @return the set of attributes composing the Rdn for the name
-     * @throws NamingException if the syntax of the Rdn is incorrect
+     * @throws LdapException if the syntax of the Rdn is incorrect
      */
-    private static Set<String> getRdnAttributes( DN name ) throws NamingException
+    private static Set<String> getRdnAttributes( DN name ) throws LdapException
     {
         String[] comps = NamespaceTools.getCompositeComponents( name.get( name.size() - 1 ) );
         Set<String> attributes = new HashSet<String>();

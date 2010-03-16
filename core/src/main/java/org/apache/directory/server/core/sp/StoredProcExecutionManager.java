@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.CoreSession;
@@ -34,6 +33,7 @@ import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
@@ -78,7 +78,7 @@ public class StoredProcExecutionManager
      * @param rootDSE A handle on the root DSE to be used for searching the SP Unit over.
      * @param fullSPName Full name of the Stored Procedure including the unit name.
      * @return The entry associated with the SP Unit.
-     * @throws NamingException If the unit cannot be located or any other error occurs.
+     * @throws Exception If the unit cannot be located or any other error occurs.
      */
     public ClonedServerEntry findStoredProcUnit( CoreSession session, String fullSPName ) throws Exception
     {
@@ -110,9 +110,9 @@ public class StoredProcExecutionManager
      * 
      * @param spUnitEntry The entry which a {@link StoredProcEngine} type will be mathched with respect to the language identifier.
      * @return A {@link StoredProcEngine} associated with spUnitEntry.
-     * @throws NamingException If no {@link StoredProcEngine} that can be associated with the language identifier in spUnitEntry can be found.
+     * @throws LdapException If no {@link StoredProcEngine} that can be associated with the language identifier in spUnitEntry can be found.
      */
-    public StoredProcEngine getStoredProcEngineInstance( ClonedServerEntry spUnitEntry ) throws NamingException
+    public StoredProcEngine getStoredProcEngineInstance( ClonedServerEntry spUnitEntry ) throws LdapException
     {
         String spLangId = ( String ) spUnitEntry.getOriginalEntry().get( "storedProcLangId" ).getString();
 
@@ -129,14 +129,14 @@ public class StoredProcExecutionManager
                 }
                 catch ( InstantiationException e )
                 {
-                    NamingException ne = new NamingException();
-                    ne.setRootCause( e );
+                    LdapException ne = new LdapException( e.getMessage() );
+                    ne.initCause( e );
                     throw ne;
                 }
                 catch ( IllegalAccessException e )
                 {
-                    NamingException ne = new NamingException();
-                    ne.setRootCause( e );
+                    LdapException ne = new LdapException( e.getMessage() );
+                    ne.initCause( e );
                     throw ne;
                 }
                 
@@ -146,7 +146,7 @@ public class StoredProcExecutionManager
 
         }
 
-        throw new NamingException( I18n.err( I18n.ERR_294, spLangId ) );
+        throw new LdapException( I18n.err( I18n.ERR_294, spLangId ) );
 
     }
 

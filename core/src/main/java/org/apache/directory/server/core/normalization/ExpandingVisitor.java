@@ -23,9 +23,8 @@ package org.apache.directory.server.core.normalization;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -170,7 +169,7 @@ public class ExpandingVisitor implements FilterVisitor
                         }
                     }
                 }
-                catch ( NamingException e )
+                catch ( LdapException e )
                 {
                     // log something here and throw a runtime excpetion
                     throw new RuntimeException( I18n.err( I18n.ERR_261 ) );

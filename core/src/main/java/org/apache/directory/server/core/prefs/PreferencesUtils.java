@@ -20,10 +20,8 @@
 package org.apache.directory.server.core.prefs;
 
  
-import javax.naming.Name;
-import javax.naming.NamingException;
-
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 
 
@@ -41,9 +39,9 @@ class PreferencesUtils
      *
      * @param absPrefPath the absolute path to the system preferences node
      * @return the distinguished name of the entry representing the system preferences node
-     * @throws NamingException if there are namespace problems while translating the path
+     * @throws LdapInvalidDnException if there are namespace problems while translating the path
      */
-    public static Name toSysDn( String absPrefPath ) throws NamingException
+    public static DN toSysDn( String absPrefPath ) throws LdapInvalidDnException
     {
         DN dn = new DN( ServerDNConstants.SYSPREFROOT_SYSTEM_DN );
 

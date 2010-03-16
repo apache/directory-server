@@ -33,6 +33,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
@@ -84,7 +85,7 @@ public class DefaultSchemaService implements SchemaService
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaService#isSchemaSubentry(java.lang.String)
      */
-    public boolean isSchemaSubentry( String dnString ) throws NamingException
+    public boolean isSchemaSubentry( String dnString ) throws LdapException
     {
         if ( ServerDNConstants.CN_SCHEMA_DN.equalsIgnoreCase( dnString ) ||
             ServerDNConstants.CN_SCHEMA_DN_NORMALIZED.equalsIgnoreCase( dnString ) )
@@ -124,7 +125,7 @@ public class DefaultSchemaService implements SchemaService
     /**
      * Generate the comparators attribute from the registry
      */
-    private ServerAttribute generateComparators() throws NamingException
+    private ServerAttribute generateComparators() throws LdapException
     {
         ServerAttribute attr = new DefaultServerAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.COMPARATORS_AT ) );
@@ -138,7 +139,7 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private ServerAttribute generateNormalizers() throws NamingException
+    private ServerAttribute generateNormalizers() throws LdapException
     {
         ServerAttribute attr = new DefaultServerAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.NORMALIZERS_AT ) );
@@ -154,7 +155,7 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private ServerAttribute generateSyntaxCheckers() throws NamingException
+    private ServerAttribute generateSyntaxCheckers() throws LdapException
     {
         ServerAttribute attr = new DefaultServerAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.SYNTAX_CHECKERS_AT ) );
@@ -168,7 +169,7 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private ServerAttribute generateObjectClasses() throws NamingException
+    private ServerAttribute generateObjectClasses() throws LdapException
     {
         ServerAttribute attr = new DefaultServerAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASSES_AT ) );
@@ -182,7 +183,7 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private ServerAttribute generateAttributeTypes() throws NamingException
+    private ServerAttribute generateAttributeTypes() throws LdapException
     {
         ServerAttribute attr = new DefaultServerAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.ATTRIBUTE_TYPES_AT ) );
@@ -196,7 +197,7 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private ServerAttribute generateMatchingRules() throws NamingException
+    private ServerAttribute generateMatchingRules() throws LdapException
     {
         ServerAttribute attr = new DefaultServerAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.MATCHING_RULES_AT ) );
@@ -210,7 +211,7 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private ServerAttribute generateMatchingRuleUses() throws NamingException
+    private ServerAttribute generateMatchingRuleUses() throws LdapException
     {
         ServerAttribute attr = new DefaultServerAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.MATCHING_RULE_USE_AT ) );
@@ -224,7 +225,7 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private ServerAttribute generateSyntaxes() throws NamingException
+    private ServerAttribute generateSyntaxes() throws LdapException
     {
         ServerAttribute attr = new DefaultServerAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.LDAP_SYNTAXES_AT ) );
@@ -238,7 +239,7 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private ServerAttribute generateDitContextRules() throws NamingException
+    private ServerAttribute generateDitContextRules() throws LdapException
     {
         ServerAttribute attr = new DefaultServerAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.DIT_CONTENT_RULES_AT ) );
@@ -252,7 +253,7 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private ServerAttribute generateDitStructureRules() throws NamingException
+    private ServerAttribute generateDitStructureRules() throws LdapException
     {
         ServerAttribute attr = new DefaultServerAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.DIT_STRUCTURE_RULES_AT ) );
@@ -266,7 +267,7 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private ServerAttribute generateNameForms() throws NamingException
+    private ServerAttribute generateNameForms() throws LdapException
     {
         ServerAttribute attr = new DefaultServerAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.NAME_FORMS_AT ) );
@@ -283,7 +284,7 @@ public class DefaultSchemaService implements SchemaService
     /**
      * Creates the SSSE by extracting all the SchemaObjects from the registries.
      */
-    private void generateSchemaSubentry( ServerEntry mods ) throws NamingException
+    private void generateSchemaSubentry( ServerEntry mods ) throws LdapException
     {
         ServerEntry attrs = new DefaultServerEntry( getSchemaManager(), mods.getDn() );
 
@@ -340,7 +341,7 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private void addAttribute( ServerEntry attrs, String id ) throws NamingException
+    private void addAttribute( ServerEntry attrs, String id ) throws LdapException
     {
         EntryAttribute attr = schemaSubentry.get( id );
 
@@ -382,7 +383,7 @@ public class DefaultSchemaService implements SchemaService
             schemaModificationAttributesDN.normalize( 
                 getSchemaManager().getNormalizerMapping() );
         }
-        catch ( NamingException e )
+        catch ( LdapException e )
         {
             throw new RuntimeException( e );
         }

@@ -24,6 +24,8 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidSearchFilterException;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -95,7 +97,7 @@ public class ExpressionEvaluator implements Evaluator
     /**
      * @see Evaluator#evaluate(ExprNode, String, ServerEntry)
      */
-    public boolean evaluate( ExprNode node, String dn, ServerEntry entry ) throws NamingException
+    public boolean evaluate( ExprNode node, String dn, ServerEntry entry ) throws LdapException
     {
         if ( node.isLeaf() )
         {
@@ -137,11 +139,11 @@ public class ExpressionEvaluator implements Evaluator
                 return !evaluate( bnode.getFirstChild(), dn, entry );
             }
 
-            throw new NamingException( I18n.err( I18n.ERR_243, node ) );
+            throw new LdapInvalidSearchFilterException( I18n.err( I18n.ERR_243, node ) );
         }
         else
         {
-                throw new NamingException( I18n.err( I18n.ERR_244, bnode ) );
+                throw new LdapInvalidSearchFilterException( I18n.err( I18n.ERR_244, bnode ) );
         }
     }
 }
