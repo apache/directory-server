@@ -28,9 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-import javax.naming.InvalidNameException;
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -53,6 +50,8 @@ import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
+import org.apache.directory.shared.ldap.ldif.LdapLdifException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
@@ -229,7 +228,7 @@ public class LdifPartition extends BTreePartition<Long>
                 }
                 else
                 {
-                    throw new NamingException( I18n.err( I18n.ERR_632 ) );
+                    throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_632 ) );
                 }
             }
 
@@ -1099,7 +1098,7 @@ public class LdifPartition extends BTreePartition<Long>
     /**
      * @param contextEntry the contextEntry to set
      */
-    public void setContextEntry( String contextEntry ) throws NamingException
+    public void setContextEntry( String contextEntry ) throws LdapLdifException
     {
         LdifReader ldifReader = new LdifReader();
         List<LdifEntry> entries = ldifReader.parseLdif( contextEntry );
