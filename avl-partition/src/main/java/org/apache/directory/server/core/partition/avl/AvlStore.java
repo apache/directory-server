@@ -50,6 +50,8 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -190,7 +192,7 @@ public class AvlStore<E> implements Store<E, Long>
         if ( objectClass == null )
         {
             String msg = I18n.err( I18n.ERR_217, normName.getName(), entry );
-            throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, msg );
         }
 
         // Start adding the system userIndices
@@ -222,7 +224,7 @@ public class AvlStore<E> implements Store<E, Long>
         if ( entryCsn == null )
         {
             String msg = I18n.err( I18n.ERR_219, normName.getName(), entry );
-            throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, msg );
         }
 
         entryCsnIdx.add( entryCsn.getString(), id );
@@ -233,7 +235,7 @@ public class AvlStore<E> implements Store<E, Long>
         if ( entryUuid == null )
         {
             String msg = I18n.err( I18n.ERR_220, normName.getName(), entry );
-            throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, msg );
         }
 
         entryUuidIdx.add( entryUuid.getString(), id );
@@ -529,7 +531,7 @@ public class AvlStore<E> implements Store<E, Long>
         {
             return new DN( suffixDn.getNormName() );
         }
-        catch ( InvalidNameException e )
+        catch ( LdapInvalidDnException e )
         {
             // shouldn't happen
             LOG.error( "", e );
@@ -553,7 +555,7 @@ public class AvlStore<E> implements Store<E, Long>
         {
             return new DN( suffixDn.getName() );
         }
-        catch ( InvalidNameException e )
+        catch ( LdapInvalidDnException e )
         {
             // shouldn't happen
             LOG.error( "", e );
@@ -583,7 +585,7 @@ public class AvlStore<E> implements Store<E, Long>
         {
             id = schemaManager.getAttributeTypeRegistry().getOidByName( id );
         }
-        catch ( NamingException e )
+        catch ( LdapException e )
         {
             LOG.error( I18n.err( I18n.ERR_1, id ), e.getLocalizedMessage() );
             throw new IndexNotFoundException( I18n.err( I18n.ERR_1, id ), id, e );
@@ -607,7 +609,7 @@ public class AvlStore<E> implements Store<E, Long>
         {
             id = schemaManager.getAttributeTypeRegistry().getOidByName( id );
         }
-        catch ( NamingException e )
+        catch ( LdapException e )
         {
             LOG.error( I18n.err( I18n.ERR_1, id ), e.getLocalizedMessage() );
             throw new IndexNotFoundException( I18n.err( I18n.ERR_1, id ), id, e );
@@ -644,7 +646,7 @@ public class AvlStore<E> implements Store<E, Long>
         {
             id = schemaManager.getAttributeTypeRegistry().getOidByName( id );
         }
-        catch ( NamingException e )
+        catch ( LdapException e )
         {
             LOG.error( I18n.err( I18n.ERR_1, id ), e.getLocalizedMessage() );
             throw new IndexNotFoundException( I18n.err( I18n.ERR_1, id ), id, e );
@@ -1676,7 +1678,7 @@ public class AvlStore<E> implements Store<E, Long>
         {
             this.suffixDn = new DN( suffixDn );
         }
-        catch ( InvalidNameException e )
+        catch ( LdapInvalidDnException e )
         {
             throw new IllegalArgumentException( e );
         }
