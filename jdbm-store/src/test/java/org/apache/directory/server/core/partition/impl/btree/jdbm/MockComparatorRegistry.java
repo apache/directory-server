@@ -24,6 +24,7 @@ import java.util.Iterator;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.registries.DefaultComparatorRegistry;
@@ -54,7 +55,7 @@ class MockComparatorRegistry extends DefaultComparatorRegistry
     };
 
     
-    public String getSchemaName( String oid ) throws NamingException
+    public String getSchemaName( String oid ) throws LdapException
     {
         return null;
     }
@@ -65,13 +66,13 @@ class MockComparatorRegistry extends DefaultComparatorRegistry
     }
 
 
-    public LdapComparator<?> lookup( String oid ) throws NamingException
+    public LdapComparator<?> lookup( String oid ) throws LdapException
     {
         return comparator;
     }
 
 
-    public void register(LdapComparator<?> comparator ) throws NamingException
+    public void register(LdapComparator<?> comparator ) throws LdapException
     {
     }
 
@@ -100,7 +101,7 @@ class MockComparatorRegistry extends DefaultComparatorRegistry
     }
 
 
-    public LdapComparator<Integer> unregister( String oid ) throws NamingException
+    public LdapComparator<Integer> unregister( String oid ) throws LdapException
     {
 		return this.comparator;
     }

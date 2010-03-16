@@ -29,8 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import jdbm.RecordManager;
 import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
@@ -53,8 +51,10 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapAliasDereferencingException;
+import org.apache.directory.shared.ldap.exception.LdapAliasException;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.AVA;
@@ -674,7 +674,7 @@ public class JdbmStore<E> implements Store<E, Long>
     /**
      * {@inheritDoc}
      */
-    public void setAliasIndex( Index<String, E, Long> index ) throws NamingException
+    public void setAliasIndex( Index<String, E, Long> index ) throws LdapException
     {
         protect( "aliasIndex" );
         aliasIdx = convertIndex( index );
@@ -694,7 +694,7 @@ public class JdbmStore<E> implements Store<E, Long>
     /**
      * {@inheritDoc}
      */
-    public void setOneAliasIndex( Index<Long, E, Long> index ) throws NamingException
+    public void setOneAliasIndex( Index<Long, E, Long> index ) throws LdapException
     {
         protect( "oneAliasIndex" );
         oneAliasIdx = convertIndex( index );
@@ -714,7 +714,7 @@ public class JdbmStore<E> implements Store<E, Long>
     /**
      * {@inheritDoc}
      */
-    public void setSubAliasIndex( Index<Long, E, Long> index ) throws NamingException
+    public void setSubAliasIndex( Index<Long, E, Long> index ) throws LdapException
     {
         protect( "subAliasIndex" );
         subAliasIdx = convertIndex( index );
@@ -734,7 +734,7 @@ public class JdbmStore<E> implements Store<E, Long>
     /**
      * {@inheritDoc}
      */
-    public void setUpdnIndex( Index<String, E, Long> index ) throws NamingException
+    public void setUpdnIndex( Index<String, E, Long> index ) throws LdapException
     {
         protect( "updnIndex" );
         updnIdx = convertIndex( index );
@@ -754,7 +754,7 @@ public class JdbmStore<E> implements Store<E, Long>
     /**
      * {@inheritDoc}
      */
-    public void setNdnIndex( Index<String, E, Long> index ) throws NamingException
+    public void setNdnIndex( Index<String, E, Long> index ) throws LdapException
     {
         protect( "ndnIndex" );
         ndnIdx = convertIndex( index );
@@ -774,7 +774,7 @@ public class JdbmStore<E> implements Store<E, Long>
     /**
      * {@inheritDoc}
      */
-    public void setSubLevelIndex( Index<Long, E, Long> index ) throws NamingException
+    public void setSubLevelIndex( Index<Long, E, Long> index ) throws LdapException
     {
         protect( "subLevelIndex" );
         subLevelIdx = convertIndex( index );
@@ -794,7 +794,7 @@ public class JdbmStore<E> implements Store<E, Long>
     /**
      * {@inheritDoc}
      */
-    public void setObjectClassIndex( Index<String, E, Long> index ) throws NamingException
+    public void setObjectClassIndex( Index<String, E, Long> index ) throws LdapException
     {
         protect( "objectClassIndex" );
         objectClassIdx = convertIndex( index );
@@ -814,7 +814,7 @@ public class JdbmStore<E> implements Store<E, Long>
     /**
      * {@inheritDoc}
      */
-    public void setEntryUuidIndex( Index<String, E, Long> index ) throws NamingException
+    public void setEntryUuidIndex( Index<String, E, Long> index ) throws LdapException
     {
         protect( "entryUuidIndex" );
         entryUuidIdx = convertIndex( index );
@@ -834,7 +834,7 @@ public class JdbmStore<E> implements Store<E, Long>
     /**
      * {@inheritDoc}
      */
-    public void setEntryCsnIndex( Index<String, E, Long> index ) throws NamingException
+    public void setEntryCsnIndex( Index<String, E, Long> index ) throws LdapException
     {
         protect( "entryCsnIndex" );
         entryCsnIdx = convertIndex( index );
@@ -854,19 +854,19 @@ public class JdbmStore<E> implements Store<E, Long>
     }
 
 
-    public boolean hasIndexOn( String id ) throws NamingException
+    public boolean hasIndexOn( String id ) throws LdapException
     {
         return hasUserIndexOn( id ) || hasSystemIndexOn( id );
     }
 
 
-    public boolean hasUserIndexOn( String id ) throws NamingException
+    public boolean hasUserIndexOn( String id ) throws LdapException
     {
         return userIndices.containsKey( schemaManager.getAttributeTypeRegistry().getOidByName( id ) );
     }
 
 
-    public boolean hasSystemIndexOn( String id ) throws NamingException
+    public boolean hasSystemIndexOn( String id ) throws LdapException
     {
         return systemIndices.containsKey( schemaManager.getAttributeTypeRegistry().getOidByName( id ) );
     }
@@ -878,7 +878,7 @@ public class JdbmStore<E> implements Store<E, Long>
         {
             id = schemaManager.getAttributeTypeRegistry().getOidByName( id );
         }
-        catch ( NamingException e )
+        catch ( LdapException e )
         {
             String msg = I18n.err( I18n.ERR_128, id );
             LOG.error( msg, e );
@@ -904,7 +904,7 @@ public class JdbmStore<E> implements Store<E, Long>
         {
             id = schemaManager.getAttributeTypeRegistry().getOidByName( id );
         }
-        catch ( NamingException e )
+        catch ( LdapException e )
         {
             String msg = I18n.err( I18n.ERR_128, id );
             LOG.error( msg, e );
@@ -926,7 +926,7 @@ public class JdbmStore<E> implements Store<E, Long>
         {
             id = schemaManager.getAttributeTypeRegistry().getOidByName( id );
         }
-        catch ( NamingException e )
+        catch ( LdapException e )
         {
             String msg = I18n.err( I18n.ERR_128, id );
             LOG.error( msg, e );
@@ -1002,7 +1002,7 @@ public class JdbmStore<E> implements Store<E, Long>
      * 
      * @todo Optimize this by walking the hierarchy index instead of the name 
      * @param aliasId the id of the alias entry in the master table
-     * @throws NamingException if we cannot parse ldap names
+     * @throws LdapException if we cannot parse ldap names
      * @throws Exception if we cannot delete index values in the database
      */
     private void dropAliasIndices( Long aliasId ) throws Exception
@@ -1050,7 +1050,7 @@ public class JdbmStore<E> implements Store<E, Long>
      * @param aliasDn normalized distinguished name for the alias entry
      * @param aliasTarget the user provided aliased entry dn as a string
      * @param aliasId the id of alias entry to add
-     * @throws NamingException if index addition fails, and if the alias is
+     * @throws LdapException if index addition fails, and if the alias is
      * not allowed due to chaining or cycle formation.
      * @throws Exception if the wrappedCursor btrees cannot be altered
      */
@@ -1080,16 +1080,14 @@ public class JdbmStore<E> implements Store<E, Long>
             if ( aliasDn.equals( normalizedAliasTargetDn ) )
             {
                 String msg = I18n.err( I18n.ERR_223 );
-                ResultCodeEnum rc = ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
-                LdapNamingException e = new LdapNamingException( msg, rc );
-                e.setResolvedName( aliasDn );
+                LdapAliasDereferencingException e = new LdapAliasDereferencingException( msg );
+                //e.setResolvedName( aliasDn );
                 throw e;
             }
 
             String msg = I18n.err( I18n.ERR_224, aliasTarget, aliasDn );
-            ResultCodeEnum rc = ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
-            LdapNamingException e = new LdapNamingException( msg, rc );
-            e.setResolvedName( aliasDn );
+            LdapAliasDereferencingException e = new LdapAliasDereferencingException( msg );
+            //e.setResolvedName( aliasDn );
             throw e;
         }
 
@@ -1104,9 +1102,8 @@ public class JdbmStore<E> implements Store<E, Long>
         if ( !normalizedAliasTargetDn.startsWith( normSuffix ) )
         {
             String msg = I18n.err( I18n.ERR_225, upSuffix.getName() );
-            ResultCodeEnum rc = ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
-            LdapNamingException e = new LdapNamingException( msg, rc );
-            e.setResolvedName( aliasDn );
+            LdapAliasDereferencingException e = new LdapAliasDereferencingException( msg );
+            //e.setResolvedName( aliasDn );
             throw e;
         }
 
@@ -1123,9 +1120,8 @@ public class JdbmStore<E> implements Store<E, Long>
         {
             // Complain about target not existing
             String msg = I18n.err( I18n.ERR_581, aliasDn.getName(), aliasTarget );
-            ResultCodeEnum rc = ResultCodeEnum.ALIAS_PROBLEM;
-            LdapNamingException e = new LdapNamingException( msg, rc );
-            e.setResolvedName( aliasDn );
+            LdapAliasException e = new LdapAliasException( msg );
+            //e.setResolvedName( aliasDn );
             throw e;
         }
 
@@ -1142,9 +1138,8 @@ public class JdbmStore<E> implements Store<E, Long>
         if ( null != aliasIdx.reverseLookup( targetId ) )
         {
             String msg = I18n.err( I18n.ERR_227 );
-            ResultCodeEnum rc = ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
-            LdapNamingException e = new LdapNamingException( msg, rc );
-            e.setResolvedName( aliasDn );
+            LdapAliasDereferencingException e = new LdapAliasDereferencingException( msg );
+            //e.setResolvedName( aliasDn );
             throw e;
         }
 
@@ -1241,8 +1236,8 @@ public class JdbmStore<E> implements Store<E, Long>
         {
             String msg = I18n.err( I18n.ERR_217, entryDn.getName(), entry );
             ResultCodeEnum rc = ResultCodeEnum.OBJECT_CLASS_VIOLATION;
-            NamingException e = new LdapSchemaViolationException( msg, rc );
-            e.setResolvedName( entryDn );
+            LdapSchemaViolationException e = new LdapSchemaViolationException( rc, msg );
+            //e.setResolvedName( entryDn );
             throw e;
         }
 
@@ -1275,7 +1270,7 @@ public class JdbmStore<E> implements Store<E, Long>
         if ( entryCsn == null )
         {
             String msg = I18n.err( I18n.ERR_219, entryDn.getName(), entry );
-            throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, msg );
         }
 
         entryCsnIdx.add( entryCsn.getString(), id );
@@ -1286,7 +1281,7 @@ public class JdbmStore<E> implements Store<E, Long>
         if ( entryUuid == null )
         {
             String msg = I18n.err( I18n.ERR_220, entryDn.getName(), entry );
-            throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, msg );
         }
 
         entryUuidIdx.add( entryUuid.getString(), id );
@@ -1724,7 +1719,7 @@ public class JdbmStore<E> implements Store<E, Long>
                     break;
 
                 default:
-                    throw new NamingException( I18n.err( I18n.ERR_221 ) );
+                    throw new LdapException( I18n.err( I18n.ERR_221 ) );
             }
         }
 
@@ -1761,7 +1756,7 @@ public class JdbmStore<E> implements Store<E, Long>
                     break;
 
                 default:
-                    throw new NamingException( I18n.err( I18n.ERR_221 ) );
+                    throw new LdapException( I18n.err( I18n.ERR_221 ) );
             }
         }
 
@@ -1932,7 +1927,7 @@ public class JdbmStore<E> implements Store<E, Long>
      * @param updn User provided distinguished name to set as the new DN
      * @param isMove whether or not the name change is due to a move operation
      * which affects alias userIndices.
-     * @throws NamingException if something goes wrong
+     * @throws Exception if something goes wrong
      */
     private void modifyDn( Long id, DN updn, boolean isMove ) throws Exception
     {
@@ -2052,7 +2047,7 @@ public class JdbmStore<E> implements Store<E, Long>
      * @param oldChildDn the normalized dn of the child to be moved
      * @param childId the id of the child being moved
      * @param newParentDn the normalized dn of the new parent for the child
-     * @throws NamingException if something goes wrong
+     * @throws Exception if something goes wrong
      */
     private DN move( DN oldChildDn, Long childId, DN newParentDn ) throws Exception
     {
@@ -2164,7 +2159,7 @@ public class JdbmStore<E> implements Store<E, Long>
      * that will no longer be ancestors after the move.
      * 
      * @param movedBase the base at which the move occured - the moved node
-     * @throws NamingException if system userIndices fail
+     * @throws Exception if system userIndices fail
      */
     private void dropMovedAliasIndices( final DN movedBase ) throws Exception
     {
