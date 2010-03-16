@@ -1,9 +1,8 @@
 package org.apache.directory.server.core.schema;
 
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -15,9 +14,9 @@ public interface SchemaService
      * 
      * @param dnString The DN we want to check
      * @return <code>true</code> if the given DN is the Schema subentry DN
-     * @throws NamingException If the given DN is not valid
+     * @throws LdapException If the given DN is not valid
      */
-    boolean isSchemaSubentry( String dnString ) throws NamingException;
+    boolean isSchemaSubentry( String dnString ) throws LdapException;
 
 
     /**
@@ -44,7 +43,7 @@ public interface SchemaService
      * A seriously unsafe (unsynchronized) means to access the schemaSubentry.
      *
      * @return the schemaSubentry
-     * @throws NamingException if there is a failure to access schema timestamps
+     * @throws Exception if there is a failure to access schema timestamps
      */
     ServerEntry getSubschemaEntryImmutable() throws Exception;
 
@@ -53,7 +52,7 @@ public interface SchemaService
      * A seriously unsafe (unsynchronized) means to access the schemaSubentry.
      *
      * @return the schemaSubentry
-     * @throws NamingException if there is a failure to access schema timestamps
+     * @throws Exception if there is a failure to access schema timestamps
      */
     ServerEntry getSubschemaEntryCloned() throws Exception;
 
@@ -64,7 +63,7 @@ public interface SchemaService
      *
      * @param ids the ids of the attributes that should be returned from a search
      * @return the subschema entry with the ids provided
-     * @throws NamingException if there are failures during schema info access
+     * @throws Exception if there are failures during schema info access
      */
     ServerEntry getSubschemaEntry( String[] ids ) throws Exception;
 }
