@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -38,6 +36,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.DnSerializer;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -80,7 +79,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     /**
      * Returns the attributeType from an Attribute ID.
      */
-    private AttributeType getAttributeType( String upId ) throws NamingException
+    private AttributeType getAttributeType( String upId ) throws LdapException
     {
         if ( StringTools.isEmpty( StringTools.trim( upId ) ) )
         {
@@ -146,7 +145,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
                 }
             }
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             // do nothing...
         }
@@ -269,7 +268,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
                 // The dn must be normalized
                 dn.normalize( schemaManager.getNormalizerMapping() );
             }
-            catch ( NamingException ne )
+            catch ( LdapException ne )
             {
                 LOG.warn( "The DN '" + entry.getDn() + "' cannot be normalized" );
             }
@@ -301,7 +300,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
                 // And store it
                 add( serverAttribute );
             }
-            catch ( NamingException ne )
+            catch ( LdapException ne )
             {
                 // Just log a warning
                 LOG.warn( "The attribute '" + attribute.getId() + "' cannot be stored" );
@@ -420,7 +419,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         {
             put( upId, attributeType, (String)null );
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             // Just discard the AttributeType
             LOG.error( I18n.err( I18n.ERR_100, upId, ne.getLocalizedMessage() ) );
@@ -495,7 +494,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
             {
                 put( attribute );
             }
-            catch ( NamingException ne )
+            catch ( LdapException ne )
             {
                 LOG.warn( "The ServerAttribute '{}' does not exist. It has been discarded", attribute );
             }
@@ -517,14 +516,14 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * </p>
      * <p>
      * If the value cannot be added, or if the AttributeType is null or invalid, 
-     * a NamingException is thrown.
+     * a LdapException is thrown.
      * </p>
      *
      * @param attributeType The attribute Type.
      * @param values The list of binary values to inject. It can be empty.
-     * @throws NamingException If the attribute does not exist
+     * @throws LdapException If the attribute does not exist
      */
-    public void add( AttributeType attributeType, byte[]... values ) throws NamingException
+    public void add( AttributeType attributeType, byte[]... values ) throws LdapException
     {
         if ( attributeType == null )
         {
@@ -570,14 +569,14 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * </p>
      * <p>public 
      * If the value cannot be added, or if the AttributeType is null or invalid, 
-     * a NamingException is thrown.
+     * a LdapException is thrown.
      * </p>
      *public 
      * @param attributeType The attribute Type
      * @param values The list of binary values to inject. It can be empty
-     * @throws NamingException If the attribute does not exist
+     * @throws LdapException If the attribute does not exist
      */
-    public void add( AttributeType attributeType, String... values ) throws NamingException
+    public void add( AttributeType attributeType, String... values ) throws LdapException
     {    
         if ( attributeType == null )
         {
@@ -615,14 +614,14 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * </p>
      * <p>
      * If the value cannot be added, or if the AttributeType is null or invalid, 
-     * a NamingException is thrown.
+     * a LdapException is thrown.
      * </p>
      *
      * @param attributeType The attribute Type
      * @param values The list of binary values to inject. It can be empty
-     * @throws NamingException If the attribute does not exist
+     * @throws LdapException If the attribute does not exist
      */
-    public void add( AttributeType attributeType, Value<?>... values ) throws NamingException
+    public void add( AttributeType attributeType, Value<?>... values ) throws LdapException
     {
         if ( attributeType == null )
         {
@@ -653,9 +652,9 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * Add some EntryAttributes to the current Entry.
      *
      * @param attributes The attributes to add
-     * @throws NamingException If we can't add any of the attributes
+     * @throws LdapException If we can't add any of the attributes
      */
-    public void add( EntryAttribute... attributes ) throws NamingException
+    public void add( EntryAttribute... attributes ) throws LdapException
     {
         for ( EntryAttribute attribute:attributes )
         {
@@ -696,15 +695,15 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * </p>
      * <p>
      * If the value cannot be added, or if the AttributeType is null or invalid, 
-     * a NamingException is thrown.
+     * a LdapException is thrown.
      * </p>
      *
      * @param upId The user provided ID for the added AttributeType
      * @param attributeType The attribute Type.
      * @param values The list of binary values to add. It can be empty.
-     * @throws NamingException If the attribute does not exist
+     * @throws LdapException If the attribute does not exist
      */
-    public void add( String upId, AttributeType attributeType, byte[]... values ) throws NamingException
+    public void add( String upId, AttributeType attributeType, byte[]... values ) throws LdapException
     {
         // ObjectClass with binary values are not allowed
         if ( attributeType.equals( OBJECT_CLASS_AT ) )
@@ -745,15 +744,15 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * </p>
      * <p>
      * If the value cannot be added, or if the AttributeType is null or invalid, 
-     * a NamingException is thrown.
+     * a LdapException is thrown.
      * </p>
      *
      * @param upId The user provided ID for the added AttributeType
      * @param attributeType The attribute Type.
      * @param values The list of values to add. It can be empty.
-     * @throws NamingException If the attribute does not exist
+     * @throws LdapException If the attribute does not exist
      */
-    public void add( String upId, AttributeType attributeType, Value<?>... values ) throws NamingException
+    public void add( String upId, AttributeType attributeType, Value<?>... values ) throws LdapException
     {
         if ( attributeType == null )
         {
@@ -787,9 +786,9 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @param upId The User provided ID
      * @param attributeType The associated AttributeType
      * @param values The String values to store into the new Attribute
-     * @throws NamingException 
+     * @throws LdapException 
      */
-    public void add( String upId, AttributeType attributeType, String... values ) throws NamingException
+    public void add( String upId, AttributeType attributeType, String... values ) throws LdapException
     {
         if ( attributeType == null )
         {
@@ -823,9 +822,9 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      *
      * @param upId The attribute ID
      * @param values The list of binary values to inject. It can be empty
-     * @throws NamingException If the attribute does not exist
+     * @throws LdapException If the attribute does not exist
      */
-    public void add( String upId, byte[]... values ) throws NamingException
+    public void add( String upId, byte[]... values ) throws LdapException
     {
         add( upId, getAttributeType( upId ), values );
     }
@@ -836,9 +835,9 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      *
      * @param upId The attribute ID
      * @param values The list of string values to inject. It can be empty
-     * @throws NamingException If the attribute does not exist
+     * @throws LdapException If the attribute does not exist
      */
-    public void add( String upId, String... values ) throws NamingException
+    public void add( String upId, String... values ) throws LdapException
     {
         add( upId, getAttributeType( upId ), values );
     }
@@ -849,9 +848,9 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      *
      * @param upId The attribute ID
      * @param values The list of Value values to inject. It can be empty
-     * @throws NamingException If the attribute does not exist
+     * @throws LdapException If the attribute does not exist
      */
-    public void add( String upId, Value<?>... values ) throws NamingException
+    public void add( String upId, Value<?>... values ) throws LdapException
     {
         add( upId, getAttributeType( upId ), values );
     }
@@ -953,9 +952,9 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @param attributes The Attributes to look for
      * @return <code>true</code> if all the attributes are found within 
      * the entry, <code>false</code> if at least one of them is not present.
-     * @throws NamingException If the attribute does not exist
+     * @throws LdapException If the attribute does not exist
      */
-    public boolean contains( EntryAttribute... attributes ) throws NamingException
+    public boolean contains( EntryAttribute... attributes ) throws LdapException
     {
         for ( EntryAttribute entryAttribute:attributes )
         {
@@ -1009,7 +1008,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
                 return false;
             }
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             return false;
         }
@@ -1051,7 +1050,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
                 return false;
             }
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             return false;
         }
@@ -1093,7 +1092,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
                 return false;
             }
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             return false;
         }
@@ -1129,7 +1128,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
                     return false;
                 }
             }
-            catch ( NamingException ne )
+            catch ( LdapException ne )
             {
                 return false;
             }
@@ -1182,7 +1181,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         {
             return get( schemaManager.lookupAttributeTypeRegistry( StringTools.trim( StringTools.toLowerCase( alias ) ) ) );
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             String message = ne.getLocalizedMessage();
             LOG.error( message );
@@ -1321,9 +1320,9 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @param values the binary values of the new attribute to be put
      * @return the old attribute with the same identifier, if exists; otherwise
      * <code>null</code>
-     * @throws NamingException if there are failures
+     * @throws LdapException if there are failures
      */
-    public EntryAttribute put( AttributeType attributeType, byte[]... values ) throws NamingException
+    public EntryAttribute put( AttributeType attributeType, byte[]... values ) throws LdapException
     {
         return put( null, attributeType, values );
     }
@@ -1346,9 +1345,9 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @param values the String values of the new attribute to be put
      * @return the old attribute with the same identifier, if exists; otherwise
      * <code>null</code>
-     * @throws NamingException if there are failures
+     * @throws LdapException if there are failures
      */
-    public EntryAttribute put( AttributeType attributeType, String... values ) throws NamingException
+    public EntryAttribute put( AttributeType attributeType, String... values ) throws LdapException
     {
         return put( null, attributeType, values );
     }
@@ -1371,9 +1370,9 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @param values the values of the new attribute to be put
      * @return the old attribute with the same identifier, if exists; otherwise
      * <code>null</code>
-     * @throws NamingException if there are failures
+     * @throws LdapException if there are failures
      */
-    public EntryAttribute put( AttributeType attributeType, Value<?>... values ) throws NamingException
+    public EntryAttribute put( AttributeType attributeType, Value<?>... values ) throws LdapException
     {
         return put( null, attributeType, values );
     }
@@ -1392,9 +1391,9 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @param attributes the attributes to be put
      * @return the old attributes with the same OID, if exist; otherwise
      *         <code>null</code>
-     * @exception NamingException if the operation fails
+     * @exception LdapException if the operation fails
      */
-    public List<EntryAttribute> put( EntryAttribute... attributes ) throws NamingException
+    public List<EntryAttribute> put( EntryAttribute... attributes ) throws LdapException
     {
         List<EntryAttribute> previous = new ArrayList<EntryAttribute>();
         
@@ -1440,9 +1439,9 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @param values the binary values of the new attribute to be put
      * @return the old attribute with the same identifier, if exists; otherwise
      * <code>null</code>
-     * @throws NamingException if there are failures.
+     * @throws LdapException if there are failures.
      */
-    public EntryAttribute put( String upId, AttributeType attributeType, byte[]... values ) throws NamingException
+    public EntryAttribute put( String upId, AttributeType attributeType, byte[]... values ) throws LdapException
     {
         if ( attributeType == null )
         {
@@ -1500,9 +1499,9 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @param values the String values of the new attribute to be put
      * @return the old attribute with the same identifier, if exists; otherwise
      * <code>null</code>
-     * @throws NamingException if there are failures.
+     * @throws LdapException if there are failures.
      */
-    public EntryAttribute put( String upId, AttributeType attributeType, String... values ) throws NamingException
+    public EntryAttribute put( String upId, AttributeType attributeType, String... values ) throws LdapException
     {
         if ( attributeType == null )
         {
@@ -1562,9 +1561,9 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @param values the values of the new attribute to be put
      * @return the old attribute with the same identifier, if exists; otherwise
      * <code>null</code>
-     * @throws NamingException if there are failures.
+     * @throws LdapException if there are failures.
      */
-    public EntryAttribute put( String upId, AttributeType attributeType, Value<?>... values ) throws NamingException
+    public EntryAttribute put( String upId, AttributeType attributeType, Value<?>... values ) throws LdapException
     {
         if ( attributeType == null )
         {
@@ -1616,7 +1615,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         {
             return put( upId, getAttributeType( upId ), values );
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             String message = I18n.err( I18n.ERR_105, upId, ne.getLocalizedMessage() );
             LOG.error( message );
@@ -1648,7 +1647,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         {
             return put( upId, getAttributeType( upId ), values );
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             String message = I18n.err( I18n.ERR_105, upId, ne.getLocalizedMessage() );
             LOG.error( message );
@@ -1679,7 +1678,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         {
             return put( upId, getAttributeType( upId ), values );
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             String message = I18n.err( I18n.ERR_105, upId, ne.getLocalizedMessage() );
             LOG.error( message );
@@ -1709,7 +1708,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @return <code>true</code> if at least a value is removed, <code>false</code>
      * if not all the values have been removed or if the attribute does not exist. 
      */
-    public boolean remove( AttributeType attributeType, byte[]... values ) throws NamingException
+    public boolean remove( AttributeType attributeType, byte[]... values ) throws LdapException
     {
         try
         {
@@ -1774,7 +1773,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @return <code>true</code> if at least a value is removed, <code>false</code>
      * if not all the values have been removed or if the attribute does not exist. 
      */
-    public boolean remove( AttributeType attributeType, String... values ) throws NamingException
+    public boolean remove( AttributeType attributeType, String... values ) throws LdapException
     {
         try
         {
@@ -1839,7 +1838,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @return <code>true</code> if at least a value is removed, <code>false</code>
      * if not all the values have been removed or if the attribute does not exist. 
      */
-    public boolean remove( AttributeType attributeType, Value<?>... values ) throws NamingException
+    public boolean remove( AttributeType attributeType, Value<?>... values ) throws LdapException
     {
         try
         {
@@ -1883,7 +1882,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     }
     
     
-    public List<EntryAttribute> remove( EntryAttribute... attributes ) throws NamingException
+    public List<EntryAttribute> remove( EntryAttribute... attributes ) throws LdapException
     {
         List<EntryAttribute> removedAttributes = new ArrayList<EntryAttribute>();
         
@@ -1921,7 +1920,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @return <code>true</code> if at least a value is removed, <code>false</code>
      * if not all the values have been removed or if the attribute does not exist. 
      */
-    public boolean remove( String upId, byte[]... values ) throws NamingException
+    public boolean remove( String upId, byte[]... values ) throws LdapException
     {
         try
         {
@@ -1929,7 +1928,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
 
             return remove( attributeType, values );
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             LOG.error( I18n.err( I18n.ERR_106, upId ) );
             return false;
@@ -1963,7 +1962,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @return <code>true</code> if at least a value is removed, <code>false</code>
      * if not all the values have been removed or if the attribute does not exist. 
      */
-    public boolean remove( String upId, String... values ) throws NamingException
+    public boolean remove( String upId, String... values ) throws LdapException
     {
         try
         {
@@ -1971,7 +1970,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
 
             return remove( attributeType, values );
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             LOG.error( I18n.err( I18n.ERR_106, upId ) );
             return false;
@@ -2005,7 +2004,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @return <code>true</code> if at least a value is removed, <code>false</code>
      * if not all the values have been removed or if the attribute does not exist. 
      */
-    public boolean remove( String upId, Value<?>... values ) throws NamingException
+    public boolean remove( String upId, Value<?>... values ) throws LdapException
     {
         try
         {
@@ -2013,7 +2012,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
 
             return remove( attributeType, values );
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             LOG.error( I18n.err( I18n.ERR_106, upId ) );
             return false;
@@ -2103,7 +2102,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
             {
                 attributeType = schemaManager.lookupAttributeTypeRegistry( attribute );
             }
-            catch ( NamingException ne )
+            catch ( LdapException ne )
             {
                 String message = "The attribute '" + attribute + "' does not exist in the entry";
                 LOG.warn( message );
@@ -2201,7 +2200,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
             {
                 attributeType = getAttributeType( upId );
             }
-            catch ( NamingException ne )
+            catch ( LdapException ne )
             {
                 LOG.warn( "Trying to add a bad attribute type '{}', error : ", upId, ne.getLocalizedMessage() );
                 continue;
@@ -2237,7 +2236,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      *
      * @return An instance of ClientEntry
      */
-    public Entry toClientEntry() throws NamingException
+    public Entry toClientEntry() throws LdapException
     {
         // Copy the DN
         Entry clientEntry = new DefaultClientEntry( dn );
@@ -2392,7 +2391,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
                 
                 attributes.put( attributeType, attribute );
             }
-            catch ( NamingException ne )
+            catch ( LdapException ne )
             {
                 // We weren't able to find the OID. The attribute will not be added
                 LOG.warn( I18n.err( I18n.ERR_460, oid ) );

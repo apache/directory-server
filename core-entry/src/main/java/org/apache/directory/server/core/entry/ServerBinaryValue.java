@@ -26,12 +26,11 @@ import java.io.ObjectOutput;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -40,7 +39,6 @@ import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * A server side schema aware wrapper around a binary attribute value.
@@ -168,7 +166,7 @@ public class ServerBinaryValue extends ClientBinaryValue
     // -----------------------------------------------------------------------
     // ServerValue<byte[]> Methods
     // -----------------------------------------------------------------------
-    public void normalize() throws NamingException
+    public void normalize() throws LdapException
     {
         if ( isNormalized() )
         {
@@ -225,7 +223,7 @@ public class ServerBinaryValue extends ClientBinaryValue
             {
                 normalize();
             }
-            catch ( NamingException ne )
+            catch ( LdapException ne )
             {
                 String message = "Cannot normalize the value :" + ne.getLocalizedMessage();
                 LOG.warn( message );
@@ -260,7 +258,7 @@ public class ServerBinaryValue extends ClientBinaryValue
             {
                 normalize();
             }
-            catch ( NamingException ne )
+            catch ( LdapException ne )
             {
                 String message = "Cannot normalize the value :" + ne.getLocalizedMessage();
                 LOG.warn( message );
@@ -293,7 +291,7 @@ public class ServerBinaryValue extends ClientBinaryValue
             {
                 normalize();
             }
-            catch ( NamingException ne )
+            catch ( LdapException ne )
             {
                 String message = "Cannot normalize the value :" + ne.getLocalizedMessage();
                 LOG.warn( message );
@@ -382,7 +380,7 @@ public class ServerBinaryValue extends ClientBinaryValue
                         .getNormalizedValueReference() );
                 }
             }
-            catch ( NamingException e )
+            catch ( LdapException e )
             {
                 String msg = I18n.err( I18n.ERR_109, Arrays.toString( getReference() ), value );
                 LOG.error( msg, e );
@@ -417,7 +415,7 @@ public class ServerBinaryValue extends ClientBinaryValue
      * @return <code>true</code> if the value is associated with the given
      * attributeType or one of its ascendant
      */
-    public boolean instanceOf( AttributeType attributeType ) throws NamingException
+    public boolean instanceOf( AttributeType attributeType ) throws LdapException
     {
         if ( this.attributeType.equals( attributeType ) )
         {
@@ -502,7 +500,7 @@ public class ServerBinaryValue extends ClientBinaryValue
                     return comparator.compare( getNormalizedValueReference(), other.getNormalizedValueReference() ) == 0;
                 }
             }
-            catch ( NamingException ne )
+            catch ( LdapException ne )
             {
                 return false;
             }
@@ -520,9 +518,9 @@ public class ServerBinaryValue extends ClientBinaryValue
      * returned.
      *
      * @return a matchingRule or null if one cannot be found for the attributeType
-     * @throws NamingException if resolution of schema entities fail
+     * @throws LdapException if resolution of schema entities fail
      */
-    private MatchingRule getMatchingRule() throws NamingException
+    private MatchingRule getMatchingRule() throws LdapException
     {
         MatchingRule mr = attributeType.getEquality();
 
@@ -545,9 +543,9 @@ public class ServerBinaryValue extends ClientBinaryValue
      * that the normalizer is extracted from.
      *
      * @return a normalizer associated with the attributeType or null if one cannot be found
-     * @throws NamingException if resolution of schema entities fail
+     * @throws LdapException if resolution of schema entities fail
      */
-    private Normalizer getNormalizer() throws NamingException
+    private Normalizer getNormalizer() throws LdapException
     {
         MatchingRule mr = getMatchingRule();
 
@@ -565,9 +563,9 @@ public class ServerBinaryValue extends ClientBinaryValue
      * that the comparator is extracted from.
      *
      * @return a comparator associated with the attributeType or null if one cannot be found
-     * @throws NamingException if resolution of schema entities fail
+     * @throws LdapException if resolution of schema entities fail
      */
-    private LdapComparator<?> getLdapComparator() throws NamingException
+    private LdapComparator<?> getLdapComparator() throws LdapException
     {
         MatchingRule mr = getMatchingRule();
 
@@ -677,7 +675,7 @@ public class ServerBinaryValue extends ClientBinaryValue
                         }
                     }
                 }
-                catch ( NamingException ne )
+                catch ( LdapException ne )
                 {
                     // The value can't be normalized, we don't write the 
                     // normalized value.

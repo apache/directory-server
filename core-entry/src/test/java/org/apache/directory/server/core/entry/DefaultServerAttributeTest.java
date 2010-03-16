@@ -40,7 +40,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
 
 import org.apache.commons.io.FileUtils;
@@ -50,6 +49,8 @@ import org.apache.directory.shared.ldap.entry.client.ClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
@@ -358,7 +359,7 @@ public class DefaultServerAttributeTest
      * Test method getBytes()
      */
     @Test
-    public void testGetBytes() throws InvalidAttributeValueException
+    public void testGetBytes() throws LdapInvalidAttributeValueException
     {
         ServerAttribute attr1 = new DefaultServerAttribute( atPwd );
         
@@ -379,7 +380,7 @@ public class DefaultServerAttributeTest
             attr3.getBytes();
             fail();
         }
-        catch ( InvalidAttributeValueException ivae )
+        catch ( LdapInvalidAttributeValueException ivae )
         {
             assertTrue( true );
         }
@@ -411,7 +412,7 @@ public class DefaultServerAttributeTest
      * Test method getString()
      */
     @Test
-    public void testGetString() throws InvalidAttributeValueException
+    public void testGetString() throws LdapInvalidAttributeValueException
     {
         ServerAttribute attr1 = new DefaultServerAttribute( atCN );
         
@@ -432,7 +433,7 @@ public class DefaultServerAttributeTest
             attr3.getString();
             fail();
         }
-        catch ( InvalidAttributeValueException ivae )
+        catch ( LdapInvalidAttributeValueException ivae )
         {
             assertTrue( true );
         }
@@ -693,7 +694,7 @@ public class DefaultServerAttributeTest
      * Test method add( String... )
      */
     @Test
-    public void testAddStringArray() throws InvalidAttributeValueException
+    public void testAddStringArray() throws LdapInvalidAttributeValueException
     {
         ServerAttribute attr1 = new DefaultServerAttribute( atCN );
         
@@ -770,7 +771,7 @@ public class DefaultServerAttributeTest
      * Test method add( byte[]... )
      */
     @Test
-    public void testAddByteArray() throws InvalidAttributeValueException
+    public void testAddByteArray() throws LdapInvalidAttributeValueException
     {
         ServerAttribute attr1 = new DefaultServerAttribute( atPwd );
         
@@ -1186,7 +1187,7 @@ public class DefaultServerAttributeTest
      * Test method put( String... )
      */
     @Test
-    public void testPutStringArray() throws InvalidAttributeValueException
+    public void testPutStringArray() throws LdapInvalidAttributeValueException
     {
         ServerAttribute attr1 = new DefaultServerAttribute( atCN );
         
@@ -2008,7 +2009,7 @@ public class DefaultServerAttributeTest
      * Test the copy constructor of a ServerAttribute
      */
     @Test 
-    public void testCopyConstructorServerAttribute() throws InvalidAttributeValueException
+    public void testCopyConstructorServerAttribute() throws LdapInvalidAttributeValueException
     {
         EntryAttribute attribute = new DefaultServerAttribute( atCN );
         
@@ -2031,7 +2032,7 @@ public class DefaultServerAttributeTest
      * Test the copy constructor of a ClientAttribute
      */
     @Test 
-    public void testCopyConstructorClientAttribute() throws InvalidAttributeValueException
+    public void testCopyConstructorClientAttribute() throws LdapInvalidAttributeValueException
     {
         EntryAttribute attribute = new DefaultClientAttribute( "commonName" );
         attribute.put( "test" );
@@ -2072,7 +2073,7 @@ public class DefaultServerAttributeTest
      * Test the serialization of a complete server attribute
      */
     @Test
-    public void testSerializeCompleteAttribute() throws NamingException, IOException, ClassNotFoundException
+    public void testSerializeCompleteAttribute() throws LdapException, IOException, ClassNotFoundException
     {
         DefaultServerAttribute dsa = new DefaultServerAttribute( atCN );
         dsa.setHR( true );
@@ -2094,7 +2095,7 @@ public class DefaultServerAttributeTest
      * Test the serialization of a server attribute with no value
      */
     @Test
-    public void testSerializeAttributeWithNoValue() throws NamingException, IOException, ClassNotFoundException
+    public void testSerializeAttributeWithNoValue() throws LdapException, IOException, ClassNotFoundException
     {
         DefaultServerAttribute dsa = new DefaultServerAttribute( atCN );
         dsa.setHR( true );
@@ -2114,7 +2115,7 @@ public class DefaultServerAttributeTest
      * Test the serialization of a server attribute with a null value
      */
     @Test
-    public void testSerializeAttributeNullValue() throws NamingException, IOException, ClassNotFoundException
+    public void testSerializeAttributeNullValue() throws LdapException, IOException, ClassNotFoundException
     {
         DefaultServerAttribute dsa = new DefaultServerAttribute( atCN );
         dsa.setHR( true );
@@ -2137,7 +2138,7 @@ public class DefaultServerAttributeTest
      * Test the serialization of a server attribute with a binary value
      */
     @Test
-    public void testSerializeAttributeBinaryValue() throws NamingException, IOException, ClassNotFoundException
+    public void testSerializeAttributeBinaryValue() throws LdapException, IOException, ClassNotFoundException
     {
         DefaultServerAttribute dsa = new DefaultServerAttribute( atPwd );
         dsa.setHR( false );

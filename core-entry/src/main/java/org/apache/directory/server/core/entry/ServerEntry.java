@@ -22,11 +22,10 @@ package org.apache.directory.server.core.entry;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
 
@@ -49,14 +48,14 @@ public interface ServerEntry extends Entry, Cloneable
      * </p>
      * <p>
      * If the value cannot be added, or if the AttributeType is null or invalid, 
-     * a NamingException is thrown.
+     * a LdapException is thrown.
      * </p>
      *
      * @param attributeType The attribute Type.
      * @param values The list of binary values to inject. It can be empty.
-     * @throws NamingException If the attribute does not exist
+     * @throws LdapException If the attribute does not exist
      */
-    void add( AttributeType attributeType, byte[]... values ) throws NamingException;
+    void add( AttributeType attributeType, byte[]... values ) throws LdapException;
 
     
     /**
@@ -70,14 +69,14 @@ public interface ServerEntry extends Entry, Cloneable
      * </p>
      * <p> 
      * If the value cannot be added, or if the AttributeType is null or invalid, 
-     * a NamingException is thrown.
+     * a LdapException is thrown.
      * </p>
      * 
      * @param attributeType The attribute Type
      * @param values The list of binary values to inject. It can be empty
-     * @throws NamingException If the attribute does not exist
+     * @throws LdapException If the attribute does not exist
      */
-    void add( AttributeType attributeType, String... values ) throws NamingException;
+    void add( AttributeType attributeType, String... values ) throws LdapException;
 
     
     /**
@@ -91,14 +90,14 @@ public interface ServerEntry extends Entry, Cloneable
      * </p>
      * <p>
      * If the value cannot be added, or if the AttributeType is null or invalid, 
-     * a NamingException is thrown.
+     * a LdapException is thrown.
      * </p>
      *
      * @param attributeType The attribute Type
      * @param values The list of binary values to inject. It can be empty
-     * @throws NamingException If the attribute does not exist
+     * @throws LdapException If the attribute does not exist
      */
-    void add( AttributeType attributeType, Value<?>... values ) throws NamingException;
+    void add( AttributeType attributeType, Value<?>... values ) throws LdapException;
 
     
     /**
@@ -112,15 +111,15 @@ public interface ServerEntry extends Entry, Cloneable
      * </p>
      * <p>
      * If the value cannot be added, or if the AttributeType is null or invalid, 
-     * a NamingException is thrown.
+     * a LdapException is thrown.
      * </p>
      *
      * @param upId The user provided ID for the added AttributeType
      * @param attributeType The attribute Type.
      * @param values The list of binary values to add. It can be empty.
-     * @throws NamingException If the attribute does not exist
+     * @throws LdapException If the attribute does not exist
      */
-    void add( String upId, AttributeType attributeType, byte[]... values ) throws NamingException;
+    void add( String upId, AttributeType attributeType, byte[]... values ) throws LdapException;
 
     
     /**
@@ -134,15 +133,15 @@ public interface ServerEntry extends Entry, Cloneable
      * </p>
      * <p>
      * If the value cannot be added, or if the AttributeType is null or invalid, 
-     * a NamingException is thrown.
+     * a LdapException is thrown.
      * </p>
      *
      * @param upId The user provided ID for the added AttributeType
      * @param attributeType The attribute Type.
      * @param values The list of binary values to add. It can be empty.
-     * @throws NamingException If the attribute does not exist
+     * @throws LdapException If the attribute does not exist
      */
-    void add( String upId, AttributeType attributeType, String... values ) throws NamingException;
+    void add( String upId, AttributeType attributeType, String... values ) throws LdapException;
 
     
     /**
@@ -156,15 +155,15 @@ public interface ServerEntry extends Entry, Cloneable
      * </p>
      * <p>
      * If the value cannot be added, or if the AttributeType is null or invalid, 
-     * a NamingException is thrown.
+     * a LdapException is thrown.
      * </p>
      *
      * @param upId The user provided ID for the added AttributeType
      * @param attributeType The attribute Type.
      * @param values The list of values to add. It can be empty.
-     * @throws NamingException If the attribute does not exist
+     * @throws LdapException If the attribute does not exist
      */
-    void add( String upId, AttributeType attributeType, Value<?>... values ) throws NamingException;
+    void add( String upId, AttributeType attributeType, Value<?>... values ) throws LdapException;
 
 
     // -----------------------------------------------------------------------
@@ -177,7 +176,7 @@ public interface ServerEntry extends Entry, Cloneable
      * @param values The searched values.
      * @return <code>true</code> if all the values are found within the attribute,
      * <code>false</code> otherwise, or if the attributes does not exist.
-     * @throws NamingException If the attribute does not exists
+     * @throws LdapException If the attribute does not exists
      */
     boolean contains( AttributeType attributeType, byte[]... values );
 
@@ -189,7 +188,7 @@ public interface ServerEntry extends Entry, Cloneable
      * @param values The searched values.
      * @return <code>true</code> if all the values are found within the attribute,
      * <code>false</code> otherwise, or if the attributes does not exist.
-     * @throws NamingException If the attribute does not exists
+     * @throws LdapException If the attribute does not exists
      */
     boolean contains( AttributeType attributeType, String... values );
 
@@ -201,7 +200,7 @@ public interface ServerEntry extends Entry, Cloneable
      * @param values The searched values.
      * @return <code>true</code> if all the values are found within the attribute,
      * <code>false</code> otherwise, or if the attributes does not exist.
-     * @throws NamingException If the attribute does not exists
+     * @throws LdapException If the attribute does not exists
      */
     boolean contains( AttributeType attributeType, Value<?>... values );
 
@@ -304,9 +303,9 @@ public interface ServerEntry extends Entry, Cloneable
      * @param values the binary values of the new attribute to be put
      * @return the old attribute with the same identifier, if exists; otherwise
      * <code>null</code>
-     * @throws NamingException if there are failures
+     * @throws LdapException if there are failures
      */
-    EntryAttribute put( AttributeType attributeType, byte[]... values ) throws NamingException;
+    EntryAttribute put( AttributeType attributeType, byte[]... values ) throws LdapException;
 
 
     /**
@@ -326,9 +325,9 @@ public interface ServerEntry extends Entry, Cloneable
      * @param values the String values of the new attribute to be put
      * @return the old attribute with the same identifier, if exists; otherwise
      * <code>null</code>
-     * @throws NamingException if there are failures
+     * @throws LdapException if there are failures
      */
-    EntryAttribute put( AttributeType attributeType, String... values ) throws NamingException;
+    EntryAttribute put( AttributeType attributeType, String... values ) throws LdapException;
 
 
     /**
@@ -348,9 +347,9 @@ public interface ServerEntry extends Entry, Cloneable
      * @param values the values of the new attribute to be put
      * @return the old attribute with the same identifier, if exists; otherwise
      * <code>null</code>
-     * @throws NamingException if there are failures
+     * @throws LdapException if there are failures
      */
-    EntryAttribute put( AttributeType attributeType, Value<?>... values ) throws NamingException;
+    EntryAttribute put( AttributeType attributeType, Value<?>... values ) throws LdapException;
 
 
     /**
@@ -373,9 +372,9 @@ public interface ServerEntry extends Entry, Cloneable
      * @param values the binary values of the new attribute to be put
      * @return the old attribute with the same identifier, if exists; otherwise
      * <code>null</code>
-     * @throws NamingException if there are failures.
+     * @throws LdapException if there are failures.
      */
-    EntryAttribute put( String upId, AttributeType attributeType, byte[]... values ) throws NamingException;
+    EntryAttribute put( String upId, AttributeType attributeType, byte[]... values ) throws LdapException;
 
 
     /**
@@ -399,9 +398,9 @@ public interface ServerEntry extends Entry, Cloneable
      * @param values the String values of the new attribute to be put
      * @return the old attribute with the same identifier, if exists; otherwise
      * <code>null</code>
-     * @throws NamingException if there are failures.
+     * @throws LdapException if there are failures.
      */
-    EntryAttribute put( String upId, AttributeType attributeType, String... values ) throws NamingException;
+    EntryAttribute put( String upId, AttributeType attributeType, String... values ) throws LdapException;
 
 
     /**
@@ -425,9 +424,9 @@ public interface ServerEntry extends Entry, Cloneable
      * @param values the values of the new attribute to be put
      * @return the old attribute with the same identifier, if exists; otherwise
      * <code>null</code>
-     * @throws NamingException if there are failures.
+     * @throws LdapException if there are failures.
      */
-    EntryAttribute put( String upId, AttributeType attributeType, Value<?>... values ) throws NamingException;
+    EntryAttribute put( String upId, AttributeType attributeType, Value<?>... values ) throws LdapException;
 
 
     /**
@@ -451,7 +450,7 @@ public interface ServerEntry extends Entry, Cloneable
      * @return <code>true</code> if at least a value is removed, <code>false</code>
      * if not all the values have been removed or if the attribute does not exist. 
      */
-    boolean remove( AttributeType attributeType, byte[]... values ) throws NamingException;
+    boolean remove( AttributeType attributeType, byte[]... values ) throws LdapException;
 
     
     /**
@@ -475,7 +474,7 @@ public interface ServerEntry extends Entry, Cloneable
      * @return <code>true</code> if at least a value is removed, <code>false</code>
      * if not all the values have been removed or if the attribute does not exist. 
      */
-    boolean remove( AttributeType attributeType, String... values ) throws NamingException;
+    boolean remove( AttributeType attributeType, String... values ) throws LdapException;
 
     
     /**
@@ -499,7 +498,7 @@ public interface ServerEntry extends Entry, Cloneable
      * @return <code>true</code> if at least a value is removed, <code>false</code>
      * if not all the values have been removed or if the attribute does not exist. 
      */
-    boolean remove( AttributeType attributeType, Value<?>... values ) throws NamingException;
+    boolean remove( AttributeType attributeType, Value<?>... values ) throws LdapException;
 
     
     /**
@@ -510,7 +509,7 @@ public interface ServerEntry extends Entry, Cloneable
      * @param attributes the attributes to be removed
      * @return the removed attribute, if exists; otherwise <code>null</code>
      */
-    List<EntryAttribute> remove( EntryAttribute... attributes ) throws NamingException;
+    List<EntryAttribute> remove( EntryAttribute... attributes ) throws LdapException;
     
 
     /**
@@ -558,5 +557,5 @@ public interface ServerEntry extends Entry, Cloneable
      *
      * @return An instance of ClientEntry
      */
-    Entry toClientEntry() throws NamingException;
+    Entry toClientEntry() throws LdapException;
 }

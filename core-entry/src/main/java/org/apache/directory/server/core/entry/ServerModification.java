@@ -23,13 +23,12 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.client.ClientModification;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
@@ -101,7 +100,7 @@ public class ServerModification implements Modification
             
             attribute = new DefaultServerAttribute( at, modAttribute );
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             // The attributeType is incorrect. Log, but do nothing otherwise.
             LOG.error( I18n.err( I18n.ERR_111, modAttribute.getId() ) );
@@ -275,9 +274,9 @@ public class ServerModification implements Modification
      * @param atRegistry The AttributeType registry
      * @throws IOException If we weren't able to deserialize the data
      * @throws ClassNotFoundException if we weren't able to construct a Modification instance
-     * @throws NamingException If we didn't found the AttributeType in the registries
+     * @throws LdapException If we didn't found the AttributeType in the registries
      */
-    public void deserialize( ObjectInput in, SchemaManager schemaManager ) throws IOException, ClassNotFoundException, NamingException
+    public void deserialize( ObjectInput in, SchemaManager schemaManager ) throws IOException, ClassNotFoundException, LdapException
     {
         // Read the operation
         int op = in.readInt();

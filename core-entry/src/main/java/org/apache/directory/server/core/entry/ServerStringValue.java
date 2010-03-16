@@ -24,18 +24,18 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 
 /**
@@ -178,9 +178,9 @@ public class ServerStringValue extends ClientStringValue
      * Compute the normalized (canonical) representation for the wrapped string.
      * If the wrapped String is null, the normalized form will be null too.  
      *
-     * @throws NamingException if the value cannot be properly normalized
+     * @throws LdapException if the value cannot be properly normalized
      */
-    public void normalize() throws NamingException
+    public void normalize() throws LdapException
     {
         // If the value is already normalized, get out.
         if ( normalized )
@@ -212,7 +212,7 @@ public class ServerStringValue extends ClientStringValue
      * to the wrapped value result in attempts to normalize the wrapped value.
      *
      * @return gets the normalized value
-     * @throws NamingException if the value cannot be properly normalized
+     * @throws LdapException if the value cannot be properly normalized
      */
     public String getNormalizedValue() 
     {
@@ -228,7 +228,7 @@ public class ServerStringValue extends ClientStringValue
             {
                 normalize();
             }
-            catch ( NamingException ne )
+            catch ( LdapException ne )
             {
                 String message = "Cannot normalize the value :" + ne.getLocalizedMessage();
                 LOG.info( message );
@@ -294,7 +294,7 @@ public class ServerStringValue extends ClientStringValue
             {
                 stringValue.normalize();
             }
-            catch ( NamingException ne )
+            catch ( LdapException ne )
             {
                 String message = I18n.err( I18n.ERR_112, stringValue ); 
                 LOG.error( message );
@@ -305,7 +305,7 @@ public class ServerStringValue extends ClientStringValue
             {
                 normalize();
             }
-            catch ( NamingException ne )
+            catch ( LdapException ne )
             {
                 String message = I18n.err( I18n.ERR_112, this );
                 LOG.error( message );
@@ -316,7 +316,7 @@ public class ServerStringValue extends ClientStringValue
                 //noinspection unchecked
                 return getLdapComparator().compare( getNormalizedValue(), stringValue.getNormalizedValue() );
             }
-            catch ( NamingException e )
+            catch ( LdapException e )
             {
                 String msg = I18n.err( I18n.ERR_109, this, value );
                 LOG.error( msg, e );
@@ -351,7 +351,7 @@ public class ServerStringValue extends ClientStringValue
      * @return <code>true</code> if the value is associated with the given
      * attributeType or one of its ascendant
      */
-    public boolean instanceOf( AttributeType attributeType ) throws NamingException
+    public boolean instanceOf( AttributeType attributeType ) throws LdapException
     {
         if ( this.attributeType.equals( attributeType ) )
         {
@@ -434,7 +434,7 @@ public class ServerStringValue extends ClientStringValue
                     }
                 }
             }
-            catch ( NamingException ne )
+            catch ( LdapException ne )
             {
                 return false;
             }
@@ -454,9 +454,9 @@ public class ServerStringValue extends ClientStringValue
      * returned.
      *
      * @return a matchingRule or null if one cannot be found for the attributeType
-     * @throws NamingException if resolution of schema entities fail
+     * @throws LdapException if resolution of schema entities fail
      */
-    private MatchingRule getMatchingRule() throws NamingException
+    private MatchingRule getMatchingRule() throws LdapException
     {
         MatchingRule mr = attributeType.getEquality();
 
@@ -479,9 +479,9 @@ public class ServerStringValue extends ClientStringValue
      * that the normalizer is extracted from.
      *
      * @return a normalizer associated with the attributeType or null if one cannot be found
-     * @throws NamingException if resolution of schema entities fail
+     * @throws LdapException if resolution of schema entities fail
      */
-    private Normalizer getNormalizer() throws NamingException
+    private Normalizer getNormalizer() throws LdapException
     {
         MatchingRule mr = getMatchingRule();
 
@@ -533,9 +533,9 @@ public class ServerStringValue extends ClientStringValue
      * that the comparator is extracted from.
      *
      * @return a comparator associated with the attributeType or null if one cannot be found
-     * @throws NamingException if resolution of schema entities fail
+     * @throws LdapException if resolution of schema entities fail
      */
-    private LdapComparator<? super Object> getLdapComparator() throws NamingException
+    private LdapComparator<? super Object> getLdapComparator() throws LdapException
     {
         MatchingRule mr = getMatchingRule();
 
@@ -603,7 +603,7 @@ public class ServerStringValue extends ClientStringValue
                     out.writeUTF( normalizedValue );
                 }
             }
-            catch ( NamingException ne )
+            catch ( LdapException ne )
             {
                 // The value can't be normalized, we don't write the 
                 // normalized value.

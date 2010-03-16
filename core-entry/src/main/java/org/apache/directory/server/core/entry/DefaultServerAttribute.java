@@ -25,7 +25,6 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import javax.naming.NamingException;
-import javax.naming.directory.InvalidAttributeValueException;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.primitives.OID;
@@ -34,6 +33,8 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -335,7 +336,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 {
                     value.normalize();
                 }
-                catch( NamingException ne )
+                catch( LdapException ne )
                 {
                     // The value can't be normalized : we don't add it.
                     LOG.error( I18n.err( I18n.ERR_93, val ) );
@@ -530,7 +531,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 {
                     value.normalize();
                 }
-                catch ( NamingException ne )
+                catch ( LdapException ne )
                 {
                     return false;
                 }
@@ -678,9 +679,9 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
      *
      * @param attributeId The AttributeType ID to check
      * @return True if the current attribute is of the expected attributeType
-     * @throws InvalidAttributeValueException If there is no AttributeType
+     * @throws LdapInvalidAttributeValueException If there is no AttributeType
      */
-    public boolean instanceOf( String attributeId ) throws InvalidAttributeValueException
+    public boolean instanceOf( String attributeId ) throws LdapInvalidAttributeValueException
     {
         String trimmedId = StringTools.trim( attributeId );
         
@@ -715,7 +716,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
      * @return true if the attribute and it's values are valid, false otherwise
      * @throws NamingException if there is a failure to check syntaxes of values
      */
-    public boolean isValid() throws NamingException
+    public boolean isValid() throws LdapException
     {
         // First check if the attribute has more than one value
         // if the attribute is supposed to be SINGLE_VALUE
@@ -1256,7 +1257,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 {
                     value.normalize();
                 }
-                catch ( NamingException ne )
+                catch ( LdapException ne )
                 {
                     // Do nothing...
                 }

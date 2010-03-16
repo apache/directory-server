@@ -28,13 +28,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
@@ -87,37 +86,37 @@ public class ClonedServerEntry implements ServerEntry
     }
 
 
-    public void add( AttributeType attributeType, byte[]... values ) throws NamingException
+    public void add( AttributeType attributeType, byte[]... values ) throws LdapException
     {
         clonedEntry.add( attributeType, values );
     }
 
 
-    public void add( AttributeType attributeType, String... values ) throws NamingException
+    public void add( AttributeType attributeType, String... values ) throws LdapException
     {
         clonedEntry.add( attributeType, values );
     }
 
 
-    public void add( AttributeType attributeType, Value<?>... values ) throws NamingException
+    public void add( AttributeType attributeType, Value<?>... values ) throws LdapException
     {
         clonedEntry.add( attributeType, values );
     }
 
 
-    public void add( String upId, AttributeType attributeType, byte[]... values ) throws NamingException
+    public void add( String upId, AttributeType attributeType, byte[]... values ) throws LdapException
     {
         clonedEntry.add( attributeType, values );
     }
 
 
-    public void add( String upId, AttributeType attributeType, String... values ) throws NamingException
+    public void add( String upId, AttributeType attributeType, String... values ) throws LdapException
     {
         clonedEntry.add( attributeType, values );
     }
 
 
-    public void add( String upId, AttributeType attributeType, Value<?>... values ) throws NamingException
+    public void add( String upId, AttributeType attributeType, Value<?>... values ) throws LdapException
     {
         clonedEntry.add( attributeType, values );
     }
@@ -183,61 +182,61 @@ public class ClonedServerEntry implements ServerEntry
     }
 
 
-    public EntryAttribute put( AttributeType attributeType, byte[]... values ) throws NamingException
+    public EntryAttribute put( AttributeType attributeType, byte[]... values ) throws LdapException
     {
         return clonedEntry.put( attributeType, values );
     }
 
 
-    public EntryAttribute put( AttributeType attributeType, String... values ) throws NamingException
+    public EntryAttribute put( AttributeType attributeType, String... values ) throws LdapException
     {
         return clonedEntry.put( attributeType, values );
     }
 
 
-    public EntryAttribute put( AttributeType attributeType, Value<?>... values ) throws NamingException
+    public EntryAttribute put( AttributeType attributeType, Value<?>... values ) throws LdapException
     {
         return clonedEntry.put( attributeType, values );
     }
 
 
-    public EntryAttribute put( String upId, AttributeType attributeType, byte[]... values ) throws NamingException
+    public EntryAttribute put( String upId, AttributeType attributeType, byte[]... values ) throws LdapException
     {
         return clonedEntry.put( attributeType, values );
     }
 
 
-    public EntryAttribute put( String upId, AttributeType attributeType, String... values ) throws NamingException
+    public EntryAttribute put( String upId, AttributeType attributeType, String... values ) throws LdapException
     {
         return clonedEntry.put( upId, attributeType, values );
     }
 
 
-    public EntryAttribute put( String upId, AttributeType attributeType, Value<?>... values ) throws NamingException
+    public EntryAttribute put( String upId, AttributeType attributeType, Value<?>... values ) throws LdapException
     {
         return clonedEntry.put( upId, attributeType, values );
     }
 
 
-    public boolean remove( AttributeType attributeType, byte[]... values ) throws NamingException
+    public boolean remove( AttributeType attributeType, byte[]... values ) throws LdapException
     {
         return clonedEntry.remove( attributeType, values );
     }
 
 
-    public boolean remove( AttributeType attributeType, String... values ) throws NamingException
+    public boolean remove( AttributeType attributeType, String... values ) throws LdapException
     {
         return clonedEntry.remove( attributeType, values );
     }
 
 
-    public boolean remove( AttributeType attributeType, Value<?>... values ) throws NamingException
+    public boolean remove( AttributeType attributeType, Value<?>... values ) throws LdapException
     {
         return clonedEntry.remove( attributeType, values );
     }
 
 
-    public List<EntryAttribute> remove( EntryAttribute... attributes ) throws NamingException
+    public List<EntryAttribute> remove( EntryAttribute... attributes ) throws LdapException
     {
         return clonedEntry.remove( attributes );
     }
@@ -255,25 +254,25 @@ public class ClonedServerEntry implements ServerEntry
     }
 
 
-    public void add( EntryAttribute... attributes ) throws NamingException
+    public void add( EntryAttribute... attributes ) throws LdapException
     {
         clonedEntry.add( attributes );
     }
 
 
-    public void add( String upId, String... values ) throws NamingException
+    public void add( String upId, String... values ) throws LdapException
     {
         clonedEntry.add( upId, values );
     }
 
 
-    public void add( String upId, byte[]... values ) throws NamingException
+    public void add( String upId, byte[]... values ) throws LdapException
     {
         clonedEntry.add( upId, values );
     }
 
 
-    public void add( String upId, Value<?>... values ) throws NamingException
+    public void add( String upId, Value<?>... values ) throws LdapException
     {
         clonedEntry.add( upId, values );
     }
@@ -285,7 +284,7 @@ public class ClonedServerEntry implements ServerEntry
     }
 
 
-    public boolean contains( EntryAttribute... attributes ) throws NamingException
+    public boolean contains( EntryAttribute... attributes ) throws LdapException
     {
         return clonedEntry.contains( attributes );
     }
@@ -339,7 +338,7 @@ public class ClonedServerEntry implements ServerEntry
     }
 
 
-    public List<EntryAttribute> put( EntryAttribute... attributes ) throws NamingException
+    public List<EntryAttribute> put( EntryAttribute... attributes ) throws LdapException
     {
         return clonedEntry.put( attributes );
     }
@@ -363,19 +362,19 @@ public class ClonedServerEntry implements ServerEntry
     }
 
 
-    public boolean remove( String upId, byte[]... values ) throws NamingException
+    public boolean remove( String upId, byte[]... values ) throws LdapException
     {
         return clonedEntry.remove( upId, values );
     }
 
 
-    public boolean remove( String upId, String... values ) throws NamingException
+    public boolean remove( String upId, String... values ) throws LdapException
     {
         return clonedEntry.remove( upId, values );
     }
 
 
-    public boolean remove( String upId, Value<?>... values ) throws NamingException
+    public boolean remove( String upId, Value<?>... values ) throws LdapException
     {
         return clonedEntry.remove( upId, values );
     }
@@ -405,7 +404,7 @@ public class ClonedServerEntry implements ServerEntry
     }
 
 
-    public Entry toClientEntry() throws NamingException
+    public Entry toClientEntry() throws LdapException
     {
         // Copy the DN
         Entry clientEntry = new DefaultClientEntry( clonedEntry.getDn() );
@@ -494,27 +493,27 @@ public class ClonedServerEntry implements ServerEntry
             this.dn = dn;
         }
         
-        public void add( AttributeType attributeType, byte[]... values ) throws NamingException
+        public void add( AttributeType attributeType, byte[]... values ) throws LdapException
         {
         }
 
-        public void add( AttributeType attributeType, String... values ) throws NamingException
+        public void add( AttributeType attributeType, String... values ) throws LdapException
         {
         }
 
-        public void add( AttributeType attributeType, Value<?>... values ) throws NamingException
+        public void add( AttributeType attributeType, Value<?>... values ) throws LdapException
         {
         }
 
-        public void add( String upId, AttributeType attributeType, byte[]... values ) throws NamingException
+        public void add( String upId, AttributeType attributeType, byte[]... values ) throws LdapException
         {
         }
 
-        public void add( String upId, AttributeType attributeType, String... values ) throws NamingException
+        public void add( String upId, AttributeType attributeType, String... values ) throws LdapException
         {
         }
 
-        public void add( String upId, AttributeType attributeType, Value<?>... values ) throws NamingException
+        public void add( String upId, AttributeType attributeType, Value<?>... values ) throws LdapException
         {
         }
 
@@ -568,53 +567,53 @@ public class ClonedServerEntry implements ServerEntry
             return false;
         }
 
-        public EntryAttribute put( AttributeType attributeType, byte[]... values ) throws NamingException
+        public EntryAttribute put( AttributeType attributeType, byte[]... values ) throws LdapException
         {
             return null;
         }
 
-        public EntryAttribute put( AttributeType attributeType, String... values ) throws NamingException
+        public EntryAttribute put( AttributeType attributeType, String... values ) throws LdapException
         {
             return null;
         }
 
-        public EntryAttribute put( AttributeType attributeType, Value<?>... values ) throws NamingException
+        public EntryAttribute put( AttributeType attributeType, Value<?>... values ) throws LdapException
         {
             return null;
         }
 
-        public EntryAttribute put( String upId, AttributeType attributeType, byte[]... values ) throws NamingException
+        public EntryAttribute put( String upId, AttributeType attributeType, byte[]... values ) throws LdapException
         {
             return null;
         }
 
-        public EntryAttribute put( String upId, AttributeType attributeType, String... values ) throws NamingException
+        public EntryAttribute put( String upId, AttributeType attributeType, String... values ) throws LdapException
         {
             return null;
         }
 
         public EntryAttribute put( String upId, AttributeType attributeType, Value<?>... values )
-            throws NamingException
+            throws LdapException
         {
             return null;
         }
 
-        public boolean remove( AttributeType attributeType, byte[]... values ) throws NamingException
+        public boolean remove( AttributeType attributeType, byte[]... values ) throws LdapException
         {
             return false;
         }
 
-        public boolean remove( AttributeType attributeType, String... values ) throws NamingException
+        public boolean remove( AttributeType attributeType, String... values ) throws LdapException
         {
             return false;
         }
 
-        public boolean remove( AttributeType attributeType, Value<?>... values ) throws NamingException
+        public boolean remove( AttributeType attributeType, Value<?>... values ) throws LdapException
         {
             return false;
         }
 
-        public List<EntryAttribute> remove( EntryAttribute... attributes ) throws NamingException
+        public List<EntryAttribute> remove( EntryAttribute... attributes ) throws LdapException
         {
             return Collections.emptyList();
         }
@@ -629,19 +628,19 @@ public class ClonedServerEntry implements ServerEntry
             return Collections.emptyList();
         }
 
-        public void add( EntryAttribute... attributes ) throws NamingException
+        public void add( EntryAttribute... attributes ) throws LdapException
         {
         }
 
-        public void add( String upId, String... values ) throws NamingException
+        public void add( String upId, String... values ) throws LdapException
         {
         }
 
-        public void add( String upId, byte[]... values ) throws NamingException
+        public void add( String upId, byte[]... values ) throws LdapException
         {
         }
 
-        public void add( String upId, Value<?>... values ) throws NamingException
+        public void add( String upId, Value<?>... values ) throws LdapException
         {
         }
 
@@ -649,7 +648,7 @@ public class ClonedServerEntry implements ServerEntry
         {
         }
 
-        public boolean contains( EntryAttribute... attributes ) throws NamingException
+        public boolean contains( EntryAttribute... attributes ) throws LdapException
         {
             return false;
         }
@@ -695,7 +694,7 @@ public class ClonedServerEntry implements ServerEntry
             return ( ( List <EntryAttribute> ) Collections.EMPTY_LIST ).iterator();
         }
 
-        public List<EntryAttribute> put( EntryAttribute... attributes ) throws NamingException
+        public List<EntryAttribute> put( EntryAttribute... attributes ) throws LdapException
         {
             return Collections.emptyList();
         }
@@ -715,17 +714,17 @@ public class ClonedServerEntry implements ServerEntry
             return null;
         }
 
-        public boolean remove( String upId, byte[]... values ) throws NamingException
+        public boolean remove( String upId, byte[]... values ) throws LdapException
         {
             return false;
         }
 
-        public boolean remove( String upId, String... values ) throws NamingException
+        public boolean remove( String upId, String... values ) throws LdapException
         {
             return false;
         }
 
-        public boolean remove( String upId, Value<?>... values ) throws NamingException
+        public boolean remove( String upId, Value<?>... values ) throws LdapException
         {
             return false;
         }
@@ -767,7 +766,7 @@ public class ClonedServerEntry implements ServerEntry
         }
         
         
-        public Entry toClientEntry() throws NamingException
+        public Entry toClientEntry() throws LdapException
         {
             // Copy the DN
             Entry clientEntry = new DefaultClientEntry( dn );

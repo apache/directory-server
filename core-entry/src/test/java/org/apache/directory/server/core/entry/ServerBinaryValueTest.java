@@ -34,10 +34,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -87,7 +86,7 @@ public class ServerBinaryValueTest
         {
             private static final long serialVersionUID = 1L;
             
-            public Value<?> normalize( Value<?> value ) throws NamingException
+            public Value<?> normalize( Value<?> value ) throws LdapException
             {
                 if ( value.isBinary() )
                 {
@@ -108,7 +107,7 @@ public class ServerBinaryValueTest
             }
 
         
-            public String normalize( String value ) throws NamingException
+            public String normalize( String value ) throws LdapException
             {
                 throw new IllegalStateException( "expected byte[] to normalize" );
             }
@@ -290,7 +289,7 @@ public class ServerBinaryValueTest
      * Test the clone method
      */
     @Test
-    public void testClone() throws NamingException
+    public void testClone() throws LdapException
     {
         AttributeType at1 = TestServerEntryUtils.getBytesAttributeType();
         ServerBinaryValue sbv = new ServerBinaryValue( at1, null );
@@ -468,7 +467,7 @@ public class ServerBinaryValueTest
      * Test the same method
      */
     @Test
-    public void testSame() throws NamingException
+    public void testSame() throws LdapException
     {
         AttributeType attribute = TestServerEntryUtils.getBytesAttributeType();
         ServerBinaryValue sbv = new ServerBinaryValue( attribute );
@@ -494,7 +493,7 @@ public class ServerBinaryValueTest
      * Test the instanceOf method
      */
     @Test
-    public void testInstanceOf() throws NamingException
+    public void testInstanceOf() throws LdapException
     {
         AttributeType attribute = TestServerEntryUtils.getBytesAttributeType();
         ServerBinaryValue sbv = new ServerBinaryValue( attribute );
@@ -511,7 +510,7 @@ public class ServerBinaryValueTest
      * Test the normalize method
      */
     @Test
-    public void testNormalize() throws NamingException
+    public void testNormalize() throws LdapException
     {
         AttributeType attribute = TestServerEntryUtils.getBytesAttributeType();
         ServerBinaryValue sbv = new ServerBinaryValue( attribute );
@@ -552,7 +551,7 @@ public class ServerBinaryValueTest
     /**
      * Test serialization of a BinaryValue which has a normalized value
      */
-    @Test public void testNormalizedBinaryValueSerialization() throws NamingException, IOException, ClassNotFoundException
+    @Test public void testNormalizedBinaryValueSerialization() throws LdapException, IOException, ClassNotFoundException
     {
         byte[] v1 = StringTools.getBytesUtf8( "  Test   Test  " );
         byte[] v1Norm = StringTools.getBytesUtf8( "Test   Test" );
@@ -576,7 +575,7 @@ public class ServerBinaryValueTest
      * Test serialization of a BinaryValue which normalized value is the same
      * than the value
      */
-    @Test public void testNormalizedBinarySameValueSerialization() throws NamingException, IOException, ClassNotFoundException
+    @Test public void testNormalizedBinarySameValueSerialization() throws LdapException, IOException, ClassNotFoundException
     {
         byte[] v1 = StringTools.getBytesUtf8( "Test   Test" );
         
@@ -592,7 +591,7 @@ public class ServerBinaryValueTest
     /**
      * Test serialization of a BinaryValue which does not have a normalized value
      */
-    @Test public void testNoNormalizedBinaryValueSerialization() throws NamingException, IOException, ClassNotFoundException
+    @Test public void testNoNormalizedBinaryValueSerialization() throws LdapException, IOException, ClassNotFoundException
     {
         byte[] v1 = StringTools.getBytesUtf8( "test" );
         byte[] v1Norm = StringTools.getBytesUtf8( "test" );
@@ -615,7 +614,7 @@ public class ServerBinaryValueTest
     /**
      * Test serialization of a null BinaryValue
      */
-    @Test public void testNullBinaryValueSerialization() throws NamingException, IOException, ClassNotFoundException
+    @Test public void testNullBinaryValueSerialization() throws LdapException, IOException, ClassNotFoundException
     {
         // First check with a value which will be normalized
         ServerBinaryValue sbv = new ServerBinaryValue( at );
@@ -635,7 +634,7 @@ public class ServerBinaryValueTest
     /**
      * Test serialization of an empty BinaryValue
      */
-    @Test public void testEmptyBinaryValueSerialization() throws NamingException, IOException, ClassNotFoundException
+    @Test public void testEmptyBinaryValueSerialization() throws LdapException, IOException, ClassNotFoundException
     {
         // First check with a value which will be normalized
         ServerBinaryValue sbv = new ServerBinaryValue( at, StringTools.EMPTY_BYTES );
@@ -655,7 +654,7 @@ public class ServerBinaryValueTest
     /**
      * Test serialization of a BinaryValue which is the same than the value
      */
-    @Test public void testSameNormalizedBinaryValueSerialization() throws NamingException, IOException, ClassNotFoundException
+    @Test public void testSameNormalizedBinaryValueSerialization() throws LdapException, IOException, ClassNotFoundException
     {
         byte[] v1 = StringTools.getBytesUtf8( "test" );
         byte[] v1Norm = StringTools.getBytesUtf8( "test" );

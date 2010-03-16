@@ -41,6 +41,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -194,10 +195,10 @@ public class ServerEntryUtils
      * @param dn The DN which is needed by the ServerEntry 
      * @return An instance of a ServerEntry object
      * 
-     * @throws InvalidAttributeIdentifierException If we get an invalid attribute
+     * @throws LdapInvalidAttributeTypeException If we get an invalid attribute
      */
     public static ServerEntry toServerEntry( Attributes attributes, DN dn, SchemaManager schemaManager ) 
-            throws InvalidAttributeIdentifierException
+            throws LdapInvalidAttributeTypeException
     {
         if ( attributes instanceof BasicAttributes )
         {
@@ -224,9 +225,9 @@ public class ServerEntryUtils
                 
                 return entry;
             }
-            catch ( NamingException ne )
+            catch ( LdapException ne )
             {
-                throw new InvalidAttributeIdentifierException( ne.getLocalizedMessage() );
+                throw new LdapInvalidAttributeTypeException( ne.getLocalizedMessage() );
             }
         }
         else
@@ -243,9 +244,9 @@ public class ServerEntryUtils
      * @param mod the modification
      * @param entry the source entry that is modified
      * @return the resultant entry after the modification has taken place
-     * @throws NamingException if there are problems accessing attributes
+     * @throws LdapException if there are problems accessing attributes
      */
-    public static ServerEntry getTargetEntry( Modification mod, ServerEntry entry, SchemaManager schemaManager ) throws NamingException
+    public static ServerEntry getTargetEntry( Modification mod, ServerEntry entry, SchemaManager schemaManager ) throws LdapException
     {
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
         ModificationOperation modOp = mod.getOperation();
@@ -319,7 +320,7 @@ public class ServerEntryUtils
      * @param attr1 the second attribute
      * @return a new attribute with the union of values from both attribute
      *         arguments
-     * @throws NamingException if there are problems accessing attribute values
+     * @throws LdapException if there are problems accessing attribute values
      */
     public static ServerAttribute getUnion( ServerAttribute attr0, ServerAttribute attr1 )
     {
@@ -395,10 +396,10 @@ public class ServerEntryUtils
      * @param modificationImpls
      * @param atRegistry
      * @return
-     * @throws NamingException
+     * @throws LdapException
      */
     public static List<Modification> convertToServerModification( List<ModificationItem> modificationItems, 
-        SchemaManager schemaManager ) throws NamingException
+        SchemaManager schemaManager ) throws LdapException
     {
         if ( modificationItems != null )
         {
@@ -443,7 +444,7 @@ public class ServerEntryUtils
 
     
     public static List<Modification> toServerModification( Modification[] modifications, 
-        SchemaManager schemaManager ) throws NamingException
+        SchemaManager schemaManager ) throws LdapException
     {
         if ( modifications != null )
         {
@@ -487,7 +488,7 @@ public class ServerEntryUtils
 
 
     public static List<Modification> toServerModification( ModificationItem[] modifications, 
-        SchemaManager schemaManager ) throws NamingException
+        SchemaManager schemaManager ) throws LdapException
     {
         if ( modifications != null )
         {

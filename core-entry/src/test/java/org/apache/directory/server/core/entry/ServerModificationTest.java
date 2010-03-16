@@ -34,14 +34,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.client.ClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
@@ -110,7 +109,7 @@ public class ServerModificationTest
     /**
      * Deserialize a ServerModification
      */
-    private ServerModification deserializeValue( ByteArrayOutputStream out ) throws IOException, ClassNotFoundException, NamingException
+    private ServerModification deserializeValue( ByteArrayOutputStream out ) throws IOException, ClassNotFoundException, LdapException
     {
         ObjectInputStream oIn = null;
         ByteArrayInputStream in = new ByteArrayInputStream( out.toByteArray() );
@@ -257,7 +256,7 @@ public class ServerModificationTest
     
     
     @Test
-    public void testSerializationModificationADD() throws ClassNotFoundException, IOException, NamingException
+    public void testSerializationModificationADD() throws ClassNotFoundException, IOException, LdapException
     {
         EntryAttribute attribute = new DefaultServerAttribute( atCN );
         attribute.add( "test1", "test2" );
@@ -271,7 +270,7 @@ public class ServerModificationTest
     
     
     @Test
-    public void testSerializationModificationREPLACE() throws ClassNotFoundException, IOException, NamingException
+    public void testSerializationModificationREPLACE() throws ClassNotFoundException, IOException, LdapException
     {
         EntryAttribute attribute = new DefaultServerAttribute( atCN );
         attribute.add( "test1", "test2" );
@@ -285,7 +284,7 @@ public class ServerModificationTest
     
     
     @Test
-    public void testSerializationModificationREMOVE() throws ClassNotFoundException, IOException, NamingException
+    public void testSerializationModificationREMOVE() throws ClassNotFoundException, IOException, LdapException
     {
         EntryAttribute attribute = new DefaultServerAttribute( atCN );
         attribute.add( "test1", "test2" );
@@ -299,7 +298,7 @@ public class ServerModificationTest
     
     
     @Test
-    public void testSerializationModificationNoAttribute() throws ClassNotFoundException, IOException, NamingException
+    public void testSerializationModificationNoAttribute() throws ClassNotFoundException, IOException, LdapException
     {
         ServerModification mod = new ServerModification();
         

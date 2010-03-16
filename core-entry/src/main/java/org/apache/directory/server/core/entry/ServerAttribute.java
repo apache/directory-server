@@ -19,11 +19,10 @@
 package org.apache.directory.server.core.entry;
 
 
-import javax.naming.NamingException;
-import javax.naming.directory.InvalidAttributeValueException;
-
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.client.ClientAttribute;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
 
@@ -71,9 +70,9 @@ public interface ServerAttribute extends ClientAttribute
      *
      * @param attributeId The AttributeType ID to check
      * @return True if the current attribute is of the expected attributeType
-     * @throws InvalidAttributeValueException If there is no AttributeType
+     * @throws LdapInvalidAttributeValueException If there is no AttributeType
      */
-    boolean instanceOf( String attributeId ) throws InvalidAttributeValueException;
+    boolean instanceOf( String attributeId ) throws LdapInvalidAttributeValueException;
 
 
     /**
@@ -109,9 +108,9 @@ public interface ServerAttribute extends ClientAttribute
      * <li>If the attributeType is SINGLE-VALUE, then no more than a value should be present</li>
      *</p>
      * @return true if the attribute and it's values are valid, false otherwise
-     * @throws NamingException if there is a failure to check syntaxes of values
+     * @throws LdapException  if there is a failure to check syntaxes of values
      */
-    boolean isValid() throws NamingException;
+    boolean isValid() throws LdapException;
 
 
     /**

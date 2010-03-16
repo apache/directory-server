@@ -37,10 +37,8 @@ import java.util.Set;
 
 import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.NoSuchAttributeException;
 
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -50,6 +48,9 @@ import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientEntry;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -300,7 +301,7 @@ public class DefaultServerEntryTest
             entry.add( "wrongAT", BYTES1, BYTES2 );
             fail();
          }
-         catch ( NoSuchAttributeException nsae )
+         catch ( LdapNoSuchAttributeException nsae )
          {
              assertTrue( true );
          }
@@ -345,7 +346,7 @@ public class DefaultServerEntryTest
             entry.add( "wrongAT", "wrong", "wrong" );
             fail();
         }
-        catch ( NoSuchAttributeException nsae )
+        catch ( LdapNoSuchAttributeException nsae )
         {
             assertTrue( true );
         }
@@ -402,7 +403,7 @@ public class DefaultServerEntryTest
             entry.add( "wrongAT", value1, value2 );
             fail();
         }
-        catch ( NoSuchAttributeException nsae )
+        catch ( LdapNoSuchAttributeException nsae )
         {
             assertTrue( true );
         }
@@ -1735,7 +1736,7 @@ public class DefaultServerEntryTest
      * Test method for getDN()
      */
     @Test
-    public void testGetDn() throws InvalidNameException 
+    public void testGetDn() throws LdapInvalidDnException 
     {
         Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
          
@@ -2130,7 +2131,7 @@ public class DefaultServerEntryTest
             entry.put( "badAttr", atPwd, BYTES1 );
             fail();
         }
-        catch ( NoSuchAttributeException nsae )
+        catch ( LdapNoSuchAttributeException nsae )
         {
             assertTrue( true );
         }
@@ -2195,7 +2196,7 @@ public class DefaultServerEntryTest
             entry.put( "badAttr", (AttributeType)null, "test" );
             fail();
         }
-        catch ( NoSuchAttributeException nsae )
+        catch ( LdapNoSuchAttributeException nsae )
         {
             assertTrue( true );
         }
@@ -2205,7 +2206,7 @@ public class DefaultServerEntryTest
             entry.put( "badAttr", atCN, "test" );
             fail();
         }
-        catch ( NoSuchAttributeException nsae )
+        catch ( LdapNoSuchAttributeException nsae )
         {
             assertTrue( true );
         }
@@ -2286,7 +2287,7 @@ public class DefaultServerEntryTest
             entry.put( "badAttr", atCN, strValue1 );
             fail();
         }
-        catch ( NoSuchAttributeException nsae )
+        catch ( LdapNoSuchAttributeException nsae )
         {
             assertTrue( true );
         }
@@ -3867,7 +3868,7 @@ public class DefaultServerEntryTest
      * Test the copy constructor of a ServerEntry
      */
     @Test 
-    public void testCopyConstructorServerEntry() throws NamingException
+    public void testCopyConstructorServerEntry() throws LdapException
     {
         Entry serverEntry = new DefaultServerEntry( schemaManager );
         serverEntry.add( "cn", "test1", "test2" );
@@ -3891,7 +3892,7 @@ public class DefaultServerEntryTest
      * Test the copy constructor of a ClientEntry
      */
     @Test 
-    public void testCopyConstructorClientEntry() throws NamingException
+    public void testCopyConstructorClientEntry() throws LdapException
     {
         Entry clientEntry = new DefaultClientEntry();
         clientEntry.setDn( new DN( "ou=system" ) );
@@ -3915,7 +3916,7 @@ public class DefaultServerEntryTest
      * Test the conversion method 
      */
     @Test 
-    public void testToClientEntry() throws NamingException
+    public void testToClientEntry() throws LdapException
     {
         DN dn = new DN( "ou=system" );
         ServerEntry serverEntry = new DefaultServerEntry( schemaManager );

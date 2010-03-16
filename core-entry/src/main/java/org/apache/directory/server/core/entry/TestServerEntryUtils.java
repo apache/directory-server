@@ -18,13 +18,11 @@
  *  
  */
 package org.apache.directory.server.core.entry;
-
-import javax.naming.NamingException;
-
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
@@ -164,7 +162,7 @@ public class TestServerEntryUtils
         {
             private static final long serialVersionUID = 0L;
 
-            public Value<?> normalize( Value<?> value ) throws NamingException
+            public Value<?> normalize( Value<?> value ) throws LdapException
             {
                 if ( !value.isBinary() )
                 {
@@ -175,7 +173,7 @@ public class TestServerEntryUtils
             }
             
             
-            public String normalize( String value ) throws NamingException
+            public String normalize( String value ) throws LdapException
             {
                 return value.toLowerCase();
             }
@@ -256,7 +254,7 @@ public class TestServerEntryUtils
             // The serial UID
             private static final long serialVersionUID = 1L;
             
-            public Value<?> normalize( Value<?> value ) throws NamingException
+            public Value<?> normalize( Value<?> value ) throws LdapException
             {
                 if ( value.isBinary() )
                 {
@@ -278,7 +276,7 @@ public class TestServerEntryUtils
                 throw new IllegalStateException( I18n.err( I18n.ERR_474 ) );
             }
 
-            public String normalize( String value ) throws NamingException
+            public String normalize( String value ) throws LdapException
             {
                 throw new IllegalStateException( I18n.err( I18n.ERR_474 ) );
             }

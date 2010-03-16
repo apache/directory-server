@@ -38,9 +38,8 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
@@ -234,7 +233,7 @@ public class ServerStringValueTest
      * Test the normalize method
      */
     @Test
-    public void testNormalize() throws NamingException
+    public void testNormalize() throws LdapException
     {
         AttributeType attribute = TestServerEntryUtils.getIA5StringAttributeType();
         ServerStringValue ssv = new ServerStringValue( attribute );
@@ -256,7 +255,7 @@ public class ServerStringValueTest
      * Test the instanceOf method
      */
     @Test
-    public void testInstanceOf() throws NamingException
+    public void testInstanceOf() throws LdapException
     {
         AttributeType attribute = TestServerEntryUtils.getIA5StringAttributeType();
         ServerStringValue ssv = new ServerStringValue( attribute );
@@ -407,7 +406,7 @@ public class ServerStringValueTest
      * Test the clone method
      */
     @Test
-    public void testClone() throws NamingException
+    public void testClone() throws LdapException
     {
         AttributeType at1 = TestServerEntryUtils.getCaseIgnoringAttributeNoNumbersType();
         ServerStringValue ssv = new ServerStringValue( at1, "Test" );
@@ -681,7 +680,7 @@ public class ServerStringValueTest
     /**
      * Test serialization of a StringValue which has a normalized value
      */
-    @Test public void testNormalizedStringValueSerialization() throws NamingException, IOException, ClassNotFoundException
+    @Test public void testNormalizedStringValueSerialization() throws LdapException, IOException, ClassNotFoundException
     {
         // First check with a value which will be normalized
         ServerStringValue ssv = new ServerStringValue( at, "  Test   Test  " );
@@ -701,7 +700,7 @@ public class ServerStringValueTest
     /**
      * Test serialization of a StringValue which does not have a normalized value
      */
-    @Test public void testNoNormalizedStringValueSerialization() throws NamingException, IOException, ClassNotFoundException
+    @Test public void testNoNormalizedStringValueSerialization() throws LdapException, IOException, ClassNotFoundException
     {
         // First check with a value which will be normalized
         ServerStringValue ssv = new ServerStringValue( at, "test" );
@@ -721,7 +720,7 @@ public class ServerStringValueTest
     /**
      * Test serialization of a null StringValue
      */
-    @Test public void testNullStringValueSerialization() throws NamingException, IOException, ClassNotFoundException
+    @Test public void testNullStringValueSerialization() throws LdapException, IOException, ClassNotFoundException
     {
         // First check with a value which will be normalized
         ServerStringValue ssv = new ServerStringValue( at );
@@ -741,7 +740,7 @@ public class ServerStringValueTest
     /**
      * Test serialization of an empty StringValue
      */
-    @Test public void testEmptyStringValueSerialization() throws NamingException, IOException, ClassNotFoundException
+    @Test public void testEmptyStringValueSerialization() throws LdapException, IOException, ClassNotFoundException
     {
         // First check with a value which will be normalized
         ServerStringValue ssv = new ServerStringValue( at, "" );
@@ -761,7 +760,7 @@ public class ServerStringValueTest
     /**
      * Test serialization of an empty StringValue
      */
-    @Test public void testStringValueEmptyNormalizedSerialization() throws NamingException, IOException, ClassNotFoundException
+    @Test public void testStringValueEmptyNormalizedSerialization() throws LdapException, IOException, ClassNotFoundException
     {
         // First check with a value which will be normalized
         ServerStringValue ssv = new ServerStringValue( at, "  " );
