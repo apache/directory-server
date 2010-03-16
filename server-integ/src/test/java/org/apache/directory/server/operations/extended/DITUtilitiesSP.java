@@ -19,7 +19,6 @@
  */
 package org.apache.directory.server.operations.extended;
 
-import javax.naming.Name;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.CoreSession;
@@ -48,16 +47,16 @@ public class DITUtilitiesSP
      *        the subtree to be deleted
      * @throws NamingException
      */
-    public static void deleteSubtree( CoreSession session, Name rdn ) throws Exception
+    public static void deleteSubtree( CoreSession session, DN rdn ) throws Exception
     {
-        EntryFilteringCursor results = session.list( (DN)rdn, AliasDerefMode.DEREF_ALWAYS, null );
+        EntryFilteringCursor results = session.list( rdn, AliasDerefMode.DEREF_ALWAYS, null );
         
         results.beforeFirst();
         
         while ( results.next() )
         {
             ClonedServerEntry result = results.get();
-            Name childRdn = result.getDn();
+            DN childRdn = result.getDn();
             childRdn.remove( 0 );
             deleteSubtree( session, childRdn );
         }

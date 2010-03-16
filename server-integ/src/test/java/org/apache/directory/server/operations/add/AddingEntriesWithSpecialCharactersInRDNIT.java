@@ -37,6 +37,7 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
@@ -57,7 +58,7 @@ import org.junit.runner.RunWith;
     })
 public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestUnit
 {
-    private Attributes getPersonAttributes( String sn, String cn ) throws NamingException
+    private Attributes getPersonAttributes( String sn, String cn ) throws LdapException
     {
         Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",
@@ -69,7 +70,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     }
 
 
-    private Attributes getOrgUnitAttributes( String ou ) throws NamingException
+    private Attributes getOrgUnitAttributes( String ou ) throws LdapException
     {
         Attributes attrs = LdifUtils.createAttributes( 
             "objectClass: top",

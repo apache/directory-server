@@ -50,6 +50,7 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -102,7 +103,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     /**
      * Creation of required attributes of a person entry.
      */
-    protected Attributes getPersonAttributes( String sn, String cn ) throws NamingException
+    protected Attributes getPersonAttributes( String sn, String cn ) throws LdapException
     {
         Attributes attributes = LdifUtils.createAttributes( 
             "objectClass: top",

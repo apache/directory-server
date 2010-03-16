@@ -31,7 +31,6 @@ import java.util.EventObject;
 import java.util.List;
 
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
@@ -55,6 +54,7 @@ import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControl;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControlDecoder;
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControl;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.control.Control;
@@ -99,7 +99,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
     /**
      * Creation of required attributes of a person entry.
      */
-    private Attributes getPersonAttributes( String sn, String cn ) throws NamingException
+    private Attributes getPersonAttributes( String sn, String cn ) throws LdapException
     {
         Attributes attributes = LdifUtils.createAttributes( 
             "objectClass: top",
