@@ -51,6 +51,8 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
@@ -181,7 +183,7 @@ public class LdifPartition extends BTreePartition<Long>
         {
             String msg = I18n.err( I18n.ERR_150 );
             LOG.error( msg );
-            throw new InvalidNameException( msg );
+            throw new LdapInvalidDnException( msg );
         }
 
         if ( !suffix.isNormalized() )
@@ -518,7 +520,7 @@ public class LdifPartition extends BTreePartition<Long>
     /**
      * Create the file name from the entry DN.
      */
-    private File getFile( DN entryDn, boolean create ) throws NamingException
+    private File getFile( DN entryDn, boolean create ) throws LdapException
     {
         StringBuilder filePath = new StringBuilder();
         filePath.append( suffixDirectory ).append( File.separator );
@@ -548,7 +550,7 @@ public class LdifPartition extends BTreePartition<Long>
         if ( ldifFile.exists() && create )
         {
             // The entry already exists
-            throw new NamingException( I18n.err( I18n.ERR_633 ) );
+            throw new LdapException( I18n.err( I18n.ERR_633 ) );
         }
 
         return ldifFile;
@@ -561,7 +563,7 @@ public class LdifPartition extends BTreePartition<Long>
      * 
      * We don't allow filename which length is > 255 chars.
      */
-    private String getFileName( RDN rdn ) throws NamingException
+    private String getFileName( RDN rdn ) throws LdapException
     {
         // First, get the AT name, or OID
         String normAT = rdn.getAtav().getNormType();
@@ -584,7 +586,7 @@ public class LdifPartition extends BTreePartition<Long>
      * 
      * We don't allow filename which length is > 255 chars.
      */
-    private String getFileName( DN dn ) throws NamingException
+    private String getFileName( DN dn ) throws LdapException
     {
         StringBuilder sb = new StringBuilder();
         boolean isFirst = true;
@@ -1048,7 +1050,7 @@ public class LdifPartition extends BTreePartition<Long>
 
 
     @Override
-    public void setSuffix( String suffix ) throws InvalidNameException
+    public void setSuffix( String suffix ) throws LdapInvalidDnException
     {
         super.setSuffix( suffix );
         wrappedPartition.setSuffix( suffix );
