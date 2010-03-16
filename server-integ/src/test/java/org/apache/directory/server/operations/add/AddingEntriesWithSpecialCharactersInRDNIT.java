@@ -20,25 +20,24 @@
 package org.apache.directory.server.operations.add;
 
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.message.SearchResponse;
+import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,97 +57,95 @@ import org.junit.runner.RunWith;
     })
 public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestUnit
 {
-    private Attributes getPersonAttributes( String sn, String cn ) throws LdapException
+    private Entry getPersonEntry( String sn, String cn ) throws LdapException
     {
-        Attributes attrs = LdifUtils.createAttributes( 
-            "objectClass: top",
-            "objectClass: person",
-            "cn", cn,
-            "sn", sn );
-
-        return attrs;
+        Entry entry = new DefaultClientEntry();
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, "person" );
+        entry.add( SchemaConstants.CN_AT, cn );
+        entry.add( SchemaConstants.SN_AT, sn );
+        
+        return entry;
     }
 
 
-    private Attributes getOrgUnitAttributes( String ou ) throws LdapException
+    private Entry getOrgUnitEntry( String ou ) throws LdapException
     {
-        Attributes attrs = LdifUtils.createAttributes( 
-            "objectClass: top",
-            "objectClass: organizationalUnit",
-            "ou", ou );
-
-        return attrs;
+        Entry entry = new DefaultClientEntry();
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
+        entry.add( SchemaConstants.OU_AT, ou );
+        
+        return entry;
     }
 
 
     /**
      * adding an entry with hash sign (#) in RDN.
      * 
-     * @throws NamingException 
+     * @throws Exception 
      */
     @Test
     public void testAddingWithHashRdn() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( ldapServer );
 
-        Attributes attrs = getPersonAttributes( "Bush", "Kate#Bush" );
-        String rdn = "cn=Kate\\#Bush";
-        ctx.createSubcontext( rdn, attrs );
+        Entry personEntry = getPersonEntry( "Bush", "Kate#Bush" );
+        String dn = "cn=Kate\\#Bush,ou=system";
+        personEntry.setDn( new DN( dn ) );
+        connection.add( personEntry );
 
-        SearchControls sctls = new SearchControls();
-        sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        Cursor<SearchResponse> cursor = connection.search( "ou=system", "(cn=Kate\\#Bush)", SearchScope.SUBTREE, "*" );
 
-        NamingEnumeration<SearchResult> enm = ctx.search( "", "(cn=Kate\\#Bush)", sctls );
-        assertEquals( "entry found", true, enm.hasMore() );
-
-        while ( enm.hasMore() )
+        boolean entryFound = false;
+        while ( cursor.next() )
         {
-            SearchResult sr = enm.next();
-            String dn = sr.getNameInNamespace();
-            assertTrue( dn.startsWith( rdn ) );
-            attrs = sr.getAttributes();
-            Attribute cn = sr.getAttributes().get( "cn" );
+            Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            entryFound = true;
+            
+            assertTrue( personEntry.getDn().equals( sr.getDn() ) );
+            EntryAttribute cn = sr.get( "cn" );
             assertNotNull( cn );
             assertTrue( cn.contains( "Kate#Bush" ) );
         }
+        
+        assertTrue( "entry found", entryFound );
 
-        ctx.destroySubcontext( rdn );
+        connection.delete( dn );
     }
 
 
     /**
      * adding an entry with comma sign (,) in RDN.
      *    
-     * @throws NamingException 
+     * @throws Exception 
      */
     @Test
     public void testAddingWithCommaInRdn() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( ldapServer );
 
-        Attributes attrs = getPersonAttributes( "Bush", "Bush, Kate" );
-        String rdn = "cn=Bush\\, Kate";
-        ctx.createSubcontext( rdn, attrs );
+        Entry entry = getPersonEntry( "Bush", "Bush, Kate" );
+        String dn = "cn=Bush\\, Kate,ou=system";
+        entry.setDn( new DN( dn ) );
+        connection.add( entry );
 
-        SearchControls sctls = new SearchControls();
-        sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        Cursor<SearchResponse> cursor = connection.search( "ou=system", "(cn=Bush, Kate)", SearchScope.SUBTREE, "*" );
 
-        NamingEnumeration<SearchResult> enm = ctx.search( "", "(cn=Bush, Kate)", sctls );
-        assertEquals( "entry found", true, enm.hasMore() );
-
-        while ( enm.hasMore() )
+        boolean entryFound = false;
+        while ( cursor.next() )
         {
-            SearchResult sr = enm.next();
-            String dn = sr.getNameInNamespace();
-            assertTrue( dn.startsWith( rdn ) );
-            attrs = sr.getAttributes();
-            Attribute cn = sr.getAttributes().get( "cn" );
+            Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            entryFound = true;
+            
+            assertTrue( entry.getDn().equals( sr.getDn() ) );
+            EntryAttribute cn = sr.get( "cn" );
             assertNotNull( cn );
+            
             assertTrue( cn.contains( "Bush, Kate" ) );
-            assertEquals( "cn=Bush\\, Kate", sr.getName() );
         }
 
-        ctx.destroySubcontext( rdn );
+        assertTrue( "entry found", entryFound );
+
+        connection.delete( dn );
     }
 
 
@@ -158,34 +155,29 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     @Test
     public void testAddingWithQuotesInRdn() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
-        Attributes attrs = getPersonAttributes( "Messer", "Mackie \"The Knife\" Messer" );
-        String rdn = "cn=Mackie \\\"The Knife\\\" Messer";
+        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( ldapServer );
+        
+        Entry entry = getPersonEntry( "Messer", "Mackie \"The Knife\" Messer" );
+        String dn = "cn=Mackie \\\"The Knife\\\" Messer,ou=system";
+        entry.setDn( new DN( dn ) );
+        connection.add( entry );
 
-        // JNDI issue: must use the name object here rather then string,
-        // otherwise more backslashes are needed
-        // works with both javax.naming.ldap.LdapName or 
-        // org.apache.directory.shared.ldap.name.DN
-        DN ldapRdn = new DN( rdn );
-        ctx.createSubcontext( ldapRdn, attrs );
 
-        SearchControls sctls = new SearchControls();
-        sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-
-        NamingEnumeration<SearchResult> enm = ctx.search( "", "(cn=Mackie \"The Knife\" Messer)", sctls );
-        assertTrue( "no entry found", enm.hasMore() );
-        while ( enm.hasMore() )
+        Cursor<SearchResponse> cursor = connection.search( "ou=system", "(cn=Mackie \"The Knife\" Messer)", SearchScope.SUBTREE, "*" );
+        boolean entryFound = false;
+        while ( cursor.next() )
         {
-            SearchResult sr = ( SearchResult ) enm.next();
-            String dn = sr.getNameInNamespace();
-            assertTrue( dn.startsWith( rdn ) );
-            Attribute cn = sr.getAttributes().get( "cn" );
+            Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            entryFound = true;
+            assertTrue( entry.getDn().equals( sr.getDn() ) );
+            EntryAttribute cn = sr.get( "cn" );
             assertNotNull( cn );
             assertTrue( cn.contains( "Mackie \"The Knife\" Messer" ) );
         }
 
-        // JNDI issue: must use the name object here rather then string
-        ctx.destroySubcontext( ldapRdn );
+        assertTrue( "entry found", entryFound );
+        
+        connection.delete( dn );
     }
 
 
@@ -195,172 +187,168 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     @Test
     public void testAddingWithBackslashInRdn() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
-        Attributes attrs = getOrgUnitAttributes( "AC\\DC" );
-        String rdn = "ou=AC\\\\DC";
+        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( ldapServer );
+        
+        Entry entry = getOrgUnitEntry( "AC\\DC" );
+        String dn = "ou=AC\\\\DC,ou=system";
+        entry.setDn( new DN( dn ) );
+        connection.add( entry );
 
-        // JNDI issue: must use the name object here rather then string,
-        // otherwise more backslashes are needed
-        // works with both javax.naming.ldap.LdapName or 
-        // org.apache.directory.shared.ldap.name.DN
-        DN ldapRdn = new DN( rdn );
-        ctx.createSubcontext( ldapRdn, attrs );
-
-        SearchControls sctls = new SearchControls();
-        sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-
-        NamingEnumeration<SearchResult> enm = ctx.search( "", "(ou=AC\\\\DC)", sctls );
-        assertTrue( "no entry found", enm.hasMore() );
-        while ( enm.hasMore() )
+        Cursor<SearchResponse> cursor = connection.search( "ou=system", "(ou=AC\\\\DC)", SearchScope.SUBTREE, "*" );
+        boolean entryFound= false;
+        while ( cursor.next() )
         {
-            SearchResult sr = ( SearchResult ) enm.next();
-            String dn = sr.getNameInNamespace();
-            assertTrue( dn.startsWith( rdn ) );
-            Attribute ou = sr.getAttributes().get( "ou" );
+            Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            entryFound = true;
+            assertTrue( entry.getDn().equals( sr.getDn() ) );
+            
+            EntryAttribute ou = sr.get( "ou" );
             assertNotNull( ou );
             assertTrue( ou.contains( "AC\\DC" ) );
         }
 
-        ctx.destroySubcontext( ldapRdn );
+        assertTrue( "no entry found", entryFound );
+        connection.delete( dn );
     }
 
 
     /**
      * adding an entry with greater sign (>) in RDN.
      * 
-     * @throws NamingException 
+     * @throws Exception 
      */
     @Test
     public void testAddingWithGreaterSignInRdn() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( ldapServer );
+        
+        Entry entry = getOrgUnitEntry( "East -> West" );
+        String dn = "ou=East -\\> West,ou=system";
+        entry.setDn( new DN( dn ) );
+        connection.add(  entry );
 
-        Attributes attrs = getOrgUnitAttributes( "East -> West" );
-        String rdn = "ou=East -\\> West";
-        ctx.createSubcontext( rdn, attrs );
+        Cursor<SearchResponse> cursor = connection.search( "ou=system", "(ou=East -> West)", SearchScope.SUBTREE, "*" );
 
-        SearchControls sctls = new SearchControls();
-        sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-
-        NamingEnumeration<SearchResult> enm = ctx.search( "", "(ou=East -> West)", sctls );
-        assertEquals( "entry found", true, enm.hasMore() );
-
-        while ( enm.hasMore() )
+        boolean entryFound = false;
+        while ( cursor.next() )
         {
-            SearchResult sr = enm.next();
-            String dn = sr.getNameInNamespace();
-            assertTrue( dn.startsWith( rdn ) );
-            attrs = sr.getAttributes();
-            Attribute ou = sr.getAttributes().get( "ou" );
+            Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            entryFound = true;
+
+            assertTrue( entry.getDn().equals( sr.getDn() ) );
+            EntryAttribute ou = sr.get( "ou" );
             assertNotNull( ou );
             assertTrue( ou.contains( "East -> West" ) );
         }
 
-        ctx.destroySubcontext( rdn );
+        assertTrue( "entry found", entryFound );
+
+        connection.delete( dn );
     }
 
 
     /**
      * adding an entry with less sign (<) in RDN.
      * 
-     * @throws NamingException 
+     * @throws Exception 
      */
     @Test
     public void testAddingWithLessSignInRdn() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( ldapServer );
 
-        Attributes attrs = getOrgUnitAttributes( "Scissors 8<" );
-        String rdn = "ou=Scissors 8\\<";
-        ctx.createSubcontext( rdn, attrs );
+        Entry entry = getOrgUnitEntry( "Scissors 8<" );
+        String dn = "ou=Scissors 8\\<,ou=system";
+        entry.setDn( new DN( dn ) );
+        connection.add(  entry );
 
-        SearchControls sctls = new SearchControls();
-        sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        Cursor<SearchResponse> cursor = connection.search( "ou=system", "(ou=Scissors 8<)", SearchScope.SUBTREE, "*" );
 
-        NamingEnumeration<SearchResult> enm = ctx.search( "", "(ou=Scissors 8<)", sctls );
-        assertEquals( "entry found", true, enm.hasMore() );
-
-        while ( enm.hasMore() )
+        boolean entryFound = false;
+        while ( cursor.next() )
         {
-            SearchResult sr = enm.next();
-            String dn = sr.getNameInNamespace();
-            assertTrue( dn.startsWith( rdn ) );
-            attrs = sr.getAttributes();
-            Attribute ou = sr.getAttributes().get( "ou" );
+            Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            entryFound = true;
+            
+            assertTrue( entry.getDn().equals( sr.getDn() ) );
+
+            EntryAttribute ou = sr.get( "ou" );
             assertNotNull( ou );
             assertTrue( ou.contains( "Scissors 8<" ) );
         }
+        
+        assertTrue( "entry found", entryFound );
 
-        ctx.destroySubcontext( rdn );
+        connection.delete( dn );
     }
 
 
     /**
      * adding an entry with semicolon (;) in RDN.
      * 
-     * @throws NamingException 
+     * @throws Exception 
      */
     @Test
     public void testAddingWithSemicolonInRdn() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( ldapServer );
+        
+        Entry entry = getOrgUnitEntry( "semicolon group;" );
+        String dn = "ou=semicolon group\\;,ou=system";
+        entry.setDn( new DN( dn ) );
 
-        Attributes attrs = getOrgUnitAttributes( "semicolon group;" );
-        String rdn = "ou=semicolon group\\;";
-        ctx.createSubcontext( rdn, attrs );
+        Cursor<SearchResponse> cursor = connection.search( "", "(ou=semicolon group;)", SearchScope.SUBTREE, "*" );
 
-        SearchControls sctls = new SearchControls();
-        sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-
-        NamingEnumeration<SearchResult> enm = ctx.search( "", "(ou=semicolon group;)", sctls );
-        assertEquals( "entry found", true, enm.hasMore() );
-
-        while ( enm.hasMore() )
+        boolean entryFound = false;
+        while ( cursor.next() )
         {
-            SearchResult sr = enm.next();
-            String dn = sr.getNameInNamespace();
-            assertTrue( dn.startsWith( rdn ) );
-            attrs = sr.getAttributes();
-            Attribute ou = sr.getAttributes().get( "ou" );
+            Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            entryFound = true;
+
+            assertTrue( entry.getDn().equals( sr.getDn() ) );
+            EntryAttribute ou = sr.get( "ou" );
             assertNotNull( ou );
             assertTrue( ou.contains( "semicolon group;" ) );
         }
+        
+        assertTrue( "entry found", entryFound );
 
-        ctx.destroySubcontext( rdn );
+        connection.delete( dn );
     }
 
 
     /**
      * adding an entry with equals sign (=) in RDN.
      * 
-     * @throws NamingException 
+     * @throws Exception 
      */
     @Test
     public void testAddingWithEqualsInRdn() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        LdapConnection connection = ServerIntegrationUtils.getClientApiConnection( ldapServer );
+        
+        Entry entry = getOrgUnitEntry( "nomen=omen" );
+        String dn = "ou=nomen\\=omen,ou=system";
+        entry.setDn( new DN( dn ) );
+        connection.add( entry );
 
-        Attributes attrs = getOrgUnitAttributes( "nomen=omen" );
-        String rdn = "ou=nomen\\=omen";
-        ctx.createSubcontext( rdn, attrs );
+        Cursor<SearchResponse> cursor = connection.search( "ou=system", "(ou=nomen=omen)", SearchScope.SUBTREE, "*" );
+        
+        boolean entryFound = false;
 
-        SearchControls sctls = new SearchControls();
-        sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-
-        NamingEnumeration<SearchResult> enm = ctx.search( "", "(ou=nomen=omen)", sctls );
-        assertEquals( "entry found", true, enm.hasMore() );
-
-        while ( enm.hasMore() )
+        while ( cursor.next() )
         {
-            SearchResult sr = enm.next();
-            String dn = sr.getNameInNamespace();
-            assertTrue( dn.startsWith( rdn ) );
-            attrs = sr.getAttributes();
-            Attribute ou = sr.getAttributes().get( "ou" );
+            Entry sr = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            entryFound = true;
+
+            assertTrue( entry.getDn().equals( sr.getDn() ) );
+            EntryAttribute ou = sr.get( "ou" );
             assertNotNull( ou );
             assertTrue( ou.contains( "nomen=omen" ) );
         }
-
-        ctx.destroySubcontext( rdn );
+        
+        assertTrue( "entry found", entryFound );
+        
+        connection.delete( dn );
     }
 }
