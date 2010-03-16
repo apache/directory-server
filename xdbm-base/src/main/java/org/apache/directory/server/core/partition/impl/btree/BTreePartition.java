@@ -26,7 +26,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.naming.InvalidNameException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
@@ -51,6 +50,7 @@ import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -265,7 +265,7 @@ public abstract class BTreePartition<ID> implements Partition
         if ( getChildCount( id ) > 0 )
         {
             LdapContextNotEmptyException cnee = new LdapContextNotEmptyException( I18n.err( I18n.ERR_700, dn ) );
-            cnee.setRemainingName( dn );
+            //cnee.setRemainingName( dn );
             throw cnee;
         }
 
@@ -514,7 +514,7 @@ public abstract class BTreePartition<ID> implements Partition
     /**
      * {@inheritDoc}
      */
-    public void setSuffix( String suffix ) throws InvalidNameException
+    public void setSuffix( String suffix ) throws LdapInvalidDnException
     {
         this.suffix = new DN( suffix );
     }

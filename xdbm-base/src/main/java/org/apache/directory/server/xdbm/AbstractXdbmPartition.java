@@ -421,8 +421,8 @@ public abstract class AbstractXdbmPartition<ID> extends BTreePartition<ID>
 
         if ( invalid )
         {
-            throw new LdapUnwillingToPerformException( "cannot place an entry below itself",
-                ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
+                "cannot place an entry below itself" );
         }
 
     }
@@ -437,16 +437,16 @@ public abstract class AbstractXdbmPartition<ID> extends BTreePartition<ID>
         }
 
         // does nothing
-        throw new LdapAuthenticationNotSupportedException( I18n.err( I18n.ERR_702 ),
-            ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
+        throw new LdapAuthenticationNotSupportedException( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED,
+            I18n.err( I18n.ERR_702 ) );
     }
 
 
     public final void bind( BindOperationContext bindContext ) throws Exception
     {
         // does nothing
-        throw new LdapAuthenticationNotSupportedException( I18n.err( I18n.ERR_702 ),
-            ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
+        throw new LdapAuthenticationNotSupportedException( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED,
+            I18n.err( I18n.ERR_702 ) );
     }
 
 
