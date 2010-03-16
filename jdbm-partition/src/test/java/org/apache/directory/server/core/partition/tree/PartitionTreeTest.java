@@ -20,20 +20,19 @@
 
 package org.apache.directory.server.core.partition.tree;
 
-import javax.naming.NamingException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.tree.DnBranchNode;
 import org.apache.directory.shared.ldap.util.tree.DnLeafNode;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
 import org.junit.Test;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 
 /**
@@ -47,7 +46,7 @@ public class PartitionTreeTest
     /**
      * Test the addition of a single partition
      */
-    @Test public void testNewPartitionTree() throws NamingException
+    @Test public void testNewPartitionTree() throws LdapException
     {
         /** A structure to hold all the partitions */
         DnBranchNode<Partition> partitionLookupTree = new DnBranchNode<Partition>();
@@ -74,7 +73,7 @@ public class PartitionTreeTest
     /**
      * Test the addition of a two disjointed partition
      */
-    @Test public void testNewPartitionTree2Nodes() throws NamingException
+    @Test public void testNewPartitionTree2Nodes() throws LdapException
     {
         /** A structure to hold all the partitions */
         DnBranchNode<Partition> partitionLookupTree = new DnBranchNode<Partition>();
@@ -113,7 +112,7 @@ public class PartitionTreeTest
     /**
      * Test the addition of a two overlapping partitions
      */
-    @Test public void testNewPartitionTree2OverlapingNodes() throws NamingException
+    @Test public void testNewPartitionTree2OverlapingNodes() throws LdapException
     {
         /** A structure to hold all the partitions */
         DnBranchNode<Partition> partitionLookupTree = new DnBranchNode<Partition>();
@@ -133,7 +132,7 @@ public class PartitionTreeTest
             partitionLookupTree.add( suffix2, partition2 );
             fail();
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             assertTrue( true );
         }
@@ -143,7 +142,7 @@ public class PartitionTreeTest
     /**
      * Test the addition of a two partitions with the same root
      */
-    @Test public void testNewPartitionTree2NodesWithSameRoot() throws NamingException
+    @Test public void testNewPartitionTree2NodesWithSameRoot() throws LdapException
     {
         /** A structure to hold all the partitions */
         DnBranchNode<Partition> partitionLookupTree = new DnBranchNode<Partition>();
