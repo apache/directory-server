@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.partition;
 
 
-import javax.naming.InvalidNameException;
-
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -37,6 +35,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
@@ -81,9 +80,9 @@ public interface Partition
      * Sets the user provided suffix for this Partition as a String.
      *
      * @param suffix the suffix String for this Partition.
-     * @throws InvalidNameException if the suffix does not conform to LDAP DN syntax
+     * @throws LdapInvalidDnException if the suffix does not conform to LDAP DN syntax
      */
-    void setSuffix( String suffix ) throws InvalidNameException;
+    void setSuffix( String suffix ) throws LdapInvalidDnException;
 
 
     /**

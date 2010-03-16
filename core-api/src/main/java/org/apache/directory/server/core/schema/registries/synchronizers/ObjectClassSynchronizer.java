@@ -27,6 +27,7 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -127,7 +128,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
                 String msg = I18n.err( I18n.ERR_373, entry.getDn().getName(), 
                     StringTools.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
-                throw new LdapUnwillingToPerformException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+                throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
 
         }
@@ -180,7 +181,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
                 String msg = I18n.err( I18n.ERR_374, entry.getDn().getName(),
                     StringTools.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
-                throw new LdapUnwillingToPerformException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+                throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
         }
         else
@@ -229,7 +230,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
             {
                 String msg = I18n.err( I18n.ERR_375, entry.getDn().getName(), newDn );
 
-                throw new LdapUnwillingToPerformException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+                throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
 
             schemaManager.unregisterObjectClass( oldOc.getOid() );
@@ -329,13 +330,13 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    private void checkNewParent( DN newParent ) throws NamingException
+    private void checkNewParent( DN newParent ) throws LdapException
     {
         if ( newParent.size() != 3 )
         {
             throw new LdapInvalidDnException(
-                "The parent dn of a objectClass should be at most 3 name components in length.",
-                ResultCodeEnum.NAMING_VIOLATION );
+                ResultCodeEnum.NAMING_VIOLATION,
+                "The parent dn of a objectClass should be at most 3 name components in length." );
         }
 
         RDN rdn = newParent.getRdn();
@@ -343,14 +344,14 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         if ( !schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals(
             SchemaConstants.OU_AT_OID ) )
         {
-            throw new LdapInvalidDnException( I18n.err( I18n.ERR_376 ),
-                ResultCodeEnum.NAMING_VIOLATION );
+            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
+                I18n.err( I18n.ERR_376 ) );
         }
 
         if ( !( ( String ) rdn.getNormValue() ).equalsIgnoreCase( SchemaConstants.OBJECT_CLASSES_AT ) )
         {
-            throw new LdapInvalidDnException( I18n.err( I18n.ERR_377 ),
-                ResultCodeEnum.NAMING_VIOLATION );
+            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
+                I18n.err( I18n.ERR_377 ) );
         }
     }
 }

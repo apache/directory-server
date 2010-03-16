@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -41,6 +39,7 @@ import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -164,7 +163,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /**
      * Helper class used to update the static DNs for each kind of Schema Object
      */
-    private DN updateDNs( Map<String, DN> staticDNs, String path, Schema schema ) throws NamingException
+    private DN updateDNs( Map<String, DN> staticDNs, String path, Schema schema ) throws LdapInvalidDnException
     {
         DN dn = staticDNs.get( schema.getSchemaName() );
 
@@ -185,7 +184,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
      * 
      * @param schemaName the name of the schema to find dependents for
      * @return a set of schemas (String names) that depend on the schema
-     * @throws NamingException if there are problems searching the schema partition
+     * @throws Exception if there are problems searching the schema partition
      */
     public Set<String> listDependentSchemaNames( String schemaName ) throws Exception
     {
@@ -213,7 +212,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
      * 
      * @param schemaName the name of the schema to find dependents for
      * @return a set of enabled schemas (String names) that depend on the schema
-     * @throws NamingException if there are problems searching the schema partition
+     * @throws Exception if there are problems searching the schema partition
      */
     public Set<String> listEnabledDependentSchemaNames( String schemaName ) throws Exception
     {

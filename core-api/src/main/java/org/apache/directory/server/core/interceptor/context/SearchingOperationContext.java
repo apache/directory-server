@@ -27,11 +27,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.naming.NamingException;
-import javax.naming.directory.NoSuchAttributeException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.DN;
@@ -165,7 +165,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
                    
                     returningAttributes.add( attrOptions );
                 }
-                catch ( NoSuchAttributeException nsae )
+                catch ( LdapNoSuchAttributeException nsae )
                 {
                     LOG.warn( "Requested attribute {} does not exist in the schema, it will be ignored", returnAttribute );
                     // Unknown attributes should be silently ignored, as RFC 2251 states

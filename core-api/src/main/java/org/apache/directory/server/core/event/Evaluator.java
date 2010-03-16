@@ -20,9 +20,8 @@
 package org.apache.directory.server.core.event;
 
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 
 
@@ -43,7 +42,7 @@ public interface Evaluator
      * @param dn the normalized distinguished name of the entry being tested
      * @param entry the entry to evaluate
      * @return true if the filter selects the candidate false otherwise
-     * @throws javax.naming.NamingException if there is a database fault during evaluation
+     * @throws LdapException if there is a database fault during evaluation
      */
-    boolean evaluate( ExprNode node, String dn, ServerEntry entry ) throws NamingException;
+    boolean evaluate( ExprNode node, String dn, ServerEntry entry ) throws LdapException;
 }

@@ -20,17 +20,15 @@
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
-import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
@@ -132,7 +130,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
                 String msg = I18n.err( I18n.ERR_386, entry.getDn().getName(),
                     StringTools.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
-                throw new LdapUnwillingToPerformException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+                throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
         }
         else
@@ -193,7 +191,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
                 // Ok, definitively an error
                 String msg = I18n.err( I18n.ERR_387, entry.getDn().getName() );
                 LOG.info( msg );
-                throw new LdapSchemaViolationException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+                throw new LdapSchemaViolationException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
         }
 
@@ -208,7 +206,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
                 String msg = I18n.err( I18n.ERR_386, entry.getDn().getName(),
                     StringTools.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
-                throw new LdapUnwillingToPerformException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+                throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
         }
         else
@@ -228,8 +226,8 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getLdapSyntaxRegistry().contains( oldOid ) )
         {
-            throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_389, oldOid ),
-                ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
+                I18n.err( I18n.ERR_389, oldOid ) );
         }
 
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
@@ -237,8 +235,8 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getSyntaxCheckerRegistry().contains( newOid ) )
         {
-            throw new LdapNamingException( I18n.err( I18n.ERR_390, newOid ),
-                ResultCodeEnum.OTHER );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OTHER,
+                I18n.err( I18n.ERR_390, newOid ) );
         }
 
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
@@ -263,8 +261,8 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getLdapSyntaxRegistry().contains( oldOid ) )
         {
-            throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_391, oldOid ),
-                ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
+                I18n.err( I18n.ERR_391, oldOid ) );
         }
 
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
@@ -273,8 +271,8 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getSyntaxCheckerRegistry().contains( newOid ) )
         {
-            throw new LdapNamingException( I18n.err( I18n.ERR_390, newOid ),
-                ResultCodeEnum.OTHER );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OTHER,
+                I18n.err( I18n.ERR_390, newOid ) );
         }
 
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
@@ -302,8 +300,8 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getLdapSyntaxRegistry().contains( oid ) )
         {
-            throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_393, oid ),
-                ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
+                I18n.err( I18n.ERR_393, oid ) );
         }
 
         SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, entry, schemaManager.getRegistries(),
@@ -327,8 +325,8 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getNormalizerRegistry().contains( oid ) )
         {
-            throw new LdapNamingException( I18n.err( I18n.ERR_390, oid ),
-                ResultCodeEnum.OTHER );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OTHER,
+                I18n.err( I18n.ERR_390, oid ) );
         }
     }
 
@@ -347,32 +345,32 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         }
         else
         {
-            throw new LdapSchemaViolationException( I18n.err( I18n.ERR_336, oid ),
-                ResultCodeEnum.OTHER );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OTHER,
+                I18n.err( I18n.ERR_336, oid ) );
         }
     }
 
 
-    private void checkNewParent( DN newParent ) throws NamingException
+    private void checkNewParent( DN newParent ) throws LdapException
     {
         if ( newParent.size() != 3 )
         {
-            throw new LdapInvalidDnException( I18n.err( I18n.ERR_396 ),
-                ResultCodeEnum.NAMING_VIOLATION );
+            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
+                I18n.err( I18n.ERR_396 ) );
         }
 
         RDN rdn = newParent.getRdn();
         if ( !schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals(
             SchemaConstants.OU_AT_OID ) )
         {
-            throw new LdapInvalidDnException( I18n.err( I18n.ERR_397 ),
-                ResultCodeEnum.NAMING_VIOLATION );
+            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
+                I18n.err( I18n.ERR_397 ) );
         }
 
         if ( !( ( String ) rdn.getNormValue() ).equalsIgnoreCase( SchemaConstants.SYNTAX_CHECKERS_AT ) )
         {
-            throw new LdapInvalidDnException( I18n.err( I18n.ERR_372 ),
-                ResultCodeEnum.NAMING_VIOLATION );
+            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
+                I18n.err( I18n.ERR_372 ) );
         }
     }
 }

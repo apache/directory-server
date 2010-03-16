@@ -23,17 +23,15 @@ package org.apache.directory.server.core.schema.registries.synchronizers;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
-import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
@@ -135,7 +133,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
                 String msg = I18n.err( I18n.ERR_350, entry.getDn().getName(), StringTools.listToString( 
                     schemaManager.getErrors() ) );
                 LOG.info( msg );
-                throw new LdapUnwillingToPerformException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+                throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
         }
         else
@@ -196,7 +194,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
                 // Ok, definitively an error
                 String msg = I18n.err( I18n.ERR_351, entry.getDn().getName() );
                 LOG.info( msg );
-                throw new LdapSchemaViolationException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+                throw new LdapSchemaViolationException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
         }
 
@@ -213,7 +211,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
                 String msg = I18n.err( I18n.ERR_352, entry.getDn().getName(), StringTools.listToString( 
                     errors ) );
                 LOG.info( msg );
-                throw new LdapUnwillingToPerformException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+                throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
         }
         else
@@ -232,8 +230,8 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getMatchingRuleRegistry().contains( oldOid ) )
         {
-            throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_353, oldOid ),
-                ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
+                I18n.err( I18n.ERR_353, oldOid ) );
         }
 
         String oid = ( String ) newRdn.getNormValue();
@@ -272,8 +270,8 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getMatchingRuleRegistry().contains( oldOid ) )
         {
-            throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_353, oldOid ),
-                ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
+                I18n.err( I18n.ERR_353, oldOid ) );
         }
 
         String oid = ( String ) newRdn.getNormValue();
@@ -305,8 +303,8 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getMatchingRuleRegistry().contains( oid ) )
         {
-            throw new LdapUnwillingToPerformException( I18n.err( I18n.ERR_354, oid ),
-                ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
+                I18n.err( I18n.ERR_354, oid ) );
         }
 
         String newSchemaName = getSchemaName( newParentName );
@@ -328,12 +326,12 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    private void checkOidIsUniqueForComparator( String oid ) throws NamingException
+    private void checkOidIsUniqueForComparator( String oid ) throws LdapSchemaViolationException
     {
         if ( schemaManager.getComparatorRegistry().contains( oid ) )
         {
-            throw new LdapNamingException( I18n.err( I18n.ERR_355, oid ),
-                ResultCodeEnum.OTHER );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OTHER,
+                I18n.err( I18n.ERR_355, oid ) );
         }
     }
 
@@ -344,8 +342,8 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getComparatorRegistry().contains( oid ) )
         {
-            throw new LdapNamingException( I18n.err( I18n.ERR_355, oid ),
-                ResultCodeEnum.OTHER );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OTHER,
+                I18n.err( I18n.ERR_355, oid ) );
         }
     }
 
@@ -364,18 +362,18 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         }
         else
         {
-            throw new LdapSchemaViolationException( I18n.err( I18n.ERR_336, oid ),
-                ResultCodeEnum.OTHER );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OTHER,
+                I18n.err( I18n.ERR_336, oid ) );
         }
     }
 
 
-    private void checkNewParent( DN newParent ) throws NamingException
+    private void checkNewParent( DN newParent ) throws LdapException
     {
         if ( newParent.size() != 3 )
         {
-            throw new LdapInvalidDnException( I18n.err( I18n.ERR_357 ),
-                ResultCodeEnum.NAMING_VIOLATION );
+            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
+                I18n.err( I18n.ERR_357 ) );
         }
 
         RDN rdn = newParent.getRdn();
@@ -383,12 +381,12 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         if ( !schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals(
             SchemaConstants.OU_AT_OID ) )
         {
-            throw new LdapInvalidDnException( I18n.err( I18n.ERR_358 ), ResultCodeEnum.NAMING_VIOLATION );
+            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_358 ) );
         }
 
         if ( !( ( String ) rdn.getNormValue() ).equalsIgnoreCase( SchemaConstants.COMPARATORS_AT ) )
         {
-            throw new LdapInvalidDnException( I18n.err( I18n.ERR_359 ), ResultCodeEnum.NAMING_VIOLATION );
+            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_359 ) );
         }
     }
 }

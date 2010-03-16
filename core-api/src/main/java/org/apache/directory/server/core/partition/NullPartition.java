@@ -24,8 +24,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.naming.InvalidNameException;
-
 import org.apache.commons.collections.iterators.EmptyIterator;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilter;
@@ -42,6 +40,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
@@ -305,7 +304,7 @@ public class NullPartition extends AbstractPartition
     /**
      * {@inheritDoc}
      */
-    public void setSuffix( String suffix ) throws InvalidNameException
+    public void setSuffix( String suffix ) throws LdapInvalidDnException
     {
         this.suffix = new DN( suffix );
     }
