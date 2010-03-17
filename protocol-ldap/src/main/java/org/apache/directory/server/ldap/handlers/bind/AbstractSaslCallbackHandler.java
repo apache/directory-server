@@ -23,7 +23,6 @@ package org.apache.directory.server.ldap.handlers.bind;
 import java.util.Hashtable;
 
 import javax.naming.Context;
-import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import javax.security.auth.callback.Callback;
@@ -40,7 +39,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.Control;
@@ -244,19 +243,22 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
             env.put( DirectoryService.JNDI_KEY, directoryService );
             ctx = new InitialLdapContext( env, JndiUtils.toJndiControls( connCtls ) );
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             ResultCodeEnum code;
+            DN dn = null;
 
-            if ( e instanceof LdapException )
+            if ( e instanceof LdapOperationException )
             {
-                code = ( ( LdapException ) e ).getResultCode();
+                code = ( ( LdapOperationException ) e ).getResultCode();
                 result.setResultCode( code );
+                dn = ( ( LdapOperationException ) e ).getResolvedDn();
             }
             else
             {
                 code = ResultCodeEnum.getBestEstimate( e, bindRequest.getType() );
                 result.setResultCode( code );
+                //dn = new DN( ((NamingException)e).getResolvedName() );
             }
 
             String msg = "Bind failed: " + e.getLocalizedMessage();
@@ -267,11 +269,11 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
                 msg += "\n\nBindRequest = \n" + bindRequest.toString();
             }
 
-            if ( ( e.getResolvedName() != null )
+            if ( ( dn != null )
                 && ( ( code == ResultCodeEnum.NO_SUCH_OBJECT ) || ( code == ResultCodeEnum.ALIAS_PROBLEM )
                     || ( code == ResultCodeEnum.INVALID_DN_SYNTAX ) || ( code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM ) ) )
             {
-                result.setMatchedDn( ( DN ) e.getResolvedName() );
+                result.setMatchedDn( dn );
             }
 
             result.setErrorMessage( msg );

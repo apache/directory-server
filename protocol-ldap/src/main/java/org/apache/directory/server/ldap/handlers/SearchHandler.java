@@ -26,9 +26,6 @@ import static org.apache.directory.server.ldap.LdapServer.NO_TIME_LIMIT;
 
 import java.util.concurrent.TimeUnit;
 
-import javax.naming.NameNotFoundException;
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.ReferralManager;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
@@ -47,6 +44,7 @@ import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
@@ -209,7 +207,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
                 {
                     cursor.close();
                 }
-                catch ( NamingException e )
+                catch ( Exception e )
                 {
                     LOG.error( I18n.err( I18n.ERR_168 ), e );
                 }
@@ -581,7 +579,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
                     {
                         cursor.close();
                     }
-                    catch ( NamingException e )
+                    catch ( Exception e )
                     {
                         LOG.error( I18n.err( I18n.ERR_168 ), e );
                     }
@@ -686,7 +684,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
                 {
                     cursor.close();
                 }
-                catch ( NamingException ne )
+                catch ( Exception ne )
                 {
                     LOG.error( I18n.err( I18n.ERR_168 ), ne );
                 }
@@ -758,7 +756,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
                 {
                     cursor.close();
                 }
-                catch ( NamingException e )
+                catch ( Exception e )
                 {
                     LOG.error( I18n.err( I18n.ERR_168 ), e );
                 }
@@ -1024,7 +1022,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
     /**
      * Handles processing with referrals without ManageDsaIT control.
      */
-    public void handleWithReferrals( LdapSession session, DN reqTargetDn, InternalSearchRequest req ) throws NamingException
+    public void handleWithReferrals( LdapSession session, DN reqTargetDn, InternalSearchRequest req ) throws LdapException
     {
         InternalLdapResult result = req.getResultResponse().getLdapResult();
         ClonedServerEntry entry = null;
@@ -1071,7 +1069,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
                 entry = session.getCoreSession().lookup( reqTargetDn );
                 LOG.debug( "Entry for {} was found: ", reqTargetDn, entry );
             }
-            catch ( NameNotFoundException e )
+            catch ( LdapException e )
             {
                 /* ignore */
                 LOG.debug( "Entry for {} not found.", reqTargetDn );

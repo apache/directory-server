@@ -26,6 +26,7 @@ import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalBindResponse;
@@ -35,7 +36,6 @@ import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.Name;
 import javax.security.sasl.SaslServer;
 
 
@@ -85,15 +85,15 @@ public class SimpleMechanismHandler implements MechanismHandler
             ldapSession.getIoSession().write( response );
             LOG.debug( "Returned SUCCESS message: {}.", response );
         }
-        catch ( Exception e )
+        catch ( LdapException e )
         {
             // Something went wrong. Write back an error message            
             ResultCodeEnum code = null;
             InternalLdapResult result = bindRequest.getResultResponse().getLdapResult();
 
-            if ( e instanceof LdapException )
+            if ( e instanceof LdapOperationException )
             {
-                code = ( ( LdapException ) e ).getResultCode();
+                code = ( ( LdapOperationException ) e ).getResultCode();
                 result.setResultCode( code );
             }
             else
@@ -110,11 +110,11 @@ public class SimpleMechanismHandler implements MechanismHandler
                 msg += "\n\nBindRequest = \n" + bindRequest.toString();
             }
 
-            Name name = null;
+            DN name = null;
             
             if ( e instanceof LdapAuthenticationException )
             {
-                name = ((LdapAuthenticationException)e).getResolvedName();
+                name = ((LdapAuthenticationException)e).getResolvedDn();
             }
             
             if ( ( name != null )

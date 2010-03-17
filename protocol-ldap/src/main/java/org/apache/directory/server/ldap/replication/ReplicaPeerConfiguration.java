@@ -21,9 +21,8 @@
 package org.apache.directory.server.ldap.replication;
 
 
-import javax.naming.InvalidNameException;
-
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.LdapURL;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -135,7 +134,7 @@ public class ReplicaPeerConfiguration
     /**
      * @param principalDN the principalDN to set
      */
-    public void setPrincipalDN( String principalDN ) throws InvalidNameException
+    public void setPrincipalDN( String principalDN ) throws LdapInvalidDnException
     {
         this.principalDN = new DN( principalDN );
     }

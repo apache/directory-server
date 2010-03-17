@@ -32,7 +32,6 @@ import org.apache.directory.server.ldap.handlers.ModifyHandler;
 import org.apache.directory.server.ldap.handlers.SearchHandler;
 import org.apache.directory.server.ldap.handlers.UnbindHandler;
 import org.apache.directory.shared.ldap.NotImplementedException;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.internal.InternalAbandonRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalAddRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
@@ -73,7 +72,7 @@ public class SettingAlternativeHandlersTest
      * provider
      */
     @Test
-    public void testDefaultOperation() throws LdapNamingException
+    public void testDefaultOperation() 
     {
         assertEquals( ldapServer.getName(), LdapServer.SERVICE_NAME );
     }
@@ -87,8 +86,8 @@ public class SettingAlternativeHandlersTest
      * provider
      */
     @Test
-    public void testAlternativeConfiguration() throws LdapNamingException
-    {
+    public void testAlternativeConfiguration()
+    { 
         ldapServer.setAbandonHandler( new BogusAbandonHandler() );
         ldapServer.setAddHandler( new BogusAddHandler() );
         ldapServer.setBindHandler( new BogusBindHandler() );

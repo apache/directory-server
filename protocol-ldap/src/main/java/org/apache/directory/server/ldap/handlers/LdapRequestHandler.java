@@ -20,14 +20,12 @@
 package org.apache.directory.server.ldap.handlers;
 
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
-import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.message.BindResponseImpl;
@@ -245,9 +243,9 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
          * Set the result code or guess the best option.
          */
         ResultCodeEnum code;
-        if ( e instanceof LdapException )
+        if ( e instanceof LdapOperationException )
         {
-            code = ( ( LdapException ) e ).getResultCode();
+            code = ( ( LdapOperationException ) e ).getResultCode();
         }
         else
         {
@@ -272,9 +270,9 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
         
         result.setErrorMessage( msg );
 
-        if ( e instanceof NamingException )
+        if ( e instanceof LdapOperationException )
         {
-            NamingException ne = ( NamingException ) e;
+            LdapOperationException ne = ( LdapOperationException ) e;
 
             // Add the matchedDN if necessary
             boolean setMatchedDn = 
@@ -283,9 +281,9 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
                 code == ResultCodeEnum.INVALID_DN_SYNTAX          || 
                 code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
             
-            if ( ( ne.getResolvedName() != null ) && setMatchedDn )
+            if ( ( ne.getResolvedDn() != null ) && setMatchedDn )
             {
-                result.setMatchedDn( ( DN ) ne.getResolvedName() );
+                result.setMatchedDn( ( DN ) ne.getResolvedDn() );
             }
             
             // Add the referrals if necessary

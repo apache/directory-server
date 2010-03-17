@@ -22,8 +22,6 @@ package org.apache.directory.server.ldap.handlers;
 
 import java.util.Map;
 
-import javax.naming.Name;
-import javax.naming.NameNotFoundException;
 import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
 
@@ -39,6 +37,7 @@ import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -137,7 +136,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
             {
                 principalEntry = getLdapServer().getDirectoryService().getAdminSession().lookup( bindRequest.getName() );
             }
-            catch ( NameNotFoundException e )
+            catch ( LdapException le )
             {
                 // this is OK
             }
@@ -221,18 +220,18 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
                 msg += "\n\nBindRequest = \n" + bindRequest.toString();
             }
 
-            Name name = null;
+            DN dn = null;
 
             if ( e instanceof LdapAuthenticationException )
             {
-                name = ( ( LdapAuthenticationException ) e ).getResolvedName();
+                dn = ( ( LdapAuthenticationException ) e ).getResolvedDn();
             }
 
-            if ( ( name != null )
+            if ( ( dn != null )
                 && ( ( code == ResultCodeEnum.NO_SUCH_OBJECT ) || ( code == ResultCodeEnum.ALIAS_PROBLEM )
                     || ( code == ResultCodeEnum.INVALID_DN_SYNTAX ) || ( code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM ) ) )
             {
-                result.setMatchedDn( new DN( name ) );
+                result.setMatchedDn( dn );
             }
 
             result.setErrorMessage( msg );

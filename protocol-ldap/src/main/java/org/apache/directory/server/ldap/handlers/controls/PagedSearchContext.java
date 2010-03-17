@@ -22,12 +22,11 @@ package org.apache.directory.server.ldap.handlers.controls;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -125,7 +124,7 @@ public class PagedSearchContext
                 AttributeType at = schemaManager.lookupAttributeTypeRegistry( attribute );
                 requestSet.add( at.getOid() );
             }
-            catch ( NamingException ne )
+            catch ( LdapException le )
             {
                 // Deal with special attributes : '*', '+' and '1.1'
                 if ( attribute.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) ||
@@ -245,7 +244,7 @@ public class PagedSearchContext
                 return false;
             }
         }
-        catch ( NamingException ne )
+        catch ( LdapException le )
         {
             return false;
         }

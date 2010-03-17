@@ -580,7 +580,7 @@ public class LdapServer extends DirectoryBackedService
         {
             String msg = I18n.err( I18n.ERR_171, transport.getPort() );
             LdapConfigurationException lce = new LdapConfigurationException( msg );
-            lce.setRootCause( e );
+            lce.setCause( e );
             LOG.error( msg, e );
             throw lce;
         }

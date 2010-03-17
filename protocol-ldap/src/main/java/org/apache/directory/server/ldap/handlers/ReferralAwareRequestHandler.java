@@ -20,10 +20,6 @@
 package org.apache.directory.server.ldap.handlers;
 
 
-import javax.naming.InvalidNameException;
-import javax.naming.NameNotFoundException;
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.i18n.I18n;
@@ -33,6 +29,8 @@ import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
+import org.apache.directory.shared.ldap.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
@@ -136,7 +134,7 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
         {
             dn.remove( dn.size() - 1 );
         }
-        catch ( InvalidNameException e2 )
+        catch ( LdapInvalidDnException e2 )
         {
             // never thrown
         }
@@ -156,7 +154,7 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
 
                 dn.remove( dn.size() - 1 );
             }
-            catch ( NameNotFoundException e )
+            catch ( LdapException e )
             {
                 LOG.debug( "Entry for {} not found.", dn );
 
@@ -165,7 +163,7 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
                 {
                     dn.remove( dn.size() - 1 );
                 }
-                catch ( InvalidNameException e1 )
+                catch ( LdapInvalidDnException e1 )
                 {
                     // never happens
                 }
@@ -369,9 +367,9 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
          */
         ResultCodeEnum code;
         
-        if ( e instanceof LdapException )
+        if ( e instanceof LdapOperationException )
         {
-            code = ( ( LdapException ) e ).getResultCode();
+            code = ( ( LdapOperationException ) e ).getResultCode();
         }
         else
         {
@@ -395,9 +393,9 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
         
         result.setErrorMessage( msg );
 
-        if ( e instanceof NamingException )
+        if ( e instanceof LdapOperationException )
         {
-            NamingException ne = ( NamingException ) e;
+            LdapOperationException ne = ( LdapOperationException ) e;
 
             // Add the matchedDN if necessary
             boolean setMatchedDn = 
@@ -406,9 +404,9 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
                 code == ResultCodeEnum.INVALID_DN_SYNTAX          || 
                 code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
             
-            if ( ( ne.getResolvedName() != null ) && setMatchedDn )
+            if ( ( ne.getResolvedDn() != null ) && setMatchedDn )
             {
-                result.setMatchedDn( ( DN ) ne.getResolvedName() );
+                result.setMatchedDn( ( DN ) ne.getResolvedDn() );
             }
         }
 
@@ -438,5 +436,5 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
     /**
      * Handles processing with referrals without ManageDsaIT control.
      */
-    public abstract void handleWithReferrals( LdapSession session, DN reqTargetDn, T req ) throws NamingException;
+    public abstract void handleWithReferrals( LdapSession session, DN reqTargetDn, T req ) throws LdapException;
 }
