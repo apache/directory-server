@@ -291,7 +291,7 @@ public class DeleteIT extends AbstractLdapTestUnit
             conn.delete("This is an illegal name,dc=example,dc=com" );
             fail( "deletion should fail" );
         } 
-        catch ( LdapException e ) 
+        catch ( Exception e ) 
         {
             // expected
         }
