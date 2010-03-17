@@ -29,9 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.InvalidNameException;
-import javax.naming.NamingException;
-
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
@@ -910,7 +907,7 @@ public class AvlStore<E> implements Store<E, Long>
      * @param updn User provided distinguished name to set as the new DN
      * @param isMove whether or not the name change is due to a move operation
      * which affects alias userIndices.
-     * @throws NamingException if something goes wrong
+     * @throws Exception if something goes wrong
      */
     private void modifyDn( Long id, DN updn, boolean isMove ) throws Exception
     {
@@ -918,10 +915,12 @@ public class AvlStore<E> implements Store<E, Long>
 
         // update normalized DN index
         ndnIdx.drop( id );
+        
         if ( !updn.isNormalized() )
         {
             updn.normalize( schemaManager.getNormalizerMapping() );
         }
+        
         ndnIdx.add( updn.toNormName(), id );
 
         // update user provided DN index
@@ -949,6 +948,7 @@ public class AvlStore<E> implements Store<E, Long>
         }
 
         Cursor<IndexEntry<Long, E, Long>> children = list( id );
+        
         while ( children.next() )
         {
             // Get the child and its id
@@ -1333,7 +1333,7 @@ public class AvlStore<E> implements Store<E, Long>
      * @param oldChildDn the normalized dn of the child to be moved
      * @param childId the id of the child being moved
      * @param newParentDn the normalized dn of the new parent for the child
-     * @throws NamingException if something goes wrong
+     * @throws Exception if something goes wrong
      */
     private DN move( DN oldChildDn, Long childId, DN newParentDn ) throws Exception
     {
@@ -1771,7 +1771,7 @@ public class AvlStore<E> implements Store<E, Long>
      * @param aliasDn normalized distinguished name for the alias entry
      * @param aliasTarget the user provided aliased entry dn as a string
      * @param aliasId the id of alias entry to add
-     * @throws NamingException if index addition fails, and if the alias is
+     * @throws Exception if index addition fails, and if the alias is
      * not allowed due to chaining or cycle formation.
      * @throws Exception if the wrappedCursor btrees cannot be altered
      */
@@ -1902,7 +1902,7 @@ public class AvlStore<E> implements Store<E, Long>
      * 
      * @todo Optimize this by walking the hierarchy index instead of the name 
      * @param aliasId the id of the alias entry in the master table
-     * @throws NamingException if we cannot parse ldap names
+     * @throws Exception if we cannot parse ldap names
      * @throws Exception if we cannot delete index values in the database
      */
     private void dropAliasIndices( Long aliasId ) throws Exception
@@ -2008,7 +2008,7 @@ public class AvlStore<E> implements Store<E, Long>
      * that will no longer be ancestors after the move.
      * 
      * @param movedBase the base at which the move occured - the moved node
-     * @throws NamingException if system userIndices fail
+     * @throws Exception if system userIndices fail
      */
     private void dropMovedAliasIndices( final DN movedBase ) throws Exception
     {
@@ -2167,9 +2167,10 @@ public class AvlStore<E> implements Store<E, Long>
     }
 
 
-    public void setObjectClassIndex( Index<String, E, Long> index ) throws NamingException
+    public void setObjectClassIndex( Index<String, E, Long> index )
     {
         protect( "objectClassIndex" );
+        
         if ( index instanceof AvlIndex<?, ?> )
         {
             this.objectClassIdx = ( AvlIndex<String, E> ) index;
@@ -2183,7 +2184,7 @@ public class AvlStore<E> implements Store<E, Long>
     }
 
 
-    public void setEntryUuidIndex( Index<String, E, Long> index ) throws NamingException
+    public void setEntryUuidIndex( Index<String, E, Long> index )
     {
         protect( "entryUuidIndex" );
         if ( index instanceof AvlIndex<?, ?> )
