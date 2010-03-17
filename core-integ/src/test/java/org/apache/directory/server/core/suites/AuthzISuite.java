@@ -19,6 +19,8 @@
 package org.apache.directory.server.core.suites;
 
 
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.authz.AddAuthorizationIT;
 import org.apache.directory.server.core.authz.AdministratorsGroupIT;
@@ -44,6 +46,12 @@ import org.junit.runners.Suite;
  */
 @RunWith ( FrameworkSuite.class )
 @CreateDS( enableAccessControl=true, name="AuthzISuite" )
+@CreateLdapServer( 
+    transports = 
+        {
+          @CreateTransport( protocol = "LDAP" )
+        }
+)
 @Suite.SuiteClasses ( {
         AddAuthorizationIT.class,
         AuthorizationServiceAsAdminIT.class,

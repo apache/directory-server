@@ -29,8 +29,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
@@ -69,7 +67,7 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
     /**
      * Makes sure a non-admin user cannot delete the admin account.
      *
-     * @throws NamingException if there are problems
+     * @throws Exception if there are problems
      */
     @Test
     public void testNoDeleteOnAdminByNonAdmin() throws Exception
@@ -94,7 +92,7 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
     /**
      * Makes sure a non-admin user cannot rename the admin account.
      *
-     * @throws NamingException if there are problems
+     * @throws Exception if there are problems
      */
     @Test
     public void testNoRdnChangesOnAdminByNonAdmin() throws Exception
@@ -122,7 +120,7 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
     /**
      * Makes sure the a non-admin user cannot rename the admin account.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
     public void testModifyOnAdminByNonAdmin() throws Exception
@@ -164,7 +162,7 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
     /**
      * Makes sure non-admin cannot search under ou=system.
      *
-     * @throws NamingException if there are problems
+     * @throws Exception if there are problems
      */
     @Test
     public void testNoSearchByNonAdmin() throws Exception

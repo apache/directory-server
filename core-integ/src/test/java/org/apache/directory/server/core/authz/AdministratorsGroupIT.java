@@ -22,19 +22,18 @@ package org.apache.directory.server.core.authz;
 
 import static org.apache.directory.server.core.authz.AutzIntegUtils.addUserToGroup;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAs;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.getConnectionAs;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import javax.naming.Name;
-import javax.naming.NamingException;
-import javax.naming.NoPermissionException;
-import javax.naming.directory.DirContext;
-
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.shared.ldap.name.DN;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,21 +53,27 @@ public class AdministratorsGroupIT extends AbstractLdapTestUnit
     @Before
     public void setService()
     {
-       AutzIntegUtils.service = service;
+       AutzIntegUtils.ldapServer = ldapServer;
     }
     
     
-    boolean canReadAdministrators( DirContext ctx ) throws NamingException
+    @After
+    public void closeConnections()
     {
-        try
-        {
-            ctx.getAttributes( "cn=Administrators,ou=groups" );
-            return true;
-        }
-        catch ( NoPermissionException e )
+        IntegrationUtils.closeConections();
+    }
+    
+    
+    boolean canReadAdministrators( LdapConnection connection ) throws Exception
+    {
+        SearchResultEntry res = ( SearchResultEntry ) connection.lookup( "cn=Administrators,ou=groups,ou=system" );
+        
+        if( res == null )
         {
             return false;
         }
+        
+        return true;
     }
 
 
@@ -85,28 +90,20 @@ public class AdministratorsGroupIT extends AbstractLdapTestUnit
     @CreateDS ( enableAccessControl=true, name="testNonAdminReadAccessToGroups-method" )
     public void testNonAdminReadAccessToGroups() throws Exception
     {
-        // this is required cause the new service is at method level
-        AutzIntegUtils.service = service;
-        
-        Name billydDn = createUser( "billyd", "s3kr3t" );
-        
+        DN billydDn = createUser( "billyd", "s3kr3t" );
+
         // this should fail with a no permission exception because we
         // are not allowed to browse ou=system without an ACI 
-        try
-        {
-            getContextAs( billydDn, "s3kr3t" );
-            fail( "Should not get here since we cannot browse ou=system" );
-        }
-        catch( NoPermissionException e )
-        {
-        }
+        LdapConnection connection = getConnectionAs( billydDn, "s3kr3t" );
+        assertTrue( connection.isAuthenticated() );
+        assertFalse( canReadAdministrators( connection ) );
         
         // add billyd to administrators and try again
         addUserToGroup( "billyd", "Administrators" );
 
         // billyd should now be able to read ou=system and the admin group
-        DirContext ctx = getContextAs( billydDn, "s3kr3t" );
-        assertTrue( canReadAdministrators( ctx ) );
+        connection = getConnectionAs( billydDn, "s3kr3t" );
+        assertTrue( canReadAdministrators( connection ) );
     }
 
 
@@ -118,23 +115,20 @@ public class AdministratorsGroupIT extends AbstractLdapTestUnit
      * @throws Exception on failure
      */
     @Test
-    @CreateDS ( name="testNonAdminReadAccessToGroups-method" )
+    @CreateDS ( name="testDefaultNonAdminReadAccessToGroups-method" )
     public void testDefaultNonAdminReadAccessToGroups() throws Exception
     {
-        // this is required cause the new service is at method level
-        AutzIntegUtils.service = service;
-
-        Name billydDn = createUser( "billyd", "s3kr3t" );
+        DN billydDn = createUser( "billyd", "s3kr3t" );
         assertFalse( service.isAccessControlEnabled() );
-        DirContext ctx = getContextAs( billydDn, "s3kr3t" );
+        LdapConnection connection = getConnectionAs( billydDn, "s3kr3t" );
 
         // billyd should not be able to read the admin group
-        assertFalse( canReadAdministrators( ctx ) );
+        assertFalse( canReadAdministrators( connection ) );
 
         // add billyd to administrators and try again
         addUserToGroup( "billyd", "Administrators" );
 
         // billyd should now be able to read the admin group
-        assertTrue( canReadAdministrators( ctx ) );
+        assertTrue( canReadAdministrators( connection ) );
     }
 }

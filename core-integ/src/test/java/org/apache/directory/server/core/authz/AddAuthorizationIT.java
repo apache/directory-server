@@ -23,21 +23,19 @@ package org.apache.directory.server.core.authz;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.addUserToGroup;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAs;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAsAdmin;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.getConnectionAs;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.exception.LdapException;
+import org.apache.directory.ldap.client.api.message.AddResponse;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,7 +55,7 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
     @Before
     public void setService()
     {
-        AutzIntegUtils.service = service;
+        AutzIntegUtils.ldapServer = ldapServer;
     }
     
     
@@ -73,29 +71,32 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
      * @param password the password of this user
      * @param entryRdn the relative DN, relative to ou=system where entry creation is tested
      * @return true if the entry can be created by the user at the specified location, false otherwise
-     * @throws NamingException if there are problems conducting the test
+     * @throws Exception if there are problems conducting the test
      */
     public boolean checkCanAddEntryAs( String uid, String password, String entryRdn ) throws Exception
     {
-        Attributes testEntry = new BasicAttributes( "ou", "testou", true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        testEntry.put( objectClass );
-        objectClass.add( "top" );
-        objectClass.add( "organizationalUnit" );
-
         try
         {
             DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
-            DirContext userContext = getContextAs( userName, password );
-            userContext.createSubcontext( entryRdn, testEntry );
+            LdapConnection connection = getConnectionAs( userName, password );
 
-            // delete the newly created context as the admin user
-            DirContext adminContext = getContextAsAdmin();
-            adminContext.destroySubcontext( entryRdn );
+            Entry entry = new DefaultClientEntry( new DN( "ou=testou,ou=system" ) );
+            entry.add( SchemaConstants.OU_AT, "testou" );
+            entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
+            
+            AddResponse resp = connection.add( entry );
+            
+            if( resp.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
+            {
+                return false;
+            }
 
+            connection.delete( entry.getDn() );
+            connection.close();
+            
             return true;
         }
-        catch ( LdapNoPermissionException e )
+        catch ( LdapException e )
         {
             return false;
         }
@@ -105,7 +106,7 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
     /**
      * Checks to make sure group membership based userClass works for add operations.
      *
-     * @throws NamingException if the test encounters an error
+     * @throws Exception if the test encounters an error
      */
     @Test
     public void testGrantAddAdministrators() throws Exception
@@ -139,7 +140,7 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
     /**
      * Checks to make sure name based userClass works for add operations.
      *
-     * @throws NamingException if the test encounters an error
+     * @throws Exception if the test encounters an error
      */
     @Test
     public void testGrantAddByName() throws Exception
@@ -165,7 +166,7 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
     /**
      * Checks to make sure subtree based userClass works for add operations.
      *
-     * @throws NamingException if the test encounters an error
+     * @throws Exception if the test encounters an error
      */
     @Test
     public void testGrantAddBySubtree() throws Exception
@@ -191,7 +192,7 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
     /**
      * Checks to make sure <b>allUsers</b> userClass works for add operations.
      *
-     * @throws NamingException if the test encounters an error
+     * @throws Exception if the test encounters an error
      */
     @Test
     public void testGrantAddAllUsers() throws Exception

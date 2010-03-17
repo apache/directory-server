@@ -22,15 +22,19 @@ package org.apache.directory.server.core.authz;
 
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAs;
-import static org.junit.Assert.fail;
-import junit.framework.Assert;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.getConnectionAs;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -48,14 +52,15 @@ public class AuthzAuthnIT extends AbstractLdapTestUnit
     @Before
     public void setService()
     {
-       AutzIntegUtils.service = service;
+        AutzIntegUtils.ldapServer = ldapServer;
+        AutzIntegUtils.service = service;
     }
     
     /**
      * Checks to make sure a user can authenticate with RootDSE as the
      * provider URL without need of any access control permissions.
      *
-     * @throws javax.naming.NamingException if the test encounters an error
+     * @throws Exception if the test encounters an error
      */
     @Test
     public void testAuthnWithRootDSE() throws Exception
@@ -63,15 +68,11 @@ public class AuthzAuthnIT extends AbstractLdapTestUnit
         createUser( "billyd", "billyd" );
 
         DN userName = new DN( "uid=billyd,ou=users,ou=system" ); 
-        try
-        {
-            // Authenticate to RootDSE
-            getContextAs( userName, "billyd", "" );
-        }
-        catch ( LdapNoPermissionException e )
-        {
-            fail( "Authentication should not have failed." );
-        }
+        // Authenticate to RootDSE
+        LdapConnection connection = getConnectionAs( userName, "billyd" );
+        Entry entry = ( ( SearchResultEntry ) connection.lookup( "" ) ).getEntry();
+        assertNotNull( entry );
+        assertEquals( 0, entry.getDn().size() );
     }
     
     
@@ -79,7 +80,7 @@ public class AuthzAuthnIT extends AbstractLdapTestUnit
      * Checks to make sure a user cannot authenticate with a naming context
      * as the provider URL if it does not have appropriate Browse permissions.
      *
-     * @throws javax.naming.NamingException if the test encounters an error
+     * @throws Exception if the test encounters an error
      */
     @Test
     public void testAuthnFailsWithSystemPartition() throws Exception
@@ -87,16 +88,9 @@ public class AuthzAuthnIT extends AbstractLdapTestUnit
         createUser( "billyd", "billyd" );
         
         DN userName = new DN( "uid=billyd,ou=users,ou=system" ); 
-        try
-        {
-            // Authenticate to "ou=system"
-            getContextAs( userName, "billyd", "ou=system" );
-            fail( "Authentication should have failed." );
-        }
-        catch ( LdapNoPermissionException e )
-        {
-            Assert.assertNotNull( e ); 
-        }
+        LdapConnection connection = getConnectionAs( userName, "billyd" );
+        SearchResultEntry entry = ( SearchResultEntry ) connection.lookup( "ou=system" );
+        assertNull( entry );
     }
     
     
@@ -104,8 +98,9 @@ public class AuthzAuthnIT extends AbstractLdapTestUnit
      * Checks to make sure a user can authenticate with a naming context
      * as the provider URL if it has appropriate Browse permissions.
      *
-     * @throws javax.naming.NamingException if the test encounters an error
+     * @throws Exception if the test encounters an error
      */
+    @Ignore( "This test is not failing but I want to make sure that this test case is equivalent to its prior JNDI based impl, so ignoring this to get attention" )
     @Test
     public void testAuthnPassesWithSystemPartition() throws Exception
     {
@@ -127,14 +122,9 @@ public class AuthzAuthnIT extends AbstractLdapTestUnit
             + "grantsAndDenials { grantBrowse } } } } }" );
         
         DN userName = new DN( "uid=billyd,ou=users,ou=system" ); 
-        try
-        {
-            // Authenticate to "ou=system"
-            getContextAs( userName, "billyd", "ou=system" );
-        }
-        catch ( LdapNoPermissionException e )
-        {
-            fail( "Authentication should not have failed." );
-        }
+        
+        LdapConnection connection = getConnectionAs( userName, "billyd" );
+        SearchResultEntry entry = ( SearchResultEntry ) connection.lookup( "ou=system" );
+        assertNull( entry );
     }
 }

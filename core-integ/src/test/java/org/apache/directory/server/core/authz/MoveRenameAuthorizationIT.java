@@ -24,21 +24,20 @@ import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccess
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.deleteAccessControlSubentry;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.deleteUser;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAs;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAsAdmin;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.getAdminConnection;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.getConnectionAs;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.removeUserFromGroup;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.message.ModifyDnResponse;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,8 +57,41 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
     @Before
     public void setService()
     {
-       AutzIntegUtils.service = service;
-       service.setAccessControlEnabled( true );
+       AutzIntegUtils.ldapServer = ldapServer;
+    }
+    
+    
+    public boolean checkCanRenameAs( String uid, String password, String entryRdn, String newNameRdn ) throws Exception
+    {
+        DN entryDN = new DN( entryRdn + ",ou=system" );
+        boolean result;
+        
+        Entry testEntry = new DefaultClientEntry( entryDN );
+        testEntry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
+        testEntry.add( SchemaConstants.OU_AT, "testou" );
+        
+        LdapConnection adminConnection = getAdminConnection();
+
+        // create the new entry as the admin user
+        adminConnection.add( testEntry );
+        
+        DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
+        
+        LdapConnection userConnection = getConnectionAs( userName, password );
+        ModifyDnResponse resp = userConnection.rename( entryDN.getName(), newNameRdn );
+        
+        if( resp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
+        {
+            userConnection.delete( newNameRdn + ",ou=system" );
+            result = true;
+        }
+        else
+        {
+            adminConnection.delete( entryDN );
+            result = false;
+        }
+        
+        return result;
     }
     
     
@@ -74,40 +106,63 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
      * @param uid the unique identifier for the user (presumed to exist under ou=users,ou=system)
      * @param password the password of this user
      * @param entryRdn the relative DN, relative to ou=system where entry renames are tested
-     * @param newRdn the new RDN for the entry under ou=system
+     * @param newNameRdn the new RDN for the entry under ou=system
+     * @param newParentRdn the new parent RDN for the entry under ou=system
      * @return true if the entry can be renamed by the user at the specified location, false otherwise
-     * @throws javax.naming.NamingException if there are problems conducting the test
+     * @throws Exception if there are problems conducting the test
      */
-    public boolean checkCanRenameAs( String uid, String password, String entryRdn, String newRdn )
+    public boolean checkCanMoveAndRenameAs( String uid, String password, String entryRdn, String newNameRdn, String newParentRdn )
         throws Exception
     {
-        Attributes testEntry = new BasicAttributes( "ou", "testou", true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        testEntry.put( objectClass );
-        objectClass.add( "top" );
-        objectClass.add( "organizationalUnit" );
+        DN entryDN = new DN( entryRdn + ",ou=system" );
+        boolean result;
+        
+        Entry testEntry = new DefaultClientEntry( entryDN );
+        testEntry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
+        testEntry.add( SchemaConstants.OU_AT, "testou" );
+        
+        LdapConnection adminConnection = getAdminConnection();
 
-        DirContext adminContext = getContextAsAdmin();
-        try
+        // create the new entry as the admin user
+        adminConnection.add( testEntry );
+        
+        DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
+        
+        LdapConnection userConnection = getConnectionAs( userName, password );
+
+        boolean isMoved = false;
+        ModifyDnResponse moveResp = userConnection.move( entryDN.getName(), newParentRdn + ",ou=system" );
+        if( moveResp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
         {
-            // create the new entry as the admin user
-            adminContext.createSubcontext( entryRdn, testEntry );
-
-            DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
-            DirContext userContext = getContextAs( userName, password );
-            userContext.rename( entryRdn, newRdn );
-
-            // delete the renamed context as the admin user
-            adminContext.destroySubcontext( newRdn );
-            return true;
+            isMoved = true;
         }
-        catch ( LdapNoPermissionException e )
+        else
         {
-            // delete the original context as the admin user since rename
-            // of newly created test entry did not succeed
-            adminContext.destroySubcontext( entryRdn );
+            adminConnection.delete( entryDN );
             return false;
         }
+        
+        ModifyDnResponse resp = userConnection.rename( entryRdn + "," + newParentRdn + ",ou=system", newNameRdn );
+        
+        ResultCodeEnum code = resp.getLdapResult().getResultCode();
+        if( code == ResultCodeEnum.SUCCESS || code == ResultCodeEnum.ENTRY_ALREADY_EXISTS )
+        {
+            userConnection.delete( newNameRdn + "," + newParentRdn + ",ou=system" );
+            result = true;
+        }
+        else
+        {
+            if( isMoved )
+            {
+                entryDN.add( 1, newParentRdn );
+                adminConnection.delete( entryDN );
+            }
+            
+            result = false;
+        }
+        
+        // delete the renamed context as the admin user
+        return result;
     }
 
 
@@ -115,7 +170,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
      * Checks to make sure group membership based userClass works for renames,
      * moves and moves with renames.
      *
-     * @throws javax.naming.NamingException if the test encounters an error
+     * @throws Exception if the test encounters an error
      */
     @Test
     public void testGrantByAdministrators() throws Exception
@@ -159,7 +214,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         createUser( "billyd", "billyd" );
 
         // try an move w/ rdn change which should fail without any ACI
-        assertFalse( checkCanRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=newname,ou=groups" ) );
+        assertFalse( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=newname", "ou=groups" ) );
 
         // Gives grantRename, grantImport, grantExport perm to all users in the Administrators
         // group for entries - browse is needed just to read navigate the tree at root
@@ -171,13 +226,13 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
 
         // see if we can move and rename the test entry which we could not before
         // op should still fail since billyd is not in the admin group
-        assertFalse( checkCanRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=newname,ou=groups" ) );
+        assertFalse( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=newname", "ou=groups" ) );
 
         // now add billyd to the Administrator group and try again
         addUserToGroup( "billyd", "Administrators" );
 
         // try move w/ rdn change which should succeed with ACI and group membership change
-        assertTrue( checkCanRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=newname,ou=groups" ) );
+        assertTrue( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=newname", "ou=groups" ) );
 
         // now let's cleanup
         removeUserFromGroup( "billyd", "Administrators" );
@@ -192,7 +247,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         createUser( "billyd", "billyd" );
 
         // try move operation which should fail without any ACI
-        assertFalse( checkCanRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=testou,ou=groups" ) );
+        assertFalse( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=testou", "ou=groups" ) );
 
         // Gives grantImport, and grantExport perm to all users in the Administrators group for entries
         createAccessControlSubentry( "grantMoveByAdmin", "{ " + "identificationTag \"addAci\", " + "precedence 14, "
@@ -202,13 +257,13 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
 
         // see if we can now move that test entry which we could not before
         // op should still fail since billyd is not in the admin group
-        assertFalse( checkCanRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=testou,ou=groups" ) );
+        assertFalse( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=testou", "ou=groups" ) );
 
         // now add billyd to the Administrator group and try again
         addUserToGroup( "billyd", "Administrators" );
 
         // try move operation which should succeed with ACI and group membership change
-        assertTrue( checkCanRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=testou,ou=groups" ) );
+        assertTrue( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=testou", "ou=groups" ) );
 
         // now let's cleanup
         removeUserFromGroup( "billyd", "Administrators" );
@@ -221,7 +276,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
      * Checks to make sure name based userClass works for rename, move, and
      * rename with move operation access controls.
      *
-     * @throws javax.naming.NamingException if the test encounters an error
+     * @throws Exception if the test encounters an error
      */
     @Test
     public void testGrantByName() throws Exception
@@ -257,7 +312,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         createUser( "billyd", "billyd" );
 
         // try an move w/ rdn change which should fail without any ACI
-        assertFalse( checkCanRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=newname,ou=groups" ) );
+        assertFalse( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=newname", "ou=groups" ) );
 
         // Gives grantRename, grantImport, grantExport perm to billyd user on entries
         createAccessControlSubentry( "grantRenameMoveByName", "{ " + "identificationTag \"addAci\", "
@@ -267,7 +322,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
             + "grantsAndDenials { grantExport, grantImport, grantRename, grantBrowse } } } } }" );
 
         // try move w/ rdn change which should succeed with ACI
-        assertTrue( checkCanRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=newname,ou=groups" ) );
+        assertTrue( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=newname", "ou=groups" ) );
 
         // now let's cleanup
         deleteAccessControlSubentry( "grantRenameMoveByName" );
@@ -281,7 +336,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         createUser( "billyd", "billyd" );
 
         // try move operation which should fail without any ACI
-        assertFalse( checkCanRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=testou,ou=groups" ) );
+        assertFalse( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=testou", "ou=groups" ) );
 
         // Gives grantImport, and grantExport perm to billyd user for entries
         createAccessControlSubentry( "grantMoveByName", "{ " + "identificationTag \"addAci\", " + "precedence 14, "
@@ -290,7 +345,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
             + "protectedItems {entry}, " + "grantsAndDenials { grantExport, grantImport, grantBrowse } } } } }" );
 
         // try move operation which should succeed with ACI
-        assertTrue( checkCanRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=testou,ou=groups" ) );
+        assertTrue( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=testou", "ou=groups" ) );
 
         // now let's cleanup
         deleteAccessControlSubentry( "grantMoveByName" );
@@ -302,7 +357,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
      * Checks to make sure subtree based userClass works for rename, move, and
      * rename with move operation access controls.
      *
-     * @throws javax.naming.NamingException if the test encounters an error
+     * @throws Exception if the test encounters an error
      */
     @Test
     public void testGrantBySubtree() throws Exception
@@ -338,7 +393,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         createUser( "billyd", "billyd" );
 
         // try an move w/ rdn change which should fail without any ACI
-        assertFalse( checkCanRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=newname,ou=groups" ) );
+        assertFalse( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=newname", "ou=groups" ) );
 
         // Gives grantRename, grantImport, grantExport for entries to users selected by subtree
         createAccessControlSubentry( "grantRenameMoveByTree", "{ " + "identificationTag \"addAci\", "
@@ -348,7 +403,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
             + "grantsAndDenials { grantExport, grantImport, grantRename, grantBrowse } } } } }" );
 
         // try move w/ rdn change which should succeed with ACI
-        assertTrue( checkCanRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=newname,ou=groups" ) );
+        assertTrue( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=newname", "ou=groups" ) );
 
         // now let's cleanup
         deleteAccessControlSubentry( "grantRenameMoveByTree" );
@@ -362,7 +417,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         createUser( "billyd", "billyd" );
 
         // try move operation which should fail without any ACI
-        assertFalse( checkCanRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=testou,ou=groups" ) );
+        assertFalse( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=testou", "ou=groups" ) );
 
         // Gives grantImport, and grantExport perm for entries to subtree selected users
         createAccessControlSubentry( "grantMoveByTree", "{ " + "identificationTag \"addAci\", " + "precedence 14, "
@@ -371,7 +426,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
             + "protectedItems {entry}, " + "grantsAndDenials { grantExport, grantImport, grantBrowse } } } } }" );
 
         // try move operation which should succeed with ACI
-        assertTrue( checkCanRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=testou,ou=groups" ) );
+        assertTrue( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=testou", "ou=groups" ) );
 
         // now let's cleanup
         deleteAccessControlSubentry( "grantMoveByTree" );
@@ -383,7 +438,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
      * Checks to make sure the <b>anyUser</b> userClass works for rename, move, and
      * rename with move operation access controls.
      *
-     * @throws javax.naming.NamingException if the test encounters an error
+     * @throws Exception if the test encounters an error
      */
     @Test
     public void testGrantByAnyuser() throws Exception
@@ -419,7 +474,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         createUser( "billyd", "billyd" );
 
         // try an move w/ rdn change which should fail without any ACI
-        assertFalse( checkCanRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=newname,ou=groups" ) );
+        assertFalse( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=newname", "ou=groups" ) );
 
         // Gives grantRename, grantImport, grantExport for entries to any user
         createAccessControlSubentry( "grantRenameMoveByAny", "{ " + "identificationTag \"addAci\", "
@@ -428,7 +483,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
             + "grantsAndDenials { grantExport, grantImport, grantRename, grantBrowse } } } } }" );
 
         // try move w/ rdn change which should succeed with ACI
-        assertTrue( checkCanRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=newname,ou=groups" ) );
+        assertTrue( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=newname", "ou=groups" ) );
 
         // now let's cleanup
         deleteAccessControlSubentry( "grantRenameMoveByAny" );
@@ -442,7 +497,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         createUser( "billyd", "billyd" );
 
         // try move operation which should fail without any ACI
-        assertFalse( checkCanRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=testou,ou=groups" ) );
+        assertFalse( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=testou", "ou=groups" ) );
 
         // Gives grantImport, and grantExport perm for entries to any user
         createAccessControlSubentry( "grantMoveByAny", "{ " + "identificationTag \"addAci\", " + "precedence 14, "
@@ -451,7 +506,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
             + "grantsAndDenials { grantExport, grantImport, grantBrowse } } } } }" );
 
         // try move operation which should succeed with ACI
-        assertTrue( checkCanRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=testou,ou=groups" ) );
+        assertTrue( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=testou", "ou=groups" ) );
 
         // now let's cleanup
         deleteAccessControlSubentry( "grantMoveByAny" );
@@ -463,7 +518,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
      * Checks to make sure Export and Import permissions work correctly
      * when they are defined on seperate contexts.
      *
-     * @throws javax.naming.NamingException if the test encounters an error
+     * @throws Exception if the test encounters an error
      */
     @Test
     public void testExportAndImportSeperately() throws Exception
@@ -476,7 +531,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         createUser( "billyd", "billyd" );
 
         // try an move w/ rdn change which should fail without any ACI
-        assertFalse( checkCanRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=newname,ou=groups" ) );
+        assertFalse( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=newname", "ou=groups" ) );
 
         
         // Gives grantBrowse perm to all users in the Administrators
@@ -515,13 +570,13 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
 
         // see if we can move and rename the test entry which we could not before
         // op should still fail since billyd is not in the admin group
-        assertFalse( checkCanRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=newname,ou=groups" ) );
+        assertFalse( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=newname", "ou=groups" ) );
 
         // now add billyd to the Administrator group and try again
         addUserToGroup( "billyd", "Administrators" );
 
         // try move w/ rdn change which should succeed with ACI and group membership change
-        assertTrue( checkCanRenameAs( "billyd", "billyd", "ou=testou,ou=users", "ou=newname,ou=groups" ) );
+        assertTrue( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=newname", "ou=groups" ) );
 
         // now let's cleanup
         removeUserFromGroup( "billyd", "Administrators" );

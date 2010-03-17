@@ -22,13 +22,9 @@ package org.apache.directory.server.core.authz;
 
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import javax.naming.NamingException;
 
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +44,7 @@ public class GeneralAuthorizationIT extends AbstractLdapTestUnit
     @Before
     public void setService()
     {
-       AutzIntegUtils.service = service;
+        AutzIntegUtils.ldapServer = ldapServer;
     }
     
     
@@ -56,23 +52,16 @@ public class GeneralAuthorizationIT extends AbstractLdapTestUnit
      * Checks to make sure we cannot create a malformed ACI missing two
      * last brackets.
      *
-     * @throws NamingException if the test encounters an error
+     * @throws Exception if the test encounters an error
      */
     @Test
     public void testFailureToAddBadACI() throws Exception
     {
         // add a subentry with malformed ACI
-        try
-        {
-            createAccessControlSubentry( "anybodyAdd", "{ " + "identificationTag \"addAci\", " + "precedence 14, "
-                + "authenticationLevel none, " + "itemOrUserFirst userFirst: { " + "userClasses { allUsers }, "
-                + "userPermissions { { " + "protectedItems {entry, allUserAttributeTypesAndValues}, "
-                + "grantsAndDenials { grantAdd, grantBrowse } } }" );
-            fail( "should never get here due to failure to add bad ACIItem" );
-        }
-        catch( LdapInvalidAttributeValueException e )
-        {
-            assertEquals( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, e.getResultCode() );
-        }
+        ResultCodeEnum result = createAccessControlSubentry( "anybodyAdd", "{ " + "identificationTag \"addAci\", " + "precedence 14, "
+            + "authenticationLevel none, " + "itemOrUserFirst userFirst: { " + "userClasses { allUsers }, "
+            + "userPermissions { { " + "protectedItems {entry, allUserAttributeTypesAndValues}, "
+            + "grantsAndDenials { grantAdd, grantBrowse } } }" );
+        assertEquals( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, result );
     }
 }

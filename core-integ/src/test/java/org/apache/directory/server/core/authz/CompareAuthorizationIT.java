@@ -23,21 +23,20 @@ package org.apache.directory.server.core.authz;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.addUserToGroup;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAs;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAsAdmin;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.getAdminConnection;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.getConnectionAs;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.message.CompareResponse;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,7 +56,7 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
     @Before
     public void setService()
     {
-       AutzIntegUtils.service = service;
+        AutzIntegUtils.ldapServer = ldapServer;
     }
     
     
@@ -78,51 +77,48 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
      * @return true if the entry's telephoneNumber can be compared by the user at the
      * specified location, false otherwise.  A false compare result still returns
      * true.
-     * @throws javax.naming.NamingException if there are problems conducting the test
+     * @throws Exception if there are problems conducting the test
      */
     public boolean checkCanCompareTelephoneNumberAs( String uid, String password, String entryRdn, String number )
         throws Exception
     {
+
+        DN entryDN = new DN( entryRdn + ",ou=system" );
+        boolean result = true;
+        
         // create the entry with the telephoneNumber attribute to compare
-        Attributes testEntry = new BasicAttributes( "ou", "testou", true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        testEntry.put( objectClass );
-        objectClass.add( "top" );
-        objectClass.add( "organizationalUnit" );
-        testEntry.put( "telephoneNumber", "867-5309" ); // jenny don't change your number
+        Entry testEntry = new DefaultClientEntry( entryDN );
+        testEntry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
+        testEntry.add( SchemaConstants.OU_AT, "testou" );
+        testEntry.add( "telephoneNumber", "867-5309" ); // jenny don't change your number
 
-        DirContext adminContext = getContextAsAdmin();
+        LdapConnection adminConnection = getAdminConnection();
 
-        try
+        // create the entry as admin
+        adminConnection.add( testEntry );
+        
+        DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
+        // compare the telephone numbers
+        LdapConnection userConnection = getConnectionAs( userName, password );
+        CompareResponse resp = userConnection.compare( entryDN, "telephoneNumber", number );
+        
+        // don't set based on compare result success/failure but based on whether the op was permitted or not
+        if( resp.getLdapResult().getResultCode() == ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS )
         {
-            // create the entry as admin
-            DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
-            adminContext.createSubcontext( entryRdn, testEntry );
+            result = false;
+        }
+        
+        // let's clean up
+        adminConnection.delete( entryRdn );
 
-            // compare the telephone numbers
-            DirContext userContext = getContextAs( userName, password );
-            ServerLdapContext ctx = ( ServerLdapContext ) userContext.lookup( "" );
-            ctx.compare( new DN( entryRdn + ",ou=system" ), "telephoneNumber", number );
-
-            // don't return compare result which can be false but true since op was permitted
-            return true;
-        }
-        catch ( LdapNoPermissionException e )
-        {
-            return false;
-        }
-        finally
-        {
-            // let's clean up
-            adminContext.destroySubcontext( entryRdn );
-        }
+        return result;
     }
 
 
     /**
      * Checks to make sure group membership based userClass works for compare operations.
      *
-     * @throws javax.naming.NamingException if the test encounters an error
+     * @throws Exception if the test encounters an error
      */
     @Test
     public void testGrantCompareAdministrators() throws Exception
@@ -169,7 +165,7 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
     /**
      * Checks to make sure name based userClass works for compare operations.
      *
-     * @throws javax.naming.NamingException if the test encounters an error
+     * @throws Exception if the test encounters an error
      */
     @Test
     public void testGrantCompareByName() throws Exception
@@ -216,7 +212,7 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
     /**
      * Checks to make sure subtree based userClass works for compare operations.
      *
-     * @throws javax.naming.NamingException if the test encounters an error
+     * @throws Exception if the test encounters an error
      */
     @Test
     public void testGrantCompareBySubtree() throws Exception
@@ -242,7 +238,7 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
     /**
      * Checks to make sure <b>allUsers</b> userClass works for compare operations.
      *
-     * @throws javax.naming.NamingException if the test encounters an error
+     * @throws Exception if the test encounters an error
      */
     @Test
     public void testGrantCompareAllUsers() throws Exception
@@ -268,21 +264,20 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
     @Test
     public void testPasswordCompare() throws Exception
     {
-        DirContext adminCtx = getContextAsAdmin();
-        Attributes user = new BasicAttributes( "uid", "bob", true );
-        user.put( "userPassword", "bobspassword" );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        user.put( objectClass );
-        objectClass.add( "top" );
-        objectClass.add( "person" );
-        objectClass.add( "organizationalPerson" );
-        objectClass.add( "inetOrgPerson" );
-        user.put( "sn", "bob" );
-        user.put( "cn", "bob" );
-        adminCtx.createSubcontext( "uid=bob,ou=users", user );
+        LdapConnection adminCtx = getAdminConnection();
 
-        ServerLdapContext ctx = ( ServerLdapContext ) adminCtx.lookup( "" );
-        assertTrue( ctx.compare( new DN( "uid=bob,ou=users,ou=system" ), "userPassword", "bobspassword" ) );
+        DN userDN = new DN( "uid=bob,ou=users,ou=system" );
+        Entry user = new DefaultClientEntry( userDN );
+        user.add( SchemaConstants.UID_AT, "bob" );
+        user.add( SchemaConstants.USER_PASSWORD_AT, "bobspassword" );
+        user.add( SchemaConstants.OBJECT_CLASS_AT, "person", "organizationalPerson", "inetOrgPerson" );
+        user.add( SchemaConstants.SN_AT, "bob" );
+        user.add( SchemaConstants.CN_AT, "bob" );
+
+        adminCtx.add( user );
+
+        CompareResponse resp = adminCtx.compare( userDN, "userPassword", "bobspassword" );
+        assertEquals(  ResultCodeEnum.COMPARE_TRUE, resp.getLdapResult().getResultCode() );
     }
 
 }

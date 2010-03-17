@@ -60,6 +60,14 @@
       <artifactId>commons-io</artifactId>
       <version>${commons.io.version}</version>
     </dependency>
+    
+    <!-- the below dependency creates a circular dependency issue, should be changed to 0.1.0 after the client-api
+         is released and all the tests will eventually be moved to server-integ after removing jndi -->
+    <dependency>
+      <groupId>org.apache.directory.client.ldap</groupId>
+      <artifactId>ldap-client-api</artifactId>
+      <version>0.1-SNAPSHOT</version>
+    </dependency> 
   </dependencies>
 
   <profiles>

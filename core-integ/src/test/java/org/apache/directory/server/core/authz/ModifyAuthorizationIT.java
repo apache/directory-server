@@ -26,27 +26,25 @@ import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccess
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createGroup;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.deleteAccessControlSubentry;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAs;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAsAdmin;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.getAdminConnection;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.getConnectionAs;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.message.ModifyRequest;
+import org.apache.directory.ldap.client.api.message.ModifyResponse;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.client.ClientModification;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,17 +57,17 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 public class ModifyAuthorizationIT extends AbstractLdapTestUnit
 {
 
     @Before
     public void setService()
     {
-       AutzIntegUtils.service = service;
+        AutzIntegUtils.ldapServer = ldapServer;
     }
-    
-    
+
+
     /**
      * Checks if an attribute of a simple entry (an organizationalUnit) with an RDN
      * relative to ou=system can be modified by a specific non-admin user.  If a
@@ -86,44 +84,47 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
      * @param mods the modifications to make to the entry
      * @return true if the modifications can be made by the user at the specified location,
      * false otherwise.
-     * @throws javax.naming.NamingException if there are problems conducting the test
+     * @throws javax.naming.Exception if there are problems conducting the test
      */
-    public boolean checkCanModifyAs( String uid, String password, String entryRdn, ModificationItem[] mods )
+    public boolean checkCanModifyAs( String uid, String password, String entryRdn, Modification[] mods )
         throws Exception
     {
-        // create the entry with the telephoneNumber attribute to modify
-        Attributes testEntry = new BasicAttributes( "ou", "testou", true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        testEntry.put( objectClass );
-        objectClass.add( "top" );
-        objectClass.add( "organizationalUnit" );
-        testEntry.put( "telephoneNumber", "867-5309" ); // jenny don't change your number
+        DN entryDN = new DN( entryRdn + ",ou=system" );
+        boolean result;
+        
+        // create the entry with the telephoneNumber attribute to compare
+        Entry testEntry = new DefaultClientEntry( entryDN );
+        testEntry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
+        testEntry.add( SchemaConstants.OU_AT, "testou" );
+        testEntry.add( "telephoneNumber", "867-5309" ); // jenny don't change your number
 
-        DirContext adminContext = getContextAsAdmin();
+        LdapConnection adminConnection = getAdminConnection();
 
-        //noinspection EmptyCatchBlock
-        try
+        // create the entry as admin
+        adminConnection.add( testEntry );
+
+        DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
+        // compare the telephone numbers
+        LdapConnection userConnection = getConnectionAs( userName, password );
+
+        // modify the entry as the user
+        ModifyRequest modReq = new ModifyRequest( entryDN );
+        modReq.addModification( mods );
+        ModifyResponse resp = userConnection.modify( modReq );
+
+        if ( resp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
         {
-            // create the entry as admin
-            DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
-            adminContext.createSubcontext( entryRdn, testEntry );
-
-            // modify the entry as the user
-            DirContext userContext = getContextAs( userName, password );
-            userContext.modifyAttributes( entryRdn, mods );
-
-            return true;
+            result = true;
         }
-        catch ( LdapNoPermissionException e )
+        else
         {
-        }
-        finally
-        {
-            // let's clean up
-            adminContext.destroySubcontext( entryRdn );
+            result = false;
         }
         
-        return false;
+        // let's clean up
+        adminConnection.delete( entryDN );
+    
+        return result;
     }
 
 
@@ -144,72 +145,46 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
      * @param modOp the modification operation to use for all attributes
      * @return true if the modifications can be made by the user at the specified location,
      * false otherwise.
-     * @throws javax.naming.NamingException if there are problems conducting the test
+     * @throws javax.naming.Exception if there are problems conducting the test
      */
-    public boolean checkCanModifyAs( String uid, String password, String entryRdn, int modOp, Attributes mods )
-        throws Exception
+    public boolean checkCanModifyAs( String uid, String password, String entryRdn, ModificationOperation modOp,
+        EntryAttribute attr ) throws Exception
     {
-        // create the entry with the telephoneNumber attribute to modify
-        Attributes testEntry = new BasicAttributes( "ou", "testou", true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        testEntry.put( objectClass );
-        objectClass.add( "top" );
-        objectClass.add( "organizationalUnit" );
-        testEntry.put( "telephoneNumber", "867-5309" ); // jenny don't change your number
+        DN entryDN = new DN( entryRdn + ",ou=system" );
+        boolean result;
 
-        DirContext adminContext = getContextAsAdmin();
+        // create the entry with the telephoneNumber attribute to compare
+        Entry testEntry = new DefaultClientEntry( entryDN );
+        testEntry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
+        testEntry.add( SchemaConstants.OU_AT, "testou" );
+        testEntry.add( "telephoneNumber", "867-5309" ); // jenny don't change your number
 
-        try
+        LdapConnection adminConnection = getAdminConnection();
+
+        adminConnection.add( testEntry );
+
+        // create the entry as admin
+        DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
+        // modify the entry as the user
+        LdapConnection userConnection = getConnectionAs( userName, password );
+        ModifyRequest modReq = new ModifyRequest( entryDN );
+        modReq.addModification( attr, modOp );
+
+        ModifyResponse resp = userConnection.modify( modReq );
+
+        if ( resp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
         {
-            // create the entry as admin
-            DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
-            adminContext.createSubcontext( entryRdn, testEntry );
-
-            // modify the entry as the user
-            DirContext userContext = getContextAs( userName, password );
-            userContext.modifyAttributes( entryRdn, modOp, mods );
-
-            return true;
+            result = true;
         }
-        catch ( LdapNoPermissionException e )
+        else
         {
-            return false;
+            result = false;
         }
-        finally
-        {
-            // let's clean up
-            adminContext.destroySubcontext( entryRdn );
-        }
-    }
 
+        // let's clean up
+        adminConnection.delete( entryDN );
 
-    /**
-     * Checks if a user can modify an attribute of their own entry.  Users are
-     * presumed to reside under ou=users,ou=system.  If a permission exception is
-     * encountered it is caught and false is returned, otherwise true is returned.
-     *
-     * @param uid the unique identifier for the user (presumed to exist under ou=users,ou=system)
-     * @param password the password of this user
-     * @param mods the attributes to modify in the entry
-     * @param modOp the modification operation to use for all attributes
-     * @return true if the modifications can be made by the user his/her own entry,
-     * false otherwise.
-     * @throws javax.naming.NamingException if there are problems conducting the test
-     */
-    public boolean checkCanSelfModify( String uid, String password, int modOp, Attributes mods ) throws Exception
-    {
-        try
-        {
-            // modify the entry as the user
-            Name userEntry = new DN( "uid=" + uid + ",ou=users,ou=system" );
-            DirContext userContext = getContextAs( userEntry, password, userEntry.toString() );
-            userContext.modifyAttributes( "", modOp, mods );
-            return true;
-        }
-        catch ( LdapNoPermissionException e )
-        {
-            return false;
-        }
+        return result;
     }
 
 
@@ -223,22 +198,20 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
      * @param mods the attributes to modify in the entry
      * @return true if the modifications can be made by the user his/her own entry,
      * false otherwise.
-     * @throws javax.naming.NamingException if there are problems conducting the test
+     * @throws javax.naming.Exception if there are problems conducting the test
      */
-    public boolean checkCanSelfModify( String uid, String password, ModificationItem[] mods ) throws Exception
+    public boolean checkCanSelfModify( String uid, String password, Modification[] mods ) throws Exception
     {
-        try
-        {
-            // modify the entry as the user
-            Name userEntry = new DN( "uid=" + uid + ",ou=users,ou=system" );
-            DirContext userContext = getContextAs( userEntry, password, userEntry.toString() );
-            userContext.modifyAttributes( "", mods );
-            return true;
-        }
-        catch ( LdapNoPermissionException e )
-        {
-            return false;
-        }
+        // modify the entry as the user
+        DN userDN = new DN( "uid=" + uid + ",ou=users,ou=system" );
+        LdapConnection connection = getConnectionAs( userDN, password );
+
+        ModifyRequest modReq = new ModifyRequest( userDN );
+        modReq.addModification( mods );
+
+        ModifyResponse resp = connection.modify( modReq );
+
+        return resp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS;
     }
 
 
@@ -248,19 +221,19 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
      * @param modOp the modification operation to perform
      * @param changes the modifications to the attribute
      * @return the array of modification items represting the changes
-     * @throws NamingException if there are problems accessing attributes
+     * @throws Exception if there are problems accessing attributes
      */
-    private ModificationItem[] toItems( int modOp, Attributes changes ) throws NamingException
+    private Modification[] toItems( ModificationOperation modOp, EntryAttribute... attrs ) throws Exception
     {
-        List<ModificationItem> mods = new ArrayList<ModificationItem>();
-        NamingEnumeration<? extends Attribute> list = changes.getAll();
-        while ( list.hasMore() )
+        Modification[] mods = new Modification[attrs.length];
+
+        for ( int i = 0; i < attrs.length; i++ )
         {
-            Attribute attr = list.next();
-            mods.add( new ModificationItem( modOp, attr ) );
+            EntryAttribute ea = attrs[i];
+            mods[i] = new ClientModification( modOp, ea );
         }
-        ModificationItem[] modArray = new ModificationItem[mods.size()];
-        return mods.toArray( modArray );
+
+        return mods;
     }
 
 
@@ -275,8 +248,8 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         createUser( "billyd", "billyd" );
 
         // create the password modification
-        ModificationItem[] mods = toItems( DirContext.REPLACE_ATTRIBUTE, new BasicAttributes( "userPassword",
-            "williams", true ) );
+        Modification[] mods = toItems( ModificationOperation.REPLACE_ATTRIBUTE, new DefaultClientAttribute(
+            "userPassword", "williams" ) );
 
         // try a modify operation which should fail without any ACI
         assertFalse( checkCanSelfModify( "billyd", "billyd", mods ) );
@@ -299,7 +272,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
     /**
      * Checks to make sure group membership based userClass works for modify operations.
      *
-     * @throws javax.naming.NamingException if the test encounters an error
+     * @throws javax.naming.Exception if the test encounters an error
      */
     @Test
     public void testGrantModifyByTestGroup() throws Exception
@@ -309,12 +282,12 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         // ----------------------------------------------------------------------------------
 
         // create the add modifications
-        ModificationItem[] mods = toItems( DirContext.ADD_ATTRIBUTE, new BasicAttributes( "registeredAddress",
-            "100 Park Ave.", true ) );
+        EntryAttribute attr = new DefaultClientAttribute( "registeredAddress", "100 Park Ave." );
+        Modification[] mods = toItems( ModificationOperation.ADD_ATTRIBUTE, attr );
 
         // create the non-admin user
         createUser( "billyd", "billyd" );
-        
+
         createGroup( "TestGroup" );
 
         // try a modify operation which should fail without any ACI
@@ -322,11 +295,18 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
 
         // Gives grantModify, and grantRead perm to all users in the TestGroup group for
         // entries and all attribute types and values
-        createAccessControlSubentry( "administratorModifyAdd", "{ " + "identificationTag \"addAci\", "
-            + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
-            + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "userPermissions { "
-            + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
-            + "{ protectedItems {attributeType {registeredAddress}, allAttributeValues {registeredAddress}}, grantsAndDenials { grantAdd } } " + "} } }" );
+        createAccessControlSubentry(
+            "administratorModifyAdd",
+            "{ "
+                + "identificationTag \"addAci\", "
+                + "precedence 14, "
+                + "authenticationLevel none, "
+                + "itemOrUserFirst userFirst: { "
+                + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, "
+                + "userPermissions { "
+                + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
+                + "{ protectedItems {attributeType {registeredAddress}, allAttributeValues {registeredAddress}}, grantsAndDenials { grantAdd } } "
+                + "} } }" );
 
         // see if we can now add that test entry which we could not before
         // add op should still fail since billd is not in the admin group
@@ -344,18 +324,26 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         // ----------------------------------------------------------------------------------
 
         // now let's test to see if we can perform a modify with a delete op
-        mods = toItems( DirContext.REMOVE_ATTRIBUTE, new BasicAttributes( "telephoneNumber", "867-5309", true ) );
+        mods = toItems( ModificationOperation.REMOVE_ATTRIBUTE, new DefaultClientAttribute( "telephoneNumber",
+            "867-5309" ) );
 
         // make sure we cannot remove the telephone number from the test entry
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
 
         // Gives grantModify, and grantRead perm to all users in the TestGroup group for
         // entries and all attribute types and values
-        createAccessControlSubentry( "administratorModifyRemove", "{ " + "identificationTag \"addAci\", "
-            + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
-            + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "userPermissions { "
-            + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
-            + "{ protectedItems {attributeType {telephoneNumber}, allAttributeValues {telephoneNumber}}, grantsAndDenials { grantRemove } } " + "} } }" );
+        createAccessControlSubentry(
+            "administratorModifyRemove",
+            "{ "
+                + "identificationTag \"addAci\", "
+                + "precedence 14, "
+                + "authenticationLevel none, "
+                + "itemOrUserFirst userFirst: { "
+                + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, "
+                + "userPermissions { "
+                + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
+                + "{ protectedItems {attributeType {telephoneNumber}, allAttributeValues {telephoneNumber}}, grantsAndDenials { grantRemove } } "
+                + "} } }" );
 
         // try a modify operation which should succeed with ACI and group membership change
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
@@ -366,19 +354,26 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         // ----------------------------------------------------------------------------------
 
         // now let's test to see if we can perform a modify with a delete op
-        mods = toItems( DirContext.REPLACE_ATTRIBUTE, new BasicAttributes( "telephoneNumber", "867-5309", true ) );
+        mods = toItems( ModificationOperation.REPLACE_ATTRIBUTE, new DefaultClientAttribute( "telephoneNumber",
+            "867-5309" ) );
 
         // make sure we cannot remove the telephone number from the test entry
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
 
         // Gives grantModify, and grantRead perm to all users in the TestGroup group for
         // entries and all attribute types and values
-        createAccessControlSubentry( "administratorModifyReplace", "{ " + "identificationTag \"addAci\", "
-            + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
-            + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "userPermissions { "
-            + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
-            + "{ protectedItems {attributeType {registeredAddress}, allAttributeValues {telephoneNumber}}, grantsAndDenials { grantAdd, grantRemove } } "
-            + "} } }" );
+        createAccessControlSubentry(
+            "administratorModifyReplace",
+            "{ "
+                + "identificationTag \"addAci\", "
+                + "precedence 14, "
+                + "authenticationLevel none, "
+                + "itemOrUserFirst userFirst: { "
+                + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, "
+                + "userPermissions { "
+                + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
+                + "{ protectedItems {attributeType {registeredAddress}, allAttributeValues {telephoneNumber}}, grantsAndDenials { grantAdd, grantRemove } } "
+                + "} } }" );
 
         // try a modify operation which should succeed with ACI and group membership change
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
@@ -392,21 +387,28 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         // Modify with Attribute Addition
         // ----------------------------------------------------------------------------------
         // create the add modifications
-        Attributes changes = new BasicAttributes( "registeredAddress", "100 Park Ave.", true );
+        EntryAttribute changes = new DefaultClientAttribute( "registeredAddress", "100 Park Ave." );
 
         // try a modify operation which should fail without any ACI
-        assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", DirContext.ADD_ATTRIBUTE, changes ) );
+        assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", ModificationOperation.ADD_ATTRIBUTE, changes ) );
 
         // Gives grantModify, and grantRead perm to all users in the TestGroup group for
         // entries and all attribute types and values
-        createAccessControlSubentry( "administratorModifyAdd", "{ " + "identificationTag \"addAci\", "
-            + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
-            + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "userPermissions { "
-            + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
-            + "{ protectedItems {attributeType {registeredAddress}, allAttributeValues {registeredAddress}}, grantsAndDenials { grantAdd } } " + "} } }" );
+        createAccessControlSubentry(
+            "administratorModifyAdd",
+            "{ "
+                + "identificationTag \"addAci\", "
+                + "precedence 14, "
+                + "authenticationLevel none, "
+                + "itemOrUserFirst userFirst: { "
+                + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, "
+                + "userPermissions { "
+                + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
+                + "{ protectedItems {attributeType {registeredAddress}, allAttributeValues {registeredAddress}}, grantsAndDenials { grantAdd } } "
+                + "} } }" );
 
         // try a modify operation which should succeed with ACI and group membership change
-        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", DirContext.ADD_ATTRIBUTE, changes ) );
+        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", ModificationOperation.ADD_ATTRIBUTE, changes ) );
         deleteAccessControlSubentry( "administratorModifyAdd" );
 
         // ----------------------------------------------------------------------------------
@@ -414,21 +416,28 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         // ----------------------------------------------------------------------------------
 
         // now let's test to see if we can perform a modify with a delete op
-        changes = new BasicAttributes( "telephoneNumber", "867-5309", true );
+        changes = new DefaultClientAttribute( "telephoneNumber", "867-5309" );
 
         // make sure we cannot remove the telephone number from the test entry
-        assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", DirContext.REMOVE_ATTRIBUTE, changes ) );
+        assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", ModificationOperation.REMOVE_ATTRIBUTE, changes ) );
 
         // Gives grantModify, and grantRead perm to all users in the TestGroup group for
         // entries and all attribute types and values
-        createAccessControlSubentry( "administratorModifyRemove", "{ " + "identificationTag \"addAci\", "
-            + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
-            + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "userPermissions { "
-            + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
-            + "{ protectedItems {attributeType {telephoneNumber}, allAttributeValues {telephoneNumber}}, grantsAndDenials { grantRemove } } " + "} } }" );
+        createAccessControlSubentry(
+            "administratorModifyRemove",
+            "{ "
+                + "identificationTag \"addAci\", "
+                + "precedence 14, "
+                + "authenticationLevel none, "
+                + "itemOrUserFirst userFirst: { "
+                + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, "
+                + "userPermissions { "
+                + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
+                + "{ protectedItems {attributeType {telephoneNumber}, allAttributeValues {telephoneNumber}}, grantsAndDenials { grantRemove } } "
+                + "} } }" );
 
         // try a modify operation which should succeed with ACI and group membership change
-        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", DirContext.REMOVE_ATTRIBUTE, changes ) );
+        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", ModificationOperation.REMOVE_ATTRIBUTE, changes ) );
         deleteAccessControlSubentry( "administratorModifyRemove" );
 
         // ----------------------------------------------------------------------------------
@@ -436,22 +445,28 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         // ----------------------------------------------------------------------------------
 
         // now let's test to see if we can perform a modify with a delete op
-        changes = new BasicAttributes( "telephoneNumber", "867-5309", true );
+        changes = new DefaultClientAttribute( "telephoneNumber", "867-5309" );
 
         // make sure we cannot remove the telephone number from the test entry
-        assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", DirContext.REPLACE_ATTRIBUTE, changes ) );
+        assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", ModificationOperation.REPLACE_ATTRIBUTE, changes ) );
 
         // Gives grantModify, and grantRead perm to all users in the TestGroup group for
         // entries and all attribute types and values
-        createAccessControlSubentry( "administratorModifyReplace", "{ " + "identificationTag \"addAci\", "
-            + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
-            + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "userPermissions { "
-            + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
-            + "{ protectedItems {attributeType {registeredAddress}, allAttributeValues {telephoneNumber}}, grantsAndDenials { grantAdd, grantRemove } } "
-            + "} } }" );
+        createAccessControlSubentry(
+            "administratorModifyReplace",
+            "{ "
+                + "identificationTag \"addAci\", "
+                + "precedence 14, "
+                + "authenticationLevel none, "
+                + "itemOrUserFirst userFirst: { "
+                + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, "
+                + "userPermissions { "
+                + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
+                + "{ protectedItems {attributeType {registeredAddress}, allAttributeValues {telephoneNumber}}, grantsAndDenials { grantAdd, grantRemove } } "
+                + "} } }" );
 
         // try a modify operation which should succeed with ACI and group membership change
-        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", DirContext.REPLACE_ATTRIBUTE, changes ) );
+        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", ModificationOperation.REPLACE_ATTRIBUTE, changes ) );
         deleteAccessControlSubentry( "administratorModifyReplace" );
     }
 
@@ -459,9 +474,9 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
     //    /**
     //     * Checks to make sure name based userClass works for modify operations.
     //     *
-    //     * @throws javax.naming.NamingException if the test encounters an error
+    //     * @throws javax.naming.Exception if the test encounters an error
     //     */
-    //    public void testGrantModifyByName() throws NamingException
+    //    public void testGrantModifyByName() throws Exception
     //    {
     //        // create the non-admin user
     //        createUser( "billyd", "billyd" );
@@ -488,9 +503,9 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
     //    /**
     //     * Checks to make sure subtree based userClass works for modify operations.
     //     *
-    //     * @throws javax.naming.NamingException if the test encounters an error
+    //     * @throws javax.naming.Exception if the test encounters an error
     //     */
-    //    public void testGrantModifyBySubtree() throws NamingException
+    //    public void testGrantModifyBySubtree() throws Exception
     //    {
     //        // create the non-admin user
     //        createUser( "billyd", "billyd" );
@@ -517,9 +532,9 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
     //    /**
     //     * Checks to make sure <b>allUsers</b> userClass works for modify operations.
     //     *
-    //     * @throws javax.naming.NamingException if the test encounters an error
+    //     * @throws javax.naming.Exception if the test encounters an error
     //     */
-    //    public void testGrantModifyAllUsers() throws NamingException
+    //    public void testGrantModifyAllUsers() throws Exception
     //    {
     //        // create the non-admin user
     //        createUser( "billyd", "billyd" );
@@ -542,95 +557,71 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
     //        // should work with billyd now that all users are authorized
     //        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
     //    }
-    
-    
+
     @Test
     public void testPresciptiveACIModification() throws Exception
     {
-        
-        ModificationItem[] mods = toItems( DirContext.ADD_ATTRIBUTE,
-            new BasicAttributes( "registeredAddress", "100 Park Ave.", true ) );
+
+        Modification[] mods = toItems( ModificationOperation.ADD_ATTRIBUTE, new DefaultClientAttribute(
+            "registeredAddress", "100 Park Ave." ) );
 
         createUser( "billyd", "billyd" );
 
-        createAccessControlSubentry( "modifyACI", "{ " + "identificationTag \"modifyAci\", "
-            + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
-            + "userClasses { allUsers }, " + "userPermissions { "
-            + "{ protectedItems {entry, allUserAttributeTypesAndValues}, grantsAndDenials { grantModify, grantBrowse, grantAdd, grantRemove } } } } }" );
+        createAccessControlSubentry(
+            "modifyACI",
+            "{ "
+                + "identificationTag \"modifyAci\", "
+                + "precedence 14, "
+                + "authenticationLevel none, "
+                + "itemOrUserFirst userFirst: { "
+                + "userClasses { allUsers }, "
+                + "userPermissions { "
+                + "{ protectedItems {entry, allUserAttributeTypesAndValues}, grantsAndDenials { grantModify, grantBrowse, grantAdd, grantRemove } } } } }" );
 
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
-        
-        mods = toItems( DirContext.REPLACE_ATTRIBUTE,
-            new BasicAttributes( "registeredAddress", "200 Park Ave.", true ) );
-        
-        changePresciptiveACI( "modifyACI", "{ " + "identificationTag \"modifyAci\", "
-            + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
-            + "userClasses { allUsers }, " + "userPermissions { "
+
+        mods = toItems( ModificationOperation.REPLACE_ATTRIBUTE, new DefaultClientAttribute( "registeredAddress",
+            "200 Park Ave." ) );
+
+        changePresciptiveACI( "modifyACI", "{ " + "identificationTag \"modifyAci\", " + "precedence 14, "
+            + "authenticationLevel none, " + "itemOrUserFirst userFirst: { " + "userClasses { allUsers }, "
+            + "userPermissions { "
             + "{ protectedItems {entry, allUserAttributeTypesAndValues}, grantsAndDenials { denyModify } } } } }" );
 
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
-        
+
         deleteAccessControlSubentry( "modifyACI" );
-        
+
     }
-    
+
 
     @Test
     public void testMaxValueCountProtectedItem() throws Exception
     {
         createUser( "billyd", "billyd" );
-        createAccessControlSubentry( "mvcACI",
-            " {" +
-                " identificationTag \"mvcACI\"," +
-                " precedence 10," +
-                " authenticationLevel simple," +
-                " itemOrUserFirst userFirst:" + 
-                " {" +
-                    " userClasses { allUsers }," +
-                    " userPermissions" + 
-                    " {" +
-                        " {" +
-                            " protectedItems { entry }," +
-                            " grantsAndDenials { grantModify, grantBrowse }" +
-                        " }" +
-                        " ," +
-                        " {" +
-                            " protectedItems" + 
-                            " {" +
-                                " attributeType { description }," +
-                                " allAttributeValues { description }," +
-                                " maxValueCount" + 
-                                " {" +
-                                    " { type description, maxCount 1 }" + 
-                                " }" +
-                            " }" +
-                            " ," +
-                            " grantsAndDenials" + 
-                            " {" +
-                                " grantRemove," +
-                                " grantAdd" +
-                            " }" +
-                        " }" +
-                     " }" +
-                " }" +
-            " }" );
-        
-        ModificationItem[] mods = toItems( DirContext.ADD_ATTRIBUTE,
-            new BasicAttributes( "description", "description 1", true ) );
-        
+        createAccessControlSubentry( "mvcACI", " {" + " identificationTag \"mvcACI\"," + " precedence 10,"
+            + " authenticationLevel simple," + " itemOrUserFirst userFirst:" + " {" + " userClasses { allUsers },"
+            + " userPermissions" + " {" + " {" + " protectedItems { entry },"
+            + " grantsAndDenials { grantModify, grantBrowse }" + " }" + " ," + " {" + " protectedItems" + " {"
+            + " attributeType { description }," + " allAttributeValues { description }," + " maxValueCount" + " {"
+            + " { type description, maxCount 1 }" + " }" + " }" + " ," + " grantsAndDenials" + " {" + " grantRemove,"
+            + " grantAdd" + " }" + " }" + " }" + " }" + " }" );
+
+        Modification[] mods = toItems( ModificationOperation.ADD_ATTRIBUTE, new DefaultClientAttribute( "description",
+            "description 1" ) );
+
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
-        
-        Attributes attrs = new BasicAttributes( true );
-        Attribute attr = new BasicAttribute( "description" );
+
+        EntryAttribute attr = new DefaultClientAttribute( "description" );
         attr.add( "description 1" );
         attr.add( "description 2" );
-        attrs.put( attr );
-        mods = toItems( DirContext.ADD_ATTRIBUTE, attrs );
-        
+
+        mods = toItems( ModificationOperation.ADD_ATTRIBUTE, attr );
+
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
-        
-        mods = toItems( DirContext.REPLACE_ATTRIBUTE, attrs );
-        
+
+        mods = toItems( ModificationOperation.REPLACE_ATTRIBUTE, attr );
+
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
     }
 }

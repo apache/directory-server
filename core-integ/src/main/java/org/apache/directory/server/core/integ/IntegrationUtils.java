@@ -21,17 +21,19 @@ package org.apache.directory.server.core.integ;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
+import javax.naming.ldap.LdapName;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
@@ -39,10 +41,12 @@ import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
@@ -64,6 +68,7 @@ public class IntegrationUtils
     /** The class logger */
     private static final Logger LOG = LoggerFactory.getLogger( IntegrationUtils.class );
 
+    private static final List<LdapConnection> openConnections = new ArrayList<LdapConnection>();
 
     /**
      * Deletes the working directory.
@@ -129,7 +134,7 @@ public class IntegrationUtils
     }
 
 
-    public static LdifEntry getUserAddLdif() throws InvalidNameException, NamingException
+    public static LdifEntry getUserAddLdif() throws LdapException
     {
         return getUserAddLdif( "uid=akarasulu,ou=users,ou=system", "test".getBytes(), "Alex Karasulu", "Karasulu" );
     }
@@ -153,7 +158,7 @@ public class IntegrationUtils
         }
 
         CoreSession session = service.getSession( principal );
-        LdapContext ctx = new ServerLdapContext( service, session, new DN( dn ) );
+        LdapContext ctx = new ServerLdapContext( service, session, new LdapName( dn ) );
         return ctx;
     }
 
@@ -259,7 +264,7 @@ public class IntegrationUtils
 
 
     public static LdifEntry getUserAddLdif( String dnstr, byte[] password, String cn, String sn )
-            throws InvalidNameException, NamingException
+            throws LdapException
     {
         DN dn = new DN( dnstr );
         LdifEntry ldif = new LdifEntry();
@@ -350,5 +355,63 @@ public class IntegrationUtils
         Schema schema = service.getSchemaManager().getLoadedSchema( schemaName );
         
         return ( schema != null ) && schema.isEnabled();
+    }
+    
+    
+    /**
+     * gets a LdapConnection bound using the default admin DN uid=admin,ou=system and password "secret"
+     */
+    public static LdapConnection getAdminConnection( LdapServer ldapServer ) throws Exception
+    {
+        return getConnectionAs( ldapServer, ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
+    }
+
+
+    public static LdapConnection getConnectionAs( LdapServer ldapServer, String dn, String password ) throws Exception
+    {
+        return getConnectionAs( "localhost", ldapServer.getPort(), dn, password );
+    }
+
+
+    public static LdapConnection getConnectionAs( LdapServer ldapServer, DN dn, String password ) throws Exception
+    {
+        return getConnectionAs( "localhost", ldapServer.getPort(), dn.getName(), password );
+    }
+
+
+    public static LdapConnection getConnectionAs( String host, int port, String dn, String password ) throws Exception
+    {
+        LdapConnection connection = new LdapConnection( host, port );
+        connection.bind( dn, password );
+        openConnections.add( connection );
+        return connection;
+    }
+    
+    
+    public static void closeConections()
+    {
+        
+        for( LdapConnection con : openConnections )
+        {
+            if( con == null )
+            {
+                continue;
+            }
+            
+            try
+            {
+                if( con.isConnected() )
+                {
+                    con.close();
+                }
+            }
+            catch( Exception e )
+            {
+                // shouldn't happen, but print the stacktrace so that less pain during development to find the cause
+                e.printStackTrace();
+            }
+        }
+        
+        openConnections.clear();
     }
 }

@@ -20,28 +20,33 @@
 package org.apache.directory.server.core.authz;
 
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.getAdminConnection;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.getConnectionAs;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.HashSet;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
-
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.message.DeleteResponse;
+import org.apache.directory.ldap.client.api.message.ModifyDnResponse;
+import org.apache.directory.ldap.client.api.message.ModifyRequest;
+import org.apache.directory.ldap.client.api.message.SearchResponse;
+import org.apache.directory.ldap.client.api.message.SearchResultEntry;
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -53,97 +58,98 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
 {
+
+    @Before
+    public void setService()
+    {
+        AutzIntegUtils.ldapServer = ldapServer;
+    }
+
 
     /**
      * Makes sure the admin cannot delete the admin account.
      *
-     * @throws NamingException if there are problems
+     * @throws Exception if there are problems
      */
     @Test
     public void testNoDeleteOnAdminByAdmin() throws Exception
     {
-        try
-        {
-            getSystemContext( service ).destroySubcontext( "uid=admin" );
-            fail( "admin should not be able to delete his account" );
-        }
-        catch ( LdapNoPermissionException e )
-        {
-            assertNotNull( e );
-        }
+        DeleteResponse delResp = getAdminConnection().delete( "uid=admin,ou=system" );
+        assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, delResp.getLdapResult().getResultCode() );
     }
 
 
     /**
      * Makes sure the admin cannot rename the admin account.
      *
-     * @throws NamingException if there are problems
+     * @throws Exception if there are problems
      */
     @Test
     public void testNoRdnChangesOnAdminByAdmin() throws Exception
     {
-        try
-        {
-            getSystemContext( service ).rename( "uid=admin", "uid=alex" );
-            fail( "admin should not be able to rename his account" );
-        }
-        catch ( LdapNoPermissionException e )
-        {
-            assertNotNull( e );
-        }
+        ModifyDnResponse resp = getAdminConnection().rename( new DN( "uid=admin,ou=system" ), new RDN( "uid=alex" ) );
+        assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, resp.getLdapResult().getResultCode() );
     }
 
 
     /**
-     * Makes sure the admin cannot rename the admin account.
+     * Makes sure the admin can update the admin account password.
      *
-     * @throws NamingException if there are problems
+     * @throws Exception if there are problems
      */
     @Test
     public void testModifyOnAdminByAdmin() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        Attributes attributes = new BasicAttributes( true );
-        attributes.put( "userPassword", "replaced" );
-        sysRoot.modifyAttributes( "uid=admin", DirContext.REPLACE_ATTRIBUTE, attributes );
-        Attributes newAttrs = sysRoot.getAttributes( "uid=admin" );
-        assertTrue( ArrayUtils.isEquals( StringTools.getBytesUtf8( "replaced" ), newAttrs.get( "userPassword" ).get() ) );
+        LdapConnection connection = getAdminConnection();
+        DN adminDN = new DN( "uid=admin,ou=system" );
+        ModifyRequest req = new ModifyRequest( adminDN );
+        String newPwd = "replaced";
+        req.replace( SchemaConstants.USER_PASSWORD_AT, newPwd );
+        connection.modify( req );
+        connection.close();
+
+        connection = getConnectionAs( adminDN, newPwd );
+        Entry entry = ( ( SearchResultEntry ) connection.lookup( adminDN.getName() ) ).getEntry();
+        assertTrue( ArrayUtils.isEquals( StringTools.getBytesUtf8( newPwd ), entry.get( "userPassword" ).get()
+            .getBytes() ) );
     }
 
 
     /**
      * Makes sure the admin can see all entries we know of on a subtree search.
      *
-     * @throws NamingException if there are problems
+     * @throws Exception if there are problems
      */
     @Test
     public void testSearchSubtreeByAdmin() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        HashSet<String> set = new HashSet<String>();
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(objectClass=*)", controls );
+        LdapConnection connection = getAdminConnection();
 
-        while ( list.hasMore() )
+        HashSet<String> set = new HashSet<String>();
+
+        Cursor<SearchResponse> cursor = connection.search( "ou=system", "(objectClass=*)", SearchScope.SUBTREE, "*" );
+
+        while ( cursor.next() )
         {
-            SearchResult result = list.next();
-            set.add( result.getName() );
+            Entry result = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            set.add( result.getDn().getName() );
         }
+
+        cursor.close();
 
         assertEquals( 10, set.size() );
         assertTrue( set.contains( "ou=system" ) );
-          assertTrue( set.contains( "ou=configuration,ou=system" ) );
-            assertTrue( set.contains( "ou=interceptors,ou=configuration,ou=system" ) );
-            assertTrue( set.contains( "ou=partitions,ou=configuration,ou=system" ) );
-            assertTrue( set.contains( "ou=services,ou=configuration,ou=system" ) );
-          assertTrue( set.contains( "ou=groups,ou=system" ) );
-            assertTrue( set.contains( "cn=Administrators,ou=groups,ou=system" ) );
-          assertTrue( set.contains( "ou=users,ou=system" ) );
-          assertTrue( set.contains( "prefNodeName=sysPrefRoot,ou=system" ) );
-          assertTrue( set.contains( "uid=admin,ou=system" ) );
+        assertTrue( set.contains( "ou=configuration,ou=system" ) );
+        assertTrue( set.contains( "ou=interceptors,ou=configuration,ou=system" ) );
+        assertTrue( set.contains( "ou=partitions,ou=configuration,ou=system" ) );
+        assertTrue( set.contains( "ou=services,ou=configuration,ou=system" ) );
+        assertTrue( set.contains( "ou=groups,ou=system" ) );
+        assertTrue( set.contains( "cn=Administrators,ou=groups,ou=system" ) );
+        assertTrue( set.contains( "ou=users,ou=system" ) );
+        assertTrue( set.contains( "prefNodeName=sysPrefRoot,ou=system" ) );
+        assertTrue( set.contains( "uid=admin,ou=system" ) );
     }
 }

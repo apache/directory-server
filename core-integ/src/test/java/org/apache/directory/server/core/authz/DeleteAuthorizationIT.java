@@ -22,20 +22,19 @@ package org.apache.directory.server.core.authz;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.addUserToGroup;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAs;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAsAdmin;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.getAdminConnection;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.getConnectionAs;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.message.DeleteResponse;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,7 +54,7 @@ public class DeleteAuthorizationIT extends AbstractLdapTestUnit
     @Before
     public void setService()
     {
-       AutzIntegUtils.service = service;
+        AutzIntegUtils.ldapServer = ldapServer;
     }
     
     
@@ -76,32 +75,35 @@ public class DeleteAuthorizationIT extends AbstractLdapTestUnit
      * @param password the password of this user
      * @param entryRdn the relative DN, relative to ou=system where entry creation then deletion is tested
      * @return true if the entry can be created by the user at the specified location, false otherwise
-     * @throws javax.naming.NamingException if there are problems conducting the test
+     * @throws Exception if there are problems conducting the test
      */
     public boolean checkCanDeleteEntryAs( String uid, String password, String entryRdn ) throws Exception
     {
-        Attributes testEntry = new BasicAttributes( "ou", "testou", true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        testEntry.put( objectClass );
-        objectClass.add( "top" );
-        objectClass.add( "organizationalUnit" );
+        DN entryDN = new DN( entryRdn + ",ou=system" );
+        
+        // create the entry with the telephoneNumber attribute to compare
+        Entry testEntry = new DefaultClientEntry( entryDN );
+        testEntry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
+        testEntry.add( SchemaConstants.OU_AT, "testou" );
 
-        DirContext adminContext = getContextAsAdmin();
-        try
+        LdapConnection adminConnection = getAdminConnection();
+
+        // create the entry as admin
+        adminConnection.add( testEntry );
+        
+        DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
+        
+        // delete the newly created context as the user
+        LdapConnection userConnection = getConnectionAs( userName, password );
+        DeleteResponse resp = userConnection.delete( entryDN );
+
+        if( resp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
         {
-            // create the entry as the admin
-            DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
-            adminContext.createSubcontext( entryRdn, testEntry );
-
-            // delete the newly created context as the user
-            DirContext userContext = getContextAs( userName, password );
-            userContext.destroySubcontext( entryRdn );
-
             return true;
         }
-        catch ( LdapNoPermissionException e )
+        else
         {
-            adminContext.destroySubcontext( entryRdn );
+            adminConnection.delete( entryDN );
             return false;
         }
     }
@@ -110,7 +112,7 @@ public class DeleteAuthorizationIT extends AbstractLdapTestUnit
     /**
      * Checks to make sure group membership based userClass works for delete operations.
      *
-     * @throws javax.naming.NamingException if the test encounters an error
+     * @throws Exception if the test encounters an error
      */
     @Test
     public void testGrantDeleteAdministrators() throws Exception
@@ -143,7 +145,7 @@ public class DeleteAuthorizationIT extends AbstractLdapTestUnit
     /**
      * Checks to make sure name based userClass works for delete operations.
      *
-     * @throws javax.naming.NamingException if the test encounters an error
+     * @throws Exception if the test encounters an error
      */
     @Test
     public void testGrantDeleteByName() throws Exception
@@ -168,7 +170,7 @@ public class DeleteAuthorizationIT extends AbstractLdapTestUnit
     /**
      * Checks to make sure subtree based userClass works for delete operations.
      *
-     * @throws javax.naming.NamingException if the test encounters an error
+     * @throws Exception if the test encounters an error
      */
     @Test
     public void testGrantDeleteBySubtree() throws Exception
@@ -193,7 +195,7 @@ public class DeleteAuthorizationIT extends AbstractLdapTestUnit
     /**
      * Checks to make sure <b>allUsers</b> userClass works for delete operations.
      *
-     * @throws javax.naming.NamingException if the test encounters an error
+     * @throws Exception if the test encounters an error
      */
     @Test
     public void testGrantDeleteAllUsers() throws Exception

@@ -25,19 +25,24 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemC
 import java.util.Hashtable;
 
 import javax.naming.Name;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.message.AddResponse;
+import org.apache.directory.ldap.client.api.message.ModifyRequest;
+import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 
 
@@ -52,15 +57,45 @@ public class AutzIntegUtils
 {
     public static DirectoryService service;
 
+    public static LdapServer ldapServer;
+
+
     // -----------------------------------------------------------------------
     // Utility methods used by subclasses
     // -----------------------------------------------------------------------
 
     /**
+     * gets a LdapConnection bound using the default admin DN uid=admin,ou=system and password "secret"
+     */
+    public static LdapConnection getAdminConnection() throws Exception
+    {
+        return IntegrationUtils.getAdminConnection( ldapServer );
+    }
+
+
+    public static LdapConnection getConnectionAs( String dn, String password ) throws Exception
+    {
+        return IntegrationUtils.getConnectionAs( ldapServer, dn, password );
+    }
+
+
+    public static LdapConnection getConnectionAs( DN dn, String password ) throws Exception
+    {
+        return IntegrationUtils.getConnectionAs( ldapServer, dn.getName(), password );
+    }
+
+
+    public static LdapConnection getConnectionAs( String host, int port, String dn, String password ) throws Exception
+    {
+        return IntegrationUtils.getConnectionAs( host, port, dn, password );
+    }
+
+
+    /**
      * Gets a context at ou=system as the admin user.
      *
      * @return the admin context at ou=system
-     * @throws NamingException if there are problems creating the context
+     * @throws Exception if there are problems creating the context
      */
     public static DirContext getContextAsAdmin() throws Exception
     {
@@ -75,7 +110,7 @@ public class AutzIntegUtils
      *
      * @param dn the DN of the context to get
      * @return the context for the DN as the admin user
-     * @throws NamingException if is a problem initializing or getting the context
+     * @throws Exception if is a problem initializing or getting the context
      */
     @SuppressWarnings("unchecked")
     public static DirContext getContextAsAdmin( String dn ) throws Exception
@@ -99,20 +134,19 @@ public class AutzIntegUtils
      * @param cn the common name of the group used as the RDN attribute
      * @param firstMemberDn the DN of the first member of this group
      * @return the distinguished name of the group entry
-     * @throws NamingException if there are problems creating the new group like
+     * @throws Exception if there are problems creating the new group like
      * it exists already
      */
-    public static Name createGroup( String cn, String firstMemberDn ) throws Exception
+    public static DN createGroup( String cn, String firstMemberDn ) throws Exception
     {
-        DirContext adminCtx = getContextAsAdmin();
-        Attributes group = new BasicAttributes( "cn", cn, true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        group.put( objectClass );
-        objectClass.add( "top" );
-        objectClass.add( "groupOfUniqueNames" );
-        group.put( "uniqueMember", firstMemberDn );
-        adminCtx.createSubcontext( "cn=" + cn + ",ou=groups", group );
-        return new DN( "cn=" + cn + ",ou=groups,ou=system" );
+        DN groupDN = new DN( "cn=" + cn + ",ou=groups,ou=system" );
+        Entry entry = new DefaultClientEntry( groupDN );
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, "groupOfUniqueNames" );
+        entry.add( SchemaConstants.UNIQUE_MEMBER_AT, firstMemberDn );
+        entry.add( SchemaConstants.CN_AT, cn );
+
+        getAdminConnection().add( entry );
+        return groupDN;
     }
 
 
@@ -120,13 +154,12 @@ public class AutzIntegUtils
      * Deletes a user with a specific UID under ou=users,ou=system.
      *
      * @param uid the RDN value for the user to delete
-     * @throws NamingException if there are problems removing the user
+     * @throws Exception if there are problems removing the user
      * i.e. user does not exist
      */
     public static void deleteUser( String uid ) throws Exception
     {
-        DirContext adminCtx = getContextAsAdmin();
-        adminCtx.destroySubcontext( "uid=" + uid + ",ou=users" );
+        getAdminConnection().delete( "uid=" + uid + ",ou=users,ou=system" );
     }
 
 
@@ -138,23 +171,22 @@ public class AutzIntegUtils
      * @param uid the value of the RDN attriubte (uid), the sn and cn attributes
      * @param password the password to use to create the user
      * @return the dn of the newly created user entry
-     * @throws NamingException if there are problems creating the user entry
+     * @throws Exception if there are problems creating the user entry
      */
-    public static Name createUser( String uid, String password ) throws Exception
+    public static DN createUser( String uid, String password ) throws Exception
     {
-        DirContext adminCtx = getContextAsAdmin();
-        Attributes user = new BasicAttributes( "uid", uid, true );
-        user.put( "userPassword", password );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        user.put( objectClass );
-        objectClass.add( "top" );
-        objectClass.add( "person" );
-        objectClass.add( "organizationalPerson" );
-        objectClass.add( "inetOrgPerson" );
-        user.put( "sn", uid );
-        user.put( "cn", uid );
-        adminCtx.createSubcontext( "uid=" + uid + ",ou=users", user );
-        return new DN( "uid=" + uid + ",ou=users,ou=system" );
+        LdapConnection connection = getAdminConnection();
+
+        Entry entry = new DefaultClientEntry( new DN( "uid=" + uid + ",ou=users,ou=system" ) );
+        entry.add( SchemaConstants.UID_AT, uid );
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, "person", "organizationalPerson", "inetOrgPerson" );
+        entry.add( SchemaConstants.SN_AT, uid );
+        entry.add( SchemaConstants.CN_AT, uid );
+        entry.add( SchemaConstants.USER_PASSWORD_AT, password );
+
+        connection.add( entry );
+
+        return entry.getDn();
     }
 
 
@@ -165,21 +197,21 @@ public class AutzIntegUtils
      *
      * @param groupName the name of the cgroup to create
      * @return the DN of the group as a Name object
-     * @throws NamingException if the group cannot be created
+     * @throws Exception if the group cannot be created
      */
-    public static Name createGroup( String groupName ) throws Exception
+    public static DN createGroup( String groupName ) throws Exception
     {
-        DirContext adminCtx = getContextAsAdmin();
-        Attributes group = new BasicAttributes( true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        group.put( objectClass );
-        objectClass.add( "top" );
-        objectClass.add( "groupOfUniqueNames" );
+        DN groupDN = new DN( "cn=" + groupName + ",ou=groups,ou=system" );
 
+        Entry entry = new DefaultClientEntry( groupDN );
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, "groupOfUniqueNames" );
         // TODO might be ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED
-        group.put( "uniqueMember", "uid=admin, ou=system" );
-        adminCtx.createSubcontext( "cn=" + groupName + ",ou=groups", group );
-        return new DN( "cn=" + groupName + ",ou=groups,ou=system" );
+        entry.add( SchemaConstants.UNIQUE_MEMBER_AT, "uid=admin, ou=system" );
+        entry.add( SchemaConstants.CN_AT, groupName );
+
+        getAdminConnection().add( entry );
+
+        return groupDN;
     }
 
 
@@ -189,13 +221,16 @@ public class AutzIntegUtils
      *
      * @param userUid the uid of the user to add to the group
      * @param groupCn the cn of the group to add the user to
-     * @throws NamingException if the group does not exist
+     * @throws Exception if the group does not exist
      */
     public static void addUserToGroup( String userUid, String groupCn ) throws Exception
     {
-        DirContext adminCtx = getContextAsAdmin();
-        Attributes changes = new BasicAttributes( "uniqueMember", "uid=" + userUid + ",ou=users,ou=system", true );
-        adminCtx.modifyAttributes( "cn=" + groupCn + ",ou=groups", DirContext.ADD_ATTRIBUTE, changes );
+        LdapConnection connection = getAdminConnection();
+
+        ModifyRequest modReq = new ModifyRequest( new DN( "cn=" + groupCn + ",ou=groups,ou=system" ) );
+        modReq.add( SchemaConstants.UNIQUE_MEMBER_AT, "uid=" + userUid + ",ou=users,ou=system" );
+
+        connection.modify( modReq ).getLdapResult().getResultCode();
     }
 
 
@@ -204,13 +239,13 @@ public class AutzIntegUtils
      *
      * @param userUid the RDN attribute value of the user to remove from the group
      * @param groupCn the RDN attribute value of the group to have user removed from
-     * @throws NamingException if there are problems accessing the group
+     * @throws Exception if there are problems accessing the group
      */
     public static void removeUserFromGroup( String userUid, String groupCn ) throws Exception
     {
-        DirContext adminCtx = getContextAsAdmin();
-        Attributes changes = new BasicAttributes( "uniqueMember", "uid=" + userUid + ",ou=users,ou=system", true );
-        adminCtx.modifyAttributes( "cn=" + groupCn + ",ou=groups", DirContext.REMOVE_ATTRIBUTE, changes );
+        ModifyRequest modReq = new ModifyRequest( new DN( "cn=" + groupCn + ",ou=groups,ou=system" ) );
+        modReq.remove( SchemaConstants.UNIQUE_MEMBER_AT, "uid=" + userUid + ",ou=users,ou=system" );
+        getAdminConnection().modify( modReq );
     }
 
 
@@ -220,7 +255,7 @@ public class AutzIntegUtils
      * @param user the DN of the user to get the context as
      * @param password the password of the user
      * @return the context as the user
-     * @throws NamingException if the user does not exist or authx fails
+     * @throws Exception if the user does not exist or authx fails
      */
     public static DirContext getContextAs( Name user, String password ) throws Exception
     {
@@ -235,7 +270,7 @@ public class AutzIntegUtils
      * @param password the password of the user
      * @param dn the distinguished name of the entry to get the context for
      * @return the context representing the entry at the dn as a specific user
-     * @throws NamingException if the does not exist or authx fails
+     * @throws Exception if the does not exist or authx fails
      */
     @SuppressWarnings("unchecked")
     public static DirContext getContextAs( Name user, String password, String dn ) throws Exception
@@ -254,8 +289,7 @@ public class AutzIntegUtils
 
     public static void deleteAccessControlSubentry( String cn ) throws Exception
     {
-        DirContext adminCtx = getContextAsAdmin();
-        adminCtx.destroySubcontext( "cn=" + cn );
+        getAdminConnection().delete( "cn=" + cn + "," + ServerDNConstants.SYSTEM_DN );
     }
 
 
@@ -265,11 +299,11 @@ public class AutzIntegUtils
      *
      * @param cn the common name and rdn for the subentry
      * @param aciItem the prescriptive ACI attribute value
-     * @throws NamingException if there is a problem creating the subentry
+     * @throws Exception if there is a problem creating the subentry
      */
-    public static void createAccessControlSubentry( String cn, String aciItem ) throws Exception
+    public static ResultCodeEnum createAccessControlSubentry( String cn, String aciItem ) throws Exception
     {
-        createAccessControlSubentry( cn, "{}", aciItem );
+        return createAccessControlSubentry( cn, "{}", aciItem );
     }
 
 
@@ -280,32 +314,35 @@ public class AutzIntegUtils
      * @param cn the common name and rdn for the subentry
      * @param subtree the subtreeSpecification for the subentry
      * @param aciItem the prescriptive ACI attribute value
-     * @throws NamingException if there is a problem creating the subentry
+     * @throws Exception if there is a problem creating the subentry
      */
-    public static void createAccessControlSubentry( String cn, String subtree, String aciItem ) throws Exception
+    public static ResultCodeEnum createAccessControlSubentry( String cn, String subtree, String aciItem )
+        throws Exception
     {
-        DirContext adminCtx = getContextAsAdmin();
+        LdapConnection connection = getAdminConnection();
+
+        Entry systemEntry = ( ( SearchResultEntry ) connection.lookup( ServerDNConstants.SYSTEM_DN, "+", "*" ) )
+            .getEntry();
 
         // modify ou=system to be an AP for an A/C AA if it is not already
-        Attributes ap = adminCtx.getAttributes( "", new String[]
-            { "administrativeRole" } );
-        Attribute administrativeRole = ap.get( "administrativeRole" );
+        EntryAttribute administrativeRole = systemEntry.get( "administrativeRole" );
         if ( administrativeRole == null || !administrativeRole.contains( SubentryInterceptor.AC_AREA ) )
         {
-            Attributes changes = new BasicAttributes( "administrativeRole", SubentryInterceptor.AC_AREA, true );
-            adminCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
+            ModifyRequest modReq = new ModifyRequest( systemEntry.getDn() );
+            modReq.add( "administrativeRole", SubentryInterceptor.AC_AREA );
+            connection.modify( modReq );
         }
 
         // now add the A/C subentry below ou=system
-        Attributes subentry = new BasicAttributes( "cn", cn, true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        subentry.put( objectClass );
-        objectClass.add( "top" );
-        objectClass.add( SchemaConstants.SUBENTRY_OC );
-        objectClass.add( "accessControlSubentry" );
-        subentry.put( "subtreeSpecification", subtree );
-        subentry.put( "prescriptiveACI", aciItem );
-        adminCtx.createSubcontext( "cn=" + cn, subentry );
+        Entry subEntry = new DefaultClientEntry( new DN( "cn=" + cn + "," + ServerDNConstants.SYSTEM_DN ) );
+        subEntry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC,
+            SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC );
+        subEntry.add( SchemaConstants.SUBTREE_SPECIFICATION_AT, subtree );
+        subEntry.add( SchemaConstants.PRESCRIPTIVE_ACI_AT, aciItem );
+
+        AddResponse addResp = connection.add( subEntry );
+
+        return addResp.getLdapResult().getResultCode();
     }
 
 
@@ -313,17 +350,17 @@ public class AutzIntegUtils
      * Adds and entryACI attribute to an entry specified by a relative name
      * with respect to ou=system
      *
-     * @param rdn a name relative to ou=system
+     * @param dn a name relative to ou=system
      * @param aciItem the entryACI attribute value
-     * @throws NamingException if there is a problem adding the attribute
+     * @throws Exception if there is a problem adding the attribute
      */
-    public static void addEntryACI( Name rdn, String aciItem ) throws Exception
+    public static void addEntryACI( DN dn, String aciItem ) throws Exception
     {
-        DirContext adminCtx = getContextAsAdmin();
-
         // modify the entry relative to ou=system to include the aciItem
-        Attributes changes = new BasicAttributes( "entryACI", aciItem, true );
-        adminCtx.modifyAttributes( rdn, DirContext.ADD_ATTRIBUTE, changes );
+        ModifyRequest modReq = new ModifyRequest( dn );
+        modReq.add( "entryACI", aciItem );
+
+        getAdminConnection().modify( modReq );
     }
 
 
@@ -331,15 +368,14 @@ public class AutzIntegUtils
      * Adds and subentryACI attribute to ou=system
      *
      * @param aciItem the subentryACI attribute value
-     * @throws NamingException if there is a problem adding the attribute
+     * @throws Exception if there is a problem adding the attribute
      */
     public static void addSubentryACI( String aciItem ) throws Exception
     {
-        DirContext adminCtx = getContextAsAdmin();
-
         // modify the entry relative to ou=system to include the aciItem
-        Attributes changes = new BasicAttributes( "subentryACI", aciItem, true );
-        adminCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
+        ModifyRequest modReq = new ModifyRequest( new DN( "ou=system" ) );
+        modReq.add( "subentryACI", aciItem );
+        getAdminConnection().modify( modReq );
     }
 
 
@@ -349,20 +385,20 @@ public class AutzIntegUtils
      *
      * @param cn the common name of the aci subentry
      * @param aciItem the new value for the ACI item
-     * @throws NamingException if the modify fails
+     * @throws Exception if the modify fails
      */
     public static void changePresciptiveACI( String cn, String aciItem ) throws Exception
     {
-        DirContext adminCtx = getContextAsAdmin();
-        Attributes changes = new BasicAttributes( "prescriptiveACI", aciItem, true );
-        adminCtx.modifyAttributes( "cn=" + cn, DirContext.REPLACE_ATTRIBUTE, changes );
+        ModifyRequest req = new ModifyRequest( new DN( "cn=" + cn + "," + ServerDNConstants.SYSTEM_DN ) );
+        req.replace( "prescriptiveACI", aciItem );
+        getAdminConnection().modify( req );
     }
 
 
     public static void addPrescriptiveACI( String cn, String aciItem ) throws Exception
     {
-        DirContext adminCtx = getContextAsAdmin();
-        Attributes changes = new BasicAttributes( "prescriptiveACI", aciItem, true );
-        adminCtx.modifyAttributes( "cn=" + cn, DirContext.ADD_ATTRIBUTE, changes );
+        ModifyRequest modReq = new ModifyRequest( new DN( "cn=" + cn + "," + ServerDNConstants.SYSTEM_DN ) );
+        modReq.add( "prescriptiveACI", aciItem );
+        getAdminConnection().modify( modReq );
     }
 }
