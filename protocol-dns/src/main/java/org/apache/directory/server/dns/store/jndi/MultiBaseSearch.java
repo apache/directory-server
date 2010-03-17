@@ -33,9 +33,10 @@ import org.apache.directory.server.protocol.shared.ServiceConfigurationException
 import org.apache.directory.server.protocol.shared.catalog.Catalog;
 import org.apache.directory.server.protocol.shared.catalog.GetCatalog;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
-import org.apache.directory.shared.ldap.name.DN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.jndi.ldap.LdapName;
 
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
@@ -85,7 +86,7 @@ public class MultiBaseSearch implements SearchStrategy
             GetRecords getRecords = new GetRecords( question );
             String baseDn = catalog.getBaseDn( question.getDomainName() );
             CoreSession session = directoryService.getSession();
-            DirContext dirContext = new ServerLdapContext( directoryService, session, new DN( baseDn ) );
+            DirContext dirContext = new ServerLdapContext( directoryService, session, new LdapName( baseDn ) );
             return getRecords.execute( dirContext, null );
         }
         catch ( LdapNoSuchObjectException lnnfe )

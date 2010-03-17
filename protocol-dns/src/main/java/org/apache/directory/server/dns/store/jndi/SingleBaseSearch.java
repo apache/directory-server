@@ -35,9 +35,10 @@ import org.apache.directory.server.dns.messages.ResponseCode;
 import org.apache.directory.server.dns.store.jndi.operations.GetRecords;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
-import org.apache.directory.shared.ldap.name.DN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.jndi.ldap.LdapName;
 
 
 /**
@@ -62,7 +63,7 @@ public class SingleBaseSearch implements SearchStrategy
         try
         {
             CoreSession session = directoryService.getSession();
-            ctx = new ServerLdapContext( directoryService, session, new DN( searchBaseDn ) );
+            ctx = new ServerLdapContext( directoryService, session, new LdapName( searchBaseDn ) );
         } catch ( Exception e )
         {
             throw new ServiceConfigurationException( I18n.err( I18n.ERR_649, searchBaseDn ), e );
