@@ -115,7 +115,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DefaultPartitionNexus implements Partition, PartitionNexus
+public class DefaultPartitionNexus implements PartitionNexus
 {
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultPartitionNexus.class );
