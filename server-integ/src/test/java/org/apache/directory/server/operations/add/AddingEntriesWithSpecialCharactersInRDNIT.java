@@ -297,8 +297,9 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         Entry entry = getOrgUnitEntry( "semicolon group;" );
         String dn = "ou=semicolon group\\;,ou=system";
         entry.setDn( new DN( dn ) );
+        connection.add( entry );
 
-        Cursor<SearchResponse> cursor = connection.search( "", "(ou=semicolon group;)", SearchScope.SUBTREE, "*" );
+        Cursor<SearchResponse> cursor = connection.search( "ou=system", "(ou=semicolon group;)", SearchScope.SUBTREE, "*" );
 
         boolean entryFound = false;
         while ( cursor.next() )
