@@ -33,9 +33,11 @@ import javax.naming.NameNotFoundException;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.NoPermissionException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.SchemaViolationException;
 import javax.naming.directory.SearchControls;
 import javax.naming.event.EventContext;
 import javax.naming.event.NamingListener;
@@ -77,20 +79,22 @@ import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
+
+import com.sun.jndi.ldap.LdapName;
 
 
 /**
@@ -630,7 +634,7 @@ public abstract class ServerContext implements EventContext
      * 
      * @return the distinguished name of this Context's entry.
      */
-    protected Name getDn()
+    protected DN getDn()
     {
         return dn;
     }
@@ -703,7 +707,7 @@ public abstract class ServerContext implements EventContext
      */
     public Context createSubcontext( String name ) throws NamingException
     {
-        return createSubcontext( new DN( name ) );
+        return createSubcontext( new LdapName( name ) );
     }
 
 
@@ -712,9 +716,17 @@ public abstract class ServerContext implements EventContext
      */
     public Context createSubcontext( Name name ) throws NamingException
     {
-        DN target = buildTarget( name );
+        DN target = buildTarget( DN.fromName( name ) );
         ServerEntry serverEntry = service.newEntry( target );
-        serverEntry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, JavaLdapSupport.JCONTAINER_ATTR );
+        
+        try
+        {
+            serverEntry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, JavaLdapSupport.JCONTAINER_ATTR );
+        }
+        catch ( LdapException le )
+        {
+            throw new SchemaViolationException( I18n.err( I18n.ERR_491, name) );
+        }
 
         // Now add the CN attribute, which is mandatory
         RDN rdn = target.getRdn();
@@ -728,13 +740,13 @@ public abstract class ServerContext implements EventContext
             else
             {
                 // No CN in the rdn, this is an error
-                throw new LdapSchemaViolationException( I18n.err( I18n.ERR_491, name), ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+                throw new SchemaViolationException( I18n.err( I18n.ERR_491, name) );
             }
         }
         else
         {
             // No CN in the rdn, this is an error
-            throw new LdapSchemaViolationException( I18n.err( I18n.ERR_491, name), ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+            throw new SchemaViolationException( I18n.err( I18n.ERR_491, name) );
         }
 
         /*
@@ -757,7 +769,7 @@ public abstract class ServerContext implements EventContext
         
         try
         {
-            ctx = new ServerLdapContext( service, session.getEffectivePrincipal(), target );
+            ctx = new ServerLdapContext( service, session.getEffectivePrincipal(), DN.toName( target ) );
         }
         catch ( Exception e )
         {
@@ -773,7 +785,7 @@ public abstract class ServerContext implements EventContext
      */
     public void destroySubcontext( String name ) throws NamingException
     {
-        destroySubcontext( new DN( name ) );
+        destroySubcontext( new LdapName( name ) );
     }
 
 
@@ -782,11 +794,11 @@ public abstract class ServerContext implements EventContext
      */
     public void destroySubcontext( Name name ) throws NamingException
     {
-        DN target = buildTarget( name );
+        DN target = buildTarget( DN.fromName( name ) );
 
         if ( target.size() == 0 )
         {
-            throw new LdapNoPermissionException( I18n.err( I18n.ERR_492 ) );
+            throw new NoPermissionException( I18n.err( I18n.ERR_492 ) );
         }
 
         try
@@ -805,7 +817,7 @@ public abstract class ServerContext implements EventContext
      */
     public void bind( String name, Object obj ) throws NamingException
     {
-        bind( new DN( name ), obj );
+        bind( new LdapName( name ), obj );
     }
 
 
@@ -836,11 +848,20 @@ public abstract class ServerContext implements EventContext
         // First, use state factories to do a transformation
         DirStateFactory.Result res = DirectoryManager.getStateToBind( obj, name, this, env, null );
 
-        DN target = buildTarget( name );
+        DN target = buildTarget( DN.fromName( name ) );
 
         // let's be sure that the Attributes is case insensitive
-        ServerEntry outServerEntry = ServerEntryUtils.toServerEntry( AttributeUtils.toCaseInsensitive( res
-            .getAttributes() ), target, service.getSchemaManager() );
+        ServerEntry outServerEntry = null;
+        
+        try
+        {
+            outServerEntry = ServerEntryUtils.toServerEntry( AttributeUtils.toCaseInsensitive( res
+                .getAttributes() ), target, service.getSchemaManager() );
+        }
+        catch ( LdapInvalidAttributeTypeException liate )
+        {
+            throw new NamingException( I18n.err( I18n.ERR_495, obj ) );
+        }
 
         if ( outServerEntry != null )
         {
@@ -886,7 +907,14 @@ public abstract class ServerContext implements EventContext
             {
                 for ( EntryAttribute serverAttribute : outServerEntry )
                 {
-                    serverEntry.put( serverAttribute );
+                    try
+                    {
+                        serverEntry.put( serverAttribute );
+                    }
+                    catch ( LdapException le )
+                    {
+                        throw new NamingException( I18n.err( I18n.ERR_495, obj ) );
+                    }
                 }
             }
 
@@ -894,7 +922,15 @@ public abstract class ServerContext implements EventContext
             injectRdnAttributeValues( target, serverEntry );
 
             // Serialize object into entry attributes and add it.
-            JavaLdapSupport.serialize( serverEntry, obj, service.getSchemaManager() );
+            try
+            { 
+                JavaLdapSupport.serialize( serverEntry, obj, service.getSchemaManager() );
+            }
+            catch ( LdapException le )
+            {
+                throw new NamingException( I18n.err( I18n.ERR_495, obj ) );
+            }
+            
             try
             {
                 doAddOperation( target, serverEntry );
@@ -907,14 +943,30 @@ public abstract class ServerContext implements EventContext
         else if ( obj instanceof DirContext )
         {
             // Grab attributes and merge with outAttrs
-            ServerEntry serverEntry = ServerEntryUtils.toServerEntry( ( ( DirContext ) obj ).getAttributes( "" ),
-                target, service.getSchemaManager() );
+            ServerEntry serverEntry = null;
+            
+            try
+            { 
+                serverEntry = ServerEntryUtils.toServerEntry( ( ( DirContext ) obj ).getAttributes( "" ),
+                    target, service.getSchemaManager() );
+            }
+            catch ( LdapInvalidAttributeTypeException liate )
+            {
+                throw new NamingException( I18n.err( I18n.ERR_495, obj ) );
+            }
 
             if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
             {
                 for ( EntryAttribute serverAttribute : outServerEntry )
                 {
-                    serverEntry.put( serverAttribute );
+                    try
+                    {                 
+                        serverEntry.put( serverAttribute );
+                    }
+                    catch ( LdapException le )
+                    {
+                        throw new NamingException( I18n.err( I18n.ERR_495, obj ) );
+                    }
                 }
             }
 
@@ -940,7 +992,7 @@ public abstract class ServerContext implements EventContext
      */
     public void rename( String oldName, String newName ) throws NamingException
     {
-        rename( new DN( oldName ), new DN( newName ) );
+        rename( new LdapName( oldName ), new LdapName( newName ) );
     }
 
 
@@ -949,19 +1001,37 @@ public abstract class ServerContext implements EventContext
      */
     public void rename( Name oldName, Name newName ) throws NamingException
     {
-        DN oldDn = buildTarget( oldName );
-        DN newDn = buildTarget( newName );
+        DN oldDn = buildTarget( DN.fromName( oldName ) );
+        DN newDn = buildTarget( DN.fromName( newName ) );
 
         if ( oldDn.size() == 0 )
         {
-            throw new LdapNoPermissionException( I18n.err( I18n.ERR_312 ) );
+            throw new NoPermissionException( I18n.err( I18n.ERR_312 ) );
         }
 
         // calculate parents
         DN oldParent = (DN)oldDn.clone();
-        oldParent.remove( oldDn.size() - 1 );
+        
+        try
+        {
+            oldParent.remove( oldDn.size() - 1 );
+        }
+        catch ( LdapInvalidDnException lide )
+        {
+            throw new NamingException( I18n.err( I18n.ERR_313, lide.getMessage() ) );
+        }
+        
         DN newParent = ( DN ) newDn.clone();
-        newParent.remove( newDn.size() - 1 );
+        
+        try
+        {
+            newParent.remove( newDn.size() - 1 );
+        }
+        catch ( LdapInvalidDnException lide )
+        {
+            throw new NamingException( I18n.err( I18n.ERR_313, lide.getMessage() ) );
+        }
+
 
         RDN oldRdn = oldDn.getRdn();
         RDN newRdn = newDn.getRdn();
@@ -1030,7 +1100,7 @@ public abstract class ServerContext implements EventContext
      */
     public void rebind( String name, Object obj ) throws NamingException
     {
-        rebind( new DN( name ), obj );
+        rebind( new LdapName( name ), obj );
     }
 
 
@@ -1039,7 +1109,7 @@ public abstract class ServerContext implements EventContext
      */
     public void rebind( Name name, Object obj ) throws NamingException
     {
-        DN target = buildTarget( name );
+        DN target = buildTarget( DN.fromName( name ) );
         OperationManager operationManager = service.getOperationManager();
         
         try
@@ -1063,7 +1133,7 @@ public abstract class ServerContext implements EventContext
      */
     public void unbind( String name ) throws NamingException
     {
-        unbind( new DN( name ) );
+        unbind( new LdapName( name ) );
     }
 
 
@@ -1074,7 +1144,7 @@ public abstract class ServerContext implements EventContext
     {
         try
         {
-            doDeleteOperation( buildTarget( name ) );
+            doDeleteOperation( buildTarget( DN.fromName( name ) ) );
         }
         catch ( Exception e )
         {
@@ -1090,11 +1160,11 @@ public abstract class ServerContext implements EventContext
     {
         if ( StringTools.isEmpty( name ) )
         {
-            return lookup( DN.EMPTY_DN );
+            return lookup( new LdapName( "" ) );
         }
         else
         {
-            return lookup( new DN( name ) );
+            return lookup( new LdapName( name ) );
         }
     }
 
@@ -1105,7 +1175,7 @@ public abstract class ServerContext implements EventContext
     public Object lookup( Name name ) throws NamingException
     {
         Object obj;
-        DN target = buildTarget( name );
+        DN target = buildTarget( DN.fromName( name ) );
 
         ServerEntry serverEntry = null;
 
@@ -1155,7 +1225,7 @@ public abstract class ServerContext implements EventContext
         
         try
         {
-            ctx = new ServerLdapContext( service, session.getEffectivePrincipal(), target );
+            ctx = new ServerLdapContext( service, session.getEffectivePrincipal(), DN.toName( target ) );
         }
         catch ( Exception e )
         {
@@ -1198,7 +1268,14 @@ public abstract class ServerContext implements EventContext
         {
             public Name parse( String name ) throws NamingException
             {
-                return new DN( name );
+                try
+                {
+                    return DN.toName( new DN( name ) );
+                }
+                catch ( LdapInvalidDnException lide )
+                {
+                    throw new InvalidNameException( lide.getMessage() );
+                }
             }
         };
     }
@@ -1212,13 +1289,20 @@ public abstract class ServerContext implements EventContext
      * 
      * @see javax.naming.Context#getNameParser(javax.naming.Name)
      */
-    public NameParser getNameParser( Name name ) throws NamingException
+    public NameParser getNameParser( final Name name ) throws NamingException
     {
         return new NameParser()
         {
-            public Name parse( String name ) throws NamingException
+            public Name parse( String n ) throws NamingException
             {
-                return new DN( name );
+                try
+                {
+                    return DN.toName( new DN( name.toString() ) );
+                }
+                catch ( LdapInvalidDnException lide )
+                {
+                    throw new InvalidNameException( lide.getMessage() );
+                }
             }
         };
     }
@@ -1231,7 +1315,7 @@ public abstract class ServerContext implements EventContext
         { "unchecked" })
     public NamingEnumeration list( String name ) throws NamingException
     {
-        return list( new DN( name ) );
+        return list( new LdapName( name ) );
     }
 
 
@@ -1244,7 +1328,7 @@ public abstract class ServerContext implements EventContext
     {
         try
         {
-            return new NamingEnumerationAdapter( doListOperation( buildTarget( name ) ) );
+            return new NamingEnumerationAdapter( doListOperation( buildTarget( DN.fromName( name ) ) ) );
         }
         catch ( Exception e )
         {
@@ -1261,7 +1345,7 @@ public abstract class ServerContext implements EventContext
         { "unchecked" })
     public NamingEnumeration listBindings( String name ) throws NamingException
     {
-        return listBindings( new DN( name ) );
+        return listBindings( new LdapName( name ) );
     }
 
 
@@ -1273,7 +1357,7 @@ public abstract class ServerContext implements EventContext
     public NamingEnumeration listBindings( Name name ) throws NamingException
     {
         // Conduct a special one level search at base for all objects
-        DN base = buildTarget( name );
+        DN base = buildTarget( DN.fromName( name ) );
         PresenceNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -1295,7 +1379,7 @@ public abstract class ServerContext implements EventContext
      */
     public String composeName( String name, String prefix ) throws NamingException
     {
-        return composeName( new DN( name ), new DN( prefix ) ).toString();
+        return composeName( new LdapName( name ), new LdapName( prefix ) ).toString();
     }
 
 
@@ -1327,7 +1411,7 @@ public abstract class ServerContext implements EventContext
          */
 
         // 1). Find the Dn for name and walk it from the head to tail
-        Name fqn = buildTarget( name );
+        DN fqn = buildTarget( DN.fromName( name ) );
         String head = prefix.get( 0 );
 
         // 2). Walk the fqn trying to match for the head of the prefix
@@ -1336,12 +1420,19 @@ public abstract class ServerContext implements EventContext
             // match found end loop
             if ( fqn.get( 0 ).equalsIgnoreCase( head ) )
             {
-                return fqn;
+                return DN.toName( fqn );
             }
             else
             // 2). Remove name components from the Dn until a match 
             {
-                fqn.remove( 0 );
+                try
+                {
+                    fqn.remove( 0 );
+                }
+                catch ( LdapInvalidDnException lide )
+                {
+                    throw new NamingException( lide.getMessage() );
+                }
             }
         }
 
@@ -1365,7 +1456,7 @@ public abstract class ServerContext implements EventContext
             criteria.setFilter( filter );
             criteria.setScope( SearchScope.getSearchScope( scope ) );
             criteria.setAliasDerefMode( AliasDerefMode.getEnum( env ) );
-            criteria.setBase( buildTarget( name ) );
+            criteria.setBase( buildTarget( DN.fromName( name ) ) );
             
             service.getEventService().addListener( listener );
             listeners.put( namingListener, listener );
@@ -1379,7 +1470,7 @@ public abstract class ServerContext implements EventContext
 
     public void addNamingListener( String name, int scope, NamingListener namingListener ) throws NamingException
     {
-        addNamingListener( new DN( name ), scope, namingListener );
+        addNamingListener( new LdapName( name ), scope, namingListener );
     }
 
 
@@ -1431,12 +1522,20 @@ public abstract class ServerContext implements EventContext
      * @throws InvalidNameException if relativeName is not a valid name in
      *      the LDAP namespace.
      */
-    DN buildTarget( Name relativeName ) throws InvalidNameException
+    DN buildTarget( DN relativeName ) throws NamingException
     {
         DN target = ( DN ) dn.clone();
 
         // Add to left hand side of cloned DN the relative name arg
-        target.addAllNormalized( target.size(), relativeName );
+        try
+        {
+            target.addAllNormalized( target.size(), relativeName );
+        }
+        catch (LdapInvalidDnException lide )
+        {
+            throw new InvalidNameException( lide.getMessage() );
+        }
+        
         return target;
     }
 }

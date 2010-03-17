@@ -22,12 +22,13 @@ package org.apache.directory.server.core.jndi;
 
 import java.util.Hashtable;
 
+import javax.naming.ConfigurationException;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -75,7 +76,7 @@ public class LdapJndiProperties
         }
         else if ( !( authentication instanceof String ) )
         {
-            throw new LdapConfigurationException( I18n.err( I18n.ERR_483, authentication.getClass(), 
+            throw new ConfigurationException( I18n.err( I18n.ERR_483, authentication.getClass(), 
                 Context.SECURITY_AUTHENTICATION ) );
         }
         else
@@ -102,7 +103,7 @@ public class LdapJndiProperties
     {
         if ( env == null )
         {
-            throw new LdapConfigurationException( "environment cannot be null" );
+            throw new ConfigurationException( "environment cannot be null" );
         }
 
         LdapJndiProperties props = new LdapJndiProperties();
@@ -117,14 +118,15 @@ public class LdapJndiProperties
         if ( !env.containsKey( Context.PROVIDER_URL ) )
         {
             String msg = I18n.err( I18n.ERR_484, Context.PROVIDER_URL );
-            throw new LdapConfigurationException( msg );
+            throw new ConfigurationException( msg );
         }
 
         String url = ( String ) env.get( Context.PROVIDER_URL );
+
         if ( url == null )
         {
             String msg = I18n.err( I18n.ERR_485, Context.PROVIDER_URL );
-            throw new LdapConfigurationException( msg );
+            throw new ConfigurationException( msg );
         }
 
         if ( url.trim().equals( "" ) )
@@ -133,7 +135,15 @@ public class LdapJndiProperties
         }
         else
         {
-            props.providerDn = new DN( url );
+            try
+            {
+                props.providerDn = new DN( url );
+            }
+            catch ( LdapInvalidDnException lide )
+            {
+                String msg = I18n.err( I18n.ERR_733, url );
+                throw new ConfigurationException( msg );
+            }
         }
 
         // -------------------------------------------------------------------
@@ -154,7 +164,7 @@ public class LdapJndiProperties
         }
         else if ( !( authentication instanceof String ) )
         {
-            throw new LdapConfigurationException( I18n.err( I18n.ERR_483, authentication.getClass(), 
+            throw new ConfigurationException( I18n.err( I18n.ERR_483, authentication.getClass(), 
                 Context.SECURITY_AUTHENTICATION ) );
         }
         else
@@ -188,7 +198,7 @@ public class LdapJndiProperties
 
         if ( principal == null && props.level == AuthenticationLevel.SIMPLE )
         {
-            throw new LdapConfigurationException( I18n.err( I18n.ERR_487, Context.SECURITY_PRINCIPAL ) );
+            throw new ConfigurationException( I18n.err( I18n.ERR_487, Context.SECURITY_PRINCIPAL ) );
         }
         else if ( principal == null && props.level == AuthenticationLevel.NONE )
         {
@@ -196,7 +206,7 @@ public class LdapJndiProperties
         }
         else if ( !( principal instanceof String ) )
         {
-            throw new LdapConfigurationException( I18n.err( I18n.ERR_483, principal.getClass(), Context.SECURITY_PRINCIPAL ) );
+            throw new ConfigurationException( I18n.err( I18n.ERR_483, principal.getClass(), Context.SECURITY_PRINCIPAL ) );
         }
         else if ( ( ( String ) principal ).trim().equals( "" ) )
         {
@@ -204,7 +214,16 @@ public class LdapJndiProperties
         }
         else
         {
-            props.bindDn = new DN( ( String ) principal );
+            try
+            {
+                props.providerDn = new DN( ( String ) principal );
+            }
+            catch ( LdapInvalidDnException lide )
+            {
+                String msg = I18n.err( I18n.ERR_733, principal );
+                throw new ConfigurationException( msg );
+            }
+
         }
         
 
@@ -217,7 +236,7 @@ public class LdapJndiProperties
             }
             else
             {
-                throw new LdapConfigurationException( I18n.err( I18n.ERR_483, obj.getClass(), SASL_AUTHID ) );
+                throw new ConfigurationException( I18n.err( I18n.ERR_483, obj.getClass(), SASL_AUTHID ) );
             }
             props.saslAuthId = ( String ) principal;
         }
@@ -228,7 +247,7 @@ public class LdapJndiProperties
 
         if ( props.level == AuthenticationLevel.SIMPLE && credobj == null )
         {
-            throw new LdapConfigurationException( I18n.err( I18n.ERR_489 ) );
+            throw new ConfigurationException( I18n.err( I18n.ERR_489 ) );
         }
         else if ( credobj != null )
         {
@@ -242,7 +261,7 @@ public class LdapJndiProperties
             }
             else
             {
-                throw new LdapConfigurationException( I18n.err( I18n.ERR_483, credobj.getClass(), Context.SECURITY_CREDENTIALS ) );
+                throw new ConfigurationException( I18n.err( I18n.ERR_483, credobj.getClass(), Context.SECURITY_CREDENTIALS ) );
             }
         }
 

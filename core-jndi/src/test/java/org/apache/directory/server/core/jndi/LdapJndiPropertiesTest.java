@@ -22,12 +22,12 @@ package org.apache.directory.server.core.jndi;
 
 import java.util.Hashtable;
 
+import javax.naming.ConfigurationException;
 import javax.naming.Context;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.directory.server.core.jndi.LdapJndiProperties;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
 
@@ -51,7 +51,7 @@ public class LdapJndiPropertiesTest
             LdapJndiProperties.getLdapJndiProperties( new Hashtable<String,Object>() );
             fail( "should never get here" );
         }
-        catch ( LdapConfigurationException e )
+        catch ( ConfigurationException e )
         {
         }
     }
@@ -65,7 +65,7 @@ public class LdapJndiPropertiesTest
             LdapJndiProperties.getLdapJndiProperties( null );
             fail( "should never get here" );
         }
-        catch ( LdapConfigurationException e )
+        catch ( ConfigurationException e )
         {
         }
     }
@@ -107,7 +107,7 @@ public class LdapJndiPropertiesTest
             LdapJndiProperties.getLdapJndiProperties( env );
             fail( "should never get here" );
         }
-        catch ( LdapConfigurationException e )
+        catch ( ConfigurationException e )
         {
         }
     }

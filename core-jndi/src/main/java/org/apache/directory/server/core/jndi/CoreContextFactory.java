@@ -31,9 +31,12 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
+
+import com.sun.jndi.ldap.LdapName;
 
 
 /**
@@ -49,7 +52,17 @@ public class CoreContextFactory implements InitialContextFactory
     public synchronized Context getInitialContext( Hashtable env ) throws NamingException
     {
         env = ( Hashtable<String, Object> ) env.clone();
-        DN principalDn = new DN( getPrincipal( env ) );
+        DN principalDn = null;
+        
+        try
+        {
+            principalDn = new DN( getPrincipal( env ) );
+        }
+        catch ( LdapInvalidDnException lide )
+        {
+            throw new ConfigurationException( I18n.err( I18n.ERR_733, env ) );
+        }
+        
         byte[] credential = getCredential( env );
         String authentication = getAuthentication( env );
         String providerUrl = getProviderUrl( env );
@@ -70,7 +83,7 @@ public class CoreContextFactory implements InitialContextFactory
         try
         {
             CoreSession session = service.getSession( principalDn, credential );
-            ctx = new ServerLdapContext( service, session, new DN( providerUrl ) );
+            ctx = new ServerLdapContext( service, session, new LdapName( providerUrl ) );
         }
         catch ( Exception e )
         {

@@ -22,7 +22,9 @@ package org.apache.directory.server.core.jndi;
 
 import java.util.Hashtable;
 
+import javax.naming.Name;
 import javax.naming.NamingException;
+import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.ExtendedRequest;
 import javax.naming.ldap.ExtendedResponse;
@@ -38,10 +40,13 @@ import org.apache.directory.server.core.interceptor.context.UnbindOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.StringTools;
+
+import com.sun.jndi.ldap.LdapName;
 
 
 /**
@@ -74,13 +79,13 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      * @param service the directory service core
      * @throws NamingException if there are problems instantiating 
      */
-    public ServerLdapContext( DirectoryService service, LdapPrincipal principal, DN dn ) throws Exception
+    public ServerLdapContext( DirectoryService service, LdapPrincipal principal, Name dn ) throws Exception
     {
         super( service, principal, dn );
     }
 
 
-    public ServerLdapContext( DirectoryService service, CoreSession session, DN bindDn ) throws Exception
+    public ServerLdapContext( DirectoryService service, CoreSession session, Name bindDn ) throws Exception
     {
         super( service, session, bindDn );
     }
@@ -103,14 +108,16 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public LdapContext newInstance( Control[] requestControls ) throws NamingException
     {
         ServerLdapContext ctx = null;
+        
         try
         {
-            ctx = new ServerLdapContext( getService(), getSession().getEffectivePrincipal(), ( DN ) getDn() );
+            ctx = new ServerLdapContext( getService(), getSession().getEffectivePrincipal(), DN.toName( getDn() ) );
         }
         catch ( Exception e )
         {
             JndiUtils.wrap( e );
         }
+        
         ctx.setRequestControls( requestControls );
         return ctx;
     }
@@ -183,7 +190,16 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     {
         Value<?> val = null;
         
-        AttributeType attributeType = getService().getSchemaManager().lookupAttributeTypeRegistry( oid );
+        AttributeType attributeType = null;
+        
+        try
+        {
+            attributeType = getService().getSchemaManager().lookupAttributeTypeRegistry( oid );
+        }
+        catch ( LdapException le )
+        {
+            throw new InvalidAttributeIdentifierException( le.getMessage() );
+        }
         
         // make sure we add the request controls to operation
         if ( attributeType.getSyntax().isHumanReadable() )
@@ -275,7 +291,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         
         try
         {
-            ctx = new ServerLdapContext( getService(), getSession().getEffectivePrincipal(), new DN() );
+            ctx = new ServerLdapContext( getService(), getSession().getEffectivePrincipal(), new LdapName( "" ) );
         }
         catch ( Exception e )
         {

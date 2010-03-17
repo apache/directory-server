@@ -351,7 +351,7 @@ public class I18n
     public static String ERR_310 = "ERR_310";
     public static String ERR_311 = "ERR_311";
     public static String ERR_312 = "ERR_312";
-    // public static String ERR_313 = "ERR_313";
+    public static String ERR_313 = "ERR_313";
     public static String ERR_314 = "ERR_314";
     public static String ERR_315 = "ERR_315";
     public static String ERR_316 = "ERR_316";
@@ -771,6 +771,7 @@ public class I18n
     public static String ERR_730 = "ERR_730";
     public static String ERR_731 = "ERR_731";
     public static String ERR_732 = "ERR_732";
+    public static String ERR_733 = "ERR_733";
 
 
     /**

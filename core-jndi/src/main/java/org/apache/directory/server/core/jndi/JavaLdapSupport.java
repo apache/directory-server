@@ -33,6 +33,8 @@ import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
@@ -83,7 +85,18 @@ class JavaLdapSupport
     static Object deserialize( ServerEntry serverEntry ) throws NamingException
     {
         ObjectInputStream in = null;
-        String className = ( String ) serverEntry.get( JCLASSNAME_ATTR ).getString();
+        String className = null;
+        
+        try
+        {
+            className = ( String ) serverEntry.get( JCLASSNAME_ATTR ).getString();
+        }
+        catch ( LdapInvalidAttributeValueException liave )
+        {
+            NamingException ne = new NamingException( I18n.err( I18n.ERR_479, className, liave.getLocalizedMessage() ) );
+            ne.setRootCause( liave );
+            throw ne;
+        }
 
         try
         {
@@ -121,7 +134,7 @@ class JavaLdapSupport
      * @return the object's serialized byte array form
      * @throws NamingException of the object cannot be serialized
      */
-    static byte[] serialize( Object obj ) throws NamingException
+    static byte[] serialize( Object obj ) throws LdapException
     {
         ByteArrayOutputStream bytesOut = null;
         ObjectOutputStream out = null;
@@ -135,8 +148,8 @@ class JavaLdapSupport
         }
         catch ( Exception e )
         {
-            NamingException ne = new NamingException( I18n.err( I18n.ERR_481, obj, e.getLocalizedMessage() ) );
-            ne.setRootCause( e );
+            LdapException ne = new LdapException( I18n.err( I18n.ERR_481, obj, e.getLocalizedMessage() ) );
+            //ne.setRootCause( e );
             throw ne;
         }
         finally
@@ -150,7 +163,7 @@ class JavaLdapSupport
             }
             catch ( IOException e )
             {
-                throw new NamingException( I18n.err( I18n.ERR_482 ) );
+                throw new LdapException( I18n.err( I18n.ERR_482 ) );
             }
         }
     }
@@ -164,7 +177,7 @@ class JavaLdapSupport
      * @param obj the object to serialize
      * @throws NamingException if the object cannot be serialized
      */
-    static void serialize( ServerEntry entry, Object obj, SchemaManager schemaManager ) throws NamingException
+    static void serialize( ServerEntry entry, Object obj, SchemaManager schemaManager ) throws LdapException
     {
         /* Let's add the object classes first:
          * objectClass: top
