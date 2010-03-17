@@ -490,7 +490,8 @@ public class DefaultOperationManager implements OperationManager
         
         try
         {
-            return directoryService.getInterceptorChain().getRootDSE( opContext );
+            InterceptorChain chain = directoryService.getInterceptorChain();
+            return chain.getRootDSE( opContext );
         }
         finally
         {
