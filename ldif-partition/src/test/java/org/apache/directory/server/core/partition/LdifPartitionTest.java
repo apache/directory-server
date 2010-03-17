@@ -31,8 +31,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.naming.NamingException;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.LdapPrincipal;
@@ -53,6 +51,7 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
@@ -246,7 +245,7 @@ public class LdifPartitionTest
             partition.add( addCtx );
             fail();
         }
-        catch ( NamingException ne )
+        catch ( LdapException ne )
         {
             assertTrue( true );
         }
