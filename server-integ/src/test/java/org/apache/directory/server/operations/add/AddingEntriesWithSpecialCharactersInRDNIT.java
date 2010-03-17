@@ -194,7 +194,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         entry.setDn( new DN( dn ) );
         connection.add( entry );
 
-        Cursor<SearchResponse> cursor = connection.search( "ou=system", "(ou=AC\\5C\\5CDC)", SearchScope.SUBTREE, "*" );
+        Cursor<SearchResponse> cursor = connection.search( "ou=system", "(ou=AC\\5CDC)", SearchScope.SUBTREE, "*" );
         boolean entryFound= false;
         
         while ( cursor.next() )
