@@ -191,10 +191,10 @@ public abstract class ServerContext implements EventContext
      * @param service the directory service core
      * @throws NamingException if there is a problem creating the new context
      */
-    public ServerContext( DirectoryService service, LdapPrincipal principal, Name dn ) throws Exception
+    public ServerContext( DirectoryService service, LdapPrincipal principal, Name name ) throws Exception
     {
         this.service = service;
-        this.dn = ( DN ) dn.clone();
+        this.dn = (DN)(DN.fromName( name ).clone());
 
         this.env = new Hashtable<String, Object>();
         this.env.put( PROVIDER_URL, dn.toString() );
@@ -202,17 +202,17 @@ public abstract class ServerContext implements EventContext
         session = new DefaultCoreSession( principal, service );
         OperationManager operationManager = service.getOperationManager();
         
-        if ( ! operationManager.hasEntry( new EntryOperationContext( session, ( DN ) dn ) ) )
+        if ( ! operationManager.hasEntry( new EntryOperationContext( session, dn ) ) )
         {
             throw new NameNotFoundException( I18n.err( I18n.ERR_490, dn ) );
         }
     }
 
 
-    public ServerContext( DirectoryService service, CoreSession session, Name dn ) throws Exception
+    public ServerContext( DirectoryService service, CoreSession session, Name name ) throws Exception
     {
         this.service = service;
-        this.dn = ( DN ) dn.clone();
+        this.dn = (DN)(DN.fromName( name ).clone());
         this.env = new Hashtable<String, Object>();
         this.env.put( PROVIDER_URL, dn.toString() );
         this.env.put( DirectoryService.JNDI_KEY, service );
