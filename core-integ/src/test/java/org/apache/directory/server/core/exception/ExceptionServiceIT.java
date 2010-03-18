@@ -20,34 +20,35 @@
 package org.apache.directory.server.core.exception;
 
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getAdminConnection;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
-
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.message.AddResponse;
+import org.apache.directory.ldap.client.api.message.DeleteResponse;
+import org.apache.directory.ldap.client.api.message.ModifyDnResponse;
+import org.apache.directory.ldap.client.api.message.ModifyRequest;
+import org.apache.directory.ldap.client.api.message.ModifyResponse;
+import org.apache.directory.ldap.client.api.message.SearchResponse;
+import org.apache.directory.ldap.client.api.message.SearchResultEntry;
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
-import org.apache.directory.shared.ldap.exception.LdapEntryAlreadyExistsException;
-import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
-import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -59,27 +60,33 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP") })
 public class ExceptionServiceIT extends AbstractLdapTestUnit
 {
-    private DirContext createSubContext( String type, String value ) throws Exception
+    
+    private AddResponse createSubContext( String type, String value ) throws Exception
     {
-        return createSubContext( getSystemContext( service ), type, value );
+        return createSubContext( new DN( ServerDNConstants.SYSTEM_DN ), type, value );
+    }
+    
+
+    private AddResponse createSubContext( DN parent, String type, String value ) throws Exception
+    {
+        DN dn = ( DN ) parent.clone();
+        dn.add( "ou=" + value );
+        Entry entry = new DefaultClientEntry( dn );
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, "person" );
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, "OrganizationalPerson" );
+        entry.add( SchemaConstants.CN_AT, value );
+        entry.add( SchemaConstants.SN_AT, value );
+        
+        AddResponse resp = getAdminConnection( ldapServer ).add( entry );
+        
+        return resp;
     }
 
-
-    private DirContext createSubContext( DirContext ctx, String type, String value ) throws NamingException
-    {
-        Attributes subentry = LdifUtils.createAttributes( 
-            "objectClass: top",
-            "objectClass: person",
-            "objectClass: OrganizationalPerson",
-            "sn", value,
-            "cn", value );
-
-        return ctx.createSubcontext( type + "=" + value, subentry );
-    }
-
-
+    
     // ------------------------------------------------------------------------
     // Search Operation Tests
     // ------------------------------------------------------------------------
@@ -88,22 +95,13 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     /**
      * Test search operation failure when the search base is non-existant.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
     public void testFailSearchNoSuchObject() throws Exception
     {
-        SearchControls ctls = new SearchControls();
-        try
-        {
-            getSystemContext( service ).search( "ou=blah", "(objectClass=*)", ctls );
-            fail( "Execution should never get here due to exception!" );
-        }
-        catch ( LdapNoSuchObjectException e )
-        {
-            assertEquals( "ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
-        }
+        Cursor<SearchResponse> cursor = getAdminConnection( ldapServer ).search( "ou=blah", "(objectClass=*)", SearchScope.ONELEVEL, "*" );
+        assertFalse( cursor.next() );
     }
 
 
@@ -111,22 +109,14 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
      * Search operation control to test if normal search operations occur
      * correctly.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
     public void testSearchControl() throws Exception
     {
-        SearchControls ctls = new SearchControls();
-        NamingEnumeration<SearchResult> list = getSystemContext( service ).search( "ou=users", "(objectClass=*)", ctls );
+        Cursor<SearchResponse> cursor = getAdminConnection( ldapServer ).search( "ou=users,ou=system", "(objectClass=*)", SearchScope.ONELEVEL, "*" );
 
-        if ( list.hasMore() )
-        {
-            SearchResult result = list.next();
-            assertNotNull( result.getAttributes() );
-            assertEquals( "uid=akarasulu,ou=users,ou=system", result.getName() );
-        }
-
-        assertFalse( list.hasMore() );
+        assertFalse( cursor.next() );
     }
 
 
@@ -137,86 +127,47 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     /**
      * Test move operation failure when the object moved is non-existant.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
     public void testFailMoveEntryAlreadyExists() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapConnection connection = getAdminConnection( ldapServer );
 
-        try
-        {
-            Attributes attrs = new BasicAttributes( "ou", "users", true );
-            Attribute attr = new BasicAttribute( "ObjectClass" );
-            attr.add( "top"  );
-            attr.add( "OrganizationalUnit" );
-            attrs.put( attr );
+        Entry entry = new DefaultClientEntry( new DN( "ou=users,ou=groups,ou=system" ) );
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, "OrganizationalUnit" );
+        entry.add( SchemaConstants.OU_AT, "users" );
+        
+        connection.add( entry );
+        ModifyDnResponse resp = connection.rename( entry.getDn(), new RDN( "ou=users" ) );
+        assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, resp.getLdapResult().getResultCode() );
 
-            sysRoot.createSubcontext( "ou=users,ou=groups", attrs );
-            sysRoot.rename( "ou=users", "ou=users,ou=groups" );
-            fail( "Execution should never get here due to exception!" );
-        }
-        catch ( LdapEntryAlreadyExistsException e )
-        {
-            assertEquals( "ou=users,ou=groups,ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, e.getResultCode() );
-        }
-
-        try
-        {
-            Attributes attrs = new BasicAttributes( "ou", "uzerz", true );
-            Attribute attr = new BasicAttribute( "ObjectClass" );
-            attr.add( "top"  );
-            attr.add( "OrganizationalUnit" );
-            attrs.put( attr );
-
-            sysRoot.createSubcontext( "ou=uzerz,ou=groups", attrs );
-            sysRoot.addToEnvironment( "java.naming.ldap.deleteRDN", "false" );
-            sysRoot.rename( "ou=users", "ou=uzerz,ou=groups" );
-            sysRoot.removeFromEnvironment( "java.naming.ldap.deleteRDN" );
-            fail( "Execution should never get here due to exception!" );
-        }
-        catch ( LdapEntryAlreadyExistsException e )
-        {
-            assertEquals( "ou=uzerz,ou=groups,ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, e.getResultCode() );
-        }
+        Entry userzEntry = new DefaultClientEntry( new DN( "ou=userz,ou=groups,ou=system" ) );
+        userzEntry.add( SchemaConstants.OBJECT_CLASS_AT, "OrganizationalUnit" );
+        userzEntry.add( SchemaConstants.OU_AT, "userz" );
+        
+        connection.add( userzEntry );
+        
+        ModifyDnResponse modResp = connection.rename( "ou=userz,ou=groups,ou=system", "ou=users", true );
+        assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, modResp.getLdapResult().getResultCode() );
     }
 
 
     /**
      * Test move operation failure when the object moved is non-existant.
 
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
     public void testFailMoveNoSuchObject() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapConnection connection = getAdminConnection( ldapServer );
 
-        try
-        {
-            sysRoot.rename( "ou=blah", "ou=blah,ou=groups" );
-            fail( "Execution should never get here due to exception!" );
-        }
-        catch ( LdapNoSuchObjectException e )
-        {
-            assertEquals( "ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
-        }
+        ModifyDnResponse resp = connection.rename( "ou=blah,ou=groups,ou=system", "ou=blah1" );
+        assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, resp.getLdapResult().getResultCode() );
 
-        try
-        {
-            sysRoot.addToEnvironment( "java.naming.ldap.deleteRDN", "false" );
-            sysRoot.rename( "ou=blah", "ou=blah2,ou=groups" );
-            sysRoot.removeFromEnvironment( "java.naming.ldap.deleteRDN" );
-            fail( "Execution should never get here due to exception!" );
-        }
-        catch ( LdapNoSuchObjectException e )
-        {
-            assertEquals( "ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
-        }
+        resp = connection.rename( "ou=blah,ou=groups,ou=system", "ou=blah1" );
+        assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, resp.getLdapResult().getResultCode() );
     }
 
 
@@ -224,26 +175,19 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
      * Move operation control to test if normal move operations occur
      * correctly.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
     public void testMoveControl() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapConnection connection = getAdminConnection( ldapServer );
 
-        sysRoot.rename( "ou=users", "ou=users,ou=groups" );
-        assertNotNull( sysRoot.lookup( "ou=users,ou=groups" ) );
+        connection.move( "ou=users,ou=system", "ou=groups,ou=system" );
+        Entry entry = ( ( SearchResultEntry ) connection.lookup( "ou=users,ou=groups,ou=system" ) ).getEntry();
+        assertNotNull( entry );
 
-        try
-        {
-            sysRoot.lookup( "ou=users" );
-            fail( "Execution should never get here due to exception!" );
-        }
-        catch ( NamingException e )
-        {
-            assertEquals( "ou=system", e.getResolvedName().toString() );
-            assertTrue( e instanceof LdapNoSuchObjectException );
-        }
+        SearchResponse res = connection.lookup( "ou=users,ou=system" );
+        assertNull( res );
     }
 
 
@@ -255,46 +199,30 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     /**
      * Test modifyRdn operation failure when the object renamed is non-existant.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
     public void testFailModifyRdnEntryAlreadyExists() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapConnection connection = getAdminConnection( ldapServer );
 
-        try
-        {
-            sysRoot.rename( "ou=users", "ou=groups" );
-            fail( "Execution should never get here due to exception!" );
-        }
-        catch ( LdapEntryAlreadyExistsException e )
-        {
-            assertEquals( "ou=groups,ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, e.getResultCode() );
-        }
+        ModifyDnResponse resp = connection.rename( "ou=users,ou=system", "ou=groups" );
+        assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, resp.getLdapResult().getResultCode() );
     }
 
 
     /**
      * Test modifyRdn operation failure when the object renamed is non-existant.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
     public void testFailModifyRdnNoSuchObject() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapConnection connection = getAdminConnection( ldapServer );
 
-        try
-        {
-            sysRoot.rename( "ou=blah", "ou=asdf" );
-            fail( "Execution should never get here due to exception!" );
-        }
-        catch ( LdapNoSuchObjectException e )
-        {
-            assertEquals( "ou=blah,ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
-        }
+        ModifyDnResponse resp = connection.rename( "ou=blah,ou=system", "ou=asdf" );
+        assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, resp.getLdapResult().getResultCode() );
     }
 
 
@@ -307,21 +235,12 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testModifyRdnControl() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapConnection connection = getAdminConnection( ldapServer );
 
-        sysRoot.rename( "ou=users", "ou=asdf" );
-        assertNotNull( sysRoot.lookup( "ou=asdf" ) );
+        connection.rename( "ou=users,ou=system", "ou=asdf" );
+        assertNotNull( connection.lookup( "ou=asdf,ou=system" ) );
 
-        try
-        {
-            sysRoot.lookup( "ou=users" );
-            fail( "Execution should never get here due to exception!" );
-        }
-        catch ( NamingException e )
-        {
-            assertEquals( "ou=system", e.getResolvedName().toString() );
-            assertTrue( e instanceof LdapNoSuchObjectException );
-        }
+        assertNull( connection.lookup( "ou=users,ou=system" ) );
     }
 
 
@@ -338,38 +257,13 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testFailModifyNoSuchObject() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapConnection connection = getAdminConnection( ldapServer );
 
-        Attributes attrs = new BasicAttributes( true );
-        Attribute ou = new BasicAttribute( "ou" );
-        ou.add( "users" );
-        ou.add( "dummyValue" );
-        attrs.put( ou );
-
-        try
-        {
-            sysRoot.modifyAttributes( "ou=blah", DirContext.ADD_ATTRIBUTE, attrs );
-            fail( "Execution should never get here due to exception!" );
-        }
-        catch ( LdapNoSuchObjectException e )
-        {
-            assertEquals( "ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
-        }
-
-        ModificationItem[] mods = new ModificationItem[]
-            { new ModificationItem( DirContext.ADD_ATTRIBUTE, ou ) };
-
-        try
-        {
-            sysRoot.modifyAttributes( "ou=blah", mods );
-            fail( "Execution should never get here due to exception!" );
-        }
-        catch ( LdapNoSuchObjectException e )
-        {
-            assertEquals( "ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
-        }
+        ModifyRequest modReq = new ModifyRequest( new DN( "ou=blah,ou=system" ) );
+        modReq.add( SchemaConstants.OU_AT, "another-value" );
+        
+        ModifyResponse modResp = connection.modify( modReq );
+        assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, modResp.getLdapResult().getResultCode() );
     }
 
 
@@ -382,27 +276,16 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testModifyControl() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapConnection connection = getAdminConnection( ldapServer );
 
-        Attributes attrs = new BasicAttributes( true );
-        Attribute attr = new BasicAttribute( "ou" );
-        attr.add( "dummyValue" );
-        attrs.put( attr );
-        sysRoot.modifyAttributes( "ou=users", DirContext.ADD_ATTRIBUTE, attrs );
-        Attribute ou = sysRoot.getAttributes( "ou=users" ).get( "ou" );
+        ModifyRequest modReq = new ModifyRequest( new DN( "ou=users,ou=system" ) );
+        modReq.add( SchemaConstants.OU_AT, "dummyValue" );
+        
+        connection.modify( modReq );
+        Entry entry = ( ( SearchResultEntry ) connection.lookup( "ou=users,ou=system" ) ).getEntry();
+        EntryAttribute ou = entry.get( "ou" );
         assertTrue( ou.contains( "users" ) );
         assertTrue( ou.contains( "dummyValue" ) );
-
-        attr = new BasicAttribute( "ou" );
-        attr.add( "another" );
-        ModificationItem[] mods = new ModificationItem[]
-            { new ModificationItem( DirContext.ADD_ATTRIBUTE, attr ) };
-
-        sysRoot.modifyAttributes( "ou=users", mods );
-        ou = sysRoot.getAttributes( "ou=users" ).get( "ou" );
-        assertTrue( ou.contains( "users" ) );
-        assertTrue( ou.contains( "dummyValue" ) );
-        assertTrue( ou.contains( "another" ) );
     }
 
 
@@ -419,18 +302,9 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testFailLookupNoSuchObject() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapConnection connection = getAdminConnection( ldapServer );
 
-        try
-        {
-            sysRoot.lookup( "ou=blah" );
-            fail( "Execution should never get here due to exception!" );
-        }
-        catch ( LdapNoSuchObjectException e )
-        {
-            assertEquals( "ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
-        }
+        assertNull( connection.lookup( "ou=blah,ou=system" ) );
     }
 
 
@@ -443,11 +317,11 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testLookupControl() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapConnection connection = getAdminConnection( ldapServer );
 
-        LdapContext ctx = ( LdapContext ) sysRoot.lookup( "ou=users" );
-        assertNotNull( ctx );
-        assertEquals( "users", ctx.getAttributes( "" ).get( "ou" ).get() );
+        Entry entry = ( ( SearchResultEntry ) connection.lookup( "ou=users,ou=system" ) ).getEntry();
+        assertNotNull( entry );
+        assertEquals( "users", entry.get( "ou" ).getString() );
     }
 
 
@@ -460,15 +334,15 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
      * Test list operation failure when the base searched is non-existant.
      *
      * @throws Exception on error
-     */
+     *
     @Test
     public void testFailListNoSuchObject() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapConnection connection = getAdminConnection( ldapServer );
 
         try
         {
-            sysRoot.list( "ou=blah" );
+            connection.list( "ou=blah" );
             fail( "Execution should never get here due to exception!" );
         }
         catch ( LdapNoSuchObjectException e )
@@ -483,13 +357,13 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
      * List operation control to test if normal list operations occur correctly.
      *
      * @throws Exception on error
-     */
+     *
     @Test
     public void testListControl() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapConnection connection = getAdminConnection( ldapServer );
 
-        NamingEnumeration<?> list = sysRoot.list( "ou=users" );
+        NamingEnumeration<?> list = connection.list( "ou=users" );
 
         if ( list.hasMore() )
         {
@@ -500,7 +374,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
 
         assertFalse( list.hasMore() );
     }
-
+    */
 
     // ------------------------------------------------------------------------
     // Add Operation Tests
@@ -516,50 +390,20 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testFailAddOnAlias() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapConnection connection = getAdminConnection( ldapServer );
 
-        Attributes attrs = new BasicAttributes( true );
-        Attribute attr = new BasicAttribute( "objectClass" );
-        attr.add( "top" );
-        attr.add( "alias" );
-        attr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
-        attrs.put( attr );
-        attrs.put( "aliasedObjectName", "ou=users,ou=system" );
+        Entry entry = new DefaultClientEntry( new DN( "cn=toanother,ou=system" ) );
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, "alias", SchemaConstants.EXTENSIBLE_OBJECT_OC );
+        entry.add( "aliasedObjectName", "ou=users,ou=system" );
 
-        sysRoot.createSubcontext( "cn=toanother", attrs );
+        connection.add( entry );
 
-        try
-        {
-            sysRoot.createSubcontext( "ou=blah,cn=toanother" );
-            fail( "Execution should never get here due to exception!" );
-        }
-        catch ( LdapSchemaViolationException e )
-        {
-            assertEquals( ResultCodeEnum.OBJECT_CLASS_VIOLATION, e.getResultCode() );
-        }
-    }
+        Entry aliasChild = new DefaultClientEntry( new DN( "ou=blah,cn=toanother,ou=system" ) );
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
+        entry.add( SchemaConstants.OU_AT, "blah" );
 
-
-    /**
-     * Tests for add operation failure when the parent of the entry to add does
-     * not exist.
-     *
-     * @throws Exception on error
-     */
-    @Test
-    public void testFailAddNoSuchEntry() throws Exception
-    {
-        LdapContext sysRoot = getSystemContext( service );
-
-        try
-        {
-            sysRoot.createSubcontext( "ou=blah,ou=abc" );
-            fail( "Execution should never get here due to exception!" );
-        }
-        catch ( LdapSchemaViolationException e )
-        {
-            assertEquals( ResultCodeEnum.OBJECT_CLASS_VIOLATION, e.getResultCode() );
-        }
+        AddResponse resp = connection.add( aliasChild );
+        assertEquals( ResultCodeEnum.OBJECT_CLASS_VIOLATION, resp.getLdapResult().getResultCode() );
     }
 
 
@@ -573,16 +417,8 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     {
         createSubContext( "ou", "blah");
 
-        try
-        {
-            createSubContext( "ou", "blah");
-            fail( "Execution should never get here due to exception!" );
-        }
-        catch ( LdapEntryAlreadyExistsException e )
-        {
-            assertEquals( "ou=blah,ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, e.getResultCode() );
-        }
+        AddResponse resp = createSubContext( "ou", "blah");
+        assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, resp.getLdapResult().getResultCode() );
     }
 
 
@@ -594,12 +430,12 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testAddControl() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapConnection connection = getAdminConnection( ldapServer );
 
-        DirContext ctx = createSubContext( "ou", "blah");
-        createSubContext( ctx, "ou", "subctx");
-        Object obj = sysRoot.lookup( "ou=subctx,ou=blah" );
-        assertNotNull( obj );
+        AddResponse resp = createSubContext( "ou", "blah");
+        resp = createSubContext( new DN( "ou=blah,ou=system" ), "ou", "subctx");
+        Entry entry = ( ( SearchResultEntry ) connection.lookup( "ou=subctx,ou=blah,ou=system" ) ).getEntry();
+        assertNotNull( entry );
     }
 
 
@@ -616,21 +452,13 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testFailDeleteNotAllowedOnNonLeaf() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapConnection connection = getAdminConnection( ldapServer );
 
-        DirContext ctx = createSubContext( "ou", "blah" );
-        createSubContext( ctx,  "ou", "subctx" );
+        AddResponse resp = createSubContext( "ou", "blah" );
+        resp = createSubContext( new DN( "ou=blah,ou=system" ),  "ou", "subctx" );
 
-        try
-        {
-            sysRoot.destroySubcontext( "ou=blah" );
-            fail( "Execution should never get here due to exception!" );
-        }
-        catch ( LdapContextNotEmptyException e )
-        {
-            assertEquals( "ou=blah,ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF, e.getResultCode() );
-        }
+        DeleteResponse delResp = connection.delete( "ou=blah,ou=system" );
+        assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF, delResp.getLdapResult().getResultCode() );
     }
 
 
@@ -643,18 +471,10 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testFailDeleteNoSuchObject() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapConnection connection = getAdminConnection( ldapServer );
 
-        try
-        {
-            sysRoot.destroySubcontext( "ou=blah" );
-            fail( "Execution should never get here due to exception!" );
-        }
-        catch ( LdapNoSuchObjectException e )
-        {
-            assertEquals( "ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
-        }
+        DeleteResponse delResp = connection.delete( "ou=blah,ou=system" );
+        assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, delResp.getLdapResult().getResultCode() );
     }
 
 
@@ -666,23 +486,15 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testDeleteControl() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapConnection connection = getAdminConnection( ldapServer );
 
-        createSubContext( "ou", "blah" );
+        AddResponse resp = createSubContext( "ou", "blah" );
 
-        Object obj = sysRoot.lookup( "ou=blah" );
-        assertNotNull( obj );
-        sysRoot.destroySubcontext( "ou=blah" );
+        Entry entry = ( ( SearchResultEntry ) connection.lookup( "ou=blah,ou=system" ) ).getEntry();
+        assertNotNull( entry );
+        connection.delete( entry.getDn() );
 
-        try
-        {
-            sysRoot.lookup( "ou=blah" );
-            fail( "Execution should never get here due to exception!" );
-        }
-        catch ( LdapNoSuchObjectException e )
-        {
-            assertEquals( "ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
-        }
+        Object respEntry = connection.lookup( entry.getDn().getName() );
+        assertNull( respEntry );
     }
 }
