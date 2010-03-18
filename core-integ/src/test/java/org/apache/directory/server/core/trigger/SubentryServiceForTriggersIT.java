@@ -179,7 +179,7 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
             sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
             fail( "should never get here: cannot create subentry under regular entries" );
         }
-        catch ( LdapNoSuchAttributeException e )
+        catch ( Exception e )
         {
         }
 
