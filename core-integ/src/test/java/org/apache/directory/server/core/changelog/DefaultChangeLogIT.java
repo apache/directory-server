@@ -19,29 +19,29 @@
 package org.apache.directory.server.core.changelog;
 
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getAdminConnection;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-import javax.naming.ldap.LdapContext;
-
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.exception.LdapException;
+import org.apache.directory.ldap.client.api.message.ModifyRequest;
+import org.apache.directory.ldap.client.api.message.SearchResultEntry;
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -58,6 +58,8 @@ import org.slf4j.LoggerFactory;
  */
 @RunWith ( FrameworkRunner.class )
 @CreateDS( factory=DefaultDirectoryServiceFactory.class, name="DefaultChangeLogIT-class" )
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP") })
 public class DefaultChangeLogIT extends AbstractLdapTestUnit
 {
     public static final Logger LOG = LoggerFactory.getLogger( DefaultChangeLogIT.class );
@@ -66,13 +68,15 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
     @Test
     public void testManyTagsPersistenceAcrossRestarts() throws Exception, InterruptedException
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapConnection sysRoot = getAdminConnection( ldapServer );
         long revision = service.getChangeLog().getCurrentRevision();
 
         // add new test entry
-        Attributes attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
-        attrs.put( "ou", "test0" );
-        sysRoot.createSubcontext( "ou=test0", attrs );
+        Entry entry = new DefaultClientEntry( new DN( "ou=test0,ou=system" ) );
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
+        entry.add( SchemaConstants.OU_AT, "test0" );
+        sysRoot.add( entry );
+        
         assertEquals( revision + 1, service.getChangeLog().getCurrentRevision() );
 
         Tag t0 = service.getChangeLog().tag();
@@ -81,9 +85,10 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         assertEquals( revision + 1, t0.getRevision() );
 
         // add another test entry
-        attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
-        attrs.put( "ou", "test1" );
-        sysRoot.createSubcontext( "ou=test1", attrs );
+        entry = new DefaultClientEntry( new DN( "ou=test1,ou=system" ) );
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
+        entry.put( SchemaConstants.OU_AT, "test1" );
+        sysRoot.add( entry );
         assertEquals( revision + 2, service.getChangeLog().getCurrentRevision() );
 
         Tag t1 = service.getChangeLog().tag();
@@ -91,44 +96,50 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         assertEquals( revision + 2, service.getChangeLog().getCurrentRevision() );
         assertEquals( revision + 2, t1.getRevision() );
 
-        service.shutdown();
-        service.startup();
+        ldapServer.stop();
+        ldapServer.start();
 
+        sysRoot = getAdminConnection( ldapServer );
         assertEquals( revision + 2, service.getChangeLog().getCurrentRevision() );
         assertEquals( t1, service.getChangeLog().getLatest() );
         assertEquals( revision + 2, t1.getRevision() );
 
         // add third test entry
-        attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
-        attrs.put( "ou", "test2" );
-        sysRoot.createSubcontext( "ou=test2", attrs );
+        entry = new DefaultClientEntry( new DN( "ou=test2,ou=system" ) );
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
+        entry.put( SchemaConstants.OU_AT, "test2" );
+        sysRoot.add( entry );
         assertEquals( revision + 3, service.getChangeLog().getCurrentRevision() );
 
         service.revert();
-        sysRoot.getAttributes( "ou=test0" ); // test present
-        sysRoot.getAttributes( "ou=test1" ); // test present
+
+        assertPresent( sysRoot, "ou=test0,ou=system" ); // test present
+        assertPresent( sysRoot, "ou=test1,ou=system" ); // test present
+
         assertNotPresent( sysRoot, "ou=test2" );
         assertEquals( revision + 4, service.getChangeLog().getCurrentRevision() );
         assertEquals( t1, service.getChangeLog().getLatest() );
 
         service.revert( t0.getRevision() );
-        sysRoot.getAttributes( "ou=test0" ); // test present
-        assertNotPresent( sysRoot, "ou=test1" );
-        assertNotPresent( sysRoot, "ou=test2" );
+        assertPresent( sysRoot, "ou=test0,ou=system" ); // test present
+        assertNotPresent( sysRoot, "ou=test1,ou=system" );
+        assertNotPresent( sysRoot, "ou=test2,ou=system" );
         assertEquals( revision + 7, service.getChangeLog().getCurrentRevision() );
         assertEquals( t1, service.getChangeLog().getLatest() );
 
         // no sync this time but should happen automatically
-        service.shutdown();
-        service.startup();
+        ldapServer.stop();
+        ldapServer.start();
+        
+        sysRoot = getAdminConnection( ldapServer );
         assertEquals( revision + 7, service.getChangeLog().getCurrentRevision() );
         assertEquals( t1, service.getChangeLog().getLatest() );
         assertEquals( revision + 2, t1.getRevision() );
 
         service.revert( revision );
-        assertNotPresent( sysRoot, "ou=test0" );
-        assertNotPresent( sysRoot, "ou=test1" );
-        assertNotPresent( sysRoot, "ou=test2" );
+        assertNotPresent( sysRoot, "ou=test0,ou=system" );
+        assertNotPresent( sysRoot, "ou=test1,ou=system" );
+        assertNotPresent( sysRoot, "ou=test2,ou=system" );
         assertEquals( revision + 14, service.getChangeLog().getCurrentRevision() );
         assertEquals( t1, service.getChangeLog().getLatest() );
     }
@@ -137,7 +148,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
     @Test
     public void testTagPersistenceAcrossRestarts() throws Exception, InterruptedException
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapConnection sysRoot = getAdminConnection( ldapServer );
         long revision = service.getChangeLog().getCurrentRevision();
 
         Tag t0 = service.getChangeLog().tag();
@@ -145,14 +156,16 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         assertEquals( revision, service.getChangeLog().getCurrentRevision() );
 
         // add new test entry
-        Attributes attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
-        attrs.put( "ou", "test" );
-        sysRoot.createSubcontext( "ou=test", attrs );
+        Entry entry = new DefaultClientEntry( new DN( "ou=test,ou=system" ) );
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
+        entry.put( SchemaConstants.OU_AT, "test" );
+        sysRoot.add( entry );
         assertEquals( revision + 1, service.getChangeLog().getCurrentRevision() );
 
-        service.shutdown();
-        service.startup();
-
+        ldapServer.stop();
+        ldapServer.start();
+        
+        sysRoot = getAdminConnection( ldapServer );
         assertEquals( revision + 1, service.getChangeLog().getCurrentRevision() );
         assertEquals( t0, service.getChangeLog().getLatest() );
 
@@ -166,44 +179,38 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
     @Test
     public void testRevertAddOperations() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapConnection sysRoot = getAdminConnection( ldapServer );
         Tag t0 = service.getChangeLog().tag();
-        Attributes attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
-        attrs.put( "ou", "test" );
-        sysRoot.createSubcontext( "ou=test", attrs );
+        Entry entry = new DefaultClientEntry( new DN( "ou=test,ou=system" ) );
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
+        entry.put( SchemaConstants.OU_AT, "test" );
+        sysRoot.add( entry );
 
-        assertNotNull( sysRoot.getAttributes( "ou=test" ) );
+        assertPresent( sysRoot, "ou=test,ou=system" );
         service.revert( t0.getRevision() );
 
-        try
-        {
-            sysRoot.getAttributes( "ou=test" );
-            fail( "Should not be able to find the entry!" );
-        }
-        catch ( NamingException ne )
-        {
-            assertTrue( ne instanceof LdapNoSuchObjectException );
-        }
+        assertNotPresent( sysRoot, "ou=test,ou=system" );
     }
 
 
     @Test
     public void testRevertAddAndDeleteOperations() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
+        LdapConnection sysRoot = getAdminConnection( ldapServer );
         Tag t0 = service.getChangeLog().tag();
 
         // add new test entry
-        Attributes attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
-        attrs.put( "ou", "test" );
-        sysRoot.createSubcontext( "ou=test", attrs );
+        Entry entry = new DefaultClientEntry( new DN( "ou=test,ou=system" ) );
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
+        entry.put( SchemaConstants.OU_AT, "test" );
+        sysRoot.add( entry );
 
         // assert presence
-        assertNotNull( sysRoot.getAttributes( "ou=test" ) );
+        assertPresent( sysRoot, "ou=test,ou=system" );
 
         // delete the test entry and test that it is gone
-        sysRoot.destroySubcontext( "ou=test" );
-        assertNotPresent( sysRoot, "ou=test" );
+        sysRoot.delete( "ou=test,ou=system" );
+        assertNotPresent( sysRoot, "ou=test,ou=system" );
 
         // now revert back to begining the added entry is still gone
         service.revert( t0.getRevision() );
@@ -214,56 +221,60 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
     @Test
     public void testRevertDeleteOperations() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        Attributes attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
-        attrs.put( "ou", "test" );
-        sysRoot.createSubcontext( "ou=test", attrs );
+        LdapConnection sysRoot = getAdminConnection( ldapServer );
+        Entry entry = new DefaultClientEntry( new DN( "ou=test,ou=system" ) );
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
+        entry.put( SchemaConstants.OU_AT, "test" );
+        sysRoot.add( entry );
 
         // tag after the addition before deletion
         Tag t0 = service.getChangeLog().tag();
-        assertNotNull( sysRoot.getAttributes( "ou=test" ) );
+        assertPresent( sysRoot, "ou=test,ou=system" );
 
         // delete the test entry and test that it is gone
-        sysRoot.destroySubcontext( "ou=test" );
-        assertNotPresent( sysRoot, "ou=test" );
+        sysRoot.delete( "ou=test,ou=system" );
+        assertNotPresent( sysRoot, "ou=test,ou=system" );
 
         // now revert and assert that the added entry re-appears
         service.revert( t0.getRevision() );
-        assertNotNull( sysRoot.getAttributes( "ou=test" ) );
+        assertPresent( sysRoot, "ou=test,ou=system" );
     }
 
 
     @Test
     public void testRevertRenameOperations() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        Attributes attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
-        attrs.put( "ou", "oldname" );
-        sysRoot.createSubcontext( "ou=oldname", attrs );
+        LdapConnection sysRoot = getAdminConnection( ldapServer );
+        Entry entry = new DefaultClientEntry( new DN( "ou=oldname,ou=system" ) );
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
+        entry.put( SchemaConstants.OU_AT, "oldname" );
+        sysRoot.add( entry );
 
         // tag after the addition before rename
         Tag t0 = service.getChangeLog().tag();
-        assertNotNull( sysRoot.getAttributes( "ou=oldname" ) );
+        assertPresent( sysRoot, "ou=oldname,ou=system" );
 
         // rename the test entry and test that the rename occurred
-        sysRoot.rename( "ou=oldname", "ou=newname" );
-        assertNotPresent( sysRoot, "ou=oldname" );
-        assertNotNull( sysRoot.getAttributes( "ou=newname" ) );
+        sysRoot.rename( "ou=oldname,ou=system", "ou=newname,ou=system" );
+        assertNotPresent( sysRoot, "ou=oldname,ou=system" );
+        assertPresent( sysRoot, "ou=newname,ou=system" );
 
         // now revert and assert that the rename was reversed
         service.revert( t0.getRevision() );
-        assertNotPresent( sysRoot, "ou=newname" );
-        assertNotNull( sysRoot.getAttributes( "ou=oldname" ) );
+        assertPresent( sysRoot, "ou=oldname,ou=system" );
+        assertNotPresent( sysRoot, "ou=newname,ou=system" );
+
     }
 
 
     @Test
     public void testRevertModifyOperations() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( service );
-        Attributes attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
-        attrs.put( "ou", "test5" );
-        sysRoot.createSubcontext( "ou=test5", attrs );
+        LdapConnection sysRoot = getAdminConnection( ldapServer );
+        Entry entry = new DefaultClientEntry( new DN( "ou=test5,ou=system" ) );
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
+        entry.put( SchemaConstants.OU_AT, "test5" );
+        sysRoot.add( entry );
 
         // -------------------------------------------------------------------
         // Modify ADD Test
@@ -271,20 +282,22 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
 
         // tag after the addition before modify ADD
         Tag t0 = service.getChangeLog().tag();
-        assertNotNull( sysRoot.getAttributes( "ou=test5" ) );
+        assertPresent( sysRoot, "ou=test5,ou=system" );
 
         // modify the test entry to add description and test new attr appears
-        sysRoot.modifyAttributes( "ou=test5", DirContext.ADD_ATTRIBUTE,
-                new BasicAttributes( "description", "a desc value", true ) );
-        Attributes resusitated = sysRoot.getAttributes( "ou=test5" );
+        ModifyRequest modReq = new ModifyRequest( entry.getDn() );
+        modReq.add( "description", "a desc value" );
+        sysRoot.modify( modReq );
+
+        Entry resusitated = ( ( SearchResultEntry ) sysRoot.lookup( "ou=test5,ou=system" ) ).getEntry();
         assertNotNull( resusitated );
-        Attribute description = resusitated.get( "description" );
+        EntryAttribute description = resusitated.get( "description" );
         assertNotNull( description );
-        assertEquals( "a desc value", description.get() );
+        assertEquals( "a desc value", description.getString() );
 
         // now revert and assert that the added entry re-appears
         service.revert( t0.getRevision() );
-        resusitated = sysRoot.getAttributes( "ou=test5" );
+        resusitated = ( ( SearchResultEntry ) sysRoot.lookup( "ou=test5,ou=system" ) ).getEntry();
         assertNotNull( resusitated );
         assertNull( resusitated.get( "description" ) );
 
@@ -293,31 +306,34 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         // add the attribute again and make sure it is old value
-        sysRoot.modifyAttributes( "ou=test5", DirContext.ADD_ATTRIBUTE,
-                new BasicAttributes( "description", "old value", true ) );
-        resusitated = sysRoot.getAttributes( "ou=test5" );
+        modReq = new ModifyRequest( resusitated.getDn() );
+        modReq.add( "description", "old value" );
+        sysRoot.modify( modReq );
+        resusitated = ( ( SearchResultEntry ) sysRoot.lookup( "ou=test5,ou=system" ) ).getEntry();
         assertNotNull( resusitated );
         description = resusitated.get( "description" );
         assertNotNull( description );
-        assertEquals( description.get(), "old value" );
+        assertEquals( description.getString(), "old value" );
 
         // now tag then replace the value to "new value" and confirm
         Tag t1 = service.getChangeLog().tag();
-        sysRoot.modifyAttributes( "ou=test5", DirContext.REPLACE_ATTRIBUTE,
-                new BasicAttributes( "description", "new value", true ) );
-        resusitated = sysRoot.getAttributes( "ou=test5" );
+        modReq = new ModifyRequest( resusitated.getDn() );
+        modReq.replace( "description", "new value" );
+        sysRoot.modify( modReq );
+
+        resusitated = ( ( SearchResultEntry ) sysRoot.lookup( "ou=test5,ou=system" ) ).getEntry();
         assertNotNull( resusitated );
         description = resusitated.get( "description" );
         assertNotNull( description );
-        assertEquals( description.get(), "new value" );
+        assertEquals( description.getString(), "new value" );
 
         // now revert and assert the old value is now reverted
         service.revert( t1.getRevision() );
-        resusitated = sysRoot.getAttributes( "ou=test5" );
+        resusitated = ( ( SearchResultEntry ) sysRoot.lookup( "ou=test5,ou=system" ) ).getEntry();
         assertNotNull( resusitated );
         description = resusitated.get( "description" );
         assertNotNull( description );
-        assertEquals( description.get(), "old value" );
+        assertEquals( description.getString(), "old value" );
 
 
         // -------------------------------------------------------------------
@@ -325,84 +341,84 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         Tag t2 = service.getChangeLog().tag();
-        sysRoot.modifyAttributes( "ou=test5", DirContext.REMOVE_ATTRIBUTE,
-                new BasicAttributes( "description", "old value", true ) );
-        resusitated = sysRoot.getAttributes( "ou=test5" );
+        modReq = new ModifyRequest( resusitated.getDn() );
+        modReq.remove( "description", "old value" );
+        sysRoot.modify( modReq );
+
+        resusitated = ( ( SearchResultEntry ) sysRoot.lookup( "ou=test5,ou=system" ) ).getEntry();
         assertNotNull( resusitated );
         description = resusitated.get( "description" );
         assertNull( description );
 
         // now revert and assert the old value is now reverted
         service.revert( t2.getRevision() );
-        resusitated = sysRoot.getAttributes( "ou=test5" );
+        resusitated = ( ( SearchResultEntry ) sysRoot.lookup( "ou=test5,ou=system" ) ).getEntry();
         assertNotNull( resusitated );
         description = resusitated.get( "description" );
         assertNotNull( description );
-        assertEquals( description.get(), "old value" );
+        assertEquals( description.getString(), "old value" );
 
         // -------------------------------------------------------------------
         // Modify Multi Operation Test
         // -------------------------------------------------------------------
 
         // add a userPassword attribute so we can test replacing it
-        sysRoot.modifyAttributes( "ou=test5", DirContext.ADD_ATTRIBUTE,
-                new BasicAttributes( "userPassword", "to be replaced", true ) );
-        assertPassword( sysRoot.getAttributes( "ou=test5" ), "to be replaced" );
+        modReq = new ModifyRequest( resusitated.getDn() );
+        modReq.add( "userPassword", "to be replaced" );
+        sysRoot.modify( modReq );
+        resusitated = ( ( SearchResultEntry ) sysRoot.lookup( "ou=test5,ou=system" ) ).getEntry();
+        assertPassword( resusitated, "to be replaced" );
 
-        ModificationItem[] mods = new ModificationItem[]
-        {
-            new ModificationItem( DirContext.REMOVE_ATTRIBUTE,
-                    new BasicAttribute( "description", "old value" ) ),
-            new ModificationItem( DirContext.ADD_ATTRIBUTE,
-                    new BasicAttribute( "seeAlso", "ou=added" ) ),
-            new ModificationItem( DirContext.REPLACE_ATTRIBUTE,
-                    new BasicAttribute( "userPassword", "a replaced value" ) )
-        };
+        modReq = new ModifyRequest( resusitated.getDn() );
+        modReq.remove( "description", "old value" );
+        modReq.add( "seeAlso", "ou=added" );
+        modReq.replace( "userPassword", "a replaced value" );
+        
         Tag t3 = service.getChangeLog().tag();
 
         // now make the modification and check that description is gone,
         // seeAlso is added, and that the userPassword has been replaced
-        sysRoot.modifyAttributes( "ou=test5", mods );
-        resusitated = sysRoot.getAttributes( "ou=test5" );
+        sysRoot.modify( modReq );
+        resusitated = ( ( SearchResultEntry ) sysRoot.lookup( "ou=test5,ou=system" ) ).getEntry();
         assertNotNull( resusitated );
         description = resusitated.get( "description" );
         assertNull( description );
         assertPassword( resusitated, "a replaced value" );
-        Attribute seeAlso = resusitated.get( "seeAlso" );
+        EntryAttribute seeAlso = resusitated.get( "seeAlso" );
         assertNotNull( seeAlso );
-        assertEquals( seeAlso.get(), "ou=added" );
+        assertEquals( seeAlso.getString(), "ou=added" );
 
         // now we revert and make sure the old values are as they were
         service.revert( t3.getRevision() );
-        resusitated = sysRoot.getAttributes( "ou=test5" );
+        resusitated = ( ( SearchResultEntry ) sysRoot.lookup( "ou=test5,ou=system" ) ).getEntry();
         assertNotNull( resusitated );
         description = resusitated.get( "description" );
         assertNotNull( description );
-        assertEquals( description.get(), "old value" );
+        assertEquals( description.getString(), "old value" );
         assertPassword( resusitated, "to be replaced" );
         seeAlso = resusitated.get( "seeAlso" );
         assertNull( seeAlso );
     }
 
 
-    private void assertPassword( Attributes entry, String password ) throws NamingException
+    private void assertPassword( Entry entry, String password ) throws Exception
     {
-        Attribute userPassword = entry.get( "userPassword" );
+        EntryAttribute userPassword = entry.get( "userPassword" );
         assertNotNull( userPassword );
-        Arrays.equals( password.getBytes(), ( byte[] ) userPassword.get() );
+        assertTrue( Arrays.equals( password.getBytes(), userPassword.getString().getBytes() ) );
     }
 
 
-    private void assertNotPresent( DirContext ctx, String dn ) throws NamingException
+    private void assertNotPresent( LdapConnection connection, String dn ) throws LdapException
     {
-        try
-        {
-            ctx.getAttributes( dn );
-            fail( "Should not be able to find the entry " + dn + " but it is still there." );
-        }
-        catch ( NamingException ne )
-        {
-            assertTrue( ne instanceof LdapNoSuchObjectException );
-        }
+        SearchResultEntry se = ( SearchResultEntry ) connection.lookup( dn );
+        assertNull( se );
+    }
+    
+    
+    private void assertPresent( LdapConnection connection, String dn ) throws LdapException
+    {
+        Entry entry = ( ( SearchResultEntry ) connection.lookup( dn ) ).getEntry();
+        assertNotNull( entry );
     }
 }
