@@ -37,6 +37,7 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
+import javax.naming.directory.NoSuchAttributeException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
@@ -45,7 +46,6 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.junit.Ignore;
@@ -178,7 +178,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
             sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
             fail( "should never get here: cannot create subentry under regular entries" );
         }
-        catch ( LdapNoSuchAttributeException e )
+        catch ( NoSuchAttributeException e )
         {
         }
 
