@@ -26,6 +26,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -33,8 +34,6 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -119,7 +118,7 @@ public class AddIT extends AbstractLdapTestUnit
             sysRoot.createSubcontext( base, attrs );
             fail( "Should not reach this state" );
         }
-        catch ( LdapSchemaViolationException e )
+        catch ( NamingException e )
         {
             assertTrue( true );
         }
@@ -151,7 +150,7 @@ public class AddIT extends AbstractLdapTestUnit
             sysRoot.createSubcontext( base, attrs );
             fail( "Should not reach this state" );
         }
-        catch ( LdapInvalidAttributeValueException e )
+        catch ( NamingException e )
         {
             assertTrue( true );
         }

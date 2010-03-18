@@ -42,7 +42,6 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -441,7 +440,7 @@ public class CreateContextIT extends AbstractLdapTestUnit
             sysRoot.createSubcontext( "ou=subtest" );
             fail( "It is not allowed to create a context with a bad RDN. CN is mandatory");
         }
-        catch ( LdapSchemaViolationException ne )
+        catch ( NamingException ne )
         {
             assertTrue( true );
         }

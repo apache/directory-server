@@ -30,7 +30,6 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -86,9 +85,9 @@ public class DestroyContextIT extends AbstractLdapTestUnit
             sysRoot.lookup( "ou=testing00" );
             fail( "ou=testing00, ou=system should not exist" );
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
-            assertTrue( e instanceof LdapNoSuchObjectException );
+            assertTrue( e instanceof NamingException );
         }
 
         /*
@@ -103,7 +102,7 @@ public class DestroyContextIT extends AbstractLdapTestUnit
         }
         catch ( NamingException e )
         {
-            assertTrue( e instanceof LdapNoSuchObjectException );
+            assertTrue( e instanceof NamingException );
         }
 
         /*
@@ -118,7 +117,7 @@ public class DestroyContextIT extends AbstractLdapTestUnit
         }
         catch ( NamingException e )
         {
-            assertTrue( e instanceof LdapNoSuchObjectException );
+            assertTrue( e instanceof NamingException );
         }
 
         /*
@@ -133,7 +132,7 @@ public class DestroyContextIT extends AbstractLdapTestUnit
         }
         catch ( NamingException e )
         {
-            assertTrue( e instanceof LdapNoSuchObjectException );
+            assertTrue( e instanceof NamingException );
         }
     }
 

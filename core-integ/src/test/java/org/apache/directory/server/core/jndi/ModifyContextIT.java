@@ -41,8 +41,6 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -191,7 +189,7 @@ public class ModifyContextIT extends AbstractLdapTestUnit
             sysRoot.modifyAttributes( "uid=akarasulu,ou=users", DirContext.ADD_ATTRIBUTE, attrs );
             fail( "error expected due to empty attribute value" );
         }
-        catch ( LdapInvalidAttributeValueException e )
+        catch ( NamingException e )
         {
             // expected
         }
@@ -251,7 +249,7 @@ public class ModifyContextIT extends AbstractLdapTestUnit
             sysRoot.modifyAttributes( "ou=testing00", DirContext.REMOVE_ATTRIBUTE, attributes );
             fail();
         }
-        catch ( LdapNoSuchAttributeException lnsae )
+        catch ( NamingException lnsae )
         {
             // Expected
             assertTrue( true );
@@ -259,7 +257,7 @@ public class ModifyContextIT extends AbstractLdapTestUnit
     }
 
     
-    @Test( expected = LdapNoSuchAttributeException.class )
+    @Test( expected = NamingException.class )
     public void testRemoveNonExistingValue() throws Exception
     {
         createData();

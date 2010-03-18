@@ -30,6 +30,7 @@ import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.naming.NoPermissionException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
@@ -37,7 +38,6 @@ import javax.naming.directory.ModificationItem;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -177,14 +177,14 @@ public class RootDSEIT extends AbstractLdapTestUnit
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
         DirContext ctx = ( DirContext ) initCtx.lookup( "" );
-        LdapNoPermissionException notNull = null;
+        NoPermissionException notNull = null;
 
         try
         {
             ctx.destroySubcontext( "" );
             fail( "we should never get here" );
         }
-        catch ( LdapNoPermissionException e )
+        catch ( NoPermissionException e )
         {
             notNull = e;
         }
@@ -212,14 +212,14 @@ public class RootDSEIT extends AbstractLdapTestUnit
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
         DirContext ctx = ( DirContext ) initCtx.lookup( "" );
-        LdapNoPermissionException notNull = null;
+        NoPermissionException notNull = null;
 
         try
         {
             ctx.rename( "", "ou=system" );
             fail( "we should never get here" );
         }
-        catch ( LdapNoPermissionException e )
+        catch ( NoPermissionException e )
         {
             notNull = e;
         }
@@ -247,14 +247,14 @@ public class RootDSEIT extends AbstractLdapTestUnit
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
         DirContext ctx = ( DirContext ) initCtx.lookup( "" );
-        LdapNoPermissionException notNull = null;
+        NoPermissionException notNull = null;
 
         try
         {
             ctx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, null );
             fail( "we should never get here" );
         }
-        catch ( LdapNoPermissionException e )
+        catch ( NoPermissionException e )
         {
             notNull = e;
         }
@@ -285,7 +285,7 @@ public class RootDSEIT extends AbstractLdapTestUnit
 
         DirContext ctx = ( DirContext ) initCtx.lookup( "" );
 
-        LdapNoPermissionException notNull = null;
+        NoPermissionException notNull = null;
 
         try
         {
@@ -294,7 +294,7 @@ public class RootDSEIT extends AbstractLdapTestUnit
 
             fail( "we should never get here" );
         }
-        catch ( LdapNoPermissionException e )
+        catch ( NoPermissionException e )
         {
             notNull = e;
         }
