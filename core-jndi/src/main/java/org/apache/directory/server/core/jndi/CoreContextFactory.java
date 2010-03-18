@@ -24,6 +24,7 @@ import java.util.Hashtable;
 
 import javax.naming.ConfigurationException;
 import javax.naming.Context;
+import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 
@@ -60,7 +61,7 @@ public class CoreContextFactory implements InitialContextFactory
         }
         catch ( LdapInvalidDnException lide )
         {
-            throw new ConfigurationException( I18n.err( I18n.ERR_733, env ) );
+            throw new InvalidNameException( I18n.err( I18n.ERR_733, env ) );
         }
         
         byte[] credential = getCredential( env );
