@@ -238,11 +238,11 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         {
             if ( name instanceof DN )
             {
-                doModifyOperation( buildTarget( DN.fromName( name ) ), newMods );
+                doModifyOperation( buildTarget( (DN)name ), newMods );
             }
             else
             {
-                doModifyOperation( buildTarget( (DN)name ), newMods );
+                doModifyOperation( buildTarget( DN.fromName( name ) ), newMods );
             }
         }
         catch( Exception e )
