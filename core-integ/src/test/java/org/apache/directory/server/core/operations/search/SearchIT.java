@@ -52,6 +52,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.junit.Before;
@@ -658,7 +659,7 @@ public class SearchIT extends AbstractLdapTestUnit
      * @param sn the surName of the person
      * @return the attributes of a new person entry
      */
-    protected Attributes getPersonAttributes( String sn, String cn ) throws NamingException
+    protected Attributes getPersonAttributes( String sn, String cn ) throws LdapException
     {
         Attributes attributes = LdifUtils.createAttributes( 
             "objectClass: top",
