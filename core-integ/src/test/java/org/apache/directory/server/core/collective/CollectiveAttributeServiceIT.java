@@ -43,6 +43,8 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.ldif.LdapLdifException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,7 +59,7 @@ import org.junit.runner.RunWith;
 @RunWith ( FrameworkRunner.class )
 public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 {
-    private Attributes getTestEntry( String cn ) throws NamingException
+    private Attributes getTestEntry( String cn ) throws LdapLdifException, LdapException
     {
         Attributes subentry = LdifUtils.createAttributes( 
             "objectClass: top",
@@ -69,7 +71,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
     }
 
 
-    private Attributes getTestSubentry()  throws NamingException
+    private Attributes getTestSubentry()  throws LdapLdifException, LdapException
     {
         Attributes subentry = LdifUtils.createAttributes( 
             "objectClass: top",
@@ -83,7 +85,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
     }
 
 
-    private Attributes getTestSubentry2() throws NamingException
+    private Attributes getTestSubentry2() throws LdapLdifException, LdapException
     {
         Attributes subentry = LdifUtils.createAttributes( 
             "objectClass: top",
@@ -97,7 +99,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
     }
 
 
-    private Attributes getTestSubentry3() throws NamingException
+    private Attributes getTestSubentry3() throws LdapLdifException, LdapException
     {
         Attributes subentry = LdifUtils.createAttributes( 
             "objectClass: top",
@@ -439,7 +441,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
     
     
     @Test
-    public void testAddRegularEntryWithCollectiveAttribute() throws NamingException
+    public void testAddRegularEntryWithCollectiveAttribute() throws LdapException
     {
         Attributes entry = getTestEntry( "Ersin Er" );
         entry.put( "c-l", "Turkiye" );
