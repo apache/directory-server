@@ -148,7 +148,7 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
         Attributes mods = new BasicAttributes( true );
         mods.put( attr );
 
-        getRootContext( service ).modifyAttributes( dn, op, mods );
+        getRootContext( service ).modifyAttributes( DN.toName( dn ), op, mods );
     }
 
 

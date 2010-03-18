@@ -40,6 +40,7 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -104,7 +105,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
         DN dn = new DN( "ou=attributeTypes,cn=apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=2.16.840.1.113730.3.2.22.249" );
         
-        getSchemaContext( service ).createSubcontext( dn, attributes );
+        getSchemaContext( service ).createSubcontext( DN.toName( dn ), attributes );
         
         //--------------------------------------------------------------------
         // The extendPerson OC
@@ -142,7 +143,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
         dn = new DN( "ou=objectClasses,cn=apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=2.16.840.1.113730.3.2.22" );
         
-        getSchemaContext( service ).createSubcontext( dn, attributes );
+        getSchemaContext( service ).createSubcontext( DN.toName( dn ), attributes );
     }
 
     /**
@@ -152,7 +153,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
      * @return the dn of the objectClass container
      * @throws NamingException on error
      */
-    private DN getObjectClassContainer( String schemaName ) throws NamingException
+    private DN getObjectClassContainer( String schemaName ) throws LdapInvalidDnException
     {
         return new DN( "ou=objectClasses,cn=" + schemaName );
     }
@@ -183,7 +184,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
         
         try
         {
-            getSchemaContext( service ).createSubcontext( dn, attributes );
+            getSchemaContext( service ).createSubcontext( DN.toName( dn ), attributes );
             fail(); // Should not reach this point
         }
         catch ( NamingException ne )
@@ -218,7 +219,7 @@ public class ObjectClassCreateIT extends AbstractLdapTestUnit
         
         try
         {
-            getSchemaContext( service ).createSubcontext( dn, attributes );
+            getSchemaContext( service ).createSubcontext( DN.toName( dn ), attributes );
             fail(); // Should not reach this point
         }
         catch ( NamingException ne )

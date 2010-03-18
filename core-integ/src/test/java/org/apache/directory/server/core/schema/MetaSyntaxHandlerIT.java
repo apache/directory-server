@@ -32,7 +32,7 @@ import java.util.List;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
+import javax.naming.OperationNotSupportedException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
@@ -43,6 +43,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
@@ -103,8 +104,9 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         
         DN dn = getSyntaxContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
+        
         createDummySyntaxChecker( OID, "apachemeta" );
-        getSchemaContext( service ).createSubcontext( dn, attrs );
+        getSchemaContext( service ).createSubcontext( DN.toName( dn ), attrs );
         
         assertTrue( schemaManager.getLdapSyntaxRegistry().contains( OID ) );
         assertEquals( schemaManager.getLdapSyntaxRegistry().getSchemaName( OID ), "apachemeta" );
@@ -126,7 +128,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         DN dn = getSyntaxContainer( "nis" );
         dn.add( "m-oid" + "=" + OID );
         createDummySyntaxChecker( OID, "nis" );
-        getSchemaContext( service ).createSubcontext( dn, attrs );
+        getSchemaContext( service ).createSubcontext( DN.toName( dn ), attrs );
         
         assertFalse( "adding new syntax to disabled schema should not register it into the registries", 
             schemaManager.getLdapSyntaxRegistry().contains( OID ) );
@@ -151,7 +153,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         
         try
         {
-            getSchemaContext( service ).createSubcontext( dn, attrs );
+            getSchemaContext( service ).createSubcontext( DN.toName( dn ), attrs );
             fail( "Should not be there" );
         }
         catch( NameNotFoundException nnfe )
@@ -176,7 +178,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "syntax should be removed from the registry after being deleted", 
             schemaManager.getLdapSyntaxRegistry().contains( OID ) );
         
-        getSchemaContext( service ).destroySubcontext( dn );
+        getSchemaContext( service ).destroySubcontext( DN.toName( dn ) );
 
         assertFalse( "syntax should be removed from the registry after being deleted", 
             schemaManager.getLdapSyntaxRegistry().contains( OID ) );
@@ -186,7 +188,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
             schemaManager.getLdapSyntaxRegistry().lookup( OID );
             fail( "syntax lookup should fail after deleting it" );
         }
-        catch( NamingException e )
+        catch( LdapException e )
         {
         }
 
@@ -205,7 +207,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         assertFalse( "syntax should be removed from the registry after being deleted", 
             schemaManager.getLdapSyntaxRegistry().contains( OID ) );
 
-        getSchemaContext( service ).destroySubcontext( dn );
+        getSchemaContext( service ).destroySubcontext( DN.toName( dn ) );
 
         assertFalse( "syntax should be removed from the registry after being deleted", 
             schemaManager.getLdapSyntaxRegistry().contains( OID ) );
@@ -215,7 +217,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
             schemaManager.getLdapSyntaxRegistry().lookup( OID );
             fail( "syntax lookup should fail after deleting it" );
         }
-        catch( NamingException e )
+        catch( LdapException e )
         {
         }
         
@@ -233,7 +235,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         
         DN newdn = getSyntaxContainer( "apachemeta" );
         newdn.add( "m-oid" + "=" + NEW_OID );
-        getSchemaContext( service ).rename( dn, newdn );
+        getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 
         assertFalse( "old syntax OID should be removed from the registry after being renamed", 
             schemaManager.getLdapSyntaxRegistry().contains( OID ) );
@@ -244,7 +246,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
             schemaManager.getLdapSyntaxRegistry().lookup( OID );
             fail( "syntax lookup should fail after deleting the syntax" );
         }
-        catch( NamingException e )
+        catch( LdapException e )
         {
         }
 
@@ -264,7 +266,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         DN newdn = getSyntaxContainer( "apache" );
         newdn.add( "m-oid" + "=" + OID );
         
-        getSchemaContext( service ).rename( dn, newdn );
+        getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 
         assertTrue( "syntax OID should still be present", 
             schemaManager.getLdapSyntaxRegistry().contains( OID ) );
@@ -286,7 +288,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         DN newdn = getSyntaxContainer( "apache" );
         newdn.add( "m-oid" + "=" + NEW_OID );
         
-        getSchemaContext( service ).rename( dn, newdn );
+        getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 
         assertFalse( "old syntax OID should NOT be present", 
             schemaManager.getLdapSyntaxRegistry().contains( OID ) );
@@ -314,7 +316,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         ModificationItem[] mods = new ModificationItem[1];
         Attribute attr = new BasicAttribute( "m-description", DESCRIPTION1 );
         mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
-        getSchemaContext( service ).modifyAttributes( dn, mods );
+        getSchemaContext( service ).modifyAttributes( DN.toName( dn ), mods );
 
         assertTrue( "syntax OID should still be present", 
             schemaManager.getLdapSyntaxRegistry().contains( OID ) );
@@ -341,7 +343,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         
         Attributes mods = new BasicAttributes( true );
         mods.put( "m-description", DESCRIPTION1 );
-        getSchemaContext( service ).modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
+        getSchemaContext( service ).modifyAttributes( DN.toName( dn ), DirContext.REPLACE_ATTRIBUTE, mods );
 
         assertTrue( "syntax OID should still be present", 
             schemaManager.getLdapSyntaxRegistry().contains( OID ) );
@@ -369,12 +371,11 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         
         try
         {
-            getSchemaContext( service ).destroySubcontext( dn );
+            getSchemaContext( service ).destroySubcontext( DN.toName( dn ) );
             fail( "should not be able to delete a syntax in use" );
         }
-        catch( LdapUnwillingToPerformException e ) 
+        catch( OperationNotSupportedException e ) 
         {
-            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
         assertTrue( "syntax should still be in the registry after delete failure", 
@@ -397,7 +398,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         
         try
         {
-            getSchemaContext( service ).rename( dn, newdn );
+            getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
             fail( "should not be able to move a syntax in use" );
         }
         catch( LdapUnwillingToPerformException e ) 
@@ -425,7 +426,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         
         try
         {
-            getSchemaContext( service ).rename( dn, newdn );
+            getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
             fail( "should not be able to move a syntax in use" );
         }
         catch( LdapUnwillingToPerformException e ) 
@@ -450,7 +451,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         
         DN dn = getMatchingRuleContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + MR_OID );
-        getSchemaContext( service ).createSubcontext( dn, attrs );
+        getSchemaContext( service ).createSubcontext( DN.toName( dn ), attrs );
         
         assertTrue( schemaManager.getMatchingRuleRegistry().contains( MR_OID ) );
         assertEquals( schemaManager.getMatchingRuleRegistry().getSchemaName( MR_OID ), "apachemeta" );
@@ -471,7 +472,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         
         try
         {
-            getSchemaContext( service ).rename( dn, newdn );
+            getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
             fail( "should not be able to rename a syntax in use" );
         }
         catch( LdapUnwillingToPerformException e ) 
@@ -503,7 +504,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         
         try
         {
-            getSchemaContext( service ).rename( dn, top );
+            getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( top ) );
             fail( "should not be able to move a syntax up to ou=schema" );
         }
         catch( LdapInvalidDnException e ) 
@@ -530,7 +531,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         
         try
         {
-            getSchemaContext( service ).rename( dn, newdn );
+            getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
             fail( "should not be able to move a syntax into comparators container" );
         }
         catch( LdapInvalidDnException e ) 
@@ -556,7 +557,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         DN newdn = getSyntaxContainer( "nis" );
         newdn.add( "m-oid" + "=" + OID );
         
-        getSchemaContext( service ).rename( dn, newdn );
+        getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 
         assertFalse( "syntax OID should no longer be present", 
             schemaManager.getLdapSyntaxRegistry().contains( OID ) );
@@ -579,7 +580,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         DN newdn = getSyntaxContainer( "apachemeta" );
         newdn.add( "m-oid" + "=" + OID );
         
-        getSchemaContext( service ).rename( dn, newdn );
+        getSchemaContext( service ).rename( DN.toName( dn ), DN.toName( newdn ) );
 
         assertTrue( "syntax OID should be present when moved to enabled schema", 
             schemaManager.getLdapSyntaxRegistry().contains( OID ) );
@@ -612,7 +613,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         Attributes mods = new BasicAttributes( true );
         mods.put( attr );
         
-        getRootContext( service ).modifyAttributes( dn, op, mods );
+        getRootContext( service ).modifyAttributes( DN.toName( dn ), op, mods );
     }
     
     

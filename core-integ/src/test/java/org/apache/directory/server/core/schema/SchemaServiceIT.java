@@ -39,6 +39,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.SchemaViolationException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
@@ -47,10 +48,9 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.exception.LdapOtherException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -101,9 +101,8 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         {
             getSystemContext( service ).createSubcontext( "uid=invalid", attrs );
         }
-        catch ( LdapSchemaViolationException e )
+        catch ( SchemaViolationException e )
         {
-            assertEquals( ResultCodeEnum.OBJECT_CLASS_VIOLATION, e.getResultCode() );
         }
     }
     
@@ -127,9 +126,8 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         {
             getSystemContext( service ).createSubcontext( "cn=Jack Black", attrs );
         }
-        catch ( LdapSchemaViolationException e )
+        catch ( SchemaViolationException e )
         {
-            assertEquals( ResultCodeEnum.OBJECT_CLASS_VIOLATION, e.getResultCode() );
         }
     }
     
@@ -188,7 +186,7 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             
             fail( "Should not be possible to create two schema entities with the same OID." );
         }
-        catch( NamingException e )
+        catch( LdapOtherException e )
         {
             assertTrue( true );
         }
