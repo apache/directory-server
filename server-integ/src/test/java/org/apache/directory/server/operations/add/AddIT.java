@@ -91,6 +91,8 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jndi.ldap.LdapName;
+
 
 /**
  * Various add scenario tests.
@@ -747,7 +749,7 @@ public class AddIT extends AbstractLdapTestUnit
         }
         
         CoreSession session = service.getSession( principal );
-        LdapContext ctx = new ServerLdapContext( service, session, new DN( dn ) );
+        LdapContext ctx = new ServerLdapContext( service, session, new LdapName( dn ) );
         return ctx;
     }
     
