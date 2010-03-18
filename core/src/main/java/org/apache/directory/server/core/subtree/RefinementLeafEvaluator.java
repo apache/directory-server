@@ -22,8 +22,6 @@ package org.apache.directory.server.core.subtree;
 
 import java.util.Iterator;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;

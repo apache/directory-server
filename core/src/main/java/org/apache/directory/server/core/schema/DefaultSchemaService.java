@@ -22,8 +22,6 @@ package org.apache.directory.server.core.schema;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;

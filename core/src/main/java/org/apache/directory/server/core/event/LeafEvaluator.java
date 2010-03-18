@@ -22,8 +22,6 @@ package org.apache.directory.server.core.event;
 
 import java.util.Comparator;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.NotImplementedException;

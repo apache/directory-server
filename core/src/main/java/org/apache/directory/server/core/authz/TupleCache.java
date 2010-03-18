@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.naming.NamingException;
-import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.CoreSession;
