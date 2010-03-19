@@ -25,7 +25,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +39,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 494176 $
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 public class GeneralAuthorizationIT extends AbstractLdapTestUnit 
 {
 
@@ -47,6 +49,11 @@ public class GeneralAuthorizationIT extends AbstractLdapTestUnit
         AutzIntegUtils.ldapServer = ldapServer;
     }
     
+    @After
+    public void closeConnections()
+    {
+        IntegrationUtils.closeConections();
+    }
     
     /**
      * Checks to make sure we cannot create a malformed ACI missing two

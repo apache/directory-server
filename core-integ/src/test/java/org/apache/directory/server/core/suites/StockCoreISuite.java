@@ -19,23 +19,11 @@
 package org.apache.directory.server.core.suites;
 
 
-import org.apache.directory.server.core.authn.SimpleAuthenticationIT;
-import org.apache.directory.server.core.authz.AddAuthorizationIT;
-import org.apache.directory.server.core.authz.AdministratorsGroupIT;
-import org.apache.directory.server.core.authz.AuthorizationServiceAsAdminIT;
 import org.apache.directory.server.core.authz.AuthorizationServiceAsNonAdminIT;
-import org.apache.directory.server.core.authz.AuthzAuthnIT;
-import org.apache.directory.server.core.authz.CompareAuthorizationIT;
-import org.apache.directory.server.core.authz.DeleteAuthorizationIT;
-import org.apache.directory.server.core.authz.GeneralAuthorizationIT;
-import org.apache.directory.server.core.authz.ModifyAuthorizationIT;
-import org.apache.directory.server.core.authz.MoveRenameAuthorizationIT;
-import org.apache.directory.server.core.authz.SearchAuthorizationIT;
 import org.apache.directory.server.core.changelog.DefaultChangeLogIT;
 import org.apache.directory.server.core.collective.CollectiveAttributeServiceIT;
 import org.apache.directory.server.core.configuration.PartitionConfigurationIT;
 import org.apache.directory.server.core.event.EventServiceIT;
-import org.apache.directory.server.core.exception.ExceptionServiceIT;
 import org.apache.directory.server.core.integ.FrameworkSuite;
 import org.apache.directory.server.core.jndi.AddIT;
 import org.apache.directory.server.core.jndi.CreateContextIT;
@@ -102,9 +90,7 @@ import org.junit.runners.Suite;
  */
 @RunWith ( FrameworkSuite.class )
 @Suite.SuiteClasses ( {
-        SimpleAuthenticationIT.class,
         CollectiveAttributeServiceIT.class,
-        ExceptionServiceIT.class,
         EventServiceIT.class,
         AddIT.class,
 
@@ -148,19 +134,8 @@ import org.junit.runners.Suite;
         AddReferralIT.class,
         ReferralIT.class,
         
-        MoveRenameAuthorizationIT.class,
-        DeleteAuthorizationIT.class,
-        SearchAuthorizationIT.class,
-        CompareAuthorizationIT.class,
-        ModifyAuthorizationIT.class,
-        AddAuthorizationIT.class,
-        AuthzAuthnIT.class,
         AuthorizationServiceAsNonAdminIT.class,
-        AuthorizationServiceAsAdminIT.class,
-        GeneralAuthorizationIT.class,
         
-        AdministratorsGroupIT.class,
-
         SchemaPersistenceIT.class,
         SubschemaSubentryIT.class,
         SubentryServiceForTriggersIT.class,

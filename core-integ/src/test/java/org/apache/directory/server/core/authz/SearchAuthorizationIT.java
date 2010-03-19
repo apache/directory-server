@@ -41,9 +41,6 @@ import java.util.Map;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.message.SearchResponse;
 import org.apache.directory.ldap.client.api.message.SearchResultEntry;
-import org.apache.directory.server.annotations.CreateLdapServer;
-import org.apache.directory.server.annotations.CreateTransport;
-import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
@@ -67,13 +64,6 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith(FrameworkRunner.class)
-//@CreateDS( enableAccessControl=true, name="SearchAuthorizationIT" )
-//@CreateLdapServer( 
-//    transports = 
-//        {
-//          @CreateTransport( protocol = "LDAP" )
-//        }
-//)
 public class SearchAuthorizationIT extends AbstractLdapTestUnit
 {
 

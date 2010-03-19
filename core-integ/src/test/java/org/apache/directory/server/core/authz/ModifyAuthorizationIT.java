@@ -36,6 +36,7 @@ import org.apache.directory.ldap.client.api.message.ModifyRequest;
 import org.apache.directory.ldap.client.api.message.ModifyResponse;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -46,6 +47,7 @@ import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,6 +70,13 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
     }
 
 
+    @After
+    public void closeConnections()
+    {
+        IntegrationUtils.closeConections();
+    }
+    
+    
     /**
      * Checks if an attribute of a simple entry (an organizationalUnit) with an RDN
      * relative to ou=system can be modified by a specific non-admin user.  If a
