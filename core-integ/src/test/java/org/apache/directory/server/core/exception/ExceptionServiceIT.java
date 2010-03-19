@@ -399,11 +399,11 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
         connection.add( entry );
 
         Entry aliasChild = new DefaultClientEntry( new DN( "ou=blah,cn=toanother,ou=system" ) );
-        entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
-        entry.add( SchemaConstants.OU_AT, "blah" );
+        aliasChild.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
+        aliasChild.add( SchemaConstants.OU_AT, "blah" );
 
         AddResponse resp = connection.add( aliasChild );
-        assertEquals( ResultCodeEnum.OBJECT_CLASS_VIOLATION, resp.getLdapResult().getResultCode() );
+        assertEquals( ResultCodeEnum.ALIAS_PROBLEM, resp.getLdapResult().getResultCode() );
     }
 
 
