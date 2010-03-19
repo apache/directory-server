@@ -47,6 +47,7 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Test;
@@ -234,7 +235,7 @@ public class CompareReferralIT extends AbstractLdapTestUnit
             session.compare( new DN( "cn=Emmanuel Lecharny,ou=Roles,o=MNN,c=WW,ou=system" ), "cn", "Emmanuel Lecharny", false );
             fail();
         }
-        catch ( ReferralException re )
+        catch ( LdapReferralException re )
         {
             int nbRefs = 0;
             Set<String> expectedRefs = new HashSet<String>();
@@ -388,7 +389,7 @@ public class CompareReferralIT extends AbstractLdapTestUnit
             session.compare( new DN( "ou=Roles,o=MNN,c=WW,ou=system" ), "ou", "roles", false );
             fail();
         }
-        catch ( ReferralException re )
+        catch ( LdapReferralException re )
         {
             int nbRefs = 0;
             Set<String> expectedRefs = new HashSet<String>();

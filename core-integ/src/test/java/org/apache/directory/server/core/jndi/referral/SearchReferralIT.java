@@ -48,6 +48,7 @@ import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Test;
@@ -240,7 +241,7 @@ public class SearchReferralIT extends AbstractLdapTestUnit
             coreSession.search( dn, "(ObjectClass=*)", false );
             fail();
         }
-        catch ( ReferralException re )
+        catch ( LdapReferralException re )
         {
             int nbRefs = 0;
             Set<String> expectedRefs = new HashSet<String>();
@@ -392,7 +393,7 @@ public class SearchReferralIT extends AbstractLdapTestUnit
             coreSession.search( dn, "(ObjectClass=*)", false );
             fail();
         }
-        catch ( ReferralException re )
+        catch ( LdapReferralException re )
         {
             int nbRefs = 0;
             Set<String> expectedRefs = new HashSet<String>();

@@ -53,6 +53,8 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.client.ClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
+import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Test;
@@ -248,7 +250,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
             session.modify( new DN( "cn=Emmanuel Lecharny,ou=Roles,c=MNN,o=WW,ou=system" ), mods );
             fail();
         }
-        catch ( NameNotFoundException nnfe )
+        catch ( LdapNoSuchObjectException lnsoe )
         {
             assertTrue( true );
         }
@@ -276,7 +278,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
             session.modify( new DN( "cn=Emmanuel Lecharny,ou=Roles,c=MNN,o=WW,ou=system" ), mods, true );
             fail();
         }
-        catch ( NameNotFoundException nnfe )
+        catch ( LdapNoSuchObjectException lnsoe )
         {
             assertTrue( true );
         }
@@ -384,7 +386,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
             session.modify( new DN( "ou=Roles,o=MNN,c=WW,ou=system" ), mods, false );
             fail();
         }
-        catch ( ReferralException re )
+        catch ( LdapReferralException re )
         {
             int nbRefs = 0;
             Set<String> expectedRefs = new HashSet<String>();

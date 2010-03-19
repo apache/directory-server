@@ -44,6 +44,9 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.exception.LdapEntryAlreadyExistsException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
+import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.junit.Before;
@@ -234,7 +237,7 @@ public class RenameReferralIT extends AbstractLdapTestUnit
             session.rename( dn, newRdn, false, false );
             fail();
         }
-        catch ( ReferralException re )
+        catch ( LdapReferralException re )
         {
             int nbRefs = 0;
             Set<String> expectedRefs = new HashSet<String>();
@@ -409,7 +412,7 @@ public class RenameReferralIT extends AbstractLdapTestUnit
             session.rename( dn, newRdn, false, false );
             fail();
         }
-        catch ( ReferralException re )
+        catch ( LdapReferralException re )
         {
             int nbRefs = 0;
             Set<String> expectedRefs = new HashSet<String>();
@@ -451,7 +454,7 @@ public class RenameReferralIT extends AbstractLdapTestUnit
             renamed = session.lookup( dnGroups );
             fail();
         }
-        catch ( NameNotFoundException nnfe )
+        catch ( LdapNoSuchObjectException lnsoe )
         {
             assertTrue( true );
         }
@@ -465,7 +468,7 @@ public class RenameReferralIT extends AbstractLdapTestUnit
             renamed = session.lookup( dnRoles );
             fail();
         }
-        catch ( NameNotFoundException nnfe )
+        catch ( LdapNoSuchObjectException lnsoe )
         {
             assertTrue( true );
         }
@@ -563,7 +566,7 @@ public class RenameReferralIT extends AbstractLdapTestUnit
             session.rename( dn, newRdn, false, false );
             fail();
         }
-        catch ( ReferralException re )
+        catch ( LdapReferralException re )
         {
             int nbRefs = 0;
             Set<String> expectedRefs = new HashSet<String>();
@@ -599,7 +602,7 @@ public class RenameReferralIT extends AbstractLdapTestUnit
             session.rename( dn, newRdn, false, true );
             fail();
         }
-        catch ( NameAlreadyBoundException nabe )
+        catch ( LdapEntryAlreadyExistsException leaee )
         {
             assertTrue( true );
         }

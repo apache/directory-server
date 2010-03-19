@@ -45,6 +45,7 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Test;
@@ -251,7 +252,7 @@ public class AddReferralIT extends AbstractLdapTestUnit
             session.add( serverEntry, false );
             fail();
         }
-        catch ( ReferralException re )
+        catch ( LdapReferralException re )
         {
             assertTrue( true );
             

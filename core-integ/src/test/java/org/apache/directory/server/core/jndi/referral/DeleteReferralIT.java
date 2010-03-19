@@ -41,6 +41,8 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
+import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Test;
@@ -190,7 +192,7 @@ public class DeleteReferralIT extends AbstractLdapTestUnit
             session.delete( new DN( "cn=Emmanuel Lecharny,ou=Roles" ) );
             fail();
         }
-        catch ( NameNotFoundException nnfe )
+        catch ( LdapNoSuchObjectException lnsoe )
         {
             assertTrue( true );
         }
@@ -213,7 +215,7 @@ public class DeleteReferralIT extends AbstractLdapTestUnit
             session.lookup( dn, new String[]{} );
             fail();
         }
-        catch ( NameNotFoundException nnfe )
+        catch ( LdapNoSuchObjectException lnsoe )
         {
             assertTrue( true );
         }
@@ -277,7 +279,7 @@ public class DeleteReferralIT extends AbstractLdapTestUnit
             session.lookup( dn, new String[]{} );
             fail();
         }
-        catch ( NameNotFoundException nnfe )
+        catch ( LdapNoSuchObjectException lnsoe )
         {
             assertTrue( true );
         }
@@ -299,7 +301,7 @@ public class DeleteReferralIT extends AbstractLdapTestUnit
             session.delete( dn, false );
             fail();
         }
-        catch ( ReferralException re )
+        catch ( LdapReferralException re )
         {
             int nbRefs = 0;
             Set<String> expectedRefs = new HashSet<String>();
@@ -337,7 +339,7 @@ public class DeleteReferralIT extends AbstractLdapTestUnit
             session.lookup( dn, new String[]{} );
             fail();
         }
-        catch ( NameNotFoundException nnfe )
+        catch ( LdapNoSuchObjectException lnsoe )
         {
             assertTrue( true );
         }
