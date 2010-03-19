@@ -30,7 +30,7 @@
 
   <groupId>org.apache.directory.server</groupId>
   <artifactId>apacheds-parent</artifactId>
-  <version>1.5.6</version>
+  <version>1.5.7-SNAPSHOT</version>
   <name>ApacheDS</name>
   <packaging>pom</packaging>
 
@@ -665,8 +665,8 @@
   </build>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/tags/1.5.6</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/tags/1.5.6</developerConnection>
-    <url>http://svn.apache.org/viewvc/directory/apacheds/tags/1.5.6</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/branches/apacheds-1.5.6</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/branches/apacheds-1.5.6</developerConnection>
+    <url>http://svn.apache.org/viewvc/directory/apacheds/branches/apacheds-1.5.6</url>
   </scm>
 </project>
