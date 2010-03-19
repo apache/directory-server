@@ -26,24 +26,24 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.NoPermissionException;
 import javax.naming.directory.Attribute;
+import javax.naming.directory.AttributeInUseException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.InvalidAttributeValueException;
+import javax.naming.directory.InvalidAttributesException;
 import javax.naming.directory.ModificationItem;
-import javax.naming.directory.NoSuchAttributeException;
+import javax.naming.directory.SchemaViolationException;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
-import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
-import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -304,7 +304,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
      * Add a new AT with a valid Value in the entry, the AT is not part of the MAY or MUST,
      * and the OC does not contain the extensibleObject OC
      */
-    @Test( expected = LdapSchemaViolationException.class )
+    @Test( expected = SchemaViolationException.class )
     public void testModifyAddExistingEntryNotExistingATNotInMayValidAVA() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -371,7 +371,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     /**
      * Add a new single valued AT with 2 Values in the entry
      */
-    @Test( expected = LdapInvalidAttributeValueException.class )
+    @Test( expected = InvalidAttributeValueException.class )
     public void testModifyAddExistingEntrySingleValuedATWithTwoValues() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -392,7 +392,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     /**
      * Add a bad AT in the entry, the OC does not contain the extensibleObject OC
      */
-    @Test( expected = NoSuchAttributeException.class )
+    @Test( expected = InvalidAttributesException.class )
     public void testModifyAddExistingEntryNotExistingATInvalidAVA() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -408,7 +408,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     /**
      * Add a bad AT in the entry, the OC contains the extensibleObject OC
      */
-    @Test( expected = NoSuchAttributeException.class )
+    @Test( expected = InvalidAttributesException.class )
     public void testModifyAddExistingEntryNotExistingATInvalidAVAExtensibleObjectInOcs() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -424,7 +424,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     /**
      * Add a AT part of the MAY/MUST, with an invalid value
      */
-    @Test( expected = LdapInvalidAttributeValueException.class )
+    @Test( expected = InvalidAttributeValueException.class )
     public void testModifyAddExistingEntryExistingATInvalidValue() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -441,7 +441,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
      * Add a AT not part of the MAY/MUST, with an invalid value, in an entry with the 
      * extensibleObject OC 
      */
-    @Test( expected = LdapInvalidAttributeValueException.class )
+    @Test( expected = InvalidAttributeValueException.class )
     public void testModifyAddExistingEntryExistingATInvalidValueExtensibleObjectInOcs() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -520,7 +520,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
      * Add a new AT with a valid Value in the entry, the AT is part of the MAY,
      * the value already exists
      */
-    @Test( expected = LdapAttributeInUseException.class )
+    @Test( expected = AttributeInUseException.class )
     public void testModifyAddExistingEntryExistingATExistingValue() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -565,7 +565,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     /**
      * Add a new value in a single valued AT
      */
-    @Test( expected = LdapInvalidAttributeValueException.class )
+    @Test( expected = InvalidAttributeValueException.class )
     public void testModifyAddExistingEntryExistingSingleValuedAT() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -588,7 +588,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     /**
      * Add the existing value in a single valued AT
      */
-    @Test( expected = LdapAttributeInUseException.class )
+    @Test( expected = AttributeInUseException.class )
     public void testModifyAddExistingEntryExistingSingleValuedATExistingValue() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -611,7 +611,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     /**
      * Add an invalue in a existing AT
      */
-    @Test( expected = LdapInvalidAttributeValueException.class )
+    @Test( expected = InvalidAttributeValueException.class )
     public void testModifyAddExistingEntryExistingATBadValue() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -655,7 +655,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     /**
      * Add an AT in an entry which does not exist
      */
-    @Test( expected = LdapNoSuchObjectException.class )
+    @Test( expected = NameNotFoundException.class )
     public void testModifyAddNotExistingEntry() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
