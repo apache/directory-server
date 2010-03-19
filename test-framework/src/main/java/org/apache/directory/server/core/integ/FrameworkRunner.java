@@ -206,7 +206,12 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             else if ( suite != null && suite.getLdapServer() != null )
             {
                 classLdapServer = suite.getLdapServer();
-                directoryService = classLdapServer.getDirectoryService();
+                
+                // set directoryService only if there is no class level DS
+                if( directoryService == null )
+                {
+                    directoryService = classLdapServer.getDirectoryService();
+                }
                 // no need to inject the LDIF data that would have been done above
                 // if ApplyLdifs is present
             }
@@ -306,6 +311,15 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
                 directoryService = methodDS;
             }
+            else if ( classDS != null )
+            {
+                directoryService = classDS;
+
+                // apply the method LDIFs, and tag for reversion
+                revision = getCurrentRevision( directoryService );
+
+                DSAnnotationProcessor.applyLdifs( methodDescription, directoryService );
+            }
             // we don't support method level LdapServer so
             // we check for the presence of Class level LdapServer first 
             else if ( classLdapServer != null )
@@ -320,15 +334,6 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             {
                 directoryService = classKdcServer.getDirectoryService();
 
-                revision = getCurrentRevision( directoryService );
-
-                DSAnnotationProcessor.applyLdifs( methodDescription, directoryService );
-            }
-            else if ( classDS != null )
-            {
-                directoryService = classDS;
-
-                // apply the method LDIFs, and tag for reversion
                 revision = getCurrentRevision( directoryService );
 
                 DSAnnotationProcessor.applyLdifs( methodDescription, directoryService );
@@ -356,8 +361,13 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
             dirServiceField.set( getTestClass().getJavaClass(), directoryService );
 
+            DirectoryService oldLdapServerDirService = null;
+            DirectoryService oldKdcServerDirService = null;
+            
             if ( classLdapServer != null )
             {
+                oldLdapServerDirService = classLdapServer.getDirectoryService();
+                
                 // setting the directoryService is required to inject the correct level DS instance in the class or suite level LdapServer
                 classLdapServer.setDirectoryService( directoryService );
                 
@@ -365,7 +375,9 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             }
             else if ( classKdcServer != null )
             {
-             // setting the directoryService is required to inject the correct level DS instance in the class or suite level KdcServer
+                oldKdcServerDirService = classKdcServer.getDirectoryService();
+                
+                // setting the directoryService is required to inject the correct level DS instance in the class or suite level KdcServer
                 classKdcServer.setDirectoryService( directoryService );
                 
                 Field kdcServerField = getTestClass().getJavaClass().getField( KDC_SERVER_FIELD_NAME );
@@ -375,6 +387,16 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             // Run the test
             super.runChild( method, notifier );
 
+            if ( oldLdapServerDirService != null )
+            {
+                classLdapServer.setDirectoryService( oldLdapServerDirService );
+            }
+            
+            if ( oldKdcServerDirService != null )
+            {
+                classKdcServer.setDirectoryService( oldKdcServerDirService );
+            }
+            
             // Cleanup the methodDS if it has been created
             if ( methodDS != null )
             {
