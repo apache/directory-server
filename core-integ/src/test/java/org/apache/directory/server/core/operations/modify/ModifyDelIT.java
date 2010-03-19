@@ -28,6 +28,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -35,14 +36,13 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
+import javax.naming.directory.NoSuchAttributeException;
+import javax.naming.directory.SchemaViolationException;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
-import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
-import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
  
@@ -351,7 +351,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     /**
      * Delete all the values from an existing AT in MUST
      */
-    @Test( expected = LdapSchemaViolationException.class )
+    @Test( expected = SchemaViolationException.class )
     public void testModifyDelExistingEntryExistingATNotInRdnNotSVAllValues() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -370,7 +370,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     /**
      * Remove a non existing AT from an entry, the AT is part of MAY/MUST
      */
-    @Test( expected = LdapNoSuchAttributeException.class )
+    @Test( expected = NoSuchAttributeException.class )
     public void testModifyDelExistingEntryNonExistingATInMay() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -386,7 +386,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     /**
      * Remove a non existing AT from an entry, the AT is not part of MAY/MUST
      */
-    @Test( expected = LdapNoSuchAttributeException.class )
+    @Test( expected = NoSuchAttributeException.class )
     public void testModifyDelExistingEntryNonExistingATNotInMayMust() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -422,7 +422,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     /**
      * Delete a value from an existing SingleValued AT, in MUST, not in Rdn
      */
-    @Test( expected = LdapSchemaViolationException.class )
+    @Test( expected = SchemaViolationException.class )
     public void testModifyDelExistingEntryExistingATNotInRdnSVInMust() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -437,7 +437,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     /**
      * Delete a value part of the Rdn
      */
-    @Test( expected = LdapSchemaViolationException.class )
+    @Test( expected = SchemaViolationException.class )
     public void testModifyDelExistingEntryExistingATPartOfRdn() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -472,7 +472,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     /**
      * Delete an existing AT not part of the RDN, but in MUST
      */
-    @Test( expected = LdapSchemaViolationException.class )
+    @Test( expected = SchemaViolationException.class )
     public void testModifyDelExistingEntryExistingATNoInRdnInMust() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -487,7 +487,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     /**
      * Delete an existing AT part of the RDN
      */
-    @Test( expected = LdapSchemaViolationException.class )
+    @Test( expected = SchemaViolationException.class )
     public void testModifyDelExistingEntryExistingATInRdn() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -502,7 +502,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     /**
      * Delete a value not present in an existing AT
      */
-    @Test( expected = LdapNoSuchAttributeException.class )
+    @Test( expected = NoSuchAttributeException.class )
     public void testModifyDelExistingEntryValueNotPresentInExistingAT() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -543,7 +543,7 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     /**
      * Del an AT in an entry which does not exist
      */
-    @Test( expected = LdapNoSuchObjectException.class )
+    @Test( expected = NameNotFoundException.class )
     public void testModifyDelNotExistingEntry() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
