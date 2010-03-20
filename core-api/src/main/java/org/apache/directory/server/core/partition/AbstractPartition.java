@@ -83,9 +83,7 @@ public abstract class AbstractPartition implements Partition
      * Override this method to put your initialization code.
      * @throws Exception 
      */
-    protected void doInit() throws InvalidNameException, Exception
-    {
-    }
+    protected abstract void doInit() throws InvalidNameException, Exception;
 
 
     /**
@@ -93,7 +91,7 @@ public abstract class AbstractPartition implements Partition
      * and clears default properties.  Once this method is invoked, {@link #isInitialized()}
      * will return <tt>false</tt>.
      */
-    public final void destroy()
+    public final void destroy() throws Exception
     {
         try
         {
@@ -109,15 +107,13 @@ public abstract class AbstractPartition implements Partition
     /**
      * Override this method to put your initialization code.
      */
-    protected void doDestroy()
-    {
-    }
+    protected abstract void doDestroy() throws Exception;
 
 
     /**
      * Returns <tt>true</tt> if this context partition is initialized successfully.
      */
-    public final boolean isInitialized()
+    public boolean isInitialized()
     {
         return initialized;
     }
@@ -126,9 +122,7 @@ public abstract class AbstractPartition implements Partition
     /**
      * This method does nothing by default.
      */
-    public void sync() throws Exception
-    {
-    }
+    public abstract void sync() throws Exception;
 
 
     /**
@@ -154,8 +148,5 @@ public abstract class AbstractPartition implements Partition
      * with null <tt>attributeIds</tt> by default.  Please override
      * this method if there is more effective way for your implementation.
      */
-    public ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws Exception
-    {
-        return null;
-    }
+    public abstract ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws Exception;
 }

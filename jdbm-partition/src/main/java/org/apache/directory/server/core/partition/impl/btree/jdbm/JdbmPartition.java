@@ -58,7 +58,7 @@ public class JdbmPartition extends AbstractXdbmPartition<Long>
 
 
     @SuppressWarnings("unchecked")
-    public final void initialize() throws Exception
+    protected void doInit() throws Exception
     {
         store.setWorkingDirectory( getPartitionDir() );
 

@@ -160,7 +160,7 @@ public class LdifPartition extends BTreePartition<Long>
     /**
      * {@inheritDoc}
      */
-    public void initialize() throws Exception
+    protected void doInit() throws Exception
     {
         // Initialize the AvlPartition
         wrappedPartition.setId( id );
@@ -774,7 +774,7 @@ public class LdifPartition extends BTreePartition<Long>
 
 
     @Override
-    public void destroy() throws Exception
+    protected void doDestroy() throws Exception
     {
         wrappedPartition.destroy();
     }

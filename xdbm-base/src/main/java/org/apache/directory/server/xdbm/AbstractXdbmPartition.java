@@ -65,7 +65,7 @@ public abstract class AbstractXdbmPartition<ID> extends BTreePartition<ID>
     /**
      * {@inheritDoc}
      */
-    public void destroy() throws Exception
+    protected void doDestroy() throws Exception
     {
         store.destroy();
     }

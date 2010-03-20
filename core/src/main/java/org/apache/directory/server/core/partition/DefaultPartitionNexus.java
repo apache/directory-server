@@ -115,7 +115,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DefaultPartitionNexus implements PartitionNexus
+public class DefaultPartitionNexus  extends AbstractPartition implements PartitionNexus
 {
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultPartitionNexus.class );
@@ -211,7 +211,7 @@ public class DefaultPartitionNexus implements PartitionNexus
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#initialize()
      */
-    public void initialize( ) throws Exception
+    protected void doInit( ) throws Exception
     {
         // NOTE: We ignore ContextPartitionConfiguration parameter here.
         if ( initialized )
@@ -365,7 +365,7 @@ public class DefaultPartitionNexus implements PartitionNexus
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#destroy()
      */
-    public synchronized void destroy()
+    protected synchronized void doDestroy()
     {
         if ( !initialized )
         {

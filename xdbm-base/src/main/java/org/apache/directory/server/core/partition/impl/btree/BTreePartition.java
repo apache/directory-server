@@ -43,6 +43,7 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.partition.AbstractPartition;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
@@ -63,7 +64,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class BTreePartition<ID> implements Partition
+public abstract class BTreePartition<ID> extends AbstractPartition
 {
     protected static final Set<String> SYS_INDEX_OIDS;
 
@@ -342,12 +343,6 @@ public abstract class BTreePartition<ID> implements Partition
 
 
     public abstract void sync() throws Exception;
-
-
-    public abstract void destroy() throws Exception;
-
-
-    public abstract boolean isInitialized();
 
 
     ////////////////////

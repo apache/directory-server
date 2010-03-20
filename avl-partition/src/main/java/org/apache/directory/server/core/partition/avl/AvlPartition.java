@@ -61,7 +61,7 @@ public class AvlPartition extends AbstractXdbmPartition<Long>
     /**
      * {@inheritDoc}
      */
-    public void initialize() throws Exception
+    protected void doInit() throws Exception
     {
         setSchemaManager( schemaManager );
 

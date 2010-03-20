@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.naming.InvalidNameException;
+
 import org.apache.commons.collections.iterators.EmptyIterator;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilter;
@@ -32,6 +34,7 @@ import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
@@ -326,14 +329,36 @@ public class NullPartition extends AbstractPartition
 
     public SchemaManager getSchemaManager()
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
 
     public void setSchemaManager( SchemaManager schemaManager )
     {
-        // TODO Auto-generated method stub
-        
+    }
+
+
+    @Override
+    protected void doDestroy() throws Exception
+    {
+    }
+
+
+    @Override
+    protected void doInit() throws InvalidNameException, Exception
+    {
+    }
+
+
+    @Override
+    public ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws Exception
+    {
+        return null;
+    }
+
+
+    @Override
+    public void sync() throws Exception
+    {
     }
 }
