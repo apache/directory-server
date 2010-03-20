@@ -23,7 +23,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.xdbm.Index;
 
 /**
@@ -49,7 +48,8 @@ import org.apache.directory.server.xdbm.Index;
 public @interface CreateIndex
 {
     /** The index implementation class */
-    Class<? extends Index> type() default JdbmIndex.class;
+    @SuppressWarnings("unchecked")
+    Class<? extends Index> type() default Index.class;
     
     /** The cache size */
     int cacheSize() default 1000;

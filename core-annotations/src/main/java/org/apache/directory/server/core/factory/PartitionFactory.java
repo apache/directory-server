@@ -19,41 +19,42 @@
 package org.apache.directory.server.core.factory;
 
 
-import org.apache.directory.server.core.DirectoryService;
+import java.io.File;
+
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.xdbm.Index;
 
 
 /**
- * A factory used to generate differently configured DirectoryService objects.
- * Since the DirectoryService itself is what is configured then a factory for
- * these objects acts as a configurator.  Tests can provide different factory
- * methods to be used.
+ * A factory used to generate {@link Partition}s and their {@link Index}es.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface DirectoryServiceFactory
+public interface PartitionFactory
 {
 
     /**
-     * Inits the directory service factory.
+     * Creates a new Partition.
      * 
-     * @param name the name
+     * @param id the partition id
+     * @param suffix the suffix
+     * @param cacheSize the cache size
+     * @param workingDirectory the working directory
+     * @return the partition
+     * @throws Exception the exception
      */
-    void init( String name ) throws Exception;
+    Partition createPartition( String id, String suffix, int cacheSize, File workingDirectory ) throws Exception;
 
 
     /**
-     * Gets the directory service.
+     * Adds a partition-specific index to the partition.
      * 
-     * @return the directory service
+     * @param partition the partition
+     * @param attrbuteId the attribute id
+     * @param cacheSize the cache size
+     * @throws Exception the exception
      */
-    DirectoryService getDirectoryService() throws Exception;
+    void addIndex( Partition partition, String attributeId, int cacheSize ) throws Exception;
 
-
-    /**
-     * Gets the partition factory.
-     * 
-     * @return the partition factory
-     */
-    PartitionFactory getPartitionFactory() throws Exception;
 }

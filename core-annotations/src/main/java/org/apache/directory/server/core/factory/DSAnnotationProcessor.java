@@ -35,11 +35,11 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.xdbm.GenericIndex;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
@@ -87,27 +87,57 @@ public class DSAnnotationProcessor
         // Process the Partition, if any.
         for ( CreatePartition createPartition : dsBuilder.partitions() )
         {
-            // Create the partition
-            Partition partition = createPartition.type().newInstance();
-            partition.setId( createPartition.name() );
-            partition.setSuffix( createPartition.suffix() );
-            partition.setSchemaManager( service.getSchemaManager() );
+            Partition partition;
 
-            if ( partition instanceof BTreePartition<?> )
+            // Determine the partition type
+            if ( createPartition.type() == Partition.class )
             {
-                BTreePartition<Object> btreePartition = ( BTreePartition<Object> ) partition;
-                btreePartition.setCacheSize( createPartition.cacheSize() );
-                btreePartition.setPartitionDir( new File( service.getWorkingDirectory(), createPartition.name() ) );
+                // The annotation does not specify a specific partition type.
+                // We use the partition factory to create partition and index instances.
+                PartitionFactory partitionFactory = dsf.getPartitionFactory();
+                partition = partitionFactory.createPartition( createPartition.name(), createPartition.suffix(),
+                    createPartition.cacheSize(), new File( service.getWorkingDirectory(), createPartition.name() ) );
 
-                // Process the indexes if any
                 CreateIndex[] indexes = createPartition.indexes();
-
                 for ( CreateIndex createIndex : indexes )
                 {
-                    Index<? extends Object, ServerEntry, Object> index = createIndex.type().newInstance();
-                    index.setAttributeId( createIndex.attribute() );
-                    index.setCacheSize( createIndex.cacheSize() );
-                    btreePartition.addIndexedAttributes( index );
+                    partitionFactory.addIndex( partition, createIndex.attribute(), createIndex.cacheSize() );
+                }
+            }
+            else
+            {
+                // The annotation contains a specific partition type, we use that type.
+                partition = createPartition.type().newInstance();
+                partition.setId( createPartition.name() );
+                partition.setSuffix( createPartition.suffix() );
+
+                if ( partition instanceof BTreePartition<?> )
+                {
+                    BTreePartition<?> btreePartition = ( BTreePartition<?> ) partition;
+                    btreePartition.setCacheSize( createPartition.cacheSize() );
+                    btreePartition.setPartitionDir( new File( service.getWorkingDirectory(), createPartition.name() ) );
+
+                    // Process the indexes if any
+                    CreateIndex[] indexes = createPartition.indexes();
+
+                    for ( CreateIndex createIndex : indexes )
+                    {
+                        Index index;
+                        if ( createIndex.type() == Index.class )
+                        {
+                            // The annotation does not specify a specific index type.
+                            // We use the generic index implementation.
+                            index = new GenericIndex( createIndex.attribute(), createIndex.cacheSize() );
+                        }
+                        else
+                        {
+                            // The annotation contains a specific index type, we use that type.
+                            index = createIndex.type().newInstance();
+                            index.setAttributeId( createIndex.attribute() );
+                            index.setCacheSize( createIndex.cacheSize() );
+                        }
+                        btreePartition.addIndexedAttributes( index );
+                    }
                 }
             }
 

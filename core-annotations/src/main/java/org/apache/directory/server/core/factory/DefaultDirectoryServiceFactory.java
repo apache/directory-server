@@ -20,22 +20,16 @@ package org.apache.directory.server.core.factory;
 
 
 import java.io.File;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
@@ -44,23 +38,32 @@ import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
- * A Default factory for DirectoryService
+ * A Default factory for DirectoryService.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
 {
-    private DirectoryService directoryService;
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( DefaultDirectoryServiceFactory.class );
 
     /**
      * The default factory returns stock instances of a directory
      * service with smart defaults
      */
     public static final DirectoryServiceFactory DEFAULT = new DefaultDirectoryServiceFactory();
+
+    /** The directory service. */
+    private DirectoryService directoryService;
+
+    /** The partition factory. */
+    private PartitionFactory partitionFactory;
 
 
     /* default access */DefaultDirectoryServiceFactory()
@@ -76,12 +79,34 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         {
             throw new RuntimeException( e );
         }
+
+        try
+        {
+            String typeName = System.getProperty( "apacheds.partition.factory" );
+            if ( typeName != null )
+            {
+                Class<? extends PartitionFactory> type = ( Class<? extends PartitionFactory> ) Class.forName( typeName );
+                partitionFactory = type.newInstance();
+            }
+            else
+            {
+                partitionFactory = new JdbmPartitionFactory();
+            }
+        }
+        catch ( Exception e )
+        {
+            LOG.error( "Error instantiating custom partiton factory", e );
+            throw new RuntimeException( e );
+        }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void init( String name ) throws Exception
     {
-        if ( ( directoryService != null ) && ( directoryService.isStarted() ) )
+        if ( directoryService != null && directoryService.isStarted() )
         {
             return;
         }
@@ -106,6 +131,9 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
     }
 
 
+    /**
+     * Inits the schema and schema partition.
+     */
     private void initSchema() throws Exception
     {
         SchemaPartition schemaPartition = directoryService.getSchemaService().getSchemaPartition();
@@ -142,6 +170,11 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
     }
 
 
+    /**
+     * Inits the system partition.
+     * 
+     * @throws Exception the exception
+     */
     private void initSystemPartition() throws Exception
     {
         // change the working directory to something that is unique
@@ -149,35 +182,22 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         // or somewhere in a temp area of the machine.
 
         // Inject the System Partition
-        Partition systemPartition = new JdbmPartition();
-        systemPartition.setId( "system" );
-        ( ( JdbmPartition ) systemPartition ).setCacheSize( 500 );
-        systemPartition.setSuffix( ServerDNConstants.SYSTEM_DN );
+        Partition systemPartition = partitionFactory.createPartition( "system", ServerDNConstants.SYSTEM_DN, 500,
+            new File( directoryService.getWorkingDirectory(), "system" ) );
         systemPartition.setSchemaManager( directoryService.getSchemaManager() );
-        ( ( JdbmPartition ) systemPartition ).setPartitionDir( new File( directoryService.getWorkingDirectory(),
-            "system" ) );
 
-        // Add objectClass attribute for the system partition
-        Set<Index<?, ServerEntry, Long>> indexedAttrs = new HashSet<Index<?, ServerEntry, Long>>();
-        indexedAttrs.add( new JdbmIndex<Object, ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
-        ( ( JdbmPartition ) systemPartition ).setIndexedAttributes( indexedAttrs );
+        partitionFactory.addIndex( systemPartition, SchemaConstants.OBJECT_CLASS_AT, 100 );
 
         directoryService.setSystemPartition( systemPartition );
     }
 
 
-    public void initJdbmPartition( String name, String suffix ) throws Exception
-    {
-        Partition partition = new JdbmPartition();
-        partition.setId( name );
-        partition.setSuffix( suffix );
-        partition.setSchemaManager( directoryService.getSchemaManager() );
-        ( ( JdbmPartition ) partition ).setPartitionDir( new File( directoryService.getWorkingDirectory(), name ) );
-        directoryService.addPartition( partition );
-    }
-
-
-    public void build( String name ) throws Exception
+    /**
+     * Builds the directory server instance.
+     * 
+     * @param name the instance name
+     */
+    private void build( String name ) throws Exception
     {
         directoryService.setInstanceId( name );
         buildWorkingDirectory( name );
@@ -196,8 +216,20 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public DirectoryService getDirectoryService() throws Exception
     {
         return directoryService;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public PartitionFactory getPartitionFactory() throws Exception
+    {
+        return partitionFactory;
     }
 }

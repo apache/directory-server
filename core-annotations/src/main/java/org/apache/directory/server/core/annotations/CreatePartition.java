@@ -24,7 +24,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 
 /**
  * An annotation for the Partition creation. A partition is defined by
@@ -55,7 +54,7 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 public @interface CreatePartition
 {
     /** The partition implementation class */
-    Class<? extends Partition> type() default JdbmPartition.class;
+    Class<? extends Partition> type() default Partition.class;
     
     /** The partition name */
     String name();
