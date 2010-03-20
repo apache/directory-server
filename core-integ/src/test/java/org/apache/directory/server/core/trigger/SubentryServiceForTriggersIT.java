@@ -44,7 +44,6 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
