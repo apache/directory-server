@@ -40,13 +40,10 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.xdbm.Index;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,7 +55,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 public class SearchWithIndicesITest extends AbstractLdapTestUnit
 {
 
@@ -89,9 +86,7 @@ public class SearchWithIndicesITest extends AbstractLdapTestUnit
         }
 
         Partition systemPartition = service.getSystemPartition();
-        Set<Index<? extends Object, ServerEntry, Long>> indexedAtributes = ( ( JdbmPartition ) systemPartition )
-            .getIndexedAttributes();
-        indexedAtributes.add( new JdbmIndex<String, ServerEntry>( "gidNumber" ) );
+        DefaultDirectoryServiceFactory.DEFAULT.getPartitionFactory().addIndex( systemPartition, "gidNumber", 100 );
 
         // -------------------------------------------------------------------
         // Add a bunch of nis groups

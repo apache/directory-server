@@ -32,11 +32,13 @@ import junit.framework.Assert;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
+import org.apache.directory.server.core.factory.PartitionFactory;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
@@ -49,21 +51,20 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 public class PartitionConfigurationIT extends AbstractLdapTestUnit
 {
 
     @Test
     public void testAddAndRemove() throws Exception
     {
-        JdbmPartition partition = new JdbmPartition();
-        partition.setId( "removable" );
-        partition.setSuffix( "ou=removable" );
-        partition.setPartitionDir( service.getWorkingDirectory() );
-        
+        PartitionFactory partitionFactory = DefaultDirectoryServiceFactory.DEFAULT.getPartitionFactory();
+        Partition partition = partitionFactory.createPartition( "removable", "ou=removable", 100, service
+            .getWorkingDirectory() );
+
         // Test AddContextPartition
         service.addPartition( partition );
-        
+
         DN suffixDn = new DN( "ou=removable" );
         suffixDn.normalize( service.getSchemaManager().getNormalizerMapping() );
         ServerEntry ctxEntry = new DefaultServerEntry( service.getSchemaManager(), suffixDn );
@@ -73,8 +74,8 @@ public class PartitionConfigurationIT extends AbstractLdapTestUnit
         ctxEntry.put( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         ctxEntry.put( "entryUUID", UUID.randomUUID().toString() );
         partition.add( new AddOperationContext( service.getAdminSession(), ctxEntry ) );
-        
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
+
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
