@@ -713,7 +713,7 @@ public class AddIT extends AbstractLdapTestUnit
         }
         catch ( LDAPException le )
         {
-            assertEquals( 80, le.getLDAPResultCode() );
+            assertEquals( 10, le.getLDAPResultCode() );
         }
         
         try
