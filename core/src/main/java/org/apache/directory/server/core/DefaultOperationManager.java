@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.PartialResultException;
-
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -56,6 +54,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAffectMultipleDsaException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
+import org.apache.directory.shared.ldap.exception.LdapPartialResultException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.exception.LdapServiceUnavailableException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
@@ -117,9 +116,9 @@ public class DefaultOperationManager implements OperationManager
         
         // Return with an exception
         LdapReferralException lre = new LdapReferralException( urls );
-        //lre.setRemainingName( childDn );
-        //lre.setResolvedName( parentEntry.getDn() );
-        //lre.setResolvedObj( parentEntry );
+        lre.setRemainingDn( childDn );
+        lre.setResolvedDn( parentEntry.getDn() );
+        lre.setResolvedObject( parentEntry );
         
         return lre;
     }
@@ -188,22 +187,22 @@ public class DefaultOperationManager implements OperationManager
         
         // Return with an exception
         LdapReferralException lre = new LdapReferralException( urls );
-        //lre.setRemainingName( childDn );
-        //lre.setResolvedName( parentEntry.getDn() );
-        //lre.setResolvedObj( parentEntry );
+        lre.setRemainingDn( childDn );
+        lre.setResolvedDn( parentEntry.getDn() );
+        lre.setResolvedObject( parentEntry );
         
         return lre;
     }
 
 
-    private PartialResultException buildPartialResultException( DN childDn )
+    private LdapPartialResultException buildLdapPartialResultException( DN childDn )
     {
-        PartialResultException pre = new PartialResultException( I18n.err( I18n.ERR_315 ) );
+        LdapPartialResultException lpre = new LdapPartialResultException( I18n.err( I18n.ERR_315 ) );
         
-        //pre.setRemainingName( childDn );
-        //pre.setResolvedName( DN.EMPTY_DN );
+        lpre.setRemainingDn( childDn );
+        lpre.setResolvedDn( DN.EMPTY_DN );
         
-        return pre;
+        return lpre;
     }
     
     
@@ -238,7 +237,7 @@ public class DefaultOperationManager implements OperationManager
                 {
                     directoryService.getReferralManager().unlock();
                     
-                    PartialResultException exception = buildPartialResultException( childDn );
+                    LdapPartialResultException exception = buildLdapPartialResultException( childDn );
                     throw exception;
                 }
                 else
@@ -342,7 +341,7 @@ public class DefaultOperationManager implements OperationManager
                     {
                         directoryService.getReferralManager().unlock();
                         
-                        PartialResultException exception = buildPartialResultException( childDn );
+                        LdapPartialResultException exception = buildLdapPartialResultException( childDn );
                         throw exception;
                     }
                     else
@@ -423,7 +422,7 @@ public class DefaultOperationManager implements OperationManager
                     {
                         directoryService.getReferralManager().unlock();
                         
-                        PartialResultException exception = buildPartialResultException( childDn );
+                        LdapPartialResultException exception = buildLdapPartialResultException( childDn );
                         throw exception;
                     }
                     else
@@ -670,7 +669,7 @@ public class DefaultOperationManager implements OperationManager
                     {
                         directoryService.getReferralManager().unlock();
                         
-                        PartialResultException exception = buildPartialResultException( childDn );
+                        LdapPartialResultException exception = buildLdapPartialResultException( childDn );
                         throw exception;
                     }
                     else
@@ -753,7 +752,7 @@ public class DefaultOperationManager implements OperationManager
                     {
                         directoryService.getReferralManager().unlock();
                         
-                        PartialResultException exception = buildPartialResultException( childDn );
+                        LdapPartialResultException exception = buildLdapPartialResultException( childDn );
                         throw exception;
                     }
                     else
@@ -855,7 +854,7 @@ public class DefaultOperationManager implements OperationManager
                     {
                         directoryService.getReferralManager().unlock();
                         
-                        PartialResultException exception = buildPartialResultException( childDn );
+                        LdapPartialResultException exception = buildLdapPartialResultException( childDn );
                         throw exception;
                     }
                     else
@@ -969,7 +968,7 @@ public class DefaultOperationManager implements OperationManager
                     {
                         directoryService.getReferralManager().unlock();
                         
-                        PartialResultException exception = buildPartialResultException( childDn );
+                        LdapPartialResultException exception = buildLdapPartialResultException( childDn );
                         throw exception;
                     }
                     else
@@ -1051,7 +1050,7 @@ public class DefaultOperationManager implements OperationManager
                     {
                         directoryService.getReferralManager().unlock();
                         
-                        PartialResultException exception = buildPartialResultException( childDn );
+                        LdapPartialResultException exception = buildLdapPartialResultException( childDn );
                         throw exception;
                     }
                     else
