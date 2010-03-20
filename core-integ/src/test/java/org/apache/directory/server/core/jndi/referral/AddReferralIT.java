@@ -45,6 +45,7 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.exception.LdapPartialResultException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
@@ -193,7 +194,7 @@ public class AddReferralIT extends AbstractLdapTestUnit
             session.add( serverEntry, true );
             fail();
         }
-        catch ( PartialResultException pre )
+        catch ( LdapPartialResultException lpre )
         {
             assertTrue( true );
         }

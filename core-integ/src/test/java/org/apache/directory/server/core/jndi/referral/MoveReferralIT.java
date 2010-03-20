@@ -44,6 +44,7 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.exception.LdapPartialResultException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
@@ -272,7 +273,7 @@ public class MoveReferralIT extends AbstractLdapTestUnit
             coreSession.move( dn, newParent, true );
             fail();
         }
-        catch ( PartialResultException re )
+        catch ( LdapPartialResultException lpre )
         {
             assertTrue( true );
         }
@@ -465,7 +466,7 @@ public class MoveReferralIT extends AbstractLdapTestUnit
             coreSession.move( orig, dest, true );
             fail();
         }
-        catch ( PartialResultException pre )
+        catch ( LdapPartialResultException lpre )
         {
             assertTrue( true );
         }

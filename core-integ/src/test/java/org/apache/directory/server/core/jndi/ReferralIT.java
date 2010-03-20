@@ -55,8 +55,8 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapPartialResultException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -270,8 +270,8 @@ public class ReferralIT extends AbstractLdapTestUnit
         }
         catch ( PartialResultException pre )
         {
-            assertEquals( "cn=alex karasulu,ou=apache", ((DN)pre.getRemainingName()).getName() );
-            assertEquals( DN.EMPTY_DN, pre.getResolvedName() );
+            assertEquals( "cn=alex karasulu,ou=apache", pre.getRemainingName().toString() );
+            assertEquals( DN.EMPTY_DN, pre.getResolvedName().toString() );
         }
     }
 
@@ -306,8 +306,8 @@ public class ReferralIT extends AbstractLdapTestUnit
         }
         catch ( ReferralException lre )
         {
-            assertEquals( "cn=alex karasulu,ou=apache", lre.getRemainingName() );
-            assertEquals( "ou=users,ou=system", lre.getResolvedName() );
+            assertEquals( "cn=alex karasulu,ou=apache", lre.getRemainingName().toString() );
+            assertEquals( "ou=users,ou=system", lre.getResolvedName().toString() );
         }
     }
 
@@ -339,10 +339,10 @@ public class ReferralIT extends AbstractLdapTestUnit
             service.getAdminSession().add( userEntry );
             fail( "Should fail here throwing a ReferralException" );
         }
-        catch ( PartialResultException pre )
+        catch ( LdapPartialResultException lpre )
         {
-            assertEquals( "cn=alex karasulu,ou=apache", ((DN)pre.getRemainingName()).getName() );
-            assertEquals( DN.EMPTY_DN, pre.getResolvedName() );
+            assertEquals( "cn=alex karasulu,ou=apache", lpre.getRemainingDn().toString() );
+            assertEquals( DN.EMPTY_DN, lpre.getResolvedDn().toString() );
         }
     }
 

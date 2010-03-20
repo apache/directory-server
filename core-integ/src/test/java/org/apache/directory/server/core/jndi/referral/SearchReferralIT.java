@@ -48,6 +48,7 @@ import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.exception.LdapPartialResultException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
@@ -276,7 +277,7 @@ public class SearchReferralIT extends AbstractLdapTestUnit
             coreSession.search( dn, "(ObjectClass=*)", true );
             fail();
         }
-        catch ( PartialResultException pre )
+        catch ( LdapPartialResultException lpre )
         {
             assertTrue( true );
         }

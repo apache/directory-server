@@ -46,6 +46,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapEntryAlreadyExistsException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
+import org.apache.directory.shared.ldap.exception.LdapPartialResultException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
@@ -272,7 +273,7 @@ public class RenameReferralIT extends AbstractLdapTestUnit
             session.rename( dn, newRdn, false, true );
             fail();
         }
-        catch ( PartialResultException pre )
+        catch ( LdapPartialResultException lpre )
         {
             assertTrue( true );
         }
