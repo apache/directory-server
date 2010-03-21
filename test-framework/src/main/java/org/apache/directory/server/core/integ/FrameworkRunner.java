@@ -29,6 +29,7 @@ import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.factory.DirectoryServiceFactory;
+import org.apache.directory.server.core.factory.PartitionFactory;
 import org.apache.directory.server.factory.ServerAnnotationProcessor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
@@ -223,6 +224,13 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             else if ( suite != null )
             {
                 // TODO add suite level KdcServer support
+            }
+
+            if ( suite == null )
+            {
+                // print out information which partition factory we use
+                PartitionFactory partitionFactory = DefaultDirectoryServiceFactory.DEFAULT.getPartitionFactory();
+                System.out.println( "Using partition factory " + partitionFactory.getClass().getSimpleName() );
             }
 
             // Now run the class

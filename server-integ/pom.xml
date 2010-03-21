@@ -75,27 +75,95 @@
     </dependency>  
   </dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <includes>
-            <include>**/*ISuite.java</include>
-            <include>**/*IndexedNegationSearchIT.java</include>
-            <!-- commenting this test makes running the test suite with -Dintegration pass
-                 so far no clue why is this test despite having it own instance of LdapServer
-                 causes the StartTlsIT tests fail
-             <include>**/*LdapsIT.java</include> -->
-            <include>**/*MiscBindIT.java</include>
-            <include>**/*SaslBindIT.java</include>
-            <include>**/*KeyDerivationServiceIT.java</include>
-            <include>**/*PasswordPolicyServiceIT.java</include>
-            <include>**/*StoredProcedureIT.java</include>
-          </includes>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+  <profiles>
+    <profile>
+      <id>integration</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <includes>
+                <include>**/*ISuite.java</include>
+                <include>**/*IndexedNegationSearchIT.java</include>
+                <!-- commenting this test makes running the test suite with -Dintegration pass
+                     so far no clue why is this test despite having it own instance of LdapServer
+                     causes the StartTlsIT tests fail
+                 <include>**/*LdapsIT.java</include> -->
+                <include>**/*MiscBindIT.java</include>
+                <include>**/*SaslBindIT.java</include>
+                <include>**/*KeyDerivationServiceIT.java</include>
+                <include>**/*PasswordPolicyServiceIT.java</include>
+                <include>**/*StoredProcedureIT.java</include>
+              </includes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Runs tests three times: with JDBM partition, AVL partition, LDIF partition -->
+    <profile>
+      <id>integration-all-partitions</id>
+      <activation>
+        <property><name>test-all-partitions</name></property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <!-- default/JDBM execution -->
+            <configuration>
+              <includes>
+                <include>**/*ISuite.java</include>
+                <include>**/*IndexedNegationSearchIT.java</include>
+                <!-- commenting this test makes running the test suite with -Dintegration pass
+                     so far no clue why is this test despite having it own instance of LdapServer
+                     causes the StartTlsIT tests fail
+                 <include>**/*LdapsIT.java</include> -->
+                <include>**/*MiscBindIT.java</include>
+                <include>**/*SaslBindIT.java</include>
+                <include>**/*KeyDerivationServiceIT.java</include>
+                <include>**/*PasswordPolicyServiceIT.java</include>
+                <include>**/*StoredProcedureIT.java</include>
+              </includes>
+              <systemPropertyVariables>
+                <apacheds.partition.factory>org.apache.directory.server.core.factory.JdbmPartitionFactory</apacheds.partition.factory>
+              </systemPropertyVariables>              
+            </configuration>
+            <executions>
+              <!-- AVL execution -->
+       		  <execution>
+       		    <id>avl</id>
+       		    <goals>
+       		      <goal>test</goal>
+       		    </goals>
+                <configuration>
+                  <systemPropertyVariables>
+                    <apacheds.partition.factory>org.apache.directory.server.core.factory.AvlPartitionFactory</apacheds.partition.factory>
+                  </systemPropertyVariables>
+                </configuration>
+              </execution>
+              <!-- LDIF execution -->
+       		  <execution>
+       		    <id>ldif</id>
+       		    <goals>
+       		      <goal>test</goal>
+       		    </goals>
+                <configuration>
+                  <systemPropertyVariables>
+                    <apacheds.partition.factory>org.apache.directory.server.core.factory.LdifPartitionFactory</apacheds.partition.factory>
+                  </systemPropertyVariables>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
 

@@ -50,11 +50,11 @@ import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.ldif.LdapLdifException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -95,17 +95,11 @@ public class LdifPartition extends BTreePartition<Long>
     /** A logger for this class */
     private static Logger LOG = LoggerFactory.getLogger( LdifPartition.class );
 
-    /** The LDIF file parser */
-    //private LdifReader ldifReader;
-
     /** The directory into which the partition is stored */
     private String workingDirectory;
 
     /** The directory into which the entries are stored */
     private File suffixDirectory;
-
-    /** The context entry */
-    private ServerEntry contextEntry;
 
     /** Flags used for the getFile() method */
     private static final boolean CREATE = Boolean.TRUE;
@@ -201,10 +195,10 @@ public class LdifPartition extends BTreePartition<Long>
         }
         else
         {
-            // The partition directory does not exist, we have to create it
+            // The partition directory does not exist, we have to create it, including parent directories
             try
             {
-                suffixDirectory.mkdir();
+                suffixDirectory.mkdirs();
             }
             catch ( SecurityException se )
             {
@@ -228,7 +222,9 @@ public class LdifPartition extends BTreePartition<Long>
                 }
                 else
                 {
-                    throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_632 ) );
+                    // No context entry and no LDIF file exists.
+                    // Skip initialization of context entry here, it will be added later.
+                    return;
                 }
             }
 
@@ -347,7 +343,7 @@ public class LdifPartition extends BTreePartition<Long>
         // Get the modified entry
         ClonedServerEntry modifiedEntry = lookup( id );
 
-        entryMoved( oldDn, modifiedEntry, id, true );
+        entryMoved( oldDn, modifiedEntry, id );
     }
 
 
@@ -366,7 +362,7 @@ public class LdifPartition extends BTreePartition<Long>
         ClonedServerEntry modifiedEntry = lookup( id );
         moveAndRenameContext.setAlteredEntry( modifiedEntry );
 
-        entryMoved( oldDn, modifiedEntry, id, moveAndRenameContext.getDelOldDn() );
+        entryMoved( oldDn, modifiedEntry, id );
     }
 
 
@@ -388,7 +384,7 @@ public class LdifPartition extends BTreePartition<Long>
 
         // Now move the potential children for the old entry
         // and remove the old entry
-        entryMoved( oldDn, modifiedEntry, id, renameContext.getDelOldDn() );
+        entryMoved( oldDn, modifiedEntry, id );
     }
 
 
@@ -402,8 +398,7 @@ public class LdifPartition extends BTreePartition<Long>
      * @param deleteOldEntry a flag to tell whether to delete the old entry files
      * @throws Exception
      */
-    private void entryMoved( DN oldEntryDn, Entry modifiedEntry, Long entryIdOld, boolean deleteOldEntry )
-        throws Exception
+    private void entryMoved( DN oldEntryDn, Entry modifiedEntry, Long entryIdOld ) throws Exception
     {
         // First, add the new entry
         add( modifiedEntry );
@@ -424,19 +419,16 @@ public class LdifPartition extends BTreePartition<Long>
 
         cursor.close();
 
-        if ( deleteOldEntry )
-        {
-            // And delete the old entry's LDIF file
-            File file = getFile( oldEntryDn, DELETE );
-            boolean deleted = deleteFile( file );
-            LOG.warn( "move operation: deleted file {} {}", file.getAbsoluteFile(), deleted );
+        // And delete the old entry's LDIF file
+        File file = getFile( oldEntryDn, DELETE );
+        boolean deleted = deleteFile( file );
+        LOG.warn( "move operation: deleted file {} {}", file.getAbsoluteFile(), deleted );
 
-            // and the associated directory ( the file's name's minus ".ldif")
-            String dirName = file.getAbsolutePath();
-            dirName = dirName.substring( 0, dirName.indexOf( CONF_FILE_EXTN ) );
-            deleted = deleteFile( new File( dirName ) );
-            LOG.warn( "move operation: deleted dir {} {}", dirName, deleted );
-        }
+        // and the associated directory ( the file's name's minus ".ldif")
+        String dirName = file.getAbsolutePath();
+        dirName = dirName.substring( 0, dirName.indexOf( CONF_FILE_EXTN ) );
+        deleted = deleteFile( new File( dirName ) );
+        LOG.warn( "move operation: deleted dir {} {}", dirName, deleted );
     }
 
 
@@ -564,16 +556,29 @@ public class LdifPartition extends BTreePartition<Long>
      */
     private String getFileName( RDN rdn ) throws LdapException
     {
-        // First, get the AT name, or OID
-        String normAT = rdn.getAtav().getNormType();
-        AttributeType at = schemaManager.lookupAttributeTypeRegistry( normAT );
+        String fileName = "";
 
-        String atName = at.getName();
+        Iterator<AVA> iterator = rdn.iterator();
+        while ( iterator.hasNext() )
+        {
+            AVA ava = iterator.next();
 
-        // Now, get the normalized value
-        String normValue = rdn.getAtav().getNormValue().getString();
+            // First, get the AT name, or OID
+            String normAT = ava.getNormType();
+            AttributeType at = schemaManager.lookupAttributeTypeRegistry( normAT );
 
-        String fileName = atName + "=" + normValue;
+            String atName = at.getName();
+
+            // Now, get the normalized value
+            String normValue = ava.getNormValue().getString();
+
+            fileName += atName + "=" + normValue;
+
+            if ( iterator.hasNext() )
+            {
+                fileName += "+";
+            }
+        }
 
         return getOSFileName( fileName );
     }

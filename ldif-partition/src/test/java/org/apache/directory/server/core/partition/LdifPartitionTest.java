@@ -200,12 +200,21 @@ public class LdifPartitionTest
         
         partition.add( addCtx );
         
+        ClonedServerEntry entryMvrdn = createEntry( "dc=mvrdn+objectClass=domain,dc=test,ou=test,ou=system" );
+        entryMvrdn.put( "ObjectClass", "top", "domain" );
+        entryMvrdn.put( "dc", "mvrdn" );
+        addCtx.setEntry( entryMvrdn );
+        
+        partition.add( addCtx );
+        
         assertTrue( new File( wkdir, "ou=test,ou=system" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system.ldif" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=test" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=test.ldif" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=test" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=test/dc=test.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain.ldif" ).exists() );
     }
 
     
@@ -294,6 +303,13 @@ public class LdifPartitionTest
         addCtx.setEntry( entry3 );
         
         partition.add( addCtx );
+
+        ClonedServerEntry entryMvrdn = createEntry( "dc=mvrdn+objectClass=domain,dc=test,ou=test,ou=system" );
+        entryMvrdn.put( "ObjectClass", "top", "domain" );
+        entryMvrdn.put( "dc", "mvrdn" );
+        addCtx.setEntry( entryMvrdn );
+        
+        partition.add( addCtx );
         
         DeleteOperationContext delCtx = new DeleteOperationContext( session );
 
@@ -312,8 +328,17 @@ public class LdifPartitionTest
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=test1.ldif" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=test2" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=test/dc=test2.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain.ldif" ).exists() );
 
         dn = new DN( "dc=test2,dc=test,ou=test,ou=system" );
+        dn.normalize( schemaManager.getNormalizerMapping() );
+        
+        delCtx.setDn( dn );
+        
+        partition.delete( delCtx );
+        
+        dn = new DN( "dc=mvrdn+objectClass=domain,dc=test,ou=test,ou=system" );
         dn.normalize( schemaManager.getNormalizerMapping() );
         
         delCtx.setDn( dn );
@@ -326,6 +351,8 @@ public class LdifPartitionTest
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=test.ldif" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=test2" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=test2.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=test/dc=mvrdn+objectclass=domain.ldif" ).exists() );
     }
     //-------------------------------------------------------------------------
     // Partition.delete() tests
@@ -462,8 +489,8 @@ public class LdifPartitionTest
         RenameOperationContext renameOpCtx = new RenameOperationContext( session, childDn1, newRdn, false );
         partition.rename( renameOpCtx );
         
-        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child1" ).exists() );
-        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child1.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1.ldif" ).exists() );
 
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=renamedchild1" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=renamedchild1.ldif" ).exists() );
@@ -473,6 +500,11 @@ public class LdifPartitionTest
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild12.ldif" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild11/dc=greatgrandchild111" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild11/dc=greatgrandchild111.ldif" ).exists() );
+
+        // the renamed LDIF must contain the old an new RDN attribute
+        String content = FileUtils.readFileToString( new File( wkdir, "ou=test,ou=system/dc=renamedchild1.ldif" ) );
+        assertTrue( content.contains( "dc: child1" ) );
+        assertTrue( content.contains( "dc: renamedChild1" ) );
     }
 
     
@@ -520,8 +552,8 @@ public class LdifPartitionTest
         MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( session, childDn1, childDn2, newRdn, false );
         partition.moveAndRename( moveAndRenameOpCtx );
         
-        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child1" ).exists() );
-        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child1.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1.ldif" ).exists() );
 
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1.ldif" ).exists() );
@@ -531,6 +563,12 @@ public class LdifPartitionTest
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild12.ldif" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild11/dc=greatgrandchild111" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild11/dc=greatgrandchild111.ldif" ).exists() );
+
+        // the renamed LDIF must contain the old an new RDN attribute
+        String content = FileUtils
+            .readFileToString( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1.ldif" ) );
+        assertTrue( content.contains( "dc: child1" ) );
+        assertTrue( content.contains( "dc: movedChild1" ) );
     }
 
     

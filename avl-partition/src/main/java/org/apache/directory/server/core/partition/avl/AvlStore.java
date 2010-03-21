@@ -364,7 +364,8 @@ public class AvlStore<E> implements Store<E, Long>
      */
     public void destroy() throws Exception
     {
-        initialized = false;
+        // don't reset initialized flag
+        //initialized = false;
     }
 
 
@@ -915,12 +916,12 @@ public class AvlStore<E> implements Store<E, Long>
 
         // update normalized DN index
         ndnIdx.drop( id );
-        
+
         if ( !updn.isNormalized() )
         {
             updn.normalize( schemaManager.getNormalizerMapping() );
         }
-        
+
         ndnIdx.add( updn.toNormName(), id );
 
         // update user provided DN index
@@ -948,7 +949,7 @@ public class AvlStore<E> implements Store<E, Long>
         }
 
         Cursor<IndexEntry<Long, E, Long>> children = list( id );
-        
+
         while ( children.next() )
         {
             // Get the child and its id
@@ -1910,8 +1911,11 @@ public class AvlStore<E> implements Store<E, Long>
         String targetDn = aliasIdx.reverseLookup( aliasId );
         Long targetId = getEntryId( targetDn );
         String aliasDn = getEntryDn( aliasId );
-        DN ancestorDn = ( DN ) new DN( aliasDn ).getPrefix( 1 );
-        Long ancestorId = getEntryId( ancestorDn.getNormName() );
+        DN aliasDN = ( DN ) new DN( aliasDn );
+
+        DN ancestorDn = ( DN ) aliasDN.clone();
+        ancestorDn.remove( aliasDN.size() - 1 );
+        Long ancestorId = getEntryId( ancestorDn.toNormName() );
 
         /*
          * We cannot just drop all tuples in the one level and subtree userIndices
@@ -1927,9 +1931,9 @@ public class AvlStore<E> implements Store<E, Long>
         oneAliasIdx.drop( ancestorId, targetId );
         subAliasIdx.drop( ancestorId, targetId );
 
-        while ( !ancestorDn.equals( suffixDn ) )
+        while ( !ancestorDn.equals( suffixDn ) && ancestorDn.size() > suffixDn.size() )
         {
-            ancestorDn = ( DN ) ancestorDn.getPrefix( 1 );
+            ancestorDn = ( DN ) ancestorDn.getPrefix( ancestorDn.size() - 1 );
             ancestorId = getEntryId( ancestorDn.getNormName() );
 
             subAliasIdx.drop( ancestorId, targetId );
@@ -2170,7 +2174,7 @@ public class AvlStore<E> implements Store<E, Long>
     public void setObjectClassIndex( Index<String, E, Long> index )
     {
         protect( "objectClassIndex" );
-        
+
         if ( index instanceof AvlIndex<?, ?> )
         {
             this.objectClassIdx = ( AvlIndex<String, E> ) index;

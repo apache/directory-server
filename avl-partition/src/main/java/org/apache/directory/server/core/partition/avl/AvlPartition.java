@@ -80,8 +80,14 @@ public class AvlPartition extends AbstractXdbmPartition<Long>
 
         searchEngine = new DefaultSearchEngine<Long>( store, cursorBuilder, evaluatorBuilder, optimizer );
 
+        if ( store.isInitialized() )
+        {
+            return;
+        }
+
         // initialize the store
         store.setName( getId() );
+        suffix.normalize( schemaManager.getNormalizerMapping() );
         store.setSuffixDn( suffix.getName() );
 
         Set<Index<?, ServerEntry, Long>> userIndices = new HashSet<Index<?, ServerEntry, Long>>();
