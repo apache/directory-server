@@ -264,7 +264,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         assertPresent( sysRoot, "ou=oldname,ou=system" );
 
         // rename the test entry and test that the rename occurred
-        sysRoot.rename( "ou=oldname,ou=system", "ou=newname,ou=system" );
+        sysRoot.rename( "ou=oldname,ou=system", "ou=newname" );
         assertNotPresent( sysRoot, "ou=oldname,ou=system" );
         assertPresent( sysRoot, "ou=newname,ou=system" );
 
