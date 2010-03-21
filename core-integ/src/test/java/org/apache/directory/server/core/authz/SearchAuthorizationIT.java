@@ -67,10 +67,14 @@ import org.junit.runner.RunWith;
 public class SearchAuthorizationIT extends AbstractLdapTestUnit
 {
 
+    // to avoid creating too many connections during recursive operations
+    private LdapConnection reusableAdminCon;
+    
     @Before
-    public void setService()
+    public void setService() throws Exception
     {
         AutzIntegUtils.ldapServer = ldapServer;
+        reusableAdminCon = getAdminConnection();
     }
 
     @After
@@ -130,7 +134,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
             childRdn.add( "ou=" + i );
             childRdns[i] = childRdn;
             children[i].setDn( childRdn );
-            getAdminConnection().add( children[i] );
+            reusableAdminCon.add( children[i] );
             count[0]++;
         }
 
@@ -165,7 +169,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         entry.add( SchemaConstants.OU_AT, "tests" );
         entry.setDn( base );
 
-        getAdminConnection().add( entry );
+        reusableAdminCon.add( entry );
 
         recursivelyAddSearchData( base, getTestNodes( branchingFactor ), sizelimit, new long[]
             { 1 } );
@@ -181,8 +185,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
      */
     private void recursivelyDelete( DN rdn ) throws Exception
     {
-        LdapConnection sysRoot = getAdminConnection();
-        Cursor<SearchResponse> results = sysRoot.search( rdn.getName(), "(objectClass=*)", SearchScope.ONELEVEL, "*" );
+        Cursor<SearchResponse> results = reusableAdminCon.search( rdn.getName(), "(objectClass=*)", SearchScope.ONELEVEL, "*" );
 
         while ( results.next() )
         {
@@ -192,7 +195,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         }
 
         results.close();
-        sysRoot.delete( rdn );
+        reusableAdminCon.delete( rdn );
     }
 
 
