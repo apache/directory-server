@@ -26,6 +26,7 @@ import javax.naming.ConfigurationException;
 import javax.naming.Context;
 import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
+import javax.naming.ldap.LdapName;
 import javax.naming.spi.InitialContextFactory;
 
 import org.apache.directory.server.core.CoreSession;
@@ -36,8 +37,6 @@ import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
-
-import com.sun.jndi.ldap.LdapName;
 
 
 /**

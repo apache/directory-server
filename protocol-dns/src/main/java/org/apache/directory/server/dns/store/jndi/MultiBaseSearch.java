@@ -20,6 +20,13 @@
 package org.apache.directory.server.dns.store.jndi;
 
 
+import java.util.Map;
+import java.util.Set;
+
+import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
+import javax.naming.ldap.LdapName;
+
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
@@ -35,14 +42,6 @@ import org.apache.directory.server.protocol.shared.catalog.GetCatalog;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.jndi.ldap.LdapName;
-
-import javax.naming.NamingException;
-import javax.naming.directory.DirContext;
-
-import java.util.Map;
-import java.util.Set;
 
 
 /**
