@@ -39,6 +39,7 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -48,6 +49,7 @@ import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -84,7 +86,14 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
         return resp;
     }
 
-    
+
+    @After
+    public void closeConnections()
+    {
+        IntegrationUtils.closeConections();
+    }
+
+
     // ------------------------------------------------------------------------
     // Search Operation Tests
     // ------------------------------------------------------------------------
