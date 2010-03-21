@@ -1497,7 +1497,7 @@ public class SearchIT extends AbstractLdapTestUnit
        }
 
        assertEquals( "Expected number of results returned was incorrect!", 2, map.size() );
-       assertTrue( map.containsKey( "cn=Heather Nova, ou=system" ) );
+       assertTrue( map.containsKey( "cn=Heather Nova, ou=system" ) || map.containsKey( "cn=Heather Nova,ou=system" ) );
    }
 
 
@@ -1521,7 +1521,7 @@ public class SearchIT extends AbstractLdapTestUnit
        }
 
        assertEquals( "Expected number of results returned was incorrect", 1, map.size() );
-       assertTrue( map.containsKey( "cn=with-dn, ou=system" ) );
+       assertTrue( map.containsKey( "cn=with-dn, ou=system" ) || map.containsKey( "cn=with-dn,ou=system" ) );
    }
 
 
