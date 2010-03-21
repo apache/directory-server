@@ -74,11 +74,11 @@ public class ModifyDnHandler extends LdapRequestHandler<InternalModifyDnRequest>
         
         try
         {
-            DN newRdn = new DN( req.getNewRdn().toString() );
+            DN newRdn = new DN( req.getNewRdn().getUpName() );
             newRdn.normalize( session.getCoreSession().getDirectoryService()
                 .getSchemaManager().getNormalizerMapping() );
             
-            DN oldRdn = new DN( req.getName().getRdn().toString() );
+            DN oldRdn = new DN( req.getName().getRdn().getUpName() );
             oldRdn.normalize( session.getCoreSession().getDirectoryService()
                 .getSchemaManager().getNormalizerMapping() );
             
