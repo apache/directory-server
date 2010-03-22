@@ -30,7 +30,7 @@
 
   <groupId>org.apache.directory.server</groupId>
   <artifactId>apacheds-parent</artifactId>
-  <version>1.5.6-SNAPSHOT</version>
+  <version>1.5.7-SNAPSHOT</version>
   <name>ApacheDS</name>
   <packaging>pom</packaging>
 
@@ -39,7 +39,7 @@
     <distMgmtSiteUrl>scpexe://people.apache.org/www/directory.apache.org/apacheds/gen-docs/${version}/</distMgmtSiteUrl>
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.shared.version>0.9.18-SNAPSHOT</org.apache.directory.shared.version>
+    <org.apache.directory.shared.version>0.9.19-SNAPSHOT</org.apache.directory.shared.version>
     <skin.version>1.0.1</skin.version>
     
     <!-- Set versions for depending jars -->
