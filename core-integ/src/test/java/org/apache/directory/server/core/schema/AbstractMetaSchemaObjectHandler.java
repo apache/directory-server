@@ -61,7 +61,7 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
         while ( rdns.hasMoreElements() )
         {
             sb.append( '/' );
-            sb.append( StringTools.toLowerCase( rdns.nextElement().getUpName() ) );
+            sb.append( StringTools.toLowerCase( rdns.nextElement().getName() ) );
         }
         
         sb.append( ".ldif" );

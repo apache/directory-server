@@ -175,13 +175,13 @@ public class LdifStore<E> implements Store<E, Long>
 
         for ( int i = 0; i < size; i++ )
         {
-            filePath.append( entryDn.getRdn( i ).getUpName().toLowerCase() ).append( File.separator );
+            filePath.append( entryDn.getRdn( i ).getName().toLowerCase() ).append( File.separator );
         }
 
         File dir = new File( filePath.toString() );
         dir.mkdirs();
 
-        return new File( dir, entryDn.getRdn().getUpName().toLowerCase() + CONF_FILE_EXTN );
+        return new File( dir, entryDn.getRdn().getName().toLowerCase() + CONF_FILE_EXTN );
     }
 
 

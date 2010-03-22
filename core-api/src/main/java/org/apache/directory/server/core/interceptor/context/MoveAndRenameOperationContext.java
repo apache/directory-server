@@ -120,7 +120,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
         if ( newDn == null )
         {
             newDn = new DN( getParent().getName() );
-            newDn.add( getNewRdn().getUpName() );
+            newDn.add( getNewRdn().getName() );
             newDn.normalize( session.getDirectoryService()
                 .getSchemaManager().getNormalizerMapping() );
         }

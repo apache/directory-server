@@ -82,7 +82,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
-            return new DN( newRDN.getUpName() );
+            return new DN( newRDN.getName() );
         }
     };
 

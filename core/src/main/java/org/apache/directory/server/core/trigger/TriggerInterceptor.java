@@ -372,7 +372,7 @@ public class TriggerInterceptor extends BaseInterceptor
         ServerEntry renamedEntry = (ServerEntry)renameContext.getEntry().getClonedEntry();
         
         // @TODO : To be completely reviewed !!!
-        DN oldRDN = new DN( name.getRdn().getUpName() );
+        DN oldRDN = new DN( name.getRdn().getName() );
         DN oldSuperiorDN = ( DN ) name.clone();
         oldSuperiorDN.remove( oldSuperiorDN.size() - 1 );
         DN newSuperiorDN = ( DN ) oldSuperiorDN.clone();
@@ -418,13 +418,13 @@ public class TriggerInterceptor extends BaseInterceptor
         // Gather supplementary data.        
         ClonedServerEntry movedEntry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
         
-        DN oldRDN = new DN( oriChildName.getRdn().getUpName() );
+        DN oldRDN = new DN( oriChildName.getRdn().getName() );
         DN oldSuperiorDN = ( DN ) oriChildName.clone();
         oldSuperiorDN.remove( oldSuperiorDN.size() - 1 );
         DN newSuperiorDN = ( DN ) parent.clone();
         DN oldDN = ( DN ) oriChildName.clone();
         DN newDN = ( DN ) parent.clone();
-        newDN.add( newRdn.getUpName() );
+        newDN.add( newRdn.getName() );
 
         StoredProcedureParameterInjector injector = new ModifyDNStoredProcedureParameterInjector(
             opContext, deleteOldRn, oldRDN, newRdn, oldSuperiorDN, newSuperiorDN, oldDN, newDN );
@@ -492,14 +492,14 @@ public class TriggerInterceptor extends BaseInterceptor
         // Gather supplementary data.        
         ClonedServerEntry movedEntry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
         
-        DN oldRDN = new DN( oriChildName.getRdn().getUpName() );
-        RDN newRDN = new RDN( oriChildName.getRdn().getUpName() );
+        DN oldRDN = new DN( oriChildName.getRdn().getName() );
+        RDN newRDN = new RDN( oriChildName.getRdn().getName() );
         DN oldSuperiorDN = ( DN ) oriChildName.clone();
         oldSuperiorDN.remove( oldSuperiorDN.size() - 1 );
         DN newSuperiorDN = ( DN ) newParentName.clone();
         DN oldDN = ( DN ) oriChildName.clone();
         DN newDN = ( DN ) newParentName.clone();
-        newDN.add( newRDN.getUpName() );
+        newDN.add( newRDN.getName() );
 
         StoredProcedureParameterInjector injector = new ModifyDNStoredProcedureParameterInjector(
             opContext, false, oldRDN, newRDN, oldSuperiorDN, newSuperiorDN, oldDN, newDN );

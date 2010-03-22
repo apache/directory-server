@@ -847,7 +847,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapPrincipal principal = moveAndRenameContext.getSession().getEffectivePrincipal();
         DN principalDn = principal.getClonedName();
         DN newName = ( DN ) newParentName.clone();
-        newName.add( moveAndRenameContext.getNewRdn().getUpName() );
+        newName.add( moveAndRenameContext.getNewRdn().getName() );
 
         // bypass authz code if we are disabled
         if ( !moveAndRenameContext.getSession().getDirectoryService().isAccessControlEnabled() )

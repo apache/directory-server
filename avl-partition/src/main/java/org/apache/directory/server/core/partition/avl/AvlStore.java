@@ -1503,7 +1503,7 @@ public class AvlStore<E> implements Store<E, Long>
 
         DN newUpdn = ( DN ) updn.clone(); // copy da old updn
         newUpdn.remove( newUpdn.size() - 1 ); // remove old upRdn
-        newUpdn.add( newRdn.getUpName() ); // add da new upRdn
+        newUpdn.add( newRdn.getName() ); // add da new upRdn
 
         // gotta normalize cuz this thang is cloned and not normalized by default
         newUpdn.normalize( schemaManager.getNormalizerMapping() );
