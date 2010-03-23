@@ -401,14 +401,14 @@ public class AvlStoreTest
     {
         DN dn = new DN( "o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        assertEquals( 1L, ( long ) store.getEntryId( dn.toNormName() ) );
+        assertEquals( 1L, ( long ) store.getEntryId( dn.getNormName() ) );
         assertEquals( 11, store.count() );
-        assertEquals( "o=Good Times Co.", store.getEntryUpdn( dn.toNormName() ) );
-        assertEquals( dn.toNormName(), store.getEntryDn( 1L ) );
+        assertEquals( "o=Good Times Co.", store.getEntryUpdn( dn.getNormName() ) );
+        assertEquals( dn.getNormName(), store.getEntryDn( 1L ) );
         assertEquals( dn.getName(), store.getEntryUpdn( 1L ) );
 
         // note that the suffix entry returns 0 for it's parent which does not exist
-        assertEquals( 0L, ( long ) store.getParentId( dn.toNormName() ) );
+        assertEquals( 0L, ( long ) store.getParentId( dn.getNormName() ) );
         assertNull( store.getParentId( 0L ) );
 
         // should NOW be allowed
@@ -715,7 +715,7 @@ public class AvlStoreTest
         Modification add = new ServerModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
         mods.add( add );
 
-        ServerEntry lookedup = store.lookup( store.getEntryId( dn.toNormName() ) );
+        ServerEntry lookedup = store.lookup( store.getEntryId( dn.getNormName() ) );
 
         store.modify( dn, mods );
         assertTrue( lookedup.get( "sn" ).contains( attribVal ) );
@@ -726,7 +726,7 @@ public class AvlStoreTest
         entry.add( "telephoneNumber", attribVal );
 
         store.modify( dn, ModificationOperation.ADD_ATTRIBUTE, entry );
-        lookedup = store.lookup( store.getEntryId( dn.toNormName() ) );
+        lookedup = store.lookup( store.getEntryId( dn.getNormName() ) );
         assertTrue( lookedup.get( "telephoneNumber" ).contains( attribVal ) );
     }
 
@@ -747,7 +747,7 @@ public class AvlStoreTest
         Modification add = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
         mods.add( add );
 
-        ServerEntry lookedup = store.lookup( store.getEntryId( dn.toNormName() ) );
+        ServerEntry lookedup = store.lookup( store.getEntryId( dn.getNormName() ) );
 
         assertEquals( "WAlkeR", lookedup.get( "sn" ).get().getString() ); // before replacing
 
@@ -777,7 +777,7 @@ public class AvlStoreTest
         Modification add = new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
         mods.add( add );
 
-        ServerEntry lookedup = store.lookup( store.getEntryId( dn.toNormName() ) );
+        ServerEntry lookedup = store.lookup( store.getEntryId( dn.getNormName() ) );
 
         assertNotNull( lookedup.get( "sn" ).get() );
 
@@ -820,7 +820,7 @@ public class AvlStoreTest
         Modification add = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
         mods.add( add );
 
-        ServerEntry lookedup = store.lookup( store.getEntryId( dn.toNormName() ) );
+        ServerEntry lookedup = store.lookup( store.getEntryId( dn.getNormName() ) );
 
         assertNull( lookedup.get( "ou" ) ); // before replacing
 

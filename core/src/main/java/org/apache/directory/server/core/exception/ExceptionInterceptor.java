@@ -523,7 +523,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             
             if ( ! cursor.next() )
             {
-                if ( !base.isEmpty() && !( subschemSubentryDn.toNormName() ).equalsIgnoreCase( base.toNormName() ) )
+                if ( !base.isEmpty() && !( subschemSubentryDn.getNormName() ).equalsIgnoreCase( base.getNormName() ) )
                 {
                     // We just check that the entry exists only if we didn't found any entry
                     assertHasEntry( nextInterceptor, opContext, "Attempt to search under non-existant entry:" , base );

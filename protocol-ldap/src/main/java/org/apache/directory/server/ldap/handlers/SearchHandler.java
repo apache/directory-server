@@ -1261,7 +1261,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
     private static boolean isSubSchemaSubEntrySearch( LdapSession session, InternalSearchRequest req ) throws Exception
     {
         DN base = req.getBase();
-        String baseNormForm = ( base.isNormalized() ? base.getNormName() : base.toNormName() );
+        String baseNormForm = ( base.isNormalized() ? base.getNormName() : base.getNormName() );
 
         DirectoryService ds = session.getCoreSession().getDirectoryService();
         PartitionNexus nexus = ds.getPartitionNexus();

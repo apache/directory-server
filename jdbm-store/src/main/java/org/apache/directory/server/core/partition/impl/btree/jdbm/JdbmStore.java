@@ -1014,7 +1014,7 @@ public class JdbmStore<E> implements Store<E, Long>
 
         DN ancestorDn = ( DN ) aliasDN.clone();
         ancestorDn.remove( aliasDN.size() - 1 );
-        Long ancestorId = getEntryId( ancestorDn.toNormName() );
+        Long ancestorId = getEntryId( ancestorDn.getNormName() );
 
         /*
          * We cannot just drop all tuples in the one level and subtree userIndices
@@ -1033,7 +1033,7 @@ public class JdbmStore<E> implements Store<E, Long>
         while ( !ancestorDn.equals( normSuffix ) && ancestorDn.size() > normSuffix.size() )
         {
             ancestorDn = ( DN ) ancestorDn.getPrefix( ancestorDn.size() - 1 );
-            ancestorId = getEntryId( ancestorDn.toNormName() );
+            ancestorId = getEntryId( ancestorDn.getNormName() );
 
             subAliasIdx.drop( ancestorId, targetId );
         }
@@ -1108,7 +1108,7 @@ public class JdbmStore<E> implements Store<E, Long>
         }
 
         // L O O K U P   T A R G E T   I D
-        targetId = ndnIdx.forwardLookup( normalizedAliasTargetDn.toNormName() );
+        targetId = ndnIdx.forwardLookup( normalizedAliasTargetDn.getNormName() );
 
         /*
          * Check For Target Existence
@@ -1155,7 +1155,7 @@ public class JdbmStore<E> implements Store<E, Long>
          */
         ancestorDn = ( DN ) aliasDn.clone();
         ancestorDn.remove( aliasDn.size() - 1 );
-        ancestorId = getEntryId( ancestorDn.toNormName() );
+        ancestorId = getEntryId( ancestorDn.getNormName() );
 
         // check if alias parent and aliased entry are the same
         DN normalizedAliasTargetParentDn = ( DN ) normalizedAliasTargetDn.clone();
@@ -1183,7 +1183,7 @@ public class JdbmStore<E> implements Store<E, Long>
             }
 
             ancestorDn.remove( ancestorDn.size() - 1 );
-            ancestorId = getEntryId( ancestorDn.toNormName() );
+            ancestorId = getEntryId( ancestorDn.getNormName() );
         }
     }
 
@@ -1255,12 +1255,12 @@ public class JdbmStore<E> implements Store<E, Long>
             addAliasIndices( id, entryDn, aliasAttr.getString() );
         }
 
-        if ( !Character.isDigit( entryDn.toNormName().charAt( 0 ) ) )
+        if ( !Character.isDigit( entryDn.getNormName().charAt( 0 ) ) )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_218, entryDn.toNormName() ) );
+            throw new IllegalStateException( I18n.err( I18n.ERR_218, entryDn.getNormName() ) );
         }
 
-        ndnIdx.add( entryDn.toNormName(), id );
+        ndnIdx.add( entryDn.getNormName(), id );
         updnIdx.add( entryDn.getName(), id );
         oneLevelIdx.add( parentId, id );
 
@@ -1941,7 +1941,7 @@ public class JdbmStore<E> implements Store<E, Long>
             updn.normalize( schemaManager.getNormalizerMapping() );
         }
 
-        ndnIdx.add( updn.toNormName(), id );
+        ndnIdx.add( updn.getNormName(), id );
 
         // update user provided DN index
         updnIdx.drop( id );

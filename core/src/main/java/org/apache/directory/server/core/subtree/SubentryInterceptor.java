@@ -594,7 +594,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
         {
-            SubtreeSpecification ss = subentryCache.removeSubentry( name.toNormName() ).getSubtreeSpecification();
+            SubtreeSpecification ss = subentryCache.removeSubentry( name.getNormName() ).getSubtreeSpecification();
             next.delete( opContext );
 
             /* ----------------------------------------------------------------
@@ -762,7 +762,7 @@ public class SubentryInterceptor extends BaseInterceptor
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
         {
             // @Todo To be reviewed !!!
-            Subentry subentry = subentryCache.getSubentry( name.toNormName() );
+            Subentry subentry = subentryCache.getSubentry( name.getNormName() );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
             DN apName = ( DN ) name.clone();
             apName.remove( apName.size() - 1 );
@@ -773,7 +773,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             newName.add( opContext.getNewRdn() );
 
-            String newNormName = newName.toNormName();
+            String newNormName = newName.getNormName();
             subentryCache.setSubentry( newNormName, ss, subentry.getTypes() );
             next.rename( opContext );
 
@@ -840,7 +840,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
         {
-            Subentry subentry = subentryCache.getSubentry( oriChildName.toNormName() );
+            Subentry subentry = subentryCache.getSubentry( oriChildName.getNormName() );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
             DN apName = ( DN ) oriChildName.clone();
             apName.remove( apName.size() - 1 );
@@ -851,7 +851,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             newName.add( opContext.getNewRdn() );
 
-            String newNormName = newName.toNormName();
+            String newNormName = newName.getNormName();
             subentryCache.setSubentry( newNormName, ss, subentry.getTypes() );
             next.moveAndRename( opContext );
 
@@ -929,7 +929,7 @@ public class SubentryInterceptor extends BaseInterceptor
             newName.remove( newName.size() - 1 );
             newName.add( newParentName.get( newParentName.size() - 1 ) );
 
-            String newNormName = newName.toNormName();
+            String newNormName = newName.getNormName();
             subentryCache.setSubentry( newNormName, ss, subentry.getTypes() );
             next.move( opContext );
 
@@ -1065,7 +1065,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, msg );
             }
 
-            subentryCache.setSubentry( name.toNormName(), ssNew, getSubentryTypes( entry, mods ) );
+            subentryCache.setSubentry( name.getNormName(), ssNew, getSubentryTypes( entry, mods ) );
             next.modify( opContext );
 
             // search for all entries selected by the old SS and remove references to subentry
@@ -1099,7 +1099,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
 
             // search for all selected entries by the new SS and add references to subentry
-            Subentry subentry = subentryCache.getSubentry( name.toNormName() );
+            Subentry subentry = subentryCache.getSubentry( name.getNormName() );
             ServerEntry operational = getSubentryOperatationalAttributes( name, subentry );
             DN newBaseDn = ( DN ) apName.clone();
             newBaseDn.addAll( ssNew.getBase() );
@@ -1311,7 +1311,7 @@ public class SubentryInterceptor extends BaseInterceptor
         throws Exception
     {
         List<Modification> modList = new ArrayList<Modification>();
-        String dn = subentryDn.toNormName();
+        String dn = subentryDn.getNormName();
 
         for ( String opAttrId : SUBENTRY_OPATTRS )
         {
@@ -1437,7 +1437,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             DN ndn = new DN( dn );
             ndn.normalize( schemaManager.getNormalizerMapping() );
-            return subentryCache.hasSubentry( ndn.toNormName() );
+            return subentryCache.hasSubentry( ndn.getNormName() );
         }
     }
 

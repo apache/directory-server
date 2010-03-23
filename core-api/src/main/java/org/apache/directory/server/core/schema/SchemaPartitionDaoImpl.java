@@ -498,7 +498,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
         
         if ( !rdn.getNormType().equalsIgnoreCase( CN_OID ) )
         {
-            throw new NamingException( I18n.err( I18n.ERR_434, dn.toNormName(), CN_OID, rdn.getNormType() ) );
+            throw new NamingException( I18n.err( I18n.ERR_434, dn.getNormName(), CN_OID, rdn.getNormType() ) );
         }
 
         return ( String ) rdn.getNormValue();

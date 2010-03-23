@@ -189,7 +189,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         if ( !parentDn.equals( ouSchemaDN ) )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_380, ouSchemaDN.getName(),
-                    parentDn.toNormName() ) );
+                    parentDn.getNormName() ) );
         }
 
         // check if the new schema is enabled or disabled

@@ -223,7 +223,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                 get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         DN subschemaSubentryDnName = new DN( subschemaSubentry.getString() );
         subschemaSubentryDnName.normalize( schemaManager.getNormalizerMapping() );
-        subschemaSubentryDn = subschemaSubentryDnName.toNormName();
+        subschemaSubentryDn = subschemaSubentryDnName.getNormName();
     }
 
 
@@ -455,7 +455,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         }
 
         // Assemble all the information required to make an access control decision
-        Set<DN> userGroups = groupCache.getGroups( principalDn.toNormName() );
+        Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
 
         // Build the total collection of tuples to be considered for add rights
@@ -686,7 +686,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         }
 
         ClonedServerEntry entry = entryContext.lookup( name, ByPassConstants.HAS_ENTRY_BYPASS );
-        Set<DN> userGroups = groupCache.getGroups( principalDn.toNormName() );
+        Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( entryContext, tuples, name, entry.getOriginalEntry() );
         addEntryAciTuples( tuples, entry.getOriginalEntry() );
@@ -726,7 +726,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         LdapPrincipal principal = lookupContext.getSession().getEffectivePrincipal();
         DN userName = principal.getClonedName();
-        Set<DN> userGroups = groupCache.getGroups( userName.toNormName() );
+        Set<DN> userGroups = groupCache.getGroups( userName.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( lookupContext, tuples, lookupContext.getDn(), entry );
         addEntryAciTuples( tuples, entry );
@@ -1051,7 +1051,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return next.compare( opContext );
         }
 
-        Set<DN> userGroups = groupCache.getGroups( principalDn.toNormName() );
+        Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( opContext, tuples, name, entry.getOriginalEntry() );
         addEntryAciTuples( tuples, entry );
@@ -1127,7 +1127,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         
         LdapPrincipal principal = opContext.getSession().getEffectivePrincipal();
         DN userDn = principal.getClonedName();
-        Set<DN> userGroups = groupCache.getGroups( userDn.toNormName() );
+        Set<DN> userGroups = groupCache.getGroups( userDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( opContext, tuples, normName, clonedEntry.getOriginalEntry() );
         addEntryAciTuples( tuples, clonedEntry.getOriginalEntry() );

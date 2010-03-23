@@ -475,7 +475,7 @@ public class GroupCache
             return false;
         }
 
-        return members.contains( principalDn.toNormName() );
+        return members.contains( principalDn.getNormName() );
     }
 
 

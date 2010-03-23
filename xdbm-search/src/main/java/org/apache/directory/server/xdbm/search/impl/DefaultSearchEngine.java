@@ -144,7 +144,7 @@ public class DefaultSearchEngine<ID> implements SearchEngine<ServerEntry, ID>
             ID effectiveBaseId = baseId;
             if ( effectiveBase != base )
             {
-                effectiveBaseId = db.getEntryId( effectiveBase.toNormName() );
+                effectiveBaseId = db.getEntryId( effectiveBase.getNormName() );
             }
 
             IndexEntry<ID, ServerEntry, ID> indexEntry = new ForwardIndexEntry<ID, ServerEntry, ID>();

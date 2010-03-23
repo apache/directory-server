@@ -344,7 +344,7 @@ public class RelatedProtectedItemFilterTest
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.SelfValue( attrTypes ) );
 
         ServerEntry entry = new DefaultServerEntry( schemaManager, USER_NAME );
-        entry.put( "cn", USER_NAME.toNormName() );
+        entry.put( "cn", USER_NAME.getNormName() );
 
         // Test wrong scope
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,

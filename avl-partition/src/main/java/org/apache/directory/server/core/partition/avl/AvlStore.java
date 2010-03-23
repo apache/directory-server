@@ -206,12 +206,12 @@ public class AvlStore<E> implements Store<E, Long>
             addAliasIndices( id, normName, aliasAttr.getString() );
         }
 
-        if ( !Character.isDigit( normName.toNormName().charAt( 0 ) ) )
+        if ( !Character.isDigit( normName.getNormName().charAt( 0 ) ) )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_218, normName.toNormName() ) );
+            throw new IllegalStateException( I18n.err( I18n.ERR_218, normName.getNormName() ) );
         }
 
-        ndnIdx.add( normName.toNormName(), id );
+        ndnIdx.add( normName.getNormName(), id );
         updnIdx.add( normName.getName(), id );
         oneLevelIdx.add( parentId, id );
 
@@ -922,7 +922,7 @@ public class AvlStore<E> implements Store<E, Long>
             updn.normalize( schemaManager.getNormalizerMapping() );
         }
 
-        ndnIdx.add( updn.toNormName(), id );
+        ndnIdx.add( updn.getNormName(), id );
 
         // update user provided DN index
         updnIdx.drop( id );
@@ -1822,7 +1822,7 @@ public class AvlStore<E> implements Store<E, Long>
         }
 
         // L O O K U P   T A R G E T   I D
-        targetId = ndnIdx.forwardLookup( normalizedAliasTargetDn.toNormName() );
+        targetId = ndnIdx.forwardLookup( normalizedAliasTargetDn.getNormName() );
 
         /*
          * Check For Target Existance
@@ -1864,7 +1864,7 @@ public class AvlStore<E> implements Store<E, Long>
          */
         ancestorDn = ( DN ) aliasDn.clone();
         ancestorDn.remove( aliasDn.size() - 1 );
-        ancestorId = getEntryId( ancestorDn.toNormName() );
+        ancestorId = getEntryId( ancestorDn.getNormName() );
 
         // check if alias parent and aliased entry are the same
         DN normalizedAliasTargetParentDn = ( DN ) normalizedAliasTargetDn.clone();
@@ -1892,7 +1892,7 @@ public class AvlStore<E> implements Store<E, Long>
             }
 
             ancestorDn.remove( ancestorDn.size() - 1 );
-            ancestorId = getEntryId( ancestorDn.toNormName() );
+            ancestorId = getEntryId( ancestorDn.getNormName() );
         }
     }
 
@@ -1915,7 +1915,7 @@ public class AvlStore<E> implements Store<E, Long>
 
         DN ancestorDn = ( DN ) aliasDN.clone();
         ancestorDn.remove( aliasDN.size() - 1 );
-        Long ancestorId = getEntryId( ancestorDn.toNormName() );
+        Long ancestorId = getEntryId( ancestorDn.getNormName() );
 
         /*
          * We cannot just drop all tuples in the one level and subtree userIndices

@@ -271,7 +271,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                         EntryAttribute attr = entry.get( oid );
                         
                         if ( ( attr != null ) && 
-                             ( ( attr.contains( userName.toNormName() ) || 
+                             ( ( attr.contains( userName.getNormName() ) || 
                                ( attr.contains( userName.getName() ) ) ) ) )
                         {
                             return true;

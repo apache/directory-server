@@ -212,7 +212,7 @@ public class TupleCache
             }
         }
 
-        tuples.put( normName.toNormName(), entryTuples );
+        tuples.put( normName.getNormName(), entryTuples );
     }
 
 
