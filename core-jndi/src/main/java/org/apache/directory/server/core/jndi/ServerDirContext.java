@@ -235,14 +235,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         try
         {
-            if ( name instanceof DN )
-            {
-                doModifyOperation( buildTarget( (DN)name ), newMods );
-            }
-            else
-            {
-                doModifyOperation( buildTarget( DN.fromName( name ) ), newMods );
-            }
+            doModifyOperation( buildTarget( DN.fromName( name ) ), newMods );
         }
         catch( Exception e )
         {
@@ -776,7 +769,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 try
                 {
                     EntryFilteringCursor cursor = doSearchOperation( target, aliasDerefMode, node, ctls );
-                    return new NamingEnumerationAdapter ( cursor ); 
+                    return new NamingEnumerationAdapter( cursor ); 
                 }
                 catch ( Exception e )
                 {
