@@ -7,7 +7,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>apacheds-default-config</artifactId>
-  <name>apacheds-default-config</name>
+  <name>ApacheDS Default Config</name>
 
   <dependencies>
     <dependency>
