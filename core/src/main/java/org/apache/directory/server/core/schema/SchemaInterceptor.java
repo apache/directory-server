@@ -1683,7 +1683,7 @@ public class SchemaInterceptor extends BaseInterceptor
         check( name, entry );
 
         // Special checks for the MetaSchema branch
-        if ( name.startsWith( schemaBaseDN ) )
+        if ( name.isChildOf( schemaBaseDN ) )
         {
             // get the schema name
             String schemaName = getSchemaName( name );

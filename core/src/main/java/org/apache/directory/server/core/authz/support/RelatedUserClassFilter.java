@@ -133,7 +133,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
             }
             else if ( userClass == UserClass.PARENT_OF_ENTRY )
             {
-                if ( entryName.startsWith( userName ) )
+                if ( entryName.isChildOf( userName ) )
                 {
                     return true;
                 }

@@ -1075,7 +1075,7 @@ public class JdbmStore<E> implements Store<E, Long>
          * entry Dn starts with the target Dn.  If it does then we know the 
          * aliased target is a relative and we have a perspecitive cycle.
          */
-        if ( aliasDn.startsWith( normalizedAliasTargetDn ) )
+        if ( aliasDn.isChildOf( normalizedAliasTargetDn ) )
         {
             if ( aliasDn.equals( normalizedAliasTargetDn ) )
             {
@@ -1099,7 +1099,7 @@ public class JdbmStore<E> implements Store<E, Long>
          * need to point it out to the user instead of saying the target
          * does not exist when it potentially could outside of this upSuffix.
          */
-        if ( !normalizedAliasTargetDn.startsWith( normSuffix ) )
+        if ( !normalizedAliasTargetDn.isChildOf( normSuffix ) )
         {
             String msg = I18n.err( I18n.ERR_225, upSuffix.getName() );
             LdapAliasDereferencingException e = new LdapAliasDereferencingException( msg );
@@ -1160,7 +1160,7 @@ public class JdbmStore<E> implements Store<E, Long>
         // check if alias parent and aliased entry are the same
         DN normalizedAliasTargetParentDn = ( DN ) normalizedAliasTargetDn.clone();
         normalizedAliasTargetParentDn.remove( normalizedAliasTargetDn.size() - 1 );
-        if ( !aliasDn.startsWith( normalizedAliasTargetParentDn ) )
+        if ( !aliasDn.isChildOf( normalizedAliasTargetParentDn ) )
         {
             oneAliasIdx.add( ancestorId, targetId );
         }
