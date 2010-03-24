@@ -22,8 +22,8 @@ package org.apache.directory.server.core.schema.registries.synchronizers;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;

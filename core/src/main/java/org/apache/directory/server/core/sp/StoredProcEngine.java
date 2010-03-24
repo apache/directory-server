@@ -21,7 +21,7 @@ package org.apache.directory.server.core.sp;
 
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.ServerEntry;
 
 
 /**

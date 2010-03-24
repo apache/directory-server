@@ -24,9 +24,9 @@ import java.util.ArrayList;
 
 import javax.swing.table.AbstractTableModel;
 
-import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
 
 

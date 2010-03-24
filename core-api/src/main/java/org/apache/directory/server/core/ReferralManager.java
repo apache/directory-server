@@ -19,7 +19,7 @@
  */
 package org.apache.directory.server.core;
 
-import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.name.DN;
 
 /**

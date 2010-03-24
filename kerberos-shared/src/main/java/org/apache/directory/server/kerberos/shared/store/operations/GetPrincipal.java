@@ -29,7 +29,6 @@ import javax.naming.directory.InvalidAttributeValueException;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
@@ -40,6 +39,7 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntryModifier;
 import org.apache.directory.server.protocol.shared.store.DirectoryServiceOperation;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.name.DN;
 
 

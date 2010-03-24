@@ -31,7 +31,6 @@ import junit.framework.Assert;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.factory.PartitionFactory;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -40,6 +39,7 @@ import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
+import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 import org.junit.runner.RunWith;

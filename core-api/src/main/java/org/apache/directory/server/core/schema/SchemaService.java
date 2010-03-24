@@ -1,7 +1,7 @@
 package org.apache.directory.server.core.schema;
 
 
-import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 

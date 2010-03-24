@@ -20,7 +20,6 @@
 package org.apache.directory.server.kerberos.shared.store.operations;
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
@@ -30,6 +29,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;

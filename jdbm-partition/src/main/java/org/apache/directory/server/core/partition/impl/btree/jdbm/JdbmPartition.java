@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.AbstractXdbmPartition;
@@ -34,6 +33,7 @@ import org.apache.directory.server.xdbm.search.impl.DefaultSearchEngine;
 import org.apache.directory.server.xdbm.search.impl.EvaluatorBuilder;
 import org.apache.directory.server.xdbm.search.impl.NoOpOptimizer;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.ServerEntry;
 
 
 /**

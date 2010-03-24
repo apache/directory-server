@@ -21,6 +21,7 @@ package org.apache.directory.server.core.entry;
 
 
 
+import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.name.DN;
 
 /**

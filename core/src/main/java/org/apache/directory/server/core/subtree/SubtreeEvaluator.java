@@ -22,9 +22,9 @@ package org.apache.directory.server.core.subtree;
 
 import java.util.Iterator;
 
-import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.event.Evaluator;
 import org.apache.directory.server.core.event.ExpressionEvaluator;
+import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;

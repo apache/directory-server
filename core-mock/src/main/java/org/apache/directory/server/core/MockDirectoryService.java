@@ -29,7 +29,6 @@ import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.changelog.ChangeLog;
-import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
@@ -39,6 +38,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.csn.Csn;
+import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;

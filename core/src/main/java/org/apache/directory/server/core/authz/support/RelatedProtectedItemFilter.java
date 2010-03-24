@@ -26,7 +26,6 @@ import java.util.Iterator;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 
-import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.event.Evaluator;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.subtree.RefinementEvaluator;
@@ -39,6 +38,7 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;

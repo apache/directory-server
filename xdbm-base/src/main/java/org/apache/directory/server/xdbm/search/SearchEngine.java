@@ -21,11 +21,11 @@ package org.apache.directory.server.xdbm.search;
 
 
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
+import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.server.xdbm.IndexCursor;
-import org.apache.directory.server.core.entry.ServerEntry;
 
 import javax.naming.directory.SearchControls;
 

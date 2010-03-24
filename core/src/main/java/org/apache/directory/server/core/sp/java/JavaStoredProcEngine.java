@@ -30,10 +30,10 @@ import java.util.List;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.sp.StoredProcEngine;
 import org.apache.directory.server.core.sp.StoredProcUtils;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.util.DirectoryClassUtils;
 
 
