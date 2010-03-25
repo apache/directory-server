@@ -31,7 +31,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
@@ -45,6 +44,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;

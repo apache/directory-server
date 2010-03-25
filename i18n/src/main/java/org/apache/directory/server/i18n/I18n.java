@@ -149,7 +149,7 @@ public class I18n
     // public static String ERR_108 = "ERR_108";
     // public static String ERR_109 = "ERR_109";
     // public static String ERR_110 = "ERR_110";
-    public static String ERR_111 = "ERR_111";
+    // public static String ERR_111 = "ERR_111";
     // public static String ERR_112 = "ERR_112";
     // public static String ERR_113 = "ERR_113";
     // public static String ERR_114 = "ERR_ 114";
@@ -507,7 +507,7 @@ public class I18n
     public static String ERR_466 = "ERR_466";
     public static String ERR_467 = "ERR_467";
     public static String ERR_468 = "ERR_468";
-    public static String ERR_469 = "ERR_469";
+    // public static String ERR_469 = "ERR_469";
     // public static String ERR_470 = "ERR_470";
     // public static String ERR_471 = "ERR_471";
     public static String ERR_472 = "ERR_472";

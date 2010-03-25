@@ -40,7 +40,6 @@ import javax.naming.directory.Attributes;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.xdbm.GenericIndex;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -55,6 +54,7 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.name.DN;
