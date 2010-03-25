@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.ReferralManager;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.server.core.event.NotificationCriteria;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -43,6 +42,7 @@ import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.P
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.ServerStringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;

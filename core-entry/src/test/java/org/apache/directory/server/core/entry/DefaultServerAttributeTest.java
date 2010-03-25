@@ -45,6 +45,8 @@ import javax.naming.directory.InvalidAttributeValueException;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ServerAttribute;
+import org.apache.directory.shared.ldap.entry.ServerBinaryValue;
+import org.apache.directory.shared.ldap.entry.ServerStringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;

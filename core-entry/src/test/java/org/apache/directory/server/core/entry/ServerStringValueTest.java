@@ -38,6 +38,8 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
+import org.apache.directory.shared.ldap.entry.ServerBinaryValue;
+import org.apache.directory.shared.ldap.entry.ServerStringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
