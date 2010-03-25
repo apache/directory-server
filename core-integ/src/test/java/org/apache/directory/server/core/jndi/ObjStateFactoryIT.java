@@ -40,9 +40,9 @@ import javax.naming.ldap.LdapContext;
 import javax.naming.spi.DirObjectFactory;
 import javax.naming.spi.DirStateFactory;
 
-import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.StringTools;

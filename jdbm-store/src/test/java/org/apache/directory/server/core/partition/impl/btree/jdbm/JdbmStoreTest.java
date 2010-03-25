@@ -40,7 +40,6 @@ import javax.naming.directory.Attributes;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.xdbm.GenericIndex;
 import org.apache.directory.server.xdbm.Index;
@@ -51,6 +50,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
+import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerAttribute;

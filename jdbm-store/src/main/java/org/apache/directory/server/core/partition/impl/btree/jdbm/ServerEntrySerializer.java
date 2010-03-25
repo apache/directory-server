@@ -27,8 +27,8 @@ import java.io.ObjectOutputStream;
 
 import jdbm.helper.Serializer;
 
-import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

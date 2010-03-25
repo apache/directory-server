@@ -28,8 +28,8 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.normalization.FilterNormalizingVisitor;
+import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;

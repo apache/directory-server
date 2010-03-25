@@ -30,8 +30,8 @@ import java.util.List;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;

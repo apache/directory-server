@@ -24,11 +24,11 @@ import java.util.NoSuchElementException;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.CursorIterator;
+import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 

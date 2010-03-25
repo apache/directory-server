@@ -28,8 +28,8 @@ import java.io.File;
 import java.security.KeyPair;
 import java.security.cert.X509Certificate;
 
-import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;

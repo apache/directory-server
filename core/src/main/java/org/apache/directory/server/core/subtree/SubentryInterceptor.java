@@ -35,7 +35,6 @@ import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.filtering.EntryFilter;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -58,6 +57,7 @@ import org.apache.directory.shared.ldap.codec.search.controls.subentries.Subentr
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
+import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
