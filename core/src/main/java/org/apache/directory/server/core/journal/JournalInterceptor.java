@@ -32,7 +32,6 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
@@ -118,7 +117,7 @@ public class JournalInterceptor extends BaseInterceptor
             
             for ( AttributeType attributeType:list )
             {
-                ldif.addAttribute( ((ServerAttribute)addEntry.get( attributeType) ).toClientAttribute() );
+                ldif.addAttribute( addEntry.get( attributeType).toClientAttribute() );
             }
             
             log( opRevision, ldif );

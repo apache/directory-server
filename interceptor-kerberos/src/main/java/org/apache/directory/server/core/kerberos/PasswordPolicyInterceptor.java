@@ -26,8 +26,8 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.entry.ServerBinaryValue;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerStringValue;
@@ -137,7 +137,7 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
                 }
             }
 
-            ServerAttribute attr = (ServerAttribute)mod.getAttribute();
+            EntryAttribute attr = mod.getAttribute();
 
             if ( attr.instanceOf( SchemaConstants.USER_PASSWORD_AT ) )
             {

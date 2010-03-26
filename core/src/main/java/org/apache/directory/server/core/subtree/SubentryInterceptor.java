@@ -60,7 +60,6 @@ import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -721,7 +720,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                     if ( opAttr != null )
                     {
-                        opAttr = ( ServerAttribute ) opAttr.clone();
+                        opAttr = opAttr.clone();
                         opAttr.remove( subentryDn );
 
                         if ( opAttr.size() < 1 )
@@ -739,7 +738,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 for ( String aSUBENTRY_OPATTRS : SUBENTRY_OPATTRS )
                 {
                     ModificationOperation op = ModificationOperation.ADD_ATTRIBUTE;
-                    ServerAttribute opAttr = new DefaultServerAttribute( aSUBENTRY_OPATTRS, schemaManager
+                    EntryAttribute opAttr = new DefaultServerAttribute( aSUBENTRY_OPATTRS, schemaManager
                         .lookupAttributeTypeRegistry( aSUBENTRY_OPATTRS ) );
                     opAttr.add( subentryDn );
                     modList.add( new ServerModification( op, opAttr ) );
@@ -991,7 +990,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
     private int getSubentryTypes( ServerEntry entry, List<Modification> mods ) throws Exception
     {
-        ServerAttribute ocFinalState = ( ServerAttribute ) entry.get( SchemaConstants.OBJECT_CLASS_AT ).clone();
+        EntryAttribute ocFinalState = entry.get( SchemaConstants.OBJECT_CLASS_AT ).clone();
 
         for ( Modification mod : mods )
         {
@@ -1000,7 +999,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 switch ( mod.getOperation() )
                 {
                     case ADD_ATTRIBUTE:
-                        for ( Value<?> value : ( ServerAttribute ) mod.getAttribute() )
+                        for ( Value<?> value : mod.getAttribute() )
                         {
                             ocFinalState.add( value.getString() );
                         }
@@ -1008,7 +1007,7 @@ public class SubentryInterceptor extends BaseInterceptor
                         break;
 
                     case REMOVE_ATTRIBUTE:
-                        for ( Value<?> value : ( ServerAttribute ) mod.getAttribute() )
+                        for ( Value<?> value : mod.getAttribute() )
                         {
                             ocFinalState.remove( value.getString() );
                         }
@@ -1016,7 +1015,7 @@ public class SubentryInterceptor extends BaseInterceptor
                         break;
 
                     case REPLACE_ATTRIBUTE:
-                        ocFinalState = ( ServerAttribute ) mod.getAttribute();
+                        ocFinalState = mod.getAttribute();
                         break;
                 }
             }
@@ -1056,7 +1055,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             try
             {
-                ssNew = ssParser.parse( ( ( ServerAttribute ) subtreeMod.getAttribute() ).getString() );
+                ssNew = ssParser.parse( subtreeMod.getAttribute().getString() );
             }
             catch ( Exception e )
             {
@@ -1151,11 +1150,11 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         List<Modification> modList = new ArrayList<Modification>();
 
-        ServerAttribute operational;
+        EntryAttribute operational;
 
         if ( subentry.isAccessControlSubentry() )
         {
-            operational = ( ServerAttribute ) entry.get( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ).clone();
+            operational = entry.get( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ).clone();
 
             if ( operational == null )
             {
@@ -1174,7 +1173,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         if ( subentry.isSchemaSubentry() )
         {
-            operational = ( ServerAttribute ) entry.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).clone();
+            operational = entry.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).clone();
 
             if ( operational == null )
             {
@@ -1193,7 +1192,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         if ( subentry.isCollectiveSubentry() )
         {
-            operational = ( ServerAttribute ) entry.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ).clone();
+            operational = entry.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ).clone();
 
             if ( operational == null )
             {
@@ -1212,7 +1211,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         if ( subentry.isTriggerSubentry() )
         {
-            operational = ( ServerAttribute ) entry.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ).clone();
+            operational = entry.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ).clone();
 
             if ( operational == null )
             {
@@ -1320,7 +1319,7 @@ public class SubentryInterceptor extends BaseInterceptor
             if ( ( opAttr != null ) && opAttr.contains( dn ) )
             {
                 AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( opAttrId );
-                ServerAttribute attr = new DefaultServerAttribute( opAttrId, attributeType, dn );
+                EntryAttribute attr = new DefaultServerAttribute( opAttrId, attributeType, dn );
                 modList.add( new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, attr ) );
             }
         }
@@ -1473,7 +1472,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                     if ( opAttr != null )
                     {
-                        opAttr = ( ServerAttribute ) opAttr.clone();
+                        opAttr = opAttr.clone();
                         opAttr.remove( subentryDn );
 
                         if ( opAttr.size() < 1 )
@@ -1492,7 +1491,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 {
                     ModificationOperation op = ModificationOperation.ADD_ATTRIBUTE;
                     AttributeType type = schemaManager.lookupAttributeTypeRegistry( attribute );
-                    ServerAttribute opAttr = new DefaultServerAttribute( attribute, type );
+                    EntryAttribute opAttr = new DefaultServerAttribute( attribute, type );
                     opAttr.add( subentryDn );
                     modList.add( new ServerModification( op, opAttr ) );
                 }

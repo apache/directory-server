@@ -48,7 +48,6 @@ import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAliasDereferencingException;
@@ -1300,7 +1299,7 @@ public class JdbmStore<E> implements Store<E, Long>
         // Now work on the user defined userIndices
         for ( EntryAttribute attribute : entry )
         {
-            String attributeOid = ( ( ServerAttribute ) attribute ).getAttributeType().getOid();
+            String attributeOid = attribute.getAttributeType().getOid();
 
             if ( hasUserIndexOn( attributeOid ) )
             {
@@ -1373,7 +1372,7 @@ public class JdbmStore<E> implements Store<E, Long>
 
         for ( EntryAttribute attribute : entry )
         {
-            String attributeOid = ( ( ServerAttribute ) attribute ).getAttributeType().getOid();
+            String attributeOid = attribute.getAttributeType().getOid();
 
             if ( hasUserIndexOn( attributeOid ) )
             {
@@ -1739,7 +1738,7 @@ public class JdbmStore<E> implements Store<E, Long>
 
         for ( Modification mod : mods )
         {
-            ServerAttribute attrMods = ( ServerAttribute ) mod.getAttribute();
+            EntryAttribute attrMods = mod.getAttribute();
 
             switch ( mod.getOperation() )
             {

@@ -50,7 +50,6 @@ import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAliasException;
@@ -322,7 +321,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         {
             if ( item.getOperation() == ModificationOperation.ADD_ATTRIBUTE )
             {
-                EntryAttribute modAttr = (ServerAttribute)item.getAttribute();
+                EntryAttribute modAttr = item.getAttribute();
                 EntryAttribute entryAttr = entry.get( modAttr.getId() );
 
                 if ( entryAttr != null )

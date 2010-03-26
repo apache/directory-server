@@ -27,7 +27,7 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ApproximateNode;
@@ -98,10 +98,10 @@ public class ApproximateEvaluator<T, ID> implements Evaluator<ApproximateNode<T>
     public boolean evaluateEntry( ServerEntry entry ) throws Exception
     {
         // get the attribute
-        ServerAttribute attr = ( ServerAttribute ) entry.get( type );
+        EntryAttribute attr = entry.get( type );
 
         // if the attribute does not exist just return false
-        if ( attr != null && evaluate( attr ) )
+        if ( ( attr != null ) && evaluate( attr ) )
         {
             return true;
         }
@@ -121,7 +121,7 @@ public class ApproximateEvaluator<T, ID> implements Evaluator<ApproximateNode<T>
             {
                 AttributeType descendant = descendants.next();
 
-                attr = ( ServerAttribute ) entry.get( descendant );
+                attr = entry.get( descendant );
 
                 if ( attr != null && evaluate( attr ) )
                 {
@@ -168,7 +168,7 @@ public class ApproximateEvaluator<T, ID> implements Evaluator<ApproximateNode<T>
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    private boolean evaluate( ServerAttribute attribute ) throws Exception
+    private boolean evaluate( EntryAttribute attribute ) throws Exception
     {
         /*
          * Cycle through the attribute values testing normalized version

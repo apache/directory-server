@@ -31,7 +31,6 @@ import java.util.Set;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
@@ -414,7 +413,7 @@ public class ClonedServerEntry implements ServerEntry
         // Convert each attribute 
         for ( EntryAttribute clonedEntry:this )
         {
-            EntryAttribute clientAttribute = ((ServerAttribute)clonedEntry).toClientAttribute();
+            EntryAttribute clientAttribute = clonedEntry.toClientAttribute();
             clientEntry.add( clientAttribute );
         }
         
@@ -776,7 +775,7 @@ public class ClonedServerEntry implements ServerEntry
             // Convert each attribute 
             for ( EntryAttribute serverAttribute:this )
             {
-                EntryAttribute clientAttribute = ((ServerAttribute)serverAttribute).toClientAttribute();
+                EntryAttribute clientAttribute = serverAttribute.toClientAttribute();
                 clientEntry.add( clientAttribute );
             }
             

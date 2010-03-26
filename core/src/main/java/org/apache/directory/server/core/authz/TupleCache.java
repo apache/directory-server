@@ -42,7 +42,6 @@ import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
@@ -236,7 +235,7 @@ public class TupleCache
 
         for ( Modification mod : mods )
         {
-            if ( ( ( ServerAttribute ) mod.getAttribute() ).instanceOf( SchemaConstants.PRESCRIPTIVE_ACI_AT ) )
+            if ( mod.getAttribute().instanceOf( SchemaConstants.PRESCRIPTIVE_ACI_AT ) )
             {
                 subentryDeleted( normName, entry );
                 subentryAdded( normName, entry );

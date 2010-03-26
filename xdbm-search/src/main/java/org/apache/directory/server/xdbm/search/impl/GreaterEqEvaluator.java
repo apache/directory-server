@@ -28,7 +28,7 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.GreaterEqNode;
@@ -146,7 +146,7 @@ public class GreaterEqEvaluator<T, ID> implements Evaluator<GreaterEqNode<T>, Se
          */
 
         // get the attribute
-        ServerAttribute attr = ( ServerAttribute ) entry.get( type );
+        EntryAttribute attr = entry.get( type );
 
         // if the attribute exists and has a greater than or equal value return true
         //noinspection unchecked
@@ -170,7 +170,7 @@ public class GreaterEqEvaluator<T, ID> implements Evaluator<GreaterEqNode<T>, Se
             {
                 AttributeType descendant = descendants.next();
 
-                attr = ( ServerAttribute ) entry.get( descendant );
+                attr = entry.get( descendant );
 
                 //noinspection unchecked
                 if ( attr != null && evaluate( ( IndexEntry<Object, ServerEntry, ID> ) indexEntry, attr ) )
@@ -199,7 +199,7 @@ public class GreaterEqEvaluator<T, ID> implements Evaluator<GreaterEqNode<T>, Se
     public boolean evaluateEntry( ServerEntry entry ) throws Exception
     {
         // get the attribute
-        ServerAttribute attr = ( ServerAttribute ) entry.get( type );
+        EntryAttribute attr = entry.get( type );
 
         // if the attribute exists and has a greater than or equal value return true
         if ( attr != null && evaluate( null, attr ) )
@@ -222,7 +222,7 @@ public class GreaterEqEvaluator<T, ID> implements Evaluator<GreaterEqNode<T>, Se
             {
                 AttributeType descendant = descendants.next();
 
-                attr = ( ServerAttribute ) entry.get( descendant );
+                attr = entry.get( descendant );
 
                 if ( attr != null && evaluate( null, attr ) )
                 {
@@ -238,7 +238,7 @@ public class GreaterEqEvaluator<T, ID> implements Evaluator<GreaterEqNode<T>, Se
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value 
-    private boolean evaluate( IndexEntry<Object, ServerEntry, ID> indexEntry, ServerAttribute attribute )
+    private boolean evaluate( IndexEntry<Object, ServerEntry, ID> indexEntry, EntryAttribute attribute )
         throws Exception
     {
         /*

@@ -41,7 +41,6 @@ import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
@@ -129,7 +128,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         
         for ( AttributeType attributeType:list )
         {
-            forward.addAttribute( ((ServerAttribute)addEntry.get( attributeType) ).toClientAttribute() );
+            forward.addAttribute( addEntry.get( attributeType).toClientAttribute() );
         }
         
         LdifEntry reverse = LdifRevertor.reverseAdd( opContext.getDn() );
@@ -177,7 +176,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
             AttributeType at = schemaService.getSchemaManager().getAttributeTypeRegistry().lookup( attribute.getId() );
             if ( !at.isCollective() )
             {
-                reverseEntry.add( ( ( ServerAttribute ) attribute ).toClientAttribute() );
+                reverseEntry.add( attribute.toClientAttribute() );
             }
         }
 
@@ -280,7 +279,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         
         for ( EntryAttribute attribute:serverEntry )
         {
-            clientEntry.add( ((ServerAttribute)attribute).toClientAttribute() );
+            clientEntry.add( attribute.toClientAttribute() );
         }
 
         LdifEntry reverse = LdifRevertor.reverseModify( 

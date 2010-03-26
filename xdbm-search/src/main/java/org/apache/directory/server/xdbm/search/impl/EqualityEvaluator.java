@@ -27,7 +27,7 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -134,7 +134,7 @@ public class EqualityEvaluator<T, ID> implements Evaluator<EqualityNode<T>, Serv
     public boolean evaluateEntry( ServerEntry entry ) throws Exception
     {
         // get the attribute
-        ServerAttribute attr = ( ServerAttribute ) entry.get( type );
+        EntryAttribute attr = entry.get( type );
 
         // if the attribute does not exist just return false
         if ( attr != null && evaluate( attr ) )
@@ -157,7 +157,7 @@ public class EqualityEvaluator<T, ID> implements Evaluator<EqualityNode<T>, Serv
             {
                 AttributeType descendant = descendants.next();
 
-                attr = ( ServerAttribute ) entry.get( descendant );
+                attr = entry.get( descendant );
 
                 if ( attr != null && evaluate( attr ) )
                 {
@@ -184,7 +184,7 @@ public class EqualityEvaluator<T, ID> implements Evaluator<EqualityNode<T>, Serv
 
     // TODO - determine if comparator and index entry should have the Value
     // wrapper or the raw normalized value
-    private boolean evaluate( ServerAttribute attribute ) throws Exception
+    private boolean evaluate( EntryAttribute attribute ) throws Exception
     {
         /*
          * Cycle through the attribute values testing normalized version

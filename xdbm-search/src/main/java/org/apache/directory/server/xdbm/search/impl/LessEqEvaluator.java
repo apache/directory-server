@@ -27,7 +27,7 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.LessEqNode;
@@ -154,7 +154,7 @@ public class LessEqEvaluator<T, ID> implements Evaluator<LessEqNode<T>, ServerEn
         }
 
         // get the attribute
-        ServerAttribute attr = ( ServerAttribute ) entry.get( type );
+        EntryAttribute attr = entry.get( type );
 
         // if the attribute does not exist just return false
         //noinspection unchecked
@@ -178,7 +178,7 @@ public class LessEqEvaluator<T, ID> implements Evaluator<LessEqNode<T>, ServerEn
             {
                 AttributeType descendant = descendants.next();
 
-                attr = ( ServerAttribute ) entry.get( descendant );
+                attr = entry.get( descendant );
 
                 //noinspection unchecked
                 if ( attr != null && evaluate( ( IndexEntry<Object, ServerEntry, ID> ) indexEntry, attr ) )
@@ -196,7 +196,7 @@ public class LessEqEvaluator<T, ID> implements Evaluator<LessEqNode<T>, ServerEn
     public boolean evaluateEntry( ServerEntry entry ) throws Exception
     {
         // get the attribute
-        ServerAttribute attr = ( ServerAttribute ) entry.get( type );
+        EntryAttribute attr = entry.get( type );
 
         // if the attribute does not exist just return false
         if ( attr != null && evaluate( null, attr ) )
@@ -219,7 +219,7 @@ public class LessEqEvaluator<T, ID> implements Evaluator<LessEqNode<T>, ServerEn
             {
                 AttributeType descendant = descendants.next();
 
-                attr = ( ServerAttribute ) entry.get( descendant );
+                attr = entry.get( descendant );
 
                 if ( attr != null && evaluate( null, attr ) )
                 {
@@ -235,7 +235,7 @@ public class LessEqEvaluator<T, ID> implements Evaluator<LessEqNode<T>, ServerEn
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    private boolean evaluate( IndexEntry<Object, ServerEntry, ID> indexEntry, ServerAttribute attribute )
+    private boolean evaluate( IndexEntry<Object, ServerEntry, ID> indexEntry, EntryAttribute attribute )
         throws Exception
     {
         /*

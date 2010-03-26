@@ -29,7 +29,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.cursor.Cursor;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
@@ -247,7 +247,7 @@ public class SubstringEvaluator<ID> implements Evaluator<SubstringNode, ServerEn
     private boolean evaluateWithoutIndex( ServerEntry entry ) throws Exception
     {
         // get the attribute
-        ServerAttribute attr = ( ServerAttribute ) entry.get( type );
+        EntryAttribute attr = entry.get( type );
 
         // if the attribute exists and the pattern matches return true
         if ( attr != null )
@@ -288,7 +288,7 @@ public class SubstringEvaluator<ID> implements Evaluator<SubstringNode, ServerEn
             {
                 AttributeType descendant = descendants.next();
 
-                attr = ( ServerAttribute ) entry.get( descendant );
+                attr = entry.get( descendant );
 
                 if ( null != attr )
                 {
@@ -339,7 +339,7 @@ public class SubstringEvaluator<ID> implements Evaluator<SubstringNode, ServerEn
          */
 
         // get the attribute
-        ServerAttribute attr = ( ServerAttribute ) entry.get( type );
+        EntryAttribute attr = entry.get( type );
 
         // if the attribute exists and the pattern matches return true
         if ( attr != null )
@@ -382,7 +382,7 @@ public class SubstringEvaluator<ID> implements Evaluator<SubstringNode, ServerEn
             {
                 AttributeType descendant = descendants.next();
 
-                attr = ( ServerAttribute ) entry.get( descendant );
+                attr = entry.get( descendant );
 
                 if ( null != attr )
                 {

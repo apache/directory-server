@@ -38,7 +38,6 @@ import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -153,7 +152,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         {
             // We are trying to modify the m-disabled attribute. 
             ModificationOperation modification = disabledModification.getOperation();
-            ServerAttribute attribute = (ServerAttribute)disabledModification.getAttribute();
+            EntryAttribute attribute = disabledModification.getAttribute();
             
             hasModification = modifyDisable( opContext, modification, attribute, disabledInEntry );
         }

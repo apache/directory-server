@@ -38,7 +38,6 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
@@ -407,7 +406,7 @@ public class GroupCache
 
                 if ( memberSet != null )
                 {
-                    modify( memberSet, modification.getOperation(), ( ServerAttribute ) modification.getAttribute() );
+                    modify( memberSet, modification.getOperation(), modification.getAttribute() );
                 }
 
                 break;

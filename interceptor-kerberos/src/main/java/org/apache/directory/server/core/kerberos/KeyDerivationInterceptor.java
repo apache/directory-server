@@ -64,7 +64,6 @@ import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.entry.ServerBinaryValue;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerModification;
@@ -237,7 +236,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
                 }
             }
 
-            ServerAttribute attr = (ServerAttribute)mod.getAttribute();
+            EntryAttribute attr = mod.getAttribute();
 
             if ( attr.instanceOf( SchemaConstants.USER_PASSWORD_AT ) )
             {
@@ -388,7 +387,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
                     schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ),
                     Integer.toString( kvno ) ) ) );
         
-        ServerAttribute attribute = getKeyAttribute( modContext.getSession()
+        EntryAttribute attribute = getKeyAttribute( modContext.getSession()
             .getDirectoryService().getSchemaManager(), keys );
         newModsList.add( new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute ) );
 
@@ -396,9 +395,9 @@ public class KeyDerivationInterceptor extends BaseInterceptor
     }
 
 
-    private ServerAttribute getKeyAttribute( SchemaManager schemaManager, Map<EncryptionType, EncryptionKey> keys ) throws Exception
+    private EntryAttribute getKeyAttribute( SchemaManager schemaManager, Map<EncryptionType, EncryptionKey> keys ) throws Exception
     {
-        ServerAttribute keyAttribute = 
+        EntryAttribute keyAttribute = 
             new DefaultServerAttribute( KerberosAttribute.KRB5_KEY_AT, 
                 schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_KEY_AT ) );
 

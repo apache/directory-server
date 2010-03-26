@@ -38,9 +38,7 @@ import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.entry.ServerModification;
-import org.apache.directory.shared.ldap.entry.client.ClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -184,7 +182,7 @@ public class ServerModificationTest
 
     @Test public void testCreateServerModification()
     {
-        ServerAttribute attribute = new DefaultServerAttribute( atCN );
+        EntryAttribute attribute = new DefaultServerAttribute( atCN );
         attribute.add( "test1", "test2" );
         
         Modification mod = new ServerModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
@@ -192,7 +190,7 @@ public class ServerModificationTest
         
         attribute.remove( "test2" );
         
-        ServerAttribute clonedAttribute = (ServerAttribute)clone.getAttribute();
+        EntryAttribute clonedAttribute = clone.getAttribute();
         
         assertEquals( 1, mod.getAttribute().size() );
         assertTrue( mod.getAttribute().contains( "test1" ) );
@@ -210,7 +208,7 @@ public class ServerModificationTest
     @Test
     public void testCopyServerModification()
     {
-        ServerAttribute attribute = new DefaultServerAttribute( atC );
+        EntryAttribute attribute = new DefaultServerAttribute( atC );
         attribute.add( "test1", "test2" );
         Modification serverModification = new ServerModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
         
@@ -222,7 +220,7 @@ public class ServerModificationTest
         serverModification.setOperation( ModificationOperation.REMOVE_ATTRIBUTE );
         assertEquals( ModificationOperation.ADD_ATTRIBUTE, copy.getOperation() );
         
-        ServerAttribute attribute2 = new DefaultServerAttribute( atCN, "t" );
+        EntryAttribute attribute2 = new DefaultServerAttribute( atCN, "t" );
         serverModification.setAttribute( attribute2 );
         assertNotSame( attribute2, copy.getAttribute() );
     }
@@ -235,7 +233,7 @@ public class ServerModificationTest
     @Test
     public void testCopyClientModification()
     {
-        ClientAttribute attribute = new DefaultClientAttribute( atC.getName() );
+        EntryAttribute attribute = new DefaultClientAttribute( atC.getName() );
         attribute.add( "test1", "test2" );
         Modification clientModification = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
         
@@ -244,15 +242,15 @@ public class ServerModificationTest
         assertTrue( copy instanceof ServerModification );
         assertFalse( copy instanceof ClientModification );
         assertFalse( copy.equals(  clientModification ) );
-        assertTrue( copy.getAttribute() instanceof ServerAttribute );
-        assertEquals( atC, ((ServerAttribute)copy.getAttribute()).getAttributeType() );
+        assertTrue( copy.getAttribute() instanceof EntryAttribute );
+        assertEquals( atC, copy.getAttribute().getAttributeType() );
         assertEquals( ModificationOperation.ADD_ATTRIBUTE, copy.getOperation() );
         assertTrue( copy.getAttribute().contains( "test1", "test2" ) );
         
         clientModification.setOperation( ModificationOperation.REMOVE_ATTRIBUTE );
         assertEquals( ModificationOperation.ADD_ATTRIBUTE, copy.getOperation() );
         
-        ClientAttribute attribute2 = new DefaultClientAttribute( "cn", "t" );
+        EntryAttribute attribute2 = new DefaultClientAttribute( "cn", "t" );
         clientModification.setAttribute( attribute2 );
         assertNotSame( attribute2, copy.getAttribute() );
     }

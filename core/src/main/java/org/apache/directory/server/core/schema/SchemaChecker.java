@@ -29,7 +29,6 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -73,7 +72,7 @@ public class SchemaChecker
      * without a STRUCTURAL objectClass
      */
     public static void preventStructuralClassRemovalOnModifyReplace( SchemaManager schemaManager, DN name, ModificationOperation mod,
-        ServerAttribute attribute ) throws LdapException
+        EntryAttribute attribute ) throws LdapException
     {
         if ( mod != ModificationOperation.REPLACE_ATTRIBUTE )
         {
@@ -205,7 +204,7 @@ public class SchemaChecker
             return;
         }
 
-        if ( !((ServerAttribute)attribute).instanceOf( SchemaConstants.OBJECT_CLASS_AT ) )
+        if ( !attribute.instanceOf( SchemaConstants.OBJECT_CLASS_AT ) )
         {
             return;
         }
@@ -247,7 +246,7 @@ public class SchemaChecker
         // we can analyze what remains in this attribute to make sure a structural
         // objectClass is present for the entry
 
-        ServerAttribute cloned = ( ServerAttribute ) entryObjectClasses.clone();
+        EntryAttribute cloned = entryObjectClasses.clone();
         
         for ( Value<?> value:attribute )
         {
@@ -381,7 +380,7 @@ public class SchemaChecker
      * @throws LdapException if the modify operation is removing an Rdn attribute
      */
     public static void preventRdnChangeOnModifyReplace( DN name, ModificationOperation mod, 
-        ServerAttribute attribute, SchemaManager schemaManager )
+        EntryAttribute attribute, SchemaManager schemaManager )
         throws LdapException
     {
         if ( mod != ModificationOperation.REPLACE_ATTRIBUTE )
@@ -531,7 +530,7 @@ public class SchemaChecker
      * @param attribute the attribute being modified
      * @throws LdapException if the modify operation is removing an Rdn attribute
      */
-    public static void preventRdnChangeOnModifyRemove( DN name, ModificationOperation mod, ServerAttribute attribute, 
+    public static void preventRdnChangeOnModifyRemove( DN name, ModificationOperation mod, EntryAttribute attribute, 
         SchemaManager schemaManager ) throws LdapException
     {
         if ( mod != ModificationOperation.REMOVE_ATTRIBUTE )

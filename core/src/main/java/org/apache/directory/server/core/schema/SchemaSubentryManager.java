@@ -32,7 +32,6 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -162,7 +161,7 @@ public class SchemaSubentryManager
         {
             String opAttrOid = schemaManager.getAttributeTypeRegistry().getOidByName( mod.getAttribute().getId() );
             
-            ServerAttribute serverAttribute = (ServerAttribute)mod.getAttribute();
+            EntryAttribute serverAttribute = mod.getAttribute();
 
             switch ( mod.getOperation() )
             {

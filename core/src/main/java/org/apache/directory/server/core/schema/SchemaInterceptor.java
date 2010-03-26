@@ -59,7 +59,6 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.entry.ServerBinaryValue;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerModification;
@@ -867,7 +866,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * @return
      * @throws Exception
      */
-    private boolean isCompleteRemoval( ServerAttribute change, ServerEntry entry ) throws Exception
+    private boolean isCompleteRemoval( EntryAttribute change, ServerEntry entry ) throws Exception
     {
         // if change size is 0 then all values are deleted then we're in trouble
         if ( change.size() == 0 )
@@ -879,7 +878,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // values in the modify request may not be in the entry.  we need to
         // remove the values from a cloned version of the attribute and see
         // if nothing is left.
-        ServerAttribute changedEntryAttr = ( ServerAttribute ) entry.get( change.getUpId() ).clone();
+        EntryAttribute changedEntryAttr = entry.get( change.getUpId() ).clone();
 
         for ( Value<?> value : change )
         {
@@ -931,7 +930,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 return existing;
 
             case REPLACE_ATTRIBUTE:
-                return ( ServerAttribute ) changes.clone();
+                return changes.clone();
 
             case REMOVE_ATTRIBUTE:
                 for ( Value<?> value : changes )
@@ -1165,7 +1164,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Create a new attribute using the given values
      */
-    private EntryAttribute createNewAttribute( ServerAttribute attribute )
+    private EntryAttribute createNewAttribute( EntryAttribute attribute )
     {
         AttributeType attributeType = attribute.getAttributeType();
         
@@ -1196,7 +1195,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Now, apply each mod one by one
         for ( Modification mod:mods )
         {
-            ServerAttribute attribute = (ServerAttribute)mod.getAttribute();
+            EntryAttribute attribute = mod.getAttribute();
             AttributeType attributeType = attribute.getAttributeType();
             
             // We don't allow modification of operational attributes
@@ -1393,7 +1392,7 @@ public class SchemaInterceptor extends BaseInterceptor
             
             for ( Modification mod:mods )
             {
-                AttributeType at = ((ServerAttribute)( (ServerModification)mod).getAttribute()).getAttributeType();
+                AttributeType at = ( (ServerModification)mod).getAttribute().getAttributeType();
                 
                 if ( !MODIFIERS_NAME_ATTRIBUTE_TYPE.equals( at ) && !MODIFY_TIMESTAMP_ATTRIBUTE_TYPE.equals( at ) ) 
                 {
@@ -1472,7 +1471,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
             entry.removeAttributes( SchemaConstants.OBJECT_CLASS_AT );
 
-            ServerAttribute newOc = new DefaultServerAttribute( ( ( ServerAttribute ) oc ).getAttributeType() );
+            EntryAttribute newOc = new DefaultServerAttribute( oc.getAttributeType() );
 
             for ( ObjectClass currentOC : objectClasses )
             {
@@ -1493,13 +1492,13 @@ public class SchemaInterceptor extends BaseInterceptor
          */
         for ( EntryAttribute attribute : entry )
         {
-            if ( !( ( ServerAttribute ) attribute ).getAttributeType().getSyntax().isHumanReadable() )
+            if ( !attribute.getAttributeType().getSyntax().isHumanReadable() )
             {
                 List<Value<?>> binaries = new ArrayList<Value<?>>();
 
                 for ( Value<?> value : attribute )
                 {
-                    binaries.add( new ServerBinaryValue( ( ( ServerAttribute ) attribute ).getAttributeType(),
+                    binaries.add( new ServerBinaryValue( attribute.getAttributeType(),
                         value.getBytes() ) );
                 }
 
@@ -1766,9 +1765,9 @@ public class SchemaInterceptor extends BaseInterceptor
 
         for ( EntryAttribute attribute : entry )
         {
-            String attrOid = ( ( ServerAttribute ) attribute ).getAttributeType().getOid();
+            String attrOid = attribute.getAttributeType().getOid();
 
-            AttributeType attributeType = ( ( ServerAttribute ) attribute ).getAttributeType();
+            AttributeType attributeType = attribute.getAttributeType();
 
             if ( !attributeType.isCollective() && ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS ) )
             {
@@ -1799,7 +1798,7 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private void assertNumberOfAttributeValuesValid( EntryAttribute attribute ) throws LdapInvalidAttributeValueException
     {
-        if ( attribute.size() > 1 && ( ( ServerAttribute ) attribute ).getAttributeType().isSingleValued() )
+        if ( attribute.size() > 1 && attribute.getAttributeType().isSingleValued() )
         {
             throw new LdapInvalidAttributeValueException( ResultCodeEnum.CONSTRAINT_VIOLATION,
                 I18n.err( I18n.ERR_278, attribute.getUpId() ) );
@@ -1814,7 +1813,7 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         for ( EntryAttribute attribute : entry )
         {
-            must.remove( ( ( ServerAttribute ) attribute ).getAttributeType().getOid() );
+            must.remove( attribute.getAttributeType().getOid() );
         }
 
         if ( must.size() != 0 )
@@ -1907,7 +1906,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // First, loop on all attributes
         for ( EntryAttribute attribute : entry )
         {
-            AttributeType attributeType = ( ( ServerAttribute ) attribute ).getAttributeType();
+            AttributeType attributeType = attribute.getAttributeType();
             SyntaxChecker syntaxChecker = attributeType.getSyntax().getSyntaxChecker();
 
             if ( syntaxChecker instanceof OctetStringSyntaxChecker )
@@ -2061,7 +2060,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Loops on all attributes
         for ( EntryAttribute attribute : entry )
         {
-            AttributeType attributeType = ( ( ServerAttribute ) attribute ).getAttributeType();
+            AttributeType attributeType = attribute.getAttributeType();
 
             // If the attributeType is H-R, check all of its values
             if ( attributeType.getSyntax().isHumanReadable() )

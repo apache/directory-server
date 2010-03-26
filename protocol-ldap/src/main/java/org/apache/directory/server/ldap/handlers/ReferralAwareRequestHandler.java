@@ -26,7 +26,7 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
@@ -187,7 +187,7 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
     {
         LOG.debug( "Inside getReferralOnAncestor()" );
         
-        ServerAttribute refAttr = ( ServerAttribute ) referralAncestor.getOriginalEntry()
+        EntryAttribute refAttr =referralAncestor.getOriginalEntry()
             .get( SchemaConstants.REF_AT );
         InternalReferral referral = new ReferralImpl();
 
@@ -286,7 +286,7 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
     {
         LOG.debug( "Inside getReferralOnAncestor()" );
      
-        ServerAttribute refAttr = ( ServerAttribute ) referralAncestor.getOriginalEntry()
+        EntryAttribute refAttr = referralAncestor.getOriginalEntry()
             .get( SchemaConstants.REF_AT );
         InternalReferral referral = new ReferralImpl();
 

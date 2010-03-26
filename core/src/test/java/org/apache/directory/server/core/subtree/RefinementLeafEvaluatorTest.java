@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -114,7 +114,7 @@ public class RefinementLeafEvaluatorTest
     @Test 
     public void testForBadArguments() throws Exception
     {
-        ServerAttribute objectClasses = null;
+        EntryAttribute objectClasses = null;
 
         try
         {
@@ -158,7 +158,7 @@ public class RefinementLeafEvaluatorTest
             assertFalse( evaluator.evaluate( new EqualityNode( "cn", new ClientStringValue( "" ) ), objectClasses ) );
             fail( "should never get here due to an IAE" );
         }
-        catch ( LdapException ne )
+        catch ( IllegalArgumentException iae )
         {
             assertTrue( true );
         }
@@ -169,7 +169,7 @@ public class RefinementLeafEvaluatorTest
     public void testMatchByName() throws Exception
     {
         // positive test
-        ServerAttribute objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
+        EntryAttribute objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
         assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", new ClientStringValue( "person" ) ), objectClasses ) );
 
         objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS );
@@ -189,7 +189,7 @@ public class RefinementLeafEvaluatorTest
     @Test 
     public void testMatchByOID() throws Exception
     {
-        ServerAttribute objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
+        EntryAttribute objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
 
         // positive test
         assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", new ClientStringValue( "2.5.6.6" ) ), objectClasses ) );

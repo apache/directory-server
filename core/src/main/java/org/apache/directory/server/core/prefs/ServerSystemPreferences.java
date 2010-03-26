@@ -38,7 +38,6 @@ import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -245,17 +244,17 @@ public class ServerSystemPreferences extends AbstractPreferences
         try
         {
             ServerEntry entry = directoryService.getAdminSession().lookup( dn );
+
             for ( EntryAttribute attr : entry )
             {
-                ServerAttribute sa = ( ServerAttribute ) attr;
-                String oid = sa.getAttributeType().getOid();
+                String oid = attr.getAttributeType().getOid();
                 
                 if ( oid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
                 {
                     continue;
                 }
                 
-                keys.add( sa.getUpId() );
+                keys.add( attr.getUpId() );
             }
         }
         catch ( Exception e )
@@ -273,7 +272,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         try
         {
             at = directoryService.getSchemaManager().lookupAttributeTypeRegistry( key );
-            ServerAttribute attr = new DefaultServerAttribute( at );
+            EntryAttribute attr = new DefaultServerAttribute( at );
             Modification mi = new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, attr );
             addDelta( mi );
         }
@@ -347,7 +346,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         try
         {
             at = directoryService.getSchemaManager().lookupAttributeTypeRegistry( key );
-            ServerAttribute attr = new DefaultServerAttribute( at, value );
+            EntryAttribute attr = new DefaultServerAttribute( at, value );
             Modification mi = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attr );
             addDelta( mi );
         }

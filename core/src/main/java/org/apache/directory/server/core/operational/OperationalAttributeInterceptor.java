@@ -51,7 +51,6 @@ import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -254,7 +253,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         
         for ( Modification modification: mods )
         {
-            AttributeType attributeType = ((ServerAttribute)modification.getAttribute()).getAttributeType();
+            AttributeType attributeType = modification.getAttribute().getAttributeType();
             
             if ( attributeType.equals( MODIFIERS_NAME_ATTRIBUTE_TYPE ) )
             {
@@ -272,7 +271,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         }
         
         // Inject the ModifiersName AT if it's not present
-        ServerAttribute attribute = new DefaultServerAttribute( 
+        EntryAttribute attribute = new DefaultServerAttribute( 
             MODIFIERS_NAME_ATTRIBUTE_TYPE, 
             getPrincipal().getName());
 

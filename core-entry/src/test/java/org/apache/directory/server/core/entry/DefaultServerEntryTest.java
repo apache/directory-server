@@ -45,13 +45,11 @@ import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.entry.ServerBinaryValue;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerStringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
-import org.apache.directory.shared.ldap.entry.client.ClientEntry;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -209,7 +207,7 @@ public class DefaultServerEntryTest
         assertEquals( 1, entry.size() );
         assertTrue( entry.containsAttribute( atOC ) );
         assertEquals( "objectclass", entry.get( atOC ).getId() );
-        assertEquals( "OBJECTCLASS", entry.get( atOC ).getUpId() );
+        assertEquals( "  OBJECTCLASS  ", entry.get( atOC ).getUpId() );
     }
     
     
@@ -225,10 +223,10 @@ public class DefaultServerEntryTest
         assertEquals( 2, entry.size() );
         assertTrue( entry.containsAttribute( "objectClass" ) );
         assertEquals( "objectclass", entry.get( atOC ).getId() );
-        assertEquals( "OBJECTCLASS", entry.get( atOC ).getUpId() );
+        assertEquals( "  OBJECTCLASS  ", entry.get( atOC ).getUpId() );
         assertTrue( entry.containsAttribute( "2.5.4.3" ) );
         assertEquals( "cn", entry.get( atCN ).getId() );
-        assertEquals( "Cn", entry.get( atCN ).getUpId() );
+        assertEquals( " Cn ", entry.get( atCN ).getUpId() );
     }
     
     
@@ -535,7 +533,7 @@ public class DefaultServerEntryTest
         assertTrue( attribute.contains( BYTES1 ) );
         assertTrue( attribute.contains( BYTES2 ) );
         assertTrue( attribute.contains( (byte[])null ) );
-        assertEquals( "UserPassword", attribute.getUpId() );
+        assertEquals( "  UserPassword  ", attribute.getUpId() );
         assertEquals( "userpassword", attribute.getId() );
 
         try
@@ -572,7 +570,7 @@ public class DefaultServerEntryTest
         assertTrue( attribute.contains( "test1" ) );
         assertTrue( attribute.contains( (String)null ) );
         assertTrue( attribute.contains( "test2" ) );
-        assertEquals( "CN", attribute.getUpId() );
+        assertEquals( "  CN  ", attribute.getUpId() );
         assertEquals( "cn", attribute.getId() );
 
         entry.clear();
@@ -1902,7 +1900,7 @@ public class DefaultServerEntryTest
         {
             EntryAttribute attribute = iterator.next();
             
-            AttributeType attributeType = ((ServerAttribute)attribute).getAttributeType();
+            AttributeType attributeType = attribute.getAttributeType();
             assertTrue( expectedIds.contains( attributeType ) );
             expectedIds.remove( attributeType );
         }
@@ -1939,7 +1937,7 @@ public class DefaultServerEntryTest
         
         EntryAttribute replaced = entry.put( atPwd, BYTES1, BYTES2, BYTES1 );
         assertNotNull( replaced );
-        assertEquals( atPwd, ((ServerAttribute)replaced).getAttributeType() );
+        assertEquals( atPwd, replaced.getAttributeType() );
         assertTrue( replaced.contains( (byte[])null ) );
         assertEquals( 1, entry.size() );
         assertTrue( entry.contains( atPwd, BYTES1, BYTES2 ) );
@@ -1980,7 +1978,7 @@ public class DefaultServerEntryTest
         
         EntryAttribute replaced = entry.put( atCN, "test1", "test2", "test1" );
         assertNotNull( replaced );
-        assertEquals( atCN, ((ServerAttribute)replaced).getAttributeType() );
+        assertEquals( atCN, replaced.getAttributeType() );
         assertTrue( replaced.contains( (String)null ) );
         assertEquals( 1, entry.size() );
         assertTrue( entry.contains( atCN, "test1", "test2" ) );
@@ -2028,7 +2026,7 @@ public class DefaultServerEntryTest
         
         EntryAttribute replaced = entry.put( atCN, strValue1, strValue2, strValue1 );
         assertNotNull( replaced );
-        assertEquals( atCN, ((ServerAttribute)replaced).getAttributeType() );
+        assertEquals( atCN, replaced.getAttributeType() );
         assertTrue( replaced.contains( (String)null ) );
         assertEquals( 1, entry.size() );
         assertTrue( entry.contains( atCN, strValue1, strValue2 ) );
@@ -2151,13 +2149,13 @@ public class DefaultServerEntryTest
         
         EntryAttribute replaced = entry.put( "USERpassword ", atPwd, BYTES1, BYTES2, BYTES1 );
         assertNotNull( replaced );
-        assertEquals( atPwd, ((ServerAttribute)replaced).getAttributeType() );
+        assertEquals( atPwd, replaced.getAttributeType() );
         assertTrue( replaced.contains( (byte[])null ) );
         assertEquals( 1, entry.size() );
         assertTrue( entry.contains( atPwd, BYTES1, BYTES2 ) );
         assertFalse( entry.contains( atPwd, BYTES3 ) );
         assertEquals( 2, entry.get( atPwd ).size() );
-        assertEquals( "USERpassword", entry.get( atPwd ).getUpId() );
+        assertEquals( "USERpassword ", entry.get( atPwd ).getUpId() );
         
         replaced = entry.put( "userpassword", atPwd, "test" );
         assertNotNull( replaced );
@@ -2225,7 +2223,7 @@ public class DefaultServerEntryTest
         
         EntryAttribute replaced = entry.put( "commonName", atCN, "test1", "test2", "test1" );
         assertNotNull( replaced );
-        assertEquals( atCN, ((ServerAttribute)replaced).getAttributeType() );
+        assertEquals( atCN, replaced.getAttributeType() );
         assertEquals( "commonName", entry.get( atCN).getUpId() );
         assertTrue( replaced.contains( (String)null ) );
         assertEquals( 1, entry.size() );
@@ -2306,7 +2304,7 @@ public class DefaultServerEntryTest
         
         EntryAttribute replaced = entry.put( "commonName", atCN, strValue1, strValue2, strValue1 );
         assertNotNull( replaced );
-        assertEquals( atCN, ((ServerAttribute)replaced).getAttributeType() );
+        assertEquals( atCN, replaced.getAttributeType() );
         assertTrue( replaced.contains( (String)null ) );
         assertEquals( 1, entry.size() );
         assertTrue( entry.contains( atCN, strValue1, strValue2 ) );
@@ -2371,7 +2369,7 @@ public class DefaultServerEntryTest
         
         replaced = entry.put( "UserPassword", BYTES1 );
         assertNotNull( replaced );
-        assertEquals( atPwd, ((ServerAttribute)replaced).getAttributeType() );
+        assertEquals( atPwd, replaced.getAttributeType() );
         assertTrue( replaced.contains( (byte[] )null ) );
         assertEquals( 1, entry.size() );
         assertNotNull( entry.get( "userPassword" ) );
@@ -2554,7 +2552,7 @@ public class DefaultServerEntryTest
         // first test a null SA addition. It should be allowed.
         try
         {
-            entry.put( (ServerAttribute)null );
+            entry.put( (EntryAttribute)null );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -2567,16 +2565,16 @@ public class DefaultServerEntryTest
         AttributeType atGN = schemaManager.lookupAttributeTypeRegistry( "givenname" );
         AttributeType atStreet = schemaManager.lookupAttributeTypeRegistry( "2.5.4.9" );
 
-        ServerAttribute sa = new DefaultServerAttribute( atL, "france" );
+        EntryAttribute sa = new DefaultServerAttribute( atL, "france" );
         entry.put( sa );
         
         assertEquals( 1, entry.size() );
         assertNotNull( entry.get( "l" ) );
         assertEquals( "france", entry.get( "l" ).get().getString() );
         
-        ServerAttribute sb = new DefaultServerAttribute( atC, "countryTest" );
-        ServerAttribute sc = new DefaultServerAttribute( atGN, "test" );
-        ServerAttribute sd = new DefaultServerAttribute( atStreet, "testStreet" );
+        EntryAttribute sb = new DefaultServerAttribute( atC, "countryTest" );
+        EntryAttribute sc = new DefaultServerAttribute( atGN, "test" );
+        EntryAttribute sd = new DefaultServerAttribute( atStreet, "testStreet" );
         entry.put( sb, sc, sd );
 
         assertEquals( 4, entry.size() );
@@ -2605,7 +2603,7 @@ public class DefaultServerEntryTest
         
         // test an ObjectClass replacement
         AttributeType OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
-        ServerAttribute oc = new DefaultServerAttribute( "OBJECTCLASS", OBJECT_CLASS_AT, "person", "inetorgperson" );
+        EntryAttribute oc = new DefaultServerAttribute( "OBJECTCLASS", OBJECT_CLASS_AT, "person", "inetorgperson" );
         List<EntryAttribute> oldOc = entry.put( oc );
         
         assertNotNull( oldOc );
@@ -2616,7 +2614,7 @@ public class DefaultServerEntryTest
         EntryAttribute newOc = entry.get( "objectClass" );
         
         assertNotNull( newOc );
-        assertEquals( OBJECT_CLASS_AT, ((ServerAttribute)newOc).getAttributeType() );
+        assertEquals( OBJECT_CLASS_AT, newOc.getAttributeType() );
         assertEquals( 2, newOc.size() );
         assertEquals( "OBJECTCLASS", newOc.getUpId() );
         assertTrue( newOc.contains( "person", "inetOrgPerson" ) );
@@ -3565,8 +3563,8 @@ public class DefaultServerEntryTest
         assertNull( result );
         EntryAttribute sa = entry.get( "sn" );
         assertNotNull( sa );
-        assertEquals( atSN, ((ServerAttribute)sa).getAttributeType() );
-        assertEquals( "sn", ((ServerAttribute)sa).getAttributeType().getName() );
+        assertEquals( atSN, sa.getAttributeType() );
+        assertEquals( "sn", sa.getAttributeType().getName() );
         
         // Add two AT now
         AttributeType atGN = schemaManager.lookupAttributeTypeRegistry( "givenname" );
@@ -3577,23 +3575,23 @@ public class DefaultServerEntryTest
 
         sa = entry.get( "l" );
         assertNotNull( sa );
-        assertEquals( atL, ((ServerAttribute)sa).getAttributeType() );
-        assertEquals( "l", ((ServerAttribute)sa).getAttributeType().getName() );
+        assertEquals( atL, sa.getAttributeType() );
+        assertEquals( "l", sa.getAttributeType().getName() );
 
         sa = entry.get( "c" );
         assertNotNull( sa );
-        assertEquals( atC, ((ServerAttribute)sa).getAttributeType() );
-        assertEquals( "c", ((ServerAttribute)sa).getAttributeType().getName() );
+        assertEquals( atC, sa.getAttributeType() );
+        assertEquals( "c", sa.getAttributeType().getName() );
 
         sa = entry.get( "2.5.4.9" );
         assertNotNull( sa );
-        assertEquals( atStreet, ((ServerAttribute)sa).getAttributeType() );
-        assertEquals( "street", ((ServerAttribute)sa).getAttributeType().getName() );
+        assertEquals( atStreet, sa.getAttributeType() );
+        assertEquals( "street", sa.getAttributeType().getName() );
 
         sa = entry.get( "givenName" );
         assertNotNull( sa );
-        assertEquals( atGN, ((ServerAttribute)sa).getAttributeType() );
-        assertEquals( "givenName", ((ServerAttribute)sa).getAttributeType().getName() );
+        assertEquals( atGN, sa.getAttributeType() );
+        assertEquals( "givenName", sa.getAttributeType().getName() );
         
         // Now try to add existing ATs
         // First, set some value to the modified AT
@@ -3619,7 +3617,7 @@ public class DefaultServerEntryTest
 
         EntryAttribute oc = entry.get( "objectClass" );
         
-        assertEquals( OBJECT_CLASS_AT, ((ServerAttribute)oc).getAttributeType() );
+        assertEquals( OBJECT_CLASS_AT, oc.getAttributeType() );
         assertNull( oc.get() );
     }
     
@@ -3664,25 +3662,25 @@ public class DefaultServerEntryTest
 
         sa = entry.get( "l" );
         assertNotNull( sa );
-        assertEquals( atL, ((ServerAttribute)sa).getAttributeType() );
+        assertEquals( atL, sa.getAttributeType() );
         assertEquals( "l", sa.getId() );
         assertEquals( "L", sa.getUpId() );
 
         sa = entry.get( "c" );
         assertNotNull( sa );
-        assertEquals( atC, ((ServerAttribute)sa).getAttributeType() );
+        assertEquals( atC, sa.getAttributeType() );
         assertEquals( "countryname", sa.getId() );
         assertEquals( "CountryName", sa.getUpId() );
 
         sa = entry.get( "2.5.4.9" );
         assertNotNull( sa );
-        assertEquals( atStreet, ((ServerAttribute)sa).getAttributeType() );
+        assertEquals( atStreet, sa.getAttributeType() );
         assertEquals( "2.5.4.9", sa.getId() );
         assertEquals( "2.5.4.9", sa.getUpId() );
 
         sa = entry.get( "givenName" );
         assertNotNull( sa );
-        assertEquals( atGN, ((ServerAttribute)sa).getAttributeType() );
+        assertEquals( atGN, sa.getAttributeType() );
         assertEquals( "gn", sa.getId() );
         assertEquals( "gn", sa.getUpId() );
         
@@ -3932,7 +3930,7 @@ public class DefaultServerEntryTest
         
         Entry clientEntry = serverEntry.toClientEntry();
         
-        assertTrue( clientEntry instanceof ClientEntry );
+        assertTrue( clientEntry instanceof Entry );
         assertFalse( clientEntry instanceof ServerEntry );
         
         assertTrue( clientEntry.containsAttribute( "cn", "objectClass" ) );

@@ -33,7 +33,6 @@ import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
@@ -370,7 +369,7 @@ public class SchemaCheckerTest
         SchemaChecker.preventStructuralClassRemovalOnModifyReplace( schemaManager, name, mod, new DefaultServerAttribute( "cn", CN_AT ) );
 
         // this should succeed since person is still in replaced set and is structural
-        ServerAttribute objectClassesReplaced = new DefaultServerAttribute( "objectClass", OBJECT_CLASS );
+        EntryAttribute objectClassesReplaced = new DefaultServerAttribute( "objectClass", OBJECT_CLASS );
         objectClassesReplaced.add( "top" );
         objectClassesReplaced.add( "person" );
         SchemaChecker.preventStructuralClassRemovalOnModifyReplace( schemaManager, name, mod, objectClassesReplaced );
@@ -414,7 +413,7 @@ public class SchemaCheckerTest
         ModificationOperation mod = ModificationOperation.REMOVE_ATTRIBUTE;
         AttributeType ocAt = schemaManager.lookupAttributeTypeRegistry( "objectClass" );
         
-        ServerAttribute entryObjectClasses = new DefaultServerAttribute( "objectClass", ocAt );
+        EntryAttribute entryObjectClasses = new DefaultServerAttribute( "objectClass", ocAt );
         entryObjectClasses.add( "top", "person", "organizationalPerson" );
 
         // this should pass
@@ -426,7 +425,7 @@ public class SchemaCheckerTest
             entryObjectClasses );
 
         // this should succeed since person is left and is structural
-        ServerAttribute objectClassesRemoved = new DefaultServerAttribute( 
+        EntryAttribute objectClassesRemoved = new DefaultServerAttribute( 
             "objectClass", ocAt );
         objectClassesRemoved.add( "person" );
         SchemaChecker.preventStructuralClassRemovalOnModifyRemove( schemaManager, name, mod, objectClassesRemoved,

@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.name.DN;
@@ -118,11 +118,11 @@ public class RelatedProtectedItemFilterTest
     }
 
     
-    private Collection<Attribute> convert( Collection<ServerAttribute> attributes )
+    private Collection<Attribute> convert( Collection<EntryAttribute> attributes )
     {
         Set<Attribute> jndiAttributes = new HashSet<Attribute>();
         
-        for ( ServerAttribute attribute:attributes )
+        for ( EntryAttribute attribute:attributes )
         {
             jndiAttributes.add( ServerEntryUtils.toBasicAttribute( attribute ) );
         }
@@ -225,7 +225,7 @@ public class RelatedProtectedItemFilterTest
     @Test 
     public void testAttributeValue() throws Exception
     {
-        Collection<ServerAttribute> attributes = new ArrayList<ServerAttribute>();
+        Collection<EntryAttribute> attributes = new ArrayList<EntryAttribute>();
         attributes.add( new DefaultServerAttribute( "cn", CN_AT, "valueA" ) );
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.AttributeValue( convert( attributes ) ) );
 

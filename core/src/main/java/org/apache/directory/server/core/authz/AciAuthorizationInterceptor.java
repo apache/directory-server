@@ -68,7 +68,6 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
@@ -583,7 +582,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         
         for ( Modification mod : mods )
         {
-            ServerAttribute attr = (ServerAttribute)mod.getAttribute();
+            EntryAttribute attr = mod.getAttribute();
 
             switch ( mod.getOperation() )
             {

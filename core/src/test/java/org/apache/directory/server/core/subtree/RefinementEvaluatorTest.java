@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
-import org.apache.directory.shared.ldap.entry.ServerAttribute;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -150,7 +150,7 @@ public class RefinementEvaluatorTest
     @Test 
     public void testMatchByName() throws Exception
     {
-        ServerAttribute objectClasses = null;
+        EntryAttribute objectClasses = null;
 
         // positive test
         objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
@@ -171,7 +171,7 @@ public class RefinementEvaluatorTest
     @Test 
     public void testMatchByOID() throws Exception
     {
-        ServerAttribute objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
+        EntryAttribute objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
         
         // positive test
         assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", new ClientStringValue( "2.5.6.6" ) ), objectClasses ) );
@@ -192,7 +192,7 @@ public class RefinementEvaluatorTest
     public void testComplexOrRefinement() throws Exception
     {
         ExprNode refinement = null;
-        ServerAttribute objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
+        EntryAttribute objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
         String refStr = "(|(objectClass=person)(objectClass=organizationalUnit))";
         
         refinement = FilterParser.parse( refStr );
@@ -211,7 +211,7 @@ public class RefinementEvaluatorTest
     public void testComplexAndRefinement() throws Exception
     {
         ExprNode refinement = null;
-        ServerAttribute objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
+        EntryAttribute objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
         objectClasses.add( "organizationalUnit" );
         String refStr = "(&(objectClass=person)(objectClass=organizationalUnit))";
         
@@ -234,7 +234,7 @@ public class RefinementEvaluatorTest
     public void testComplexNotRefinement() throws Exception
     {
         ExprNode refinement = null;
-        ServerAttribute objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
+        EntryAttribute objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
         String refStr = "(!(objectClass=person))";
 
         refinement = FilterParser.parse( refStr );
