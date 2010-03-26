@@ -2031,6 +2031,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         SearchResult result = results.next();
         results.close();
         Attribute subschemaSubentry = result.getAttributes().get( SUBSCHEMA_SUBENTRY );
+        
         return ( String ) subschemaSubentry.get();
     }
 
