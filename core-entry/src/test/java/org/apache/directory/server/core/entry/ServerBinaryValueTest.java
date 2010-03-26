@@ -296,7 +296,7 @@ public class ServerBinaryValueTest
         AttributeType at1 = TestServerEntryUtils.getBytesAttributeType();
         ServerBinaryValue sbv = new ServerBinaryValue( at1, null );
         
-        ServerBinaryValue sbv1 = sbv.clone();
+        ClientBinaryValue sbv1 = sbv.clone();
         
         assertEquals( sbv, sbv1 );
         
