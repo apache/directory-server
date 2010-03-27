@@ -37,7 +37,7 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.shared.ldap.cursor.Cursor;
-import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -687,7 +687,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
             else
             {
                 normalized = ( K ) attribute.getEquality().getNormalizer().normalize(
-                    new ClientBinaryValue( ( byte[] ) attrVal ) ).get();
+                    new BinaryValue( ( byte[] ) attrVal ) ).get();
             }
 
             // Double map it so if we use an already normalized

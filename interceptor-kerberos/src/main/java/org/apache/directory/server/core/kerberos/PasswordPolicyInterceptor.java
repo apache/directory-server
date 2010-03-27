@@ -26,9 +26,9 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ServerBinaryValue;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerStringValue;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -77,7 +77,7 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
         {
             String username = null;
 
-            ServerBinaryValue userPassword = (ServerBinaryValue)entry.get( SchemaConstants.USER_PASSWORD_AT ).get();
+            BinaryValue userPassword = (BinaryValue)entry.get( SchemaConstants.USER_PASSWORD_AT ).get();
 
             // The password is stored in a non H/R attribute, but it's a String
             String strUserPassword = userPassword.getString();
@@ -151,9 +151,9 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
                         log.debug( "{} Attribute id : 'userPassword',  Values : [ '{}' ]", operation, attr );
                         pwd = ((ServerStringValue)userPassword).getString();
                     }
-                    else if ( userPassword instanceof ServerBinaryValue )
+                    else if ( userPassword instanceof BinaryValue )
                     {
-                        ServerBinaryValue password = (ServerBinaryValue)userPassword;
+                        BinaryValue password = (BinaryValue)userPassword;
                         
                         String string = password.getString();
 

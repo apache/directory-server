@@ -60,11 +60,11 @@ import org.apache.directory.server.kerberos.shared.io.encoder.EncryptionKeyEncod
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerBinaryValue;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.entry.ServerStringValue;
@@ -136,7 +136,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
         {
             log.debug( "Adding the entry '{}' for DN '{}'.", entry, normName.getName() );
 
-            ServerBinaryValue userPassword = (ServerBinaryValue)entry.get( SchemaConstants.USER_PASSWORD_AT ).get();
+            BinaryValue userPassword = (BinaryValue)entry.get( SchemaConstants.USER_PASSWORD_AT ).get();
             String strUserPassword = userPassword.getString();
 
             if ( log.isDebugEnabled() )
@@ -248,15 +248,15 @@ public class KeyDerivationInterceptor extends BaseInterceptor
                     password = ((ServerStringValue)firstValue).getString();
                     log.debug( "{} Attribute id : 'userPassword',  Values : [ '{}' ]", operation, password );
                 }
-                else if ( firstValue instanceof ServerBinaryValue )
+                else if ( firstValue instanceof BinaryValue )
                 {
-                    password = ((ServerBinaryValue)firstValue).getString();
+                    password = ((BinaryValue)firstValue).getString();
 
                     if ( log.isDebugEnabled() )
                     {
                         StringBuffer sb = new StringBuffer();
                         sb.append( "'" + password + "' ( " );
-                        sb.append( StringTools.dumpBytes( ((ServerBinaryValue)firstValue).getBytes() ).trim() );
+                        sb.append( StringTools.dumpBytes( ((BinaryValue)firstValue).getBytes() ).trim() );
                         sb.append( " )" );
                         log.debug( "{} Attribute id : 'userPassword',  Values : [ {} ]", operation, sb.toString() );
                     }

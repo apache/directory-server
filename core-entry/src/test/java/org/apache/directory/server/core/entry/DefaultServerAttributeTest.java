@@ -43,12 +43,11 @@ import java.util.Set;
 import javax.naming.directory.InvalidAttributeValueException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerBinaryValue;
 import org.apache.directory.shared.ldap.entry.ServerStringValue;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -85,7 +84,7 @@ public class DefaultServerAttributeTest
     private static AttributeType atPwd;
 
     private static final Value<String> NULL_STRING_VALUE = new ClientStringValue( null );
-    private static final Value<byte[]> NULL_BINARY_VALUE = new ClientBinaryValue( null );
+    private static final Value<byte[]> NULL_BINARY_VALUE = new BinaryValue( (byte[])null );
     private static final byte[] BYTES1 = new byte[]{ 'a', 'b' };
     private static final byte[] BYTES2 = new byte[]{ 'b' };
     private static final byte[] BYTES3 = new byte[]{ 'c' };
@@ -96,10 +95,10 @@ public class DefaultServerAttributeTest
     private static final ClientStringValue STR_VALUE3 = new ClientStringValue( "c" );
     private static final ClientStringValue STR_VALUE4 = new ClientStringValue( "d" );
 
-    private static final ClientBinaryValue BIN_VALUE1 = new ClientBinaryValue( BYTES1 );
-    private static final ClientBinaryValue BIN_VALUE2 = new ClientBinaryValue( BYTES2 );
-    private static final ClientBinaryValue BIN_VALUE3 = new ClientBinaryValue( BYTES3 );
-    private static final ClientBinaryValue BIN_VALUE4 = new ClientBinaryValue( BYTES4 );
+    private static final BinaryValue BIN_VALUE1 = new BinaryValue( BYTES1 );
+    private static final BinaryValue BIN_VALUE2 = new BinaryValue( BYTES2 );
+    private static final BinaryValue BIN_VALUE3 = new BinaryValue( BYTES3 );
+    private static final BinaryValue BIN_VALUE4 = new BinaryValue( BYTES4 );
 
         
     /**
@@ -620,7 +619,7 @@ public class DefaultServerAttributeTest
         
         EntryAttribute attr2 = new DefaultServerAttribute( atPwd );
         
-        nbAdded = attr2.add( new ServerBinaryValue( atPwd, null ) );
+        nbAdded = attr2.add( new BinaryValue( atPwd, null ) );
         assertEquals( 1, nbAdded );
         assertFalse( attr2.isHR() );
         assertEquals( NULL_BINARY_VALUE, attr2.get() );
@@ -635,7 +634,7 @@ public class DefaultServerAttributeTest
         
         EntryAttribute attr4 = new DefaultServerAttribute( atCN );
         
-        nbAdded = attr4.add( new ServerBinaryValue( atPwd, BYTES1 ), new ServerBinaryValue( atPwd, BYTES2 ) );
+        nbAdded = attr4.add( new BinaryValue( atPwd, BYTES1 ), new BinaryValue( atPwd, BYTES2 ) );
         assertEquals( 0, nbAdded );
         assertTrue( attr4.isHR() );
         assertFalse( attr4.contains( BYTES1 ) );
@@ -643,7 +642,7 @@ public class DefaultServerAttributeTest
         
         EntryAttribute attr5 = new DefaultServerAttribute( atCN );
         
-        nbAdded = attr5.add( new ServerStringValue( atCN, "c" ), new ServerBinaryValue( atPwd, BYTES1 ) );
+        nbAdded = attr5.add( new ServerStringValue( atCN, "c" ), new BinaryValue( atPwd, BYTES1 ) );
         assertEquals( 1, nbAdded );
         assertTrue( attr5.isHR() );
         assertFalse( attr5.contains( "ab" ) );
@@ -651,7 +650,7 @@ public class DefaultServerAttributeTest
 
         EntryAttribute attr6 = new DefaultServerAttribute( atPwd );
         
-        nbAdded = attr6.add( new ServerBinaryValue( atPwd, BYTES1 ), new ServerStringValue( atCN, "c" ) );
+        nbAdded = attr6.add( new BinaryValue( atPwd, BYTES1 ), new ServerStringValue( atCN, "c" ) );
         assertEquals( 1, nbAdded );
         assertFalse( attr6.isHR() );
         assertTrue( attr6.contains( BYTES1 ) );
@@ -659,7 +658,7 @@ public class DefaultServerAttributeTest
 
         EntryAttribute attr7 = new DefaultServerAttribute( atPwd );
         
-        nbAdded = attr7.add( new ServerBinaryValue( atPwd, null ), new ServerStringValue( atCN, "c" ) );
+        nbAdded = attr7.add( new BinaryValue( atPwd, null ), new ServerStringValue( atCN, "c" ) );
         assertEquals( 1, nbAdded );
         assertFalse( attr7.isHR() );
         assertTrue( attr7.contains( NULL_BINARY_VALUE ) );
@@ -667,7 +666,7 @@ public class DefaultServerAttributeTest
 
         EntryAttribute attr8 = new DefaultServerAttribute( atCN );
         
-        nbAdded = attr8.add( new ServerStringValue( atCN, null ), new ServerBinaryValue( atPwd, BYTES1 ) );
+        nbAdded = attr8.add( new ServerStringValue( atCN, null ), new BinaryValue( atPwd, BYTES1 ) );
         assertEquals( 1, nbAdded );
         assertTrue( attr8.isHR() );
         assertTrue( attr8.contains( NULL_STRING_VALUE ) );
@@ -684,7 +683,7 @@ public class DefaultServerAttributeTest
 
         EntryAttribute attr10 = new DefaultServerAttribute( atPwd );
         
-        nbAdded = attr10.add( new ClientBinaryValue( null ), new ClientBinaryValue( BYTES1 ) );
+        nbAdded = attr10.add( new BinaryValue( (byte[])null ), new BinaryValue( BYTES1 ) );
         assertEquals( 2, nbAdded );
         assertFalse( attr10.isHR() );
         assertTrue( attr10.contains( NULL_BINARY_VALUE ) );

@@ -28,6 +28,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import javax.naming.NamingEnumeration;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
@@ -322,5 +323,35 @@ public class SchemaSearchIT extends AbstractLdapTestUnit
         }
 
         result.close();
+    }
+
+    
+    /**
+     * Test a search done on cn=schema 
+     */
+    @Test
+    public void testSubSchemaSubEntrySearch() throws Exception
+    {
+        DirContext ctx = getWiredContext( ldapServer );
+        
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        searchControls.setReturningAttributes( new String[]{ "objectClasses" } );
+        NamingEnumeration<SearchResult> results = ctx.search( "cn=schema", "(ObjectClass=*)", searchControls );
+
+        assertTrue( results.hasMore() );
+        SearchResult result = results.next();
+        Attributes entry = result.getAttributes();
+
+        Attribute objectClasses = entry.get( "objectClasses" ); 
+        NamingEnumeration<?> ocs = objectClasses.getAll();
+
+        while ( ocs.hasMore() )
+        {
+            String oc = (String)ocs.nextElement();
+            System.out.println( oc );
+        }
+
+        results.close();
     }
 }

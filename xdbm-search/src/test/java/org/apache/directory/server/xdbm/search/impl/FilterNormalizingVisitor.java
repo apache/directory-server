@@ -23,8 +23,8 @@ package org.apache.directory.server.xdbm.search.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.AndNode;
@@ -147,7 +147,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
             }
             else
             {
-                normalized = new ClientBinaryValue( ( byte[] ) ncn.normalizeByName( attribute, value.getBytes() ) );
+                normalized = new BinaryValue( ( byte[] ) ncn.normalizeByName( attribute, value.getBytes() ) );
             }
 
             return normalized;

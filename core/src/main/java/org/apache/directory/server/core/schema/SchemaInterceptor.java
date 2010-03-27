@@ -54,17 +54,16 @@ import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
+import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerBinaryValue;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.entry.ServerStringValue;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -545,7 +544,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 try
                 {
-                    return new ClientBinaryValue( ( ( String ) value ).getBytes( "UTF-8" ) );
+                    return new BinaryValue( ( ( String ) value ).getBytes( "UTF-8" ) );
                 }
                 catch ( UnsupportedEncodingException uee )
                 {
@@ -1498,7 +1497,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
                 for ( Value<?> value : attribute )
                 {
-                    binaries.add( new ServerBinaryValue( attribute.getAttributeType(),
+                    binaries.add( new BinaryValue( attribute.getAttributeType(),
                         value.getBytes() ) );
                 }
 
@@ -1973,7 +1972,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 continue;
             }
-            else if ( value instanceof ServerBinaryValue )
+            else if ( value instanceof BinaryValue )
             {
                 // we have a byte[] value. It should be a String UTF-8 encoded
                 // Let's transform it
@@ -2011,7 +2010,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Loop on each values
         for ( Value<?> value : attribute )
         {
-            if ( value instanceof ServerBinaryValue )
+            if ( value instanceof BinaryValue )
             {
                 continue;
             }

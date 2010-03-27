@@ -38,7 +38,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
-import org.apache.directory.shared.ldap.entry.ServerBinaryValue;
+import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.entry.ServerStringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -296,7 +296,7 @@ public class ServerStringValueTest
         ServerStringValue value3 = new ServerStringValue( at1, "TEST" );
         ServerStringValue value4 = new ServerStringValue( at1, "tes" );
         ServerStringValue value5 = new ServerStringValue( at1, null );
-        ServerBinaryValue valueBytes = new ServerBinaryValue( at2, new byte[]{0x01} );
+        BinaryValue valueBytes = new BinaryValue( at2, new byte[]{0x01} );
         ServerStringValue valueString = new ServerStringValue( at, "test" );
         
         assertTrue( value1.equals( value1 ) );

@@ -45,8 +45,8 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ServerBinaryValue;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.entry.ServerStringValue;
@@ -210,11 +210,11 @@ public class DefaultCoreSession implements CoreSession
         {
             if ( value instanceof String )
             {
-                val = new ServerBinaryValue( attributeType, StringTools.getBytesUtf8( (String)value ) );
+                val = new BinaryValue( attributeType, StringTools.getBytesUtf8( (String)value ) );
             }
             else if ( value instanceof byte[] )
             {
-                val = new ServerBinaryValue( attributeType, (byte[])value );
+                val = new BinaryValue( attributeType, (byte[])value );
             }
             else
             {

@@ -58,10 +58,10 @@ import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
@@ -758,7 +758,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
                 if ( value instanceof byte[] )
                 {
-                    node = new EqualityNode<byte[]>( attr.getID(), new ClientBinaryValue( ( byte[] ) value ) );
+                    node = new EqualityNode<byte[]>( attr.getID(), new BinaryValue( ( byte[] ) value ) );
                 }
                 else
                 {

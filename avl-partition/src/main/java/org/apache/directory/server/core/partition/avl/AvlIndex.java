@@ -29,7 +29,7 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.shared.ldap.cursor.Cursor;
-import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -300,7 +300,7 @@ public class AvlIndex<K, O> implements Index<K, O, Long>
         }
         else
         {
-            return ( K ) normalizer.normalize( new ClientBinaryValue( ( byte[] ) attrVal ) ).get();
+            return ( K ) normalizer.normalize( new BinaryValue( ( byte[] ) attrVal ) ).get();
         }
     }
 

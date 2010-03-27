@@ -41,15 +41,14 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerBinaryValue;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerStringValue;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -389,7 +388,7 @@ public class DefaultServerEntryTest
         assertTrue( attributeSN.contains( value1 ) );
         assertTrue( attributeSN.contains( value2 ) );
          
-        Value<byte[]> value4 = new ServerBinaryValue( atPwd, BYTES1 );
+        Value<byte[]> value4 = new BinaryValue( atPwd, BYTES1 );
         entry.add( "l", value1, value4 );
         assertEquals( 3, entry.size() );
         EntryAttribute attributeL = entry.get( "l" );
@@ -478,9 +477,9 @@ public class DefaultServerEntryTest
         Value<String> strValue3 = new ServerStringValue( atCN, "test3" );
         Value<String> strNullValue = new ServerStringValue( atCN, null);
 
-        Value<byte[]> binValue1 = new ServerBinaryValue( atPwd, BYTES1 );
-        Value<byte[]> binValue2 = new ServerBinaryValue( atPwd, BYTES2 );
-        Value<byte[]> binValue3 = new ServerBinaryValue( atPwd, BYTES3 );
+        Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
+        Value<byte[]> binValue2 = new BinaryValue( atPwd, BYTES2 );
+        Value<byte[]> binValue3 = new BinaryValue( atPwd, BYTES3 );
         
         try
         {
@@ -596,9 +595,9 @@ public class DefaultServerEntryTest
         Value<String> strValue3 = new ServerStringValue( atCN, "test3" );
         Value<String> strNullValue = new ServerStringValue( atCN, null);
 
-        Value<byte[]> binValue1 = new ServerBinaryValue( atPwd, BYTES1 );
-        Value<byte[]> binValue2 = new ServerBinaryValue( atPwd, BYTES2 );
-        Value<byte[]> binValue3 = new ServerBinaryValue( atPwd, BYTES3 );
+        Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
+        Value<byte[]> binValue2 = new BinaryValue( atPwd, BYTES2 );
+        Value<byte[]> binValue3 = new BinaryValue( atPwd, BYTES3 );
         
         try
         {
@@ -765,9 +764,9 @@ public class DefaultServerEntryTest
         Value<String> test2 = new ServerStringValue( atCN, "test2" );
         Value<String> test3 = new ServerStringValue( atCN, "test3" );
         
-        Value<byte[]> testB1 = new ServerBinaryValue( atPassword, b1 );
-        Value<byte[]> testB2 = new ServerBinaryValue( atPassword, b2 );
-        Value<byte[]> testB3 = new ServerBinaryValue( atPassword, b3 );
+        Value<byte[]> testB1 = new BinaryValue( atPassword, b1 );
+        Value<byte[]> testB2 = new BinaryValue( atPassword, b2 );
+        Value<byte[]> testB3 = new BinaryValue( atPassword, b3 );
         
         // Test a simple addition in atCN
         entry.add( atCN, test1 );
@@ -979,9 +978,9 @@ public class DefaultServerEntryTest
         Value<String> test2 = new ServerStringValue( atCN, "test2" );
         Value<String> test3 = new ServerStringValue( atCN, "test3" );
         
-        Value<byte[]> testB1 = new ServerBinaryValue( atPassword, b1 );
-        Value<byte[]> testB2 = new ServerBinaryValue( atPassword, b2 );
-        Value<byte[]> testB3 = new ServerBinaryValue( atPassword, b3 );
+        Value<byte[]> testB1 = new BinaryValue( atPassword, b1 );
+        Value<byte[]> testB2 = new BinaryValue( atPassword, b2 );
+        Value<byte[]> testB3 = new BinaryValue( atPassword, b3 );
         
         // Test a simple addition in atCN
         entry.add( "cN", test1 );
@@ -1196,9 +1195,9 @@ public class DefaultServerEntryTest
         Value<String> test2 = new ServerStringValue( atCN, "test2" );
         Value<String> test3 = new ServerStringValue( atCN, "test3" );
         
-        Value<byte[]> testB1 = new ServerBinaryValue( atPassword, b1 );
-        Value<byte[]> testB2 = new ServerBinaryValue( atPassword, b2 );
-        Value<byte[]> testB3 = new ServerBinaryValue( atPassword, b3 );
+        Value<byte[]> testB1 = new BinaryValue( atPassword, b1 );
+        Value<byte[]> testB2 = new BinaryValue( atPassword, b2 );
+        Value<byte[]> testB3 = new BinaryValue( atPassword, b3 );
         
         // Test a simple addition in atCN
         entry.add( "cN", atCN, test1 );
@@ -1409,10 +1408,10 @@ public class DefaultServerEntryTest
         Value<String> strValue3 = new ServerStringValue( atCN, "test3" );
         Value<String> strNullValue = new ServerStringValue( atCN, null);
 
-        Value<byte[]> binValue1 = new ServerBinaryValue( atPwd, BYTES1 );
-        Value<byte[]> binValue2 = new ServerBinaryValue( atPwd, BYTES2 );
-        Value<byte[]> binValue3 = new ServerBinaryValue( atPwd, BYTES3 );
-        Value<byte[]> binNullValue = new ServerBinaryValue( atPwd, null );
+        Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
+        Value<byte[]> binValue2 = new BinaryValue( atPwd, BYTES2 );
+        Value<byte[]> binValue3 = new BinaryValue( atPwd, BYTES3 );
+        Value<byte[]> binNullValue = new BinaryValue( atPwd, null );
 
         assertFalse( entry.contains( (String)null, strValue1 ) );
         assertFalse( entry.contains( atCN, binValue1 ) );
@@ -1530,10 +1529,10 @@ public class DefaultServerEntryTest
         Value<String> strValue3 = new ServerStringValue( atCN, "test3" );
         Value<String> strNullValue = new ServerStringValue( atCN, null);
 
-        Value<byte[]> binValue1 = new ServerBinaryValue( atPwd, BYTES1 );
-        Value<byte[]> binValue2 = new ServerBinaryValue( atPwd, BYTES2 );
-        Value<byte[]> binValue3 = new ServerBinaryValue( atPwd, BYTES3 );
-        Value<byte[]> binNullValue = new ServerBinaryValue( atPwd, null );
+        Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
+        Value<byte[]> binValue2 = new BinaryValue( atPwd, BYTES2 );
+        Value<byte[]> binValue3 = new BinaryValue( atPwd, BYTES3 );
+        Value<byte[]> binNullValue = new BinaryValue( atPwd, null );
 
         assertTrue( entry.contains( "CN", strValue1, strValue2 ) );
         assertTrue( entry.contains( "userpassword", binValue1, binValue2, binNullValue ) );
@@ -2007,7 +2006,7 @@ public class DefaultServerEntryTest
         Value<String> strValue3 = new ServerStringValue( atCN, "test3" );
         Value<String> strNullValue = new ServerStringValue( atCN, null);
 
-        Value<byte[]> binValue1 = new ServerBinaryValue( atPwd, BYTES1 );
+        Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
 
         try
         {
@@ -2254,7 +2253,7 @@ public class DefaultServerEntryTest
         Value<String> strValue3 = new ServerStringValue( atCN, "test3" );
         Value<String> strNullValue = new ServerStringValue( atCN, null);
 
-        Value<byte[]> binValue1 = new ServerBinaryValue( atPwd, BYTES1 );
+        Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
 
         try
         {
@@ -2473,7 +2472,7 @@ public class DefaultServerEntryTest
         Value<String> strValue3 = new ServerStringValue( atCN, "test3" );
         Value<String> strNullValue = new ServerStringValue( atCN, null);
 
-        Value<byte[]> binValue1 = new ServerBinaryValue( atPwd, BYTES1 );
+        Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
 
         try
         {
@@ -3268,7 +3267,7 @@ public class DefaultServerEntryTest
         Value<String> strValue3 = new ServerStringValue( atCN, "test3" );
         Value<String> strNullValue = new ServerStringValue( atCN, null);
 
-        Value<byte[]> binValue1 = new ServerBinaryValue( atPwd, BYTES1 );
+        Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
 
         EntryAttribute attrPWD = new DefaultServerAttribute( atCN, "test1", (String)null, "test2" );
 
@@ -3461,7 +3460,7 @@ public class DefaultServerEntryTest
         Value<String> strValue3 = new ServerStringValue( atCN, "test3" );
         Value<String> strNullValue = new ServerStringValue( atCN, null);
 
-        Value<byte[]> binValue1 = new ServerBinaryValue( atPwd, BYTES1 );
+        Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
 
         EntryAttribute attrPWD = new DefaultServerAttribute( atCN, "test1", (String)null, "test2" );
 
@@ -3500,8 +3499,8 @@ public class DefaultServerEntryTest
         Value<String> test1 = new ServerStringValue( atCN, "test1" );
         Value<String> test2 = new ServerStringValue( atCN, "test2" );
         
-        Value<byte[]> testB1 = new ServerBinaryValue( atPassword, b1 );
-        Value<byte[]> testB2 = new ServerBinaryValue( atPassword, b2 );
+        Value<byte[]> testB1 = new BinaryValue( atPassword, b1 );
+        Value<byte[]> testB2 = new BinaryValue( atPassword, b2 );
         
         // test a removal of an non existing attribute
         List<EntryAttribute> removed = entry.removeAttributes( atCN );
@@ -3846,9 +3845,9 @@ public class DefaultServerEntryTest
         Value<String> strValuePerson = new ClientStringValue( "person" );
         Value<String> strNullValue = new ClientStringValue( null);
 
-        Value<byte[]> binValue1 = new ClientBinaryValue( BYTES1 );
-        Value<byte[]> binValue2 = new ClientBinaryValue( BYTES2 );
-        Value<byte[]> binNullValue = new ClientBinaryValue( null );
+        Value<byte[]> binValue1 = new BinaryValue( BYTES1 );
+        Value<byte[]> binValue2 = new BinaryValue( BYTES2 );
+        Value<byte[]> binNullValue = new BinaryValue( (byte[])null );
         
         entry.put( "ObjectClass", atOC, strValueTop, strValuePerson, strNullValue );
         entry.put( "UserPassword", atPwd, binValue1, binValue2, binNullValue );
