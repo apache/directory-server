@@ -62,7 +62,6 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerModification;
-import org.apache.directory.shared.ldap.entry.ServerStringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
@@ -1968,7 +1967,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Loop on each values
         for ( Value<?> value : attribute )
         {
-            if ( value instanceof ServerStringValue )
+            if ( value instanceof ClientStringValue )
             {
                 continue;
             }
@@ -2014,7 +2013,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 continue;
             }
-            else if ( value instanceof ServerStringValue )
+            else if ( value instanceof ClientStringValue )
             {
                 // We have a String value. It should be a byte[]
                 // Let's transform it

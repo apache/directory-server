@@ -42,8 +42,8 @@ import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.P
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerStringValue;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -103,7 +103,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
         }
         
         EqualityNode<String> ocIsReferral = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT,
-            new ServerStringValue( objectClassAttributeType, SchemaConstants.REFERRAL_OC ) );
+            new ClientStringValue( objectClassAttributeType, SchemaConstants.REFERRAL_OC ) );
         
         return ocIsReferral;
     }

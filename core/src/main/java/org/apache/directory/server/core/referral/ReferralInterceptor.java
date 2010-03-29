@@ -19,8 +19,6 @@
  */
 package org.apache.directory.server.core.referral;
 
-
-
 import javax.naming.Context;
 import javax.naming.NamingException;
 
@@ -42,8 +40,8 @@ import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.entry.ServerStringValue;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -81,7 +79,7 @@ public class ReferralInterceptor extends BaseInterceptor
     
     static private void checkRefAttributeValue( Value<?> value ) throws NamingException, LdapURLEncodingException
     {
-        ServerStringValue ref = ( ServerStringValue ) value;
+        ClientStringValue ref = ( ClientStringValue ) value;
 
         String refVal = ref.getString();
 

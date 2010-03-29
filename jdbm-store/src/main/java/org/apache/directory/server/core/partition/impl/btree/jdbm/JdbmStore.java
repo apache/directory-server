@@ -1571,16 +1571,6 @@ public class JdbmStore<E> implements Store<E, Long>
             for ( Value<?> value : mods )
             {
                 entryAttr.remove( value );
-                /*
-                if ( value instanceof ServerStringValue )
-                {
-                    entryAttr.remove( value.getString() );
-                }
-                else
-                {
-                    entryAttr.remove( value.getBytes() );
-                }
-                */
             }
 
             // if nothing is left just remove empty attribute

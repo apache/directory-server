@@ -44,8 +44,8 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.entry.ServerStringValue;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
@@ -1107,7 +1107,7 @@ public class AvlStore<E> implements Store<E, Long>
 
             for ( Value<?> value : mods )
             {
-                if ( value instanceof ServerStringValue )
+                if ( value instanceof ClientStringValue )
                 {
                     entryAttr.remove( ( String ) value.get() );
                 }

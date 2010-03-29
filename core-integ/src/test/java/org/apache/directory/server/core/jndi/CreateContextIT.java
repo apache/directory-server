@@ -415,7 +415,7 @@ public class CreateContextIT extends AbstractLdapTestUnit
     public void testCreateJavaContainer() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-
+        
         DirContext ctx = (DirContext)sysRoot.createSubcontext( "cn=subtest" );
         assertNotNull( ctx );
         

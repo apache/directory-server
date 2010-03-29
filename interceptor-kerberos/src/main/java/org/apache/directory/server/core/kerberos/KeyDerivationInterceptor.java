@@ -67,8 +67,8 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerModification;
-import org.apache.directory.shared.ldap.entry.ServerStringValue;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -243,9 +243,9 @@ public class KeyDerivationInterceptor extends BaseInterceptor
                 Object firstValue = attr.get();
                 String password = null;
 
-                if ( firstValue instanceof ServerStringValue )
+                if ( firstValue instanceof ClientStringValue )
                 {
-                    password = ((ServerStringValue)firstValue).getString();
+                    password = ((ClientStringValue)firstValue).getString();
                     log.debug( "{} Attribute id : 'userPassword',  Values : [ '{}' ]", operation, password );
                 }
                 else if ( firstValue instanceof BinaryValue )

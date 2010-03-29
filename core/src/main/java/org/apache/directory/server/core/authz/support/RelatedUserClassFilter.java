@@ -22,6 +22,7 @@ package org.apache.directory.server.core.authz.support;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.subtree.SubtreeEvaluator;
@@ -152,9 +153,17 @@ public class RelatedUserClassFilter implements ACITupleFilter
                 
                 for ( DN userGroupName : userGroupNames )
                 {
-                    if ( userGroupName != null && userGroupUserClass.getNames().contains( userGroupName ) )
+                    Set<DN> dns = userGroupUserClass.getNames();
+                    
+                    if ( userGroupName != null )
                     {
-                        return true;
+                        for ( DN dn : dns )
+                        {
+                            if ( userGroupName.getNormName().equals( dn.getNormName() ) )
+                            {
+                                return true;
+                            }
+                        }
                     }
                 }
             }

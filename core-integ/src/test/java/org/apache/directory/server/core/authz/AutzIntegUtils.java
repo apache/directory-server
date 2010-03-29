@@ -326,6 +326,7 @@ public class AutzIntegUtils
 
         // modify ou=system to be an AP for an A/C AA if it is not already
         EntryAttribute administrativeRole = systemEntry.get( "administrativeRole" );
+        
         if ( administrativeRole == null || !administrativeRole.contains( SubentryInterceptor.AC_AREA ) )
         {
             ModifyRequest modReq = new ModifyRequest( systemEntry.getDn() );

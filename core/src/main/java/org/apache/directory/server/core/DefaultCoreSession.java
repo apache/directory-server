@@ -49,8 +49,8 @@ import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerModification;
-import org.apache.directory.shared.ldap.entry.ServerStringValue;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
@@ -195,11 +195,11 @@ public class DefaultCoreSession implements CoreSession
         {
             if ( value instanceof String )
             {
-                val = new ServerStringValue( attributeType, (String)value );
+                val = new ClientStringValue( attributeType, (String)value );
             }
             else if ( value instanceof byte[] )
             {
-                val = new ServerStringValue( attributeType, StringTools.utf8ToString( (byte[])value ) );
+                val = new ClientStringValue( attributeType, StringTools.utf8ToString( (byte[])value ) );
             }
             else
             {

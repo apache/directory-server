@@ -32,7 +32,7 @@ import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.entry.ServerStringValue;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -89,7 +89,7 @@ public class StoredProcExecutionManager
         
         AttributeType at = session.getDirectoryService()
             .getSchemaManager().lookupAttributeTypeRegistry( "storedProcUnitName" );
-        ExprNode filter = new EqualityNode<String>( "storedProcUnitName", new ServerStringValue( at, spUnitName ) );
+        ExprNode filter = new EqualityNode<String>( "storedProcUnitName", new ClientStringValue( at, spUnitName ) );
         DN dn = new DN( storedProcContainer );
         EntryFilteringCursor results = session.search( dn, SearchScope.SUBTREE, filter, 
             AliasDerefMode.DEREF_ALWAYS, EMPTY_ATTRIBS );

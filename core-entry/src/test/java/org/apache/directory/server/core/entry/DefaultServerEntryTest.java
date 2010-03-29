@@ -47,7 +47,6 @@ import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.entry.ServerStringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
@@ -367,7 +366,7 @@ public class DefaultServerEntryTest
     public void testAddStringValueArray() throws Exception
     {
         Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
-        Value<String> value = new ServerStringValue( atCN, (String)null );
+        Value<String> value = new ClientStringValue( atCN, (String)null );
         
         entry.add( "cn", value );
         assertEquals( 1, entry.size() );
@@ -376,9 +375,9 @@ public class DefaultServerEntryTest
         assertNotNull( attributeCN.get() );
         assertNull( attributeCN.get().get() );
          
-        Value<String> value1 = new ServerStringValue( atCN, "test1" );
-        Value<String> value2 = new ServerStringValue( atCN, "test2" );
-        Value<String> value3 = new ServerStringValue( atCN, "test1" );
+        Value<String> value1 = new ClientStringValue( atCN, "test1" );
+        Value<String> value2 = new ClientStringValue( atCN, "test2" );
+        Value<String> value3 = new ClientStringValue( atCN, "test1" );
 
         entry.add( "sn", value1, value2, value3 );
         assertEquals( 2, entry.size() );
@@ -472,10 +471,10 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        Value<String> strValue1 = new ServerStringValue( atCN, "test1" );
-        Value<String> strValue2 = new ServerStringValue( atCN, "test2" );
-        Value<String> strValue3 = new ServerStringValue( atCN, "test3" );
-        Value<String> strNullValue = new ServerStringValue( atCN, null);
+        Value<String> strValue1 = new ClientStringValue( atCN, "test1" );
+        Value<String> strValue2 = new ClientStringValue( atCN, "test2" );
+        Value<String> strValue3 = new ClientStringValue( atCN, "test3" );
+        Value<String> strNullValue = new ClientStringValue( atCN, null);
 
         Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
         Value<byte[]> binValue2 = new BinaryValue( atPwd, BYTES2 );
@@ -590,10 +589,10 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        Value<String> strValue1 = new ServerStringValue( atCN, "test1" );
-        Value<String> strValue2 = new ServerStringValue( atCN, "test2" );
-        Value<String> strValue3 = new ServerStringValue( atCN, "test3" );
-        Value<String> strNullValue = new ServerStringValue( atCN, null);
+        Value<String> strValue1 = new ClientStringValue( atCN, "test1" );
+        Value<String> strValue2 = new ClientStringValue( atCN, "test2" );
+        Value<String> strValue3 = new ClientStringValue( atCN, "test3" );
+        Value<String> strNullValue = new ClientStringValue( atCN, null);
 
         Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
         Value<byte[]> binValue2 = new BinaryValue( atPwd, BYTES2 );
@@ -760,9 +759,9 @@ public class DefaultServerEntryTest
         byte[] b2 = StringTools.getBytesUtf8( "test2" );
         byte[] b3 = StringTools.getBytesUtf8( "test3" );
 
-        Value<String> test1 = new ServerStringValue( atCN, "test1" );
-        Value<String> test2 = new ServerStringValue( atCN, "test2" );
-        Value<String> test3 = new ServerStringValue( atCN, "test3" );
+        Value<String> test1 = new ClientStringValue( atCN, "test1" );
+        Value<String> test2 = new ClientStringValue( atCN, "test2" );
+        Value<String> test3 = new ClientStringValue( atCN, "test3" );
         
         Value<byte[]> testB1 = new BinaryValue( atPassword, b1 );
         Value<byte[]> testB2 = new BinaryValue( atPassword, b2 );
@@ -974,9 +973,9 @@ public class DefaultServerEntryTest
         byte[] b2 = StringTools.getBytesUtf8( "test2" );
         byte[] b3 = StringTools.getBytesUtf8( "test3" );
 
-        Value<String> test1 = new ServerStringValue( atCN, "test1" );
-        Value<String> test2 = new ServerStringValue( atCN, "test2" );
-        Value<String> test3 = new ServerStringValue( atCN, "test3" );
+        Value<String> test1 = new ClientStringValue( atCN, "test1" );
+        Value<String> test2 = new ClientStringValue( atCN, "test2" );
+        Value<String> test3 = new ClientStringValue( atCN, "test3" );
         
         Value<byte[]> testB1 = new BinaryValue( atPassword, b1 );
         Value<byte[]> testB2 = new BinaryValue( atPassword, b2 );
@@ -1191,9 +1190,9 @@ public class DefaultServerEntryTest
         byte[] b2 = StringTools.getBytesUtf8( "test2" );
         byte[] b3 = StringTools.getBytesUtf8( "test3" );
 
-        Value<String> test1 = new ServerStringValue( atCN, "test1" );
-        Value<String> test2 = new ServerStringValue( atCN, "test2" );
-        Value<String> test3 = new ServerStringValue( atCN, "test3" );
+        Value<String> test1 = new ClientStringValue( atCN, "test1" );
+        Value<String> test2 = new ClientStringValue( atCN, "test2" );
+        Value<String> test3 = new ClientStringValue( atCN, "test3" );
         
         Value<byte[]> testB1 = new BinaryValue( atPassword, b1 );
         Value<byte[]> testB2 = new BinaryValue( atPassword, b2 );
@@ -1403,10 +1402,10 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        Value<String> strValue1 = new ServerStringValue( atCN, "test1" );
-        Value<String> strValue2 = new ServerStringValue( atCN, "test2" );
-        Value<String> strValue3 = new ServerStringValue( atCN, "test3" );
-        Value<String> strNullValue = new ServerStringValue( atCN, null);
+        Value<String> strValue1 = new ClientStringValue( atCN, "test1" );
+        Value<String> strValue2 = new ClientStringValue( atCN, "test2" );
+        Value<String> strValue3 = new ClientStringValue( atCN, "test3" );
+        Value<String> strNullValue = new ClientStringValue( atCN, null);
 
         Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
         Value<byte[]> binValue2 = new BinaryValue( atPwd, BYTES2 );
@@ -1524,10 +1523,10 @@ public class DefaultServerEntryTest
 
         entry.add( attrCN, attrPWD );
         
-        Value<String> strValue1 = new ServerStringValue( atCN, "test1" );
-        Value<String> strValue2 = new ServerStringValue( atCN, "test2" );
-        Value<String> strValue3 = new ServerStringValue( atCN, "test3" );
-        Value<String> strNullValue = new ServerStringValue( atCN, null);
+        Value<String> strValue1 = new ClientStringValue( atCN, "test1" );
+        Value<String> strValue2 = new ClientStringValue( atCN, "test2" );
+        Value<String> strValue3 = new ClientStringValue( atCN, "test3" );
+        Value<String> strNullValue = new ClientStringValue( atCN, null);
 
         Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
         Value<byte[]> binValue2 = new BinaryValue( atPwd, BYTES2 );
@@ -2001,10 +2000,10 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        Value<String> strValue1 = new ServerStringValue( atCN, "test1" );
-        Value<String> strValue2 = new ServerStringValue( atCN, "test2" );
-        Value<String> strValue3 = new ServerStringValue( atCN, "test3" );
-        Value<String> strNullValue = new ServerStringValue( atCN, null);
+        Value<String> strValue1 = new ClientStringValue( atCN, "test1" );
+        Value<String> strValue2 = new ClientStringValue( atCN, "test2" );
+        Value<String> strValue3 = new ClientStringValue( atCN, "test3" );
+        Value<String> strNullValue = new ClientStringValue( atCN, null);
 
         Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
 
@@ -2248,10 +2247,10 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        Value<String> strValue1 = new ServerStringValue( atCN, "test1" );
-        Value<String> strValue2 = new ServerStringValue( atCN, "test2" );
-        Value<String> strValue3 = new ServerStringValue( atCN, "test3" );
-        Value<String> strNullValue = new ServerStringValue( atCN, null);
+        Value<String> strValue1 = new ClientStringValue( atCN, "test1" );
+        Value<String> strValue2 = new ClientStringValue( atCN, "test2" );
+        Value<String> strValue3 = new ClientStringValue( atCN, "test3" );
+        Value<String> strNullValue = new ClientStringValue( atCN, null);
 
         Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
 
@@ -2467,10 +2466,10 @@ public class DefaultServerEntryTest
     {
         Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        Value<String> strValue1 = new ServerStringValue( atCN, "test1" );
-        Value<String> strValue2 = new ServerStringValue( atCN, "test2" );
-        Value<String> strValue3 = new ServerStringValue( atCN, "test3" );
-        Value<String> strNullValue = new ServerStringValue( atCN, null);
+        Value<String> strValue1 = new ClientStringValue( atCN, "test1" );
+        Value<String> strValue2 = new ClientStringValue( atCN, "test2" );
+        Value<String> strValue3 = new ClientStringValue( atCN, "test3" );
+        Value<String> strNullValue = new ClientStringValue( atCN, null);
 
         Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
 
@@ -2766,7 +2765,7 @@ public class DefaultServerEntryTest
         
         // Add a single value
         atCN = schemaManager.lookupAttributeTypeRegistry( "cn" );
-        Value<?> ssv = new ServerStringValue( atCN, "test" );
+        Value<?> ssv = new ClientStringValue( atCN, "test" );
         entry.put( atCN, ssv );
         
         assertEquals( 1, entry.size() );
@@ -2775,9 +2774,9 @@ public class DefaultServerEntryTest
         assertEquals( "test", entry.get( atCN ).get().getString() );
         
         // Add more than one value
-        entry.put( atCN, new ServerStringValue( atCN, "test1" ),
-                         new ServerStringValue( atCN, "test2" ), 
-                         new ServerStringValue( atCN, "test3" ));
+        entry.put( atCN, new ClientStringValue( atCN, "test1" ),
+                         new ClientStringValue( atCN, "test2" ), 
+                         new ClientStringValue( atCN, "test3" ));
         
         assertEquals( 1, entry.size() );
         assertEquals( "cn", entry.get( atCN ).getUpId() );
@@ -2787,9 +2786,9 @@ public class DefaultServerEntryTest
         assertTrue( entry.contains( "cn", "test3" ) );
         
         // Add twice the same value
-        EntryAttribute sa = entry.put( atCN, new ServerStringValue( atCN, "test1" ),
-                         new ServerStringValue( atCN, "test2" ), 
-                         new ServerStringValue( atCN, "test1" ));
+        EntryAttribute sa = entry.put( atCN, new ClientStringValue( atCN, "test1" ),
+                         new ClientStringValue( atCN, "test2" ), 
+                         new ClientStringValue( atCN, "test1" ));
         
         assertEquals( 3, sa.size() );
         assertTrue( sa.contains( "test1", "test2", "test3" ) );
@@ -3134,9 +3133,9 @@ public class DefaultServerEntryTest
         }
         
         // Test that we can add some new attributes with values
-        Value<String> test1 = new ServerStringValue( atCN, "test1" );
-        Value<String> test2 = new ServerStringValue( atCN, "test2" );
-        Value<String> test3 = new ServerStringValue( atCN, "test3" );
+        Value<String> test1 = new ClientStringValue( atCN, "test1" );
+        Value<String> test2 = new ClientStringValue( atCN, "test2" );
+        Value<String> test3 = new ClientStringValue( atCN, "test3" );
 
         EntryAttribute result = entry.put( "CN", atCN, test1, test2, test3 );
         assertNotNull( result );
@@ -3177,9 +3176,9 @@ public class DefaultServerEntryTest
         assertNull( entry.get( atCN ).get().get() );
 
         // Test that we can add some new attributes with values
-        Value<String> test1 = new ServerStringValue( atCN, "test1" );
-        Value<String> test2 = new ServerStringValue( atCN, "test2" );
-        Value<String> test3 = new ServerStringValue( atCN, "test3" );
+        Value<String> test1 = new ClientStringValue( atCN, "test1" );
+        Value<String> test2 = new ClientStringValue( atCN, "test2" );
+        Value<String> test3 = new ClientStringValue( atCN, "test3" );
 
         EntryAttribute result = entry.put( "CN", test1, test2, test3 );
         assertNotNull( result );
@@ -3262,10 +3261,10 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        Value<String> strValue1 = new ServerStringValue( atCN, "test1" );
-        Value<String> strValue2 = new ServerStringValue( atCN, "test2" );
-        Value<String> strValue3 = new ServerStringValue( atCN, "test3" );
-        Value<String> strNullValue = new ServerStringValue( atCN, null);
+        Value<String> strValue1 = new ClientStringValue( atCN, "test1" );
+        Value<String> strValue2 = new ClientStringValue( atCN, "test2" );
+        Value<String> strValue3 = new ClientStringValue( atCN, "test3" );
+        Value<String> strNullValue = new ClientStringValue( atCN, null);
 
         Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
 
@@ -3455,10 +3454,10 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        Value<String> strValue1 = new ServerStringValue( atCN, "test1" );
-        Value<String> strValue2 = new ServerStringValue( atCN, "test2" );
-        Value<String> strValue3 = new ServerStringValue( atCN, "test3" );
-        Value<String> strNullValue = new ServerStringValue( atCN, null);
+        Value<String> strValue1 = new ClientStringValue( atCN, "test1" );
+        Value<String> strValue2 = new ClientStringValue( atCN, "test2" );
+        Value<String> strValue3 = new ClientStringValue( atCN, "test3" );
+        Value<String> strNullValue = new ClientStringValue( atCN, null);
 
         Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
 
@@ -3496,8 +3495,8 @@ public class DefaultServerEntryTest
         byte[] b1 = StringTools.getBytesUtf8( "test1" );
         byte[] b2 = StringTools.getBytesUtf8( "test2" );
 
-        Value<String> test1 = new ServerStringValue( atCN, "test1" );
-        Value<String> test2 = new ServerStringValue( atCN, "test2" );
+        Value<String> test1 = new ClientStringValue( atCN, "test1" );
+        Value<String> test2 = new ClientStringValue( atCN, "test2" );
         
         Value<byte[]> testB1 = new BinaryValue( atPassword, b1 );
         Value<byte[]> testB2 = new BinaryValue( atPassword, b2 );
@@ -3843,7 +3842,7 @@ public class DefaultServerEntryTest
         
         Value<String> strValueTop = new ClientStringValue( "top" );
         Value<String> strValuePerson = new ClientStringValue( "person" );
-        Value<String> strNullValue = new ClientStringValue( null);
+        Value<String> strNullValue = new ClientStringValue( (String)null);
 
         Value<byte[]> binValue1 = new BinaryValue( BYTES1 );
         Value<byte[]> binValue2 = new BinaryValue( BYTES2 );

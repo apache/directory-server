@@ -204,15 +204,16 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 classLdapServer = ServerAnnotationProcessor.getLdapServer( getDescription(), directoryService,
                     minPort + 1 );
             }
-            else if ( suite != null && suite.getLdapServer() != null )
+            else if ( ( suite != null ) && ( suite.getLdapServer() != null ) )
             {
                 classLdapServer = suite.getLdapServer();
                 
                 // set directoryService only if there is no class level DS
-                if( directoryService == null )
+                if ( directoryService == null )
                 {
                     directoryService = classLdapServer.getDirectoryService();
                 }
+                
                 // no need to inject the LDIF data that would have been done above
                 // if ApplyLdifs is present
             }
@@ -238,7 +239,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
             if ( classLdapServer != null )
             {
-                if ( suite == null || suite.getLdapServer() != classLdapServer )
+                if ( ( suite == null ) || ( suite.getLdapServer() != classLdapServer ) )
                 {
                     classLdapServer.stop();
                 }

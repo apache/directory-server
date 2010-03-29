@@ -34,8 +34,8 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.SamType;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerStringValue;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 
 
 /**
@@ -286,7 +286,7 @@ public class PrincipalStoreEntryModifier
 
         for ( Value<?> val : krb5key )
         {
-            if ( val instanceof ServerStringValue )
+            if ( val instanceof ClientStringValue )
             {
                 throw new IllegalStateException( I18n.err( I18n.ERR_626 ) );
             }
