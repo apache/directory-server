@@ -39,7 +39,7 @@ import org.apache.directory.server.core.interceptor.context.UnbindOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
-import org.apache.directory.shared.ldap.entry.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
@@ -205,11 +205,11 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         {
             if ( value instanceof String )
             {
-                val = new ClientStringValue( attributeType, (String)value );
+                val = new StringValue( attributeType, (String)value );
             }
             else if ( value instanceof byte[] )
             {
-                val = new ClientStringValue( attributeType, StringTools.utf8ToString( (byte[])value ) );
+                val = new StringValue( attributeType, StringTools.utf8ToString( (byte[])value ) );
             }
             else
             {

@@ -35,7 +35,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
@@ -126,9 +126,9 @@ public class GroupCache
         // normalized sets of members to cache within the map
 
         BranchNode filter = new OrNode();
-        filter.addNode( new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new ClientStringValue(
+        filter.addNode( new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
             SchemaConstants.GROUP_OF_NAMES_OC ) ) );
-        filter.addNode( new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new ClientStringValue(
+        filter.addNode( new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
             SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC ) ) );
 
         Set<String> suffixes = nexus.listSuffixes( null );

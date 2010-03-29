@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
@@ -122,7 +122,7 @@ public class TupleCache
         {
             DN baseDn = parseNormalized( session.getDirectoryService().getSchemaManager(), suffix );
             ExprNode filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, 
-                new ClientStringValue( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
+                new StringValue( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             

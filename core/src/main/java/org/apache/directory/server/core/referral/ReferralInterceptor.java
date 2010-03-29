@@ -38,7 +38,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -79,7 +79,7 @@ public class ReferralInterceptor extends BaseInterceptor
     
     static private void checkRefAttributeValue( Value<?> value ) throws NamingException, LdapURLEncodingException
     {
-        ClientStringValue ref = ( ClientStringValue ) value;
+        StringValue ref = ( StringValue ) value;
 
         String refVal = ref.getString();
 

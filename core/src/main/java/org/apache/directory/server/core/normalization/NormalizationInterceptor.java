@@ -44,7 +44,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
-import org.apache.directory.shared.ldap.entry.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -304,7 +304,7 @@ public class NormalizationInterceptor extends BaseInterceptor
         if ( at.getSyntax().isHumanReadable() && ( opContext.getValue().isBinary() ) )
         {
             String value = opContext.getValue().getString();
-            opContext.setValue( new ClientStringValue( value ) );
+            opContext.setValue( new StringValue( value ) );
         }
         
         return next.compare( opContext );

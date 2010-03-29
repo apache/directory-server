@@ -31,7 +31,7 @@ import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -83,9 +83,9 @@ public class LdapClassLoader extends ClassLoader
         // Set up the search filter
         BranchNode filter = new AndNode( );
         filter.addNode( new EqualityNode<String>( "fullyQualifiedJavaClassName", 
-            new ClientStringValue( name ) ) );
+            new StringValue( name ) ) );
         filter.addNode( new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, 
-            new ClientStringValue( ApacheSchemaConstants.JAVA_CLASS_OC ) ) );
+            new StringValue( ApacheSchemaConstants.JAVA_CLASS_OC ) ) );
         
         try
         {

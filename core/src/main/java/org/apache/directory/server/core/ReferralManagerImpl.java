@@ -29,7 +29,7 @@ import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -141,7 +141,7 @@ public class ReferralManagerImpl implements ReferralManager
     public void init( DirectoryService directoryService, String... suffixes ) throws Exception
     {
         ExprNode referralFilter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, 
-            new ClientStringValue( SchemaConstants.REFERRAL_OC ) );
+            new StringValue( SchemaConstants.REFERRAL_OC ) );
 
         // Lookup for each entry with the ObjectClass = Referral value
         SearchControls searchControl = new SearchControls();
@@ -187,7 +187,7 @@ public class ReferralManagerImpl implements ReferralManager
     public void remove( DirectoryService directoryService, DN suffix ) throws Exception
     {
         ExprNode referralFilter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, 
-            new ClientStringValue( SchemaConstants.REFERRAL_OC ) );
+            new StringValue( SchemaConstants.REFERRAL_OC ) );
 
         // Lookup for each entry with the ObjectClass = Referral value
         SearchControls searchControl = new SearchControls();

@@ -55,7 +55,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -153,7 +153,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         // prepare to find all subentries in all namingContexts
         Set<String> suffixes = this.nexus.listSuffixes( null );
-        ExprNode filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new ClientStringValue(
+        ExprNode filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
             SchemaConstants.SUBENTRY_OC ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );

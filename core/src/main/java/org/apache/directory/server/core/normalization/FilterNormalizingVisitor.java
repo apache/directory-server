@@ -23,7 +23,7 @@ package org.apache.directory.server.core.normalization;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.directory.shared.ldap.entry.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.AndNode;
@@ -143,7 +143,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
 
             if ( attributeType.getSyntax().isHumanReadable() )
             {
-                normalized = new ClientStringValue( 
+                normalized = new StringValue( 
                     (String) ncn.normalizeByName( attribute, value.getString() ) );
             }
             else
@@ -231,7 +231,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
 
         if ( node.getInitial() != null )
         {
-            normInitial = normalizeValue( node.getAttribute(), new ClientStringValue( node.getInitial() ) );
+            normInitial = normalizeValue( node.getAttribute(), new StringValue( node.getInitial() ) );
 
             if ( normInitial == null )
             {
@@ -247,7 +247,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
 
             for ( String any : node.getAny() )
             {
-                Value<?> normAny = normalizeValue( node.getAttribute(), new ClientStringValue( any ) );
+                Value<?> normAny = normalizeValue( node.getAttribute(), new StringValue( any ) );
 
                 if ( normAny != null )
                 {
@@ -265,7 +265,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
 
         if ( node.getFinal() != null )
         {
-            normFinal = normalizeValue( node.getAttribute(), new ClientStringValue( node.getFinal() ) );
+            normFinal = normalizeValue( node.getAttribute(), new StringValue( node.getFinal() ) );
 
             if ( normFinal == null )
             {

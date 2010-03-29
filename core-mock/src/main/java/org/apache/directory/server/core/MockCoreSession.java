@@ -46,7 +46,7 @@ import org.apache.directory.server.core.interceptor.context.UnbindOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
-import org.apache.directory.shared.ldap.entry.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerModification;
@@ -195,11 +195,11 @@ public class MockCoreSession implements CoreSession
         {
             if ( value instanceof String )
             {
-                val = new ClientStringValue( attributeType, (String)value );
+                val = new StringValue( attributeType, (String)value );
             }
             else if ( value instanceof byte[] )
             {
-                val = new ClientStringValue( attributeType, StringTools.utf8ToString( (byte[])value ) );
+                val = new StringValue( attributeType, StringTools.utf8ToString( (byte[])value ) );
             }
             else
             {

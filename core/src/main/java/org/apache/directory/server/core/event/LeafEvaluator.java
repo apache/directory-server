@@ -24,7 +24,7 @@ import java.util.Comparator;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.NotImplementedException;
-import org.apache.directory.shared.ldap.entry.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -268,7 +268,7 @@ public class LeafEvaluator implements Evaluator
         {
             if ( node.getValue().isBinary() )
             {
-                value = new ClientStringValue( node.getValue().getString() );
+                value = new StringValue( node.getValue().getString() );
             }
             else
             {

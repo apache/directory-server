@@ -27,7 +27,7 @@ import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
-import org.apache.directory.shared.ldap.entry.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
@@ -93,7 +93,7 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
 
             if ( entry.get( SchemaConstants.CN_AT ) != null )
             {
-                ClientStringValue attr = (ClientStringValue)entry.get( SchemaConstants.CN_AT ).get();
+                StringValue attr = (StringValue)entry.get( SchemaConstants.CN_AT ).get();
                 username = attr.getString();
             }
 
@@ -146,10 +146,10 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
 
                 if ( userPassword != null )
                 {
-                    if ( userPassword instanceof ClientStringValue )
+                    if ( userPassword instanceof StringValue )
                     {
                         log.debug( "{} Attribute id : 'userPassword',  Values : [ '{}' ]", operation, attr );
-                        pwd = ((ClientStringValue)userPassword).getString();
+                        pwd = ((StringValue)userPassword).getString();
                     }
                     else if ( userPassword instanceof BinaryValue )
                     {

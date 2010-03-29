@@ -61,7 +61,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
-import org.apache.directory.shared.ldap.entry.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -243,9 +243,9 @@ public class KeyDerivationInterceptor extends BaseInterceptor
                 Object firstValue = attr.get();
                 String password = null;
 
-                if ( firstValue instanceof ClientStringValue )
+                if ( firstValue instanceof StringValue )
                 {
-                    password = ((ClientStringValue)firstValue).getString();
+                    password = ((StringValue)firstValue).getString();
                     log.debug( "{} Attribute id : 'userPassword',  Values : [ '{}' ]", operation, password );
                 }
                 else if ( firstValue instanceof BinaryValue )

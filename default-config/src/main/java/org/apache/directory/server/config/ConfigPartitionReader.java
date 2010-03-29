@@ -68,7 +68,7 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.NotImplementedException;
-import org.apache.directory.shared.ldap.entry.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
@@ -155,7 +155,7 @@ public class ConfigPartitionReader
      */
     public LdapServer getLdapServer() throws Exception
     {
-        EqualityNode<String> filter = new EqualityNode<String>( "objectClass", new ClientStringValue( "ads-ldapServer" ) );
+        EqualityNode<String> filter = new EqualityNode<String>( "objectClass", new StringValue( "ads-ldapServer" ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
@@ -194,7 +194,7 @@ public class ConfigPartitionReader
 
     public KdcServer getKdcServer() throws Exception
     {
-        EqualityNode<String> filter = new EqualityNode<String>( "objectClass", new ClientStringValue(
+        EqualityNode<String> filter = new EqualityNode<String>( "objectClass", new StringValue(
             "ads-kerberosServer" ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -337,7 +337,7 @@ public class ConfigPartitionReader
 
     public DnsServer getDnsServer() throws Exception
     {
-        EqualityNode<String> filter = new EqualityNode<String>( "objectClass", new ClientStringValue( "ads-dnsServer" ) );
+        EqualityNode<String> filter = new EqualityNode<String>( "objectClass", new StringValue( "ads-dnsServer" ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
@@ -378,7 +378,7 @@ public class ConfigPartitionReader
     //TODO making this method invisible cause there is no DhcpServer exists as of now
     private DhcpService getDhcpServer() throws Exception
     {
-        EqualityNode<String> filter = new EqualityNode<String>( "objectClass", new ClientStringValue( "ads-dhcpServer" ) );
+        EqualityNode<String> filter = new EqualityNode<String>( "objectClass", new StringValue( "ads-dhcpServer" ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
@@ -412,7 +412,7 @@ public class ConfigPartitionReader
 
     public NtpServer getNtpServer() throws Exception
     {
-        EqualityNode<String> filter = new EqualityNode<String>( "objectClass", new ClientStringValue( "ads-ntpServer" ) );
+        EqualityNode<String> filter = new EqualityNode<String>( "objectClass", new StringValue( "ads-ntpServer" ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
@@ -452,7 +452,7 @@ public class ConfigPartitionReader
 
     public HttpServer getHttpServer() throws Exception
     {
-        EqualityNode<String> filter = new EqualityNode<String>( "objectClass", new ClientStringValue( "ads-httpServer" ) );
+        EqualityNode<String> filter = new EqualityNode<String>( "objectClass", new StringValue( "ads-httpServer" ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 

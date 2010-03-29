@@ -55,7 +55,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
-import org.apache.directory.shared.ldap.entry.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -527,7 +527,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 try
                 {
-                    return new ClientStringValue( new String( ( byte[] ) value, "UTF-8" ) );
+                    return new StringValue( new String( ( byte[] ) value, "UTF-8" ) );
                 }
                 catch ( UnsupportedEncodingException uee )
                 {
@@ -1967,7 +1967,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Loop on each values
         for ( Value<?> value : attribute )
         {
-            if ( value instanceof ClientStringValue )
+            if ( value instanceof StringValue )
             {
                 continue;
             }
@@ -2013,7 +2013,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 continue;
             }
-            else if ( value instanceof ClientStringValue )
+            else if ( value instanceof StringValue )
             {
                 // We have a String value. It should be a byte[]
                 // Let's transform it

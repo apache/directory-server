@@ -59,7 +59,7 @@ import org.apache.directory.server.core.interceptor.context.EntryOperationContex
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
-import org.apache.directory.shared.ldap.entry.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
@@ -762,7 +762,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 }
                 else
                 {
-                    node = new EqualityNode<String>( attr.getID(), new ClientStringValue( ( String ) value ) );
+                    node = new EqualityNode<String>( attr.getID(), new StringValue( ( String ) value ) );
                 }
 
                 AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
@@ -815,7 +815,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 // Add simpel AVA node if its value is a String 
                 if ( val instanceof String )
                 {
-                    node = new EqualityNode<String>( attr.getID(), new ClientStringValue( ( String ) val ) );
+                    node = new EqualityNode<String>( attr.getID(), new StringValue( ( String ) val ) );
                     filter.addNode( node );
                 }
             }

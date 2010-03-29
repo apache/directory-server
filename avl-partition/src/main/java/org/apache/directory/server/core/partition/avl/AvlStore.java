@@ -40,7 +40,7 @@ import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
-import org.apache.directory.shared.ldap.entry.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
@@ -1107,7 +1107,7 @@ public class AvlStore<E> implements Store<E, Long>
 
             for ( Value<?> value : mods )
             {
-                if ( value instanceof ClientStringValue )
+                if ( value instanceof StringValue )
                 {
                     entryAttr.remove( ( String ) value.get() );
                 }

@@ -23,7 +23,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.apache.directory.shared.ldap.entry.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -129,7 +129,7 @@ public class RefinementEvaluatorTest
 
         try
         {
-            assertFalse( evaluator.evaluate( new EqualityNode( "", new ClientStringValue( "" ) ), null ) );
+            assertFalse( evaluator.evaluate( new EqualityNode( "", new StringValue( "" ) ), null ) );
             fail( "should never get here due to an IAE" );
         }
         catch ( IllegalArgumentException iae )
@@ -138,7 +138,7 @@ public class RefinementEvaluatorTest
 
         try
         {
-            assertFalse( evaluator.evaluate( new EqualityNode( "", new ClientStringValue( "" ) ), new DefaultServerAttribute( "cn", CN ) ) );
+            assertFalse( evaluator.evaluate( new EqualityNode( "", new StringValue( "" ) ), new DefaultServerAttribute( "cn", CN ) ) );
             fail( "should never get here due to an IAE" );
         }
         catch ( IllegalArgumentException iae )
@@ -154,17 +154,17 @@ public class RefinementEvaluatorTest
 
         // positive test
         objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
-        assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", new ClientStringValue( "person" ) ), objectClasses ) );
+        assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", new StringValue( "person" ) ), objectClasses ) );
 
         objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person", "blah" );
-        assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", new ClientStringValue( "person" ) ), objectClasses ) );
+        assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", new StringValue( "person" ) ), objectClasses ) );
 
         // negative tests
         objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
-        assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", new ClientStringValue( "blah" ) ), objectClasses ) );
+        assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", new StringValue( "blah" ) ), objectClasses ) );
 
         objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "blah" );
-        assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", new ClientStringValue( "person" ) ), objectClasses ) );
+        assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", new StringValue( "person" ) ), objectClasses ) );
     }
 
 
@@ -174,17 +174,17 @@ public class RefinementEvaluatorTest
         EntryAttribute objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
         
         // positive test
-        assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", new ClientStringValue( "2.5.6.6" ) ), objectClasses ) );
+        assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", new StringValue( "2.5.6.6" ) ), objectClasses ) );
 
         objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person", "blah" );
-        assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", new ClientStringValue( "2.5.6.6" ) ), objectClasses ) );
+        assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", new StringValue( "2.5.6.6" ) ), objectClasses ) );
 
         // negative tests
         objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
-        assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", new ClientStringValue( "2.5.6.5" ) ), objectClasses ) );
+        assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", new StringValue( "2.5.6.5" ) ), objectClasses ) );
 
         objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "blah" );
-        assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", new ClientStringValue( "2.5.6.5" ) ), objectClasses ) );
+        assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", new StringValue( "2.5.6.5" ) ), objectClasses ) );
     }
 
 

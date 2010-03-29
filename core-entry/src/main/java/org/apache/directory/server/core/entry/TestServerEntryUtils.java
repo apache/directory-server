@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.entry;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
-import org.apache.directory.shared.ldap.entry.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -166,7 +166,7 @@ public class TestServerEntryUtils
             {
                 if ( !value.isBinary() )
                 {
-                    return new ClientStringValue( value.getString().toLowerCase() );
+                    return new StringValue( value.getString().toLowerCase() );
                 }
 
                 throw new IllegalStateException( I18n.err( I18n.ERR_473 ) );
