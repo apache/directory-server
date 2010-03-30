@@ -349,12 +349,9 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             serverEntry = ServerEntryUtils.toServerEntry( AttributeUtils.toCaseInsensitive( attrs ), target,
                 getDirectoryService().getSchemaManager() );
         }
-        catch ( LdapInvalidAttributeTypeException e1 )
+        catch ( LdapInvalidAttributeTypeException liate )
         {
-        }
-        catch ( LdapException le )
-        {
-            throw new InvalidAttributesException( le.getMessage() );
+            throw new InvalidAttributesException( liate.getMessage() );
         }
 
         // No object binding so we just add the attributes
