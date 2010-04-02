@@ -39,7 +39,7 @@
     <distMgmtSiteUrl>scpexe://people.apache.org/www/directory.apache.org/apacheds/gen-docs/${version}/</distMgmtSiteUrl>
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.shared.version>0.9.19-SNAPSHOT</org.apache.directory.shared.version>
+    <org.apache.directory.shared.version>0.9.19</org.apache.directory.shared.version>
     <skin.version>1.0.1</skin.version>
     
     <!-- Set versions for depending jars -->
@@ -53,7 +53,7 @@
     <commons.lang.version>2.5</commons.lang.version>
     <commons.net.version>2.0</commons.net.version>
     <commons.pool.version>1.5.4</commons.pool.version>
-    <daemon.bootstrappers.version>1.1.8-SNAPSHOT</daemon.bootstrappers.version>
+    <daemon.bootstrappers.version>1.1.8</daemon.bootstrappers.version>
     <derby.version>10.4.2.0</derby.version>
     <dnsjava.version>2.0.1</dnsjava.version>
     <jcl.over.slf4j.version>1.5.10</jcl.over.slf4j.version>
