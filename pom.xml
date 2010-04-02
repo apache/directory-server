@@ -49,9 +49,9 @@
   </build>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/trunk-with-dependencies</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/trunk-with-dependencies</developerConnection>
-    <url>http://svn.apache.org/viewvc/directory/apacheds/trunk-with-dependencies</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/branches/trunk-with-dependencies-1.5.7</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/branches/trunk-with-dependencies-1.5.7</developerConnection>
+    <url>http://svn.apache.org/viewvc/directory/apacheds/branches/trunk-with-dependencies-1.5.7</url>
   </scm>
 
 </project>
