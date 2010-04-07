@@ -45,6 +45,7 @@ import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchema
 import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.CsnSyntaxChecker;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -214,6 +215,8 @@ public class NestedFilterTest
     {
         String filter = "(&(|(postalCode=5)(postalCode=6))(!(ou=sales)))";
 
+        CsnSyntaxChecker csnSynChecker = new CsnSyntaxChecker();
+        
         ExprNode exprNode = FilterParser.parse( filter );
         optimizer.annotate( exprNode );
 
@@ -222,12 +225,12 @@ public class NestedFilterTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( long ) cursor.get().getId() );
-        assertEquals( "2.5.4.11=apache,2.5.4.11=board of directors,2.5.4.10=good times co.", cursor.get().getValue() );
+        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 8, ( long ) cursor.get().getId() );
-        assertEquals( "2.5.4.3=jack daniels,2.5.4.11=engineering,2.5.4.10=good times co.", cursor.get().getValue() );
+        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
 
         assertFalse( cursor.next() );
     }

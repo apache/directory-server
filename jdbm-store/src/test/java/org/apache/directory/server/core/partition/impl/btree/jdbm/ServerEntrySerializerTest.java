@@ -150,6 +150,10 @@ public class ServerEntrySerializerTest
         
         ServerEntry result = (ServerEntry)ses.deserialize( data );
         
+        DN newDn = new DN();
+        newDn.add( dn.getRdn() );
+        entry.setDn( newDn );
+        
         assertEquals( entry, result );
     }
 
@@ -167,6 +171,10 @@ public class ServerEntrySerializerTest
         byte[] data = ses.serialize( entry );
         
         ServerEntry result = (ServerEntry)ses.deserialize( data );
+        
+        DN newDn = new DN();
+        newDn.add( dn.getRdn() );
+        entry.setDn( newDn );
         
         assertEquals( entry, result );
     }
@@ -188,6 +196,10 @@ public class ServerEntrySerializerTest
         byte[] data = ses.serialize( entry );
         
         ServerEntry result = (ServerEntry)ses.deserialize( data );
+        
+        DN newDn = new DN();
+        newDn.add( dn.getRdn() );
+        entry.setDn( newDn );
         
         assertEquals( entry, result );
     }

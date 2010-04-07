@@ -72,7 +72,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
     public static final String REVERSE_BTREE = "_reverse";
 
     /** the attribute type resolved for this JdbmIndex */
-    private AttributeType attribute;
+    protected AttributeType attribute;
 
     /**
      * the forward btree where the btree key is the value of the indexed attribute and
@@ -112,7 +112,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
      * the attribute identifier set at configuration time for this index which may not
      * be the OID but an alias name for the attributeType associated with this Index
      */
-    private String attributeId;
+    protected String attributeId;
 
     /** whether or not this index has been initialized */
     protected boolean initialized;

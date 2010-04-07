@@ -102,12 +102,9 @@ public class JdbmStore<E> implements Store<E, Long>
     /** true if we sync disks on every write operation */
     private boolean isSyncOnWrite = true;
 
-    /** the normalized distinguished name index */
-    private JdbmIndex<String, E> ndnIdx;
-
-    /** the user provided distinguished name index */
-    private JdbmIndex<String, E> updnIdx;
-
+    /** the relative distinguished name index */
+    private JdbmRdnIndex<RDN, Long> rdnIdx;
+    
     /** the attribute presence index */
     private JdbmIndex<String, E> presenceIdx;
 
@@ -317,24 +314,15 @@ public class JdbmStore<E> implements Store<E, Long>
             systemIndices = tmp;
         }
 
-        if ( ndnIdx == null )
+        if ( rdnIdx == null )
         {
-            ndnIdx = new JdbmIndex<String, E>();
-            ndnIdx.setAttributeId( ApacheSchemaConstants.APACHE_N_DN_AT_OID );
-            systemIndices.put( ApacheSchemaConstants.APACHE_N_DN_AT_OID, ndnIdx );
-            ndnIdx.init( schemaManager, schemaManager
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_N_DN_AT_OID ), workingDirectory );
+            rdnIdx = new JdbmRdnIndex<RDN, Long>();
+            rdnIdx.setAttributeId( ApacheSchemaConstants.APACHE_RDN_AT_OID );
+            systemIndices.put( ApacheSchemaConstants.APACHE_RDN_AT_OID, ( JdbmIndex ) rdnIdx );
+            rdnIdx.init( schemaManager, schemaManager
+                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_RDN_AT_OID ), workingDirectory );
         }
-
-        if ( updnIdx == null )
-        {
-            updnIdx = new JdbmIndex<String, E>();
-            updnIdx.setAttributeId( ApacheSchemaConstants.APACHE_UP_DN_AT_OID );
-            systemIndices.put( ApacheSchemaConstants.APACHE_UP_DN_AT_OID, updnIdx );
-            updnIdx.init( schemaManager, schemaManager
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_UP_DN_AT_OID ), workingDirectory );
-        }
-
+        
         if ( presenceIdx == null )
         {
             presenceIdx = new JdbmIndex<String, E>();
@@ -552,8 +540,6 @@ public class JdbmStore<E> implements Store<E, Long>
 
         List<Index<?, E, Long>> array = new ArrayList<Index<?, E, Long>>();
         array.addAll( userIndices.values() );
-        array.add( ndnIdx );
-        array.add( updnIdx );
         array.add( aliasIdx );
         array.add( oneAliasIdx );
         array.add( subAliasIdx );
@@ -726,7 +712,9 @@ public class JdbmStore<E> implements Store<E, Long>
      */
     public Index<String, E, Long> getUpdnIndex()
     {
-        return updnIdx;
+        // FIXME this method shouldn't be supported anymore after the
+        // introduction of the RDN index, but keeping to minimise the number changes done to interface
+        return entryUuidIdx;
     }
 
 
@@ -735,9 +723,6 @@ public class JdbmStore<E> implements Store<E, Long>
      */
     public void setUpdnIndex( Index<String, E, Long> index ) throws LdapException
     {
-        protect( "updnIndex" );
-        updnIdx = convertIndex( index );
-        systemIndices.put( index.getAttributeId(), updnIdx );
     }
 
 
@@ -746,7 +731,8 @@ public class JdbmStore<E> implements Store<E, Long>
      */
     public Index<String, E, Long> getNdnIndex()
     {
-        return ndnIdx;
+        // FIXME should this be entryUuidIdx?
+        return entryCsnIdx;
     }
 
 
@@ -755,9 +741,6 @@ public class JdbmStore<E> implements Store<E, Long>
      */
     public void setNdnIndex( Index<String, E, Long> index ) throws LdapException
     {
-        protect( "ndnIndex" );
-        ndnIdx = convertIndex( index );
-        systemIndices.put( index.getAttributeId(), ndnIdx );
     }
 
 
@@ -941,18 +924,121 @@ public class JdbmStore<E> implements Store<E, Long>
     }
 
 
+    /**
+     * @see #getEntryId(DN)
+     */
     public Long getEntryId( String dn ) throws Exception
     {
-        return ndnIdx.forwardLookup( dn );
+        return getEntryId( new DN( dn ) );
     }
 
 
+    /**
+     * gets the entry id of the given DN using RDN index
+     *
+     * @param dn the DN of the entry
+     * @return id of the entry represented by the given DN
+     * @throws Exception
+     */
+    public Long getEntryId( DN dn ) throws Exception
+    {
+        if( !dn.isNormalized() )
+        {
+            dn.normalize( schemaManager.getNormalizerMapping() );
+        }
+        
+        int dnSize = dn.size();
+        int i = normSuffix.size(); 
+
+        RDN key = new RDN( normSuffix.getNormName() );
+        key._setParentId( 0 );
+        
+        Long curEntryId = rdnIdx.forwardLookup( key );
+        
+        for( ; i < dnSize; i++ )
+        {
+            key = dn.getRdn( i );
+            key._setParentId( curEntryId );
+            curEntryId = rdnIdx.forwardLookup( key );
+            if( curEntryId == null )
+            {
+                break;
+            }
+        }
+        
+        return curEntryId;
+    }
+    
+    
+    /**
+     * gives the normalized name of the DN of the entry identified by the given id
+     * @param id the entry's id 
+     */
     public String getEntryDn( Long id ) throws Exception
     {
-        return ndnIdx.reverseLookup( id );
+        return buildEntryDn( id ).getNormName();
     }
 
+    
+    /**
+     * builds the DN of the entry identified by the given id
+     *
+     * @param id the entry's id
+     * @return the normalized DN of the entry
+     * @throws Exception
+     */
+    private DN buildEntryDn( Long id ) throws Exception
+    {
+        DN dn = new DN();
+        
+        // form the DN
+        RDN curRdn = rdnIdx.reverseLookup( id );
 
+        dn.addNormalizedInOrder( curRdn );
+        
+        while( curRdn._getParentId() != 0 )
+        {
+            curRdn = rdnIdx.reverseLookup( curRdn._getParentId() );
+            dn.addNormalizedInOrder( curRdn );
+        }
+
+        return dn;
+    }
+
+    /**
+     * 
+     * contructs a normalized DN using the RDN index. This is useful
+     * to identify in cases like finding the parent entry's id
+     * (cause that will be stored in the RDN of the entry identified by the given DN in string form)
+     *
+     * @param dn the DN of the entry in string form
+     * @return DN object build after fetching all the RDNs from RDN index
+     * @throws Exception
+     */
+    private DN buildEntryDn( String dn ) throws Exception
+    {
+        DN normDN = new DN( dn );
+        normDN.normalize( schemaManager.getNormalizerMapping() );
+        
+        int dnSize = normDN.size();
+        int i = normSuffix.size(); 
+
+        RDN key = new RDN( normSuffix.getNormName() );
+        key._setParentId( 0 );
+
+        Long curEntryId = rdnIdx.forwardLookup( key );
+        
+        for( ; i < dnSize; i++ )
+        {
+            key = normDN.getRdn( i );
+            key._setParentId( curEntryId );
+            curEntryId = rdnIdx.forwardLookup( key );
+        }
+        
+        return normDN;
+    }
+    
+    
     /**
      * Gets the Long id of an entry's parent using the child entry's
      * normalized DN. Note that the suffix entry returns 0, which does not
@@ -965,27 +1051,41 @@ public class JdbmStore<E> implements Store<E, Long>
      */
     public Long getParentId( String dn ) throws Exception
     {
-        Long childId = ndnIdx.forwardLookup( dn );
-        return oneLevelIdx.reverseLookup( childId );
+        DN normDN = new DN( dn );
+        normDN.normalize( schemaManager.getNormalizerMapping() );
+        
+        if( normSuffix.equals( normDN ) )
+        {
+            return 0L;
+        }
+        
+        normDN = buildEntryDn( dn );
+        return normDN.getRdn()._getParentId();
     }
 
 
     public Long getParentId( Long childId ) throws Exception
     {
-        return oneLevelIdx.reverseLookup( childId );
+        //return oneLevelIdx.reverseLookup( childId );
+        RDN rdn = rdnIdx.reverseLookup( childId );
+        if( rdn == null )
+        {
+            return null;
+        }
+        
+        return rdn._getParentId();
     }
 
 
     public String getEntryUpdn( Long id ) throws Exception
     {
-        return updnIdx.reverseLookup( id );
+        return buildEntryDn( id ).getName();
     }
 
 
     public String getEntryUpdn( String dn ) throws Exception
     {
-        Long id = ndnIdx.forwardLookup( dn );
-        return updnIdx.reverseLookup( id );
+        return buildEntryDn( dn ).getName();
     }
 
 
@@ -1013,7 +1113,7 @@ public class JdbmStore<E> implements Store<E, Long>
 
         DN ancestorDn = ( DN ) aliasDN.clone();
         ancestorDn.remove( aliasDN.size() - 1 );
-        Long ancestorId = getEntryId( ancestorDn.getNormName() );
+        Long ancestorId = getEntryId( ancestorDn );
 
         /*
          * We cannot just drop all tuples in the one level and subtree userIndices
@@ -1061,8 +1161,8 @@ public class JdbmStore<E> implements Store<E, Long>
         Long ancestorId; // Id of an alias entry relative
 
         // Access aliasedObjectName, normalize it and generate the Name 
-        normalizedAliasTargetDn = new DN( aliasTarget );
-        normalizedAliasTargetDn.normalize( schemaManager.getNormalizerMapping() );
+        normalizedAliasTargetDn = buildEntryDn( aliasTarget );//new DN( aliasTarget );
+        //normalizedAliasTargetDn.normalize( schemaManager.getNormalizerMapping() );
 
         /*
          * Check For Cycles
@@ -1107,7 +1207,7 @@ public class JdbmStore<E> implements Store<E, Long>
         }
 
         // L O O K U P   T A R G E T   I D
-        targetId = ndnIdx.forwardLookup( normalizedAliasTargetDn.getNormName() );
+        targetId = rdnIdx.forwardLookup( normalizedAliasTargetDn.getRdn() );
 
         /*
          * Check For Target Existence
@@ -1154,7 +1254,7 @@ public class JdbmStore<E> implements Store<E, Long>
          */
         ancestorDn = ( DN ) aliasDn.clone();
         ancestorDn.remove( aliasDn.size() - 1 );
-        ancestorId = getEntryId( ancestorDn.getNormName() );
+        ancestorId = getEntryId( ancestorDn );
 
         // check if alias parent and aliased entry are the same
         DN normalizedAliasTargetParentDn = ( DN ) normalizedAliasTargetDn.clone();
@@ -1211,16 +1311,20 @@ public class JdbmStore<E> implements Store<E, Long>
         //
         DN entryDn = entry.getDn();
         DN parentDn = null;
+        RDN rdn = null;
 
         if ( entryDn.getNormName().equals( normSuffix.getNormName() ) )
         {
             parentId = 0L;
+            rdn = new RDN( normSuffix.getNormName() );
+            rdn.setUpName( entryDn.getName() );
         }
         else
         {
+            rdn = entryDn.getRdn();
             parentDn = ( DN ) entryDn.clone();
             parentDn.remove( parentDn.size() - 1 );
-            parentId = getEntryId( parentDn.getNormName() );
+            parentId = getEntryId( parentDn );
         }
 
         // don't keep going if we cannot find the parent Id
@@ -1228,6 +1332,9 @@ public class JdbmStore<E> implements Store<E, Long>
         {
             throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_216, parentDn ) );
         }
+
+        rdn._setParentId( parentId );
+        rdnIdx.add( rdn, id );
 
         EntryAttribute objectClass = entry.get( OBJECT_CLASS_AT );
 
@@ -1259,8 +1366,7 @@ public class JdbmStore<E> implements Store<E, Long>
             throw new IllegalStateException( I18n.err( I18n.ERR_218, entryDn.getNormName() ) );
         }
 
-        ndnIdx.add( entryDn.getNormName(), id );
-        updnIdx.add( entryDn.getName(), id );
+        
         oneLevelIdx.add( parentId, id );
 
         // Update the EntryCsn index
@@ -1329,7 +1435,15 @@ public class JdbmStore<E> implements Store<E, Long>
 
     public ServerEntry lookup( Long id ) throws Exception
     {
-        return ( ServerEntry ) master.get( id );
+        ServerEntry se = ( ServerEntry ) master.get( id );
+        
+        if( se == null )
+        {
+            return null;
+        }
+        
+        se.setDn( buildEntryDn( id ) );
+        return se;
     }
 
 
@@ -1338,7 +1452,7 @@ public class JdbmStore<E> implements Store<E, Long>
      */
     public synchronized void delete( Long id ) throws Exception
     {
-        ServerEntry entry = lookup( id );
+        ServerEntry entry = master.get( id );
         Long parentId = getParentId( id );
 
         EntryAttribute objectClass = entry.get( OBJECT_CLASS_AT );
@@ -1353,8 +1467,7 @@ public class JdbmStore<E> implements Store<E, Long>
             objectClassIdx.drop( value.getString(), id );
         }
 
-        ndnIdx.drop( id );
-        updnIdx.drop( id );
+        rdnIdx.drop( id );
         oneLevelIdx.drop( id );
         entryCsnIdx.drop( id );
         entryUuidIdx.drop( id );
@@ -1497,8 +1610,8 @@ public class JdbmStore<E> implements Store<E, Long>
 
         if ( modsOid.equals( SchemaConstants.ALIASED_OBJECT_NAME_AT_OID ) )
         {
-            String ndnStr = ndnIdx.reverseLookup( id );
-            addAliasIndices( id, new DN( ndnStr ), mods.getString() );
+            DN ndn = buildEntryDn( id );
+            addAliasIndices( id, ndn, mods.getString() );
         }
     }
 
@@ -1672,8 +1785,8 @@ public class JdbmStore<E> implements Store<E, Long>
 
         if ( modsOid.equals( aliasAttributeOid ) && mods.size() > 0 )
         {
-            String ndnStr = ndnIdx.reverseLookup( id );
-            addAliasIndices( id, new DN( ndnStr ), mods.getString() );
+            DN ndn = buildEntryDn( id );
+            addAliasIndices( id, ndn, mods.getString() );
         }
     }
 
@@ -1777,7 +1890,7 @@ public class JdbmStore<E> implements Store<E, Long>
     @SuppressWarnings("unchecked")
     public void rename( DN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception
     {
-        Long id = getEntryId( dn.getNormName() );
+        Long id = getEntryId( dn );
         ServerEntry entry = lookup( id );
         DN updn = entry.getDn();
 
@@ -1888,10 +2001,15 @@ public class JdbmStore<E> implements Store<E, Long>
         // gotta normalize cuz this thang is cloned and not normalized by default
         newUpdn.normalize( schemaManager.getNormalizerMapping() );
 
+        // restore the parentId from the old RDN
+        newRdn = newUpdn.getRdn();
+        newRdn._setParentId( updn.getRdn()._getParentId() );
+        
         modifyDn( id, newUpdn, false ); // propagate dn changes
 
         // Update the current entry
         entry.setDn( newUpdn );
+
         master.put( id, entry );
 
         if ( isSyncOnWrite )
@@ -1921,20 +2039,16 @@ public class JdbmStore<E> implements Store<E, Long>
     private void modifyDn( Long id, DN updn, boolean isMove ) throws Exception
     {
         String aliasTarget;
-
-        // update normalized DN index
-        ndnIdx.drop( id );
-
-        if ( !updn.isNormalized() )
+        
+        //updated the RDN index
+        rdnIdx.drop( id );
+        if( !updn.isNormalized() )
         {
-            updn.normalize( schemaManager.getNormalizerMapping() );
+            // just normalize the RDN alone
+            updn.getRdn().normalize( schemaManager.getNormalizerMapping() );
         }
-
-        ndnIdx.add( updn.getNormName(), id );
-
-        // update user provided DN index
-        updnIdx.drop( id );
-        updnIdx.add( updn.getName(), id );
+        
+        rdnIdx.add( updn.getRdn(), id );
 
         /* 
          * Read Alias Index Tuples
@@ -1952,51 +2066,20 @@ public class JdbmStore<E> implements Store<E, Long>
 
             if ( null != aliasTarget )
             {
-                addAliasIndices( id, new DN( getEntryDn( id ) ), aliasTarget );
+                addAliasIndices( id, buildEntryDn( id ), aliasTarget );
             }
         }
-
-        Cursor<IndexEntry<Long, E, Long>> children = list( id );
-
-        while ( children.next() )
-        {
-            // Get the child and its id
-            IndexEntry<Long, E, Long> rec = children.get();
-            Long childId = rec.getId();
-
-            /* 
-             * Calculate the DN for the child's new name by copying the parents
-             * new name and adding the child's old upRdn to new name as its RDN
-             */
-            DN childUpdn = ( DN ) updn.clone();
-            DN oldUpdn = new DN( getEntryUpdn( childId ) );
-
-            String rdn = oldUpdn.get( oldUpdn.size() - 1 );
-            DN rdnDN = new DN( rdn );
-            rdnDN.normalize( schemaManager.getNormalizerMapping() );
-            childUpdn.add( rdnDN.getRdn() );
-
-            // Modify the child
-            ServerEntry entry = lookup( childId );
-            entry.setDn( childUpdn );
-            master.put( childId, entry );
-
-            // Recursively change the names of the children below
-            modifyDn( childId, childUpdn, isMove );
-        }
-
-        children.close();
     }
 
 
     public void move( DN oldChildDn, DN newParentDn, RDN newRdn, boolean deleteOldRdn ) throws Exception
     {
-        Long childId = getEntryId( oldChildDn.getNormName() );
+        Long childId = getEntryId( oldChildDn );
         rename( oldChildDn, newRdn, deleteOldRdn );
         DN newUpdn = move( oldChildDn, childId, newParentDn );
 
         // Update the current entry
-        ServerEntry entry = lookup( childId );
+        ServerEntry entry = master.get( childId );
         entry.setDn( newUpdn );
         master.put( childId, entry );
 
@@ -2009,11 +2092,11 @@ public class JdbmStore<E> implements Store<E, Long>
 
     public void move( DN oldChildDn, DN newParentDn ) throws Exception
     {
-        Long childId = getEntryId( oldChildDn.getNormName() );
+        Long childId = getEntryId( oldChildDn );
         DN newUpdn = move( oldChildDn, childId, newParentDn );
 
         // Update the current entry
-        ServerEntry entry = lookup( childId );
+        ServerEntry entry = master.get( childId );
         entry.setDn( newUpdn );
         master.put( childId, entry );
 
@@ -2041,7 +2124,7 @@ public class JdbmStore<E> implements Store<E, Long>
     private DN move( DN oldChildDn, Long childId, DN newParentDn ) throws Exception
     {
         // Get the child and the new parent to be entries and Ids
-        Long newParentId = getEntryId( newParentDn.getNormName() );
+        Long newParentId = getEntryId( newParentDn );
         Long oldParentId = getParentId( childId );
 
         /*
@@ -2068,10 +2151,13 @@ public class JdbmStore<E> implements Store<E, Long>
          * user provided RDN & the new parent's UPDN.  Basically add the child's
          * UpRdn String to the tail of the new parent's Updn Name.
          */
-        DN childUpdn = new DN( getEntryUpdn( childId ) );
-        String childRdn = childUpdn.get( childUpdn.size() - 1 );
-        DN newUpdn = new DN( getEntryUpdn( newParentId ) );
-        newUpdn.add( newUpdn.size(), childRdn );
+        
+        DN childUpdn = buildEntryDn( childId );
+        RDN childRdn = childUpdn.getRdn( childUpdn.size() - 1 );
+        childRdn._setParentId( newParentId );
+        DN newUpdn = buildEntryDn( newParentId );
+        
+        newUpdn.add( childRdn );
 
         // Call the modifyDn operation with the new updn
         modifyDn( childId, newUpdn, true );

@@ -426,13 +426,8 @@ public class GreaterEqTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 7L, ( long ) cursor.get().getId() );
-        assertEquals( "5", cursor.get().getValue() );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 8L, ( long ) cursor.get().getId() );
-        assertEquals( "6", cursor.get().getValue() );
+        assertEquals( 5L, ( long ) cursor.get().getId() );
+        assertEquals( "3", cursor.get().getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
@@ -441,8 +436,13 @@ public class GreaterEqTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "3", cursor.get().getValue() );
+        assertEquals( 7L, ( long ) cursor.get().getId() );
+        assertEquals( "5", cursor.get().getValue() );
+
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 8L, ( long ) cursor.get().getId() );
+        assertEquals( "6", cursor.get().getValue() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -453,16 +453,12 @@ public class GreaterEqTest
         // ---------- test first() ----------
 
         cursor = new GreaterEqCursor( store, evaluator );
-        cursor.first();
-
-        assertTrue( cursor.available() );
-        assertEquals( 7L, ( long ) cursor.get().getId() );
-        assertEquals( "5", cursor.get().getValue() );
+        cursor.beforeFirst();
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 8L, ( long ) cursor.get().getId() );
-        assertEquals( "6", cursor.get().getValue() );
+        assertEquals( 5L, ( long ) cursor.get().getId() );
+        assertEquals( "3", cursor.get().getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
@@ -471,8 +467,13 @@ public class GreaterEqTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "3", cursor.get().getValue() );
+        assertEquals( 7L, ( long ) cursor.get().getId() );
+        assertEquals( "5", cursor.get().getValue() );
+
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 8L, ( long ) cursor.get().getId() );
+        assertEquals( "6", cursor.get().getValue() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -488,8 +489,13 @@ public class GreaterEqTest
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "3", cursor.get().getValue() );
+        assertEquals( 8L, ( long ) cursor.get().getId() );
+        assertEquals( "6", cursor.get().getValue() );
+
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 7L, ( long ) cursor.get().getId() );
+        assertEquals( "5", cursor.get().getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
@@ -498,13 +504,8 @@ public class GreaterEqTest
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 8L, ( long ) cursor.get().getId() );
-        assertEquals( "6", cursor.get().getValue() );
-
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        assertEquals( 7L, ( long ) cursor.get().getId() );
-        assertEquals( "5", cursor.get().getValue() );
+        assertEquals( 5L, ( long ) cursor.get().getId() );
+        assertEquals( "3", cursor.get().getValue() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -515,8 +516,13 @@ public class GreaterEqTest
         cursor.last();
 
         assertTrue( cursor.available() );
-        assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "3", cursor.get().getValue() );
+        assertEquals( 8L, ( long ) cursor.get().getId() );
+        assertEquals( "6", cursor.get().getValue() );
+
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 7L, ( long ) cursor.get().getId() );
+        assertEquals( "5", cursor.get().getValue() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
@@ -525,13 +531,8 @@ public class GreaterEqTest
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 8L, ( long ) cursor.get().getId() );
-        assertEquals( "6", cursor.get().getValue() );
-
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        assertEquals( 7L, ( long ) cursor.get().getId() );
-        assertEquals( "5", cursor.get().getValue() );
+        assertEquals( 5L, ( long ) cursor.get().getId() );
+        assertEquals( "3", cursor.get().getValue() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );

@@ -191,13 +191,13 @@ public class JdbmStoreTest
         store.setName( "foo" );
         assertEquals( "foo", store.getName() );
 
-        assertNull( store.getNdnIndex() );
-        store.setNdnIndex( new JdbmIndex<String, Attributes>( "ndn" ) );
-        assertNotNull( store.getNdnIndex() );
+//        assertNull( store.getNdnIndex() );
+//        store.setNdnIndex( new JdbmIndex<String, Attributes>( "ndn" ) );
+//        assertNotNull( store.getNdnIndex() );
 
         assertNull( store.getOneAliasIndex() );
         store.setOneAliasIndex( new JdbmIndex<Long, Attributes>( "oneAlias" ) );
-        assertNotNull( store.getNdnIndex() );
+        assertNotNull( store.getOneAliasIndex() );
 
         assertNull( store.getSubAliasIndex() );
         store.setSubAliasIndex( new JdbmIndex<Long, Attributes>( "subAlias" ) );
@@ -206,10 +206,6 @@ public class JdbmStoreTest
         assertNull( store.getSuffixDn() );
         store.setSuffixDn( "dc=example,dc=com" );
         assertEquals( "dc=example,dc=com", store.getSuffixDn() );
-
-        assertNull( store.getUpdnIndex() );
-        store.setUpdnIndex( new JdbmIndex<String, Attributes>( "updn" ) );
-        assertNotNull( store.getUpdnIndex() );
 
         assertNull( store.getUpSuffix() );
         assertNull( store.getSuffix() );
@@ -297,14 +293,6 @@ public class JdbmStoreTest
         }
 
         assertNotNull( store.getNdnIndex() );
-        try
-        {
-            store.setNdnIndex( new JdbmIndex<String, ServerEntry>( "ndn" ) );
-            fail();
-        }
-        catch ( IllegalStateException e )
-        {
-        }
 
         assertNotNull( store.getOneAliasIndex() );
         try
@@ -336,18 +324,9 @@ public class JdbmStoreTest
         {
         }
 
-        assertNotNull( store.getUpdnIndex() );
-        try
-        {
-            store.setUpdnIndex( new JdbmIndex<String, ServerEntry>( "updn" ) );
-            fail();
-        }
-        catch ( IllegalStateException e )
-        {
-        }
         Iterator<String> systemIndices = store.systemIndices();
 
-        for ( int ii = 0; ii < 11; ii++ )
+        for ( int ii = 0; ii < 10; ii++ )
         {
             assertTrue( systemIndices.hasNext() );
             assertNotNull( systemIndices.next() );
@@ -436,7 +415,7 @@ public class JdbmStoreTest
         dn.normalize( schemaManager.getNormalizerMapping() );
         assertEquals( 1L, ( long ) store.getEntryId( dn.getNormName() ) );
         assertEquals( 11, store.count() );
-        assertEquals( "o=Good Times Co.", store.getEntryUpdn( dn.getNormName() ) );
+        assertEquals( "o=Good Times Co.", store.getEntryUpdn( dn.getName() ) );
         assertEquals( dn.getNormName(), store.getEntryDn( 1L ) );
         assertEquals( dn.getName(), store.getEntryUpdn( 1L ) );
 

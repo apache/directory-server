@@ -303,13 +303,13 @@ public class PresenceTest
         cursor.beforeFirst();
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 8, ( long ) cursor.get().getId() );
+        assertEquals( 5, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertEquals( 8, ( long ) cursor.get().getId() );
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
 
@@ -336,7 +336,7 @@ public class PresenceTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( SchemaConstants.SN_AT_OID, cursor.get().getValue() );
-        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertEquals( 8, ( long ) cursor.get().getId() );
 
         // keep testing previous
         assertTrue( cursor.previous() );
@@ -347,7 +347,7 @@ public class PresenceTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( SchemaConstants.SN_AT_OID, cursor.get().getValue() );
-        assertEquals( 8, ( long ) cursor.get().getId() );
+        assertEquals( 5, ( long ) cursor.get().getId() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );

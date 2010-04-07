@@ -36,6 +36,7 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -47,6 +48,8 @@ import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtracto
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.CsnSidSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.CsnSyntaxChecker;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -67,6 +70,8 @@ public class NotCursorTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( NotCursorTest.class.getSimpleName() );
 
+    CsnSyntaxChecker csnSynChecker = new CsnSyntaxChecker();
+    
     File wkdir;
     Store<ServerEntry, Long> store;
     static SchemaManager schemaManager = null;
@@ -172,27 +177,28 @@ public class NotCursorTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 1, ( long ) cursor.get().getId() );
-        assertEquals( "2.5.4.10=good times co.", cursor.get().getValue() );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 7, ( long ) cursor.get().getId() );
-        assertEquals( "2.5.4.11=apache,2.5.4.11=board of directors,2.5.4.10=good times co.", cursor.get().getValue() );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 3, ( long ) cursor.get().getId() );
-        assertEquals( "2.5.4.11=board of directors,2.5.4.10=good times co.", cursor.get().getValue() );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 4, ( long ) cursor.get().getId() );
-        assertEquals( "2.5.4.11=engineering,2.5.4.10=good times co.", cursor.get().getValue() );
+        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 2, ( long ) cursor.get().getId() );
-        assertEquals( "2.5.4.11=sales,2.5.4.10=good times co.", cursor.get().getValue() );
+        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
+
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 3, ( long ) cursor.get().getId() );
+        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
+
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 4, ( long ) cursor.get().getId() );
+        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
+
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 7, ( long ) cursor.get().getId() );
+        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
+
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -217,29 +223,29 @@ public class NotCursorTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 1, ( long ) cursor.get().getId() );
-        assertEquals( "2.5.4.10=good times co.", cursor.get().getValue() );
+        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
 
         cursor.first();
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 7, ( long ) cursor.get().getId() );
-        assertEquals( "2.5.4.11=apache,2.5.4.11=board of directors,2.5.4.10=good times co.", cursor.get().getValue() );
+        assertEquals( 2, ( long ) cursor.get().getId() );
+        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 3, ( long ) cursor.get().getId() );
-        assertEquals( "2.5.4.11=board of directors,2.5.4.10=good times co.", cursor.get().getValue() );
+        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 4, ( long ) cursor.get().getId() );
-        assertEquals( "2.5.4.11=engineering,2.5.4.10=good times co.", cursor.get().getValue() );
+        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 2, ( long ) cursor.get().getId() );
-        assertEquals( "2.5.4.11=sales,2.5.4.10=good times co.", cursor.get().getValue() );
+        assertEquals( 7, ( long ) cursor.get().getId() );
+        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -248,29 +254,29 @@ public class NotCursorTest
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 2, ( long ) cursor.get().getId() );
-        assertEquals( "2.5.4.11=sales,2.5.4.10=good times co.", cursor.get().getValue() );
+        assertEquals( 7, ( long ) cursor.get().getId() );
+        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
 
         cursor.last();
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 4, ( long ) cursor.get().getId() );
-        assertEquals( "2.5.4.11=engineering,2.5.4.10=good times co.", cursor.get().getValue() );
+        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 3, ( long ) cursor.get().getId() );
-        assertEquals( "2.5.4.11=board of directors,2.5.4.10=good times co.", cursor.get().getValue() );
+        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 7, ( long ) cursor.get().getId() );
-        assertEquals( "2.5.4.11=apache,2.5.4.11=board of directors,2.5.4.10=good times co.", cursor.get().getValue() );
+        assertEquals( 2, ( long ) cursor.get().getId() );
+        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 1, ( long ) cursor.get().getId() );
-        assertEquals( "2.5.4.10=good times co.", cursor.get().getValue() );
+        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
