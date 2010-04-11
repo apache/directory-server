@@ -66,6 +66,7 @@ public class ConfigPartitionReaderTest
     public static void readConfig() throws Exception
     {
         File workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work" );
+        FileUtils.deleteDirectory( workDir );
         workDir.mkdir();
 
         String workingDirectory = workDir.getPath();
