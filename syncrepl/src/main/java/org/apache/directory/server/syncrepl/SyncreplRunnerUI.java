@@ -41,7 +41,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
@@ -53,8 +52,9 @@ import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtende
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
@@ -117,7 +117,7 @@ public class SyncreplRunnerUI implements ActionListener
         config.setBaseDn( "dc=my-domain,dc=com" );
         config.setFilter( "(objectclass=*)" );
         config.setAttributes( "*,entryUUID,entryCSN" );
-        config.setSearchScope( SearchScope.SUBTREE.getJndiScope() );
+        config.setSearchScope( SearchScope.SUBTREE.getScope() );
         config.setReplicaId( 1 );
         config.setRefreshPersist( false );
         config.setConsumerInterval( 60 * 1000 );
@@ -217,7 +217,7 @@ public class SyncreplRunnerUI implements ActionListener
             ldapServer.setTransports( new TcpTransport( consumerPort ) );
             ldapServer.setDirectoryService( dirService );
 
-            LdapDN suffix = new LdapDN( config.getBaseDn() );
+            DN suffix = new DN( config.getBaseDn() );
             JdbmPartition partition = new JdbmPartition();
             partition.setSuffix( suffix.getName() );
             partition.setId( "syncrepl" );
@@ -226,7 +226,7 @@ public class SyncreplRunnerUI implements ActionListener
             partition.setSchemaManager( dirService.getSchemaManager() );
             
             // Add objectClass attribute for the system partition
-            Set<Index<?, ServerEntry>> indexedAttrs = new HashSet<Index<?, ServerEntry>>();
+            Set<Index<?, ServerEntry, Long>> indexedAttrs = new HashSet<Index<?, ServerEntry, Long>>();
             indexedAttrs.add( new JdbmIndex<Object, ServerEntry>( SchemaConstants.ENTRY_UUID_AT ) );
             ( ( JdbmPartition ) partition ).setIndexedAttributes( indexedAttrs );
 
@@ -394,7 +394,7 @@ public class SyncreplRunnerUI implements ActionListener
         ( ( JdbmPartition ) systemPartition ).setPartitionDir( new File( dirService.getWorkingDirectory(), "system" ) );
 
         // Add objectClass attribute for the system partition
-        Set<Index<?, ServerEntry>> indexedAttrs = new HashSet<Index<?, ServerEntry>>();
+        Set<Index<?, ServerEntry, Long>> indexedAttrs = new HashSet<Index<?, ServerEntry, Long>>();
         indexedAttrs.add( new JdbmIndex<Object, ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
         ( ( JdbmPartition ) systemPartition ).setIndexedAttributes( indexedAttrs );
 

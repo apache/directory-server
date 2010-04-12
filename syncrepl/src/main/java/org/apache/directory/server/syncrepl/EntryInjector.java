@@ -31,12 +31,13 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.message.SearchResponse;
 import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +68,7 @@ public class EntryInjector extends JPanel implements ActionListener
 
     public EntryInjector( String host, int port, String bindDn, String pwd ) throws Exception
     {
-        connection = new LdapConnection( host, port );
+        connection = new LdapNetworkConnection( host, port );
         connection.bind( bindDn, pwd );
 
         addcomponents();
@@ -80,7 +81,7 @@ public class EntryInjector extends JPanel implements ActionListener
         try
         {
             String cn = "entry-" + System.currentTimeMillis();
-            LdapDN dn = new LdapDN( "cn=" + cn + "," + config.getBaseDn() );
+            DN dn = new DN( "cn=" + cn + "," + config.getBaseDn() );
             DefaultClientEntry entry = new DefaultClientEntry();
             entry.add( "objectclass", "inetOrgPerson", "organizationalPerson", "person" );
             entry.add( "cn", cn );

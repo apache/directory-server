@@ -73,7 +73,7 @@ public class SyncreplConfiguration
     private int searchTimeout = 0;
 
     /** the search scope */
-    private int searchScope = SearchScope.ONELEVEL.getJndiScope();
+    private int searchScope = SearchScope.ONELEVEL.getScope();
 
     /** the replica's id */
     private int replicaId;

@@ -28,22 +28,23 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.exception.LdapException;
-import org.apache.directory.ldap.client.api.listener.IntermediateResponseListener;
-import org.apache.directory.ldap.client.api.listener.SearchListener;
+import org.apache.directory.ldap.client.api.future.SearchFuture;
 import org.apache.directory.ldap.client.api.message.BindResponse;
 import org.apache.directory.ldap.client.api.message.IntermediateResponse;
 import org.apache.directory.ldap.client.api.message.LdapResult;
+import org.apache.directory.ldap.client.api.message.SearchIntermediateResponse;
 import org.apache.directory.ldap.client.api.message.SearchRequest;
+import org.apache.directory.ldap.client.api.message.SearchResponse;
 import org.apache.directory.ldap.client.api.message.SearchResultDone;
 import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.ldap.client.api.message.SearchResultReference;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlDecoder;
@@ -53,11 +54,12 @@ import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestVa
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControlDecoder;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
@@ -67,7 +69,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationModeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -76,14 +78,14 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 
- * An agent capable of communicate with some LDAP servers.
+ * Implementation of syncrepl slave a.k.a consumer.
  * 
  * TODO write test cases
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class SyncReplConsumer implements SearchListener, IntermediateResponseListener
+public class SyncReplConsumer
 {
 
     /** the syncrepl configuration */
@@ -96,7 +98,7 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
     private static final Logger LOG = LoggerFactory.getLogger( SyncReplConsumer.class.getSimpleName() );
 
     /** conection to the syncrepl provider */
-    private LdapConnection connection;
+    private LdapAsyncConnection connection;
 
     /** the search request with control */
     private SearchRequest searchRequest;
@@ -128,7 +130,7 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
 
     /** attributes on which modification should be ignored */
     private static final String[] MOD_IGNORE_AT = new String[]
-        { "entryUUID", "entryCSN" }; //{ "1.3.6.1.1.16.4", "1.3.6.1.4.1.4203.666.1.7" };
+        { SchemaConstants.ENTRY_UUID_AT, SchemaConstants.ENTRY_CSN_AT }; //{ "1.3.6.1.1.16.4", "1.3.6.1.4.1.4203.666.1.7" };
 
     /** flag to indicate whether the current phase is for deleting entries */
     private boolean refreshDeletes;
@@ -182,7 +184,7 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
             // Create a connection
             if ( connection == null )
             {
-                connection = new LdapConnection( providerHost, port );
+                connection = new LdapNetworkConnection( providerHost, port );
             }
 
             // Do a bind
@@ -322,7 +324,8 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
 
             try
             {
-                syncStateCtrl = ( SyncStateValueControl ) syncStateControlDecoder.decode( ctrl.getValue(), syncStateCtrl );
+                syncStateCtrl = ( SyncStateValueControl ) syncStateControlDecoder.decode( ctrl.getValue(),
+                    syncStateCtrl );
             }
             catch ( Exception e )
             {
@@ -356,7 +359,7 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
                         session.add( new DefaultServerEntry( schemaManager, remoteEntry ) );
                     }
                     // in refreshOnly mode the modified entry will be sent with state ADD
-                    else if( !config.isRefreshPersist() )
+                    else if ( !config.isRefreshPersist() )
                     {
                         LOG.debug( "updating entry in refreshOnly mode {}", remoteEntry.getDn().getName() );
                         modify( remoteEntry );
@@ -518,7 +521,27 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
         searchRequest.add( syncReq );
 
         // Do the search
-        connection.search( searchRequest, this );
+        SearchFuture sf = connection.searchAsync( searchRequest );
+
+        SearchResponse resp = sf.get();
+
+        while ( !( resp instanceof SearchResultDone ) || !sf.isCancelled() )
+        {
+            if ( resp instanceof SearchResultEntry )
+            {
+                handleSearchResult( ( SearchResultEntry ) resp );
+            }
+            else if ( resp instanceof SearchResultReference )
+            {
+                handleSearchReference( ( SearchResultReference ) resp );
+            }
+            else if ( resp instanceof SearchIntermediateResponse )
+            {
+                handleSyncInfo( ( ( SearchIntermediateResponse ) resp ).getResponseValue() );
+            }
+        }
+        
+        handleSearchDone( ( SearchResultDone ) resp );
     }
 
 
@@ -540,10 +563,10 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
             LOG.info( "Connection closed for the server {}", config.getProviderHost() );
 
             connection = null;
-            
+
             // persist the cookie
             storeCookie();
-            
+
             // reset the cookie
             syncCookie = null;
         }
@@ -699,22 +722,22 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
         int i = 0;
         for ( ; i < count; i++ )
         {
-            startIndex = i* NODE_LIMIT;
+            startIndex = i * NODE_LIMIT;
             _deleteEntries_( uuidList.subList( startIndex, startIndex + NODE_LIMIT ) );
         }
 
-        if( ( uuidList.size() % NODE_LIMIT ) != 0 )
+        if ( ( uuidList.size() % NODE_LIMIT ) != 0 )
         {
             // remove the remaining entries
-            if( count > 0 )
+            if ( count > 0 )
             {
-                startIndex = i* NODE_LIMIT;
+                startIndex = i * NODE_LIMIT;
             }
             _deleteEntries_( uuidList.subList( startIndex, uuidList.size() ) );
         }
     }
-    
-    
+
+
     /**
      * do not call this method directly, instead call deleteEntries()
      *
@@ -724,37 +747,39 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
     {
         ExprNode filter = null;
         int size = limitedUuidList.size();
-        if( size == 1 )
+        if ( size == 1 )
         {
             String uuid = StringTools.uuidToString( limitedUuidList.get( 0 ) );
-            filter = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT, new ClientStringValue( uuid ) );
+            filter = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT,
+                new org.apache.directory.shared.ldap.entry.StringValue( uuid ) );
         }
         else
         {
             filter = new OrNode();
-            for ( int i=0; i < size; i++ )
+            for ( int i = 0; i < size; i++ )
             {
                 String uuid = StringTools.uuidToString( limitedUuidList.get( i ) );
-                EqualityNode<String> uuidEqNode = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT, new ClientStringValue( uuid ) );
+                EqualityNode<String> uuidEqNode = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT,
+                    new org.apache.directory.shared.ldap.entry.StringValue( uuid ) );
                 ( ( OrNode ) filter ).addNode( uuidEqNode );
             }
         }
 
-        LdapDN dn = new LdapDN( config.getBaseDn() );
+        DN dn = new DN( config.getBaseDn() );
         dn.normalize( schemaManager.getNormalizerMapping() );
 
-        EntryFilteringCursor cursor = session.search( dn, SearchScope.SUBTREE, filter, AliasDerefMode.NEVER_DEREF_ALIASES, new HashSet() );
-    
-        while( cursor.next() )
+        EntryFilteringCursor cursor = session.search( dn, SearchScope.SUBTREE, filter,
+            AliasDerefMode.NEVER_DEREF_ALIASES, new HashSet() );
+
+        while ( cursor.next() )
         {
             ClonedServerEntry entry = cursor.get();
             session.delete( entry.getDn(), true );
         }
-        
+
         cursor.close();
     }
-    
-    
+
     /**
      * A Thread implementation for synchronizing the DIT in refreshOnly mode
      */
@@ -802,45 +827,6 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
             // just incase if it is sleeping
             this.interrupt();
         }
-    }
-
-
-    //====================== SearchListener methods ====================================
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.client.api.listeners.SearchListener#entryFound(org.apache.directory.shared.ldap.client.api.LdapConnection, org.apache.directory.shared.ldap.client.api.messages.SearchResultEntry)
-     */
-    public void entryFound( LdapConnection connection, SearchResultEntry searchResultEntry ) throws LdapException
-    {
-        handleSearchResult( searchResultEntry );
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.client.api.listeners.SearchListener#referralFound(org.apache.directory.shared.ldap.client.api.LdapConnection, org.apache.directory.shared.ldap.client.api.messages.SearchResultReference)
-     */
-    public void referralFound( LdapConnection connection, SearchResultReference searchResultReference )
-        throws LdapException
-    {
-        handleSearchReference( searchResultReference );
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.client.api.listeners.SearchListener#searchDone(org.apache.directory.shared.ldap.client.api.LdapConnection, org.apache.directory.shared.ldap.client.api.messages.SearchResultDone)
-     */
-    public void searchDone( LdapConnection connection, SearchResultDone searchResultDone ) throws LdapException
-    {
-        handleSearchDone( searchResultDone );
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.client.api.listeners.IntermediateResponseListener#responseReceived(org.apache.directory.shared.ldap.client.api.LdapConnection, org.apache.directory.shared.ldap.client.api.messages.IntermediateResponse)
-     */
-    public void responseReceived( LdapConnection connection, IntermediateResponse intermediateResponse )
-    {
-        handleSyncInfo( intermediateResponse.getResponseValue() );
     }
 
 }
