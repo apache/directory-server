@@ -99,9 +99,9 @@ public class SyncreplRunnerUI implements ActionListener
 
     private EntryInjector entryInjector;
 
-    private String provServerHost = "localhost";
+    private String provServerHost = "192.168.22.109";
     private int provServerPort = 389;
-    private String provServerBindDn = "cn=Manager,dc=my-domain,dc=com";
+    private String provServerBindDn = "cn=Manager,dc=example,dc=com";
     private String provServerPwd = "secret";
 
     private boolean connected;
@@ -114,7 +114,7 @@ public class SyncreplRunnerUI implements ActionListener
         config.setPort( provServerPort );
         config.setBindDn( provServerBindDn );
         config.setCredentials( provServerPwd );
-        config.setBaseDn( "dc=my-domain,dc=com" );
+        config.setBaseDn( "dc=example,dc=com" );
         config.setFilter( "(objectclass=*)" );
         config.setAttributes( "*,entryUUID,entryCSN" );
         config.setSearchScope( SearchScope.SUBTREE.getScope() );
@@ -140,8 +140,6 @@ public class SyncreplRunnerUI implements ActionListener
             agent.init( dirService );
             agent.bind();
 
-            entryInjector.enable( true );
-
             connected = true;
             agent.prepareSyncSearchRequest();
             agent.startSync();
@@ -162,7 +160,6 @@ public class SyncreplRunnerUI implements ActionListener
 
             if ( connected )
             {
-                entryInjector.enable( false );
                 agent.disconnet();
             }
 
@@ -271,7 +268,6 @@ public class SyncreplRunnerUI implements ActionListener
         serverPanel.setBorder( new TitledBorder( "Server Controls" ) );
 
         entryInjector = new EntryInjector( provServerHost, provServerPort, provServerBindDn, provServerPwd );
-        entryInjector.enable( false );
         entryInjector.setBorder( new TitledBorder( "Entry Injector" ) );
         entryInjector.setConfig( config );
 

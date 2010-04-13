@@ -83,7 +83,7 @@ public class EntryInjector extends JPanel implements ActionListener
             String cn = "entry-" + System.currentTimeMillis();
             DN dn = new DN( "cn=" + cn + "," + config.getBaseDn() );
             DefaultClientEntry entry = new DefaultClientEntry();
-            entry.add( "objectclass", "inetOrgPerson", "organizationalPerson", "person" );
+            entry.add( "objectclass", "person" );
             entry.add( "cn", cn );
             entry.add( "sn", cn );
             entry.setDn( dn );
@@ -237,7 +237,7 @@ public class EntryInjector extends JPanel implements ActionListener
                     addEntry();
                     mutex.release();
 
-                    Thread.sleep( 10000 );
+                    Thread.sleep( 1000 );
                 }
                 catch ( Exception e )
                 {
