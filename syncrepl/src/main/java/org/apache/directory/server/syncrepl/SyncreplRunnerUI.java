@@ -138,7 +138,7 @@ public class SyncreplRunnerUI implements ActionListener
 
             startEmbeddedServer( workDir );
             agent.init( dirService );
-            agent.bind();
+            agent.connect();
 
             connected = true;
             agent.prepareSyncSearchRequest();

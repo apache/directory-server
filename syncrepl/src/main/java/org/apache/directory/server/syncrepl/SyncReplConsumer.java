@@ -171,7 +171,7 @@ public class SyncReplConsumer
     }
 
 
-    public boolean bind()
+    public boolean connect()
     {
         try
         {
@@ -457,7 +457,7 @@ public class SyncReplConsumer
             }
 
             LOG.debug( "Trying to reconnect" );
-            connected = bind();
+            connected = connect();
         }
 
         startSync();
