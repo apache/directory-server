@@ -29,12 +29,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.directory.ldap.client.api.LdapAsyncConnection;
-import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.directory.ldap.client.api.exception.LdapException;
 import org.apache.directory.ldap.client.api.future.SearchFuture;
 import org.apache.directory.ldap.client.api.message.BindResponse;
-import org.apache.directory.ldap.client.api.message.IntermediateResponse;
 import org.apache.directory.ldap.client.api.message.LdapResult;
 import org.apache.directory.ldap.client.api.message.SearchIntermediateResponse;
 import org.apache.directory.ldap.client.api.message.SearchRequest;
@@ -282,6 +279,7 @@ public class SyncReplConsumer
 
         if ( resultCode == ResultCodeEnum.E_SYNC_REFRESH_REQUIRED )
         {
+            LOG.info( "unable to perform the content synchronization cause E_SYNC_REFRESH_REQUIRED" );
             /*
                 The server may return e-syncRefreshRequired
                 result code on the initial content poll if it is safe to do so when
@@ -410,20 +408,12 @@ public class SyncReplConsumer
                 syncCookie = cookie;
             }
 
-            List<byte[]> uuidList = syncInfoValue.getSyncUUIDs();
 
             LOG.info( "refreshDeletes: " + syncInfoValue.isRefreshDeletes() );
-            if ( uuidList != null )
-            {
-                for ( byte[] uuid : uuidList )
-                {
-                    LOG.info( "uuid: {}", StringTools.uuidToString( uuid ) );
-                }
-            }
-
             refreshDeletes = syncInfoValue.isRefreshDeletes();
             refreshDone = syncInfoValue.isRefreshDone();
 
+            List<byte[]> uuidList = syncInfoValue.getSyncUUIDs();
             // if refreshDeletes set to true then delete all the entries with entryUUID
             // present in the syncIdSet 
             if ( syncInfoValue.isRefreshDeletes() && ( uuidList != null ) )
@@ -525,7 +515,7 @@ public class SyncReplConsumer
 
         SearchResponse resp = sf.get();
 
-        while ( !( resp instanceof SearchResultDone ) || !sf.isCancelled() )
+        while ( !( resp instanceof SearchResultDone ) && !sf.isCancelled() )
         {
             if ( resp instanceof SearchResultEntry )
             {
@@ -539,6 +529,8 @@ public class SyncReplConsumer
             {
                 handleSyncInfo( ( ( SearchIntermediateResponse ) resp ).getResponseValue() );
             }
+            
+            resp = sf.get();
         }
         
         handleSearchDone( ( SearchResultDone ) resp );
@@ -714,6 +706,11 @@ public class SyncReplConsumer
             return;
         }
 
+        for ( byte[] uuid : uuidList )
+        {
+            LOG.info( "uuid: {}", StringTools.uuidToString( uuid ) );
+        }
+
         int NODE_LIMIT = 10;
 
         int count = uuidList.size() / NODE_LIMIT;
@@ -770,11 +767,12 @@ public class SyncReplConsumer
 
         EntryFilteringCursor cursor = session.search( dn, SearchScope.SUBTREE, filter,
             AliasDerefMode.NEVER_DEREF_ALIASES, new HashSet() );
+        cursor.beforeFirst();
 
         while ( cursor.next() )
         {
             ClonedServerEntry entry = cursor.get();
-            session.delete( entry.getDn(), true );
+            session.delete( new DN( entry.getDn().getName() ), true );
         }
 
         cursor.close();
