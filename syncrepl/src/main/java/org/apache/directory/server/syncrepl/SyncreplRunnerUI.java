@@ -34,7 +34,6 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
 import org.apache.commons.io.FileUtils;
@@ -99,7 +98,7 @@ public class SyncreplRunnerUI implements ActionListener
 
     private EntryInjector entryInjector;
 
-    private String provServerHost = "192.168.22.109";
+    private String provServerHost = "192.168.22.105";
     private int provServerPort = 389;
     private String provServerBindDn = "cn=Manager,dc=example,dc=com";
     private String provServerPwd = "secret";
@@ -119,7 +118,7 @@ public class SyncreplRunnerUI implements ActionListener
         config.setAttributes( "*,entryUUID,entryCSN" );
         config.setSearchScope( SearchScope.SUBTREE.getScope() );
         config.setReplicaId( 1 );
-        config.setRefreshPersist( false );
+        config.setRefreshPersist( true );
         config.setConsumerInterval( 60 * 1000 );
         agent.setConfig( config );
 
@@ -221,7 +220,7 @@ public class SyncreplRunnerUI implements ActionListener
             partition.setPartitionDir( new File( workDir, partition.getId() ) );
             partition.setSyncOnWrite( true );
             partition.setSchemaManager( dirService.getSchemaManager() );
-            
+
             // Add objectClass attribute for the system partition
             Set<Index<?, ServerEntry, Long>> indexedAttrs = new HashSet<Index<?, ServerEntry, Long>>();
             indexedAttrs.add( new JdbmIndex<Object, ServerEntry>( SchemaConstants.ENTRY_UUID_AT ) );
@@ -299,25 +298,28 @@ public class SyncreplRunnerUI implements ActionListener
         {
             btnStart.setEnabled( false );
             btnCleanStart.setEnabled( false );
-            SwingUtilities.invokeLater( new Runnable()
+            Runnable startTask = new Runnable()
             {
                 public void run()
                 {
                     start();
                 }
-            } );
+            };
+            new Thread( startTask ).start();
             btnStop.setEnabled( true );
         }
         else if ( src == btnStop )
         {
             btnStop.setEnabled( false );
-            SwingUtilities.invokeLater( new Runnable()
+            Runnable stopTask = new Runnable()
             {
                 public void run()
                 {
                     stop();
                 }
-            } );
+            };
+
+            new Thread( stopTask ).start();
 
             btnStart.setEnabled( true );
             btnCleanStart.setEnabled( true );
@@ -327,13 +329,15 @@ public class SyncreplRunnerUI implements ActionListener
             btnCleanStart.setEnabled( false );
             btnStart.setEnabled( false );
 
-            SwingUtilities.invokeLater( new Runnable()
+            Runnable cleanStartTask = new Runnable()
             {
                 public void run()
                 {
                     cleanStart();
                 }
-            } );
+            };
+
+            new Thread( cleanStartTask ).start();
             btnStop.setEnabled( true );
         }
     }
@@ -400,7 +404,7 @@ public class SyncreplRunnerUI implements ActionListener
 
     public static void main( String[] args )
     {
-        SyncreplRunnerUI runnerUi = new SyncreplRunnerUI();
+        final SyncreplRunnerUI runnerUi = new SyncreplRunnerUI();
         try
         {
             runnerUi.show();
