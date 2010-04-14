@@ -43,6 +43,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlDecoder;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControl;
@@ -99,9 +100,6 @@ public class SyncReplConsumer
 
     /** the search request with control */
     private SearchRequest searchRequest;
-
-    /** the syncrequest control */
-    private SyncRequestValueControl syncReq;
 
     /** a reference to the directoryService */
     private DirectoryService directoryService;
@@ -237,19 +235,9 @@ public class SyncReplConsumer
         searchRequest.setTypesOnly( false );
 
         searchRequest.addAttributes( config.getAttributes() );
-
-        syncReq = new SyncRequestValueControl();
-
-        if ( config.isRefreshPersist() )
-        {
-            syncReq.setMode( SynchronizationModeEnum.REFRESH_AND_PERSIST );
-        }
-        else
-        {
-            syncReq.setMode( SynchronizationModeEnum.REFRESH_ONLY );
-        }
-
-        syncReq.setReloadHint( false );
+        
+        // to treat the referrals as normal entries
+        searchRequest.add( new ManageDsaITControl() );
     }
 
 
@@ -304,7 +292,8 @@ public class SyncReplConsumer
 
     public void handleSearchReference( SearchResultReference searchRef )
     {
-        LOG.error( "!!!!!!!!!!!!!!!!! TODO handle SearchReference messages !!!!!!!!!!!!!!!!" );
+        // this method won't be called cause the provider will server the referrals as
+        // normal entry objects due to the usage of ManageDsaITControl in the search request
     }
 
 

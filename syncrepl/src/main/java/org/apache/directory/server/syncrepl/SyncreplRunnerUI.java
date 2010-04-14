@@ -115,7 +115,7 @@ public class SyncreplRunnerUI implements ActionListener
         config.setCredentials( provServerPwd );
         config.setBaseDn( "dc=example,dc=com" );
         config.setFilter( "(objectclass=*)" );
-        config.setAttributes( "*,entryUUID,entryCSN" );
+        config.setAttributes( "*,ref,entryUUID,entryCSN" );
         config.setSearchScope( SearchScope.SUBTREE.getScope() );
         config.setReplicaId( 1 );
         config.setRefreshPersist( true );
