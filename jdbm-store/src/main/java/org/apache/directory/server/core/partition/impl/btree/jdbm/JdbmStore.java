@@ -549,13 +549,15 @@ public class JdbmStore<E> implements Store<E, Long>
         array.add( entryCsnIdx );
         array.add( entryUuidIdx );
         array.add( objectClassIdx );
-
+        
         // Sync all user defined userIndices
         for ( Index<?, E, Long> idx : array )
         {
             idx.sync();
         }
 
+        rdnIdx.sync();
+        
         master.sync();
         recMan.commit();
     }
