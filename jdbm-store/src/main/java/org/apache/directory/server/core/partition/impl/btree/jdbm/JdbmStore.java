@@ -141,6 +141,7 @@ public class JdbmStore<E> implements Store<E, Long>
     /** A pointer on the schemaManager */
     private SchemaManager schemaManager;
 
+    private DN contextEntryDn;
     private String suffixDn;
     private int cacheSize = DEFAULT_CACHE_SIZE;
     private String name;
@@ -981,7 +982,7 @@ public class JdbmStore<E> implements Store<E, Long>
         return buildEntryDn( id ).getNormName();
     }
 
-    
+
     /**
      * builds the DN of the entry identified by the given id
      *
@@ -992,20 +993,38 @@ public class JdbmStore<E> implements Store<E, Long>
     private DN buildEntryDn( Long id ) throws Exception
     {
         DN dn = new DN();
-        
-        // form the DN
-        RDN curRdn = rdnIdx.reverseLookup( id );
 
-        dn.addNormalizedInOrder( curRdn );
-        
-        while( curRdn._getParentId() != 0 )
+        long parentId = id.longValue();
+        do
         {
-            curRdn = rdnIdx.reverseLookup( curRdn._getParentId() );
-            dn.addNormalizedInOrder( curRdn );
+            RDN curRdn = rdnIdx.reverseLookup( parentId );
+            parentId = curRdn._getParentId();
+            if ( parentId == 0 )
+            {
+                // we reached the suffix, add the context entry DN
+                // we do this because the suffix can consist 
+                // of multiple RDNs, e.g. ec=example,dc=com
+                if ( contextEntryDn == null )
+                {
+                    contextEntryDn = new DN( curRdn.getName() );
+                    contextEntryDn.normalize( schemaManager.getNormalizerMapping() );
+                }
+                for ( RDN rdn : contextEntryDn )
+                {
+                    dn.addNormalizedInOrder( rdn );
+                }
+            }
+            else
+            {
+                // not the suffix, add the RDN to the DN
+                dn.addNormalizedInOrder( curRdn );
+            }
         }
+        while ( parentId != 0 );
 
         return dn;
     }
+
 
     /**
      * 

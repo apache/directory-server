@@ -136,7 +136,7 @@ public class JdbmStoreTest
         store.setSyncOnWrite( false );
         store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new JdbmIndex( SchemaConstants.UID_AT_OID ) );
-
+        
         StoreUtils.loadExampleData( store, schemaManager );
         LOG.debug( "Created new store" );
     }
@@ -158,6 +158,48 @@ public class JdbmStoreTest
         }
 
         wkdir = null;
+    }
+
+
+    /**
+     * Tests a suffix with two name components: dc=example,dc=com.
+     * When reading this entry back from the store the DN must
+     * consist of two RDNs.
+     */
+    @Test
+    public void testTwoComponentSuffix() throws Exception
+    {
+        // setup the working directory for the 2nd store
+        File wkdir2 = File.createTempFile( getClass().getSimpleName(), "db2" );
+        wkdir2.delete();
+        wkdir2 = new File( wkdir2.getParentFile(), getClass().getSimpleName() );
+        wkdir2.mkdirs();
+
+        // initialize the 2nd store
+        JdbmStore<ServerEntry> store2 = new JdbmStore<ServerEntry>();
+        store2.setName( "example2" );
+        store2.setCacheSize( 10 );
+        store2.setWorkingDirectory( wkdir2 );
+        store2.setSyncOnWrite( false );
+        store2.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
+        store2.addIndex( new JdbmIndex( SchemaConstants.UID_AT_OID ) );
+        store2.setSuffixDn( "dc=example,dc=com" );
+        store2.init( schemaManager );
+
+        // inject context entry
+        DN suffixDn = new DN( "dc=example,dc=com" );
+        suffixDn.normalize( schemaManager.getNormalizerMapping() );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, suffixDn );
+        entry.add( "objectClass", "top", "domain" );
+        entry.add( "dc", "example" );
+        entry.add( SchemaConstants.ENTRY_CSN_AT, new CsnFactory( 0 ).newInstance().toString() );
+        entry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+        store2.add( entry );
+
+        // lookup the context entry
+        Long id = store2.getEntryId( suffixDn );
+        ServerEntry lookup = store2.lookup( id );
+        assertEquals( 2, lookup.getDn().getRdns().size() );
     }
 
 
