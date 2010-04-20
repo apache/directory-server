@@ -34,6 +34,7 @@ import java.util.TreeSet;
 
 import javax.naming.directory.SearchControls;
 
+import org.apache.directory.server.changepw.ChangePasswordServer;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.changelog.ChangeLog;
@@ -454,7 +455,113 @@ public class ConfigPartitionReader
         return ntpServer;
     }
 
+    
+    public ChangePasswordServer getChangePwdServer() throws Exception
+    {
+        EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
+            ConfigSchemaConstants.ADS_CHANGEPWD_SERVER ) );
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
+        IndexCursor<Long, ServerEntry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
+            AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
+
+        if ( !cursor.next() )
+        {
+            LOG.warn( "No ChangePassword server was configured under the DN {}", configPartition.getSuffixDn() );
+            return null;
+        }
+        
+        ForwardIndexEntry<Long, ServerEntry, Long> forwardEntry = ( ForwardIndexEntry<Long, ServerEntry, Long> ) cursor.get();
+        cursor.close();
+
+        ClonedServerEntry chgPwdEntry = configPartition.lookup( forwardEntry.getId() );
+        LOG.debug( "Changepassword server entry {}", chgPwdEntry );
+    
+        if ( !isEnabled( chgPwdEntry ) )
+        {
+            return null;
+        }
+
+        ChangePasswordServer chgPwdServer = new ChangePasswordServer();
+
+        chgPwdServer.setServiceId( getString( ConfigSchemaConstants.ADS_SERVER_ID, chgPwdEntry ) );
+
+        DN transportsDN = new DN( getString( ConfigSchemaConstants.ADS_TRANSPORTS, chgPwdEntry ) );
+        transportsDN.normalize( schemaManager.getNormalizerMapping() );
+        Transport[] transports = getTransports( transportsDN );
+        chgPwdServer.setTransports( transports );
+
+        // MAY attributes
+        EntryAttribute clockSkewAttr = chgPwdEntry.get( ConfigSchemaConstants.ADS_KRB_ALLOWABLE_CLOCKSKEW );
+
+        if ( clockSkewAttr != null )
+        {
+            chgPwdServer.setAllowableClockSkew( Long.parseLong( clockSkewAttr.getString() ) );
+        }
+
+        EntryAttribute encryptionTypeAttr = chgPwdEntry.get( ConfigSchemaConstants.ADS_KRB_ENCRYPTION_TYPES );
+
+        if ( encryptionTypeAttr != null )
+        {
+            EncryptionType[] encryptionTypes = new EncryptionType[encryptionTypeAttr.size()];
+            Iterator<Value<?>> itr = encryptionTypeAttr.getAll();
+            int count = 0;
+
+            while ( itr.hasNext() )
+            {
+                Value<?> val = itr.next();
+                encryptionTypes[count++] = EncryptionType.getByName( val.getString() );
+            }
+
+            chgPwdServer.setEncryptionTypes( encryptionTypes );
+        }
+
+        EntryAttribute emptyAddrAttr = chgPwdEntry.get( ConfigSchemaConstants.ADS_KRB_EMPTY_ADDRESSES_ALLOWED );
+
+        if ( emptyAddrAttr != null )
+        {
+            chgPwdServer.setEmptyAddressesAllowed( Boolean.parseBoolean( emptyAddrAttr.getString() ) );
+        }
+
+        EntryAttribute prmRealmAttr = chgPwdEntry.get( ConfigSchemaConstants.ADS_KRB_PRIMARY_REALM );
+
+        if ( prmRealmAttr != null )
+        {
+            chgPwdServer.setPrimaryRealm( prmRealmAttr.getString() );
+        }
+        
+        EntryAttribute policyCatCount = chgPwdEntry.get( ConfigSchemaConstants.ADS_CHANGEPWD_POLICY_CATEGORY_COUNT );
+        if( policyCatCount != null )
+        {
+            chgPwdServer.setPolicyCategoryCount( getInt( ConfigSchemaConstants.ADS_CHANGEPWD_POLICY_CATEGORY_COUNT, chgPwdEntry ) );
+        }
+
+        EntryAttribute policyPwdLen = chgPwdEntry.get( ConfigSchemaConstants.ADS_CHANGEPWD_POLICY_PASSWORD_LENGTH );
+        
+        if( policyPwdLen != null )
+        {
+            chgPwdServer.setPolicyPasswordLength( getInt( ConfigSchemaConstants.ADS_CHANGEPWD_POLICY_PASSWORD_LENGTH, chgPwdEntry ) );
+        }
+        
+        EntryAttribute policyTokenSize = chgPwdEntry.get( ConfigSchemaConstants.ADS_CHANGEPWD_POLICY_TOKEN_SIZE );
+        
+        if( policyTokenSize != null )
+        {
+            chgPwdServer.setPolicyTokenSize( getInt( ConfigSchemaConstants.ADS_CHANGEPWD_POLICY_TOKEN_SIZE, chgPwdEntry ) );
+        }
+        
+        EntryAttribute servicePrincipal = chgPwdEntry.get( ConfigSchemaConstants.ADS_CHANGEPWD_SERVICE_PRINCIPAL );
+        
+        if( servicePrincipal != null )
+        {
+            chgPwdServer.setServicePrincipal( servicePrincipal.getString() );
+        }
+        
+        return chgPwdServer;
+    }
+
+    
     public HttpServer getHttpServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(

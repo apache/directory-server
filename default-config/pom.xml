@@ -71,6 +71,12 @@
     </dependency>
 
     <dependency>
+      <artifactId>apacheds-protocol-changepw</artifactId>
+      <groupId>${groupId}</groupId>
+      <version>${version}</version>
+    </dependency>
+
+    <dependency>
       <artifactId>apacheds-http-integration</artifactId>
       <groupId>${groupId}</groupId>
       <version>${version}</version>

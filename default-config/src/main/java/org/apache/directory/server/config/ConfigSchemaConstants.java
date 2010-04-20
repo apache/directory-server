@@ -162,4 +162,14 @@ public interface ConfigSchemaConstants
     String ADS_HTTP_APP_CTX_PATH = "ads-httpAppCtxPath";
 
     String ADS_ENABLED = "ads-enabled";
+    
+    String ADS_CHANGEPWD_POLICY_CATEGORY_COUNT = "ads-chgPwdPolicyCategoryCount";
+    
+    String ADS_CHANGEPWD_POLICY_PASSWORD_LENGTH = "ads-chgPwdPolicyPasswordLength";
+    
+    String ADS_CHANGEPWD_POLICY_TOKEN_SIZE = "ads-chgPwdPolicyTokenSize";
+    
+    String ADS_CHANGEPWD_SERVICE_PRINCIPAL = "ads-chgPwdServicePrincipal";
+    
+    String ADS_CHANGEPWD_SERVER = "ads-changePasswordServer";
 }
