@@ -43,12 +43,12 @@ import javax.naming.directory.BasicAttributes;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.entry.StringValue;
-import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
@@ -83,6 +83,7 @@ public class DefaultServerEntryTest
     
     private static AttributeType atObjectClass;
     private static AttributeType atCN;
+    private static AttributeType atDC;
     private static AttributeType atSN;
     private static AttributeType atC;   
     private static AttributeType atL;   
@@ -125,6 +126,7 @@ public class DefaultServerEntryTest
 
         atObjectClass = schemaManager.lookupAttributeTypeRegistry( "objectClass" );
         atCN = schemaManager.lookupAttributeTypeRegistry( "cn" );
+        atDC = schemaManager.lookupAttributeTypeRegistry( "dc" );
         atC = schemaManager.lookupAttributeTypeRegistry( "c" );
         atL = schemaManager.lookupAttributeTypeRegistry( "l" );
         atOC = schemaManager.lookupAttributeTypeRegistry( "objectClass" );
@@ -239,11 +241,11 @@ public class DefaultServerEntryTest
     {
         Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        EntryAttribute oc = new DefaultServerAttribute( atObjectClass, "top", "person" );
-        EntryAttribute cn = new DefaultServerAttribute( atCN, "test1", "test2" );
-        EntryAttribute sn = new DefaultServerAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute up = new DefaultServerAttribute( atPwd, BYTES1, BYTES2 );
-        EntryAttribute c = new DefaultServerAttribute( atC, "FR", "US" );
+        EntryAttribute oc = new DefaultClientAttribute( atObjectClass, "top", "person" );
+        EntryAttribute cn = new DefaultClientAttribute( atCN, "test1", "test2" );
+        EntryAttribute sn = new DefaultClientAttribute( atSN, "Test1", "Test2" );
+        EntryAttribute up = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute c = new DefaultClientAttribute( atC, "FR", "US" );
         
         entry.add( oc, cn, sn, c );
         
@@ -256,7 +258,7 @@ public class DefaultServerEntryTest
         EntryAttribute attr = entry.get( "objectclass" );
         assertEquals( 2, attr.size() );
         
-        EntryAttribute c2 = new DefaultServerAttribute( atC, "UK", "DE" );
+        EntryAttribute c2 = new DefaultClientAttribute( atC, "UK", "DE" );
         entry.add( c2, up );
         assertEquals( 5, entry.size() );
         
@@ -326,9 +328,8 @@ public class DefaultServerEntryTest
         assertEquals( 1, entry.size() );
         EntryAttribute attributeCN = entry.get( "cn" );
         
-        assertEquals( 1, attributeCN.size() );
-        assertNotNull( attributeCN.get() );
-        assertNull( attributeCN.get().get() );
+        assertEquals( 0, attributeCN.size() );
+        assertNull( attributeCN.get() );
          
         entry.add( "sn", "test", "test", "TEST" );
         assertEquals( 2, entry.size() );
@@ -451,10 +452,10 @@ public class DefaultServerEntryTest
         assertEquals( 1, entry.size() );
         
         EntryAttribute attribute = entry.get( atC );
-        assertEquals( 4, attribute.size() );
+        assertEquals( 3, attribute.size() );
         assertTrue( attribute.contains( "de" ) );
         assertTrue( attribute.contains( "fr" ) );
-        assertTrue( attribute.contains( (String)null ) );
+        assertFalse( attribute.contains( (String)null ) );
         assertTrue( attribute.contains( "us" ) );
         
         entry.clear();
@@ -554,30 +555,30 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        entry.add( "CommonName", atCN, "test1", "test2" );
+        entry.add( "DomainComponent", atDC, "test1", "test2" );
         assertEquals( 1, entry.size() );
-        assertTrue( entry.contains( atCN, "test1", "test2" ) );
-        assertEquals( "CommonName", entry.get( atCN ).getUpId() );
-        assertEquals( "commonname", entry.get( atCN ).getId() );
+        assertTrue( entry.contains( atDC, "test1", "test2" ) );
+        assertEquals( "DomainComponent", entry.get( atDC ).getUpId() );
+        assertEquals( "domaincomponent", entry.get( atDC ).getId() );
         
-        entry.add( "  CN  ", atCN, (String)null, "test1" );
+        entry.add( "  DC  ", atDC, (String)null, "test1" );
         assertEquals( 1, entry.size() );
         
-        EntryAttribute attribute = entry.get( atCN );
+        EntryAttribute attribute = entry.get( atDC );
         assertEquals( 3, attribute.size() );
         assertTrue( attribute.contains( "test1" ) );
         assertTrue( attribute.contains( (String)null ) );
         assertTrue( attribute.contains( "test2" ) );
-        assertEquals( "  CN  ", attribute.getUpId() );
-        assertEquals( "cn", attribute.getId() );
+        assertEquals( "  DC  ", attribute.getUpId() );
+        assertEquals( "dc", attribute.getId() );
 
         entry.clear();
         
         // Binary values are not allowed
-        entry.add( "  CN  ", atCN, BYTES1 );
+        entry.add( "  DC  ", atDC, BYTES1 );
         assertEquals( 1, entry.size() );
-        assertNotNull( entry.get( atCN ) );
-        assertEquals( 0, entry.get( atCN ).size() );
+        assertNotNull( entry.get( atDC ) );
+        assertEquals( 0, entry.get( atDC ).size() );
     }
     
      
@@ -648,35 +649,35 @@ public class DefaultServerEntryTest
         DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
         // Test a simple addition
-        entry.add( atCN, "test1" );
-        assertNotNull( entry.get( atCN ) );
-        assertEquals( 1, entry.get( atCN ).size() );
-        assertEquals( "test1", entry.get( atCN ).get().getString() );
+        entry.add( atDC, "test1" );
+        assertNotNull( entry.get( atDC ) );
+        assertEquals( 1, entry.get( atDC ).size() );
+        assertEquals( "test1", entry.get( atDC ).get().getString() );
         
         // Test some more addition
-        entry.add( atCN, "test2", "test3" );
-        assertNotNull( entry.get( atCN ) );
-        assertEquals( 3, entry.get( atCN ).size() );
-        assertTrue( entry.contains( atCN, "test1" ) );
-        assertTrue( entry.contains( atCN, "test2" ) );
-        assertTrue( entry.contains( atCN, "test3" ) );
+        entry.add( atDC, "test2", "test3" );
+        assertNotNull( entry.get( atDC ) );
+        assertEquals( 3, entry.get( atDC ).size() );
+        assertTrue( entry.contains( atDC, "test1" ) );
+        assertTrue( entry.contains( atDC, "test2" ) );
+        assertTrue( entry.contains( atDC, "test3" ) );
         
         // Test some addition of existing values
-        entry.add( atCN, "test2" );
-        assertNotNull( entry.get( atCN ) );
-        assertEquals( 3, entry.get( atCN ).size() );
-        assertTrue( entry.contains( atCN, "test1" ) );
-        assertTrue( entry.contains( atCN, "test2" ) );
-        assertTrue( entry.contains( atCN, "test3" ) );
+        entry.add( atDC, "test2" );
+        assertNotNull( entry.get( atDC ) );
+        assertEquals( 3, entry.get( atDC ).size() );
+        assertTrue( entry.contains( atDC, "test1" ) );
+        assertTrue( entry.contains( atDC, "test2" ) );
+        assertTrue( entry.contains( atDC, "test3" ) );
         
         // Test the addition of a null value
-        entry.add( atCN, (String)null );
-        assertNotNull( entry.get( atCN ) );
-        assertEquals( 4, entry.get( atCN ).size() );
-        assertTrue( entry.contains( atCN, "test1" ) );
-        assertTrue( entry.contains( atCN, "test2" ) );
-        assertTrue( entry.contains( atCN, "test3" ) );
-        assertTrue( entry.contains( atCN, (String )null ) ); 
+        entry.add( atDC, (String)null );
+        assertNotNull( entry.get( atDC ) );
+        assertEquals( 4, entry.get( atDC ).size() );
+        assertTrue( entry.contains( atDC, "test1" ) );
+        assertTrue( entry.contains( atDC, "test2" ) );
+        assertTrue( entry.contains( atDC, "test3" ) );
+        assertTrue( entry.contains( atDC, (String )null ) ); 
         
         entry.clear();
         
@@ -740,8 +741,8 @@ public class DefaultServerEntryTest
 
         entry.add( atPassword, "test4" );
         assertNotNull( entry.get( atPassword ) );
-        assertEquals( 0, entry.get( atPassword ).size() );
-        assertFalse( entry.contains( atPassword, test4 ) );
+        assertEquals( 1, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, test4 ) );
     }
 
 
@@ -759,52 +760,52 @@ public class DefaultServerEntryTest
         byte[] b2 = StringTools.getBytesUtf8( "test2" );
         byte[] b3 = StringTools.getBytesUtf8( "test3" );
 
-        Value<String> test1 = new StringValue( atCN, "test1" );
-        Value<String> test2 = new StringValue( atCN, "test2" );
-        Value<String> test3 = new StringValue( atCN, "test3" );
+        Value<String> test1 = new StringValue( atDC, "test1" );
+        Value<String> test2 = new StringValue( atDC, "test2" );
+        Value<String> test3 = new StringValue( atDC, "test3" );
         
         Value<byte[]> testB1 = new BinaryValue( atPassword, b1 );
         Value<byte[]> testB2 = new BinaryValue( atPassword, b2 );
         Value<byte[]> testB3 = new BinaryValue( atPassword, b3 );
         
-        // Test a simple addition in atCN
-        entry.add( atCN, test1 );
-        assertNotNull( entry.get( atCN ) );
-        assertEquals( 1, entry.get( atCN ).size() );
-        assertEquals( "test1", entry.get( atCN ).get().getString() );
+        // Test a simple addition in atDC
+        entry.add( atDC, test1 );
+        assertNotNull( entry.get( atDC ) );
+        assertEquals( 1, entry.get( atDC ).size() );
+        assertEquals( "test1", entry.get( atDC ).get().getString() );
         
         // Test some more addition
-        entry.add( atCN, test2, test3 );
-        assertNotNull( entry.get( atCN ) );
-        assertEquals( 3, entry.get( atCN ).size() );
-        assertTrue( entry.contains( atCN, "test1" ) );
-        assertTrue( entry.contains( atCN, "test2" ) );
-        assertTrue( entry.contains( atCN, "test3" ) );
+        entry.add( atDC, test2, test3 );
+        assertNotNull( entry.get( atDC ) );
+        assertEquals( 3, entry.get( atDC ).size() );
+        assertTrue( entry.contains( atDC, "test1" ) );
+        assertTrue( entry.contains( atDC, "test2" ) );
+        assertTrue( entry.contains( atDC, "test3" ) );
         
         // Test some addition of existing values
-        entry.add( atCN, test2 );
-        assertNotNull( entry.get( atCN ) );
-        assertEquals( 3, entry.get( atCN ).size() );
-        assertTrue( entry.contains( atCN, "test1" ) );
-        assertTrue( entry.contains( atCN, "test2" ) );
-        assertTrue( entry.contains( atCN, "test3" ) );
+        entry.add( atDC, test2 );
+        assertNotNull( entry.get( atDC ) );
+        assertEquals( 3, entry.get( atDC ).size() );
+        assertTrue( entry.contains( atDC, "test1" ) );
+        assertTrue( entry.contains( atDC, "test2" ) );
+        assertTrue( entry.contains( atDC, "test3" ) );
         
         // Test the addition of a null value
-        entry.add( atCN, (String)null );
-        assertNotNull( entry.get( atCN ) );
-        assertEquals( 4, entry.get( atCN ).size() );
-        assertTrue( entry.contains( atCN, "test1" ) );
-        assertTrue( entry.contains( atCN, "test2" ) );
-        assertTrue( entry.contains( atCN, "test3" ) );
-        assertTrue( entry.contains( atCN, (String )null ) ); 
+        entry.add( atDC, (String)null );
+        assertNotNull( entry.get( atDC ) );
+        assertEquals( 4, entry.get( atDC ).size() );
+        assertTrue( entry.contains( atDC, "test1" ) );
+        assertTrue( entry.contains( atDC, "test2" ) );
+        assertTrue( entry.contains( atDC, "test3" ) );
+        assertTrue( entry.contains( atDC, (String )null ) ); 
         
         entry.clear();
         
         // Test the addition of a String value. It should be converted to a byte array
         byte[] test4 = StringTools.getBytesUtf8( "test4" );
 
-        entry.add( atCN, test4 );
-        assertFalse( entry.contains( atCN, test4 ) );
+        entry.add( atDC, test4 );
+        assertFalse( entry.contains( atDC, test4 ) );
 
         // Now, work with a binary attribute
         // Test a simple addition
@@ -845,8 +846,8 @@ public class DefaultServerEntryTest
 
         entry.add( atPassword, "test4" );
         assertNotNull( entry.get( atPassword ) );
-        assertEquals( 0, entry.get( atPassword ).size() );
-        assertFalse( entry.contains( atPassword, b4 ) );
+        assertEquals( 1, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, b4 ) );
     }
 
 
@@ -859,46 +860,46 @@ public class DefaultServerEntryTest
         DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
         // Test a simple addition
-        entry.add( "CN", "test1" );
-        assertNotNull( entry.get( atCN ) );
-        assertTrue( entry.containsAttribute( atCN ) );
-        assertEquals( "cn", entry.get( atCN ).getId() );
-        assertEquals( "CN", entry.get( atCN ).getUpId() );
-        assertEquals( 1, entry.get( atCN ).size() );
-        assertEquals( "test1", entry.get( atCN ).get().getString() );
+        entry.add( "DC", "test1" );
+        assertNotNull( entry.get( atDC ) );
+        assertTrue( entry.containsAttribute( atDC ) );
+        assertEquals( "dc", entry.get( atDC ).getId() );
+        assertEquals( "DC", entry.get( atDC ).getUpId() );
+        assertEquals( 1, entry.get( atDC ).size() );
+        assertEquals( "test1", entry.get( atDC ).get().getString() );
         
         // Test some more addition
-        entry.add( "CN", "test2", "test3" );
-        assertNotNull( entry.get( atCN ) );
-        assertEquals( 3, entry.get( atCN ).size() );
-        assertTrue( entry.contains( atCN, "test1" ) );
-        assertTrue( entry.contains( atCN, "test2" ) );
-        assertTrue( entry.contains( atCN, "test3" ) );
+        entry.add( "DC", "test2", "test3" );
+        assertNotNull( entry.get( atDC ) );
+        assertEquals( 3, entry.get( atDC ).size() );
+        assertTrue( entry.contains( atDC, "test1" ) );
+        assertTrue( entry.contains( atDC, "test2" ) );
+        assertTrue( entry.contains( atDC, "test3" ) );
         
         // Test some addition of existing values
-        entry.add( "CN", "test2" );
-        assertNotNull( entry.get( atCN ) );
-        assertEquals( 3, entry.get( atCN ).size() );
-        assertTrue( entry.contains( atCN, "test1" ) );
-        assertTrue( entry.contains( atCN, "test2" ) );
-        assertTrue( entry.contains( atCN, "test3" ) );
+        entry.add( "DC", "test2" );
+        assertNotNull( entry.get( atDC ) );
+        assertEquals( 3, entry.get( atDC ).size() );
+        assertTrue( entry.contains( atDC, "test1" ) );
+        assertTrue( entry.contains( atDC, "test2" ) );
+        assertTrue( entry.contains( atDC, "test3" ) );
         
         // Test the addition of a null value
-        entry.add( "CN", (String)null );
-        assertNotNull( entry.get( atCN ) );
-        assertEquals( 4, entry.get( atCN ).size() );
-        assertTrue( entry.contains( atCN, "test1" ) );
-        assertTrue( entry.contains( atCN, "test2" ) );
-        assertTrue( entry.contains( atCN, "test3" ) );
-        assertTrue( entry.contains( atCN, (String )null ) ); 
+        entry.add( "DC", (String)null );
+        assertNotNull( entry.get( atDC ) );
+        assertEquals( 4, entry.get( atDC ).size() );
+        assertTrue( entry.contains( atDC, "test1" ) );
+        assertTrue( entry.contains( atDC, "test2" ) );
+        assertTrue( entry.contains( atDC, "test3" ) );
+        assertTrue( entry.contains( atDC, (String )null ) ); 
         
         entry.clear();
         
         // Test the addition of a binary value
         byte[] test4 = StringTools.getBytesUtf8( "test4" );
         
-        entry.add( "CN", test4 );
-        assertFalse( entry.contains(  "CN", test4 ) );
+        entry.add( "DC", test4 );
+        assertFalse( entry.contains( "DC", test4 ) );
     }
 
 
@@ -954,8 +955,8 @@ public class DefaultServerEntryTest
 
         entry.add( "userPassword", "test4" );
         assertNotNull( entry.get( atPassword ) );
-        assertEquals( 0, entry.get( atPassword ).size() );
-        assertFalse( entry.contains( atPassword, test4 ) );
+        assertEquals( 1, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, test4 ) );
     }
 
 
@@ -973,55 +974,55 @@ public class DefaultServerEntryTest
         byte[] b2 = StringTools.getBytesUtf8( "test2" );
         byte[] b3 = StringTools.getBytesUtf8( "test3" );
 
-        Value<String> test1 = new StringValue( atCN, "test1" );
-        Value<String> test2 = new StringValue( atCN, "test2" );
-        Value<String> test3 = new StringValue( atCN, "test3" );
+        Value<String> test1 = new StringValue( atDC, "test1" );
+        Value<String> test2 = new StringValue( atDC, "test2" );
+        Value<String> test3 = new StringValue( atDC, "test3" );
         
         Value<byte[]> testB1 = new BinaryValue( atPassword, b1 );
         Value<byte[]> testB2 = new BinaryValue( atPassword, b2 );
         Value<byte[]> testB3 = new BinaryValue( atPassword, b3 );
         
-        // Test a simple addition in atCN
-        entry.add( "cN", test1 );
-        assertNotNull( entry.get( atCN ) );
-        assertEquals( 1, entry.get( atCN ).size() );
-        assertEquals( "test1", entry.get( atCN ).get().getString() );
-        assertTrue( entry.containsAttribute( atCN ) );
-        assertEquals( "cN", entry.get( atCN ).getUpId() );
+        // Test a simple addition in atDC
+        entry.add( "dC", test1 );
+        assertNotNull( entry.get( atDC ) );
+        assertEquals( 1, entry.get( atDC ).size() );
+        assertEquals( "test1", entry.get( atDC ).get().getString() );
+        assertTrue( entry.containsAttribute( atDC ) );
+        assertEquals( "dC", entry.get( atDC ).getUpId() );
         
         // Test some more addition
-        entry.add( "cN", test2, test3 );
-        assertNotNull( entry.get( atCN ) );
-        assertEquals( 3, entry.get( atCN ).size() );
-        assertTrue( entry.contains( atCN, "test1" ) );
-        assertTrue( entry.contains( atCN, "test2" ) );
-        assertTrue( entry.contains( atCN, "test3" ) );
-        assertTrue( entry.containsAttribute( atCN ) );
-        assertEquals( "cN", entry.get( atCN ).getUpId() );
+        entry.add( "dC", test2, test3 );
+        assertNotNull( entry.get( atDC ) );
+        assertEquals( 3, entry.get( atDC ).size() );
+        assertTrue( entry.contains( atDC, "test1" ) );
+        assertTrue( entry.contains( atDC, "test2" ) );
+        assertTrue( entry.contains( atDC, "test3" ) );
+        assertTrue( entry.containsAttribute( atDC ) );
+        assertEquals( "dC", entry.get( atDC ).getUpId() );
         
         // Test some addition of existing values
-        entry.add( "cN", test2 );
-        assertNotNull( entry.get( atCN ) );
-        assertEquals( 3, entry.get( atCN ).size() );
-        assertTrue( entry.contains( atCN, "test1" ) );
-        assertTrue( entry.contains( atCN, "test2" ) );
-        assertTrue( entry.contains( atCN, "test3" ) );
+        entry.add( "dC", test2 );
+        assertNotNull( entry.get( atDC ) );
+        assertEquals( 3, entry.get( atDC ).size() );
+        assertTrue( entry.contains( atDC, "test1" ) );
+        assertTrue( entry.contains( atDC, "test2" ) );
+        assertTrue( entry.contains( atDC, "test3" ) );
         
         // Test the addition of a null value
-        entry.add( "cN", (String)null );
-        assertNotNull( entry.get( atCN ) );
-        assertEquals( 4, entry.get( atCN ).size() );
-        assertTrue( entry.contains( atCN, "test1" ) );
-        assertTrue( entry.contains( atCN, "test2" ) );
-        assertTrue( entry.contains( atCN, "test3" ) );
-        assertTrue( entry.contains( atCN, (String )null ) ); 
+        entry.add( "dC", (String)null );
+        assertNotNull( entry.get( atDC ) );
+        assertEquals( 4, entry.get( atDC ).size() );
+        assertTrue( entry.contains( atDC, "test1" ) );
+        assertTrue( entry.contains( atDC, "test2" ) );
+        assertTrue( entry.contains( atDC, "test3" ) );
+        assertTrue( entry.contains( atDC, (String )null ) ); 
         
         entry.clear();
         
         // Test the addition of a String value. It should be converted to a byte array
         byte[] test4 = StringTools.getBytesUtf8( "test4" );
 
-        entry.add( "cN", test4 );
+        entry.add( "dC", test4 );
         assertFalse( entry.contains( "cN", test4 ) );
 
         // Now, work with a binary attribute
@@ -1065,8 +1066,8 @@ public class DefaultServerEntryTest
 
         entry.add( "userPASSWORD", "test4" );
         assertNotNull( entry.get( atPassword ) );
-        assertEquals( 0, entry.get( atPassword ).size() );
-        assertFalse( entry.contains( atPassword, b4 ) );
+        assertEquals( 1, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, b4 ) );
     }
 
 
@@ -1079,43 +1080,43 @@ public class DefaultServerEntryTest
         DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
         // Test a simple addition
-        entry.add( "cn", atCN, "test1" );
-        assertNotNull( entry.get( atCN ) );
-        assertEquals( 1, entry.get( atCN ).size() );
-        assertEquals( "test1", entry.get( atCN ).get().getString() );
+        entry.add( "dc", atDC, "test1" );
+        assertNotNull( entry.get( atDC ) );
+        assertEquals( 1, entry.get( atDC ).size() );
+        assertEquals( "test1", entry.get( atDC ).get().getString() );
         
         // Test some more addition
-        entry.add( "CN", atCN, "test2", "test3" );
-        assertNotNull( entry.get( atCN ) );
-        assertEquals( 3, entry.get( atCN ).size() );
-        assertTrue( entry.contains( atCN, "test1" ) );
-        assertTrue( entry.contains( atCN, "test2" ) );
-        assertTrue( entry.contains( atCN, "test3" ) );
+        entry.add( "DC", atDC, "test2", "test3" );
+        assertNotNull( entry.get( atDC ) );
+        assertEquals( 3, entry.get( atDC ).size() );
+        assertTrue( entry.contains( atDC, "test1" ) );
+        assertTrue( entry.contains( atDC, "test2" ) );
+        assertTrue( entry.contains( atDC, "test3" ) );
         
         // Test some addition of existing values
-        entry.add( "commonName", atCN, "test2" );
-        assertNotNull( entry.get( atCN ) );
-        assertEquals( 3, entry.get( atCN ).size() );
-        assertTrue( entry.contains( atCN, "test1" ) );
-        assertTrue( entry.contains( atCN, "test2" ) );
-        assertTrue( entry.contains( atCN, "test3" ) );
+        entry.add( "domainComponent", atDC, "test2" );
+        assertNotNull( entry.get( atDC ) );
+        assertEquals( 3, entry.get( atDC ).size() );
+        assertTrue( entry.contains( atDC, "test1" ) );
+        assertTrue( entry.contains( atDC, "test2" ) );
+        assertTrue( entry.contains( atDC, "test3" ) );
         
         // Test the addition of a null value
-        entry.add( "COMMONname", atCN, (String)null );
-        assertNotNull( entry.get( atCN ) );
-        assertEquals( 4, entry.get( atCN ).size() );
-        assertTrue( entry.contains( atCN, "test1" ) );
-        assertTrue( entry.contains( atCN, "test2" ) );
-        assertTrue( entry.contains( atCN, "test3" ) );
-        assertTrue( entry.contains( atCN, (String )null ) ); 
+        entry.add( "DOMAINComponent", atDC, (String)null );
+        assertNotNull( entry.get( atDC ) );
+        assertEquals( 4, entry.get( atDC ).size() );
+        assertTrue( entry.contains( atDC, "test1" ) );
+        assertTrue( entry.contains( atDC, "test2" ) );
+        assertTrue( entry.contains( atDC, "test3" ) );
+        assertTrue( entry.contains( atDC, (String )null ) ); 
         
         entry.clear();
         
         // Test the addition of a binary value
         byte[] test4 = StringTools.getBytesUtf8( "test4" );
         
-        entry.add( "cn", atCN, test4 );
-        assertFalse( entry.contains( "cn", test4 ) );
+        entry.add( "dc", atDC, test4 );
+        assertFalse( entry.contains( "dc", test4 ) );
     }
 
 
@@ -1171,8 +1172,8 @@ public class DefaultServerEntryTest
 
         entry.add( "userPassword", atPassword, "test4" );
         assertNotNull( entry.get( atPassword ) );
-        assertEquals( 0, entry.get( atPassword ).size() );
-        assertFalse( entry.contains( atPassword, test4 ) );
+        assertEquals( 1, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, test4 ) );
     }
 
 
@@ -1190,55 +1191,55 @@ public class DefaultServerEntryTest
         byte[] b2 = StringTools.getBytesUtf8( "test2" );
         byte[] b3 = StringTools.getBytesUtf8( "test3" );
 
-        Value<String> test1 = new StringValue( atCN, "test1" );
-        Value<String> test2 = new StringValue( atCN, "test2" );
-        Value<String> test3 = new StringValue( atCN, "test3" );
+        Value<String> test1 = new StringValue( atDC, "test1" );
+        Value<String> test2 = new StringValue( atDC, "test2" );
+        Value<String> test3 = new StringValue( atDC, "test3" );
         
         Value<byte[]> testB1 = new BinaryValue( atPassword, b1 );
         Value<byte[]> testB2 = new BinaryValue( atPassword, b2 );
         Value<byte[]> testB3 = new BinaryValue( atPassword, b3 );
         
         // Test a simple addition in atCN
-        entry.add( "cN", atCN, test1 );
-        assertNotNull( entry.get( atCN ) );
-        assertEquals( 1, entry.get( atCN ).size() );
-        assertEquals( "test1", entry.get( atCN ).get().getString() );
-        assertTrue( entry.containsAttribute( atCN ) );
-        assertEquals( "cN", entry.get( atCN ).getUpId() );
+        entry.add( "dC", atDC, test1 );
+        assertNotNull( entry.get( atDC ) );
+        assertEquals( 1, entry.get( atDC ).size() );
+        assertEquals( "test1", entry.get( atDC ).get().getString() );
+        assertTrue( entry.containsAttribute( atDC ) );
+        assertEquals( "dC", entry.get( atDC ).getUpId() );
         
         // Test some more addition
-        entry.add( "cN", atCN, test2, test3 );
-        assertNotNull( entry.get( atCN ) );
-        assertEquals( 3, entry.get( atCN ).size() );
-        assertTrue( entry.contains( atCN, "test1" ) );
-        assertTrue( entry.contains( atCN, "test2" ) );
-        assertTrue( entry.contains( atCN, "test3" ) );
-        assertTrue( entry.containsAttribute( atCN ) );
-        assertEquals( "cN", entry.get( atCN ).getUpId() );
+        entry.add( "dC", atDC, test2, test3 );
+        assertNotNull( entry.get( atDC ) );
+        assertEquals( 3, entry.get( atDC ).size() );
+        assertTrue( entry.contains( atDC, "test1" ) );
+        assertTrue( entry.contains( atDC, "test2" ) );
+        assertTrue( entry.contains( atDC, "test3" ) );
+        assertTrue( entry.containsAttribute( atDC ) );
+        assertEquals( "dC", entry.get( atDC ).getUpId() );
         
         // Test some addition of existing values
-        entry.add( "cN", atCN, test2 );
-        assertNotNull( entry.get( atCN ) );
-        assertEquals( 3, entry.get( atCN ).size() );
-        assertTrue( entry.contains( atCN, "test1" ) );
-        assertTrue( entry.contains( atCN, "test2" ) );
-        assertTrue( entry.contains( atCN, "test3" ) );
+        entry.add( "dC", atDC, test2 );
+        assertNotNull( entry.get( atDC ) );
+        assertEquals( 3, entry.get( atDC ).size() );
+        assertTrue( entry.contains( atDC, "test1" ) );
+        assertTrue( entry.contains( atDC, "test2" ) );
+        assertTrue( entry.contains( atDC, "test3" ) );
         
         // Test the addition of a null value
-        entry.add( "cN", atCN, (String)null );
-        assertNotNull( entry.get( atCN ) );
-        assertEquals( 4, entry.get( atCN ).size() );
-        assertTrue( entry.contains( atCN, "test1" ) );
-        assertTrue( entry.contains( atCN, "test2" ) );
-        assertTrue( entry.contains( atCN, "test3" ) );
-        assertTrue( entry.contains( atCN, (String )null ) ); 
+        entry.add( "dC", atDC, (String)null );
+        assertNotNull( entry.get( atDC ) );
+        assertEquals( 4, entry.get( atDC ).size() );
+        assertTrue( entry.contains( atDC, "test1" ) );
+        assertTrue( entry.contains( atDC, "test2" ) );
+        assertTrue( entry.contains( atDC, "test3" ) );
+        assertTrue( entry.contains( atDC, (String )null ) ); 
         
         entry.clear();
         
         // Test the addition of a String value. It should be converted to a byte array
         byte[] test4 = StringTools.getBytesUtf8( "test4" );
 
-        entry.add( "cN", atCN, test4 );
+        entry.add( "dC", atDC, test4 );
         assertFalse( entry.contains( "cN", test4 ) );
 
         // Now, work with a binary attribute
@@ -1282,8 +1283,8 @@ public class DefaultServerEntryTest
 
         entry.add( "userPASSWORD", atPassword, "test4" );
         assertNotNull( entry.get( atPassword ) );
-        assertEquals( 0, entry.get( atPassword ).size() );
-        assertFalse( entry.contains( atPassword, b4 ) );
+        assertEquals( 1, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, b4 ) );
     }
 
 
@@ -1359,7 +1360,7 @@ public class DefaultServerEntryTest
         assertFalse( entry.contains( (AttributeType )null, BYTES1 ) );
         assertFalse( entry.contains( atPwd, BYTES1 ) );
         
-        EntryAttribute attrPWD = new DefaultServerAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
 
         assertFalse( entry.contains( attrPWD ) );
         
@@ -1382,7 +1383,7 @@ public class DefaultServerEntryTest
         assertFalse( entry.contains( (AttributeType )null, "test" ) );
         assertFalse( entry.contains( atCN, "test" ) );
         
-        EntryAttribute attrCN = new DefaultServerAttribute( atCN, "test1", "test2" );
+        EntryAttribute attrCN = new DefaultClientAttribute( atCN, "test1", "test2" );
 
         assertFalse( entry.contains( attrCN ) );
         
@@ -1415,8 +1416,8 @@ public class DefaultServerEntryTest
         assertFalse( entry.contains( (String)null, strValue1 ) );
         assertFalse( entry.contains( atCN, binValue1 ) );
         
-        EntryAttribute attrCN = new DefaultServerAttribute( atCN, strValue1, strValue2 );
-        EntryAttribute attrPWD = new DefaultServerAttribute( atPwd, binValue1, binValue2, binNullValue );
+        EntryAttribute attrCN = new DefaultClientAttribute( atCN, strValue1, strValue2 );
+        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, binValue1, binValue2, binNullValue );
 
         entry.add( attrCN, attrPWD );
         
@@ -1437,10 +1438,10 @@ public class DefaultServerEntryTest
     {
         Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        EntryAttribute attrOC = new DefaultServerAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultServerAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultServerAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultServerAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrOC = new DefaultClientAttribute( atOC, "top", "person" );
+        EntryAttribute attrCN = new DefaultClientAttribute( atCN, "test1", "test2" );
+        EntryAttribute attrSN = new DefaultClientAttribute( atSN, "Test1", "Test2" );
+        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
 
         assertFalse( entry.contains( attrOC, attrCN ) );
         
@@ -1470,7 +1471,7 @@ public class DefaultServerEntryTest
         assertFalse( entry.contains( (String)null, BYTES3 ) );
         assertFalse( entry.containsAttribute( "objectClass" ) );
         
-        EntryAttribute attrPWD = new DefaultServerAttribute( atPwd, BYTES1, (byte[])null, BYTES2 );
+        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, (byte[])null, BYTES2 );
 
         entry.add( attrPWD );
         
@@ -1494,16 +1495,16 @@ public class DefaultServerEntryTest
         assertFalse( entry.contains( (String)null, "test" ) );
         assertFalse( entry.containsAttribute( "objectClass" ) );
         
-        EntryAttribute attrCN = new DefaultServerAttribute( atCN, "test1", (String)null, "test2" );
+        EntryAttribute attrDC = new DefaultClientAttribute( atDC, "test1", (String)null, "test2" );
 
-        entry.add( attrCN );
+        entry.add( attrDC );
         
-        assertTrue( entry.contains( "  CN  ", "test1", "test2" ) );
+        assertTrue( entry.contains( "  DC  ", "test1", "test2" ) );
         
-        assertTrue( entry.contains( "  CN  ", (String)null ) );
-        assertFalse( entry.contains( "  CN  ", BYTES1, BYTES2 ) );
-        assertFalse( entry.contains( "  CN  ", "test3" ) );
-        assertFalse( entry.contains( "  CNN  ", "test3" ) );
+        assertTrue( entry.contains( "  DC  ", (String)null ) );
+        assertFalse( entry.contains( "  DC  ", BYTES1, BYTES2 ) );
+        assertFalse( entry.contains( "  DC  ", "test3" ) );
+        assertFalse( entry.contains( "  DCC  ", "test3" ) );
     }
     
     
@@ -1518,26 +1519,26 @@ public class DefaultServerEntryTest
         assertFalse( entry.contains( (String)null, "test" ) );
         assertFalse( entry.containsAttribute( "objectClass" ) );
         
-        EntryAttribute attrCN = new DefaultServerAttribute( atCN, "test1", "test2", (String)null );
-        EntryAttribute attrPWD = new DefaultServerAttribute( atPwd, BYTES1, BYTES2, (byte[])null );
+        EntryAttribute attrDC = new DefaultClientAttribute( atDC, "test1", "test2", (String)null );
+        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, BYTES2, (byte[])null );
 
-        entry.add( attrCN, attrPWD );
+        entry.add( attrDC, attrPWD );
         
-        Value<String> strValue1 = new StringValue( atCN, "test1" );
-        Value<String> strValue2 = new StringValue( atCN, "test2" );
-        Value<String> strValue3 = new StringValue( atCN, "test3" );
-        Value<String> strNullValue = new StringValue( atCN, null);
+        Value<String> strValue1 = new StringValue( atDC, "test1" );
+        Value<String> strValue2 = new StringValue( atDC, "test2" );
+        Value<String> strValue3 = new StringValue( atDC, "test3" );
+        Value<String> strNullValue = new StringValue( atDC, null);
 
         Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
         Value<byte[]> binValue2 = new BinaryValue( atPwd, BYTES2 );
         Value<byte[]> binValue3 = new BinaryValue( atPwd, BYTES3 );
         Value<byte[]> binNullValue = new BinaryValue( atPwd, null );
 
-        assertTrue( entry.contains( "CN", strValue1, strValue2 ) );
+        assertTrue( entry.contains( "DC", strValue1, strValue2 ) );
         assertTrue( entry.contains( "userpassword", binValue1, binValue2, binNullValue ) );
         
-        assertFalse( entry.contains( "cn", strValue3 ) );
-        assertTrue( entry.contains( "cn", strNullValue ) );
+        assertFalse( entry.contains( "dc", strValue3 ) );
+        assertTrue( entry.contains( "dc", strNullValue ) );
         assertFalse( entry.contains( "UserPassword", binValue3 ) );
     }
     
@@ -1552,10 +1553,10 @@ public class DefaultServerEntryTest
         
         assertFalse( entry.containsAttribute( atOC ) );
         
-        EntryAttribute attrOC = new DefaultServerAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultServerAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultServerAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultServerAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrOC = new DefaultClientAttribute( atOC, "top", "person" );
+        EntryAttribute attrCN = new DefaultClientAttribute( atCN, "test1", "test2" );
+        EntryAttribute attrSN = new DefaultClientAttribute( atSN, "Test1", "Test2" );
+        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
 
         entry.add( attrOC, attrCN, attrSN, attrPWD );
         
@@ -1583,10 +1584,10 @@ public class DefaultServerEntryTest
         
         assertFalse( entry.containsAttribute( "objectClass" ) );
         
-        EntryAttribute attrOC = new DefaultServerAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultServerAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultServerAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultServerAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrOC = new DefaultClientAttribute( atOC, "top", "person" );
+        EntryAttribute attrCN = new DefaultClientAttribute( atCN, "test1", "test2" );
+        EntryAttribute attrSN = new DefaultClientAttribute( atSN, "Test1", "Test2" );
+        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
 
         entry.add( attrOC, attrCN, attrSN, attrPWD );
         
@@ -1619,10 +1620,10 @@ public class DefaultServerEntryTest
         entry2.setDn( EXAMPLE_DN );
         assertEquals( entry1, entry2 );
 
-        EntryAttribute attrOC = new DefaultServerAttribute( "objectClass", atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultServerAttribute( "cn", atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultServerAttribute( "sn", atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultServerAttribute( "userPassword", atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrOC = new DefaultClientAttribute( "objectClass", atOC, "top", "person" );
+        EntryAttribute attrCN = new DefaultClientAttribute( "cn", atCN, "test1", "test2" );
+        EntryAttribute attrSN = new DefaultClientAttribute( "sn", atSN, "Test1", "Test2" );
+        EntryAttribute attrPWD = new DefaultClientAttribute( "userPassword", atPwd, BYTES1, BYTES2 );
         
         entry1.put( attrOC, attrCN, attrSN, attrPWD );
         entry2.put( attrOC, attrCN, attrSN );
@@ -1631,8 +1632,8 @@ public class DefaultServerEntryTest
         entry2.put( attrPWD );
         assertEquals( entry1, entry2 );
         
-        EntryAttribute attrL1 = new DefaultServerAttribute( "l", atL, "Paris", "New-York" );
-        EntryAttribute attrL2 = new DefaultServerAttribute( "l", atL, "Paris", "Tokyo" );
+        EntryAttribute attrL1 = new DefaultClientAttribute( "l", atL, "Paris", "New-York" );
+        EntryAttribute attrL2 = new DefaultClientAttribute( "l", atL, "Paris", "Tokyo" );
         
         entry1.put( attrL1 );
         entry2.put( attrL1 );
@@ -1660,10 +1661,10 @@ public class DefaultServerEntryTest
         
         assertEquals( 0, entry.getAttributeTypes().size() );
 
-        EntryAttribute attrOC = new DefaultServerAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultServerAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultServerAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultServerAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrOC = new DefaultClientAttribute( atOC, "top", "person" );
+        EntryAttribute attrCN = new DefaultClientAttribute( atCN, "test1", "test2" );
+        EntryAttribute attrSN = new DefaultClientAttribute( atSN, "Test1", "Test2" );
+        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
 
         entry.add( attrOC, attrCN, attrSN, attrPWD );
         
@@ -1689,10 +1690,10 @@ public class DefaultServerEntryTest
         assertNull( entry.get( atCN ) );
         assertNull( entry.get( (AttributeType)null ) );
         
-        EntryAttribute attrOC = new DefaultServerAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultServerAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultServerAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultServerAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrOC = new DefaultClientAttribute( atOC, "top", "person" );
+        EntryAttribute attrCN = new DefaultClientAttribute( atCN, "test1", "test2" );
+        EntryAttribute attrSN = new DefaultClientAttribute( atSN, "Test1", "Test2" );
+        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
         
         entry.add( attrOC, attrCN, attrSN, attrPWD );
         
@@ -1716,10 +1717,10 @@ public class DefaultServerEntryTest
         assertNull( entry.get( "cn" ) );
         assertNull( entry.get( "badId" ) );
         
-        EntryAttribute attrOC = new DefaultServerAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultServerAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultServerAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultServerAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrOC = new DefaultClientAttribute( atOC, "top", "person" );
+        EntryAttribute attrCN = new DefaultClientAttribute( atCN, "test1", "test2" );
+        EntryAttribute attrSN = new DefaultClientAttribute( atSN, "Test1", "Test2" );
+        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
         
         entry.add( attrOC, attrCN, attrSN, attrPWD );
         
@@ -1769,10 +1770,10 @@ public class DefaultServerEntryTest
         assertEquals( entry1.hashCode(), entry2.hashCode() );
         
         
-        EntryAttribute attrOC = new DefaultServerAttribute( "objectClass", atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultServerAttribute( "cn", atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultServerAttribute( "sn", atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultServerAttribute( "userPassword", atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrOC = new DefaultClientAttribute( "objectClass", atOC, "top", "person" );
+        EntryAttribute attrCN = new DefaultClientAttribute( "cn", atCN, "test1", "test2" );
+        EntryAttribute attrSN = new DefaultClientAttribute( "sn", atSN, "Test1", "Test2" );
+        EntryAttribute attrPWD = new DefaultClientAttribute( "userPassword", atPwd, BYTES1, BYTES2 );
 
         entry1.add( attrOC, attrCN, attrSN, attrPWD );
         entry2.add( attrOC, attrCN, attrSN, attrPWD );
@@ -1794,7 +1795,7 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        EntryAttribute attrOC = new DefaultServerAttribute( atOC, "top", "person" );
+        EntryAttribute attrOC = new DefaultClientAttribute( atOC, "top", "person" );
         
         assertFalse( entry.contains( attrOC ) );
         assertFalse( entry.hasObjectClass( attrOC ) );
@@ -1803,14 +1804,14 @@ public class DefaultServerEntryTest
         
         assertTrue( entry.hasObjectClass( attrOC ) );
 
-        EntryAttribute attrOC2 = new DefaultServerAttribute( atOC, "person" );
+        EntryAttribute attrOC2 = new DefaultClientAttribute( atOC, "person" );
         assertTrue( entry.hasObjectClass( attrOC2 ) );
 
-        EntryAttribute attrOC3 = new DefaultServerAttribute( atOC, "inetOrgPerson" );
+        EntryAttribute attrOC3 = new DefaultClientAttribute( atOC, "inetOrgPerson" );
         assertFalse( entry.hasObjectClass( attrOC3 ) );
         assertFalse( entry.hasObjectClass( (EntryAttribute)null ) );
 
-        EntryAttribute attrCN = new DefaultServerAttribute( atCN, "top" );
+        EntryAttribute attrCN = new DefaultClientAttribute( atCN, "top" );
         assertFalse( entry.hasObjectClass( attrCN ) );
     }
 
@@ -1826,7 +1827,7 @@ public class DefaultServerEntryTest
         assertFalse( entry.containsAttribute( "objectClass" ) );
         assertFalse( entry.hasObjectClass( "top" ) );
         
-        entry.add( new DefaultServerAttribute( atOC, "top", "person" ) );
+        entry.add( new DefaultClientAttribute( atOC, "top", "person" ) );
         
         assertTrue( entry.hasObjectClass( "top" ) );
         assertTrue( entry.hasObjectClass( "person" ) );
@@ -1877,10 +1878,10 @@ public class DefaultServerEntryTest
     {
         Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        EntryAttribute attrOC = new DefaultServerAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultServerAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultServerAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultServerAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrOC = new DefaultClientAttribute( atOC, "top", "person" );
+        EntryAttribute attrCN = new DefaultClientAttribute( atCN, "test1", "test2" );
+        EntryAttribute attrSN = new DefaultClientAttribute( atSN, "Test1", "Test2" );
+        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
         
         entry.put( attrOC, attrCN, attrSN, attrPWD );
         
@@ -1947,7 +1948,8 @@ public class DefaultServerEntryTest
         assertTrue( replaced.contains( BYTES1, BYTES2 ) );
         
         EntryAttribute attribute = entry.get( atPwd );
-        assertEquals( 0, attribute.size() );
+        assertEquals( 1, attribute.size() );
+        assertTrue( attribute.contains( "test".getBytes() ) );
     }
     
     
@@ -1969,25 +1971,25 @@ public class DefaultServerEntryTest
             assertTrue( true );
         }
         
-        entry.put( atCN, (String)null );
+        entry.put( atDC, (String)null );
         assertEquals( 1, entry.size() );
-        assertTrue( entry.containsAttribute( atCN) );
-        assertTrue( entry.contains( atCN, (String)null ) );
+        assertTrue( entry.containsAttribute( atDC) );
+        assertTrue( entry.contains( atDC, (String)null ) );
         
-        EntryAttribute replaced = entry.put( atCN, "test1", "test2", "test1" );
+        EntryAttribute replaced = entry.put( atDC, "test1", "test2", "test1" );
         assertNotNull( replaced );
-        assertEquals( atCN, replaced.getAttributeType() );
+        assertEquals( atDC, replaced.getAttributeType() );
         assertTrue( replaced.contains( (String)null ) );
         assertEquals( 1, entry.size() );
-        assertTrue( entry.contains( atCN, "test1", "test2" ) );
-        assertFalse( entry.contains( atCN, "test3" ) );
-        assertEquals( 2, entry.get( atCN ).size() );
+        assertTrue( entry.contains( atDC, "test1", "test2" ) );
+        assertFalse( entry.contains( atDC, "test3" ) );
+        assertEquals( 2, entry.get( atDC ).size() );
         
-        replaced = entry.put( atCN, BYTES1 );
+        replaced = entry.put( atDC, BYTES1 );
         assertNotNull( replaced );
         assertTrue( replaced.contains( "test1", "test2" ) );
         
-        EntryAttribute attribute = entry.get( atCN );
+        EntryAttribute attribute = entry.get( atDC );
         assertEquals( 0, attribute.size() );
     }
     
@@ -2048,11 +2050,11 @@ public class DefaultServerEntryTest
     {
         Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        EntryAttribute oc = new DefaultServerAttribute( atObjectClass, "top", "person" );
-        EntryAttribute cn = new DefaultServerAttribute( atCN, "test1", "test2" );
-        EntryAttribute sn = new DefaultServerAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute up = new DefaultServerAttribute( atPwd, BYTES1, BYTES2 );
-        EntryAttribute c = new DefaultServerAttribute( atC, "FR", "US" );
+        EntryAttribute oc = new DefaultClientAttribute( atObjectClass, "top", "person" );
+        EntryAttribute cn = new DefaultClientAttribute( atCN, "test1", "test2" );
+        EntryAttribute sn = new DefaultClientAttribute( atSN, "Test1", "Test2" );
+        EntryAttribute up = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute c = new DefaultClientAttribute( atC, "FR", "US" );
         
         List<EntryAttribute> removed = entry.put( oc, cn, sn, c );
         
@@ -2066,7 +2068,7 @@ public class DefaultServerEntryTest
         EntryAttribute attr = entry.get( "objectclass" );
         assertEquals( 2, attr.size() );
         
-        EntryAttribute c2 = new DefaultServerAttribute( atC, "UK", "DE" );
+        EntryAttribute c2 = new DefaultClientAttribute( atC, "UK", "DE" );
         removed = entry.put( c2, up );
         assertEquals( 1, removed.size() );
         assertEquals( c, removed.get( 0 ) );
@@ -2161,7 +2163,7 @@ public class DefaultServerEntryTest
         assertEquals( "userpassword", entry.get( atPwd ).getUpId() );
         
         EntryAttribute attribute = entry.get( atPwd );
-        assertEquals( 0, attribute.size() );
+        assertEquals( 1, attribute.size() );
     }
     
     
@@ -2213,28 +2215,28 @@ public class DefaultServerEntryTest
             assertTrue( true );
         }
         
-        entry.put( "CN", atCN, (String)null );
+        entry.put( "DC", atDC, (String)null );
         assertEquals( 1, entry.size() );
-        assertTrue( entry.containsAttribute( atCN) );
-        assertTrue( entry.contains( atCN, (String)null ) );
-        assertEquals( "CN", entry.get( atCN ).getUpId() );
+        assertTrue( entry.containsAttribute( atDC ) );
+        assertTrue( entry.contains( atDC, (String)null ) );
+        assertEquals( "DC", entry.get( atDC ).getUpId() );
         
-        EntryAttribute replaced = entry.put( "commonName", atCN, "test1", "test2", "test1" );
+        EntryAttribute replaced = entry.put( "domainComponent", atDC, "test1", "test2", "test1" );
         assertNotNull( replaced );
-        assertEquals( atCN, replaced.getAttributeType() );
-        assertEquals( "commonName", entry.get( atCN).getUpId() );
+        assertEquals( atDC, replaced.getAttributeType() );
+        assertEquals( "domainComponent", entry.get( atDC ).getUpId() );
         assertTrue( replaced.contains( (String)null ) );
         assertEquals( 1, entry.size() );
-        assertTrue( entry.contains( atCN, "test1", "test2" ) );
-        assertFalse( entry.contains( atCN, "test3" ) );
-        assertEquals( 2, entry.get( atCN ).size() );
+        assertTrue( entry.contains( atDC, "test1", "test2" ) );
+        assertFalse( entry.contains( atDC, "test3" ) );
+        assertEquals( 2, entry.get( atDC ).size() );
         
-        replaced = entry.put( "2.5.4.3", atCN, BYTES1 );
+        replaced = entry.put( "0.9.2342.19200300.100.1.25", atDC, BYTES1 );
         assertNotNull( replaced );
         assertTrue( replaced.contains( "test1", "test2" ) );
-        assertEquals( "2.5.4.3", entry.get( atCN).getUpId() );
+        assertEquals( "0.9.2342.19200300.100.1.25", entry.get( atDC ).getUpId() );
         
-        EntryAttribute attribute = entry.get( atCN );
+        EntryAttribute attribute = entry.get( atDC );
         assertEquals( 0, attribute.size() );
     }
     
@@ -2430,9 +2432,8 @@ public class DefaultServerEntryTest
         assertNull( replaced );
         assertEquals( 1, entry.size() );
         assertNotNull( entry.get( "description" ) );
-        assertEquals( 1, entry.get( "description" ).size() );
-        assertNotNull( entry.get( "description" ).get() );
-        assertNull( entry.get( "description" ).get().get() );
+        assertEquals( 0, entry.get( "description" ).size() );
+        assertNull( entry.get( "description" ).get() );
         
         replaced = entry.put( "CN", "test" );
         assertNull( replaced );
@@ -2563,16 +2564,16 @@ public class DefaultServerEntryTest
         AttributeType atGN = schemaManager.lookupAttributeTypeRegistry( "givenname" );
         AttributeType atStreet = schemaManager.lookupAttributeTypeRegistry( "2.5.4.9" );
 
-        EntryAttribute sa = new DefaultServerAttribute( atL, "france" );
+        EntryAttribute sa = new DefaultClientAttribute( atL, "france" );
         entry.put( sa );
         
         assertEquals( 1, entry.size() );
         assertNotNull( entry.get( "l" ) );
         assertEquals( "france", entry.get( "l" ).get().getString() );
         
-        EntryAttribute sb = new DefaultServerAttribute( atC, "countryTest" );
-        EntryAttribute sc = new DefaultServerAttribute( atGN, "test" );
-        EntryAttribute sd = new DefaultServerAttribute( atStreet, "testStreet" );
+        EntryAttribute sb = new DefaultClientAttribute( atC, "countryTest" );
+        EntryAttribute sc = new DefaultClientAttribute( atGN, "test" );
+        EntryAttribute sd = new DefaultClientAttribute( atStreet, "testStreet" );
         entry.put( sb, sc, sd );
 
         assertEquals( 4, entry.size() );
@@ -2584,8 +2585,8 @@ public class DefaultServerEntryTest
         assertEquals( "testStreet", entry.get( atStreet ).get().getString() );
         
         // Test a replacement
-        EntryAttribute sbb = new DefaultServerAttribute( atC, "countryTestTest" );
-        EntryAttribute scc = new DefaultServerAttribute( atGN, "testtest" );
+        EntryAttribute sbb = new DefaultClientAttribute( atC, "countryTestTest" );
+        EntryAttribute scc = new DefaultClientAttribute( atGN, "testtest" );
         List<EntryAttribute> result = entry.put( sbb, scc );
         
         assertEquals( 2, result.size() );
@@ -2601,7 +2602,7 @@ public class DefaultServerEntryTest
         
         // test an ObjectClass replacement
         AttributeType OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
-        EntryAttribute oc = new DefaultServerAttribute( "OBJECTCLASS", OBJECT_CLASS_AT, "person", "inetorgperson" );
+        EntryAttribute oc = new DefaultClientAttribute( "OBJECTCLASS", OBJECT_CLASS_AT, "person", "inetorgperson" );
         List<EntryAttribute> oldOc = entry.put( oc );
         
         assertNotNull( oldOc );
@@ -2624,14 +2625,14 @@ public class DefaultServerEntryTest
      */
     @Test public void tesPutAtStringElipsis() throws Exception
     {
-        DN dn = new DN( "cn=test" );
+        DN dn = new DN( "dc=test" );
         DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
         // Test an empty AT
-        entry.put( atCN, (String)null );
+        entry.put( atDC, (String)null );
         assertEquals( 1, entry.size() );
-        assertEquals( "cn", entry.get( atCN ).getUpId() );
-        assertNull( entry.get( atCN ).get().get() );
+        assertEquals( "dc", entry.get( atDC ).getUpId() );
+        assertNull( entry.get( atDC ).get().get() );
         
         // Check that we can't use invalid arguments
         try
@@ -2645,34 +2646,33 @@ public class DefaultServerEntryTest
         }
         
         // Add a single value
-        atCN = schemaManager.lookupAttributeTypeRegistry( "cn" );
-        entry.put( atCN, "test" );
+        entry.put( atDC, "test" );
         
         assertEquals( 1, entry.size() );
-        assertEquals( "cn", entry.get( atCN ).getUpId() );
-        assertEquals( 1, entry.get( atCN ).size() );
-        assertEquals( "test", entry.get( atCN ).get().getString() );
+        assertEquals( "dc", entry.get( atDC ).getUpId() );
+        assertEquals( 1, entry.get( atDC ).size() );
+        assertEquals( "test", entry.get( atDC ).get().getString() );
         
         // Add more than one value
-        entry.put( atCN, "test1", "test2", "test3" );
+        entry.put( atDC, "test1", "test2", "test3" );
         
         assertEquals( 1, entry.size() );
-        assertEquals( "cn", entry.get( atCN ).getUpId() );
-        assertEquals( 3, entry.get( atCN ).size() );
-        assertTrue( entry.contains( "cn", "test1" ) );
-        assertTrue( entry.contains( "cn", "test2" ) );
-        assertTrue( entry.contains( "cn", "test3" ) );
+        assertEquals( "dc", entry.get( atDC ).getUpId() );
+        assertEquals( 3, entry.get( atDC ).size() );
+        assertTrue( entry.contains( "dc", "test1" ) );
+        assertTrue( entry.contains( "dc", "test2" ) );
+        assertTrue( entry.contains( "dc", "test3" ) );
         
         // Add twice the same value
-        EntryAttribute sa = entry.put( atCN, "test1", "test2", "test1" );
+        EntryAttribute sa = entry.put( atDC, "test1", "test2", "test1" );
         
         assertEquals( 3, sa.size() );
         assertTrue( sa.contains( "test1", "test2", "test3" ) );
         assertEquals( 1, entry.size() );
-        assertEquals( "cn", entry.get( atCN ).getUpId() );
-        assertEquals( 2, entry.get( atCN ).size() );
-        assertTrue( entry.contains( "cn", "test1" ) );
-        assertTrue( entry.contains( "cn", "test2" ) );
+        assertEquals( "dc", entry.get( atDC ).getUpId() );
+        assertEquals( 2, entry.get( atDC ).size() );
+        assertTrue( entry.contains( "dc", "test1" ) );
+        assertTrue( entry.contains( "dc", "test2" ) );
     }
     
 
@@ -2805,15 +2805,15 @@ public class DefaultServerEntryTest
      */
     @Test public void tesPutUpIdStringElipsis() throws Exception
     {
-        DN dn = new DN( "cn=test" );
+        DN dn = new DN( "dc=test" );
         DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
         // Adding a null value should be possible
-        entry.put( "cn", (String)null );
+        entry.put( "dc", (String)null );
         
         assertEquals( 1, entry.size() );
-        assertEquals( "cn", entry.get( atCN ).getUpId() );
-        assertNull( entry.get( atCN ).get().get() );
+        assertEquals( "dc", entry.get( atDC ).getUpId() );
+        assertNull( entry.get( atDC ).get().get() );
         
         // Check that we can't use invalid arguments
         try
@@ -2827,38 +2827,37 @@ public class DefaultServerEntryTest
         }
         
         // Add a single value
-        atCN = schemaManager.lookupAttributeTypeRegistry( "cn" );
-        entry.put( "cn", "test" );
+        entry.put( "dc", "test" );
         
         assertEquals( 1, entry.size() );
-        assertEquals( "cn", entry.get( atCN ).getUpId() );
-        assertEquals( 1, entry.get( atCN ).size() );
-        assertEquals( "test", entry.get( atCN ).get().getString() );
+        assertEquals( "dc", entry.get( atDC ).getUpId() );
+        assertEquals( 1, entry.get( atDC ).size() );
+        assertEquals( "test", entry.get( atDC ).get().getString() );
         
         // Add more than one value
-        entry.put( "cn", "test1", "test2", "test3" );
+        entry.put( "dc", "test1", "test2", "test3" );
         
         assertEquals( 1, entry.size() );
-        assertEquals( "cn", entry.get( atCN ).getUpId() );
-        assertEquals( 3, entry.get( atCN ).size() );
-        assertTrue( entry.contains( "cn", "test1" ) );
-        assertTrue( entry.contains( "cn", "test2" ) );
-        assertTrue( entry.contains( "cn", "test3" ) );
+        assertEquals( "dc", entry.get( atDC ).getUpId() );
+        assertEquals( 3, entry.get( atDC ).size() );
+        assertTrue( entry.contains( "dc", "test1" ) );
+        assertTrue( entry.contains( "dc", "test2" ) );
+        assertTrue( entry.contains( "dc", "test3" ) );
         
         // Add twice the same value
-        EntryAttribute sa = entry.put( "cn", "test1", "test2", "test1" );
+        EntryAttribute sa = entry.put( "dc", "test1", "test2", "test1" );
         
         assertEquals( 3, sa.size() );
         assertTrue( sa.contains( "test1", "test2", "test3" ) );
         assertEquals( 1, entry.size() );
-        assertEquals( "cn", entry.get( atCN ).getUpId() );
-        assertEquals( 2, entry.get( atCN ).size() );
-        assertTrue( entry.contains( "cn", "test1" ) );
-        assertTrue( entry.contains( "cn", "test2" ) );
+        assertEquals( "dc", entry.get( atDC ).getUpId() );
+        assertEquals( 2, entry.get( atDC ).size() );
+        assertTrue( entry.contains( "dc", "test1" ) );
+        assertTrue( entry.contains( "dc", "test2" ) );
         
         // Check the UpId
-        entry.put( "CN", "test4" );
-        assertEquals( "CN", entry.get( atCN ).getUpId() );
+        entry.put( "DC", "test4" );
+        assertEquals( "DC", entry.get( atDC ).getUpId() );
     }
     
 
@@ -2930,7 +2929,7 @@ public class DefaultServerEntryTest
      */
     @Test public void tesPutUpIDAtStringElipsis() throws Exception
     {
-        DN dn = new DN( "cn=test" );
+        DN dn = new DN( "dc=test" );
         DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
         // Test that we get an error when the ID or AT are null
@@ -2945,29 +2944,29 @@ public class DefaultServerEntryTest
         }
         
         // Test an empty AT
-        entry.put( "commonName", atCN, (String)null );
+        entry.put( "domaincomponent", atDC, (String)null );
         assertEquals( 1, entry.size() );
-        assertEquals( "commonName", entry.get( atCN ).getUpId() );
-        assertTrue( entry.containsAttribute( "cn" ) );
-        assertNull( entry.get( atCN ).get().get() );
+        assertEquals( "domaincomponent", entry.get( atDC ).getUpId() );
+        assertTrue( entry.containsAttribute( "dc" ) );
+        assertNull( entry.get( atDC ).get().get() );
         
         // Check that we can use a null AttributeType
-        entry.put( "commonName", (AttributeType)null, (String)null );
+        entry.put( "domaincomponent", (AttributeType)null, (String)null );
         assertEquals( 1, entry.size() );
-        assertEquals( "commonName", entry.get( atCN ).getUpId() );
-        assertTrue( entry.containsAttribute( "cn" ) );
-        assertNull( entry.get( atCN ).get().get() );
+        assertEquals( "domaincomponent", entry.get( atDC ).getUpId() );
+        assertTrue( entry.containsAttribute( "dc" ) );
+        assertNull( entry.get( atDC ).get().get() );
         
         // Test that we can use a null upId
-        entry.put( null, atCN, (String)null );
+        entry.put( null, atDC, (String)null );
         assertEquals( 1, entry.size() );
-        assertEquals( "cn", entry.get( atCN ).getUpId() );
-        assertTrue( entry.containsAttribute( "cn" ) );
-        assertNull( entry.get( atCN ).get().get() );
+        assertEquals( "dc", entry.get( atDC ).getUpId() );
+        assertTrue( entry.containsAttribute( "dc" ) );
+        assertNull( entry.get( atDC ).get().get() );
 
         try
         {
-            entry.put( "sn", atCN, (String)null );
+            entry.put( "sn", atDC, (String)null );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -2976,15 +2975,15 @@ public class DefaultServerEntryTest
         }
         
         // Test that we can add some new attributes with values
-        EntryAttribute result = entry.put( "CN", atCN, "test1", "test2", "test3" );
+        EntryAttribute result = entry.put( "DC", atDC, "test1", "test2", "test3" );
         assertNotNull( result );
-        assertEquals( "cn", result.getUpId() );
+        assertEquals( "dc", result.getUpId() );
         assertEquals( 1, entry.size() );
-        assertEquals( "CN", entry.get( atCN ).getUpId() );
-        assertNotNull( entry.get( atCN ).get() );
-        assertTrue( entry.contains( "cn", "test1" ) );
-        assertTrue( entry.contains( "CN", "test2" ) );
-        assertTrue( entry.contains( "commonName", "test3" ) );
+        assertEquals( "DC", entry.get( atDC ).getUpId() );
+        assertNotNull( entry.get( atDC ).get() );
+        assertTrue( entry.contains( "dc", "test1" ) );
+        assertTrue( entry.contains( "DC", "test2" ) );
+        assertTrue( entry.contains( "DomainComponent", "test3" ) );
     }
 
 
@@ -3203,7 +3202,7 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        EntryAttribute attrPWD = new DefaultServerAttribute( atPwd, BYTES1, (byte[])null, BYTES2 );
+        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, (byte[])null, BYTES2 );
 
         entry.put( attrPWD );
         assertTrue( entry.remove( atPwd, (byte[])null ) );
@@ -3232,24 +3231,24 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        EntryAttribute attrCN = new DefaultServerAttribute( atCN, "test1", (String)null, "test2" );
+        EntryAttribute attrCN = new DefaultClientAttribute( atDC, "test1", (String)null, "test2" );
 
         entry.put( attrCN );
-        assertTrue( entry.remove( atCN, (String)null ) );
-        assertTrue( entry.remove( atCN, "test1", "test2" ) );
-        assertFalse( entry.containsAttribute( atCN ) );
+        assertTrue( entry.remove( atDC, (String)null ) );
+        assertTrue( entry.remove( atDC, "test1", "test2" ) );
+        assertFalse( entry.containsAttribute( atDC ) );
         
-        entry.add( atCN, "test1", (String)null, "test2" );
-        assertTrue( entry.remove( atCN, (String)null ) );
-        assertEquals( 2, entry.get( atCN ).size() );
-        assertFalse( entry.contains( atCN, (String)null ) );
-        assertTrue( entry.remove( atCN, "test1", "test3" ) );
-        assertEquals( 1, entry.get( atCN ).size() );
-        assertTrue( entry.contains( atCN, "test2" ) );
-        assertFalse( entry.contains( atCN, "test1" ) );
+        entry.add( atDC, "test1", (String)null, "test2" );
+        assertTrue( entry.remove( atDC, (String)null ) );
+        assertEquals( 2, entry.get( atDC ).size() );
+        assertFalse( entry.contains( atDC, (String)null ) );
+        assertTrue( entry.remove( atDC, "test1", "test3" ) );
+        assertEquals( 1, entry.get( atDC ).size() );
+        assertTrue( entry.contains( atDC, "test2" ) );
+        assertFalse( entry.contains( atDC, "test1" ) );
         
-        assertFalse( entry.remove( atCN, "test3" ) );
-        assertFalse( entry.remove( atCN, "test" ) );
+        assertFalse( entry.remove( atDC, "test3" ) );
+        assertFalse( entry.remove( atDC, "test" ) );
     }
 
     
@@ -3261,31 +3260,31 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        Value<String> strValue1 = new StringValue( atCN, "test1" );
-        Value<String> strValue2 = new StringValue( atCN, "test2" );
-        Value<String> strValue3 = new StringValue( atCN, "test3" );
-        Value<String> strNullValue = new StringValue( atCN, null);
+        Value<String> strValue1 = new StringValue( atDC, "test1" );
+        Value<String> strValue2 = new StringValue( atDC, "test2" );
+        Value<String> strValue3 = new StringValue( atDC, "test3" );
+        Value<String> strNullValue = new StringValue( atDC, null);
 
         Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
 
-        EntryAttribute attrPWD = new DefaultServerAttribute( atCN, "test1", (String)null, "test2" );
+        EntryAttribute attrPWD = new DefaultClientAttribute( atDC, "test1", (String)null, "test2" );
 
         entry.put( attrPWD );
-        assertTrue( entry.remove( atCN, strNullValue ) );
-        assertTrue( entry.remove( atCN, strValue1, strValue2 ) );
-        assertFalse( entry.containsAttribute( atCN ) );
+        assertTrue( entry.remove( atDC, strNullValue ) );
+        assertTrue( entry.remove( atDC, strValue1, strValue2 ) );
+        assertFalse( entry.containsAttribute( atDC ) );
         
-        entry.add( atCN, strValue1, strNullValue, strValue2 );
-        assertTrue( entry.remove( atCN, strNullValue ) );
-        assertEquals( 2, entry.get( atCN ).size() );
-        assertFalse( entry.contains( atCN, strNullValue ) );
-        assertTrue( entry.remove( atCN, strValue1, strValue3 ) );
-        assertEquals( 1, entry.get( atCN ).size() );
-        assertTrue( entry.contains( atCN, strValue2 ) );
-        assertFalse( entry.contains( atCN, strValue1 ) );
+        entry.add( atDC, strValue1, strNullValue, strValue2 );
+        assertTrue( entry.remove( atDC, strNullValue ) );
+        assertEquals( 2, entry.get( atDC ).size() );
+        assertFalse( entry.contains( atDC, strNullValue ) );
+        assertTrue( entry.remove( atDC, strValue1, strValue3 ) );
+        assertEquals( 1, entry.get( atDC ).size() );
+        assertTrue( entry.contains( atDC, strValue2 ) );
+        assertFalse( entry.contains( atDC, strValue1 ) );
         
-        assertFalse( entry.remove( atCN, strValue3 ) );
-        assertFalse( entry.remove( atCN, binValue1 ) );
+        assertFalse( entry.remove( atDC, strValue3 ) );
+        assertFalse( entry.remove( atDC, binValue1 ) );
     }
 
     
@@ -3297,10 +3296,10 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        EntryAttribute attrOC = new DefaultServerAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultServerAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultServerAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultServerAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrOC = new DefaultClientAttribute( atOC, "top", "person" );
+        EntryAttribute attrCN = new DefaultClientAttribute( atCN, "test1", "test2" );
+        EntryAttribute attrSN = new DefaultClientAttribute( atSN, "Test1", "Test2" );
+        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
         
         entry.put( attrOC, attrCN, attrSN, attrPWD );
         
@@ -3329,10 +3328,10 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
 
-        EntryAttribute attrOC = new DefaultServerAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultServerAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultServerAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultServerAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrOC = new DefaultClientAttribute( atOC, "top", "person" );
+        EntryAttribute attrCN = new DefaultClientAttribute( atCN, "test1", "test2" );
+        EntryAttribute attrSN = new DefaultClientAttribute( atSN, "Test1", "Test2" );
+        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
         
         entry.put( attrOC, attrCN, attrSN, attrPWD );
         
@@ -3357,10 +3356,10 @@ public class DefaultServerEntryTest
     {
         Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
 
-        EntryAttribute attrOC = new DefaultServerAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultServerAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultServerAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultServerAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrOC = new DefaultClientAttribute( atOC, "top", "person" );
+        EntryAttribute attrCN = new DefaultClientAttribute( atCN, "test1", "test2" );
+        EntryAttribute attrSN = new DefaultClientAttribute( atSN, "Test1", "Test2" );
+        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
         
         entry.put( attrOC, attrCN, attrSN, attrPWD );
         
@@ -3388,7 +3387,7 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        EntryAttribute attrPWD = new DefaultServerAttribute( atPwd, BYTES1, (byte[])null, BYTES2 );
+        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, (byte[])null, BYTES2 );
 
         assertFalse( entry.remove( (String)null, BYTES1 ) );
         assertFalse( entry.remove( " ", BYTES1 ) );
@@ -3421,28 +3420,28 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        EntryAttribute attrCN = new DefaultServerAttribute( atCN, "test1", (String)null, "test2" );
+        EntryAttribute attrCN = new DefaultClientAttribute( atDC, "test1", (String)null, "test2" );
 
         assertFalse( entry.remove( (String)null, "test1" ) );
         assertFalse( entry.remove( " ", "test1" ) );
         assertFalse( entry.remove( "badId", "test1" ) );
 
         entry.put( attrCN );
-        assertTrue( entry.remove( "cn", (String)null ) );
-        assertTrue( entry.remove( "commonName", "test1", "test2" ) );
-        assertFalse( entry.containsAttribute( atCN ) );
+        assertTrue( entry.remove( "dc", (String)null ) );
+        assertTrue( entry.remove( "domainComponent", "test1", "test2" ) );
+        assertFalse( entry.containsAttribute( atDC ) );
         
-        entry.add( atCN, "test1", (String)null, "test2" );
-        assertTrue( entry.remove( "2.5.4.3", (String)null ) );
-        assertEquals( 2, entry.get( atCN ).size() );
-        assertFalse( entry.contains( atCN, (byte[])null ) );
-        assertTrue( entry.remove( "COMMONNAME", "test1", "test3" ) );
-        assertEquals( 1, entry.get( atCN ).size() );
-        assertTrue( entry.contains( atCN, "test2" ) );
-        assertFalse( entry.contains( atCN, "test1" ) );
+        entry.add( atDC, "test1", (String)null, "test2" );
+        assertTrue( entry.remove( "0.9.2342.19200300.100.1.25", (String)null ) );
+        assertEquals( 2, entry.get( atDC ).size() );
+        assertFalse( entry.contains( atDC, (byte[])null ) );
+        assertTrue( entry.remove( "DOMAINCOMPONENT", "test1", "test3" ) );
+        assertEquals( 1, entry.get( atDC ).size() );
+        assertTrue( entry.contains( atDC, "test2" ) );
+        assertFalse( entry.contains( atDC, "test1" ) );
         
-        assertFalse( entry.remove( "Cn", "test3" ) );
-        assertFalse( entry.remove( "cN", "whatever" ) );
+        assertFalse( entry.remove( "Dc", "test3" ) );
+        assertFalse( entry.remove( "dC", "whatever" ) );
     }
 
     
@@ -3454,31 +3453,31 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        Value<String> strValue1 = new StringValue( atCN, "test1" );
-        Value<String> strValue2 = new StringValue( atCN, "test2" );
-        Value<String> strValue3 = new StringValue( atCN, "test3" );
-        Value<String> strNullValue = new StringValue( atCN, null);
+        Value<String> strValue1 = new StringValue( atDC, "test1" );
+        Value<String> strValue2 = new StringValue( atDC, "test2" );
+        Value<String> strValue3 = new StringValue( atDC, "test3" );
+        Value<String> strNullValue = new StringValue( atDC, null);
 
         Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
 
-        EntryAttribute attrPWD = new DefaultServerAttribute( atCN, "test1", (String)null, "test2" );
+        EntryAttribute attrPWD = new DefaultClientAttribute( atDC, "test1", (String)null, "test2" );
 
         entry.put( attrPWD );
-        assertTrue( entry.remove( "CN", strNullValue ) );
-        assertTrue( entry.remove( "CommonName", strValue1, strValue2 ) );
-        assertFalse( entry.containsAttribute( atCN ) );
+        assertTrue( entry.remove( "DC", strNullValue ) );
+        assertTrue( entry.remove( "DomainComponent", strValue1, strValue2 ) );
+        assertFalse( entry.containsAttribute( atDC ) );
         
-        entry.add( atCN, strValue1, strNullValue, strValue2 );
-        assertTrue( entry.remove( "2.5.4.3", strNullValue ) );
-        assertEquals( 2, entry.get( atCN ).size() );
-        assertFalse( entry.contains( atCN, strNullValue ) );
-        assertTrue( entry.remove( "  cn", strValue1, strValue3 ) );
-        assertEquals( 1, entry.get( atCN ).size() );
-        assertTrue( entry.contains( atCN, strValue2 ) );
-        assertFalse( entry.contains( atCN, strValue1 ) );
+        entry.add( atDC, strValue1, strNullValue, strValue2 );
+        assertTrue( entry.remove( "0.9.2342.19200300.100.1.25", strNullValue ) );
+        assertEquals( 2, entry.get( atDC ).size() );
+        assertFalse( entry.contains( atDC, strNullValue ) );
+        assertTrue( entry.remove( "  dc", strValue1, strValue3 ) );
+        assertEquals( 1, entry.get( atDC ).size() );
+        assertTrue( entry.contains( atDC, strValue2 ) );
+        assertFalse( entry.contains( atDC, strValue1 ) );
         
-        assertFalse( entry.remove( " Cn", strValue3 ) );
-        assertFalse( entry.remove( "cN ", binValue1 ) );
+        assertFalse( entry.remove( " Dc", strValue3 ) );
+        assertFalse( entry.remove( "dC ", binValue1 ) );
     }
 
     

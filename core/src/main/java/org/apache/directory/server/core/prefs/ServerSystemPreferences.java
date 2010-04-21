@@ -34,12 +34,12 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerModification;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
@@ -272,7 +272,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         try
         {
             at = directoryService.getSchemaManager().lookupAttributeTypeRegistry( key );
-            EntryAttribute attr = new DefaultServerAttribute( at );
+            EntryAttribute attr = new DefaultClientAttribute( at );
             Modification mi = new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, attr );
             addDelta( mi );
         }
@@ -346,7 +346,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         try
         {
             at = directoryService.getSchemaManager().lookupAttributeTypeRegistry( key );
-            EntryAttribute attr = new DefaultServerAttribute( at, value );
+            EntryAttribute attr = new DefaultClientAttribute( at, value );
             Modification mi = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attr );
             addDelta( mi );
         }

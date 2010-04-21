@@ -29,12 +29,12 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.protocol.shared.store.DirectoryServiceOperation;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerModification;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -80,11 +80,11 @@ public class ChangePassword implements DirectoryServiceOperation
         
         List<Modification> mods = new ArrayList<Modification>(2);
         
-        EntryAttribute newPasswordAttribute = new DefaultServerAttribute( 
+        EntryAttribute newPasswordAttribute = new DefaultClientAttribute( 
             schemaManager.lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT ), StringTools.getBytesUtf8( newPassword ) );
         mods.add( new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, newPasswordAttribute ) );
         
-        EntryAttribute principalAttribute = new DefaultServerAttribute( 
+        EntryAttribute principalAttribute = new DefaultClientAttribute( 
             schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ), principal.getName() );
         mods.add( new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, principalAttribute ) );
         

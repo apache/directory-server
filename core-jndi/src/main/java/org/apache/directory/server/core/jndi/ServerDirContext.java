@@ -65,6 +65,7 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -228,9 +229,13 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 modItems, 
                 getDirectoryService().getSchemaManager() );
         }
+        catch ( LdapNoSuchAttributeException lnsae )
+        {
+            throw new InvalidAttributesException( lnsae.getMessage() );
+        }
         catch ( LdapException le )
         {
-            throw new InvalidAttributesException( le.getMessage() );
+            throw new InvalidAttributeValueException( le.getMessage() );
         }
 
         try
@@ -602,7 +607,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
                 if ( doRdnPut )
                 {
-                    attributes.put( atav.getNormType(), atav.getNormValue() );
+                    attributes.put( atav.getNormType(), atav.getNormValue().get() );
                 }
             }
         }

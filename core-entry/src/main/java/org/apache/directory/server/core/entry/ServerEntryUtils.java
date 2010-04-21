@@ -37,7 +37,6 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -45,6 +44,7 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.name.DN;
@@ -130,7 +130,7 @@ public class ServerEntryUtils
      * 
      * @throws InvalidAttributeIdentifierException If we had an incorrect attribute
      */
-    public static EntryAttribute toServerAttribute( Attribute attribute, AttributeType attributeType )
+    public static EntryAttribute toServerAttribute( Attribute attribute, AttributeType attributeType ) throws LdapInvalidAttributeTypeException
     {
         if ( attribute == null )
         {
@@ -139,11 +139,12 @@ public class ServerEntryUtils
         
         try 
         {
-            EntryAttribute serverAttribute = new DefaultServerAttribute( attributeType );
+            EntryAttribute serverAttribute = new DefaultClientAttribute( attributeType );
         
             for ( NamingEnumeration<?> values = attribute.getAll(); values.hasMoreElements(); )
             {
                 Object value = values.nextElement();
+                int nbAdded = 0;
                 
                 if ( value == null )
                 {
@@ -154,31 +155,36 @@ public class ServerEntryUtils
                 {
                     if ( value instanceof String )
                     {
-                        serverAttribute.add( (String)value );
+                        nbAdded = serverAttribute.add( (String)value );
                     }
                     else if ( value instanceof byte[] )
                     {
-                        serverAttribute.add( StringTools.utf8ToString( (byte[])value ) );
+                        nbAdded = serverAttribute.add( StringTools.utf8ToString( (byte[])value ) );
                     }
                     else
                     {
-                        return null;
+                        throw new LdapInvalidAttributeTypeException();
                     }
                 }
                 else
                 {
                     if ( value instanceof String )
                     {
-                        serverAttribute.add( StringTools.getBytesUtf8( (String)value ) );
+                        nbAdded = serverAttribute.add( StringTools.getBytesUtf8( (String)value ) );
                     }
                     else if ( value instanceof byte[] )
                     {
-                        serverAttribute.add( (byte[])value );
+                        nbAdded = serverAttribute.add( (byte[])value );
                     }
                     else
                     {
-                        return null;
+                        throw new LdapInvalidAttributeTypeException();
                     }
+                }
+                
+                if ( nbAdded == 0 )
+                {
+                    throw new LdapInvalidAttributeTypeException();
                 }
             }
             
@@ -186,7 +192,7 @@ public class ServerEntryUtils
         }
         catch ( NamingException ne )
         {
-            return null;
+            throw new LdapInvalidAttributeTypeException();
         }
     }
 
@@ -285,7 +291,7 @@ public class ServerEntryUtils
                 break;
                 
             case ADD_ATTRIBUTE :
-                EntryAttribute combined = new DefaultServerAttribute( id, attributeType );
+                EntryAttribute combined = new DefaultClientAttribute( id, attributeType );
                 EntryAttribute toBeAdded = mod.getAttribute();
                 EntryAttribute existing = entry.get( id );
 
@@ -363,7 +369,8 @@ public class ServerEntryUtils
      * @param attributeType the associated attributeType
      * @return a instance of a ServerModification object
      */
-    private static Modification toServerModification( ModificationItem modificationImpl, AttributeType attributeType ) 
+    private static Modification toServerModification( ModificationItem modificationImpl, AttributeType attributeType ) throws LdapInvalidAttributeTypeException
+
     {
         ModificationOperation operation;
         
@@ -440,7 +447,7 @@ public class ServerEntryUtils
         
         Modification serverModification = new ServerModification( 
             modification.getOperation(),
-            new DefaultServerAttribute( attributeType, modification.getAttribute() ) ); 
+            new DefaultClientAttribute( attributeType, modification.getAttribute() ) ); 
         
         return serverModification;
         

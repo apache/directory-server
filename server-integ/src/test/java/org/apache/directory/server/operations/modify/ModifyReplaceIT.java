@@ -291,7 +291,7 @@ public class ModifyReplaceIT extends AbstractLdapTestUnit
         attrs = ctx.getAttributes( rdn );
         Attribute attr = attrs.get( "telephoneNumber" );
         assertNotNull( attr );
-        assertEquals( "telephoneNumber", attr.getID() );
+        assertEquals( "telephonenumber", attr.getID() );
         assertTrue( attr.contains( newValue ) );
         assertEquals( 1, attr.size() );
     }
