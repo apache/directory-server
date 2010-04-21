@@ -30,11 +30,11 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -226,7 +226,7 @@ public class StoreUtils
 
                 if ( attr == null )
                 {
-                    attr = new DefaultClientAttribute( attrId );
+                    attr = new DefaultEntryAttribute( attrId );
                 }
 
                 attr.add( val );
@@ -254,7 +254,7 @@ public class StoreUtils
 
             if ( attr == null )
             {
-                attr = new DefaultClientAttribute( valStr );
+                attr = new DefaultEntryAttribute( valStr );
             }
 
             attr.add( rec.getId().toString() );
@@ -269,7 +269,7 @@ public class StoreUtils
         recordForward.setId( id );
         children.before( longRecordForward );
 
-        EntryAttribute childAttr = new DefaultClientAttribute( "_child" );
+        EntryAttribute childAttr = new DefaultEntryAttribute( "_child" );
         entry.put( childAttr );
 
         while ( children.next() )

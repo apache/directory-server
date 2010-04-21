@@ -38,12 +38,12 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.client.ClientModification;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -257,7 +257,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         createUser( "billyd", "billyd" );
 
         // create the password modification
-        Modification[] mods = toItems( ModificationOperation.REPLACE_ATTRIBUTE, new DefaultClientAttribute(
+        Modification[] mods = toItems( ModificationOperation.REPLACE_ATTRIBUTE, new DefaultEntryAttribute(
             "userPassword", "williams" ) );
 
         // try a modify operation which should fail without any ACI
@@ -291,7 +291,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         // ----------------------------------------------------------------------------------
 
         // create the add modifications
-        EntryAttribute attr = new DefaultClientAttribute( "registeredAddress", "100 Park Ave." );
+        EntryAttribute attr = new DefaultEntryAttribute( "registeredAddress", "100 Park Ave." );
         Modification[] mods = toItems( ModificationOperation.ADD_ATTRIBUTE, attr );
 
         // create the non-admin user
@@ -333,7 +333,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         // ----------------------------------------------------------------------------------
 
         // now let's test to see if we can perform a modify with a delete op
-        mods = toItems( ModificationOperation.REMOVE_ATTRIBUTE, new DefaultClientAttribute( "telephoneNumber",
+        mods = toItems( ModificationOperation.REMOVE_ATTRIBUTE, new DefaultEntryAttribute( "telephoneNumber",
             "867-5309" ) );
 
         // make sure we cannot remove the telephone number from the test entry
@@ -363,7 +363,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         // ----------------------------------------------------------------------------------
 
         // now let's test to see if we can perform a modify with a delete op
-        mods = toItems( ModificationOperation.REPLACE_ATTRIBUTE, new DefaultClientAttribute( "telephoneNumber",
+        mods = toItems( ModificationOperation.REPLACE_ATTRIBUTE, new DefaultEntryAttribute( "telephoneNumber",
             "867-5309" ) );
 
         // make sure we cannot remove the telephone number from the test entry
@@ -396,7 +396,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         // Modify with Attribute Addition
         // ----------------------------------------------------------------------------------
         // create the add modifications
-        EntryAttribute changes = new DefaultClientAttribute( "registeredAddress", "100 Park Ave." );
+        EntryAttribute changes = new DefaultEntryAttribute( "registeredAddress", "100 Park Ave." );
 
         // try a modify operation which should fail without any ACI
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", ModificationOperation.ADD_ATTRIBUTE, changes ) );
@@ -425,7 +425,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         // ----------------------------------------------------------------------------------
 
         // now let's test to see if we can perform a modify with a delete op
-        changes = new DefaultClientAttribute( "telephoneNumber", "867-5309" );
+        changes = new DefaultEntryAttribute( "telephoneNumber", "867-5309" );
 
         // make sure we cannot remove the telephone number from the test entry
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", ModificationOperation.REMOVE_ATTRIBUTE, changes ) );
@@ -454,7 +454,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         // ----------------------------------------------------------------------------------
 
         // now let's test to see if we can perform a modify with a delete op
-        changes = new DefaultClientAttribute( "telephoneNumber", "867-5309" );
+        changes = new DefaultEntryAttribute( "telephoneNumber", "867-5309" );
 
         // make sure we cannot remove the telephone number from the test entry
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", ModificationOperation.REPLACE_ATTRIBUTE, changes ) );
@@ -571,7 +571,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
     public void testPresciptiveACIModification() throws Exception
     {
 
-        Modification[] mods = toItems( ModificationOperation.ADD_ATTRIBUTE, new DefaultClientAttribute(
+        Modification[] mods = toItems( ModificationOperation.ADD_ATTRIBUTE, new DefaultEntryAttribute(
             "registeredAddress", "100 Park Ave." ) );
 
         createUser( "billyd", "billyd" );
@@ -589,7 +589,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
 
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
 
-        mods = toItems( ModificationOperation.REPLACE_ATTRIBUTE, new DefaultClientAttribute( "registeredAddress",
+        mods = toItems( ModificationOperation.REPLACE_ATTRIBUTE, new DefaultEntryAttribute( "registeredAddress",
             "200 Park Ave." ) );
 
         changePresciptiveACI( "modifyACI", "{ " + "identificationTag \"modifyAci\", " + "precedence 14, "
@@ -616,12 +616,12 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
             + " { type description, maxCount 1 }" + " }" + " }" + " ," + " grantsAndDenials" + " {" + " grantRemove,"
             + " grantAdd" + " }" + " }" + " }" + " }" + " }" );
 
-        Modification[] mods = toItems( ModificationOperation.ADD_ATTRIBUTE, new DefaultClientAttribute( "description",
+        Modification[] mods = toItems( ModificationOperation.ADD_ATTRIBUTE, new DefaultEntryAttribute( "description",
             "description 1" ) );
 
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
 
-        EntryAttribute attr = new DefaultClientAttribute( "description" );
+        EntryAttribute attr = new DefaultEntryAttribute( "description" );
         attr.add( "description 1" );
         attr.add( "description 2" );
 

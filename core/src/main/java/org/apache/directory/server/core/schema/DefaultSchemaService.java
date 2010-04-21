@@ -26,10 +26,10 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -124,7 +124,7 @@ public class DefaultSchemaService implements SchemaService
      */
     private EntryAttribute generateComparators() throws LdapException
     {
-        EntryAttribute attr = new DefaultClientAttribute( 
+        EntryAttribute attr = new DefaultEntryAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.COMPARATORS_AT ) );
 
         for ( LdapComparator<?> comparator : getSchemaManager().getComparatorRegistry() )
@@ -138,7 +138,7 @@ public class DefaultSchemaService implements SchemaService
 
     private EntryAttribute generateNormalizers() throws LdapException
     {
-        EntryAttribute attr = new DefaultClientAttribute( 
+        EntryAttribute attr = new DefaultEntryAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.NORMALIZERS_AT ) );
 
         NormalizerRegistry nr = getSchemaManager().getNormalizerRegistry();
@@ -154,7 +154,7 @@ public class DefaultSchemaService implements SchemaService
 
     private EntryAttribute generateSyntaxCheckers() throws LdapException
     {
-        EntryAttribute attr = new DefaultClientAttribute( 
+        EntryAttribute attr = new DefaultEntryAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.SYNTAX_CHECKERS_AT ) );
 
         for ( SyntaxChecker syntaxChecker : getSchemaManager().getSyntaxCheckerRegistry() )
@@ -168,7 +168,7 @@ public class DefaultSchemaService implements SchemaService
 
     private EntryAttribute generateObjectClasses() throws LdapException
     {
-        EntryAttribute attr = new DefaultClientAttribute( 
+        EntryAttribute attr = new DefaultEntryAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASSES_AT ) );
 
         for ( ObjectClass objectClass : getSchemaManager().getObjectClassRegistry() )
@@ -182,7 +182,7 @@ public class DefaultSchemaService implements SchemaService
 
     private EntryAttribute generateAttributeTypes() throws LdapException
     {
-        EntryAttribute attr = new DefaultClientAttribute( 
+        EntryAttribute attr = new DefaultEntryAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.ATTRIBUTE_TYPES_AT ) );
 
         for ( AttributeType attributeType : getSchemaManager().getAttributeTypeRegistry() )
@@ -196,7 +196,7 @@ public class DefaultSchemaService implements SchemaService
 
     private EntryAttribute generateMatchingRules() throws LdapException
     {
-        EntryAttribute attr = new DefaultClientAttribute( 
+        EntryAttribute attr = new DefaultEntryAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.MATCHING_RULES_AT ) );
 
         for ( MatchingRule matchingRule : getSchemaManager().getMatchingRuleRegistry() )
@@ -210,7 +210,7 @@ public class DefaultSchemaService implements SchemaService
 
     private EntryAttribute generateMatchingRuleUses() throws LdapException
     {
-        EntryAttribute attr = new DefaultClientAttribute( 
+        EntryAttribute attr = new DefaultEntryAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.MATCHING_RULE_USE_AT ) );
 
         for ( MatchingRuleUse matchingRuleUse : getSchemaManager().getMatchingRuleUseRegistry() )
@@ -224,7 +224,7 @@ public class DefaultSchemaService implements SchemaService
 
     private EntryAttribute generateSyntaxes() throws LdapException
     {
-        EntryAttribute attr = new DefaultClientAttribute( 
+        EntryAttribute attr = new DefaultEntryAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.LDAP_SYNTAXES_AT ) );
 
         for ( LdapSyntax syntax : getSchemaManager().getLdapSyntaxRegistry() )
@@ -238,7 +238,7 @@ public class DefaultSchemaService implements SchemaService
 
     private EntryAttribute generateDitContextRules() throws LdapException
     {
-        EntryAttribute attr = new DefaultClientAttribute( 
+        EntryAttribute attr = new DefaultEntryAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.DIT_CONTENT_RULES_AT ) );
 
         for ( DITContentRule ditContentRule : getSchemaManager().getDITContentRuleRegistry() )
@@ -252,7 +252,7 @@ public class DefaultSchemaService implements SchemaService
 
     private EntryAttribute generateDitStructureRules() throws LdapException
     {
-        EntryAttribute attr = new DefaultClientAttribute( 
+        EntryAttribute attr = new DefaultEntryAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.DIT_STRUCTURE_RULES_AT ) );
 
         for ( DITStructureRule ditStructureRule : getSchemaManager().getDITStructureRuleRegistry() )
@@ -266,7 +266,7 @@ public class DefaultSchemaService implements SchemaService
 
     private EntryAttribute generateNameForms() throws LdapException
     {
-        EntryAttribute attr = new DefaultClientAttribute( 
+        EntryAttribute attr = new DefaultEntryAttribute( 
             getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.NAME_FORMS_AT ) );
 
         for ( NameForm nameForm : getSchemaManager().getNameFormRegistry() )

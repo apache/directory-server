@@ -30,10 +30,10 @@ import java.util.Map;
 
 import org.apache.directory.server.core.partition.impl.btree.jdbm.ServerEntrySerializer;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
@@ -251,7 +251,7 @@ public class ServerEntrySerializerTest
         ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
-        EntryAttribute oc = new DefaultClientAttribute( "ObjectClass", schemaManager.lookupAttributeTypeRegistry( "objectclass" ) );
+        EntryAttribute oc = new DefaultEntryAttribute( "ObjectClass", schemaManager.lookupAttributeTypeRegistry( "objectclass" ) );
         entry.add( oc );
         
         byte[] data = ses.serialize( entry );

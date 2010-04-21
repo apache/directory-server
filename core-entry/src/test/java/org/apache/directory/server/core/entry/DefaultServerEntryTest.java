@@ -42,13 +42,13 @@ import javax.naming.directory.BasicAttributes;
 
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
+import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
@@ -241,11 +241,11 @@ public class DefaultServerEntryTest
     {
         Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        EntryAttribute oc = new DefaultClientAttribute( atObjectClass, "top", "person" );
-        EntryAttribute cn = new DefaultClientAttribute( atCN, "test1", "test2" );
-        EntryAttribute sn = new DefaultClientAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute up = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
-        EntryAttribute c = new DefaultClientAttribute( atC, "FR", "US" );
+        EntryAttribute oc = new DefaultEntryAttribute( atObjectClass, "top", "person" );
+        EntryAttribute cn = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        EntryAttribute sn = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
+        EntryAttribute up = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute c = new DefaultEntryAttribute( atC, "FR", "US" );
         
         entry.add( oc, cn, sn, c );
         
@@ -258,7 +258,7 @@ public class DefaultServerEntryTest
         EntryAttribute attr = entry.get( "objectclass" );
         assertEquals( 2, attr.size() );
         
-        EntryAttribute c2 = new DefaultClientAttribute( atC, "UK", "DE" );
+        EntryAttribute c2 = new DefaultEntryAttribute( atC, "UK", "DE" );
         entry.add( c2, up );
         assertEquals( 5, entry.size() );
         
@@ -1360,7 +1360,7 @@ public class DefaultServerEntryTest
         assertFalse( entry.contains( (AttributeType )null, BYTES1 ) );
         assertFalse( entry.contains( atPwd, BYTES1 ) );
         
-        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
 
         assertFalse( entry.contains( attrPWD ) );
         
@@ -1383,7 +1383,7 @@ public class DefaultServerEntryTest
         assertFalse( entry.contains( (AttributeType )null, "test" ) );
         assertFalse( entry.contains( atCN, "test" ) );
         
-        EntryAttribute attrCN = new DefaultClientAttribute( atCN, "test1", "test2" );
+        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
 
         assertFalse( entry.contains( attrCN ) );
         
@@ -1416,8 +1416,8 @@ public class DefaultServerEntryTest
         assertFalse( entry.contains( (String)null, strValue1 ) );
         assertFalse( entry.contains( atCN, binValue1 ) );
         
-        EntryAttribute attrCN = new DefaultClientAttribute( atCN, strValue1, strValue2 );
-        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, binValue1, binValue2, binNullValue );
+        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, strValue1, strValue2 );
+        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, binValue1, binValue2, binNullValue );
 
         entry.add( attrCN, attrPWD );
         
@@ -1438,10 +1438,10 @@ public class DefaultServerEntryTest
     {
         Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        EntryAttribute attrOC = new DefaultClientAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultClientAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultClientAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
+        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        EntryAttribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
+        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
 
         assertFalse( entry.contains( attrOC, attrCN ) );
         
@@ -1471,7 +1471,7 @@ public class DefaultServerEntryTest
         assertFalse( entry.contains( (String)null, BYTES3 ) );
         assertFalse( entry.containsAttribute( "objectClass" ) );
         
-        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, (byte[])null, BYTES2 );
+        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, (byte[])null, BYTES2 );
 
         entry.add( attrPWD );
         
@@ -1495,7 +1495,7 @@ public class DefaultServerEntryTest
         assertFalse( entry.contains( (String)null, "test" ) );
         assertFalse( entry.containsAttribute( "objectClass" ) );
         
-        EntryAttribute attrDC = new DefaultClientAttribute( atDC, "test1", (String)null, "test2" );
+        EntryAttribute attrDC = new DefaultEntryAttribute( atDC, "test1", (String)null, "test2" );
 
         entry.add( attrDC );
         
@@ -1519,8 +1519,8 @@ public class DefaultServerEntryTest
         assertFalse( entry.contains( (String)null, "test" ) );
         assertFalse( entry.containsAttribute( "objectClass" ) );
         
-        EntryAttribute attrDC = new DefaultClientAttribute( atDC, "test1", "test2", (String)null );
-        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, BYTES2, (byte[])null );
+        EntryAttribute attrDC = new DefaultEntryAttribute( atDC, "test1", "test2", (String)null );
+        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2, (byte[])null );
 
         entry.add( attrDC, attrPWD );
         
@@ -1553,10 +1553,10 @@ public class DefaultServerEntryTest
         
         assertFalse( entry.containsAttribute( atOC ) );
         
-        EntryAttribute attrOC = new DefaultClientAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultClientAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultClientAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
+        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        EntryAttribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
+        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
 
         entry.add( attrOC, attrCN, attrSN, attrPWD );
         
@@ -1584,10 +1584,10 @@ public class DefaultServerEntryTest
         
         assertFalse( entry.containsAttribute( "objectClass" ) );
         
-        EntryAttribute attrOC = new DefaultClientAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultClientAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultClientAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
+        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        EntryAttribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
+        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
 
         entry.add( attrOC, attrCN, attrSN, attrPWD );
         
@@ -1620,10 +1620,10 @@ public class DefaultServerEntryTest
         entry2.setDn( EXAMPLE_DN );
         assertEquals( entry1, entry2 );
 
-        EntryAttribute attrOC = new DefaultClientAttribute( "objectClass", atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultClientAttribute( "cn", atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultClientAttribute( "sn", atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultClientAttribute( "userPassword", atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrOC = new DefaultEntryAttribute( "objectClass", atOC, "top", "person" );
+        EntryAttribute attrCN = new DefaultEntryAttribute( "cn", atCN, "test1", "test2" );
+        EntryAttribute attrSN = new DefaultEntryAttribute( "sn", atSN, "Test1", "Test2" );
+        EntryAttribute attrPWD = new DefaultEntryAttribute( "userPassword", atPwd, BYTES1, BYTES2 );
         
         entry1.put( attrOC, attrCN, attrSN, attrPWD );
         entry2.put( attrOC, attrCN, attrSN );
@@ -1632,8 +1632,8 @@ public class DefaultServerEntryTest
         entry2.put( attrPWD );
         assertEquals( entry1, entry2 );
         
-        EntryAttribute attrL1 = new DefaultClientAttribute( "l", atL, "Paris", "New-York" );
-        EntryAttribute attrL2 = new DefaultClientAttribute( "l", atL, "Paris", "Tokyo" );
+        EntryAttribute attrL1 = new DefaultEntryAttribute( "l", atL, "Paris", "New-York" );
+        EntryAttribute attrL2 = new DefaultEntryAttribute( "l", atL, "Paris", "Tokyo" );
         
         entry1.put( attrL1 );
         entry2.put( attrL1 );
@@ -1661,10 +1661,10 @@ public class DefaultServerEntryTest
         
         assertEquals( 0, entry.getAttributeTypes().size() );
 
-        EntryAttribute attrOC = new DefaultClientAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultClientAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultClientAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
+        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        EntryAttribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
+        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
 
         entry.add( attrOC, attrCN, attrSN, attrPWD );
         
@@ -1690,10 +1690,10 @@ public class DefaultServerEntryTest
         assertNull( entry.get( atCN ) );
         assertNull( entry.get( (AttributeType)null ) );
         
-        EntryAttribute attrOC = new DefaultClientAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultClientAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultClientAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
+        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        EntryAttribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
+        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
         
         entry.add( attrOC, attrCN, attrSN, attrPWD );
         
@@ -1717,10 +1717,10 @@ public class DefaultServerEntryTest
         assertNull( entry.get( "cn" ) );
         assertNull( entry.get( "badId" ) );
         
-        EntryAttribute attrOC = new DefaultClientAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultClientAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultClientAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
+        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        EntryAttribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
+        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
         
         entry.add( attrOC, attrCN, attrSN, attrPWD );
         
@@ -1770,10 +1770,10 @@ public class DefaultServerEntryTest
         assertEquals( entry1.hashCode(), entry2.hashCode() );
         
         
-        EntryAttribute attrOC = new DefaultClientAttribute( "objectClass", atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultClientAttribute( "cn", atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultClientAttribute( "sn", atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultClientAttribute( "userPassword", atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrOC = new DefaultEntryAttribute( "objectClass", atOC, "top", "person" );
+        EntryAttribute attrCN = new DefaultEntryAttribute( "cn", atCN, "test1", "test2" );
+        EntryAttribute attrSN = new DefaultEntryAttribute( "sn", atSN, "Test1", "Test2" );
+        EntryAttribute attrPWD = new DefaultEntryAttribute( "userPassword", atPwd, BYTES1, BYTES2 );
 
         entry1.add( attrOC, attrCN, attrSN, attrPWD );
         entry2.add( attrOC, attrCN, attrSN, attrPWD );
@@ -1795,7 +1795,7 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        EntryAttribute attrOC = new DefaultClientAttribute( atOC, "top", "person" );
+        EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
         
         assertFalse( entry.contains( attrOC ) );
         assertFalse( entry.hasObjectClass( attrOC ) );
@@ -1804,14 +1804,14 @@ public class DefaultServerEntryTest
         
         assertTrue( entry.hasObjectClass( attrOC ) );
 
-        EntryAttribute attrOC2 = new DefaultClientAttribute( atOC, "person" );
+        EntryAttribute attrOC2 = new DefaultEntryAttribute( atOC, "person" );
         assertTrue( entry.hasObjectClass( attrOC2 ) );
 
-        EntryAttribute attrOC3 = new DefaultClientAttribute( atOC, "inetOrgPerson" );
+        EntryAttribute attrOC3 = new DefaultEntryAttribute( atOC, "inetOrgPerson" );
         assertFalse( entry.hasObjectClass( attrOC3 ) );
         assertFalse( entry.hasObjectClass( (EntryAttribute)null ) );
 
-        EntryAttribute attrCN = new DefaultClientAttribute( atCN, "top" );
+        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "top" );
         assertFalse( entry.hasObjectClass( attrCN ) );
     }
 
@@ -1827,7 +1827,7 @@ public class DefaultServerEntryTest
         assertFalse( entry.containsAttribute( "objectClass" ) );
         assertFalse( entry.hasObjectClass( "top" ) );
         
-        entry.add( new DefaultClientAttribute( atOC, "top", "person" ) );
+        entry.add( new DefaultEntryAttribute( atOC, "top", "person" ) );
         
         assertTrue( entry.hasObjectClass( "top" ) );
         assertTrue( entry.hasObjectClass( "person" ) );
@@ -1878,10 +1878,10 @@ public class DefaultServerEntryTest
     {
         Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        EntryAttribute attrOC = new DefaultClientAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultClientAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultClientAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
+        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        EntryAttribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
+        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
         
         entry.put( attrOC, attrCN, attrSN, attrPWD );
         
@@ -2050,11 +2050,11 @@ public class DefaultServerEntryTest
     {
         Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        EntryAttribute oc = new DefaultClientAttribute( atObjectClass, "top", "person" );
-        EntryAttribute cn = new DefaultClientAttribute( atCN, "test1", "test2" );
-        EntryAttribute sn = new DefaultClientAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute up = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
-        EntryAttribute c = new DefaultClientAttribute( atC, "FR", "US" );
+        EntryAttribute oc = new DefaultEntryAttribute( atObjectClass, "top", "person" );
+        EntryAttribute cn = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        EntryAttribute sn = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
+        EntryAttribute up = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute c = new DefaultEntryAttribute( atC, "FR", "US" );
         
         List<EntryAttribute> removed = entry.put( oc, cn, sn, c );
         
@@ -2068,7 +2068,7 @@ public class DefaultServerEntryTest
         EntryAttribute attr = entry.get( "objectclass" );
         assertEquals( 2, attr.size() );
         
-        EntryAttribute c2 = new DefaultClientAttribute( atC, "UK", "DE" );
+        EntryAttribute c2 = new DefaultEntryAttribute( atC, "UK", "DE" );
         removed = entry.put( c2, up );
         assertEquals( 1, removed.size() );
         assertEquals( c, removed.get( 0 ) );
@@ -2564,16 +2564,16 @@ public class DefaultServerEntryTest
         AttributeType atGN = schemaManager.lookupAttributeTypeRegistry( "givenname" );
         AttributeType atStreet = schemaManager.lookupAttributeTypeRegistry( "2.5.4.9" );
 
-        EntryAttribute sa = new DefaultClientAttribute( atL, "france" );
+        EntryAttribute sa = new DefaultEntryAttribute( atL, "france" );
         entry.put( sa );
         
         assertEquals( 1, entry.size() );
         assertNotNull( entry.get( "l" ) );
         assertEquals( "france", entry.get( "l" ).get().getString() );
         
-        EntryAttribute sb = new DefaultClientAttribute( atC, "countryTest" );
-        EntryAttribute sc = new DefaultClientAttribute( atGN, "test" );
-        EntryAttribute sd = new DefaultClientAttribute( atStreet, "testStreet" );
+        EntryAttribute sb = new DefaultEntryAttribute( atC, "countryTest" );
+        EntryAttribute sc = new DefaultEntryAttribute( atGN, "test" );
+        EntryAttribute sd = new DefaultEntryAttribute( atStreet, "testStreet" );
         entry.put( sb, sc, sd );
 
         assertEquals( 4, entry.size() );
@@ -2585,8 +2585,8 @@ public class DefaultServerEntryTest
         assertEquals( "testStreet", entry.get( atStreet ).get().getString() );
         
         // Test a replacement
-        EntryAttribute sbb = new DefaultClientAttribute( atC, "countryTestTest" );
-        EntryAttribute scc = new DefaultClientAttribute( atGN, "testtest" );
+        EntryAttribute sbb = new DefaultEntryAttribute( atC, "countryTestTest" );
+        EntryAttribute scc = new DefaultEntryAttribute( atGN, "testtest" );
         List<EntryAttribute> result = entry.put( sbb, scc );
         
         assertEquals( 2, result.size() );
@@ -2602,7 +2602,7 @@ public class DefaultServerEntryTest
         
         // test an ObjectClass replacement
         AttributeType OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
-        EntryAttribute oc = new DefaultClientAttribute( "OBJECTCLASS", OBJECT_CLASS_AT, "person", "inetorgperson" );
+        EntryAttribute oc = new DefaultEntryAttribute( "OBJECTCLASS", OBJECT_CLASS_AT, "person", "inetorgperson" );
         List<EntryAttribute> oldOc = entry.put( oc );
         
         assertNotNull( oldOc );
@@ -3202,7 +3202,7 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, (byte[])null, BYTES2 );
+        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, (byte[])null, BYTES2 );
 
         entry.put( attrPWD );
         assertTrue( entry.remove( atPwd, (byte[])null ) );
@@ -3231,7 +3231,7 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        EntryAttribute attrCN = new DefaultClientAttribute( atDC, "test1", (String)null, "test2" );
+        EntryAttribute attrCN = new DefaultEntryAttribute( atDC, "test1", (String)null, "test2" );
 
         entry.put( attrCN );
         assertTrue( entry.remove( atDC, (String)null ) );
@@ -3267,7 +3267,7 @@ public class DefaultServerEntryTest
 
         Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
 
-        EntryAttribute attrPWD = new DefaultClientAttribute( atDC, "test1", (String)null, "test2" );
+        EntryAttribute attrPWD = new DefaultEntryAttribute( atDC, "test1", (String)null, "test2" );
 
         entry.put( attrPWD );
         assertTrue( entry.remove( atDC, strNullValue ) );
@@ -3296,10 +3296,10 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        EntryAttribute attrOC = new DefaultClientAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultClientAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultClientAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
+        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        EntryAttribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
+        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
         
         entry.put( attrOC, attrCN, attrSN, attrPWD );
         
@@ -3328,10 +3328,10 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
 
-        EntryAttribute attrOC = new DefaultClientAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultClientAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultClientAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
+        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        EntryAttribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
+        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
         
         entry.put( attrOC, attrCN, attrSN, attrPWD );
         
@@ -3356,10 +3356,10 @@ public class DefaultServerEntryTest
     {
         Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
 
-        EntryAttribute attrOC = new DefaultClientAttribute( atOC, "top", "person" );
-        EntryAttribute attrCN = new DefaultClientAttribute( atCN, "test1", "test2" );
-        EntryAttribute attrSN = new DefaultClientAttribute( atSN, "Test1", "Test2" );
-        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, BYTES2 );
+        EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
+        EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
+        EntryAttribute attrSN = new DefaultEntryAttribute( atSN, "Test1", "Test2" );
+        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2 );
         
         entry.put( attrOC, attrCN, attrSN, attrPWD );
         
@@ -3387,7 +3387,7 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        EntryAttribute attrPWD = new DefaultClientAttribute( atPwd, BYTES1, (byte[])null, BYTES2 );
+        EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, (byte[])null, BYTES2 );
 
         assertFalse( entry.remove( (String)null, BYTES1 ) );
         assertFalse( entry.remove( " ", BYTES1 ) );
@@ -3420,7 +3420,7 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        EntryAttribute attrCN = new DefaultClientAttribute( atDC, "test1", (String)null, "test2" );
+        EntryAttribute attrCN = new DefaultEntryAttribute( atDC, "test1", (String)null, "test2" );
 
         assertFalse( entry.remove( (String)null, "test1" ) );
         assertFalse( entry.remove( " ", "test1" ) );
@@ -3460,7 +3460,7 @@ public class DefaultServerEntryTest
 
         Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
 
-        EntryAttribute attrPWD = new DefaultClientAttribute( atDC, "test1", (String)null, "test2" );
+        EntryAttribute attrPWD = new DefaultEntryAttribute( atDC, "test1", (String)null, "test2" );
 
         entry.put( attrPWD );
         assertTrue( entry.remove( "DC", strNullValue ) );

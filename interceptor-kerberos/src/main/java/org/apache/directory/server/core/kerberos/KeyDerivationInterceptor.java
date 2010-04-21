@@ -61,6 +61,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
+import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -68,7 +69,6 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -375,14 +375,14 @@ public class KeyDerivationInterceptor extends BaseInterceptor
         newModsList.add( 
             new ServerModification( 
                 ModificationOperation.REPLACE_ATTRIBUTE, 
-                new DefaultClientAttribute(
+                new DefaultEntryAttribute(
                     KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, 
                     schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ),
                     principalName ) ) );
         newModsList.add( 
             new ServerModification( 
                 ModificationOperation.REPLACE_ATTRIBUTE, 
-                new DefaultClientAttribute(
+                new DefaultEntryAttribute(
                     KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, 
                     schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ),
                     Integer.toString( kvno ) ) ) );
@@ -398,7 +398,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
     private EntryAttribute getKeyAttribute( SchemaManager schemaManager, Map<EncryptionType, EncryptionKey> keys ) throws Exception
     {
         EntryAttribute keyAttribute = 
-            new DefaultClientAttribute( KerberosAttribute.KRB5_KEY_AT, 
+            new DefaultEntryAttribute( KerberosAttribute.KRB5_KEY_AT, 
                 schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_KEY_AT ) );
 
         Iterator<EncryptionKey> it = keys.values().iterator();

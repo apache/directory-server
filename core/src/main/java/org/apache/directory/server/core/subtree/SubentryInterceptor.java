@@ -55,6 +55,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -63,7 +64,6 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
@@ -346,7 +346,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                     if ( operational == null )
                     {
-                        operational = new DefaultClientAttribute( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT,
+                        operational = new DefaultEntryAttribute( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT,
                             schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ) );
                         subentryAttrs.put( operational );
                     }
@@ -359,7 +359,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                     if ( operational == null )
                     {
-                        operational = new DefaultClientAttribute( SchemaConstants.SUBSCHEMA_SUBENTRY_AT, schemaManager
+                        operational = new DefaultEntryAttribute( SchemaConstants.SUBSCHEMA_SUBENTRY_AT, schemaManager
                             .lookupAttributeTypeRegistry( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ) );
                         subentryAttrs.put( operational );
                     }
@@ -372,7 +372,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                     if ( operational == null )
                     {
-                        operational = new DefaultClientAttribute( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT,
+                        operational = new DefaultEntryAttribute( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT,
                             schemaManager.lookupAttributeTypeRegistry( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
                         subentryAttrs.put( operational );
                     }
@@ -385,7 +385,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                     if ( operational == null )
                     {
-                        operational = new DefaultClientAttribute( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT,
+                        operational = new DefaultEntryAttribute( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT,
                             schemaManager.lookupAttributeTypeRegistry( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
                         subentryAttrs.put( operational );
                     }
@@ -520,7 +520,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                         if ( operational == null )
                         {
-                            operational = new DefaultClientAttribute( schemaManager
+                            operational = new DefaultEntryAttribute( schemaManager
                                 .lookupAttributeTypeRegistry( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ) );
                             entry.put( operational );
                         }
@@ -534,7 +534,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                         if ( operational == null )
                         {
-                            operational = new DefaultClientAttribute( schemaManager
+                            operational = new DefaultEntryAttribute( schemaManager
                                 .lookupAttributeTypeRegistry( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ) );
                             entry.put( operational );
                         }
@@ -548,7 +548,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                         if ( operational == null )
                         {
-                            operational = new DefaultClientAttribute( schemaManager
+                            operational = new DefaultEntryAttribute( schemaManager
                                 .lookupAttributeTypeRegistry( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
                             entry.put( operational );
                         }
@@ -562,7 +562,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                         if ( operational == null )
                         {
-                            operational = new DefaultClientAttribute( schemaManager
+                            operational = new DefaultEntryAttribute( schemaManager
                                 .lookupAttributeTypeRegistry( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
                             entry.put( operational );
                         }
@@ -738,7 +738,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 for ( String aSUBENTRY_OPATTRS : SUBENTRY_OPATTRS )
                 {
                     ModificationOperation op = ModificationOperation.ADD_ATTRIBUTE;
-                    EntryAttribute opAttr = new DefaultClientAttribute( aSUBENTRY_OPATTRS, schemaManager
+                    EntryAttribute opAttr = new DefaultEntryAttribute( aSUBENTRY_OPATTRS, schemaManager
                         .lookupAttributeTypeRegistry( aSUBENTRY_OPATTRS ) );
                     opAttr.add( subentryDn );
                     modList.add( new ServerModification( op, opAttr ) );
@@ -1158,7 +1158,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( operational == null )
             {
-                operational = new DefaultClientAttribute( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT, schemaManager
+                operational = new DefaultEntryAttribute( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT, schemaManager
                     .lookupAttributeTypeRegistry( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ) );
                 operational.add( newName.toString() );
             }
@@ -1177,7 +1177,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( operational == null )
             {
-                operational = new DefaultClientAttribute( SchemaConstants.SUBSCHEMA_SUBENTRY_AT, schemaManager
+                operational = new DefaultEntryAttribute( SchemaConstants.SUBSCHEMA_SUBENTRY_AT, schemaManager
                     .lookupAttributeTypeRegistry( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ) );
                 operational.add( newName.toString() );
             }
@@ -1196,7 +1196,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( operational == null )
             {
-                operational = new DefaultClientAttribute( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT,
+                operational = new DefaultEntryAttribute( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT,
                     schemaManager.lookupAttributeTypeRegistry( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
                 operational.add( newName.toString() );
             }
@@ -1215,7 +1215,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( operational == null )
             {
-                operational = new DefaultClientAttribute( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT, schemaManager
+                operational = new DefaultEntryAttribute( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT, schemaManager
                     .lookupAttributeTypeRegistry( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
                 operational.add( newName.toString() );
             }
@@ -1319,7 +1319,7 @@ public class SubentryInterceptor extends BaseInterceptor
             if ( ( opAttr != null ) && opAttr.contains( dn ) )
             {
                 AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( opAttrId );
-                EntryAttribute attr = new DefaultClientAttribute( opAttrId, attributeType, dn );
+                EntryAttribute attr = new DefaultEntryAttribute( opAttrId, attributeType, dn );
                 modList.add( new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, attr ) );
             }
         }
@@ -1351,7 +1351,7 @@ public class SubentryInterceptor extends BaseInterceptor
         for ( AttributeType attributeType : operational.getAttributeTypes() )
         {
             ModificationOperation op = ModificationOperation.REPLACE_ATTRIBUTE;
-            EntryAttribute result = new DefaultClientAttribute( attributeType );
+            EntryAttribute result = new DefaultEntryAttribute( attributeType );
             EntryAttribute opAttrAdditions = operational.get( attributeType );
             EntryAttribute opAttrInEntry = entry.get( attributeType );
 
@@ -1491,7 +1491,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 {
                     ModificationOperation op = ModificationOperation.ADD_ATTRIBUTE;
                     AttributeType type = schemaManager.lookupAttributeTypeRegistry( attribute );
-                    EntryAttribute opAttr = new DefaultClientAttribute( attribute, type );
+                    EntryAttribute opAttr = new DefaultEntryAttribute( attribute, type );
                     opAttr.add( subentryDn );
                     modList.add( new ServerModification( op, opAttr ) );
                 }

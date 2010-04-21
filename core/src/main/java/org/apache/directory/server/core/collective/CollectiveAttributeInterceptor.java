@@ -41,10 +41,10 @@ import org.apache.directory.server.core.interceptor.context.SearchingOperationCo
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -262,7 +262,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                  */
                 if ( entryColAttr == null )
                 {
-                    entryColAttr = new DefaultClientAttribute( attrId, schemaManager.lookupAttributeTypeRegistry( attrId ) );
+                    entryColAttr = new DefaultEntryAttribute( attrId, schemaManager.lookupAttributeTypeRegistry( attrId ) );
                     entry.put( entryColAttr );
                 }
 

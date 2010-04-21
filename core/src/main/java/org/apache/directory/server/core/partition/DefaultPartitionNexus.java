@@ -81,11 +81,11 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
+import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
@@ -347,7 +347,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
             
             if ( namingContexts == null )
             {
-                namingContexts = new DefaultClientAttribute( 
+                namingContexts = new DefaultEntryAttribute( 
                     schemaManager.lookupAttributeTypeRegistry( SchemaConstants.NAMING_CONTEXTS_AT ), 
                     system.getSuffixDn().getName() );
                 rootDSE.put( namingContexts );
@@ -932,7 +932,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
 
             if ( namingContexts == null )
             {
-                namingContexts = new DefaultClientAttribute( 
+                namingContexts = new DefaultEntryAttribute( 
                     schemaManager.lookupAttributeTypeRegistry( SchemaConstants.NAMING_CONTEXTS_AT ), partitionSuffix.getName() );
                 rootDSE.put( namingContexts );
             }

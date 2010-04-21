@@ -55,6 +55,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
+import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -63,7 +64,6 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
@@ -900,7 +900,7 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         if ( ( changes == null ) && ( existing == null ) )
         {
-            return new DefaultClientAttribute( SchemaConstants.OBJECT_CLASS_AT, OBJECT_CLASS );
+            return new DefaultEntryAttribute( SchemaConstants.OBJECT_CLASS_AT, OBJECT_CLASS );
         }
 
         if ( changes == null )
@@ -914,7 +914,7 @@ public class SchemaInterceptor extends BaseInterceptor
         }
         else if ( existing == null )
         {
-            return new DefaultClientAttribute( SchemaConstants.OBJECT_CLASS_AT, OBJECT_CLASS );
+            return new DefaultEntryAttribute( SchemaConstants.OBJECT_CLASS_AT, OBJECT_CLASS );
         }
 
         switch ( modOp )
@@ -1134,7 +1134,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
                 if ( !tmpEntry.contains( type, atav.getNormValue() ) )
                 {
-                    tmpEntry.add( new DefaultClientAttribute( type, atav.getUpValue() ) );
+                    tmpEntry.add( new DefaultEntryAttribute( type, atav.getUpValue() ) );
                 }
             }
 
@@ -1167,7 +1167,7 @@ public class SchemaInterceptor extends BaseInterceptor
         AttributeType attributeType = attribute.getAttributeType();
         
         // Create the new Attribute
-        EntryAttribute newAttribute = new DefaultClientAttribute( attribute.getUpId(), attributeType );
+        EntryAttribute newAttribute = new DefaultEntryAttribute( attribute.getUpId(), attributeType );
 
         for ( Value<?> value : attribute )
         {
@@ -1469,7 +1469,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
             entry.removeAttributes( SchemaConstants.OBJECT_CLASS_AT );
 
-            EntryAttribute newOc = new DefaultClientAttribute( oc.getAttributeType() );
+            EntryAttribute newOc = new DefaultEntryAttribute( oc.getAttributeType() );
 
             for ( ObjectClass currentOC : objectClasses )
             {
@@ -1576,7 +1576,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // In this case, we create an new one, empty
         if ( objectClassAttr == null )
         {
-            objectClassAttr = new DefaultClientAttribute( SchemaConstants.OBJECT_CLASS_AT, OBJECT_CLASS );
+            objectClassAttr = new DefaultEntryAttribute( SchemaConstants.OBJECT_CLASS_AT, OBJECT_CLASS );
         }
 
         List<ObjectClass> ocs = new ArrayList<ObjectClass>();

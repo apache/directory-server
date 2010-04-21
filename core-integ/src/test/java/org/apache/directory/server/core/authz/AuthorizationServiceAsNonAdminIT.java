@@ -34,13 +34,13 @@ import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.client.ClientModification;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
@@ -135,7 +135,7 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
         
         assertTrue( Arrays.equals( akarasulu.get( "userPassword" ).getBytes(), readEntry.get( "userPassword" ).getBytes() ) );
 
-        EntryAttribute attribute = new DefaultClientAttribute( "userPassword", "replaced" );
+        EntryAttribute attribute = new DefaultEntryAttribute( "userPassword", "replaced" );
 
         List<Modification> mods = new ArrayList<Modification>();
         

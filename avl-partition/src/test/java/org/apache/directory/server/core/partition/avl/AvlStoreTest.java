@@ -47,13 +47,13 @@ import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerModification;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.name.DN;
@@ -604,7 +604,7 @@ public class AvlStoreTest
         dn.normalize( schemaManager.getNormalizerMapping() );
 
         List<Modification> mods = new ArrayList<Modification>();
-        EntryAttribute attrib = new DefaultClientAttribute( SchemaConstants.OU_AT, schemaManager
+        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, schemaManager
             .lookupAttributeTypeRegistry( SchemaConstants.OU_AT_OID ) );
         attrib.add( "Engineering" );
 
@@ -706,7 +706,7 @@ public class AvlStoreTest
         dn.normalize( schemaManager.getNormalizerMapping() );
 
         List<Modification> mods = new ArrayList<Modification>();
-        EntryAttribute attrib = new DefaultClientAttribute( SchemaConstants.SURNAME_AT, schemaManager
+        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.SURNAME_AT, schemaManager
             .lookupAttributeTypeRegistry( SchemaConstants.SURNAME_AT ) );
 
         String attribVal = "Walker";
@@ -738,7 +738,7 @@ public class AvlStoreTest
         dn.normalize( schemaManager.getNormalizerMapping() );
 
         List<Modification> mods = new ArrayList<Modification>();
-        EntryAttribute attrib = new DefaultClientAttribute( SchemaConstants.SN_AT, schemaManager
+        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.SN_AT, schemaManager
             .lookupAttributeTypeRegistry( SchemaConstants.SN_AT_OID ) );
 
         String attribVal = "Johnny";
@@ -771,7 +771,7 @@ public class AvlStoreTest
         dn.normalize( schemaManager.getNormalizerMapping() );
 
         List<Modification> mods = new ArrayList<Modification>();
-        EntryAttribute attrib = new DefaultClientAttribute( SchemaConstants.SN_AT, schemaManager
+        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.SN_AT, schemaManager
             .lookupAttributeTypeRegistry( SchemaConstants.SN_AT_OID ) );
 
         Modification add = new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
@@ -811,7 +811,7 @@ public class AvlStoreTest
         store.add( entry );
 
         List<Modification> mods = new ArrayList<Modification>();
-        EntryAttribute attrib = new DefaultClientAttribute( SchemaConstants.OU_AT, schemaManager
+        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, schemaManager
             .lookupAttributeTypeRegistry( SchemaConstants.OU_AT_OID ) );
 
         String attribVal = "Marketing";

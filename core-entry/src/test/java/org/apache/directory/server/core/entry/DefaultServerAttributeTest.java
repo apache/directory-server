@@ -43,10 +43,10 @@ import javax.naming.directory.InvalidAttributeValueException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
+import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -62,7 +62,7 @@ import org.junit.Test;
 
 
 /**
- * Tests for the DefaultClientAttribute class
+ * Tests for the DefaultEntryAttribute class
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -142,9 +142,9 @@ public class DefaultServerAttributeTest
     }
 
     /**
-     * Serialize a DefaultClientAttribute
+     * Serialize a DefaultEntryAttribute
      */
-    private ByteArrayOutputStream serializeValue( DefaultClientAttribute value ) throws IOException
+    private ByteArrayOutputStream serializeValue( DefaultEntryAttribute value ) throws IOException
     {
         ObjectOutputStream oOut = null;
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -179,9 +179,9 @@ public class DefaultServerAttributeTest
     
     
     /**
-     * Deserialize a DefaultClientAttribute
+     * Deserialize a DefaultEntryAttribute
      */
-    private DefaultClientAttribute deserializeValue( ByteArrayOutputStream out, AttributeType at ) throws IOException, ClassNotFoundException
+    private DefaultEntryAttribute deserializeValue( ByteArrayOutputStream out, AttributeType at ) throws IOException, ClassNotFoundException
     {
         ObjectInputStream oIn = null;
         ByteArrayInputStream in = new ByteArrayInputStream( out.toByteArray() );
@@ -190,7 +190,7 @@ public class DefaultServerAttributeTest
         {
             oIn = new ObjectInputStream( in );
 
-            DefaultClientAttribute value = new DefaultClientAttribute( at );
+            DefaultEntryAttribute value = new DefaultEntryAttribute( at );
             value.deserialize( oIn );
             
             return value;
@@ -220,7 +220,7 @@ public class DefaultServerAttributeTest
     {
         AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
         
-        DefaultClientAttribute attr = new DefaultClientAttribute( at );
+        DefaultEntryAttribute attr = new DefaultEntryAttribute( at );
         
         // Add a String value
         attr.add( "test" );
@@ -268,7 +268,7 @@ public class DefaultServerAttributeTest
     {
         AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
         
-        DefaultClientAttribute attr = new DefaultClientAttribute( at );
+        DefaultEntryAttribute attr = new DefaultEntryAttribute( at );
         
         // Add String values
         attr.add( "test" );
@@ -302,7 +302,7 @@ public class DefaultServerAttributeTest
     {
         AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
         
-        DefaultClientAttribute attr = new DefaultClientAttribute( at );
+        DefaultEntryAttribute attr = new DefaultEntryAttribute( at );
         
         // Add a null value
         attr.add( new StringValue( at, null ) );
@@ -322,7 +322,7 @@ public class DefaultServerAttributeTest
     {
         AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
         
-        DefaultClientAttribute attr = new DefaultClientAttribute( at );
+        DefaultEntryAttribute attr = new DefaultEntryAttribute( at );
         
         attr.add( "Test1" );
         attr.add( "Test2" );
@@ -343,7 +343,7 @@ public class DefaultServerAttributeTest
     {
         AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
         
-        DefaultClientAttribute attr = new DefaultClientAttribute( at );
+        DefaultEntryAttribute attr = new DefaultEntryAttribute( at );
         
         attr.add( "Test  1" );
         attr.add( "Test  2" );
@@ -361,17 +361,17 @@ public class DefaultServerAttributeTest
     @Test
     public void testGetBytes() throws LdapInvalidAttributeValueException
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atPwd );
         
         attr1.add( (byte[])null );
         assertNull( attr1.getBytes() );
 
-        EntryAttribute attr2 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr2 = new DefaultEntryAttribute( atPwd );
         
         attr2.add( BYTES1, BYTES2 );
         assertTrue( Arrays.equals( BYTES1, attr2.getBytes() ) );
         
-        EntryAttribute attr3 = new DefaultClientAttribute( atCN );
+        EntryAttribute attr3 = new DefaultEntryAttribute( atCN );
         
         attr3.add( "a", "b" );
         
@@ -393,7 +393,7 @@ public class DefaultServerAttributeTest
     @Test
     public void testGetId()
     {
-        EntryAttribute attr = new DefaultClientAttribute( atCN );
+        EntryAttribute attr = new DefaultEntryAttribute( atCN );
 
         assertEquals( "cn", attr.getId() );
         
@@ -414,7 +414,7 @@ public class DefaultServerAttributeTest
     @Test
     public void testGetString() throws LdapInvalidAttributeValueException
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( atCN );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atCN );
         
         assertEquals( 0, attr1.add( (String)null ) );
         
@@ -428,12 +428,12 @@ public class DefaultServerAttributeTest
             // expected
         }
 
-        EntryAttribute attr2 = new DefaultClientAttribute( atCN );
+        EntryAttribute attr2 = new DefaultEntryAttribute( atCN );
         
         attr2.add( "a", "b" );
         assertEquals( "a", attr2.getString() );
         
-        EntryAttribute attr3 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr3 = new DefaultEntryAttribute( atPwd );
         
         attr3.add( BYTES1, BYTES2 );
         
@@ -455,7 +455,7 @@ public class DefaultServerAttributeTest
     @Test
     public void testGetUpId()
     {
-        EntryAttribute attr = new DefaultClientAttribute( atCN );
+        EntryAttribute attr = new DefaultEntryAttribute( atCN );
 
         assertNotNull( attr.getUpId() );
         assertEquals( "cn", attr.getUpId() );
@@ -477,8 +477,8 @@ public class DefaultServerAttributeTest
     @Test
     public void testHashCode()
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( atCN );
-        EntryAttribute attr2 = new DefaultClientAttribute( atSN );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atCN );
+        EntryAttribute attr2 = new DefaultEntryAttribute( atSN );
         assertNotSame( attr1.hashCode(), attr2.hashCode() );
         
         attr2.setAttributeType( atCN );
@@ -501,8 +501,8 @@ public class DefaultServerAttributeTest
         attr2.add( "b", "a" );
         assertNotSame( attr1.hashCode(), attr2.hashCode() );
         
-        EntryAttribute attr3 = new DefaultClientAttribute( atPwd );
-        EntryAttribute attr4 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr3 = new DefaultEntryAttribute( atPwd );
+        EntryAttribute attr4 = new DefaultEntryAttribute( atPwd );
         assertNotSame( attr3.hashCode(), attr4.hashCode() );
         
         attr3.add( (byte[])null );
@@ -530,7 +530,7 @@ public class DefaultServerAttributeTest
     @Test
     public void testSetId()
     {
-        EntryAttribute attr = new DefaultClientAttribute( atCN );
+        EntryAttribute attr = new DefaultEntryAttribute( atCN );
 
         attr.setId( "Cn" );
         assertEquals( "cn", attr.getId() );
@@ -592,7 +592,7 @@ public class DefaultServerAttributeTest
     @Test
     public void testIsValid() throws Exception
     {
-        EntryAttribute attr = new DefaultClientAttribute( atCN );
+        EntryAttribute attr = new DefaultEntryAttribute( atCN );
         
         // No value, this should not be valid
         assertFalse( attr.isValid() );
@@ -621,21 +621,21 @@ public class DefaultServerAttributeTest
     @Test
     public void testAddValueArray()
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( atCN );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atCN );
         
         int nbAdded = attr1.add( new StringValue( atCN, null ) );
         assertEquals( 1, nbAdded );
         assertTrue( attr1.isHR() );
         assertEquals( NULL_STRING_VALUE, attr1.get() );
         
-        EntryAttribute attr2 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr2 = new DefaultEntryAttribute( atPwd );
         
         nbAdded = attr2.add( new BinaryValue( atPwd, null ) );
         assertEquals( 1, nbAdded );
         assertFalse( attr2.isHR() );
         assertEquals( NULL_BINARY_VALUE, attr2.get() );
         
-        EntryAttribute attr3 = new DefaultClientAttribute( atCN );
+        EntryAttribute attr3 = new DefaultEntryAttribute( atCN );
         
         nbAdded = attr3.add( new StringValue( atCN, "a" ), new StringValue( atCN, "b" ) );
         assertEquals( 2, nbAdded );
@@ -643,7 +643,7 @@ public class DefaultServerAttributeTest
         assertTrue( attr3.contains( "a" ) );
         assertTrue( attr3.contains( "b" ) );
         
-        EntryAttribute attr4 = new DefaultClientAttribute( atCN );
+        EntryAttribute attr4 = new DefaultEntryAttribute( atCN );
         
         nbAdded = attr4.add( new BinaryValue( atPwd, BYTES1 ), new BinaryValue( atPwd, BYTES2 ) );
         assertEquals( 0, nbAdded );
@@ -651,7 +651,7 @@ public class DefaultServerAttributeTest
         assertFalse( attr4.contains( BYTES1 ) );
         assertFalse( attr4.contains( BYTES2 ) );
         
-        EntryAttribute attr5 = new DefaultClientAttribute( atCN );
+        EntryAttribute attr5 = new DefaultEntryAttribute( atCN );
         
         nbAdded = attr5.add( new StringValue( atCN, "c" ), new BinaryValue( atPwd, BYTES1 ) );
         assertEquals( 1, nbAdded );
@@ -659,7 +659,7 @@ public class DefaultServerAttributeTest
         assertFalse( attr5.contains( "ab" ) );
         assertTrue( attr5.contains( "c" ) );
 
-        EntryAttribute attr6 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr6 = new DefaultEntryAttribute( atPwd );
         
         nbAdded = attr6.add( new BinaryValue( atPwd, BYTES1 ), new StringValue( atCN, "c" ) );
         assertEquals( 1, nbAdded );
@@ -667,7 +667,7 @@ public class DefaultServerAttributeTest
         assertTrue( attr6.contains( BYTES1 ) );
         assertFalse( attr6.contains( BYTES3 ) );
 
-        EntryAttribute attr7 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr7 = new DefaultEntryAttribute( atPwd );
         
         nbAdded = attr7.add( new BinaryValue( atPwd, null ), new StringValue( atCN, "c" ) );
         assertEquals( 1, nbAdded );
@@ -675,7 +675,7 @@ public class DefaultServerAttributeTest
         assertTrue( attr7.contains( NULL_BINARY_VALUE ) );
         assertFalse( attr7.contains( BYTES3 ) );
 
-        EntryAttribute attr8 = new DefaultClientAttribute( atDC );
+        EntryAttribute attr8 = new DefaultEntryAttribute( atDC );
         
         nbAdded = attr8.add( new StringValue( atDC, null ), new BinaryValue( atPwd, BYTES1 ) );
         assertEquals( 1, nbAdded );
@@ -684,7 +684,7 @@ public class DefaultServerAttributeTest
         assertFalse( attr8.contains( "ab" ) );
 
     
-        EntryAttribute attr9 = new DefaultClientAttribute( atDC );
+        EntryAttribute attr9 = new DefaultEntryAttribute( atDC );
         
         nbAdded = attr9.add( new StringValue( (String)null ), new StringValue( "ab" ) );
         assertEquals( 2, nbAdded );
@@ -692,7 +692,7 @@ public class DefaultServerAttributeTest
         assertTrue( attr9.contains( NULL_STRING_VALUE ) );
         assertTrue( attr9.contains( "ab" ) );
 
-        EntryAttribute attr10 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr10 = new DefaultEntryAttribute( atPwd );
         
         nbAdded = attr10.add( new BinaryValue( (byte[])null ), new BinaryValue( BYTES1 ) );
         assertEquals( 2, nbAdded );
@@ -708,28 +708,28 @@ public class DefaultServerAttributeTest
     @Test
     public void testAddStringArray() throws LdapInvalidAttributeValueException
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( atDC );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atDC );
         
         int nbAdded = attr1.add( (String)null );
         assertEquals( 1, nbAdded );
         assertTrue( attr1.isHR() );
         assertEquals( NULL_STRING_VALUE, attr1.get() );
         
-        EntryAttribute attr2 = new DefaultClientAttribute( atDC );
+        EntryAttribute attr2 = new DefaultEntryAttribute( atDC );
         
         nbAdded = attr2.add( "" );
         assertEquals( 1, nbAdded );
         assertTrue( attr2.isHR() );
         assertEquals( "", attr2.getString() );
         
-        EntryAttribute attr3 = new DefaultClientAttribute( atCN );
+        EntryAttribute attr3 = new DefaultEntryAttribute( atCN );
         
         nbAdded = attr3.add( "t" );
         assertEquals( 1, nbAdded );
         assertTrue( attr3.isHR() );
         assertEquals( "t", attr3.getString() );
         
-        EntryAttribute attr4 = new DefaultClientAttribute( atCN );
+        EntryAttribute attr4 = new DefaultEntryAttribute( atCN );
         
         nbAdded = attr4.add( "a", "b", "c", "d" );
         assertEquals( 4, nbAdded );
@@ -761,7 +761,7 @@ public class DefaultServerAttributeTest
         assertTrue( attr4.contains( "e" ) );
         assertFalse( attr4.contains( "ab" ) );
         
-        EntryAttribute attr5 = new DefaultClientAttribute( atDC );
+        EntryAttribute attr5 = new DefaultEntryAttribute( atDC );
         
         nbAdded = attr5.add( "a", "b", (String)null, "d" );
         assertEquals( 4, nbAdded );
@@ -771,7 +771,7 @@ public class DefaultServerAttributeTest
         assertTrue( attr5.contains( NULL_STRING_VALUE ) );
         assertTrue( attr5.contains( "d" ) );
 
-        EntryAttribute attr6 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr6 = new DefaultEntryAttribute( atPwd );
         
         nbAdded = attr6.add( "a", (String)null );
         assertEquals( 1, nbAdded );
@@ -785,28 +785,28 @@ public class DefaultServerAttributeTest
     @Test
     public void testAddByteArray() throws LdapInvalidAttributeValueException
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atPwd );
         
         int nbAdded = attr1.add( (byte[])null );
         assertEquals( 1, nbAdded );
         assertFalse( attr1.isHR() );
         assertTrue( Arrays.equals( NULL_BINARY_VALUE.getBytes(), attr1.getBytes() ) );
         
-        EntryAttribute attr2 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr2 = new DefaultEntryAttribute( atPwd );
         
         nbAdded = attr2.add( StringTools.EMPTY_BYTES );
         assertEquals( 1, nbAdded );
         assertFalse( attr2.isHR() );
         assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, attr2.getBytes() ) );
         
-        EntryAttribute attr3 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr3 = new DefaultEntryAttribute( atPwd );
         
         nbAdded = attr3.add( BYTES1 );
         assertEquals( 1, nbAdded );
         assertFalse( attr3.isHR() );
         assertTrue( Arrays.equals( BYTES1, attr3.getBytes() ) );
         
-        EntryAttribute attr4 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr4 = new DefaultEntryAttribute( atPwd );
         
         nbAdded = attr4.add( BYTES1, BYTES2, BYTES3, BYTES4 );
         assertEquals( 4, nbAdded );
@@ -816,7 +816,7 @@ public class DefaultServerAttributeTest
         assertTrue( attr4.contains( BYTES3 ) );
         assertTrue( attr4.contains( BYTES4 ) );
         
-        EntryAttribute attr5 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr5 = new DefaultEntryAttribute( atPwd );
         
         nbAdded = attr5.add( BYTES1, BYTES2, (byte[])null, BYTES3 );
         assertEquals( 4, nbAdded );
@@ -826,7 +826,7 @@ public class DefaultServerAttributeTest
         assertTrue( attr5.contains( (byte[])null ) );
         assertTrue( attr5.contains( BYTES3 ) );
 
-        EntryAttribute attr6 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr6 = new DefaultEntryAttribute( atPwd );
         
         nbAdded = attr6.add( "ab", (String)null );
         assertEquals( 1, nbAdded );
@@ -840,7 +840,7 @@ public class DefaultServerAttributeTest
     @Test
     public void testClear()
     {
-        EntryAttribute attr = new DefaultClientAttribute( "dc", atDC );
+        EntryAttribute attr = new DefaultEntryAttribute( "dc", atDC );
         
         assertEquals( 0, attr.size() );
         
@@ -860,7 +860,7 @@ public class DefaultServerAttributeTest
     @Test
     public void testContainsValueArray()
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( atDC );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atDC );
         
         assertEquals( 0, attr1.size() );
         assertFalse( attr1.contains( STR_VALUE1 ) );
@@ -883,7 +883,7 @@ public class DefaultServerAttributeTest
         assertFalse( attr1.contains( STR_VALUE4 ) );
         assertFalse( attr1.contains( NULL_STRING_VALUE ) );
 
-        EntryAttribute attr2 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr2 = new DefaultEntryAttribute( atPwd );
         assertEquals( 0, attr2.size() );
         assertFalse( attr2.contains( BYTES1 ) );
         assertFalse( attr2.contains( NULL_BINARY_VALUE ) );
@@ -911,7 +911,7 @@ public class DefaultServerAttributeTest
     @Test
     public void testContainsStringArray()
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( atDC );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atDC );
         
         assertEquals( 0, attr1.size() );
         assertFalse( attr1.contains( "a" ) );
@@ -941,7 +941,7 @@ public class DefaultServerAttributeTest
     @Test
     public void testContainsByteArray()
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atPwd );
         
         assertEquals( 0, attr1.size() );
         assertFalse( attr1.contains( BYTES1 ) );
@@ -971,11 +971,11 @@ public class DefaultServerAttributeTest
     @Test
     public void testEquals()
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( atCN );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atCN );
         
         assertFalse( attr1.equals( null ) );
         
-        EntryAttribute attr2 = new DefaultClientAttribute( atCN );
+        EntryAttribute attr2 = new DefaultEntryAttribute( atCN );
         
         assertTrue( attr1.equals( attr2 ) );
         
@@ -996,30 +996,30 @@ public class DefaultServerAttributeTest
         attr2.setHR( false );
         assertTrue( attr1.equals( attr2 ) );
         
-        EntryAttribute attr3 = new DefaultClientAttribute( atPwd );
-        EntryAttribute attr4 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr3 = new DefaultEntryAttribute( atPwd );
+        EntryAttribute attr4 = new DefaultEntryAttribute( atPwd );
         
         attr3.add( NULL_BINARY_VALUE );
         attr4.add( NULL_BINARY_VALUE );
         assertTrue( attr3.equals( attr4 ) );
         
-        EntryAttribute attr5 = new DefaultClientAttribute( atPwd );
-        EntryAttribute attr6 = new DefaultClientAttribute( atCN );
+        EntryAttribute attr5 = new DefaultEntryAttribute( atPwd );
+        EntryAttribute attr6 = new DefaultEntryAttribute( atCN );
         assertFalse( attr5.equals( attr6 ) );
         
         attr5.add( NULL_BINARY_VALUE );
         attr6.add( NULL_STRING_VALUE );
         assertFalse( attr5.equals( attr6 ) );
 
-        EntryAttribute attr7 = new DefaultClientAttribute( atCN );
-        EntryAttribute attr8 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr7 = new DefaultEntryAttribute( atCN );
+        EntryAttribute attr8 = new DefaultEntryAttribute( atPwd );
         
         attr7.add( "a" );
         attr8.add( BYTES2 );
         assertFalse( attr7.equals( attr8 ) );
 
-        EntryAttribute attr9 = new DefaultClientAttribute( atCN );
-        EntryAttribute attr10 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr9 = new DefaultEntryAttribute( atCN );
+        EntryAttribute attr10 = new DefaultEntryAttribute( atPwd );
         
         attr9.add( "a" );
         attr9.add( BYTES2 );
@@ -1034,12 +1034,12 @@ public class DefaultServerAttributeTest
     @Test
     public void testGet()
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( "dc", atDC );
+        EntryAttribute attr1 = new DefaultEntryAttribute( "dc", atDC );
         
         attr1.add( (String)null );
         assertEquals( NULL_STRING_VALUE,attr1.get() );
 
-        EntryAttribute attr2 = new DefaultClientAttribute( "dc", atDC );
+        EntryAttribute attr2 = new DefaultEntryAttribute( "dc", atDC );
         
         attr2.add( "a", "b", "c" );
         assertEquals( "a", attr2.get().getString() );
@@ -1053,7 +1053,7 @@ public class DefaultServerAttributeTest
         attr2.remove( "c" );
         assertNull( attr2.get() );
 
-        EntryAttribute attr3 = new DefaultClientAttribute( "userPassword", atPwd );
+        EntryAttribute attr3 = new DefaultEntryAttribute( "userPassword", atPwd );
         
         attr3.add( BYTES1, BYTES2, BYTES3 );
         assertTrue( Arrays.equals( BYTES1, attr3.get().getBytes() ) );
@@ -1075,7 +1075,7 @@ public class DefaultServerAttributeTest
     @Test
     public void testGetAll()
     {
-        EntryAttribute attr = new DefaultClientAttribute( atCN );
+        EntryAttribute attr = new DefaultEntryAttribute( atCN );
         
         Iterator<Value<?>> iterator = attr.getAll(); 
         assertFalse( iterator.hasNext() );
@@ -1107,14 +1107,14 @@ public class DefaultServerAttributeTest
     @Test
     public void testSize() throws Exception
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( atDC );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atDC );
 
         assertEquals( 0, attr1.size() );
         
         attr1.add( (String)null );
         assertEquals( 1, attr1.size() );
 
-        EntryAttribute attr2 = new DefaultClientAttribute( atCN );
+        EntryAttribute attr2 = new DefaultEntryAttribute( atCN );
         
         attr2.add( "a", "b" );
         assertEquals( 2, attr2.size() );
@@ -1122,7 +1122,7 @@ public class DefaultServerAttributeTest
         attr2.clear();
         assertEquals( 0, attr2.size() );
 
-        EntryAttribute attr3 = new DefaultClientAttribute( atC );
+        EntryAttribute attr3 = new DefaultEntryAttribute( atC );
         
         attr3.add( "US" );
         assertEquals( 1, attr3.size() );
@@ -1139,28 +1139,28 @@ public class DefaultServerAttributeTest
     @Test
     public void testPutByteArray() throws InvalidAttributeValueException, Exception
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atPwd );
         
         int nbAdded = attr1.add( (byte[])null );
         assertEquals( 1, nbAdded );
         assertFalse( attr1.isHR() );
         assertTrue( Arrays.equals( NULL_BINARY_VALUE.getBytes(), attr1.getBytes() ) );
         
-        EntryAttribute attr2 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr2 = new DefaultEntryAttribute( atPwd );
         
         nbAdded = attr2.add( StringTools.EMPTY_BYTES );
         assertEquals( 1, nbAdded );
         assertFalse( attr2.isHR() );
         assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, attr2.getBytes() ) );
         
-        EntryAttribute attr3 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr3 = new DefaultEntryAttribute( atPwd );
         
         nbAdded = attr3.add( BYTES1 );
         assertEquals( 1, nbAdded );
         assertFalse( attr3.isHR() );
         assertTrue( Arrays.equals( BYTES1, attr3.getBytes() ) );
         
-        EntryAttribute attr4 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr4 = new DefaultEntryAttribute( atPwd );
         
         nbAdded = attr4.add( BYTES1, BYTES2 );
         assertEquals( 2, nbAdded );
@@ -1175,7 +1175,7 @@ public class DefaultServerAttributeTest
         assertTrue( attr4.contains( BYTES3 ) );
         assertTrue( attr4.contains( BYTES4 ) );
         
-        EntryAttribute attr5 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr5 = new DefaultEntryAttribute( atPwd );
         
         nbAdded = attr5.add( BYTES1, BYTES2, (byte[])null, BYTES3 );
         assertEquals( 4, nbAdded );
@@ -1185,7 +1185,7 @@ public class DefaultServerAttributeTest
         assertTrue( attr5.contains( (byte[])null ) );
         assertTrue( attr5.contains( BYTES3 ) );
 
-        EntryAttribute attr6 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr6 = new DefaultEntryAttribute( atPwd );
         
         attr6.setHR( true );
         assertFalse( attr6.isHR() );
@@ -1202,28 +1202,28 @@ public class DefaultServerAttributeTest
     @Test
     public void testPutStringArray() throws LdapInvalidAttributeValueException
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( atDC );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atDC );
         
         int nbAdded = attr1.add( (String)null );
         assertEquals( 1, nbAdded );
         assertTrue( attr1.isHR() );
         assertEquals( NULL_STRING_VALUE, attr1.get() );
         
-        EntryAttribute attr2 = new DefaultClientAttribute( atDC );
+        EntryAttribute attr2 = new DefaultEntryAttribute( atDC );
         
         nbAdded = attr2.add( "" );
         assertEquals( 1, nbAdded );
         assertTrue( attr2.isHR() );
         assertEquals( "", attr2.getString() );
         
-        EntryAttribute attr3 = new DefaultClientAttribute( atDC );
+        EntryAttribute attr3 = new DefaultEntryAttribute( atDC );
         
         nbAdded = attr3.add( "t" );
         assertEquals( 1, nbAdded );
         assertTrue( attr3.isHR() );
         assertEquals( "t", attr3.getString() );
         
-        EntryAttribute attr4 = new DefaultClientAttribute( atDC );
+        EntryAttribute attr4 = new DefaultEntryAttribute( atDC );
         
         nbAdded = attr4.add( "a", "b", "c", "d" );
         assertEquals( 4, nbAdded );
@@ -1250,7 +1250,7 @@ public class DefaultServerAttributeTest
         assertEquals( 0, nbAdded );
         assertTrue( attr4.isHR() );
         
-        EntryAttribute attr5 = new DefaultClientAttribute( atDC );
+        EntryAttribute attr5 = new DefaultEntryAttribute( atDC );
         
         nbAdded = attr5.add( "a", "b", (String)null, "d" );
         assertEquals( 4, nbAdded );
@@ -1260,7 +1260,7 @@ public class DefaultServerAttributeTest
         assertTrue( attr5.contains( NULL_STRING_VALUE ) );
         assertTrue( attr5.contains( "d" ) );
 
-        EntryAttribute attr6 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr6 = new DefaultEntryAttribute( atPwd );
         
         nbAdded = attr6.add( "a", (String)null );
         assertEquals( 1, nbAdded );
@@ -1274,7 +1274,7 @@ public class DefaultServerAttributeTest
     @Test
     public void testPutValueArray() throws Exception
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( atDC );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atDC );
         
         assertEquals( 0, attr1.size() );
         
@@ -1304,7 +1304,7 @@ public class DefaultServerAttributeTest
         assertFalse( attr1.contains( STR_VALUE3 ) );
         
 
-        EntryAttribute attr2 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr2 = new DefaultEntryAttribute( atPwd );
         assertEquals( 0, attr2.size() );
         
         attr2.add( NULL_BINARY_VALUE );
@@ -1333,7 +1333,7 @@ public class DefaultServerAttributeTest
     @Test
     public void testPutListOfValues()
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( atDC );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atDC );
         
         assertEquals( 0, attr1.size() );
         
@@ -1375,7 +1375,7 @@ public class DefaultServerAttributeTest
         assertFalse( attr1.contains( STR_VALUE3 ) );
         
 
-        EntryAttribute attr2 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr2 = new DefaultEntryAttribute( atPwd );
         assertEquals( 0, attr2.size() );
         
         list.clear();
@@ -1412,7 +1412,7 @@ public class DefaultServerAttributeTest
     @Test
     public void testRemoveValueArray() throws Exception
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( atDC );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atDC );
 
         assertFalse( attr1.remove( STR_VALUE1 ) );
 
@@ -1444,7 +1444,7 @@ public class DefaultServerAttributeTest
         assertFalse( attr1.remove( NULL_STRING_VALUE, STR_VALUE1, BIN_VALUE3 ) );
         assertEquals( 1, attr1.size() );
         
-        EntryAttribute attr2 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr2 = new DefaultEntryAttribute( atPwd );
 
         assertFalse( attr2.remove( BIN_VALUE1 ) );
 
@@ -1485,7 +1485,7 @@ public class DefaultServerAttributeTest
     @Test
     public void testRemoveByteArray() throws Exception
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( atPwd );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atPwd );
 
         assertFalse( attr1.remove( BYTES1 ) );
 
@@ -1516,7 +1516,7 @@ public class DefaultServerAttributeTest
     @Test
     public void testRemoveStringArray() throws Exception
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( atDC );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atDC );
 
         assertFalse( attr1.remove( "a" ) );
 
@@ -1542,7 +1542,7 @@ public class DefaultServerAttributeTest
         assertTrue( attr1.remove( (String )null, "a" ) );
         assertEquals( 1, attr1.size() );
         
-        EntryAttribute attr2 = new DefaultClientAttribute( "test" );
+        EntryAttribute attr2 = new DefaultEntryAttribute( "test" );
         
         attr2.add( BYTES1, BYTES2, BYTES3 );
         
@@ -1558,7 +1558,7 @@ public class DefaultServerAttributeTest
     @Test
     public void testIterator()
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( atCN );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atCN );
         attr1.add(  "a", "b", "c" );
         
         Iterator<Value<?>> iter = attr1.iterator();
@@ -1582,7 +1582,7 @@ public class DefaultServerAttributeTest
     @Test
     public void testToString()
     {
-        EntryAttribute attr = new DefaultClientAttribute( atDC );
+        EntryAttribute attr = new DefaultEntryAttribute( atDC );
         
         assertEquals( "    dc: (null)\n", attr.toString() );
         
@@ -1604,7 +1604,7 @@ public class DefaultServerAttributeTest
     @Test
     public void testInstanceOf() throws Exception
     {
-        EntryAttribute attr = new DefaultClientAttribute( atCN );
+        EntryAttribute attr = new DefaultEntryAttribute( atCN );
         
         assertTrue( attr.instanceOf( "CommonName" ) );
         assertTrue( attr.instanceOf( "2.5.4.3" ) );
@@ -1621,7 +1621,7 @@ public class DefaultServerAttributeTest
     @Test
     public void testSetUpIdStringAttributeType() throws Exception
     {
-        EntryAttribute attr = new DefaultClientAttribute( atSN );
+        EntryAttribute attr = new DefaultEntryAttribute( atSN );
         
         attr.setUpId( null, atCN );
         assertEquals( "cn", attr.getId() );
@@ -1677,7 +1677,7 @@ public class DefaultServerAttributeTest
     @Test
     public void testSetUpIdString() throws Exception
     {
-        EntryAttribute attr = new DefaultClientAttribute( atCN );
+        EntryAttribute attr = new DefaultEntryAttribute( atCN );
         
         attr.setUpId( "cn" );
         assertEquals( "cn", attr.getId() );
@@ -1700,7 +1700,7 @@ public class DefaultServerAttributeTest
         assertEquals( atCN, attr.getAttributeType() );
         
         // Now check wrong IDs
-        attr = new DefaultClientAttribute( atCN );
+        attr = new DefaultEntryAttribute( atCN );
         attr.setUpId( "sn" );
         assertEquals( "cn", attr.getId() );
         assertEquals( "cn", attr.getUpId() );
@@ -1729,7 +1729,7 @@ public class DefaultServerAttributeTest
     @Test
     public void testSetAttributeType() throws Exception
     {
-        EntryAttribute attr = new DefaultClientAttribute( atCN );
+        EntryAttribute attr = new DefaultEntryAttribute( atCN );
         
         try
         {
@@ -1755,18 +1755,18 @@ public class DefaultServerAttributeTest
     @Test
     public void testGetAttributeType() throws Exception
     {
-        EntryAttribute attr = new DefaultClientAttribute( atSN );
+        EntryAttribute attr = new DefaultEntryAttribute( atSN );
         assertEquals( atSN, attr.getAttributeType() );
     }
 
 
     /**
-     * Test constructor DefaultClientAttribute( AttributeType )
+     * Test constructor DefaultEntryAttribute( AttributeType )
      */
     @Test
     public void testDefaultServerAttributeAttributeType()
     {
-        EntryAttribute attr = new DefaultClientAttribute( atCN );
+        EntryAttribute attr = new DefaultEntryAttribute( atCN );
         
         assertTrue( attr.isHR() );
         assertEquals( 0, attr.size() );
@@ -1777,12 +1777,12 @@ public class DefaultServerAttributeTest
 
 
     /**
-     * Test constructor DefaultClientAttribute( String, AttributeType )
+     * Test constructor DefaultEntryAttribute( String, AttributeType )
      */
     @Test
     public void testDefaultServerAttributeStringAttributeType()
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( "cn", atCN );
+        EntryAttribute attr1 = new DefaultEntryAttribute( "cn", atCN );
         
         assertTrue( attr1.isHR() );
         assertEquals( 0, attr1.size() );
@@ -1790,7 +1790,7 @@ public class DefaultServerAttributeTest
         assertEquals( "cn", attr1.getUpId() );
         assertEquals( atCN, attr1.getAttributeType() );
 
-        EntryAttribute attr2 = new DefaultClientAttribute( "  CommonName  ", atCN );
+        EntryAttribute attr2 = new DefaultEntryAttribute( "  CommonName  ", atCN );
         
         assertTrue( attr2.isHR() );
         assertEquals( 0, attr2.size() );
@@ -1798,7 +1798,7 @@ public class DefaultServerAttributeTest
         assertEquals( "  CommonName  ", attr2.getUpId() );
         assertEquals( atCN, attr2.getAttributeType() );
 
-        EntryAttribute attr3 = new DefaultClientAttribute( "  ", atCN );
+        EntryAttribute attr3 = new DefaultEntryAttribute( "  ", atCN );
         
         assertTrue( attr3.isHR() );
         assertEquals( 0, attr3.size() );
@@ -1809,12 +1809,12 @@ public class DefaultServerAttributeTest
 
 
     /**
-     * Test constructor DefaultClientAttribute( AttributeType, Value... )
+     * Test constructor DefaultEntryAttribute( AttributeType, Value... )
      */
     @Test
     public void testDefaultServerAttributeAttributeTypeValueArray() throws Exception
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( atDC, STR_VALUE1, STR_VALUE2, NULL_STRING_VALUE );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atDC, STR_VALUE1, STR_VALUE2, NULL_STRING_VALUE );
         
         assertTrue( attr1.isHR() );
         assertEquals( 3, attr1.size() );
@@ -1824,7 +1824,7 @@ public class DefaultServerAttributeTest
         assertTrue( attr1.contains( "a", "b" ) );
         assertTrue( attr1.contains( NULL_STRING_VALUE ) );
 
-        EntryAttribute attr2 = new DefaultClientAttribute( atDC, STR_VALUE1, BIN_VALUE2, NULL_STRING_VALUE );
+        EntryAttribute attr2 = new DefaultEntryAttribute( atDC, STR_VALUE1, BIN_VALUE2, NULL_STRING_VALUE );
         
         assertTrue( attr2.isHR() );
         assertEquals( 2, attr2.size() );
@@ -1837,12 +1837,12 @@ public class DefaultServerAttributeTest
 
 
     /**
-     * Test constructor DefaultClientAttribute( String, AttributeType, Value... )
+     * Test constructor DefaultEntryAttribute( String, AttributeType, Value... )
      */
     @Test
     public void testDefaultServerAttributeStringAttributeTypeValueArray()
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( "dc", atDC, STR_VALUE1, STR_VALUE2, NULL_STRING_VALUE );
+        EntryAttribute attr1 = new DefaultEntryAttribute( "dc", atDC, STR_VALUE1, STR_VALUE2, NULL_STRING_VALUE );
         
         assertTrue( attr1.isHR() );
         assertEquals( 3, attr1.size() );
@@ -1852,7 +1852,7 @@ public class DefaultServerAttributeTest
         assertTrue( attr1.contains( "a", "b" ) );
         assertTrue( attr1.contains( NULL_STRING_VALUE ) );
 
-        EntryAttribute attr2 = new DefaultClientAttribute( atDC, STR_VALUE1, BIN_VALUE2, NULL_STRING_VALUE );
+        EntryAttribute attr2 = new DefaultEntryAttribute( atDC, STR_VALUE1, BIN_VALUE2, NULL_STRING_VALUE );
         
         assertTrue( attr2.isHR() );
         assertEquals( 2, attr2.size() );
@@ -1862,7 +1862,7 @@ public class DefaultServerAttributeTest
         assertTrue( attr2.contains( "a" ) );
         assertTrue( attr2.contains( NULL_STRING_VALUE ) );
 
-        EntryAttribute attr3 = new DefaultClientAttribute( "DomainComponent", atDC, STR_VALUE1, STR_VALUE2, NULL_STRING_VALUE );
+        EntryAttribute attr3 = new DefaultEntryAttribute( "DomainComponent", atDC, STR_VALUE1, STR_VALUE2, NULL_STRING_VALUE );
         
         assertTrue( attr3.isHR() );
         assertEquals( 3, attr3.size() );
@@ -1872,7 +1872,7 @@ public class DefaultServerAttributeTest
         assertTrue( attr3.contains( "a", "b" ) );
         assertTrue( attr3.contains( NULL_STRING_VALUE ) );
 
-        EntryAttribute attr4 = new DefaultClientAttribute( " 0.9.2342.19200300.100.1.25 ", atDC, STR_VALUE1, STR_VALUE2, NULL_STRING_VALUE );
+        EntryAttribute attr4 = new DefaultEntryAttribute( " 0.9.2342.19200300.100.1.25 ", atDC, STR_VALUE1, STR_VALUE2, NULL_STRING_VALUE );
         
         assertTrue( attr4.isHR() );
         assertEquals( 3, attr4.size() );
@@ -1885,12 +1885,12 @@ public class DefaultServerAttributeTest
 
 
     /**
-     * Test constructor DefaultClientAttribute( AttributeType, String... ) 
+     * Test constructor DefaultEntryAttribute( AttributeType, String... ) 
      */
     @Test
     public void testDefaultServerAttributeAttributeTypeStringArray()
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( atDC, "a", "b", (String)null );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atDC, "a", "b", (String)null );
         
         assertTrue( attr1.isHR() );
         assertEquals( 3, attr1.size() );
@@ -1900,7 +1900,7 @@ public class DefaultServerAttributeTest
         assertTrue( attr1.contains( "a", "b" ) );
         assertTrue( attr1.contains( NULL_STRING_VALUE ) );
 
-        EntryAttribute attr2 = new DefaultClientAttribute( atDC, STR_VALUE1, BIN_VALUE2, NULL_STRING_VALUE );
+        EntryAttribute attr2 = new DefaultEntryAttribute( atDC, STR_VALUE1, BIN_VALUE2, NULL_STRING_VALUE );
         
         assertTrue( attr2.isHR() );
         assertEquals( 2, attr2.size() );
@@ -1913,12 +1913,12 @@ public class DefaultServerAttributeTest
 
 
     /**
-     * Test constructor DefaultClientAttribute( String, AttributeType, String... )
+     * Test constructor DefaultEntryAttribute( String, AttributeType, String... )
      */
     @Test
     public void testDefaultServerAttributeStringAttributeTypeStringArray()
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( "dc", atDC, "a", "b", (String)null );
+        EntryAttribute attr1 = new DefaultEntryAttribute( "dc", atDC, "a", "b", (String)null );
         
         assertTrue( attr1.isHR() );
         assertEquals( 3, attr1.size() );
@@ -1928,7 +1928,7 @@ public class DefaultServerAttributeTest
         assertTrue( attr1.contains( "a", "b" ) );
         assertTrue( attr1.contains( NULL_STRING_VALUE ) );
 
-        EntryAttribute attr2 = new DefaultClientAttribute( "DomainComponent", atDC, "a", "b", (String)null );
+        EntryAttribute attr2 = new DefaultEntryAttribute( "DomainComponent", atDC, "a", "b", (String)null );
         
         assertTrue( attr2.isHR() );
         assertEquals( 3, attr2.size() );
@@ -1938,7 +1938,7 @@ public class DefaultServerAttributeTest
         assertTrue( attr2.contains( "a", "b" ) );
         assertTrue( attr2.contains( NULL_STRING_VALUE ) );
 
-        EntryAttribute attr3 = new DefaultClientAttribute( " 0.9.2342.19200300.100.1.25 ", atDC, "a", "b", (String)null );
+        EntryAttribute attr3 = new DefaultEntryAttribute( " 0.9.2342.19200300.100.1.25 ", atDC, "a", "b", (String)null );
         
         assertTrue( attr3.isHR() );
         assertEquals( 3, attr3.size() );
@@ -1951,12 +1951,12 @@ public class DefaultServerAttributeTest
 
 
     /**
-     * Test method DefaultClientAttribute( AttributeType, byte[]... ) 
+     * Test method DefaultEntryAttribute( AttributeType, byte[]... ) 
      */
     @Test
     public void testDefaultServerAttributeAttributeTypeByteArray()
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( atPwd, BYTES1, BYTES2, (byte[])null );
+        EntryAttribute attr1 = new DefaultEntryAttribute( atPwd, BYTES1, BYTES2, (byte[])null );
         
         assertFalse( attr1.isHR() );
         assertEquals( 3, attr1.size() );
@@ -1966,7 +1966,7 @@ public class DefaultServerAttributeTest
         assertTrue( attr1.contains( BYTES1, BYTES2 ) );
         assertTrue( attr1.contains( NULL_BINARY_VALUE ) );
 
-        EntryAttribute attr2 = new DefaultClientAttribute( atPwd, STR_VALUE1, BIN_VALUE2, NULL_BINARY_VALUE );
+        EntryAttribute attr2 = new DefaultEntryAttribute( atPwd, STR_VALUE1, BIN_VALUE2, NULL_BINARY_VALUE );
         
         assertFalse( attr2.isHR() );
         assertEquals( 2, attr2.size() );
@@ -1979,12 +1979,12 @@ public class DefaultServerAttributeTest
 
 
     /**
-     * Test method DefaultClientAttribute( String, AttributeType, byte[]... )
+     * Test method DefaultEntryAttribute( String, AttributeType, byte[]... )
      */
     @Test
     public void testDefaultServerAttributeStringAttributeTypeByteArray()
     {
-        EntryAttribute attr1 = new DefaultClientAttribute( "userPassword", atPwd, BYTES1, BYTES2, (byte[])null );
+        EntryAttribute attr1 = new DefaultEntryAttribute( "userPassword", atPwd, BYTES1, BYTES2, (byte[])null );
         
         assertFalse( attr1.isHR() );
         assertEquals( 3, attr1.size() );
@@ -1994,7 +1994,7 @@ public class DefaultServerAttributeTest
         assertTrue( attr1.contains( BYTES1, BYTES2 ) );
         assertTrue( attr1.contains( NULL_BINARY_VALUE ) );
 
-        EntryAttribute attr2 = new DefaultClientAttribute( "2.5.4.35", atPwd, STR_VALUE1, BIN_VALUE2, NULL_BINARY_VALUE );
+        EntryAttribute attr2 = new DefaultEntryAttribute( "2.5.4.35", atPwd, STR_VALUE1, BIN_VALUE2, NULL_BINARY_VALUE );
         
         assertFalse( attr2.isHR() );
         assertEquals( 2, attr2.size() );
@@ -2012,7 +2012,7 @@ public class DefaultServerAttributeTest
     @Test
     public void testClone()
     {
-        EntryAttribute attr = new DefaultClientAttribute( atCN );
+        EntryAttribute attr = new DefaultEntryAttribute( atCN );
         
         EntryAttribute clone = attr.clone();
         
@@ -2038,15 +2038,15 @@ public class DefaultServerAttributeTest
     @Test 
     public void testCopyConstructorServerAttribute() throws LdapInvalidAttributeValueException
     {
-        EntryAttribute attribute = new DefaultClientAttribute( atCN );
+        EntryAttribute attribute = new DefaultEntryAttribute( atCN );
         
-        EntryAttribute copy = new DefaultClientAttribute( atCN, attribute );
+        EntryAttribute copy = new DefaultEntryAttribute( atCN, attribute );
         
         assertEquals( copy, attribute );
 
-        EntryAttribute attribute2 = new DefaultClientAttribute( atCN, "test" );
+        EntryAttribute attribute2 = new DefaultEntryAttribute( atCN, "test" );
         
-        EntryAttribute copy2 = new DefaultClientAttribute( atCN, attribute2 );
+        EntryAttribute copy2 = new DefaultEntryAttribute( atCN, attribute2 );
         
         assertEquals( copy2, attribute2 );
         attribute2.add( "test2" );
@@ -2061,10 +2061,10 @@ public class DefaultServerAttributeTest
     @Test 
     public void testCopyConstructorClientAttribute() throws LdapInvalidAttributeValueException
     {
-        EntryAttribute attribute = new DefaultClientAttribute( "commonName" );
+        EntryAttribute attribute = new DefaultEntryAttribute( "commonName" );
         attribute.add( "test" );
         
-        EntryAttribute copy = new DefaultClientAttribute( atCN, attribute );
+        EntryAttribute copy = new DefaultEntryAttribute( atCN, attribute );
 
         assertEquals( atCN, copy.getAttributeType() );
         assertEquals( "test", copy.getString() );
@@ -2081,7 +2081,7 @@ public class DefaultServerAttributeTest
     @Test 
     public void testToClientAttribute()
     {
-        EntryAttribute attribute = new DefaultClientAttribute( atCN, "test", "test2" );
+        EntryAttribute attribute = new DefaultEntryAttribute( atCN, "test", "test2" );
         
         EntryAttribute clientAttribute = attribute.toClientAttribute();
         
@@ -2101,12 +2101,12 @@ public class DefaultServerAttributeTest
     @Test
     public void testSerializeCompleteAttribute() throws LdapException, IOException, ClassNotFoundException
     {
-        DefaultClientAttribute dsa = new DefaultClientAttribute( atCN );
+        DefaultEntryAttribute dsa = new DefaultEntryAttribute( atCN );
         dsa.setHR( true );
         dsa.setUpId( "CommonName" );
         dsa.add( "test1", "test2" );
 
-        DefaultClientAttribute dsaSer = deserializeValue( serializeValue( dsa ), atCN );
+        DefaultEntryAttribute dsaSer = deserializeValue( serializeValue( dsa ), atCN );
         assertEquals( dsa.toString(), dsaSer.toString() );
         assertEquals( "commonname", dsaSer.getId() );
         assertEquals( "CommonName", dsaSer.getUpId() );
@@ -2123,11 +2123,11 @@ public class DefaultServerAttributeTest
     @Test
     public void testSerializeAttributeWithNoValue() throws LdapException, IOException, ClassNotFoundException
     {
-        DefaultClientAttribute dsa = new DefaultClientAttribute( atCN );
+        DefaultEntryAttribute dsa = new DefaultEntryAttribute( atCN );
         dsa.setHR( true );
         dsa.setId( "cn" );
 
-        DefaultClientAttribute dsaSer = deserializeValue( serializeValue( dsa ), atCN );
+        DefaultEntryAttribute dsaSer = deserializeValue( serializeValue( dsa ), atCN );
         assertEquals( dsa.toString(), dsaSer.toString() );
         assertEquals( "cn", dsaSer.getId() );
         assertEquals( "cn", dsaSer.getUpId() );
@@ -2143,12 +2143,12 @@ public class DefaultServerAttributeTest
     @Test
     public void testSerializeAttributeNullValue() throws LdapException, IOException, ClassNotFoundException
     {
-        DefaultClientAttribute dsa = new DefaultClientAttribute( atDC );
+        DefaultEntryAttribute dsa = new DefaultEntryAttribute( atDC );
         dsa.setHR( true );
         dsa.setUpId( "DomainComponent" );
         dsa.add( (String)null );
 
-        DefaultClientAttribute dsaSer = deserializeValue( serializeValue( dsa ), atDC );
+        DefaultEntryAttribute dsaSer = deserializeValue( serializeValue( dsa ), atDC );
         assertEquals( dsa.toString(), dsaSer.toString() );
         assertEquals( "domaincomponent", dsaSer.getId() );
         assertEquals( "DomainComponent", dsaSer.getUpId() );
@@ -2166,12 +2166,12 @@ public class DefaultServerAttributeTest
     @Test
     public void testSerializeAttributeBinaryValue() throws LdapException, IOException, ClassNotFoundException
     {
-        DefaultClientAttribute dsa = new DefaultClientAttribute( atPwd );
+        DefaultEntryAttribute dsa = new DefaultEntryAttribute( atPwd );
         dsa.setHR( false );
         byte[] password = StringTools.getBytesUtf8( "secret" );
         dsa.add( password );
 
-        DefaultClientAttribute dsaSer = deserializeValue( serializeValue( dsa ), atPwd );
+        DefaultEntryAttribute dsaSer = deserializeValue( serializeValue( dsa ), atPwd );
         assertEquals( dsa.toString(), dsaSer.toString() );
         assertEquals( "userpassword", dsaSer.getId() );
         assertEquals( "userPassword", dsaSer.getUpId() );

@@ -37,6 +37,7 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -44,7 +45,6 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.name.DN;
@@ -139,7 +139,7 @@ public class ServerEntryUtils
         
         try 
         {
-            EntryAttribute serverAttribute = new DefaultClientAttribute( attributeType );
+            EntryAttribute serverAttribute = new DefaultEntryAttribute( attributeType );
         
             for ( NamingEnumeration<?> values = attribute.getAll(); values.hasMoreElements(); )
             {
@@ -291,7 +291,7 @@ public class ServerEntryUtils
                 break;
                 
             case ADD_ATTRIBUTE :
-                EntryAttribute combined = new DefaultClientAttribute( id, attributeType );
+                EntryAttribute combined = new DefaultEntryAttribute( id, attributeType );
                 EntryAttribute toBeAdded = mod.getAttribute();
                 EntryAttribute existing = entry.get( id );
 
@@ -447,7 +447,7 @@ public class ServerEntryUtils
         
         Modification serverModification = new ServerModification( 
             modification.getOperation(),
-            new DefaultClientAttribute( attributeType, modification.getAttribute() ) ); 
+            new DefaultEntryAttribute( attributeType, modification.getAttribute() ) ); 
         
         return serverModification;
         

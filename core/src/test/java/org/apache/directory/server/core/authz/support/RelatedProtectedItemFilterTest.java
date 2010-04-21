@@ -42,11 +42,11 @@ import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -226,7 +226,7 @@ public class RelatedProtectedItemFilterTest
     public void testAttributeValue() throws Exception
     {
         Collection<EntryAttribute> attributes = new ArrayList<EntryAttribute>();
-        attributes.add( new DefaultClientAttribute( "cn", CN_AT, "valueA" ) );
+        attributes.add( new DefaultEntryAttribute( "cn", CN_AT, "valueA" ) );
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.AttributeValue( convert( attributes ) ) );
 
         // Test wrong scope

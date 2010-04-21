@@ -29,11 +29,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -101,7 +101,7 @@ public class SchemaCheckerTest
         ModificationOperation mod = ModificationOperation.REPLACE_ATTRIBUTE;
         ServerEntry modifyAttributes = new DefaultServerEntry( schemaManager );
         AttributeType atCN = schemaManager.lookupAttributeTypeRegistry( "cn" );
-        modifyAttributes.put( new DefaultClientAttribute( atCN ) );
+        modifyAttributes.put( new DefaultEntryAttribute( atCN ) );
 
         // this should pass
         SchemaChecker.preventStructuralClassRemovalOnModifyReplace( schemaManager.getObjectClassRegistry(), name, mod, modifyAttributes );
@@ -109,14 +109,14 @@ public class SchemaCheckerTest
         // this should succeed since person is still in replaced set and is structural
         modifyAttributes.removeAttributes( atCN );
         AttributeType atOC = schemaManager.lookupAttributeTypeRegistry( "objectClass" );
-        EntryAttribute objectClassesReplaced = new DefaultClientAttribute( atOC );
+        EntryAttribute objectClassesReplaced = new DefaultEntryAttribute( atOC );
         objectClassesReplaced.add( "top" );
         objectClassesReplaced.add( "person" );
         modifyAttributes.put( objectClassesReplaced );
         SchemaChecker.preventStructuralClassRemovalOnModifyReplace( schemaManager.getObjectClassRegistry(), name, mod, modifyAttributes );
 
         // this should fail since only top is left
-        objectClassesReplaced = new DefaultClientAttribute( atOC );
+        objectClassesReplaced = new DefaultEntryAttribute( atOC );
         objectClassesReplaced.add( "top" );
         modifyAttributes.put( objectClassesReplaced );
         try
@@ -132,7 +132,7 @@ public class SchemaCheckerTest
         // this should fail since the modify operation tries to delete all
         // objectClass attribute values
         modifyAttributes.removeAttributes( "cn" );
-        objectClassesReplaced = new DefaultClientAttribute( atOC );
+        objectClassesReplaced = new DefaultEntryAttribute( atOC );
         modifyAttributes.put( objectClassesReplaced );
         try
         {
@@ -227,7 +227,7 @@ public class SchemaCheckerTest
 
         // test should fail since we are removing the ou attribute
         AttributeType OU_AT = schemaManager.lookupAttributeTypeRegistry( "ou" );
-        attributes.put( new DefaultClientAttribute( "ou", OU_AT ) );
+        attributes.put( new DefaultEntryAttribute( "ou", OU_AT ) );
 
         try
         {
@@ -247,7 +247,7 @@ public class SchemaCheckerTest
 
         // test for failure when modifying Rdn attribute in multi attribute Rdn
         AttributeType CN_AT = schemaManager.lookupAttributeTypeRegistry( "cn" );
-        attributes.put( new DefaultClientAttribute( "cn", CN_AT ) );
+        attributes.put( new DefaultEntryAttribute( "cn", CN_AT ) );
         
         try
         {
@@ -367,16 +367,16 @@ public class SchemaCheckerTest
         DN name = new DN( "uid=akarasulu,ou=users,dc=example,dc=com" );
         ModificationOperation mod = ModificationOperation.REPLACE_ATTRIBUTE;
         SchemaChecker.preventStructuralClassRemovalOnModifyReplace( schemaManager, name, mod, 
-            new DefaultClientAttribute( "cn", CN_AT ) );
+            new DefaultEntryAttribute( "cn", CN_AT ) );
 
         // this should succeed since person is still in replaced set and is structural
-        EntryAttribute objectClassesReplaced = new DefaultClientAttribute( "objectClass", OBJECT_CLASS );
+        EntryAttribute objectClassesReplaced = new DefaultEntryAttribute( "objectClass", OBJECT_CLASS );
         objectClassesReplaced.add( "top" );
         objectClassesReplaced.add( "person" );
         SchemaChecker.preventStructuralClassRemovalOnModifyReplace( schemaManager, name, mod, objectClassesReplaced );
 
         // this should fail since only top is left
-        objectClassesReplaced = new DefaultClientAttribute( "objectClass", OBJECT_CLASS );
+        objectClassesReplaced = new DefaultEntryAttribute( "objectClass", OBJECT_CLASS );
         objectClassesReplaced.add( "top" );
         try
         {
@@ -390,7 +390,7 @@ public class SchemaCheckerTest
 
         // this should fail since the modify operation tries to delete all
         // objectClass attribute values
-        objectClassesReplaced = new DefaultClientAttribute( "objectClass", OBJECT_CLASS );
+        objectClassesReplaced = new DefaultEntryAttribute( "objectClass", OBJECT_CLASS );
         try
         {
             SchemaChecker.preventStructuralClassRemovalOnModifyReplace( schemaManager, name, mod, objectClassesReplaced );
@@ -414,7 +414,7 @@ public class SchemaCheckerTest
         ModificationOperation mod = ModificationOperation.REMOVE_ATTRIBUTE;
         AttributeType ocAt = schemaManager.lookupAttributeTypeRegistry( "objectClass" );
         
-        EntryAttribute entryObjectClasses = new DefaultClientAttribute( "objectClass", ocAt );
+        EntryAttribute entryObjectClasses = new DefaultEntryAttribute( "objectClass", ocAt );
         entryObjectClasses.add( "top", "person", "organizationalPerson" );
 
         // this should pass
@@ -422,18 +422,18 @@ public class SchemaCheckerTest
             schemaManager, 
             name, 
             mod, 
-            new DefaultClientAttribute( "cn", schemaManager.lookupAttributeTypeRegistry( "cn" ) ),
+            new DefaultEntryAttribute( "cn", schemaManager.lookupAttributeTypeRegistry( "cn" ) ),
             entryObjectClasses );
 
         // this should succeed since person is left and is structural
-        EntryAttribute objectClassesRemoved = new DefaultClientAttribute( 
+        EntryAttribute objectClassesRemoved = new DefaultEntryAttribute( 
             "objectClass", ocAt );
         objectClassesRemoved.add( "person" );
         SchemaChecker.preventStructuralClassRemovalOnModifyRemove( schemaManager, name, mod, objectClassesRemoved,
             entryObjectClasses );
 
         // this should fail since only top is left
-        objectClassesRemoved = new DefaultClientAttribute( "objectClass", ocAt );
+        objectClassesRemoved = new DefaultEntryAttribute( "objectClass", ocAt );
         objectClassesRemoved.add( "person", "organizationalPerson" );
         
         try
@@ -449,7 +449,7 @@ public class SchemaCheckerTest
 
         // this should fail since the modify operation tries to delete all
         // objectClass attribute values
-        objectClassesRemoved = new DefaultClientAttribute( "objectClass", ocAt );
+        objectClassesRemoved = new DefaultEntryAttribute( "objectClass", ocAt );
 
         try
         {
@@ -480,13 +480,13 @@ public class SchemaCheckerTest
 
         // postive test which should pass
         SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, 
-            new DefaultClientAttribute( "cn", cnAt, "does not matter" ), schemaManager );
+            new DefaultEntryAttribute( "cn", cnAt, "does not matter" ), schemaManager );
 
         // test should fail since we are removing the ou attribute
         try
         {
             SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, 
-                new DefaultClientAttribute( "ou", ouAt ), schemaManager );
+                new DefaultEntryAttribute( "ou", ouAt ), schemaManager );
             fail( "should never get here due to a LdapSchemaViolationException being thrown" );
         }
         catch ( LdapSchemaViolationException e )
@@ -498,13 +498,13 @@ public class SchemaCheckerTest
         name = new DN( "ou=users+cn=system users,dc=example,dc=com" );
         name.normalize( oidNormalizers );
         SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, 
-            new DefaultClientAttribute( "sn", snAt, "does not matter" ), schemaManager );
+            new DefaultEntryAttribute( "sn", snAt, "does not matter" ), schemaManager );
 
         // test for failure when modifying Rdn attribute in multi attribute Rdn
         try
         {
             SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, 
-                new DefaultClientAttribute( "cn", cnAt ), schemaManager );
+                new DefaultEntryAttribute( "cn", cnAt ), schemaManager );
             fail( "should never get here due to a LdapSchemaViolationException being thrown" );
         }
         catch ( LdapSchemaViolationException e )
@@ -515,13 +515,13 @@ public class SchemaCheckerTest
         // should succeed since the value being deleted from the rdn attribute is
         // is not used when composing the Rdn
         SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, 
-            new DefaultClientAttribute( "ou", ouAt, "container" ), schemaManager );
+            new DefaultEntryAttribute( "ou", ouAt, "container" ), schemaManager );
 
         // now let's make it fail again just by providing the right value for ou (users)
         try
         {
             SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, 
-                new DefaultClientAttribute( "ou", ouAt, "users" ), schemaManager );
+                new DefaultEntryAttribute( "ou", ouAt, "users" ), schemaManager );
             fail( "should never get here due to a LdapSchemaViolationException being thrown" );
         }
         catch ( LdapSchemaViolationException e )

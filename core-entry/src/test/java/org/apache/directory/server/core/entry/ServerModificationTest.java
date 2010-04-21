@@ -34,12 +34,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
 
+import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.entry.client.ClientModification;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -181,7 +181,7 @@ public class ServerModificationTest
 
     @Test public void testCreateServerModification()
     {
-        EntryAttribute attribute = new DefaultClientAttribute( atCN );
+        EntryAttribute attribute = new DefaultEntryAttribute( atCN );
         attribute.add( "test1", "test2" );
         
         Modification mod = new ServerModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
@@ -207,7 +207,7 @@ public class ServerModificationTest
     @Test
     public void testCopyServerModification()
     {
-        EntryAttribute attribute = new DefaultClientAttribute( atC );
+        EntryAttribute attribute = new DefaultEntryAttribute( atC );
         attribute.add( "test1", "test2" );
         Modification serverModification = new ServerModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
         
@@ -219,7 +219,7 @@ public class ServerModificationTest
         serverModification.setOperation( ModificationOperation.REMOVE_ATTRIBUTE );
         assertEquals( ModificationOperation.ADD_ATTRIBUTE, copy.getOperation() );
         
-        EntryAttribute attribute2 = new DefaultClientAttribute( atCN, "t" );
+        EntryAttribute attribute2 = new DefaultEntryAttribute( atCN, "t" );
         serverModification.setAttribute( attribute2 );
         assertNotSame( attribute2, copy.getAttribute() );
     }
@@ -232,7 +232,7 @@ public class ServerModificationTest
     @Test
     public void testCopyClientModification()
     {
-        EntryAttribute attribute = new DefaultClientAttribute( atC.getName() );
+        EntryAttribute attribute = new DefaultEntryAttribute( atC.getName() );
         attribute.add( "test1", "test2" );
         Modification clientModification = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
         
@@ -249,7 +249,7 @@ public class ServerModificationTest
         clientModification.setOperation( ModificationOperation.REMOVE_ATTRIBUTE );
         assertEquals( ModificationOperation.ADD_ATTRIBUTE, copy.getOperation() );
         
-        EntryAttribute attribute2 = new DefaultClientAttribute( "cn", "t" );
+        EntryAttribute attribute2 = new DefaultEntryAttribute( "cn", "t" );
         clientModification.setAttribute( attribute2 );
         assertNotSame( attribute2, copy.getAttribute() );
     }
@@ -258,7 +258,7 @@ public class ServerModificationTest
     @Test
     public void testSerializationModificationADD() throws ClassNotFoundException, IOException, LdapException
     {
-        EntryAttribute attribute = new DefaultClientAttribute( atCN );
+        EntryAttribute attribute = new DefaultEntryAttribute( atCN );
         attribute.add( "test1", "test2" );
         
         ServerModification mod = new ServerModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
@@ -272,7 +272,7 @@ public class ServerModificationTest
     @Test
     public void testSerializationModificationREPLACE() throws ClassNotFoundException, IOException, LdapException
     {
-        EntryAttribute attribute = new DefaultClientAttribute( atCN );
+        EntryAttribute attribute = new DefaultEntryAttribute( atCN );
         attribute.add( "test1", "test2" );
         
         ServerModification mod = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
@@ -286,7 +286,7 @@ public class ServerModificationTest
     @Test
     public void testSerializationModificationREMOVE() throws ClassNotFoundException, IOException, LdapException
     {
-        EntryAttribute attribute = new DefaultClientAttribute( atCN );
+        EntryAttribute attribute = new DefaultEntryAttribute( atCN );
         attribute.add( "test1", "test2" );
         
         ServerModification mod = new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, attribute );
