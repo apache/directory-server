@@ -84,7 +84,7 @@ public class LdifConfigExtractor
             throw new IOException( I18n.err( I18n.ERR_508, configDirectory.getAbsolutePath() ) );
         }
 
-        LOG.info( "extracting the configuration to the directory at {}", configDirectory.getAbsolutePath() );
+        LOG.debug( "extracting the configuration to the directory at {}", configDirectory.getAbsolutePath() );
 
         Pattern pattern = Pattern.compile( ".*config/ou=config.*\\.ldif" );
         Map<String, Boolean> list = ResourceMap.getResources( pattern );

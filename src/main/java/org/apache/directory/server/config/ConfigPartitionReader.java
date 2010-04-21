@@ -1103,7 +1103,7 @@ public class ConfigPartitionReader
         }
         else
         {
-            LOG.info( "parsing the LDIF file(s) present at the path {}", entryFilePath );
+            LOG.debug( "parsing the LDIF file(s) present at the path {}", entryFilePath );
             loadEntries( file, entries );
         }
 
