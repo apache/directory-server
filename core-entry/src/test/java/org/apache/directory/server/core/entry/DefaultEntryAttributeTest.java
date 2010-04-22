@@ -67,7 +67,7 @@ import org.junit.Test;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DefaultServerAttributeTest
+public class DefaultEntryAttributeTest
 {
     private static LdifSchemaLoader loader;
     
@@ -109,7 +109,7 @@ public class DefaultServerAttributeTest
     	
     	if ( workingDirectory == null )
     	{
-    	    String path = DefaultServerAttributeTest.class.getResource( "" ).getPath();
+    	    String path = DefaultEntryAttributeTest.class.getResource( "" ).getPath();
     	    int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
     	}
@@ -1320,85 +1320,6 @@ public class DefaultServerAttributeTest
         
         attr2.clear();
         attr2.add( BIN_VALUE1, NULL_BINARY_VALUE, STR_VALUE3 );
-        assertEquals( 2, attr2.size() );
-        assertTrue( attr2.contains( BIN_VALUE1 ) );
-        assertTrue( attr2.contains( NULL_BINARY_VALUE ) );
-        assertFalse( attr2.contains( BIN_VALUE3 ) );
-    }
-
-
-    /**
-     * Test method put( List&lt;Value&gt; )
-     *
-    @Test
-    public void testPutListOfValues()
-    {
-        EntryAttribute attr1 = new DefaultEntryAttribute( atDC );
-        
-        assertEquals( 0, attr1.size() );
-        
-        List<Value<?>> list = new ArrayList<Value<?>>();
-        list.add( NULL_STRING_VALUE );
-        
-        attr1.add( list );
-        assertEquals( 1, attr1.size() );
-        assertTrue( attr1.contains( NULL_STRING_VALUE ) );
-        
-        list.clear();
-        list.add( STR_VALUE1 );
-        list.add( STR_VALUE2 );
-        list.add( STR_VALUE3 );
-        attr1.put( list );
-        assertEquals( 3, attr1.size() );
-        assertTrue( attr1.contains( STR_VALUE1 ) );
-        assertTrue( attr1.contains( STR_VALUE2 ) );
-        assertTrue( attr1.contains( STR_VALUE3 ) );
-
-        list.clear();
-        list.add( STR_VALUE1 );
-        list.add( NULL_STRING_VALUE );
-        list.add( STR_VALUE3 );
-        attr1.put( list );
-        assertEquals( 3, attr1.size() );
-        assertTrue( attr1.contains( STR_VALUE1 ) );
-        assertTrue( attr1.contains( NULL_STRING_VALUE ) );
-        assertTrue( attr1.contains( STR_VALUE3 ) );
-        
-        list.clear();
-        list.add( STR_VALUE1 );
-        list.add( NULL_STRING_VALUE );
-        list.add( BIN_VALUE3 );
-        attr1.put( list );
-        assertEquals( 2, attr1.size() );
-        assertTrue( attr1.contains( STR_VALUE1 ) );
-        assertTrue( attr1.contains( NULL_STRING_VALUE ) );
-        assertFalse( attr1.contains( STR_VALUE3 ) );
-        
-
-        EntryAttribute attr2 = new DefaultEntryAttribute( atPwd );
-        assertEquals( 0, attr2.size() );
-        
-        list.clear();
-        list.add( NULL_BINARY_VALUE );
-        attr2.put( list );
-        assertEquals( 1, attr2.size() );
-        assertTrue( attr2.contains( NULL_BINARY_VALUE ) );
-        
-        list.clear();
-        list.add( BIN_VALUE1 );
-        list.add( BIN_VALUE2 );
-        list.add( BIN_VALUE3 );
-        attr2.put( list );
-        assertEquals( 3, attr2.size() );
-        assertTrue( attr2.contains( BIN_VALUE1 ) );
-        assertTrue( attr2.contains( BIN_VALUE2 ) );
-        assertTrue( attr2.contains( BIN_VALUE3 ) );
-        
-        list.clear();
-        list.add( BIN_VALUE1 );
-        list.add( NULL_BINARY_VALUE );
-        list.add( STR_VALUE3 );
-        attr2.put( list );
         assertEquals( 2, attr2.size() );
         assertTrue( attr2.contains( BIN_VALUE1 ) );
         assertTrue( attr2.contains( NULL_BINARY_VALUE ) );
