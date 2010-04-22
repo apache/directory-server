@@ -42,6 +42,7 @@ import java.util.Set;
 import javax.naming.directory.InvalidAttributeValueException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.core.entry.TestServerEntryUtils;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
