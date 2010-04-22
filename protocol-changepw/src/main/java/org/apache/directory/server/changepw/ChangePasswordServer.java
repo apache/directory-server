@@ -32,7 +32,6 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionT
 import org.apache.directory.server.kerberos.shared.store.DirectoryPrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
-import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
@@ -127,7 +126,6 @@ public class ChangePasswordServer extends DirectoryBackedService
         super.setServiceName( SERVICE_NAME_DEFAULT );
         super.setServiceId( SERVICE_PID_DEFAULT );
         super.setSearchBaseDn( ServerDNConstants.USER_EXAMPLE_COM_DN );
-        setTransports( new TcpTransport( DEFAULT_IP_PORT ), new UdpTransport( DEFAULT_IP_PORT ) );
 
         prepareEncryptionTypes();
     }
