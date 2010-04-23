@@ -30,6 +30,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+/**
+ * An utility class for SP tests
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class ListUtilsSP
 {
     private static final Logger LOG = LoggerFactory.getLogger( ListUtilsSP.class );
