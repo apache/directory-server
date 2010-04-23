@@ -53,6 +53,12 @@
       <groupId>${groupId}</groupId>
       <version>${version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.client.ldap</groupId>
+      <artifactId>ldap-client-api</artifactId>
+      <version>0.2-SNAPSHOT</version>
+    </dependency> 
   </dependencies>
 
   <build>
