@@ -271,7 +271,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         catch ( PartialResultException pre )
         {
             assertEquals( "cn=alex karasulu,ou=apache", pre.getRemainingName().toString() );
-            assertEquals( DN.EMPTY_DN, pre.getResolvedName().toString() );
+            assertEquals( DN.EMPTY_DN, new DN( pre.getResolvedName().toString() ) );
         }
     }
 
@@ -342,7 +342,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         catch ( LdapPartialResultException lpre )
         {
             assertEquals( "cn=alex karasulu,ou=apache", lpre.getRemainingDn().toString() );
-            assertEquals( DN.EMPTY_DN, lpre.getResolvedDn().toString() );
+            assertEquals( DN.EMPTY_DN, lpre.getResolvedDn() );
         }
     }
 

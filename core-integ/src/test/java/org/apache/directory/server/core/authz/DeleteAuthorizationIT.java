@@ -56,7 +56,7 @@ public class DeleteAuthorizationIT extends AbstractLdapTestUnit
     @Before
     public void setService()
     {
-        AutzIntegUtils.ldapServer = ldapServer;
+        AutzIntegUtils.service = service;
     }
     
     

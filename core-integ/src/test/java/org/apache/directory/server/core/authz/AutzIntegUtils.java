@@ -37,7 +37,6 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
-import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -57,9 +56,6 @@ public class AutzIntegUtils
 {
     public static DirectoryService service;
 
-    public static LdapServer ldapServer;
-
-
     // -----------------------------------------------------------------------
     // Utility methods used by subclasses
     // -----------------------------------------------------------------------
@@ -69,25 +65,25 @@ public class AutzIntegUtils
      */
     public static LdapConnection getAdminConnection() throws Exception
     {
-        return IntegrationUtils.getAdminConnection( ldapServer );
+        return IntegrationUtils.getAdminConnection( service );
     }
 
 
     public static LdapConnection getConnectionAs( String dn, String password ) throws Exception
     {
-        return IntegrationUtils.getConnectionAs( ldapServer, dn, password );
+        return IntegrationUtils.getConnectionAs( service, dn, password );
     }
 
 
     public static LdapConnection getConnectionAs( DN dn, String password ) throws Exception
     {
-        return IntegrationUtils.getConnectionAs( ldapServer, dn.getName(), password );
+        return IntegrationUtils.getConnectionAs( service, dn.getName(), password );
     }
 
 
     public static LdapConnection getConnectionAs( String host, int port, String dn, String password ) throws Exception
     {
-        return IntegrationUtils.getConnectionAs( host, port, dn, password );
+        return IntegrationUtils.getNetworkConnectionAs( host, port, dn, password );
     }
 
 

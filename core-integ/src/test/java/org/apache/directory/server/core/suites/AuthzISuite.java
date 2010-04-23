@@ -19,19 +19,15 @@
 package org.apache.directory.server.core.suites;
 
 
-import org.apache.directory.server.annotations.CreateLdapServer;
-import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.authz.AddAuthorizationIT;
 import org.apache.directory.server.core.authz.AdministratorsGroupIT;
 import org.apache.directory.server.core.authz.AuthorizationServiceAsAdminIT;
 import org.apache.directory.server.core.authz.AuthorizationServiceAsNonAdminIT;
 import org.apache.directory.server.core.authz.AuthzAuthnIT;
-import org.apache.directory.server.core.authz.CompareAuthorizationIT;
 import org.apache.directory.server.core.authz.DeleteAuthorizationIT;
 import org.apache.directory.server.core.authz.GeneralAuthorizationIT;
 import org.apache.directory.server.core.authz.ModifyAuthorizationIT;
-import org.apache.directory.server.core.authz.MoveRenameAuthorizationIT;
 import org.apache.directory.server.core.authz.SearchAuthorizationIT;
 import org.apache.directory.server.core.integ.FrameworkSuite;
 import org.junit.runner.RunWith;
@@ -46,22 +42,14 @@ import org.junit.runners.Suite;
  */
 @RunWith ( FrameworkSuite.class )
 @CreateDS( enableAccessControl=true, name="AuthzISuite" )
-@CreateLdapServer( 
-    transports = 
-        {
-          @CreateTransport( protocol = "LDAP" )
-        }
-)
 @Suite.SuiteClasses ( {
         AddAuthorizationIT.class,
         AuthorizationServiceAsAdminIT.class,
         AuthorizationServiceAsNonAdminIT.class,
         AuthzAuthnIT.class,
-        CompareAuthorizationIT.class,
         DeleteAuthorizationIT.class,
         GeneralAuthorizationIT.class,
         ModifyAuthorizationIT.class,
-        MoveRenameAuthorizationIT.class,
         SearchAuthorizationIT.class,
         AdministratorsGroupIT.class     // make sure this always runs last since it leaves
                                         // the default factory service running instead of

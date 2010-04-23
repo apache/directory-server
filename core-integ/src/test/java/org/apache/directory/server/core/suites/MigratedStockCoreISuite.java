@@ -19,8 +19,6 @@
 package org.apache.directory.server.core.suites;
 
 
-import org.apache.directory.server.annotations.CreateLdapServer;
-import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.authn.SimpleAuthenticationIT;
 import org.apache.directory.server.core.authz.AddAuthorizationIT;
@@ -47,11 +45,6 @@ import org.junit.runners.Suite;
  */
 @RunWith ( FrameworkSuite.class )
 @CreateDS( enableAccessControl=true, name="MigratedStockCoreISuite-DS" )
-@CreateLdapServer( transports=
-    {
-       @CreateTransport( protocol = "LDAP" ),
-       @CreateTransport( protocol = "LDAPS" )
-    })
 @Suite.SuiteClasses ( {
         SimpleAuthenticationIT.class,
         ExceptionServiceIT.class,

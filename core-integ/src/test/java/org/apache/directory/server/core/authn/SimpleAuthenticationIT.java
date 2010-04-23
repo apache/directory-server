@@ -21,6 +21,7 @@ package org.apache.directory.server.core.authn;
 
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.apply;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getConnectionAs;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -86,8 +87,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     public void testAdminAccountCreation() throws Exception
     {
         String userDn = "uid=admin,ou=system";
-        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
-        connection.bind( userDn, "secret" );
+        LdapConnection connection = getConnectionAs( service, userDn, "secret" );
 
         Entry entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
         performAdminAccountChecks( entry );
@@ -95,11 +95,10 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
             .getBytesUtf8( "secret" ) ) );
         connection.close();
 
-        ldapServer.stop();
-        ldapServer.start();
+        service.shutdown();
+        service.startup();
 
-        connection = new LdapConnection( "localhost", ldapServer.getPort() );
-        connection.bind( userDn, "secret" );
+        connection = getConnectionAs( service, userDn, "secret" );
         entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
         performAdminAccountChecks( entry );
         assertTrue( ArrayUtils.isEquals( entry.get( "userPassword" ).get().getBytes(), StringTools
@@ -113,8 +112,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     {
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
-        connection.bind( userDn, "test" );
+        LdapConnection connection = getConnectionAs( service, userDn, "test" );
 
         Entry entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
         EntryAttribute ou = entry.get( "ou" );
@@ -150,8 +148,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     public void test8PassPrincAuthTypeSimple() throws Exception
     {
         String userDn = "uid=admin,ou=system";
-        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
-        connection.bind( userDn, "secret" );
+        LdapConnection connection = getConnectionAs( service, userDn, "secret" );
         assertTrue( connection.isAuthenticated() );
         connection.close();
     }
@@ -168,8 +165,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     {
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
-        connection.bind( userDn, "test" );
+        LdapConnection connection = getConnectionAs( service, userDn, "test" );
         assertTrue( connection.isAuthenticated() );
         connection.close();
     }
@@ -181,8 +177,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
 
-        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
-        connection.bind( userDn, "test" );
+        LdapConnection connection = getConnectionAs( service, userDn, "test" );
 
         Entry entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
         EntryAttribute ou = entry.get( "ou" );
@@ -248,8 +243,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     {
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
-        connection.bind( userDn, "test" );
+        LdapConnection connection = getConnectionAs( service, userDn, "test" );
 
         // Check that we can get the attributes
 
@@ -292,8 +286,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     {
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
-        connection.bind( userDn, "test" );
+        LdapConnection connection = getConnectionAs( service, userDn, "test" );
 
         // Check that we can get the attributes
         Entry entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
@@ -333,8 +326,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     {
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
-        connection.bind( userDn, "test" );
+        LdapConnection connection = getConnectionAs( service, userDn, "test" );
 
         // Check that we can get the attributes
         Entry entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
@@ -374,8 +366,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     {
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
-        connection.bind( userDn, "test" );
+        LdapConnection connection = getConnectionAs( service, userDn, "test" );
 
         // Check that we can get the attributes
         Entry entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
@@ -416,8 +407,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     {
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
-        connection.bind( userDn, "test" );
+        LdapConnection connection = getConnectionAs( service, userDn, "test" );
 
         // Check that we can get the attributes
         Entry entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
@@ -457,8 +447,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     {
         apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
-        connection.bind( userDn, "test" );
+        LdapConnection connection = getConnectionAs( service, userDn, "test" );
 
         // Check that we can get the attributes
         Entry entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
@@ -499,8 +488,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
 
         // bind as akarasulu
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
-        connection.bind( userDn, "test" );
+        LdapConnection connection = getConnectionAs( service, userDn, "test" );
         connection.close();
 
         // bind as admin

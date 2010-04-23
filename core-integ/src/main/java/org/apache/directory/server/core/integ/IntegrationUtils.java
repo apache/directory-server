@@ -34,13 +34,14 @@ import javax.naming.ldap.LdapName;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.LdapConnectionFactory;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.LdapCoreSessionConnection;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
@@ -361,27 +362,31 @@ public class IntegrationUtils
     /**
      * gets a LdapConnection bound using the default admin DN uid=admin,ou=system and password "secret"
      */
-    public static LdapConnection getAdminConnection( LdapServer ldapServer ) throws Exception
+    public static LdapConnection getAdminConnection( DirectoryService dirService ) throws Exception
     {
-        return getConnectionAs( ldapServer, ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
+        return getConnectionAs( dirService, ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
     }
 
 
-    public static LdapConnection getConnectionAs( LdapServer ldapServer, String dn, String password ) throws Exception
+    public static LdapConnection getConnectionAs( DirectoryService dirService, String dn, String password ) throws Exception
     {
-        return getConnectionAs( "localhost", ldapServer.getPort(), dn, password );
+        return getConnectionAs( dirService, new DN( dn ), password );
     }
 
 
-    public static LdapConnection getConnectionAs( LdapServer ldapServer, DN dn, String password ) throws Exception
+    public static LdapConnection getConnectionAs( DirectoryService dirService, DN dn, String password ) throws Exception
     {
-        return getConnectionAs( "localhost", ldapServer.getPort(), dn.getName(), password );
+        Object connectionObj = LdapConnectionFactory.getCoreSessionConnection();
+        ( ( LdapCoreSessionConnection ) connectionObj ).setSession( dirService.getSession( dn, password.getBytes() ) );
+        
+        return ( LdapConnection )connectionObj;
     }
 
 
-    public static LdapConnection getConnectionAs( String host, int port, String dn, String password ) throws Exception
+    public static LdapConnection getNetworkConnectionAs( String host, int port, String dn, String password ) throws Exception
     {
-        LdapConnection connection = new LdapConnection( host, port );
+        LdapConnection connection = ( LdapConnection) LdapConnectionFactory.getNetworkConnection( host, port );
+        
         connection.bind( dn, password );
         openConnections.add( connection );
         return connection;

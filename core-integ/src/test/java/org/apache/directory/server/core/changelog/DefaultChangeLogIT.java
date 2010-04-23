@@ -31,8 +31,6 @@ import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.exception.LdapException;
 import org.apache.directory.ldap.client.api.message.ModifyRequest;
 import org.apache.directory.ldap.client.api.message.SearchResultEntry;
-import org.apache.directory.server.annotations.CreateLdapServer;
-import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -60,8 +58,6 @@ import org.slf4j.LoggerFactory;
  */
 @RunWith ( FrameworkRunner.class )
 @CreateDS( factory=DefaultDirectoryServiceFactory.class, name="DefaultChangeLogIT-class" )
-@CreateLdapServer(transports =
-    { @CreateTransport(protocol = "LDAP") })
 public class DefaultChangeLogIT extends AbstractLdapTestUnit
 {
     public static final Logger LOG = LoggerFactory.getLogger( DefaultChangeLogIT.class );
@@ -77,7 +73,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
     @Test
     public void testManyTagsPersistenceAcrossRestarts() throws Exception, InterruptedException
     {
-        LdapConnection sysRoot = getAdminConnection( ldapServer );
+        LdapConnection sysRoot = getAdminConnection( service );
         long revision = service.getChangeLog().getCurrentRevision();
 
         // add new test entry
@@ -105,10 +101,10 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         assertEquals( revision + 2, service.getChangeLog().getCurrentRevision() );
         assertEquals( revision + 2, t1.getRevision() );
 
-        ldapServer.stop();
-        ldapServer.start();
+        service.shutdown();
+        service.startup();
 
-        sysRoot = getAdminConnection( ldapServer );
+        sysRoot = getAdminConnection( service );
         assertEquals( revision + 2, service.getChangeLog().getCurrentRevision() );
         assertEquals( t1, service.getChangeLog().getLatest() );
         assertEquals( revision + 2, t1.getRevision() );
@@ -137,10 +133,10 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         assertEquals( t1, service.getChangeLog().getLatest() );
 
         // no sync this time but should happen automatically
-        ldapServer.stop();
-        ldapServer.start();
+        service.shutdown();
+        service.startup();
         
-        sysRoot = getAdminConnection( ldapServer );
+        sysRoot = getAdminConnection( service );
         assertEquals( revision + 7, service.getChangeLog().getCurrentRevision() );
         assertEquals( t1, service.getChangeLog().getLatest() );
         assertEquals( revision + 2, t1.getRevision() );
@@ -157,7 +153,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
     @Test
     public void testTagPersistenceAcrossRestarts() throws Exception, InterruptedException
     {
-        LdapConnection sysRoot = getAdminConnection( ldapServer );
+        LdapConnection sysRoot = getAdminConnection( service );
         long revision = service.getChangeLog().getCurrentRevision();
 
         Tag t0 = service.getChangeLog().tag();
@@ -171,10 +167,10 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         sysRoot.add( entry );
         assertEquals( revision + 1, service.getChangeLog().getCurrentRevision() );
 
-        ldapServer.stop();
-        ldapServer.start();
+        service.shutdown();
+        service.startup();
         
-        sysRoot = getAdminConnection( ldapServer );
+        sysRoot = getAdminConnection( service );
         assertEquals( revision + 1, service.getChangeLog().getCurrentRevision() );
         assertEquals( t0, service.getChangeLog().getLatest() );
 
@@ -188,7 +184,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
     @Test
     public void testRevertAddOperations() throws Exception
     {
-        LdapConnection sysRoot = getAdminConnection( ldapServer );
+        LdapConnection sysRoot = getAdminConnection( service );
         Tag t0 = service.getChangeLog().tag();
         Entry entry = new DefaultClientEntry( new DN( "ou=test,ou=system" ) );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
@@ -205,7 +201,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
     @Test
     public void testRevertAddAndDeleteOperations() throws Exception
     {
-        LdapConnection sysRoot = getAdminConnection( ldapServer );
+        LdapConnection sysRoot = getAdminConnection( service );
         Tag t0 = service.getChangeLog().tag();
 
         // add new test entry
@@ -230,7 +226,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
     @Test
     public void testRevertDeleteOperations() throws Exception
     {
-        LdapConnection sysRoot = getAdminConnection( ldapServer );
+        LdapConnection sysRoot = getAdminConnection( service );
         Entry entry = new DefaultClientEntry( new DN( "ou=test,ou=system" ) );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         entry.put( SchemaConstants.OU_AT, "test" );
@@ -253,7 +249,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
     @Test
     public void testRevertRenameOperations() throws Exception
     {
-        LdapConnection sysRoot = getAdminConnection( ldapServer );
+        LdapConnection sysRoot = getAdminConnection( service );
         Entry entry = new DefaultClientEntry( new DN( "ou=oldname,ou=system" ) );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         entry.put( SchemaConstants.OU_AT, "oldname" );
@@ -279,7 +275,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
     @Test
     public void testRevertModifyOperations() throws Exception
     {
-        LdapConnection sysRoot = getAdminConnection( ldapServer );
+        LdapConnection sysRoot = getAdminConnection( service );
         Entry entry = new DefaultClientEntry( new DN( "ou=test5,ou=system" ) );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         entry.put( SchemaConstants.OU_AT, "test5" );
@@ -414,7 +410,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
     {
         EntryAttribute userPassword = entry.get( "userPassword" );
         assertNotNull( userPassword );
-        assertTrue( Arrays.equals( password.getBytes(), userPassword.getString().getBytes() ) );
+        assertTrue( Arrays.equals( password.getBytes(), userPassword.getBytes() ) );
     }
 
 
