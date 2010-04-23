@@ -49,7 +49,7 @@
     <dependency>
       <groupId>org.apache.directory.client.ldap</groupId>
       <artifactId>ldap-client-api</artifactId>
-      <version>0.2-SNAPSHOT</version>
+      <version>${org.apache.directory.ldap.client.api.version}</version>
     </dependency>
 
     <dependency>
