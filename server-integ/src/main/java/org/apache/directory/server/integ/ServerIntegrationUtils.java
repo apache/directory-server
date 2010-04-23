@@ -28,6 +28,7 @@ import javax.naming.ldap.LdapContext;
 import netscape.ldap.LDAPConnection;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.server.ldap.LdapServer;
@@ -218,7 +219,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
 
     public static LdapConnection getClientApiConnection( LdapServer ldapServer ) throws Exception
     {
-        LdapConnection conn = new LdapConnection( "localhost", ldapServer.getPort() );
+        LdapConnection conn = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
         conn.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
         return conn;
     }
