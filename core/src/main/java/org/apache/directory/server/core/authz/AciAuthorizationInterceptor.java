@@ -762,7 +762,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
     public ClonedServerEntry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws Exception
     {
-        LdapPrincipal principal = lookupContext.getSession().getEffectivePrincipal();
+        CoreSession session = lookupContext.getSession();
+        DirectoryService directoryService = session.getDirectoryService();
+        
+        LdapPrincipal principal = session.getEffectivePrincipal();
         DN principalDn = principal.getClonedName();
         
         if ( !principalDn.isNormalized() )
@@ -770,16 +773,16 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             principalDn.normalize( schemaManager.getNormalizerMapping() );
         }
         
-        if ( isPrincipalAnAdministrator( principalDn ) || !lookupContext.getSession().getDirectoryService().isAccessControlEnabled() )
+        if ( isPrincipalAnAdministrator( principalDn ) || !directoryService.isAccessControlEnabled() )
         {
             return next.lookup( lookupContext );
         }
 
         lookupContext.setByPassed( ByPassConstants.LOOKUP_BYPASS );
-        ServerEntry entry = lookupContext.getSession().getDirectoryService()
-            .getOperationManager().lookup( lookupContext );
+        ServerEntry entry = directoryService.getOperationManager().lookup( lookupContext );
 
         checkLookupAccess( lookupContext, entry );
+        
         return next.lookup( lookupContext );
     }
 
