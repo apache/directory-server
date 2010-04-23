@@ -49,7 +49,9 @@ import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.shared.asn1.primitives.OID;
+import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -58,6 +60,7 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AddRequestImpl;
@@ -96,6 +99,8 @@ public class LdapCoreSessionConnection implements LdapConnection
     /** the SchemaManager */
     private SchemaManager sm;
 
+    /** the session's DirectoryService */
+    private DirectoryService directoryService;
 
     public LdapCoreSessionConnection()
     {
@@ -105,8 +110,7 @@ public class LdapCoreSessionConnection implements LdapConnection
 
     public LdapCoreSessionConnection( CoreSession session )
     {
-        this.session = session;
-        this.sm = session.getDirectoryService().getSchemaManager();
+        setSession( session );
     }
 
 
@@ -115,7 +119,16 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public boolean close() throws IOException
     {
-        return false;
+        try
+        {
+            unBind();
+        }
+        catch( Exception e )
+        {
+            throw new IOException( e.getMessage() );
+        }
+        
+        return true;
     }
 
 
@@ -135,7 +148,15 @@ public class LdapCoreSessionConnection implements LdapConnection
         return result;
     }
 
+    
+    private LdapResult getDefaultCompareResult()
+    {
+        LdapResult result = new LdapResult();
+        result.setResultCode( ResultCodeEnum.COMPARE_TRUE );
+        return result;
+    }
 
+    
     /**
      * {@inheritDoc}
      */
@@ -197,7 +218,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     public CompareResponse compare( CompareRequest compareRequest ) throws LdapException
     {
         CompareResponse resp = new CompareResponse();
-        resp.setLdapResult( getDefaultResult() );
+        resp.setLdapResult( getDefaultCompareResult() );
 
         try
         {
@@ -233,7 +254,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     public CompareResponse compare( DN dn, String attributeName, byte[] value ) throws LdapException
     {
         CompareResponse resp = new CompareResponse();
-        resp.setLdapResult( getDefaultResult() );
+        resp.setLdapResult( getDefaultCompareResult() );
 
         try
         {
@@ -254,7 +275,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     public CompareResponse compare( DN dn, String attributeName, String value ) throws LdapException
     {
         CompareResponse resp = new CompareResponse();
-        resp.setLdapResult( getDefaultResult() );
+        resp.setLdapResult( getDefaultCompareResult() );
 
         try
         {
@@ -275,7 +296,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     public CompareResponse compare( String dn, String attributeName, byte[] value ) throws LdapException
     {
         CompareResponse resp = new CompareResponse();
-        resp.setLdapResult( getDefaultResult() );
+        resp.setLdapResult( getDefaultCompareResult() );
 
         try
         {
@@ -296,7 +317,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     public CompareResponse compare( String dn, String attributeName, String value ) throws LdapException
     {
         CompareResponse resp = new CompareResponse();
-        resp.setLdapResult( getDefaultResult() );
+        resp.setLdapResult( getDefaultCompareResult() );
 
         try
         {
@@ -317,7 +338,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     public CompareResponse compare( DN dn, String attributeName, Value<?> value ) throws LdapException
     {
         CompareResponse resp = new CompareResponse();
-        resp.setLdapResult( getDefaultResult() );
+        resp.setLdapResult( getDefaultCompareResult() );
 
         try
         {
@@ -338,7 +359,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     public CompareResponse compare( String dn, String attributeName, Value<?> value ) throws LdapException
     {
         CompareResponse resp = new CompareResponse();
-        resp.setLdapResult( getDefaultResult() );
+        resp.setLdapResult( getDefaultCompareResult() );
 
         try
         {
@@ -447,7 +468,7 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public boolean isAuthenticated()
     {
-        return true;
+        return ( session != null );
     }
 
 
@@ -745,9 +766,9 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch ( Exception e )
         {
-            throw new LdapException( e );
         }
 
+        return new EmptyCursor<SearchResponse>();
     }
 
 
@@ -775,7 +796,11 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public void unBind() throws Exception
     {
-        session.unbind();
+        if( session != null )
+        {
+            session.unbind();
+            session = null;
+        }
     }
 
 
@@ -860,8 +885,15 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public BindResponse bind() throws LdapException, IOException
     {
-        throw new UnsupportedOperationException(
-            "bind operation is not supported cause this connection's session is already bound" );
+        try
+        {
+            setSession( directoryService.getSession() );
+        }
+        catch( Exception e )
+        {
+        }
+        
+        return null;
     }
 
 
@@ -870,7 +902,23 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public BindResponse bind( BindRequest bindRequest ) throws LdapException, IOException
     {
-        return bind();
+        try
+        {
+            if( bindRequest.isSimple() )
+            {
+                setSession( directoryService.getSession( new DN( bindRequest.getName() ), bindRequest.getCredentials() ) );
+            }
+            else
+            {
+                throw new NotImplementedException( "getting coresession based on SASL mechanism is not implemented yet" );
+                // session = directoryService.getSession( new DN( bindRequest.getName() ), bindRequest.getCredentials(), bindRequest.getSaslMechanism() );
+            }
+        }
+        catch( Exception e )
+        {
+        }
+        
+        return null;
     }
 
 
@@ -879,7 +927,15 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public BindResponse bind( DN name, String credentials ) throws LdapException, IOException
     {
-        return bind();
+        try
+        {
+            setSession( directoryService.getSession( name, credentials.getBytes() ) );
+        }
+        catch( Exception e )
+        {
+        }
+        
+        return null;
     }
 
 
@@ -888,7 +944,22 @@ public class LdapCoreSessionConnection implements LdapConnection
      */
     public BindResponse bind( String name, String credentials ) throws LdapException, IOException
     {
-        return bind();
+        try
+        {
+            return bind( new DN( name ), credentials );
+        }
+        catch( LdapInvalidDnException e )
+        {
+            throw new LdapException( e );
+        }
+    }
+
+
+    public void setSession( CoreSession session )
+    {
+        this.session = session;
+        this.directoryService = session.getDirectoryService();
+        this.sm = directoryService.getSchemaManager();
     }
 
 }
