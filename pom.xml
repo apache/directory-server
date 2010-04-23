@@ -41,6 +41,7 @@
     <!-- Set versions for depending projects -->
     <org.apache.directory.shared.version>0.9.20-SNAPSHOT</org.apache.directory.shared.version>
     <org.apache.directory.ldap.client.api.version>0.2-SNAPSHOT</org.apache.directory.ldap.client.api.version>
+    <org.apache.directory.daemon.version>1.1.9-SNAPSHOT</org.apache.directory.daemon.version>
     <skin.version>1.0.1</skin.version>
     
     <!-- Set versions for depending jars -->
@@ -550,6 +551,7 @@
     <module>xbean-spring</module>
     <module>http-integration</module>
     <module>test-framework</module>
+    <module>ldap-client-test</module>
   </modules>
 
   <reporting>
