@@ -727,13 +727,16 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    public ModifyDnResponse rename( String entryDn, String newRdn ) throws LdapException
+    public ModifyDnResponse rename( String entryDn, String rdn ) throws LdapException
     {
         ModifyDnResponse resp = new ModifyDnResponse();
         resp.setLdapResult( getDefaultResult() );
+        
         try
         {
-            session.rename( new DN( entryDn ), new RDN( newRdn ), false );
+            DN newDn = new DN( entryDn );
+            RDN newRdn = new RDN( rdn );
+            session.rename( newDn, newRdn, false );
         }
         catch ( Exception e )
         {
