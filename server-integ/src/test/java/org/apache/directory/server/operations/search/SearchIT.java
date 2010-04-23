@@ -47,6 +47,7 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.exception.LdapException;
 import org.apache.directory.ldap.client.api.message.SearchRequest;
 import org.apache.directory.ldap.client.api.message.SearchResponse;
@@ -1619,7 +1620,7 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testAbandonnedRequest() throws Exception
     {
-        LdapConnection asyncCnx = new LdapConnection( "localhost", ldapServer.getPort() );
+        LdapConnection asyncCnx = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
         try
         {
