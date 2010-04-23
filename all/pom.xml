@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>1.5.7-SNAPSHOT</version>
+    <version>1.5.8-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-all</artifactId>
@@ -74,14 +74,6 @@
       <version>${version}</version>
     </dependency>
     
-    <!-- 
-    <dependency>
-      <artifactId>apacheds-core-integ</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
-    </dependency>
-     -->
-     
     <dependency>
       <artifactId>apacheds-core-jndi</artifactId>
       <groupId>${groupId}</groupId>
@@ -132,13 +124,6 @@
       <version>${version}</version>
     </dependency>
     
-    <!-- 
-    <dependency>
-      <artifactId>apacheds-kerberos-test</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
-    </dependency>
-     -->
     <dependency>
       <artifactId>apacheds-ldif-partition</artifactId>
       <groupId>${groupId}</groupId>
@@ -193,14 +178,6 @@
       <version>${version}</version>
     </dependency>
     
-    <!-- 
-    <dependency>
-      <artifactId>apacheds-server-integ</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
-    </dependency>
-     -->
-     
     <dependency>
       <artifactId>apacheds-server-jndi</artifactId>
       <groupId>${groupId}</groupId>
@@ -213,14 +190,6 @@
       <version>${version}</version>
     </dependency>
     
-    <!-- 
-    <dependency>
-      <artifactId>apacheds-server-tools</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
-    </dependency>
-     -->
-     
     <dependency>
       <artifactId>apacheds-server-xml</artifactId>
       <groupId>${groupId}</groupId>
