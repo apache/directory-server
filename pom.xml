@@ -40,6 +40,7 @@
 
     <!-- Set versions for depending projects -->
     <org.apache.directory.shared.version>0.9.19-SNAPSHOT</org.apache.directory.shared.version>
+    <org.apache.directory.ldap.client.api.version>0.2-SNAPSHOT</org.apache.directory.ldap.client.api.version>
     <skin.version>1.0.1</skin.version>
     
     <!-- Set versions for depending jars -->
