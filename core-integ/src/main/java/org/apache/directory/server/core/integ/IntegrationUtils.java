@@ -393,7 +393,7 @@ public class IntegrationUtils
     }
     
     
-    public static void closeConections()
+    public static void closeConnections()
     {
         
         for( LdapConnection con : openConnections )

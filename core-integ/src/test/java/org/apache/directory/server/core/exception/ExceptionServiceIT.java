@@ -90,7 +90,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @After
     public void closeConnections()
     {
-        IntegrationUtils.closeConections();
+        IntegrationUtils.closeConnections();
     }
 
 

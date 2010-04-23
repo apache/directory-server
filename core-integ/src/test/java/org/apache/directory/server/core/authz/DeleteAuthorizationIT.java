@@ -63,7 +63,7 @@ public class DeleteAuthorizationIT extends AbstractLdapTestUnit
     @After
     public void closeConnections()
     {
-        IntegrationUtils.closeConections();
+        IntegrationUtils.closeConnections();
     }
     
     

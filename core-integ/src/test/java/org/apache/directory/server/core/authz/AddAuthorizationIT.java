@@ -64,7 +64,7 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
     @After
     public void closeConnections()
     {
-        IntegrationUtils.closeConections();
+        IntegrationUtils.closeConnections();
     }
     
     

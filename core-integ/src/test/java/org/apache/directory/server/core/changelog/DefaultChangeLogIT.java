@@ -66,7 +66,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
     @After
     public void closeConnections()
     {
-        IntegrationUtils.closeConections();
+        IntegrationUtils.closeConnections();
     }
 
 

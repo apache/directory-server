@@ -55,13 +55,14 @@ public class AuthzAuthnIT extends AbstractLdapTestUnit
     public void setService()
     {
         AutzIntegUtils.service = service;
+        service.setAccessControlEnabled( true );
     }
     
     
     @After
     public void closeConnections()
     {
-        IntegrationUtils.closeConections();
+        IntegrationUtils.closeConnections();
     }
     
     

@@ -80,7 +80,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
     @After
     public void closeConnections()
     {
-        IntegrationUtils.closeConections();
+        IntegrationUtils.closeConnections();
     }
     
     

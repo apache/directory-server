@@ -60,12 +60,13 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
     public void setService()
     {
        AutzIntegUtils.service = service;
+       service.setAccessControlEnabled( true );
     }
     
     @After
     public void closeConnections()
     {
-        IntegrationUtils.closeConections();
+        IntegrationUtils.closeConnections();
     }
     
     
@@ -140,7 +141,8 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
 
         boolean isMoved = false;
         ModifyDnResponse moveResp = userConnection.move( entryDN.getName(), newParentRdn + ",ou=system" );
-        if( moveResp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
+        
+        if ( moveResp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
         {
             isMoved = true;
         }
@@ -153,7 +155,8 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         ModifyDnResponse resp = userConnection.rename( entryRdn + "," + newParentRdn + ",ou=system", newNameRdn );
         
         ResultCodeEnum code = resp.getLdapResult().getResultCode();
-        if( code == ResultCodeEnum.SUCCESS || code == ResultCodeEnum.ENTRY_ALREADY_EXISTS )
+        
+        if ( ( code == ResultCodeEnum.SUCCESS ) || ( code == ResultCodeEnum.ENTRY_ALREADY_EXISTS ) )
         {
             userConnection.delete( newNameRdn + "," + newParentRdn + ",ou=system" );
             result = true;
@@ -350,7 +353,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         createAccessControlSubentry( "grantMoveByName", "{ " + "identificationTag \"addAci\", " + "precedence 14, "
             + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
             + "userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " + "userPermissions { { "
-            + "protectedItems {entry}, " + "grantsAndDenials { grantExport, grantImport, grantBrowse } } } } }" );
+            + "protectedItems {entry}, " + "grantsAndDenials { grantExport, grantImport, grantRename, grantBrowse } } } } }" );
 
         // try move operation which should succeed with ACI
         assertTrue( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=testou", "ou=groups" ) );
@@ -431,7 +434,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         createAccessControlSubentry( "grantMoveByTree", "{ " + "identificationTag \"addAci\", " + "precedence 14, "
             + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
             + "userClasses { subtree { { base \"ou=users,ou=system\" } } }, " + "userPermissions { { "
-            + "protectedItems {entry}, " + "grantsAndDenials { grantExport, grantImport, grantBrowse } } } } }" );
+            + "protectedItems {entry}, " + "grantsAndDenials { grantExport, grantImport, grantRename, grantBrowse } } } } }" );
 
         // try move operation which should succeed with ACI
         assertTrue( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=testou", "ou=groups" ) );
@@ -511,7 +514,7 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
         createAccessControlSubentry( "grantMoveByAny", "{ " + "identificationTag \"addAci\", " + "precedence 14, "
             + "authenticationLevel none, " + "itemOrUserFirst userFirst: { " + "userClasses { allUsers }, "
             + "userPermissions { { " + "protectedItems {entry}, "
-            + "grantsAndDenials { grantExport, grantImport, grantBrowse } } } } }" );
+            + "grantsAndDenials { grantExport, grantImport, grantRename, grantBrowse } } } } }" );
 
         // try move operation which should succeed with ACI
         assertTrue( checkCanMoveAndRenameAs( "billyd", "billyd", "ou=testou", "ou=testou", "ou=groups" ) );
