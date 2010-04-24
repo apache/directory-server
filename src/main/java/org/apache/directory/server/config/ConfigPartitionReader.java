@@ -946,6 +946,13 @@ public class ConfigPartitionReader
             index.setCacheSize( Integer.parseInt( cacheAttr.getString() ) );
         }
 
+        EntryAttribute numDupAttr = indexEntry.get( ConfigSchemaConstants.ADS_INDEX_NUM_DUP_LIMIT );
+
+        if ( numDupAttr != null )
+        {
+            index.setNumDupLimit( Integer.parseInt( numDupAttr.getString() ) );
+        }
+
         return index;
     }
 
