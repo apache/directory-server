@@ -29,6 +29,7 @@ import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 
@@ -95,7 +96,7 @@ public class ExpressionEvaluator implements Evaluator
     /**
      * @see Evaluator#evaluate(ExprNode, String, ServerEntry)
      */
-    public boolean evaluate( ExprNode node, String dn, ServerEntry entry ) throws LdapException
+    public boolean evaluate( ExprNode node, DN dn, ServerEntry entry ) throws LdapException
     {
         if ( node.isLeaf() )
         {

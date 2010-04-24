@@ -45,7 +45,7 @@ public class ScopeEvaluator implements Evaluator
     /**
      * @see Evaluator#evaluate(ExprNode , String, ServerEntry)
      */
-    public boolean evaluate( ExprNode node, String dn, ServerEntry record ) throws LdapException
+    public boolean evaluate( ExprNode node, DN dn, ServerEntry record ) throws LdapException
     {
         ScopeNode snode = ( ScopeNode ) node;
 
@@ -55,15 +55,13 @@ public class ScopeEvaluator implements Evaluator
                 return dn.equals( snode.getBaseDn() );
             
             case ONELEVEL:
-                if ( dn.endsWith( snode.getBaseDn().getNormName() ) )
+                if ( dn.isChildOf( snode.getBaseDn() ) )
                 {
-                    DN candidateDn = new DN( dn );
-                    DN scopeDn = new DN( snode.getBaseDn() );
-                    return ( scopeDn.size() + 1 ) == candidateDn.size();
+                    return ( snode.getBaseDn().size() + 1 ) == dn.size();
                 }
             
             case SUBTREE:
-                return dn.endsWith( snode.getBaseDn().getNormName() );
+                return dn.isChildOf( snode.getBaseDn() );
             
             default:
                 throw new LdapInvalidSearchFilterException( I18n.err( I18n.ERR_247 ) );

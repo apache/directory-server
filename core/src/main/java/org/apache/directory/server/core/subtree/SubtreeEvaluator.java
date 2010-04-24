@@ -192,7 +192,7 @@ public class SubtreeEvaluator
          */
         if ( subtree.getRefinement() != null )
         {
-            return evaluator.evaluate( subtree.getRefinement(), dnEntryDn.getNormName(), entry );
+            return evaluator.evaluate( subtree.getRefinement(), dnEntryDn, entry );
         }
 
         /*

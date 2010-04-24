@@ -40,6 +40,7 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -107,7 +108,7 @@ public class LeafEvaluator implements Evaluator
     /**
      * @see Evaluator#evaluate(ExprNode, String, ServerEntry)
      */
-    public boolean evaluate( ExprNode node, String dn, ServerEntry entry ) throws LdapException
+    public boolean evaluate( ExprNode node, DN dn, ServerEntry entry ) throws LdapException
     {
         if ( node instanceof ScopeNode )
         {
