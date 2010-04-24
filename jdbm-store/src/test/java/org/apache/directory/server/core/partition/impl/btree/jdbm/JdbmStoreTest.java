@@ -130,7 +130,7 @@ public class JdbmStoreTest
 
         // initialize the store
         store = new JdbmStore<ServerEntry>();
-        store.setName( "example" );
+        store.setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionDir( wkdir );
         store.setSyncOnWrite( false );
@@ -177,7 +177,7 @@ public class JdbmStoreTest
 
         // initialize the 2nd store
         JdbmStore<ServerEntry> store2 = new JdbmStore<ServerEntry>();
-        store2.setName( "example2" );
+        store2.setId( "example2" );
         store2.setCacheSize( 10 );
         store2.setPartitionDir( wkdir2 );
         store2.setSyncOnWrite( false );
@@ -229,9 +229,9 @@ public class JdbmStoreTest
         store.setSubLevelIndex( new JdbmIndex<Long, Attributes>( "sublevel" ) );
         assertNotNull( store.getSubLevelIndex() );
 
-        assertNull( store.getName() );
-        store.setName( "foo" );
-        assertEquals( "foo", store.getName() );
+        assertNull( store.getId() );
+        store.setId( "foo" );
+        assertEquals( "foo", store.getId() );
 
 //        assertNull( store.getNdnIndex() );
 //        store.setNdnIndex( new JdbmIndex<String, Attributes>( "ndn" ) );
@@ -324,10 +324,10 @@ public class JdbmStoreTest
         {
         }
 
-        assertNotNull( store.getName() );
+        assertNotNull( store.getId() );
         try
         {
-            store.setName( "foo" );
+            store.setId( "foo" );
             fail();
         }
         catch ( IllegalStateException e )

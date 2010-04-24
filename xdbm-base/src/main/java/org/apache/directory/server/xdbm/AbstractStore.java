@@ -41,7 +41,7 @@ public abstract class AbstractStore<E, ID> implements Store<E, ID>
     /** true if initialized */
     protected boolean initialized;
 
-    /** the working directory to use for files */
+    /** the partition directory to use for files */
     protected File partitionDir;
 
     /** true if we sync disks on every write operation */
@@ -50,8 +50,8 @@ public abstract class AbstractStore<E, ID> implements Store<E, ID>
     /** The store cache size */
     protected int cacheSize = DEFAULT_CACHE_SIZE;
 
-    /** The store name */
-    protected String name;
+    /** The store unique identifier */
+    protected String id;
 
     /** A pointer on the schemaManager */
     protected SchemaManager schemaManager;
@@ -111,16 +111,16 @@ public abstract class AbstractStore<E, ID> implements Store<E, ID>
     }
 
 
-    public void setName( String name )
+    public void setId( String id )
     {
-        protect( "name" );
-        this.name = name;
+        protect( "id" );
+        this.id = id;
     }
 
 
-    public String getName()
+    public String getId()
     {
-        return name;
+        return id;
     }
 
 }

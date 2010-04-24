@@ -191,11 +191,11 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         if ( cacheSize < 0 )
         {
             cacheSize = DEFAULT_CACHE_SIZE;
-            LOG.debug( "Using the default entry cache size of {} for {} partition", cacheSize, name );
+            LOG.debug( "Using the default entry cache size of {} for {} partition", cacheSize, id );
         }
         else
         {
-            LOG.debug( "Using the custom configured cache size of {} for {} partition", cacheSize, name );
+            LOG.debug( "Using the custom configured cache size of {} for {} partition", cacheSize, id );
         }
 
         // Now, create the entry cache for this partition
@@ -786,7 +786,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             return systemIndices.get( id );
         }
 
-        throw new IndexNotFoundException( I18n.err( I18n.ERR_3, id, name ) );
+        throw new IndexNotFoundException( I18n.err( I18n.ERR_3, id, id ) );
     }
 
 
@@ -808,7 +808,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             return userIndices.get( id );
         }
 
-        throw new IndexNotFoundException( I18n.err( I18n.ERR_3, id, name ) );
+        throw new IndexNotFoundException( I18n.err( I18n.ERR_3, id, id ) );
     }
 
 
@@ -830,7 +830,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             return systemIndices.get( id );
         }
 
-        throw new IndexNotFoundException( I18n.err( I18n.ERR_2, id, name ) );
+        throw new IndexNotFoundException( I18n.err( I18n.ERR_2, id, id ) );
     }
 
 

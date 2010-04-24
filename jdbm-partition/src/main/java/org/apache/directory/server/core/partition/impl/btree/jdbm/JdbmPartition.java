@@ -79,7 +79,7 @@ public class JdbmPartition extends AbstractXdbmPartition<Long>
 
         // initialize the store
         store.setCacheSize( cacheSize );
-        store.setName( id );
+        store.setId( id );
 
         // Normalize the suffix
         suffix.normalize( schemaManager.getNormalizerMapping() );

@@ -575,7 +575,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
             return systemIndices.get( id );
         }
 
-        throw new IndexNotFoundException( I18n.err( I18n.ERR_2, id, name ) );
+        throw new IndexNotFoundException( I18n.err( I18n.ERR_2, id, id ) );
     }
 
 
@@ -603,7 +603,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
             return systemIndices.get( id );
         }
 
-        throw new IndexNotFoundException( I18n.err( I18n.ERR_2, id, name ) );
+        throw new IndexNotFoundException( I18n.err( I18n.ERR_2, id, id ) );
     }
 
 
@@ -636,7 +636,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
             return userIndices.get( id );
         }
 
-        throw new IndexNotFoundException( I18n.err( I18n.ERR_3, id, name ) );
+        throw new IndexNotFoundException( I18n.err( I18n.ERR_3, id, id ) );
     }
 
 
@@ -688,7 +688,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
         ALIASED_OBJECT_NAME_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ALIASED_OBJECT_NAME_AT );
 
         // Create the master table (the table containing all the entries)
-        master = new AvlMasterTable<ServerEntry>( name, new LongComparator(), null, false );
+        master = new AvlMasterTable<ServerEntry>( id, new LongComparator(), null, false );
 
         suffixDn.normalize( schemaManager.getNormalizerMapping() );
         // -------------------------------------------------------------------

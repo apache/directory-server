@@ -122,7 +122,7 @@ public class SubtreeScopeTest
 
         // initialize the store
         store = new JdbmStore<ServerEntry>();
-        store.setName( "example" );
+        store.setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionDir( wkdir );
         store.setSyncOnWrite( true );

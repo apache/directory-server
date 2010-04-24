@@ -321,9 +321,9 @@ public class LdifStore<E> extends AbstractStore<E, Long>
     }
 
 
-    public String getName()
+    public String getId()
     {
-        return wrappedStore.getName();
+        return wrappedStore.getId();
     }
 
 
@@ -453,9 +453,9 @@ public class LdifStore<E> extends AbstractStore<E, Long>
     }
 
 
-    public void setName( String name )
+    public void setId( String name )
     {
-        wrappedStore.setName( name );
+        wrappedStore.setId( name );
     }
 
 

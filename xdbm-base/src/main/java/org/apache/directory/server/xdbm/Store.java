@@ -153,18 +153,18 @@ public interface Store<E, ID>
 
 
     /**
-     * Sets the store's name.
-     * @param name The store's name
+     * Sets the store's unique identifier.
+     * @param id The store's unique identifier
      */
-    void setName( String name );
+    void setId( String id );
 
 
     /**
-     * Gets the store's name.
+     * Gets the store's unique identifier.
      * 
-     * @return The store's name
+     * @return The store's unique identifier
      */
-    String getName();
+    String getId();
 
 
     /**

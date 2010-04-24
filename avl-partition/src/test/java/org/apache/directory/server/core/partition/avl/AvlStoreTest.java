@@ -129,7 +129,7 @@ public class AvlStoreTest
 
         // initialize the store
         store = new AvlStore<ServerEntry>();
-        store.setName( "example" );
+        store.setId( "example" );
         store.setSyncOnWrite( false );
 
         store.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
@@ -169,9 +169,9 @@ public class AvlStoreTest
         store.setSubLevelIndex( new AvlIndex<Long, Attributes>( "sublevel" ) );
         assertNotNull( store.getSubLevelIndex() );
 
-        assertNull( store.getName() );
-        store.setName( "foo" );
-        assertEquals( "foo", store.getName() );
+        assertNull( store.getId() );
+        store.setId( "foo" );
+        assertEquals( "foo", store.getId() );
 
         assertNull( store.getNdnIndex() );
         store.setNdnIndex( new AvlIndex<String, Attributes>( "ndn" ) );
@@ -261,10 +261,10 @@ public class AvlStoreTest
         {
         }
 
-        assertNotNull( store.getName() );
+        assertNotNull( store.getId() );
         try
         {
-            store.setName( "foo" );
+            store.setId( "foo" );
             fail();
         }
         catch ( IllegalStateException e )

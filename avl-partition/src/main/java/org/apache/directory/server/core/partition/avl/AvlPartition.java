@@ -86,7 +86,7 @@ public class AvlPartition extends AbstractXdbmPartition<Long>
         }
 
         // initialize the store
-        store.setName( getId() );
+        store.setId( getId() );
         suffix.normalize( schemaManager.getNormalizerMapping() );
         store.setSuffixDn( suffix.getName() );
 
