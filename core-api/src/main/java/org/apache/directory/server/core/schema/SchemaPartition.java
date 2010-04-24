@@ -50,11 +50,11 @@ import org.apache.directory.server.core.schema.registries.synchronizers.Registry
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.controls.CascadeControl;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
@@ -466,11 +466,11 @@ public final class SchemaPartition extends AbstractPartition
 
         List<Modification> mods = new ArrayList<Modification>( 2 );
 
-        mods.add( new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, new DefaultEntryAttribute(
+        mods.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, new DefaultEntryAttribute(
             ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT, schemaManager
                 .lookupAttributeTypeRegistry( ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT ), modifyTimestamp ) ) );
 
-        mods.add( new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, new DefaultEntryAttribute(
+        mods.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, new DefaultEntryAttribute(
             ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT, schemaManager
                 .lookupAttributeTypeRegistry( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT ), modifiersName ) ) );
 

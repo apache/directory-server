@@ -29,12 +29,12 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.protocol.shared.store.DirectoryServiceOperation;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -82,11 +82,11 @@ public class ChangePassword implements DirectoryServiceOperation
         
         EntryAttribute newPasswordAttribute = new DefaultEntryAttribute( 
             schemaManager.lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT ), StringTools.getBytesUtf8( newPassword ) );
-        mods.add( new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, newPasswordAttribute ) );
+        mods.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newPasswordAttribute ) );
         
         EntryAttribute principalAttribute = new DefaultEntryAttribute( 
             schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ), principal.getName() );
-        mods.add( new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, principalAttribute ) );
+        mods.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, principalAttribute ) );
         
         //FIXME check if keyderivation is necessary
         

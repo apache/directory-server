@@ -55,6 +55,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -63,7 +64,6 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
@@ -1390,7 +1390,7 @@ public class SchemaInterceptor extends BaseInterceptor
             
             for ( Modification mod:mods )
             {
-                AttributeType at = ( (ClientModification)mod).getAttribute().getAttributeType();
+                AttributeType at = ( (DefaultModification)mod).getAttribute().getAttributeType();
                 
                 if ( !MODIFIERS_NAME_ATTRIBUTE_TYPE.equals( at ) && !MODIFY_TIMESTAMP_ATTRIBUTE_TYPE.equals( at ) ) 
                 {

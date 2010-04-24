@@ -47,13 +47,13 @@ import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.name.DN;
@@ -608,7 +608,7 @@ public class AvlStoreTest
             .lookupAttributeTypeRegistry( SchemaConstants.OU_AT_OID ) );
         attrib.add( "Engineering" );
 
-        Modification add = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
+        Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
 
         mods.add( add );
 
@@ -712,7 +712,7 @@ public class AvlStoreTest
         String attribVal = "Walker";
         attrib.add( attribVal );
 
-        Modification add = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
+        Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
         mods.add( add );
 
         ServerEntry lookedup = store.lookup( store.getEntryId( dn.getNormName() ) );
@@ -744,7 +744,7 @@ public class AvlStoreTest
         String attribVal = "Johnny";
         attrib.add( attribVal );
 
-        Modification add = new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
+        Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
         mods.add( add );
 
         ServerEntry lookedup = store.lookup( store.getEntryId( dn.getNormName() ) );
@@ -774,7 +774,7 @@ public class AvlStoreTest
         EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.SN_AT, schemaManager
             .lookupAttributeTypeRegistry( SchemaConstants.SN_AT_OID ) );
 
-        Modification add = new ClientModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
+        Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
         mods.add( add );
 
         ServerEntry lookedup = store.lookup( store.getEntryId( dn.getNormName() ) );
@@ -817,7 +817,7 @@ public class AvlStoreTest
         String attribVal = "Marketing";
         attrib.add( attribVal );
 
-        Modification add = new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
+        Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
         mods.add( add );
 
         ServerEntry lookedup = store.lookup( store.getEntryId( dn.getNormName() ) );

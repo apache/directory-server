@@ -38,12 +38,12 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -239,7 +239,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         for ( int i = 0; i < attrs.length; i++ )
         {
             EntryAttribute ea = attrs[i];
-            mods[i] = new ClientModification( modOp, ea );
+            mods[i] = new DefaultModification( modOp, ea );
         }
 
         return mods;

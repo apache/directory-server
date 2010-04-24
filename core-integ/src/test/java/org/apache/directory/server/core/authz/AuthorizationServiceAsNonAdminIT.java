@@ -34,13 +34,13 @@ import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
@@ -139,7 +139,7 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
 
         List<Modification> mods = new ArrayList<Modification>();
         
-        Modification mod = new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
+        Modification mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
         mods.add( mod );
       
         DN userDn = new DN( "uid=akarasulu,ou=users,ou=system" );

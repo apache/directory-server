@@ -46,11 +46,11 @@ import org.apache.directory.server.core.interceptor.context.UnbindOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
@@ -513,7 +513,7 @@ public class MockCoreSession implements CoreSession
         
         for ( Modification mod:mods )
         {
-            serverModifications.add( new ClientModification( directoryService.getSchemaManager(), mod ) );
+            serverModifications.add( new DefaultModification( directoryService.getSchemaManager(), mod ) );
         }
         
         ModifyOperationContext opContext = new ModifyOperationContext( this, dn, serverModifications );
@@ -548,7 +548,7 @@ public class MockCoreSession implements CoreSession
         
         for ( Modification mod:mods )
         {
-            serverModifications.add( new ClientModification( directoryService.getSchemaManager(), mod ) );
+            serverModifications.add( new DefaultModification( directoryService.getSchemaManager(), mod ) );
         }
 
         ModifyOperationContext opContext = new ModifyOperationContext( this, dn, serverModifications );

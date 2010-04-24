@@ -46,6 +46,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -53,7 +54,6 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.AVA;
@@ -275,7 +275,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             MODIFIERS_NAME_ATTRIBUTE_TYPE, 
             getPrincipal().getName());
 
-        Modification modifiersName = new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
+        Modification modifiersName = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
 
         mods.add( modifiersName );
         
@@ -284,7 +284,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             MODIFY_TIMESTAMP_ATTRIBUTE_TYPE,
             DateUtils.getGeneralizedTime() );
         
-        Modification timestamp = new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
+        Modification timestamp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
 
         mods.add( timestamp );
         

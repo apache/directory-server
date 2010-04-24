@@ -61,6 +61,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -68,7 +69,6 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -373,14 +373,14 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
         // Add our modification items.
         newModsList.add( 
-            new ClientModification( 
+            new DefaultModification( 
                 ModificationOperation.REPLACE_ATTRIBUTE, 
                 new DefaultEntryAttribute(
                     KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, 
                     schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ),
                     principalName ) ) );
         newModsList.add( 
-            new ClientModification( 
+            new DefaultModification( 
                 ModificationOperation.REPLACE_ATTRIBUTE, 
                 new DefaultEntryAttribute(
                     KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, 
@@ -389,7 +389,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
         
         EntryAttribute attribute = getKeyAttribute( modContext.getSession()
             .getDirectoryService().getSchemaManager(), keys );
-        newModsList.add( new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute ) );
+        newModsList.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute ) );
 
         modContext.setModItems( newModsList );
     }

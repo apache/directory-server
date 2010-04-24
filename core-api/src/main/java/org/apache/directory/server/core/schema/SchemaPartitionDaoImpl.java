@@ -39,13 +39,13 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -590,14 +590,14 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
             return;
         }
 
-        mods.add( new ClientModification( ModificationOperation.REMOVE_ATTRIBUTE, new DefaultEntryAttribute(
+        mods.add( new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, new DefaultEntryAttribute(
             MetaSchemaConstants.M_DISABLED_AT, schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_DISABLED_AT ) ) ) );
 
-        mods.add( new ClientModification( ModificationOperation.ADD_ATTRIBUTE, new DefaultEntryAttribute(
+        mods.add( new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, new DefaultEntryAttribute(
             SchemaConstants.MODIFIERS_NAME_AT, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.MODIFIERS_NAME_AT ),
             ServerDNConstants.ADMIN_SYSTEM_DN ) ) );
 
-        mods.add( new ClientModification( ModificationOperation.ADD_ATTRIBUTE, new DefaultEntryAttribute(
+        mods.add( new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, new DefaultEntryAttribute(
             SchemaConstants.MODIFY_TIMESTAMP_AT, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.MODIFY_TIMESTAMP_AT ), DateUtils
                 .getGeneralizedTime() ) ) );
 

@@ -46,13 +46,13 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.name.DN;
@@ -241,7 +241,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
         try
         {
             EntryAttribute attr = new DefaultEntryAttribute( "Description", "this is a test" );
-            Modification mod = new ClientModification(
+            Modification mod = new DefaultModification(
                 ModificationOperation.ADD_ATTRIBUTE, attr );
             List<Modification> mods = new ArrayList<Modification>();
             
@@ -269,7 +269,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
         try
         {
             EntryAttribute attr = new DefaultEntryAttribute( "Description", "this is a test" );
-            Modification mod = new ClientModification(
+            Modification mod = new DefaultModification(
                 ModificationOperation.ADD_ATTRIBUTE, attr );
             List<Modification> mods = new ArrayList<Modification>();
             
@@ -377,7 +377,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
         try
         {
             EntryAttribute attr = new DefaultEntryAttribute( "Description", "this is a test" );
-            Modification mod = new ClientModification(
+            Modification mod = new DefaultModification(
                 ModificationOperation.ADD_ATTRIBUTE, attr );
             List<Modification> mods = new ArrayList<Modification>();
             
@@ -416,7 +416,7 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
         CoreSession session = service.getAdminSession();
         
         EntryAttribute attr = new DefaultEntryAttribute( "Description", "This is a description" );
-        Modification mod = new ClientModification(
+        Modification mod = new DefaultModification(
             ModificationOperation.ADD_ATTRIBUTE, attr );
         List<Modification> mods = new ArrayList<Modification>();
         

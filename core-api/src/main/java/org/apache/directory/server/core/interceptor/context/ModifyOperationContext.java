@@ -30,11 +30,11 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
 import org.apache.directory.shared.ldap.name.DN;
 
@@ -84,7 +84,7 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
         super( session, modifyRequest.getName() );
         
         modItems = ServerEntryUtils.toServerModification( 
-            modifyRequest.getModificationItems().toArray( new ClientModification[0] ), 
+            modifyRequest.getModificationItems().toArray( new DefaultModification[0] ), 
             session.getDirectoryService().getSchemaManager() );
         
         requestControls = modifyRequest.getControls();
@@ -125,7 +125,7 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
         
         for ( EntryAttribute attribute:serverEntry )
         {
-            items.add( new ClientModification( modOp, attribute ) );
+            items.add( new DefaultModification( modOp, attribute ) );
         }
 
         return items;

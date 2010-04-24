@@ -55,6 +55,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
@@ -63,7 +64,6 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
@@ -728,7 +728,7 @@ public class SubentryInterceptor extends BaseInterceptor
                             op = ModificationOperation.REMOVE_ATTRIBUTE;
                         }
 
-                        modList.add( new ClientModification( op, opAttr ) );
+                        modList.add( new DefaultModification( op, opAttr ) );
                     }
                 }
             }
@@ -741,7 +741,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     EntryAttribute opAttr = new DefaultEntryAttribute( aSUBENTRY_OPATTRS, schemaManager
                         .lookupAttributeTypeRegistry( aSUBENTRY_OPATTRS ) );
                     opAttr.add( subentryDn );
-                    modList.add( new ClientModification( op, opAttr ) );
+                    modList.add( new DefaultModification( op, opAttr ) );
                 }
             }
         }
@@ -1168,7 +1168,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 operational.add( newName.toString() );
             }
 
-            modList.add( new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, operational ) );
+            modList.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, operational ) );
         }
 
         if ( subentry.isSchemaSubentry() )
@@ -1187,7 +1187,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 operational.add( newName.toString() );
             }
 
-            modList.add( new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, operational ) );
+            modList.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, operational ) );
         }
 
         if ( subentry.isCollectiveSubentry() )
@@ -1206,7 +1206,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 operational.add( newName.toString() );
             }
 
-            modList.add( new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, operational ) );
+            modList.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, operational ) );
         }
 
         if ( subentry.isTriggerSubentry() )
@@ -1225,7 +1225,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 operational.add( newName.toString() );
             }
 
-            modList.add( new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, operational ) );
+            modList.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, operational ) );
         }
 
         return modList;
@@ -1320,7 +1320,7 @@ public class SubentryInterceptor extends BaseInterceptor
             {
                 AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( opAttrId );
                 EntryAttribute attr = new DefaultEntryAttribute( opAttrId, attributeType, dn );
-                modList.add( new ClientModification( ModificationOperation.REMOVE_ATTRIBUTE, attr ) );
+                modList.add( new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attr ) );
             }
         }
 
@@ -1372,7 +1372,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 op = ModificationOperation.ADD_ATTRIBUTE;
             }
 
-            modList.add( new ClientModification( op, result ) );
+            modList.add( new DefaultModification( op, result ) );
         }
 
         return modList;
@@ -1480,7 +1480,7 @@ public class SubentryInterceptor extends BaseInterceptor
                             op = ModificationOperation.REMOVE_ATTRIBUTE;
                         }
 
-                        modList.add( new ClientModification( op, opAttr ) );
+                        modList.add( new DefaultModification( op, opAttr ) );
                     }
                 }
             }
@@ -1493,7 +1493,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     AttributeType type = schemaManager.lookupAttributeTypeRegistry( attribute );
                     EntryAttribute opAttr = new DefaultEntryAttribute( attribute, type );
                     opAttr.add( subentryDn );
-                    modList.add( new ClientModification( op, opAttr ) );
+                    modList.add( new DefaultModification( op, opAttr ) );
                 }
             }
         }
