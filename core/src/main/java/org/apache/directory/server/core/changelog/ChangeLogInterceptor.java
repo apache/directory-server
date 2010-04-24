@@ -42,7 +42,6 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
@@ -266,13 +265,10 @@ public class ChangeLogInterceptor extends BaseInterceptor
         
         for ( Modification modItem : clonedMods )
         {
-            Modification mod = ((ServerModification)modItem).toClientModification();
-            
             // TODO: handle correctly http://issues.apache.org/jira/browse/DIRSERVER-1198
-            mod.getAttribute().setId( modItem.getAttribute().getId() );
-            mods.add( mod );
+            mods.add( modItem );
             
-            forward.addModificationItem( mod );
+            forward.addModificationItem( modItem );
         }
         
         Entry clientEntry = new DefaultClientEntry( serverEntry.getDn() );

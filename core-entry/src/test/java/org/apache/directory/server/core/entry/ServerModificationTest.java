@@ -38,7 +38,6 @@ import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -53,7 +52,7 @@ import org.junit.Test;
 
 
 /**
- * Test the ServerModification class
+ * Test the ClientModification class
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -69,9 +68,9 @@ public class ServerModificationTest
     
     
     /**
-     * Serialize a ServerModification
+     * Serialize a ClientModification
      */
-    private ByteArrayOutputStream serializeValue( ServerModification value ) throws IOException
+    private ByteArrayOutputStream serializeValue( ClientModification value ) throws IOException
     {
         ObjectOutputStream oOut = null;
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -107,9 +106,9 @@ public class ServerModificationTest
     
     
     /**
-     * Deserialize a ServerModification
+     * Deserialize a ClientModification
      */
-    private ServerModification deserializeValue( ByteArrayOutputStream out ) throws IOException, ClassNotFoundException, LdapException
+    private ClientModification deserializeValue( ByteArrayOutputStream out ) throws IOException, ClassNotFoundException, LdapException
     {
         ObjectInputStream oIn = null;
         ByteArrayInputStream in = new ByteArrayInputStream( out.toByteArray() );
@@ -118,7 +117,7 @@ public class ServerModificationTest
         {
             oIn = new ObjectInputStream( in );
 
-            ServerModification value = new ServerModification();
+            ClientModification value = new ClientModification();
             value.deserialize( oIn, schemaManager );
 
             return value;
@@ -179,12 +178,12 @@ public class ServerModificationTest
     }
 
 
-    @Test public void testCreateServerModification()
+    @Test public void testCreateClientModification()
     {
         EntryAttribute attribute = new DefaultEntryAttribute( atCN );
         attribute.add( "test1", "test2" );
         
-        Modification mod = new ServerModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
+        Modification mod = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
         Modification clone = mod.clone();
         
         attribute.remove( "test2" );
@@ -201,19 +200,19 @@ public class ServerModificationTest
     
     
     /**
-     * Test the copy constructor with a ServerModification
+     * Test the copy constructor with a ClientModification
      *
      */
     @Test
-    public void testCopyServerModification()
+    public void testCopyClientModification()
     {
         EntryAttribute attribute = new DefaultEntryAttribute( atC );
         attribute.add( "test1", "test2" );
-        Modification serverModification = new ServerModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
+        Modification serverModification = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
         
-        Modification copy = new ServerModification( schemaManager, serverModification );
+        Modification copy = new ClientModification( schemaManager, serverModification );
         
-        assertTrue( copy instanceof ServerModification );
+        assertTrue( copy instanceof ClientModification );
         assertEquals( copy, serverModification );
         
         serverModification.setOperation( ModificationOperation.REMOVE_ATTRIBUTE );
@@ -230,16 +229,16 @@ public class ServerModificationTest
      *
      */
     @Test
-    public void testCopyClientModification()
+    public void testCopyModification()
     {
         EntryAttribute attribute = new DefaultEntryAttribute( atC.getName() );
         attribute.add( "test1", "test2" );
         Modification clientModification = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
         
-        Modification copy = new ServerModification( schemaManager, clientModification );
+        Modification copy = new ClientModification( schemaManager, clientModification );
         
-        assertTrue( copy instanceof ServerModification );
-        assertFalse( copy instanceof ClientModification );
+        assertTrue( copy instanceof ClientModification );
+        assertTrue( copy instanceof ClientModification );
         assertFalse( copy.equals(  clientModification ) );
         assertTrue( copy.getAttribute() instanceof EntryAttribute );
         assertEquals( atC, copy.getAttribute().getAttributeType() );
@@ -261,7 +260,7 @@ public class ServerModificationTest
         EntryAttribute attribute = new DefaultEntryAttribute( atCN );
         attribute.add( "test1", "test2" );
         
-        ServerModification mod = new ServerModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
+        ClientModification mod = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
         
         Modification modSer = deserializeValue( serializeValue( mod ) );
         
@@ -275,7 +274,7 @@ public class ServerModificationTest
         EntryAttribute attribute = new DefaultEntryAttribute( atCN );
         attribute.add( "test1", "test2" );
         
-        ServerModification mod = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
+        ClientModification mod = new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
         
         Modification modSer = deserializeValue( serializeValue( mod ) );
         
@@ -289,7 +288,7 @@ public class ServerModificationTest
         EntryAttribute attribute = new DefaultEntryAttribute( atCN );
         attribute.add( "test1", "test2" );
         
-        ServerModification mod = new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, attribute );
+        ClientModification mod = new ClientModification( ModificationOperation.REMOVE_ATTRIBUTE, attribute );
         
         Modification modSer = deserializeValue( serializeValue( mod ) );
         
@@ -300,13 +299,13 @@ public class ServerModificationTest
     @Test
     public void testSerializationModificationNoAttribute() throws ClassNotFoundException, IOException, LdapException
     {
-        ServerModification mod = new ServerModification();
+        Modification mod = new ClientModification();
         
         mod.setOperation( ModificationOperation.ADD_ATTRIBUTE );
         
         try
         {
-            deserializeValue( serializeValue( mod ) );
+            deserializeValue( serializeValue( (ClientModification)mod ) );
             fail();
         }
         catch ( IOException ioe )

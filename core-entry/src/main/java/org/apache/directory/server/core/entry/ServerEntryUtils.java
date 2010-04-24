@@ -43,8 +43,8 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.name.DN;
@@ -391,7 +391,7 @@ public class ServerEntryUtils
                 
         }
         
-        Modification modification = new ServerModification( 
+        Modification modification = new ClientModification( 
             operation,
             ServerEntryUtils.toServerAttribute( modificationImpl.getAttribute(), attributeType ) ); 
         
@@ -440,12 +440,7 @@ public class ServerEntryUtils
      */
     private static Modification toServerModification( Modification modification, AttributeType attributeType ) 
     {
-        if ( modification instanceof ServerModification )
-        {
-            return modification;
-        }
-        
-        Modification serverModification = new ServerModification( 
+        Modification serverModification = new ClientModification( 
             modification.getOperation(),
             new DefaultEntryAttribute( attributeType, modification.getAttribute() ) ); 
         

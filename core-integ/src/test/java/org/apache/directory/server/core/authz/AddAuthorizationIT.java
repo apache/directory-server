@@ -58,6 +58,7 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
     public void setService()
     {
         AutzIntegUtils.service = service;
+        service.setAccessControlEnabled( true );
     }
     
     

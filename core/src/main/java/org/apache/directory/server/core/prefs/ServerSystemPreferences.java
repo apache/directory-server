@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.entry.ServerModification;
+import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
@@ -273,7 +273,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         {
             at = directoryService.getSchemaManager().lookupAttributeTypeRegistry( key );
             EntryAttribute attr = new DefaultEntryAttribute( at );
-            Modification mi = new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, attr );
+            Modification mi = new ClientModification( ModificationOperation.REMOVE_ATTRIBUTE, attr );
             addDelta( mi );
         }
         catch ( LdapException e )
@@ -347,7 +347,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         {
             at = directoryService.getSchemaManager().lookupAttributeTypeRegistry( key );
             EntryAttribute attr = new DefaultEntryAttribute( at, value );
-            Modification mi = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attr );
+            Modification mi = new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, attr );
             addDelta( mi );
         }
         catch ( LdapException e )

@@ -58,8 +58,8 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
@@ -555,7 +555,7 @@ public class LdapCoreSessionConnection implements LdapConnection
             Iterator<EntryAttribute> itr = entry.iterator();
             while ( itr.hasNext() )
             {
-                mods.add( new ServerModification( modOp, itr.next() ) );
+                mods.add( new ClientModification( modOp, itr.next() ) );
             }
             session.modify( entry.getDn(), mods );
         }

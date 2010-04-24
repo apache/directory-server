@@ -39,8 +39,8 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
@@ -528,21 +528,21 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         
         // The m-disabled AT
         EntryAttribute disabledAttr = new DefaultEntryAttribute( disabledAT, "FALSE" );
-        Modification disabledMod = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, disabledAttr );
+        Modification disabledMod = new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, disabledAttr );
         
         modifications.add( disabledMod );
         
         // The modifiersName AT
         EntryAttribute modifiersNameAttr = 
             new DefaultEntryAttribute( modifiersNameAT, session.getEffectivePrincipal().getName() );
-        Modification modifiersNameMod = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, modifiersNameAttr );
+        Modification modifiersNameMod = new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, modifiersNameAttr );
         
         modifications.add( modifiersNameMod );
         
         // The modifyTimestamp AT
         EntryAttribute modifyTimestampAttr = 
             new DefaultEntryAttribute( modifyTimestampAT, DateUtils.getGeneralizedTime() );
-        Modification modifyTimestampMod = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, modifyTimestampAttr );
+        Modification modifyTimestampMod = new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, modifyTimestampAttr );
         
         modifications.add( modifyTimestampMod );
         
@@ -634,7 +634,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
                 
                 EntryAttribute disable = new DefaultEntryAttribute( disabledAT, "TRUE"  );
                 Modification modification = 
-                    new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, disable );
+                    new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, disable );
                 
                 //session.modify( dn, mods, ignoreReferral, log )
             }

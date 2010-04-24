@@ -49,8 +49,8 @@ import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
@@ -513,7 +513,7 @@ public class MockCoreSession implements CoreSession
         
         for ( Modification mod:mods )
         {
-            serverModifications.add( new ServerModification( directoryService.getSchemaManager(), mod ) );
+            serverModifications.add( new ClientModification( directoryService.getSchemaManager(), mod ) );
         }
         
         ModifyOperationContext opContext = new ModifyOperationContext( this, dn, serverModifications );
@@ -548,7 +548,7 @@ public class MockCoreSession implements CoreSession
         
         for ( Modification mod:mods )
         {
-            serverModifications.add( new ServerModification( directoryService.getSchemaManager(), mod ) );
+            serverModifications.add( new ClientModification( directoryService.getSchemaManager(), mod ) );
         }
 
         ModifyOperationContext opContext = new ModifyOperationContext( this, dn, serverModifications );
