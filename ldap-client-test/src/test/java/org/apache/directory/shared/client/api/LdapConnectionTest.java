@@ -27,10 +27,11 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
-import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.exception.LdapException;
 import org.apache.directory.ldap.client.api.message.BindResponse;
 import org.apache.directory.ldap.client.api.message.SearchResponse;
@@ -41,8 +42,8 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
-import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -194,5 +195,28 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
         assertTrue( manager.isEnabled( "nis" ) );
         assertEquals( manager.getLoader().getAllSchemas().size(), manager.getEnabled().size() );
     }
+
     
+    /**
+     * this test is intended to test the behavior of CursorList when the RootDSE searchrequest was sent over
+     *  wire 
+     */
+    @Test
+    public void testSearchEmptyDNWithOneLevelScopeAndNoObjectClassPresenceFilter() throws Exception
+    {
+        Cursor<SearchResponse> cursor = connection.search( "", "(objectClass=*)", SearchScope.ONELEVEL, "*", "+" );
+        HashMap<String, Entry> map = new HashMap<String, Entry>();
+        
+        while ( cursor.next() )
+        {
+            Entry result = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+            map.put( result.getDn().getName(), result );
+        }
+
+        assertEquals( 2, map.size() );
+        
+        assertTrue( map.containsKey( "ou=system" ) );
+        assertTrue( map.containsKey( "ou=schema" ) );
+    }
+
 }
