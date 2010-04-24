@@ -134,26 +134,30 @@ public interface Store<E, ID>
 
 
     /**
-     * Sets the cache size for this store
+     * Sets the cache size for this store.
      * @param cacheSize The cache size
      */
     void setCacheSize( int cacheSize );
 
 
     /**
+     * Gets the cache size for this store.
+     * 
      * @return The cache size
      */
     int getCacheSize();
 
 
     /**
-     * Sets the store's name
+     * Sets the store's name.
      * @param name The store's name
      */
     void setName( String name );
 
 
     /**
+     * Gets the store's name.
+     * 
      * @return The store's name
      */
     String getName();
@@ -170,7 +174,7 @@ public interface Store<E, ID>
 
 
     /**
-     * Close the parttion : we have to close all the userIndices and the master table.
+     * Close the store : we have to close all the userIndices and the master table.
      *
      * @throws Exception lazily thrown on any closer failures to avoid leaving
      * open files

@@ -37,11 +37,11 @@ import jdbm.recman.CacheRecordManager;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.xdbm.AbstractStore;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
-import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.MultiException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
@@ -67,13 +67,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class JdbmStore<E> implements Store<E, Long>
+public class JdbmStore<E> extends AbstractStore<E, Long>
 {
     /** static logger */
     private static final Logger LOG = LoggerFactory.getLogger( JdbmStore.class );
-
-    /** The default cache size is set to 10 000 objects */
-    static final int DEFAULT_CACHE_SIZE = 10000;
 
     /** the JDBM record manager used by this database */
     private RecordManager recMan;
@@ -84,9 +81,6 @@ public class JdbmStore<E> implements Store<E, Long>
     /** the user provided suffix DN of this backend database */
     private DN upSuffix;
 
-    /** the working directory to use for files */
-    private File workingDirectory;
-
     /** the master table storing entries by primary key */
     private JdbmMasterTable<ServerEntry> master;
 
@@ -95,12 +89,6 @@ public class JdbmStore<E> implements Store<E, Long>
 
     /** a map of attributeType numeric ID to system userIndices */
     private Map<String, Index<?, E, Long>> systemIndices = new HashMap<String, Index<?, E, Long>>();
-
-    /** true if initialized */
-    private boolean initialized;
-
-    /** true if we sync disks on every write operation */
-    private boolean isSyncOnWrite = true;
 
     /** the relative distinguished name index */
     private JdbmRdnIndex<RDN, Long> rdnIdx;
@@ -138,15 +126,8 @@ public class JdbmStore<E> implements Store<E, Long>
     private static AttributeType ENTRY_UUID_AT;
     private static AttributeType ALIASED_OBJECT_NAME_AT;
 
-    /** A pointer on the schemaManager */
-    private SchemaManager schemaManager;
-
     private DN contextEntryDn;
     private String suffixDn;
-    private int cacheSize = DEFAULT_CACHE_SIZE;
-    private String name;
-
-
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
@@ -161,26 +142,6 @@ public class JdbmStore<E> implements Store<E, Long>
     // -----------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
     // -----------------------------------------------------------------------
-    private void protect( String property )
-    {
-        if ( initialized )
-        {
-            throw new IllegalStateException( I18n.err( I18n.ERR_576, property ) );
-        }
-    }
-
-
-    public void setWorkingDirectory( File workingDirectory )
-    {
-        protect( "workingDirectory" );
-        this.workingDirectory = workingDirectory;
-    }
-
-
-    public File getWorkingDirectory()
-    {
-        return workingDirectory;
-    }
 
 
     public void setSuffixDn( String suffixDn )
@@ -195,49 +156,6 @@ public class JdbmStore<E> implements Store<E, Long>
         return suffixDn;
     }
 
-
-    public void setSyncOnWrite( boolean isSyncOnWrite )
-    {
-        protect( "syncOnWrite" );
-        this.isSyncOnWrite = isSyncOnWrite;
-    }
-
-
-    public boolean isSyncOnWrite()
-    {
-        return isSyncOnWrite;
-    }
-
-
-    public void setCacheSize( int cacheSize )
-    {
-        protect( "cacheSize" );
-        this.cacheSize = cacheSize;
-    }
-
-
-    public int getCacheSize()
-    {
-        return cacheSize;
-    }
-
-
-    public void setName( String name )
-    {
-        protect( "name" );
-        this.name = name;
-    }
-
-
-    public String getName()
-    {
-        return name;
-    }
-
-
-    // -----------------------------------------------------------------------
-    // E N D   C O N F I G U R A T I O N   M E T H O D S
-    // -----------------------------------------------------------------------
 
     public Long getDefaultId()
     {
@@ -512,17 +430,6 @@ public class JdbmStore<E> implements Store<E, Long>
         }
 
         initialized = false;
-    }
-
-
-    /**
-     * Gets whether the store is initialized.
-     *
-     * @return true if the partition store is initialized
-     */
-    public boolean isInitialized()
-    {
-        return initialized;
     }
 
 
@@ -2338,12 +2245,4 @@ public class JdbmStore<E> implements Store<E, Long>
         }
     }
 
-
-    /**
-     * @param schemaManager the schemaManager to set
-     */
-    public void setSchemaManager( SchemaManager schemaManager )
-    {
-        this.schemaManager = schemaManager;
-    }
 }

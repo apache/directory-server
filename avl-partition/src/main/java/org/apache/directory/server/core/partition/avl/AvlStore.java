@@ -33,18 +33,18 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.xdbm.AbstractStore;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
-import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
-import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
@@ -72,7 +72,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AvlStore<E> implements Store<E, Long>
+public class AvlStore<E> extends AbstractStore<E, Long>
 {
     /** static logger */
     private static final Logger LOG = LoggerFactory.getLogger( AvlStore.class );
@@ -123,12 +123,6 @@ public class AvlStore<E> implements Store<E, Long>
     /** a map of attributeType numeric ID to system userIndices */
     private Map<String, AvlIndex<? extends Object, E>> systemIndices = new HashMap<String, AvlIndex<? extends Object, E>>();
 
-    /** true if initialized */
-    private boolean initialized;
-
-    /** A pointer on the schemaManager */
-    private SchemaManager schemaManager;
-
     /** 
      * TODO we need to check out why we have so many suffix 
      * dn and string accessor/mutators on both Store and Partition
@@ -137,9 +131,6 @@ public class AvlStore<E> implements Store<E, Long>
      * names.
      */
     private DN suffixDn;
-
-    private String name;
-
 
     /**
      * {@inheritDoc}
@@ -420,15 +411,6 @@ public class AvlStore<E> implements Store<E, Long>
     {
         Long id = ndnIdx.forwardLookup( dn );
         return updnIdx.reverseLookup( id );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public String getName()
-    {
-        return name;
     }
 
 
@@ -867,15 +849,6 @@ public class AvlStore<E> implements Store<E, Long>
         {
             userIndices = new HashMap<String, AvlIndex<? extends Object, E>>();
         }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isInitialized()
-    {
-        return initialized;
     }
 
 
@@ -1538,16 +1511,6 @@ public class AvlStore<E> implements Store<E, Long>
     /**
      * {@inheritDoc}
      */
-    public void setName( String name )
-    {
-        protect( "name" );
-        this.name = name;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public void setNdnIndex( Index<String, E, Long> index ) throws Exception
     {
         protect( "ndnIndex" );
@@ -1736,14 +1699,6 @@ public class AvlStore<E> implements Store<E, Long>
         return avlIndex;
     }
 
-
-    private void protect( String method )
-    {
-        if ( initialized )
-        {
-            throw new IllegalStateException( I18n.err( I18n.ERR_222, method ) );
-        }
-    }
 
 
     /**
@@ -2139,18 +2094,7 @@ public class AvlStore<E> implements Store<E, Long>
     }
 
 
-    public void setSyncOnWrite( boolean sync )
-    {
-        // do nothing
-    }
-
-
-    public void setWorkingDirectory( File wkDir )
-    {
-        //do nothing
-    }
-
-
+    @Override
     public File getWorkingDirectory()
     {
         // returns null always
@@ -2161,12 +2105,6 @@ public class AvlStore<E> implements Store<E, Long>
     public boolean isSyncOnWrite()
     {
         return false;
-    }
-
-
-    public void setCacheSize( int size )
-    {
-        // do nothing
     }
 
 

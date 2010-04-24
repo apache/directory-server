@@ -30,10 +30,10 @@ import java.util.Set;
 
 import org.apache.directory.server.core.partition.avl.AvlStore;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.xdbm.AbstractStore;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
-import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
@@ -54,19 +54,11 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class LdifStore<E> implements Store<E, Long>
+public class LdifStore<E> extends AbstractStore<E, Long>
 {
-
-    /** the working directory to use for files */
-    private File workingDirectory;
-
-    /** true if we sync disks on every write operation */
-    private boolean isSyncOnWrite = true;
 
     /** in memory store used for serving the config data present in LDIF files  */
     private AvlStore<E> wrappedStore = new AvlStore<E>();
-
-    private SchemaManager schemaManager;
 
     private LdifReader ldifReader;
 
@@ -266,18 +258,6 @@ public class LdifStore<E> implements Store<E, Long>
     public void sync() throws Exception
     {
         //TODO implement the File I/O here to push the update to entries to the corresponding LDIF file
-    }
-
-
-    public void setWorkingDirectory( File workingDirectory )
-    {
-        this.workingDirectory = workingDirectory;
-    }
-
-
-    public File getWorkingDirectory()
-    {
-        return workingDirectory;
     }
 
 
