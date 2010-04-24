@@ -23,6 +23,7 @@ package org.apache.directory.server.xdbm;
 import java.io.File;
 
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -52,6 +53,9 @@ public abstract class AbstractStore<E, ID> implements Store<E, ID>
 
     /** The store unique identifier */
     protected String id;
+
+    /** The suffix DN */
+    protected DN suffixDn;
 
     /** A pointer on the schemaManager */
     protected SchemaManager schemaManager;
@@ -123,4 +127,20 @@ public abstract class AbstractStore<E, ID> implements Store<E, ID>
         return id;
     }
 
+
+    public void setSuffixDn( DN suffixDn )
+    {
+        protect( "suffixDn" );
+        if ( !suffixDn.isNormalized() )
+        {
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_218, suffixDn.getName() ) );
+        }
+        this.suffixDn = suffixDn;
+    }
+
+
+    public DN getSuffixDn()
+    {
+        return suffixDn;
+    }
 }

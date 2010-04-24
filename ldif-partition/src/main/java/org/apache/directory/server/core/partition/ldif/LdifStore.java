@@ -91,7 +91,7 @@ public class LdifStore<E> extends AbstractStore<E, Long>
      */
     public void loadConfig() throws Exception
     {
-        String upsuffixDir = wrappedStore.getUpSuffix().getName().toLowerCase();
+        String upsuffixDir = wrappedStore.getSuffixDn().getName().toLowerCase();
         File dir = new File( partitionDir, upsuffixDir );
 
         if ( !dir.exists() )
@@ -544,21 +544,9 @@ public class LdifStore<E> extends AbstractStore<E, Long>
     }
 
 
-    public DN getSuffix()
-    {
-        return wrappedStore.getSuffix();
-    }
-
-
-    public String getSuffixDn()
+    public DN getSuffixDn()
     {
         return wrappedStore.getSuffixDn();
-    }
-
-
-    public DN getUpSuffix()
-    {
-        return wrappedStore.getUpSuffix();
     }
 
 
@@ -574,7 +562,7 @@ public class LdifStore<E> extends AbstractStore<E, Long>
     }
 
 
-    public void setSuffixDn( String suffixDn )
+    public void setSuffixDn( DN suffixDn )
     {
         wrappedStore.setSuffixDn( suffixDn );
     }

@@ -75,12 +75,6 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     /** the JDBM record manager used by this database */
     private RecordManager recMan;
 
-    /** the normalized suffix DN of this backend database */
-    private DN normSuffix;
-
-    /** the user provided suffix DN of this backend database */
-    private DN upSuffix;
-
     /** the master table storing entries by primary key */
     private JdbmMasterTable<ServerEntry> master;
 
@@ -127,7 +121,6 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     private static AttributeType ALIASED_OBJECT_NAME_AT;
 
     private DN contextEntryDn;
-    private String suffixDn;
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
@@ -142,21 +135,6 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     // -----------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
     // -----------------------------------------------------------------------
-
-
-    public void setSuffixDn( String suffixDn )
-    {
-        protect( "suffixDn" );
-        this.suffixDn = suffixDn;
-    }
-
-
-    public String getSuffixDn()
-    {
-        return suffixDn;
-    }
-
-
     public Long getDefaultId()
     {
         return 1L;
@@ -179,8 +157,6 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         ENTRY_CSN_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT );
         ENTRY_UUID_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_UUID_AT );
 
-        this.upSuffix = new DN( suffixDn );
-        this.normSuffix = DN.normalize( upSuffix, schemaManager.getNormalizerMapping() );
         partitionDir.mkdirs();
 
         // First, check if the file storing the data exists
@@ -858,9 +834,9 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         }
         
         int dnSize = dn.size();
-        int i = normSuffix.size(); 
+        int i = suffixDn.size(); 
 
-        RDN key = new RDN( normSuffix.getNormName() );
+        RDN key = new RDN( suffixDn.getNormName() );
         key._setParentId( 0 );
         
         Long curEntryId = rdnIdx.forwardLookup( key );
@@ -949,9 +925,9 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         normDN.normalize( schemaManager.getNormalizerMapping() );
         
         int dnSize = normDN.size();
-        int i = normSuffix.size(); 
+        int i = suffixDn.size(); 
 
-        RDN key = new RDN( normSuffix.getNormName() );
+        RDN key = new RDN( suffixDn.getNormName() );
         key._setParentId( 0 );
 
         Long curEntryId = rdnIdx.forwardLookup( key );
@@ -982,7 +958,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         DN normDN = new DN( dn );
         normDN.normalize( schemaManager.getNormalizerMapping() );
         
-        if( normSuffix.equals( normDN ) )
+        if( suffixDn.equals( normDN ) )
         {
             return 0L;
         }
@@ -1057,7 +1033,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         oneAliasIdx.drop( ancestorId, targetId );
         subAliasIdx.drop( ancestorId, targetId );
 
-        while ( !ancestorDn.equals( normSuffix ) && ancestorDn.size() > normSuffix.size() )
+        while ( !ancestorDn.equals( suffixDn ) && ancestorDn.size() > suffixDn.size() )
         {
             ancestorDn = ( DN ) ancestorDn.getPrefix( ancestorDn.size() - 1 );
             ancestorId = getEntryId( ancestorDn.getNormName() );
@@ -1126,9 +1102,9 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
          * need to point it out to the user instead of saying the target
          * does not exist when it potentially could outside of this upSuffix.
          */
-        if ( !normalizedAliasTargetDn.isChildOf( normSuffix ) )
+        if ( !normalizedAliasTargetDn.isChildOf( suffixDn ) )
         {
-            String msg = I18n.err( I18n.ERR_225, upSuffix.getName() );
+            String msg = I18n.err( I18n.ERR_225, suffixDn.getName() );
             LdapAliasDereferencingException e = new LdapAliasDereferencingException( msg );
             //e.setResolvedName( aliasDn );
             throw e;
@@ -1202,7 +1178,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
          * ignored since everything is under its scope.  The first loop 
          * iteration shall handle the parents.
          */
-        while ( !ancestorDn.equals( normSuffix ) && null != ancestorId )
+        while ( !ancestorDn.equals( suffixDn ) && null != ancestorId )
         {
             if ( !NamespaceTools.isDescendant( ancestorDn, normalizedAliasTargetDn ) )
             {
@@ -1241,10 +1217,10 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         DN parentDn = null;
         RDN rdn = null;
 
-        if ( entryDn.getNormName().equals( normSuffix.getNormName() ) )
+        if ( entryDn.getNormName().equals( suffixDn.getNormName() ) )
         {
             parentId = 0L;
-            rdn = new RDN( normSuffix.getNormName() );
+            rdn = new RDN( suffixDn.getNormName() );
             rdn.setUpName( entryDn.getName() );
         }
         else
@@ -1457,18 +1433,6 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     public int getChildCount( Long id ) throws Exception
     {
         return oneLevelIdx.count( id );
-    }
-
-
-    public DN getSuffix()
-    {
-        return normSuffix;
-    }
-
-
-    public DN getUpSuffix()
-    {
-        return upSuffix;
     }
 
 
@@ -2236,7 +2200,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
 
         subAliasIdx.drop( ancestorId, targetId );
 
-        while ( !ancestorDn.equals( upSuffix ) )
+        while ( !ancestorDn.equals( suffixDn ) )
         {
             ancestorDn = ( DN ) ancestorDn.getPrefix( 1 );
             ancestorId = getEntryId( ancestorDn.getNormName() );

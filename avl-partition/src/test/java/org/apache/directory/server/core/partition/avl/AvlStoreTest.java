@@ -86,6 +86,7 @@ public class AvlStoreTest
     private static File wkdir;
     private static AvlStore<ServerEntry> store;
     private static SchemaManager schemaManager = null;
+    private static DN EXAMPLE_COM;
 
 
     @BeforeClass
@@ -113,6 +114,9 @@ public class AvlStoreTest
         {
             fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
+
+        EXAMPLE_COM = new DN( "dc=example,dc=com" );
+        EXAMPLE_COM.normalize( schemaManager.getNormalizerMapping() );
     }
 
 
@@ -186,15 +190,14 @@ public class AvlStoreTest
         assertNotNull( store.getSubAliasIndex() );
 
         assertNull( store.getSuffixDn() );
-        store.setSuffixDn( "dc=example,dc=com" );
-        assertEquals( "dc=example,dc=com", store.getSuffixDn() );
+        store.setSuffixDn( EXAMPLE_COM );
+        assertEquals( "dc=example,dc=com", store.getSuffixDn().getName() );
 
         assertNull( store.getUpdnIndex() );
         store.setUpdnIndex( new AvlIndex<String, Attributes>( "updn" ) );
         assertNotNull( store.getUpdnIndex() );
 
-        assertNotNull( store.getUpSuffix() );
-        assertNotNull( store.getSuffix() );
+        assertNotNull( store.getSuffixDn() );
 
         assertEquals( 0, store.getUserIndices().size() );
         Set<Index<?, Attributes, Long>> set = new HashSet<Index<?, Attributes, Long>>();
@@ -304,7 +307,7 @@ public class AvlStoreTest
         assertNotNull( store.getSuffixDn() );
         try
         {
-            store.setSuffixDn( "dc=example,dc=com" );
+            store.setSuffixDn( EXAMPLE_COM );
             fail();
         }
         catch ( IllegalStateException e )
@@ -347,8 +350,7 @@ public class AvlStoreTest
         {
         }
 
-        assertNotNull( store.getUpSuffix() );
-        assertNotNull( store.getSuffix() );
+        assertNotNull( store.getSuffixDn() );
 
         assertEquals( 2, store.getUserIndices().size() );
         assertFalse( store.hasUserIndexOn( "dc" ) );

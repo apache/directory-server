@@ -92,7 +92,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
 
     protected String id;
     protected int cacheSize = -1;
-    protected DN suffix;
+    protected DN suffixDn;
     private File partitionDir;
 
     /** The rootDSE context */
@@ -511,7 +511,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
      */
     public void setSuffix( String suffix ) throws LdapInvalidDnException
     {
-        this.suffix = new DN( suffix );
+        this.suffixDn = new DN( suffix );
     }
 
 
@@ -520,7 +520,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
      */
     public String getSuffix()
     {
-        return suffix.getName();
+        return suffixDn.getName();
     }
 
 
@@ -529,7 +529,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
      */
     public DN getSuffixDn()
     {
-        return suffix;
+        return suffixDn;
     }
 
 

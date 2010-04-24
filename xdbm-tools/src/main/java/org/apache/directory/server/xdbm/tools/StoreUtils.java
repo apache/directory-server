@@ -66,10 +66,9 @@ public class StoreUtils
      */
     public static void loadExampleData( Store<ServerEntry, Long> store, SchemaManager schemaManager ) throws Exception
     {
-        store.setSuffixDn( "o=Good Times Co." );
-
         DN suffixDn = new DN( "o=Good Times Co." );
         suffixDn.normalize( schemaManager.getNormalizerMapping() );
+        store.setSuffixDn( suffixDn );
 
         store.init( schemaManager );
 

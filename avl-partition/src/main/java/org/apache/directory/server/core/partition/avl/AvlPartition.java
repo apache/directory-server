@@ -87,8 +87,8 @@ public class AvlPartition extends AbstractXdbmPartition<Long>
 
         // initialize the store
         store.setId( getId() );
-        suffix.normalize( schemaManager.getNormalizerMapping() );
-        store.setSuffixDn( suffix.getName() );
+        suffixDn.normalize( schemaManager.getNormalizerMapping() );
+        store.setSuffixDn( suffixDn );
 
         Set<Index<?, ServerEntry, Long>> userIndices = new HashSet<Index<?, ServerEntry, Long>>();
 

@@ -47,7 +47,6 @@ import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -123,14 +122,6 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     /** a map of attributeType numeric ID to system userIndices */
     private Map<String, AvlIndex<? extends Object, E>> systemIndices = new HashMap<String, AvlIndex<? extends Object, E>>();
 
-    /** 
-     * TODO we need to check out why we have so many suffix 
-     * dn and string accessor/mutators on both Store and Partition
-     * interfaces.  I think a lot of this comes from the fact 
-     * that we implemented DN to have both the up and norm
-     * names.
-     */
-    private DN suffixDn;
 
     /**
      * {@inheritDoc}
@@ -493,65 +484,6 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     public Index<Long, E, Long> getSubLevelIndex()
     {
         return subLevelIdx;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public DN getSuffix()
-    {
-        if ( suffixDn == null )
-        {
-            return null;
-        }
-
-        try
-        {
-            return new DN( suffixDn.getNormName() );
-        }
-        catch ( LdapInvalidDnException e )
-        {
-            // shouldn't happen
-            LOG.error( "", e );
-        }
-
-        return null;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public DN getUpSuffix()
-    {
-        if ( suffixDn == null )
-        {
-            return null;
-        }
-
-        try
-        {
-            return new DN( suffixDn.getName() );
-        }
-        catch ( LdapInvalidDnException e )
-        {
-            // shouldn't happen
-            LOG.error( "", e );
-        }
-
-        return null;
-    }
-
-
-    public String getSuffixDn()
-    {
-        if ( suffixDn == null )
-        {
-            return null;
-        }
-
-        return suffixDn.getName();
     }
 
 
@@ -1628,23 +1560,6 @@ public class AvlStore<E> extends AbstractStore<E, Long>
         }
 
         systemIndices.put( index.getAttributeId(), subLevelIdx );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setSuffixDn( String suffixDn )
-    {
-        protect( "suffixDn" );
-        try
-        {
-            this.suffixDn = new DN( suffixDn );
-        }
-        catch ( LdapInvalidDnException e )
-        {
-            throw new IllegalArgumentException( e );
-        }
     }
 
 

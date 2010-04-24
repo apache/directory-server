@@ -116,10 +116,20 @@ public interface Store<E, ID>
     Set<Index<?, E, ID>> getUserIndices();
 
 
-    void setSuffixDn( String suffixDn );
+    /**
+     * Sets the suffix DN, must be normalized.
+     * 
+     * @param suffixDn the new suffix DN
+     */
+    void setSuffixDn( DN suffixDn );
 
 
-    String getSuffixDn();
+    /**
+     * Gets the suffix DN.
+     * 
+     * @return the suffix DN
+     */
+    DN getSuffixDn();
 
 
     /**
@@ -504,12 +514,6 @@ public interface Store<E, ID>
 
 
     int getChildCount( ID id ) throws Exception;
-
-
-    DN getSuffix();
-
-
-    DN getUpSuffix();
 
 
     void setProperty( String propertyName, String propertyValue ) throws Exception;

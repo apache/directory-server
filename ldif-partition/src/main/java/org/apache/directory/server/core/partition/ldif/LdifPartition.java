@@ -158,7 +158,7 @@ public class LdifPartition extends BTreePartition<Long>
     {
         // Initialize the AvlPartition
         wrappedPartition.setId( id );
-        wrappedPartition.setSuffix( suffix.getName() );
+        wrappedPartition.setSuffix( suffixDn.getName() );
         wrappedPartition.setSchemaManager( schemaManager );
         wrappedPartition.initialize();
 
@@ -172,19 +172,19 @@ public class LdifPartition extends BTreePartition<Long>
 
         // Initialize the suffixDirectory : it's a composition
         // of the workingDirectory followed by the suffix
-        if ( ( suffix == null ) || ( suffix.isEmpty() ) )
+        if ( ( suffixDn == null ) || ( suffixDn.isEmpty() ) )
         {
             String msg = I18n.err( I18n.ERR_150 );
             LOG.error( msg );
             throw new LdapInvalidDnException( msg );
         }
 
-        if ( !suffix.isNormalized() )
+        if ( !suffixDn.isNormalized() )
         {
-            suffix.normalize( schemaManager.getNormalizerMapping() );
+            suffixDn.normalize( schemaManager.getNormalizerMapping() );
         }
 
-        String suffixDirName = getFileName( suffix );
+        String suffixDirName = getFileName( suffixDn );
         suffixDirectory = new File( workingDirectory, suffixDirName );
 
         // Create the context entry now, if it does not exists, or load the
@@ -516,7 +516,7 @@ public class LdifPartition extends BTreePartition<Long>
         StringBuilder filePath = new StringBuilder();
         filePath.append( suffixDirectory ).append( File.separator );
 
-        DN baseDn = ( DN ) entryDn.getSuffix( suffix.size() );
+        DN baseDn = ( DN ) entryDn.getSuffix( suffixDn.size() );
 
         for ( int i = 0; i < baseDn.size() - 1; i++ )
         {
