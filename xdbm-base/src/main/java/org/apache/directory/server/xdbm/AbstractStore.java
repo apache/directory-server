@@ -42,7 +42,7 @@ public abstract class AbstractStore<E, ID> implements Store<E, ID>
     protected boolean initialized;
 
     /** the working directory to use for files */
-    protected File workingDirectory;
+    protected File partitionDir;
 
     /** true if we sync disks on every write operation */
     protected boolean isSyncOnWrite = true;
@@ -72,16 +72,16 @@ public abstract class AbstractStore<E, ID> implements Store<E, ID>
     }
 
 
-    public void setWorkingDirectory( File workingDirectory )
+    public void setPartitionDir( File partitionDir )
     {
-        protect( "workingDirectory" );
-        this.workingDirectory = workingDirectory;
+        protect( "partitionDir" );
+        this.partitionDir = partitionDir;
     }
 
 
-    public File getWorkingDirectory()
+    public File getPartitionDir()
     {
-        return workingDirectory;
+        return partitionDir;
     }
 
 

@@ -2095,7 +2095,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
 
 
     @Override
-    public File getWorkingDirectory()
+    public File getPartitionDir()
     {
         // returns null always
         return null;

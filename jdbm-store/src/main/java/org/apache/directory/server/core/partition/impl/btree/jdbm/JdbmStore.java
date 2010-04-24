@@ -181,10 +181,10 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
 
         this.upSuffix = new DN( suffixDn );
         this.normSuffix = DN.normalize( upSuffix, schemaManager.getNormalizerMapping() );
-        workingDirectory.mkdirs();
+        partitionDir.mkdirs();
 
         // First, check if the file storing the data exists
-        String path = workingDirectory.getPath() + File.separator + "master";
+        String path = partitionDir.getPath() + File.separator + "master";
         BaseRecordManager base = new BaseRecordManager( path );
         base.disableTransactions();
 
@@ -228,7 +228,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
                 String oid = schemaManager.getAttributeTypeRegistry().getOidByName( index.getAttributeId() );
                 tmp.put( oid, index );
                 ( ( JdbmIndex ) index ).init( schemaManager, schemaManager.lookupAttributeTypeRegistry( oid ),
-                    workingDirectory );
+                    partitionDir );
             }
             systemIndices = tmp;
         }
@@ -239,7 +239,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             rdnIdx.setAttributeId( ApacheSchemaConstants.APACHE_RDN_AT_OID );
             systemIndices.put( ApacheSchemaConstants.APACHE_RDN_AT_OID, ( JdbmIndex ) rdnIdx );
             rdnIdx.init( schemaManager, schemaManager
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_RDN_AT_OID ), workingDirectory );
+                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_RDN_AT_OID ), partitionDir );
         }
         
         if ( presenceIdx == null )
@@ -248,7 +248,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             presenceIdx.setAttributeId( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID );
             systemIndices.put( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID, presenceIdx );
             presenceIdx.init( schemaManager, schemaManager
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ), workingDirectory );
+                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ), partitionDir );
         }
 
         if ( oneLevelIdx == null )
@@ -257,7 +257,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             oneLevelIdx.setAttributeId( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
             systemIndices.put( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID, oneLevelIdx );
             oneLevelIdx.init( schemaManager, schemaManager
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ), workingDirectory );
+                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ), partitionDir );
         }
 
         if ( oneAliasIdx == null )
@@ -266,7 +266,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             oneAliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
             systemIndices.put( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, oneAliasIdx );
             oneAliasIdx.init( schemaManager, schemaManager
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ), workingDirectory );
+                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ), partitionDir );
         }
 
         if ( subAliasIdx == null )
@@ -275,7 +275,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             subAliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
             systemIndices.put( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, subAliasIdx );
             subAliasIdx.init( schemaManager, schemaManager
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ), workingDirectory );
+                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ), partitionDir );
         }
 
         if ( aliasIdx == null )
@@ -284,7 +284,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             aliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
             systemIndices.put( ApacheSchemaConstants.APACHE_ALIAS_AT_OID, aliasIdx );
             aliasIdx.init( schemaManager, schemaManager
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ), workingDirectory );
+                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ), partitionDir );
         }
 
         if ( subLevelIdx == null )
@@ -293,7 +293,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             subLevelIdx.setAttributeId( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
             systemIndices.put( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID, subLevelIdx );
             subLevelIdx.init( schemaManager, schemaManager
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ), workingDirectory );
+                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ), partitionDir );
         }
 
         if ( entryCsnIdx == null )
@@ -302,7 +302,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             entryCsnIdx.setAttributeId( SchemaConstants.ENTRY_CSN_AT_OID );
             systemIndices.put( SchemaConstants.ENTRY_CSN_AT_OID, entryCsnIdx );
             entryCsnIdx.init( schemaManager, schemaManager
-                .lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT_OID ), workingDirectory );
+                .lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT_OID ), partitionDir );
         }
 
         if ( entryUuidIdx == null )
@@ -311,7 +311,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             entryUuidIdx.setAttributeId( SchemaConstants.ENTRY_UUID_AT_OID );
             systemIndices.put( SchemaConstants.ENTRY_UUID_AT_OID, entryUuidIdx );
             entryUuidIdx.init( schemaManager, schemaManager
-                .lookupAttributeTypeRegistry( SchemaConstants.ENTRY_UUID_AT_OID ), workingDirectory );
+                .lookupAttributeTypeRegistry( SchemaConstants.ENTRY_UUID_AT_OID ), partitionDir );
         }
 
         if ( objectClassIdx == null )
@@ -320,7 +320,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             objectClassIdx.setAttributeId( SchemaConstants.OBJECT_CLASS_AT_OID );
             systemIndices.put( SchemaConstants.OBJECT_CLASS_AT_OID, objectClassIdx );
             objectClassIdx.init( schemaManager, schemaManager
-                .lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT_OID ), workingDirectory );
+                .lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT_OID ), partitionDir );
         }
     }
 
@@ -350,7 +350,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
                 if ( mr != null )
                 {
                     ( ( JdbmIndex ) index ).init( schemaManager, schemaManager.lookupAttributeTypeRegistry( oid ),
-                        workingDirectory );
+                        partitionDir );
                     tmp.put( oid, index );
                 }
                 else

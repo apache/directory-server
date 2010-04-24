@@ -92,11 +92,11 @@ public class LdifStore<E> extends AbstractStore<E, Long>
     public void loadConfig() throws Exception
     {
         String upsuffixDir = wrappedStore.getUpSuffix().getName().toLowerCase();
-        File dir = new File( workingDirectory, upsuffixDir );
+        File dir = new File( partitionDir, upsuffixDir );
 
         if ( !dir.exists() )
         {
-            throw new Exception( I18n.err( I18n.ERR_631, upsuffixDir, workingDirectory.getAbsolutePath() ) );
+            throw new Exception( I18n.err( I18n.ERR_631, upsuffixDir, partitionDir.getAbsolutePath() ) );
         }
 
         loadEntry( dir );
@@ -163,7 +163,7 @@ public class LdifStore<E> extends AbstractStore<E, Long>
         int size = entryDn.size();
 
         StringBuilder filePath = new StringBuilder();
-        filePath.append( workingDirectory.getAbsolutePath() ).append( File.separator );
+        filePath.append( partitionDir.getAbsolutePath() ).append( File.separator );
 
         for ( int i = 0; i < size; i++ )
         {

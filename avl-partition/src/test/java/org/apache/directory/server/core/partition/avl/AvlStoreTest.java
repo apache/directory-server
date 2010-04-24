@@ -202,9 +202,9 @@ public class AvlStoreTest
         store.setUserIndices( set );
         assertEquals( set.size(), store.getUserIndices().size() );
 
-        assertNull( store.getWorkingDirectory() );
-        store.setWorkingDirectory( new File( "." ) );
-        assertNull( store.getWorkingDirectory() );
+        assertNull( store.getPartitionDir() );
+        store.setPartitionDir( new File( "." ) );
+        assertNull( store.getPartitionDir() );
 
         assertFalse( store.isInitialized() );
         assertFalse( store.isSyncOnWrite() );
@@ -378,7 +378,7 @@ public class AvlStoreTest
         {
         }
 
-        assertNull( store.getWorkingDirectory() );
+        assertNull( store.getPartitionDir() );
 
         assertTrue( store.isInitialized() );
         assertFalse( store.isSyncOnWrite() );

@@ -132,7 +132,7 @@ public class JdbmStoreTest
         store = new JdbmStore<ServerEntry>();
         store.setName( "example" );
         store.setCacheSize( 10 );
-        store.setWorkingDirectory( wkdir );
+        store.setPartitionDir( wkdir );
         store.setSyncOnWrite( false );
         store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new JdbmIndex( SchemaConstants.UID_AT_OID ) );
@@ -179,7 +179,7 @@ public class JdbmStoreTest
         JdbmStore<ServerEntry> store2 = new JdbmStore<ServerEntry>();
         store2.setName( "example2" );
         store2.setCacheSize( 10 );
-        store2.setWorkingDirectory( wkdir2 );
+        store2.setPartitionDir( wkdir2 );
         store2.setSyncOnWrite( false );
         store2.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
         store2.addIndex( new JdbmIndex( SchemaConstants.UID_AT_OID ) );
@@ -258,9 +258,9 @@ public class JdbmStoreTest
         store.setUserIndices( set );
         assertEquals( set.size(), store.getUserIndices().size() );
 
-        assertNull( store.getWorkingDirectory() );
-        store.setWorkingDirectory( new File( "." ) );
-        assertEquals( new File( "." ), store.getWorkingDirectory() );
+        assertNull( store.getPartitionDir() );
+        store.setPartitionDir( new File( "." ) );
+        assertEquals( new File( "." ), store.getPartitionDir() );
 
         assertFalse( store.isInitialized() );
         assertTrue( store.isSyncOnWrite() );
@@ -424,10 +424,10 @@ public class JdbmStoreTest
         {
         }
 
-        assertNotNull( store.getWorkingDirectory() );
+        assertNotNull( store.getPartitionDir() );
         try
         {
-            store.setWorkingDirectory( new File( "." ) );
+            store.setPartitionDir( new File( "." ) );
             fail();
         }
         catch ( IllegalStateException e )

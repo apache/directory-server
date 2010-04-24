@@ -115,7 +115,7 @@ public class SubstringTest
         store = new JdbmStore<ServerEntry>();
         store.setName( "example" );
         store.setCacheSize( 10 );
-        store.setWorkingDirectory( wkdir );
+        store.setPartitionDir( wkdir );
         store.setSyncOnWrite( false );
 
         store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );

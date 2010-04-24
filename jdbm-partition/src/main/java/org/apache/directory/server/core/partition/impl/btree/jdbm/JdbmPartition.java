@@ -60,7 +60,7 @@ public class JdbmPartition extends AbstractXdbmPartition<Long>
     @SuppressWarnings("unchecked")
     protected void doInit() throws Exception
     {
-        store.setWorkingDirectory( getPartitionDir() );
+        store.setPartitionDir( getPartitionDir() );
 
         EvaluatorBuilder<Long> evaluatorBuilder = new EvaluatorBuilder<Long>( store, schemaManager );
         CursorBuilder<Long> cursorBuilder = new CursorBuilder<Long>( store, evaluatorBuilder );
@@ -84,7 +84,7 @@ public class JdbmPartition extends AbstractXdbmPartition<Long>
         // Normalize the suffix
         suffix.normalize( schemaManager.getNormalizerMapping() );
         store.setSuffixDn( suffix.getNormName() );
-        store.setWorkingDirectory( getPartitionDir() );
+        store.setPartitionDir( getPartitionDir() );
 
         Set<Index<?, ServerEntry, Long>> userIndices = new HashSet<Index<?, ServerEntry, Long>>();
 

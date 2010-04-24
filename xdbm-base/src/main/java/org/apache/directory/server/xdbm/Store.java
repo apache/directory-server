@@ -88,15 +88,19 @@ public interface Store<E, ID>
      */
 
     /**
-     * Sets the working directory for the store
+     * Sets the partition directory (working directory) for the store.
+     * 
+     * @param partitionDir the new partition directory
      */
-    void setWorkingDirectory( File workingDirectory );
+    void setPartitionDir( File partitionDir );
 
 
     /**
-     * @return The current working directory for the store
+     * Gets the partition directory (working directory) for the store.
+     * 
+     * @return The current partition directory (working directory) for the store
      */
-    File getWorkingDirectory();
+    File getPartitionDir();
 
 
     /**
