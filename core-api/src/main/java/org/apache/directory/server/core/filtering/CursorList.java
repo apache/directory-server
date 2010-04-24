@@ -166,7 +166,7 @@ public class CursorList implements EntryFilteringCursor
      */
     public void beforeFirst() throws Exception
     {
-        this.index = -1;
+        this.index = 0;
         list.get( index ).beforeFirst();
     }
 
@@ -176,7 +176,7 @@ public class CursorList implements EntryFilteringCursor
      */
     public void afterLast() throws Exception
     {
-        this.index = end;
+        this.index = end-1;
         list.get( index ).afterLast();
     }
 
