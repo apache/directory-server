@@ -274,7 +274,7 @@ public abstract class AbstractXdbmPartition<ID> extends BTreePartition<ID>
     }
 
 
-    public final ID getEntryId( String dn ) throws Exception
+    public final ID getEntryId( DN dn ) throws Exception
     {
         return store.getEntryId( dn );
     }

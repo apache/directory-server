@@ -403,7 +403,7 @@ public class AvlStoreTest
     {
         DN dn = new DN( "o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        assertEquals( 1L, ( long ) store.getEntryId( dn.getNormName() ) );
+        assertEquals( 1L, ( long ) store.getEntryId( dn ) );
         assertEquals( 11, store.count() );
         assertEquals( "o=Good Times Co.", store.getEntryUpdn( dn.getNormName() ) );
         assertEquals( dn.getNormName(), store.getEntryDn( 1L ) );
@@ -658,7 +658,7 @@ public class AvlStoreTest
 
         DN dn2 = new DN( "sn=Ja\\+es,ou=Engineering,o=Good Times Co." );
         dn2.normalize( schemaManager.getNormalizerMapping() );
-        Long id = store.getEntryId( dn2.getNormName() );
+        Long id = store.getEntryId( dn2 );
         assertNotNull( id );
         ServerEntry entry2 = store.lookup( id );
         assertEquals( "Ja+es", entry2.get( "sn" ).getString() );
@@ -717,7 +717,7 @@ public class AvlStoreTest
         Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
         mods.add( add );
 
-        ServerEntry lookedup = store.lookup( store.getEntryId( dn.getNormName() ) );
+        ServerEntry lookedup = store.lookup( store.getEntryId( dn ) );
 
         store.modify( dn, mods );
         assertTrue( lookedup.get( "sn" ).contains( attribVal ) );
@@ -728,7 +728,7 @@ public class AvlStoreTest
         entry.add( "telephoneNumber", attribVal );
 
         store.modify( dn, ModificationOperation.ADD_ATTRIBUTE, entry );
-        lookedup = store.lookup( store.getEntryId( dn.getNormName() ) );
+        lookedup = store.lookup( store.getEntryId( dn ) );
         assertTrue( lookedup.get( "telephoneNumber" ).contains( attribVal ) );
     }
 
@@ -749,7 +749,7 @@ public class AvlStoreTest
         Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
         mods.add( add );
 
-        ServerEntry lookedup = store.lookup( store.getEntryId( dn.getNormName() ) );
+        ServerEntry lookedup = store.lookup( store.getEntryId( dn ) );
 
         assertEquals( "WAlkeR", lookedup.get( "sn" ).get().getString() ); // before replacing
 
@@ -779,7 +779,7 @@ public class AvlStoreTest
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
         mods.add( add );
 
-        ServerEntry lookedup = store.lookup( store.getEntryId( dn.getNormName() ) );
+        ServerEntry lookedup = store.lookup( store.getEntryId( dn ) );
 
         assertNotNull( lookedup.get( "sn" ).get() );
 
@@ -822,7 +822,7 @@ public class AvlStoreTest
         Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
         mods.add( add );
 
-        ServerEntry lookedup = store.lookup( store.getEntryId( dn.getNormName() ) );
+        ServerEntry lookedup = store.lookup( store.getEntryId( dn ) );
 
         assertNull( lookedup.get( "ou" ) ); // before replacing
 

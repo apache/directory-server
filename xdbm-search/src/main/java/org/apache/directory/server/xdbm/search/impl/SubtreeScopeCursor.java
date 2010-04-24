@@ -100,7 +100,7 @@ public class SubtreeScopeCursor<ID> extends AbstractIndexCursor<ID, ServerEntry,
         {
             try
             {
-                this.contextEntryId = db.getEntryId( db.getSuffixDn().getNormName() );
+                this.contextEntryId = db.getEntryId( db.getSuffixDn() );
             }
             catch ( Exception e )
             {

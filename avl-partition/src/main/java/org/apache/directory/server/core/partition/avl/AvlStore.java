@@ -156,7 +156,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
         {
             parentDn = ( DN ) normName.clone();
             parentDn.remove( parentDn.size() - 1 );
-            parentId = getEntryId( parentDn.getNormName() );
+            parentId = getEntryId( parentDn );
         }
 
         // don't keep going if we cannot find the parent Id
@@ -380,9 +380,9 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     /**
      * {@inheritDoc}
      */
-    public Long getEntryId( String dn ) throws Exception
+    public Long getEntryId( DN dn ) throws Exception
     {
-        return ndnIdx.forwardLookup( dn );
+        return ndnIdx.forwardLookup( dn.getNormName() );
     }
 
 
@@ -1132,7 +1132,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
             throw new Exception( I18n.err( I18n.ERR_215 ) );
         }
 
-        Long id = getEntryId( dn.getNormName() );
+        Long id = getEntryId( dn );
         ServerEntry entry = ( ServerEntry ) master.get( id );
 
         for ( AttributeType attributeType : mods.getAttributeTypes() )
@@ -1165,7 +1165,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
 
     public void modify( DN dn, List<Modification> mods ) throws Exception
     {
-        Long id = getEntryId( dn.getNormName() );
+        Long id = getEntryId( dn );
         modify( id, mods );
     }
 
@@ -1203,7 +1203,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
 
     public void move( DN oldChildDn, DN newParentDn, RDN newRdn, boolean deleteOldRdn ) throws Exception
     {
-        Long childId = getEntryId( oldChildDn.getNormName() );
+        Long childId = getEntryId( oldChildDn );
         rename( oldChildDn, newRdn, deleteOldRdn );
         DN newUpdn = move( oldChildDn, childId, newParentDn );
 
@@ -1216,7 +1216,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
 
     public void move( DN oldChildDn, DN newParentDn ) throws Exception
     {
-        Long childId = getEntryId( oldChildDn.getNormName() );
+        Long childId = getEntryId( oldChildDn );
         DN newUpdn = move( oldChildDn, childId, newParentDn );
 
         // Update the current entry
@@ -1243,7 +1243,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     private DN move( DN oldChildDn, Long childId, DN newParentDn ) throws Exception
     {
         // Get the child and the new parent to be entries and Ids
-        Long newParentId = getEntryId( newParentDn.getNormName() );
+        Long newParentId = getEntryId( newParentDn );
         Long oldParentId = getParentId( childId );
 
         /*
@@ -1301,7 +1301,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     @SuppressWarnings("unchecked")
     public void rename( DN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception
     {
-        Long id = getEntryId( dn.getNormName() );
+        Long id = getEntryId( dn );
         ServerEntry entry = lookup( id );
         DN updn = entry.getDn();
 
@@ -1733,7 +1733,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
          */
         ancestorDn = ( DN ) aliasDn.clone();
         ancestorDn.remove( aliasDn.size() - 1 );
-        ancestorId = getEntryId( ancestorDn.getNormName() );
+        ancestorId = getEntryId( ancestorDn );
 
         // check if alias parent and aliased entry are the same
         DN normalizedAliasTargetParentDn = ( DN ) normalizedAliasTargetDn.clone();
@@ -1761,7 +1761,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
             }
 
             ancestorDn.remove( ancestorDn.size() - 1 );
-            ancestorId = getEntryId( ancestorDn.getNormName() );
+            ancestorId = getEntryId( ancestorDn );
         }
     }
 
@@ -1778,13 +1778,13 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     private void dropAliasIndices( Long aliasId ) throws Exception
     {
         String targetDn = aliasIdx.reverseLookup( aliasId );
-        Long targetId = getEntryId( targetDn );
+        Long targetId = getEntryId( new DN( targetDn ).normalize( schemaManager.getNormalizerMapping() ) );
         String aliasDn = getEntryDn( aliasId );
         DN aliasDN = ( DN ) new DN( aliasDn );
 
         DN ancestorDn = ( DN ) aliasDN.clone();
         ancestorDn.remove( aliasDN.size() - 1 );
-        Long ancestorId = getEntryId( ancestorDn.getNormName() );
+        Long ancestorId = getEntryId( ancestorDn );
 
         /*
          * We cannot just drop all tuples in the one level and subtree userIndices
@@ -1803,7 +1803,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
         while ( !ancestorDn.equals( suffixDn ) && ancestorDn.size() > suffixDn.size() )
         {
             ancestorDn = ( DN ) ancestorDn.getPrefix( ancestorDn.size() - 1 );
-            ancestorId = getEntryId( ancestorDn.getNormName() );
+            ancestorId = getEntryId( ancestorDn );
 
             subAliasIdx.drop( ancestorId, targetId );
         }
@@ -1895,7 +1895,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
         //            }
         //        };
 
-        Long movedBaseId = getEntryId( movedBase.getNormName() );
+        Long movedBaseId = getEntryId( movedBase );
 
         if ( aliasIdx.reverseLookup( movedBaseId ) != null )
         {
@@ -1926,7 +1926,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     private void dropAliasIndices( Long aliasId, DN movedBase ) throws Exception
     {
         String targetDn = aliasIdx.reverseLookup( aliasId );
-        Long targetId = getEntryId( targetDn );
+        Long targetId = getEntryId( new DN( targetDn ).normalize( schemaManager.getNormalizerMapping() ) );
         String aliasDn = getEntryDn( aliasId );
 
         /*
@@ -1934,7 +1934,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
          * moved base.  This is the first ancestor effected by the move.
          */
         DN ancestorDn = ( DN ) movedBase.getPrefix( 1 );
-        Long ancestorId = getEntryId( ancestorDn.getNormName() );
+        Long ancestorId = getEntryId( ancestorDn );
 
         /*
          * We cannot just drop all tuples in the one level and subtree userIndices
@@ -1958,7 +1958,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
         while ( !ancestorDn.equals( suffixDn ) )
         {
             ancestorDn = ( DN ) ancestorDn.getPrefix( 1 );
-            ancestorId = getEntryId( ancestorDn.getNormName() );
+            ancestorId = getEntryId( ancestorDn );
 
             subAliasIdx.drop( ancestorId, targetId );
         }

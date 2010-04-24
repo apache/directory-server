@@ -255,7 +255,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     {
         DN dn = opContext.getDn();
 
-        ID id = getEntryId( dn.getNormName() );
+        ID id = getEntryId( dn );
 
         // don't continue if id is null
         if ( id == null )
@@ -283,7 +283,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
     {
         return new BaseEntryFilteringCursor( new ServerEntryCursorAdaptor<ID>( this, list( getEntryId( opContext
-            .getDn().getNormName() ) ) ), opContext );
+            .getDn() ) ) ), opContext );
     }
 
 
@@ -301,7 +301,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
 
     public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
     {
-        ID id = getEntryId( opContext.getDn().getNormName() );
+        ID id = getEntryId( opContext.getDn() );
 
         if ( id == null )
         {
@@ -329,7 +329,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
 
     public boolean hasEntry( EntryOperationContext opContext ) throws Exception
     {
-        return null != getEntryId( opContext.getDn().getNormName() );
+        return null != getEntryId( opContext.getDn() );
     }
 
 
@@ -539,7 +539,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     public abstract Index<? extends Object, ServerEntry, ID> getSystemIndex( String attribute ) throws Exception;
 
 
-    public abstract ID getEntryId( String dn ) throws Exception;
+    public abstract ID getEntryId( DN dn ) throws Exception;
 
 
     public abstract String getEntryDn( ID id ) throws Exception;

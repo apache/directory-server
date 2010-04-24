@@ -430,8 +430,8 @@ public class LdifPartitionTest
     {
         CoreSession session = injectEntries();
 
-        ClonedServerEntry childEntry1 = partition.lookup( partition.getEntryId( new DN( "dc=child1,ou=test,ou=system" ).normalize( schemaManager.getNormalizerMapping() ).getNormName() ) );
-        ClonedServerEntry childEntry2 = partition.lookup( partition.getEntryId( new DN( "dc=child2,ou=test,ou=system" ).normalize( schemaManager.getNormalizerMapping() ).getNormName() ) );
+        ClonedServerEntry childEntry1 = partition.lookup( partition.getEntryId( new DN( "dc=child1,ou=test,ou=system" ).normalize( schemaManager.getNormalizerMapping() ) ) );
+        ClonedServerEntry childEntry2 = partition.lookup( partition.getEntryId( new DN( "dc=child2,ou=test,ou=system" ).normalize( schemaManager.getNormalizerMapping() ) ) );
         
         MoveOperationContext moveOpCtx = new MoveOperationContext( session, childEntry1.getDn(), childEntry2.getDn() );
         partition.move( moveOpCtx );

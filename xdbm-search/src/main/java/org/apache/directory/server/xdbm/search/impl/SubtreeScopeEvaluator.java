@@ -93,7 +93,7 @@ public class SubtreeScopeEvaluator<E, ID> implements Evaluator<ScopeNode, E, ID>
         {
             try
             {
-                this.contextEntryId = db.getEntryId( db.getSuffixDn().getNormName() );
+                this.contextEntryId = db.getEntryId( db.getSuffixDn() );
             }
             catch ( Exception e )
             {

@@ -1040,7 +1040,7 @@ public class ConfigPartitionReader
 
     private ChangeLog getChangeLog( DN changelogDN ) throws Exception
     {
-        long id = configPartition.getEntryId( changelogDN.getNormName() );
+        long id = configPartition.getEntryId( changelogDN );
         Entry clEntry = configPartition.lookup( id );
 
         ChangeLog cl = new DefaultChangeLog();
@@ -1064,7 +1064,7 @@ public class ConfigPartitionReader
 
     private Journal getJournal( DN journalDN ) throws Exception
     {
-        long id = configPartition.getEntryId( journalDN.getNormName() );
+        long id = configPartition.getEntryId( journalDN );
         Entry jlEntry = configPartition.lookup( id );
 
         Journal journal = new DefaultJournal();

@@ -451,7 +451,7 @@ public interface Store<E, ID>
     Index<?, E, ID> getSystemIndex( String id ) throws IndexNotFoundException;
 
 
-    ID getEntryId( String dn ) throws Exception;
+    ID getEntryId( DN dn ) throws Exception;
 
 
     String getEntryDn( ID id ) throws Exception;

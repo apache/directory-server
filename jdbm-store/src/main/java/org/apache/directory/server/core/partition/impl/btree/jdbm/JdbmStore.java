@@ -813,19 +813,6 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     /**
      * @see #getEntryId(DN)
      */
-    public Long getEntryId( String dn ) throws Exception
-    {
-        return getEntryId( new DN( dn ) );
-    }
-
-
-    /**
-     * gets the entry id of the given DN using RDN index
-     *
-     * @param dn the DN of the entry
-     * @return id of the entry represented by the given DN
-     * @throws Exception
-     */
     public Long getEntryId( DN dn ) throws Exception
     {
         if( !dn.isNormalized() )
@@ -1011,7 +998,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     private void dropAliasIndices( Long aliasId ) throws Exception
     {
         String targetDn = aliasIdx.reverseLookup( aliasId );
-        Long targetId = getEntryId( targetDn );
+        Long targetId = getEntryId( new DN( targetDn ).normalize( schemaManager.getNormalizerMapping() ) );
         String aliasDn = getEntryDn( aliasId );
         DN aliasDN = ( DN ) new DN( aliasDn );
 
@@ -1036,7 +1023,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         while ( !ancestorDn.equals( suffixDn ) && ancestorDn.size() > suffixDn.size() )
         {
             ancestorDn = ( DN ) ancestorDn.getPrefix( ancestorDn.size() - 1 );
-            ancestorId = getEntryId( ancestorDn.getNormName() );
+            ancestorId = getEntryId( ancestorDn );
 
             subAliasIdx.drop( ancestorId, targetId );
         }
@@ -1186,7 +1173,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             }
 
             ancestorDn.remove( ancestorDn.size() - 1 );
-            ancestorId = getEntryId( ancestorDn.getNormName() );
+            ancestorId = getEntryId( ancestorDn );
         }
     }
 
@@ -1690,7 +1677,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             throw new Exception( I18n.err( I18n.ERR_215 ) );
         }
 
-        Long id = getEntryId( dn.getNormName() );
+        Long id = getEntryId( dn );
         ServerEntry entry = ( ServerEntry ) master.get( id );
 
         for ( AttributeType attributeType : mods.getAttributeTypes() )
@@ -1728,7 +1715,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
 
     public void modify( DN dn, List<Modification> mods ) throws Exception
     {
-        Long id = getEntryId( dn.getNormName() );
+        Long id = getEntryId( dn );
         ServerEntry entry = ( ServerEntry ) master.get( id );
 
         for ( Modification mod : mods )
@@ -2140,7 +2127,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         //            }
         //        };
 
-        Long movedBaseId = getEntryId( movedBase.getNormName() );
+        Long movedBaseId = getEntryId( movedBase );
 
         if ( aliasIdx.reverseLookup( movedBaseId ) != null )
         {
@@ -2171,7 +2158,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     private void dropAliasIndices( Long aliasId, DN movedBase ) throws Exception
     {
         String targetDn = aliasIdx.reverseLookup( aliasId );
-        Long targetId = getEntryId( targetDn );
+        Long targetId = getEntryId( new DN( targetDn ).normalize( schemaManager.getNormalizerMapping() ) );
         String aliasDn = getEntryDn( aliasId );
 
         /*
@@ -2179,7 +2166,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
          * moved base.  This is the first ancestor effected by the move.
          */
         DN ancestorDn = ( DN ) movedBase.getPrefix( 1 );
-        Long ancestorId = getEntryId( ancestorDn.getNormName() );
+        Long ancestorId = getEntryId( ancestorDn );
 
         /*
          * We cannot just drop all tuples in the one level and subtree userIndices
@@ -2203,7 +2190,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         while ( !ancestorDn.equals( suffixDn ) )
         {
             ancestorDn = ( DN ) ancestorDn.getPrefix( 1 );
-            ancestorId = getEntryId( ancestorDn.getNormName() );
+            ancestorId = getEntryId( ancestorDn );
 
             subAliasIdx.drop( ancestorId, targetId );
         }

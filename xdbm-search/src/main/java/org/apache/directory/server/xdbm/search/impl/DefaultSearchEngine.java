@@ -100,7 +100,7 @@ public class DefaultSearchEngine<ID> implements SearchEngine<ServerEntry, ID>
         SearchControls searchCtls ) throws Exception
     {
         DN effectiveBase;
-        ID baseId = db.getEntryId( base.getNormName() );
+        ID baseId = db.getEntryId( base );
 
         // Check that we have an entry, otherwise we can immediately get out
         if ( baseId == null )
@@ -144,7 +144,7 @@ public class DefaultSearchEngine<ID> implements SearchEngine<ServerEntry, ID>
             ID effectiveBaseId = baseId;
             if ( effectiveBase != base )
             {
-                effectiveBaseId = db.getEntryId( effectiveBase.getNormName() );
+                effectiveBaseId = db.getEntryId( effectiveBase );
             }
 
             IndexEntry<ID, ServerEntry, ID> indexEntry = new ForwardIndexEntry<ID, ServerEntry, ID>();
@@ -164,7 +164,7 @@ public class DefaultSearchEngine<ID> implements SearchEngine<ServerEntry, ID>
 
         // Add the scope node using the effective base to the filter
         BranchNode root = new AndNode();
-        ExprNode node = new ScopeNode( aliasDerefMode, effectiveBase.getNormName(), SearchScope.getSearchScope( searchCtls
+        ExprNode node = new ScopeNode( aliasDerefMode, effectiveBase, SearchScope.getSearchScope( searchCtls
             .getSearchScope() ) );
         root.getChildren().add( node );
         root.getChildren().add( filter );

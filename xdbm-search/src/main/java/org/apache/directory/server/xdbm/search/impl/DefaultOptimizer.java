@@ -74,7 +74,7 @@ public class DefaultOptimizer<E, ID> implements Optimizer
         {
             try
             {
-                this.contextEntryId = db.getEntryId( db.getSuffixDn().getNormName() );
+                this.contextEntryId = db.getEntryId( db.getSuffixDn() );
             }
             catch ( Exception e )
             {

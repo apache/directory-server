@@ -303,7 +303,7 @@ public class LdifStore<E> extends AbstractStore<E, Long>
     }
 
 
-    public Long getEntryId( String dn ) throws Exception
+    public Long getEntryId( DN dn ) throws Exception
     {
         return wrappedStore.getEntryId( dn );
     }

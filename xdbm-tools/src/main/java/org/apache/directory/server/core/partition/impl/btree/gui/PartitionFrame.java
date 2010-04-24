@@ -470,7 +470,7 @@ public class PartitionFrame extends JFrame
 
                 ServerEntry attrs = new DefaultServerEntry( schemaManager, entry.getEntry() );
 
-                if ( null == partition.getEntryId( ndn.getNormName() ) )
+                if ( null == partition.getEntryId( ndn ) )
                 {
                     partition.add( new AddOperationContext( null, attrs ) );
                     load();
@@ -885,8 +885,8 @@ public class PartitionFrame extends JFrame
         // boolean doFiltered = false;
         nodes = new HashMap<Long, EntryNode>();
 
-        ServerEntry suffix = partition.lookup( partition.getEntryId( partition.getSuffixDn().getNormName() ) );
-        Long id = partition.getEntryId( partition.getSuffixDn().getName() );
+        ServerEntry suffix = partition.lookup( partition.getEntryId( partition.getSuffixDn() ) );
+        Long id = partition.getEntryId( partition.getSuffixDn() );
         root = new EntryNode( id, null, partition, suffix, nodes );
 
         /*

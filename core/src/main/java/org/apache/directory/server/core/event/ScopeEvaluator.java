@@ -55,7 +55,7 @@ public class ScopeEvaluator implements Evaluator
                 return dn.equals( snode.getBaseDn() );
             
             case ONELEVEL:
-                if ( dn.endsWith( snode.getBaseDn() ) )
+                if ( dn.endsWith( snode.getBaseDn().getNormName() ) )
                 {
                     DN candidateDn = new DN( dn );
                     DN scopeDn = new DN( snode.getBaseDn() );
@@ -63,7 +63,7 @@ public class ScopeEvaluator implements Evaluator
                 }
             
             case SUBTREE:
-                return dn.endsWith( snode.getBaseDn() );
+                return dn.endsWith( snode.getBaseDn().getNormName() );
             
             default:
                 throw new LdapInvalidSearchFilterException( I18n.err( I18n.ERR_247 ) );

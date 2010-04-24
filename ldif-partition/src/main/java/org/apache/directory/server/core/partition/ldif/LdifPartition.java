@@ -311,7 +311,7 @@ public class LdifPartition extends BTreePartition<Long>
     @Override
     public void modify( ModifyOperationContext modifyContext ) throws Exception
     {
-        Long id = getEntryId( modifyContext.getDn().getNormName() );
+        Long id = getEntryId( modifyContext.getDn() );
 
         wrappedPartition.modify( id, modifyContext.getModItems() );
 
@@ -336,7 +336,7 @@ public class LdifPartition extends BTreePartition<Long>
     public void move( MoveOperationContext moveContext ) throws Exception
     {
         DN oldDn = moveContext.getDn();
-        Long id = getEntryId( oldDn.getNormName() );
+        Long id = getEntryId( oldDn );
 
         wrappedPartition.move( moveContext );
 
@@ -354,7 +354,7 @@ public class LdifPartition extends BTreePartition<Long>
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws Exception
     {
         DN oldDn = moveAndRenameContext.getDn();
-        Long id = getEntryId( oldDn.getNormName() );
+        Long id = getEntryId( oldDn );
 
         wrappedPartition.moveAndRename( moveAndRenameContext );
 
@@ -373,7 +373,7 @@ public class LdifPartition extends BTreePartition<Long>
     public void rename( RenameOperationContext renameContext ) throws Exception
     {
         DN oldDn = renameContext.getDn();
-        Long id = getEntryId( oldDn.getNormName() );
+        Long id = getEntryId( oldDn );
 
         // Create the new entry 
         wrappedPartition.rename( renameContext );
@@ -807,7 +807,7 @@ public class LdifPartition extends BTreePartition<Long>
 
 
     @Override
-    public Long getEntryId( String dn ) throws Exception
+    public Long getEntryId( DN dn ) throws Exception
     {
         return wrappedPartition.getEntryId( dn );
     }
