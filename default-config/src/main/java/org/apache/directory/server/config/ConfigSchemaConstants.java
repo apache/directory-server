@@ -128,6 +128,8 @@ public interface ConfigSchemaConstants
     String ADS_JDBMINDEX = "ads-jdbmIndex";
 
     String ADS_INDEX_CACHESIZE = "ads-indexCacheSize";
+    
+    String ADS_INDEX_NUM_DUP_LIMIT = "ads-indexNumDupLimit";
 
     String ADS_TRANSPORT_ID = "ads-transportId";
 
