@@ -29,8 +29,8 @@
     <module>project</module>
     <module>shared</module>
     <module>daemon</module>
-    <module>apacheds</module>
     <module>ldap-client</module>
+    <module>apacheds</module>
     <module>installers</module>
     <!-- module>kerberos-client</module -->
   </modules>
