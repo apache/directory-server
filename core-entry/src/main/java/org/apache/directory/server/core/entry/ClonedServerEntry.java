@@ -413,7 +413,7 @@ public class ClonedServerEntry implements ServerEntry
         // Convert each attribute 
         for ( EntryAttribute clonedEntry:this )
         {
-            EntryAttribute clientAttribute = clonedEntry.toClientAttribute();
+            EntryAttribute clientAttribute = clonedEntry.clone();
             clientEntry.add( clientAttribute );
         }
         
@@ -775,7 +775,7 @@ public class ClonedServerEntry implements ServerEntry
             // Convert each attribute 
             for ( EntryAttribute serverAttribute:this )
             {
-                EntryAttribute clientAttribute = serverAttribute.toClientAttribute();
+                EntryAttribute clientAttribute = serverAttribute.clone();
                 clientEntry.add( clientAttribute );
             }
             

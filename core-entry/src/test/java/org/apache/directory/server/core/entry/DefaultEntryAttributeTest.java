@@ -2005,7 +2005,7 @@ public class DefaultEntryAttributeTest
     {
         EntryAttribute attribute = new DefaultEntryAttribute( atCN, "test", "test2" );
         
-        EntryAttribute clientAttribute = attribute.toClientAttribute();
+        EntryAttribute clientAttribute = attribute.clone();
         
         assertTrue( clientAttribute instanceof EntryAttribute );
         

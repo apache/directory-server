@@ -127,7 +127,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         
         for ( AttributeType attributeType:list )
         {
-            forward.addAttribute( addEntry.get( attributeType).toClientAttribute() );
+            forward.addAttribute( addEntry.get( attributeType).clone() );
         }
         
         LdifEntry reverse = LdifRevertor.reverseAdd( opContext.getDn() );
@@ -175,7 +175,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
             AttributeType at = schemaService.getSchemaManager().getAttributeTypeRegistry().lookup( attribute.getId() );
             if ( !at.isCollective() )
             {
-                reverseEntry.add( attribute.toClientAttribute() );
+                reverseEntry.add( attribute.clone() );
             }
         }
 
@@ -275,7 +275,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         
         for ( EntryAttribute attribute:serverEntry )
         {
-            clientEntry.add( attribute.toClientAttribute() );
+            clientEntry.add( attribute.clone() );
         }
 
         LdifEntry reverse = LdifRevertor.reverseModify( 

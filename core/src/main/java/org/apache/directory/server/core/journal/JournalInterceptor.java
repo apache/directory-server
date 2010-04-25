@@ -117,7 +117,7 @@ public class JournalInterceptor extends BaseInterceptor
             
             for ( AttributeType attributeType:list )
             {
-                ldif.addAttribute( addEntry.get( attributeType).toClientAttribute() );
+                ldif.addAttribute( addEntry.get( attributeType).clone() );
             }
             
             log( opRevision, ldif );
