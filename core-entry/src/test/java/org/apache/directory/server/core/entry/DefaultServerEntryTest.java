@@ -3821,7 +3821,7 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
         
-        assertEquals( "ServerEntry\n    dn[]: dc=example,dc=com\n", entry.toString() );
+        assertEquals( "Entry\n    dn: dc=example,dc=com\n", entry.toString() );
         
         Value<String> strValueTop = new StringValue( "top" );
         Value<String> strValuePerson = new StringValue( "person" );
@@ -3835,8 +3835,8 @@ public class DefaultServerEntryTest
         entry.put( "UserPassword", atPwd, binValue1, binValue2, binNullValue );
 
         String expected = 
-            "ServerEntry\n" +
-            "    dn[]: dc=example,dc=com\n" +
+            "Entry\n" +
+            "    dn: dc=example,dc=com\n" +
             "    ObjectClass: top\n" +
             "    ObjectClass: person\n" +
             "    ObjectClass: ''\n" +
