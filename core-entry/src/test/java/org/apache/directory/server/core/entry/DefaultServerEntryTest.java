@@ -2200,7 +2200,7 @@ public class DefaultServerEntryTest
             entry.put( "badAttr", (AttributeType)null, "test" );
             fail();
         }
-        catch ( LdapNoSuchAttributeException nsae )
+        catch ( IllegalArgumentException iae )
         {
             assertTrue( true );
         }
@@ -3016,16 +3016,7 @@ public class DefaultServerEntryTest
         assertNull( entry.get( atPassword ).get().get() );
         
         // Check that we can use a null AttributeType
-        try
-        {
-            entry.put( "userPassword", (AttributeType)null, (byte[])null );
-            fail();
-        }
-        catch ( IllegalArgumentException iae )
-        {
-            assertTrue( true );
-        }
-        
+        entry.put( "userPassword", (AttributeType)null, (byte[])null );
         assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPassword ).getUpId() );
         assertTrue( entry.containsAttribute( "userPassword" ) );
@@ -3097,15 +3088,7 @@ public class DefaultServerEntryTest
         assertNull( entry.get( atCN ).get().get() );
         
         // Check that we can use a null AttributeType
-        try
-        {
-            entry.put( "commonName", (AttributeType)null, (Value<?>)null );
-            fail();
-        }
-        catch( IllegalArgumentException iae )
-        {
-            assertTrue( true );
-        }
+        entry.put( "commonName", (AttributeType)null, (Value<?>)null );
 
         assertEquals( 1, entry.size() );
         assertEquals( "commonName", entry.get( atCN ).getUpId() );
