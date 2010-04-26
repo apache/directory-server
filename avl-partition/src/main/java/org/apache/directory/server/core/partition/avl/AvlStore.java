@@ -22,14 +22,8 @@ package org.apache.directory.server.core.partition.avl;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.i18n.I18n;
@@ -37,7 +31,6 @@ import org.apache.directory.server.xdbm.AbstractStore;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -46,7 +39,6 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -54,7 +46,6 @@ import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.slf4j.Logger;
@@ -82,45 +73,6 @@ public class AvlStore<E> extends AbstractStore<E, Long>
 
     /** the master table storing entries by primary key */
     private AvlMasterTable<ServerEntry> master;
-
-    /** the normalized distinguished name index */
-    private AvlIndex<String, E> ndnIdx;
-
-    /** the user provided distinguished name index */
-    private AvlIndex<String, E> updnIdx;
-
-    /** the attribute existence index */
-    private AvlIndex<String, E> existenceIdx;
-
-    /** a system index on aliasedObjectName attribute */
-    private AvlIndex<String, E> aliasIdx;
-
-    /** a system index on the entries of descendants of root DN*/
-    private AvlIndex<Long, E> subLevelIdx;
-
-    /** the parent child relationship index */
-    private AvlIndex<Long, E> oneLevelIdx;
-
-    /** the one level scope alias index */
-    private AvlIndex<Long, E> oneAliasIdx;
-
-    /** the subtree scope alias index */
-    private AvlIndex<Long, E> subAliasIdx;
-
-    /** a system index on objectClass attribute*/
-    private AvlIndex<String, E> objectClassIdx;
-
-    /** a system index on entryCSN attribute */
-    private AvlIndex<String, E> entryCsnIdx;
-
-    /** a system index on entryUUID attribute */
-    private AvlIndex<String, E> entryUuidIdx;
-
-    /** a map of attributeType numeric ID to user userIndices */
-    private Map<String, AvlIndex<? extends Object, E>> userIndices = new HashMap<String, AvlIndex<? extends Object, E>>();
-
-    /** a map of attributeType numeric ID to system userIndices */
-    private Map<String, AvlIndex<? extends Object, E>> systemIndices = new HashMap<String, AvlIndex<? extends Object, E>>();
 
 
     /**
@@ -246,27 +198,11 @@ public class AvlStore<E> extends AbstractStore<E, Long>
                 }
 
                 // Adds only those attributes that are indexed
-                existenceIdx.add( attributeOid, id );
+                presenceIdx.add( attributeOid, id );
             }
         }
 
         master.put( id, entry );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void addIndex( Index<? extends Object, E, Long> index ) throws Exception
-    {
-        if ( index instanceof AvlIndex<?, ?> )
-        {
-            userIndices.put( index.getAttributeId(), ( AvlIndex<? extends Object, E> ) index );
-        }
-        else
-        {
-            userIndices.put( index.getAttributeId(), ( AvlIndex<? extends Object, E> ) convert( index ) );
-        }
     }
 
 
@@ -332,7 +268,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
                     ( ( AvlIndex ) index ).drop( value.get(), id );
                 }
 
-                existenceIdx.drop( attributeOid, id );
+                presenceIdx.drop( attributeOid, id );
             }
         }
 
@@ -347,15 +283,6 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     {
         // don't reset initialized flag
         //initialized = false;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Index<String, E, Long> getAliasIndex()
-    {
-        return aliasIdx;
     }
 
 
@@ -408,33 +335,6 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     /**
      * {@inheritDoc}
      */
-    public Index<String, E, Long> getNdnIndex()
-    {
-        return ndnIdx;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Index<Long, E, Long> getOneAliasIndex()
-    {
-        return oneAliasIdx;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Index<Long, E, Long> getOneLevelIndex()
-    {
-        return oneLevelIdx;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public Long getParentId( String dn ) throws Exception
     {
         Long childId = ndnIdx.forwardLookup( dn );
@@ -454,157 +354,9 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     /**
      * {@inheritDoc}
      */
-    public Index<String, E, Long> getPresenceIndex()
-    {
-        return existenceIdx;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public String getProperty( String propertyName ) throws Exception
     {
         return master.getProperty( propertyName );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Index<Long, E, Long> getSubAliasIndex()
-    {
-        return subAliasIdx;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Index<Long, E, Long> getSubLevelIndex()
-    {
-        return subLevelIdx;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Index<?, E, Long> getSystemIndex( String id ) throws IndexNotFoundException
-    {
-        try
-        {
-            id = schemaManager.getAttributeTypeRegistry().getOidByName( id );
-        }
-        catch ( LdapException e )
-        {
-            LOG.error( I18n.err( I18n.ERR_1, id ), e.getLocalizedMessage() );
-            throw new IndexNotFoundException( I18n.err( I18n.ERR_1, id ), id, e );
-        }
-
-        if ( systemIndices.containsKey( id ) )
-        {
-            return systemIndices.get( id );
-        }
-
-        throw new IndexNotFoundException( I18n.err( I18n.ERR_2, id, id ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Index<?, E, Long> getIndex( String id ) throws IndexNotFoundException
-    {
-        try
-        {
-            id = schemaManager.getAttributeTypeRegistry().getOidByName( id );
-        }
-        catch ( LdapException e )
-        {
-            LOG.error( I18n.err( I18n.ERR_1, id ), e.getLocalizedMessage() );
-            throw new IndexNotFoundException( I18n.err( I18n.ERR_1, id ), id, e );
-        }
-
-        if ( userIndices.containsKey( id ) )
-        {
-            return userIndices.get( id );
-        }
-        if ( systemIndices.containsKey( id ) )
-        {
-            return systemIndices.get( id );
-        }
-
-        throw new IndexNotFoundException( I18n.err( I18n.ERR_2, id, id ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Index<String, E, Long> getUpdnIndex()
-    {
-        return updnIdx;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Index<? extends Object, E, Long> getUserIndex( String id ) throws IndexNotFoundException
-    {
-        try
-        {
-            id = schemaManager.getAttributeTypeRegistry().getOidByName( id );
-        }
-        catch ( LdapException e )
-        {
-            LOG.error( I18n.err( I18n.ERR_1, id ), e.getLocalizedMessage() );
-            throw new IndexNotFoundException( I18n.err( I18n.ERR_1, id ), id, e );
-        }
-
-        if ( userIndices.containsKey( id ) )
-        {
-            return userIndices.get( id );
-        }
-
-        throw new IndexNotFoundException( I18n.err( I18n.ERR_3, id, id ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Set<Index<? extends Object, E, Long>> getUserIndices()
-    {
-        return new HashSet<Index<? extends Object, E, Long>>( userIndices.values() );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean hasIndexOn( String id ) throws Exception
-    {
-        return hasUserIndexOn( id ) || hasSystemIndexOn( id );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean hasSystemIndexOn( String id ) throws Exception
-    {
-        return systemIndices.containsKey( id );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean hasUserIndexOn( String id ) throws Exception
-    {
-        return userIndices.containsKey( id );
     }
 
 
@@ -622,165 +374,14 @@ public class AvlStore<E> extends AbstractStore<E, Long>
         // Create the master table (the table containing all the entries)
         master = new AvlMasterTable<ServerEntry>( id, new LongComparator(), null, false );
 
-        suffixDn.normalize( schemaManager.getNormalizerMapping() );
         // -------------------------------------------------------------------
         // Initializes the user and system indices
         // -------------------------------------------------------------------
-
         setupSystemIndices();
         setupUserIndices();
 
         // We are done !
         initialized = true;
-    }
-
-
-    private void setupSystemIndices() throws Exception
-    {
-        // let's check and make sure the supplied indices are OK
-
-        if ( ndnIdx == null )
-        {
-            AttributeType attributeType = schemaManager
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_N_DN_AT_OID );
-            ndnIdx = new AvlIndex<String, E>();
-            ndnIdx.setAttributeId( ApacheSchemaConstants.APACHE_N_DN_AT_OID );
-            ndnIdx.initialize( attributeType );
-            systemIndices.put( ApacheSchemaConstants.APACHE_N_DN_AT_OID, ndnIdx );
-        }
-
-        if ( updnIdx == null )
-        {
-            AttributeType attributeType = schemaManager
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_UP_DN_AT_OID );
-            updnIdx = new AvlIndex<String, E>();
-            updnIdx.setAttributeId( ApacheSchemaConstants.APACHE_UP_DN_AT_OID );
-            updnIdx.initialize( attributeType );
-            systemIndices.put( ApacheSchemaConstants.APACHE_UP_DN_AT_OID, updnIdx );
-        }
-
-        if ( existenceIdx == null )
-        {
-            AttributeType attributeType = schemaManager
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID );
-            existenceIdx = new AvlIndex<String, E>();
-            existenceIdx.setAttributeId( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID );
-            existenceIdx.initialize( attributeType );
-            systemIndices.put( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID, existenceIdx );
-        }
-
-        if ( oneLevelIdx == null )
-        {
-            AttributeType attributeType = schemaManager
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
-            oneLevelIdx = new AvlIndex<Long, E>();
-            oneLevelIdx.setAttributeId( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
-            oneLevelIdx.initialize( attributeType );
-            systemIndices.put( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID, oneLevelIdx );
-        }
-
-        if ( oneAliasIdx == null )
-        {
-            AttributeType attributeType = schemaManager
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
-            oneAliasIdx = new AvlIndex<Long, E>();
-            oneAliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
-            oneAliasIdx.initialize( attributeType );
-            systemIndices.put( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, oneAliasIdx );
-        }
-
-        if ( subAliasIdx == null )
-        {
-            AttributeType attributeType = schemaManager
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
-            subAliasIdx = new AvlIndex<Long, E>();
-            subAliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
-            subAliasIdx.initialize( attributeType );
-            systemIndices.put( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, subAliasIdx );
-        }
-
-        if ( aliasIdx == null )
-        {
-            AttributeType attributeType = schemaManager
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
-            aliasIdx = new AvlIndex<String, E>();
-            aliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
-            aliasIdx.initialize( attributeType );
-            systemIndices.put( ApacheSchemaConstants.APACHE_ALIAS_AT_OID, aliasIdx );
-        }
-
-        if ( subLevelIdx == null )
-        {
-            AttributeType attributeType = schemaManager
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
-            subLevelIdx = new AvlIndex<Long, E>();
-            subLevelIdx.setAttributeId( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
-            subLevelIdx.initialize( attributeType );
-            systemIndices.put( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID, subLevelIdx );
-        }
-
-        if ( entryCsnIdx == null )
-        {
-            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT_OID );
-            entryCsnIdx = new AvlIndex<String, E>();
-            entryCsnIdx.setAttributeId( SchemaConstants.ENTRY_CSN_AT_OID );
-            entryCsnIdx.initialize( attributeType );
-            systemIndices.put( SchemaConstants.ENTRY_CSN_AT_OID, entryCsnIdx );
-        }
-
-        if ( entryUuidIdx == null )
-        {
-            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_UUID_AT_OID );
-            entryUuidIdx = new AvlIndex<String, E>();
-            entryUuidIdx.setAttributeId( SchemaConstants.ENTRY_UUID_AT_OID );
-            entryUuidIdx.initialize( attributeType );
-            systemIndices.put( SchemaConstants.ENTRY_UUID_AT_OID, entryUuidIdx );
-        }
-
-        if ( objectClassIdx == null )
-        {
-            AttributeType attributeType = schemaManager
-                .lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT_OID );
-            objectClassIdx = new AvlIndex<String, E>();
-            objectClassIdx.setAttributeId( SchemaConstants.OBJECT_CLASS_AT_OID );
-            objectClassIdx.initialize( attributeType );
-            systemIndices.put( SchemaConstants.OBJECT_CLASS_AT_OID, objectClassIdx );
-        }
-
-    }
-
-
-    private void setupUserIndices() throws Exception
-    {
-        if ( userIndices != null && userIndices.size() > 0 )
-        {
-            Map<String, AvlIndex<? extends Object, E>> tmp = new HashMap<String, AvlIndex<? extends Object, E>>();
-
-            for ( AvlIndex<? extends Object, E> index : userIndices.values() )
-            {
-                String oid = schemaManager.getAttributeTypeRegistry().getOidByName( index.getAttributeId() );
-                AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
-
-                // Check that the attributeType has an EQUALITY matchingRule
-                MatchingRule mr = attributeType.getEquality();
-
-                if ( mr != null )
-                {
-                    index.initialize( schemaManager.lookupAttributeTypeRegistry( oid ) );
-                    tmp.put( oid, index );
-                }
-                else
-                {
-                    LOG.error( I18n.err( I18n.ERR_4, attributeType.getName() ) );
-                }
-            }
-
-            userIndices = tmp;
-        }
-        else
-        {
-            userIndices = new HashMap<String, AvlIndex<? extends Object, E>>();
-        }
     }
 
 
@@ -923,9 +524,9 @@ public class AvlStore<E> extends AbstractStore<E, Long>
             }
 
             // If the attr didn't exist for this id add it to existence index
-            if ( !existenceIdx.forward( modsOid, id ) )
+            if ( !presenceIdx.forward( modsOid, id ) )
             {
-                existenceIdx.add( modsOid, id );
+                presenceIdx.add( modsOid, id );
             }
         }
 
@@ -991,7 +592,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
              */
             if ( null == index.reverseLookup( id ) )
             {
-                existenceIdx.drop( modsOid, id );
+                presenceIdx.drop( modsOid, id );
             }
         }
 
@@ -1095,7 +696,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
              */
             if ( null == index.reverseLookup( id ) )
             {
-                existenceIdx.drop( modsOid, id );
+                presenceIdx.drop( modsOid, id );
             }
         }
 
@@ -1328,9 +929,9 @@ public class AvlStore<E> extends AbstractStore<E, Long>
                 ( ( Index ) index ).add( newNormValue, id );
 
                 // Make sure the altered entry shows the existence of the new attrib
-                if ( !existenceIdx.forward( newNormType, id ) )
+                if ( !presenceIdx.forward( newNormType, id ) )
                 {
-                    existenceIdx.add( newNormType, id );
+                    presenceIdx.add( newNormType, id );
                 }
             }
         }
@@ -1387,7 +988,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
                          */
                         if ( null == index.reverseLookup( id ) )
                         {
-                            existenceIdx.drop( oldNormType, id );
+                            presenceIdx.drop( oldNormType, id );
                         }
                     }
                 }
@@ -1423,214 +1024,30 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     /**
      * {@inheritDoc}
      */
-    public void setAliasIndex( Index<String, E, Long> index ) throws Exception
-    {
-        protect( "aliasIndex" );
-        if ( index instanceof AvlIndex<?, ?> )
-        {
-            this.aliasIdx = ( AvlIndex<String, E> ) index;
-        }
-        else
-        {
-            this.aliasIdx = ( AvlIndex<String, E> ) convert( index );
-        }
-
-        // FIXME is this attribute ID or its OID
-        systemIndices.put( index.getAttributeId(), aliasIdx );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setNdnIndex( Index<String, E, Long> index ) throws Exception
-    {
-        protect( "ndnIndex" );
-        if ( index instanceof AvlIndex<?, ?> )
-        {
-            this.ndnIdx = ( AvlIndex<String, E> ) index;
-        }
-        else
-        {
-            this.ndnIdx = ( AvlIndex<String, E> ) convert( index );
-        }
-
-        systemIndices.put( index.getAttributeId(), ndnIdx );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setOneAliasIndex( Index<Long, E, Long> index ) throws Exception
-    {
-        protect( "oneAliasIndex" );
-        if ( index instanceof AvlIndex<?, ?> )
-        {
-            this.oneAliasIdx = ( AvlIndex<Long, E> ) index;
-        }
-        else
-        {
-            this.oneAliasIdx = ( AvlIndex<Long, E> ) convert( index );
-        }
-
-        systemIndices.put( index.getAttributeId(), oneAliasIdx );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setOneLevelIndex( Index<Long, E, Long> index ) throws Exception
-    {
-        protect( "oneLevelIndex" );
-        if ( index instanceof AvlIndex<?, ?> )
-        {
-            this.oneLevelIdx = ( AvlIndex<Long, E> ) index;
-        }
-        else
-        {
-            this.oneLevelIdx = ( AvlIndex<Long, E> ) convert( index );
-        }
-
-        systemIndices.put( index.getAttributeId(), oneLevelIdx );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setPresenceIndex( Index<String, E, Long> index ) throws Exception
-    {
-        protect( "presenceIndex" );
-        if ( index instanceof AvlIndex<?, ?> )
-        {
-            this.existenceIdx = ( AvlIndex<String, E> ) index;
-        }
-        else
-        {
-            this.existenceIdx = ( AvlIndex<String, E> ) convert( index );
-        }
-
-        systemIndices.put( index.getAttributeId(), existenceIdx );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public void setProperty( String propertyName, String propertyValue ) throws Exception
     {
         master.setProperty( propertyName, propertyValue );
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
-    public void setSubAliasIndex( Index<Long, E, Long> index ) throws Exception
+    @Override
+    protected Index<?, E, Long> convertAndInit( Index<?, E, Long> index ) throws Exception
     {
-        protect( "subAliasIndex" );
+        AvlIndex<?, E> avlIndex;
         if ( index instanceof AvlIndex<?, ?> )
         {
-            this.subAliasIdx = ( AvlIndex<Long, E> ) index;
+            avlIndex = ( AvlIndex<?, E> ) index;
         }
         else
         {
-            this.subAliasIdx = ( AvlIndex<Long, E> ) convert( index );
+            LOG.warn( "Supplied index {} is not a JdbmIndex.  "
+                + "Will create new JdbmIndex using copied configuration parameters.", index );
+            avlIndex = new AvlIndex( index.getAttributeId() );
         }
 
-        systemIndices.put( index.getAttributeId(), subAliasIdx );
-    }
+        avlIndex.initialize( schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() ) );
 
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setSubLevelIndex( Index<Long, E, Long> index ) throws Exception
-    {
-        protect( "subLevelIndex" );
-        if ( index instanceof AvlIndex<?, ?> )
-        {
-            this.subLevelIdx = ( AvlIndex<Long, E> ) index;
-        }
-        else
-        {
-            this.subLevelIdx = ( AvlIndex<Long, E> ) convert( index );
-        }
-
-        systemIndices.put( index.getAttributeId(), subLevelIdx );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setUpdnIndex( Index<String, E, Long> index ) throws Exception
-    {
-        protect( "updnIndex" );
-        if ( index instanceof AvlIndex<?, ?> )
-        {
-            this.updnIdx = ( AvlIndex<String, E> ) index;
-        }
-        else
-        {
-            this.updnIdx = ( AvlIndex<String, E> ) convert( index );
-        }
-
-        systemIndices.put( index.getAttributeId(), updnIdx );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setUserIndices( Set<Index<? extends Object, E, Long>> userIndices )
-    {
-        protect( "setUserIndices" );
-
-        for ( Index<? extends Object, E, Long> index : userIndices )
-        {
-            if ( index instanceof AvlIndex<?, ?> )
-            {
-                this.userIndices.put( index.getAttributeId(), ( AvlIndex<? extends Object, E> ) index );
-                continue;
-            }
-
-            LOG.warn( "Supplied index {} is not a AvlIndex.  "
-                + "Will create new AvlIndex using copied configuration parameters.", index );
-
-            AvlIndex<Object, E> avlIndex = ( AvlIndex<Object, E> ) convert( index );
-
-            this.userIndices.put( index.getAttributeId(), avlIndex );
-        }
-    }
-
-
-    private <K> AvlIndex<K, E> convert( Index<K, E, Long> index )
-    {
-        AvlIndex<K, E> avlIndex = new AvlIndex<K, E>();
-        avlIndex.setAttributeId( index.getAttributeId() );
         return avlIndex;
-    }
-
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Iterator<String> systemIndices()
-    {
-        return systemIndices.keySet().iterator();
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Iterator<String> userIndices()
-    {
-        return userIndices.keySet().iterator();
     }
 
 
@@ -1966,49 +1383,18 @@ public class AvlStore<E> extends AbstractStore<E, Long>
 
 
     /**
-     * always returns 0 (zero), cause this is a inmemory store
+     * Always returns 0 (zero), cause this is a in-memory store
      */
+    @Override
     public int getCacheSize()
     {
         return 0;
     }
 
 
-    public Index<String, E, Long> getEntryCsnIndex()
-    {
-        return entryCsnIdx;
-    }
-
-
-    public Index<String, E, Long> getEntryUuidIndex()
-    {
-        return entryUuidIdx;
-    }
-
-
-    public Index<String, E, Long> getObjectClassIndex()
-    {
-        return objectClassIdx;
-    }
-
-
-    public void setEntryCsnIndex( Index<String, E, Long> index ) throws Exception
-    {
-        protect( "entryCsnIndex" );
-
-        if ( index instanceof AvlIndex<?, ?> )
-        {
-            this.entryCsnIdx = ( AvlIndex<String, E> ) index;
-        }
-        else
-        {
-            this.entryCsnIdx = ( AvlIndex<String, E> ) convert( index );
-        }
-
-        systemIndices.put( index.getAttributeId(), entryCsnIdx );
-    }
-
-
+    /**
+     * always returns null, cause this is a in-memory store
+     */
     @Override
     public File getPartitionDir()
     {
@@ -2017,42 +1403,13 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     }
 
 
+    /**
+     * always returns false, cause this is a in-memory store
+     */
+    @Override
     public boolean isSyncOnWrite()
     {
         return false;
-    }
-
-
-    public void setObjectClassIndex( Index<String, E, Long> index )
-    {
-        protect( "objectClassIndex" );
-
-        if ( index instanceof AvlIndex<?, ?> )
-        {
-            this.objectClassIdx = ( AvlIndex<String, E> ) index;
-        }
-        else
-        {
-            objectClassIdx = convert( index );
-        }
-
-        systemIndices.put( index.getAttributeId(), objectClassIdx );
-    }
-
-
-    public void setEntryUuidIndex( Index<String, E, Long> index )
-    {
-        protect( "entryUuidIndex" );
-        if ( index instanceof AvlIndex<?, ?> )
-        {
-            this.entryUuidIdx = ( AvlIndex<String, E> ) index;
-        }
-        else
-        {
-            entryUuidIdx = convert( index );
-        }
-
-        systemIndices.put( index.getAttributeId(), entryUuidIdx );
     }
 
 

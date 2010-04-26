@@ -961,41 +961,6 @@ public class LdifPartition extends BTreePartition<Long>
 
 
     @Override
-    public void setAliasIndexOn( Index<String, ServerEntry, Long> index ) throws Exception
-    {
-        wrappedPartition.setAliasIndexOn( index );
-    }
-
-
-    @Override
-    public void setNdnIndexOn( Index<String, ServerEntry, Long> index ) throws Exception
-    {
-        wrappedPartition.setNdnIndexOn( index );
-    }
-
-
-    @Override
-    public void setOneAliasIndexOn( Index<Long, ServerEntry, Long> index ) throws Exception
-    {
-        wrappedPartition.setOneAliasIndexOn( index );
-    }
-
-
-    @Override
-    public void setOneLevelIndexOn( Index<Long, ServerEntry, Long> index ) throws Exception
-    {
-        wrappedPartition.setOneLevelIndexOn( index );
-    }
-
-
-    @Override
-    public void setPresenceIndexOn( Index<String, ServerEntry, Long> index ) throws Exception
-    {
-        wrappedPartition.setPresenceIndexOn( index );
-    }
-
-
-    @Override
     public void setProperty( String propertyName, String propertyValue ) throws Exception
     {
         wrappedPartition.setProperty( propertyName, propertyValue );
@@ -1006,20 +971,6 @@ public class LdifPartition extends BTreePartition<Long>
     public void setSchemaManager( SchemaManager schemaManager )
     {
         super.setSchemaManager( schemaManager );
-    }
-
-
-    @Override
-    public void setSubAliasIndexOn( Index<Long, ServerEntry, Long> index ) throws Exception
-    {
-        wrappedPartition.setSubAliasIndexOn( index );
-    }
-
-
-    @Override
-    public void setUpdnIndexOn( Index<String, ServerEntry, Long> index ) throws Exception
-    {
-        wrappedPartition.setUpdnIndexOn( index );
     }
 
 

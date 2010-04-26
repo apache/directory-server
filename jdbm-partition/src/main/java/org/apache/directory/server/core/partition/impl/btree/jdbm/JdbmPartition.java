@@ -20,19 +20,14 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.AbstractXdbmPartition;
+import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.search.impl.CursorBuilder;
 import org.apache.directory.server.xdbm.search.impl.DefaultOptimizer;
 import org.apache.directory.server.xdbm.search.impl.DefaultSearchEngine;
 import org.apache.directory.server.xdbm.search.impl.EvaluatorBuilder;
 import org.apache.directory.server.xdbm.search.impl.NoOpOptimizer;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 
 
@@ -57,7 +52,6 @@ public class JdbmPartition extends AbstractXdbmPartition<Long>
     }
 
 
-    @SuppressWarnings("unchecked")
     protected void doInit() throws Exception
     {
         store.setPartitionDir( getPartitionDir() );
@@ -86,79 +80,14 @@ public class JdbmPartition extends AbstractXdbmPartition<Long>
         store.setSuffixDn( suffixDn );
         store.setPartitionDir( getPartitionDir() );
 
-        Set<Index<?, ServerEntry, Long>> userIndices = new HashSet<Index<?, ServerEntry, Long>>();
-
-        for ( Index<?, ServerEntry, Long> obj : getIndexedAttributes() )
+        for ( Index<?, ServerEntry, Long> index : getIndexedAttributes() )
         {
-            Index<?, ServerEntry, Long> index;
-
-            if ( obj instanceof JdbmIndex<?, ?> )
-            {
-                index = ( JdbmIndex<?, ServerEntry> ) obj;
-            }
-            else
-            {
-                index = new JdbmIndex<Object, ServerEntry>();
-                index.setAttributeId( obj.getAttributeId() );
-                index.setCacheSize( obj.getCacheSize() );
-                index.setWkDirPath( obj.getWkDirPath() );
-            }
-
             String oid = schemaManager.getAttributeTypeRegistry().getOidByName( index.getAttributeId() );
-
-            if ( SYS_INDEX_OIDS.contains( oid ) )
+            if ( !index.getAttributeId().equals( oid ) )
             {
-                if ( oid.equals( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) )
-                {
-                    store.setAliasIndex( ( Index<String, ServerEntry, Long> ) index );
-                }
-                else if ( oid.equals( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ) )
-                {
-                    store.setPresenceIndex( ( Index<String, ServerEntry, Long> ) index );
-                }
-                else if ( oid.equals( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) )
-                {
-                    store.setOneLevelIndex( ( Index<Long, ServerEntry, Long> ) index );
-                }
-                else if ( oid.equals( ApacheSchemaConstants.APACHE_N_DN_AT_OID ) )
-                {
-                    store.setNdnIndex( ( Index<String, ServerEntry, Long> ) index );
-                }
-                else if ( oid.equals( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) )
-                {
-                    store.setOneAliasIndex( ( Index<Long, ServerEntry, Long> ) index );
-                }
-                else if ( oid.equals( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) )
-                {
-                    store.setSubAliasIndex( ( Index<Long, ServerEntry, Long> ) index );
-                }
-                else if ( oid.equals( ApacheSchemaConstants.APACHE_UP_DN_AT_OID ) )
-                {
-                    store.setUpdnIndex( ( Index<String, ServerEntry, Long> ) index );
-                }
-                else if ( oid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
-                {
-                    store.setObjectClassIndex( ( Index<String, ServerEntry, Long> ) index );
-                }
-                else if ( oid.equals( SchemaConstants.ENTRY_CSN_AT_OID ) )
-                {
-                    store.setEntryCsnIndex( ( Index<String, ServerEntry, Long> ) index );
-                }
-                else if ( oid.equals( SchemaConstants.ENTRY_UUID_AT_OID ) )
-                {
-                    store.setEntryUuidIndex( ( Index<String, ServerEntry, Long> ) index );
-                }
-                else
-                {
-                    throw new IllegalStateException( "Unrecognized system index " + oid );
-                }
+                index.setAttributeId( oid );
             }
-            else
-            {
-                userIndices.add( index );
-            }
-
-            store.setUserIndices( userIndices );
+            store.addIndex( index );
         }
 
         store.init( schemaManager );

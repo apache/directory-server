@@ -44,6 +44,7 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.normalization.FilterNormalizingVisitor;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -56,12 +57,14 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -396,6 +399,9 @@ public class LdifPartitionTest
         dn.normalize( schemaManager.getNormalizerMapping() );
         searchCtx.setDn( dn );
         ExprNode filter = FilterParser.parse( "(ObjectClass=domain)" );
+        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
+        FilterNormalizingVisitor visitor = new FilterNormalizingVisitor( ncn, schemaManager );
+        filter.accept( visitor );
         searchCtx.setFilter( filter );
         searchCtx.setScope( SearchScope.SUBTREE );
         

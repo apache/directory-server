@@ -24,15 +24,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.AbstractXdbmPartition;
+import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.search.impl.CursorBuilder;
 import org.apache.directory.server.xdbm.search.impl.DefaultOptimizer;
 import org.apache.directory.server.xdbm.search.impl.DefaultSearchEngine;
 import org.apache.directory.server.xdbm.search.impl.EvaluatorBuilder;
 import org.apache.directory.server.xdbm.search.impl.NoOpOptimizer;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
 
@@ -92,68 +90,14 @@ public class AvlPartition extends AbstractXdbmPartition<Long>
 
         Set<Index<?, ServerEntry, Long>> userIndices = new HashSet<Index<?, ServerEntry, Long>>();
 
-        for ( AvlIndex<?, ServerEntry> obj : indexedAttributes )
+        for ( AvlIndex<?, ServerEntry> index : indexedAttributes )
         {
-            AvlIndex<?, ServerEntry> index;
-
-            if ( obj instanceof AvlIndex<?, ?> )
-            {
-                index = ( AvlIndex<?, ServerEntry> ) obj;
-            }
-            else
-            {
-                index = new AvlIndex<Object, ServerEntry>();
-                index.setAttributeId( obj.getAttributeId() );
-            }
-
             String oid = schemaManager.getAttributeTypeRegistry().getOidByName( index.getAttributeId() );
-
-            if ( SYS_INDEX_OIDS.contains( schemaManager.getAttributeTypeRegistry()
-                .getOidByName( index.getAttributeId() ) ) )
+            if(!index.getAttributeId().equals( oid ))
             {
-                if ( oid.equals( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) )
-                {
-                    store.setAliasIndex( ( Index<String, ServerEntry, Long> ) index );
-                }
-                else if ( oid.equals( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ) )
-                {
-                    store.setPresenceIndex( ( Index<String, ServerEntry, Long> ) index );
-                }
-                else if ( oid.equals( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) )
-                {
-                    store.setOneLevelIndex( ( Index<Long, ServerEntry, Long> ) index );
-                }
-                else if ( oid.equals( ApacheSchemaConstants.APACHE_N_DN_AT_OID ) )
-                {
-                    store.setNdnIndex( ( Index<String, ServerEntry, Long> ) index );
-                }
-                else if ( oid.equals( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) )
-                {
-                    store.setOneAliasIndex( ( Index<Long, ServerEntry, Long> ) index );
-                }
-                else if ( oid.equals( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) )
-                {
-                    store.setSubAliasIndex( ( Index<Long, ServerEntry, Long> ) index );
-                }
-                else if ( oid.equals( ApacheSchemaConstants.APACHE_UP_DN_AT_OID ) )
-                {
-                    store.setUpdnIndex( ( Index<String, ServerEntry, Long> ) index );
-                }
-                else if ( oid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
-                {
-                    store.addIndex( ( Index<String, ServerEntry, Long> ) index );
-                }
-                else
-                {
-                    throw new IllegalStateException( "Unrecognized system index " + oid );
-                }
+                index.setAttributeId( oid );
             }
-            else
-            {
-                userIndices.add( index );
-            }
-
-            store.setUserIndices( userIndices );
+            store.addIndex( index );
         }
 
         store.init( schemaManager );

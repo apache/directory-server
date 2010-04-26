@@ -30,10 +30,8 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import javax.naming.directory.Attributes;
@@ -47,8 +45,8 @@ import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.Cursor;
-import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -156,21 +154,21 @@ public class AvlStoreTest
         store.setSyncOnWrite( true ); // for code coverage
 
         assertNull( store.getAliasIndex() );
-        store.setAliasIndex( new AvlIndex<String, Attributes>( "alias" ) );
+        store.addIndex( new AvlIndex<String, Attributes>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
         assertNotNull( store.getAliasIndex() );
 
         assertEquals( 0, store.getCacheSize() );
 
         assertNull( store.getPresenceIndex() );
-        store.setPresenceIndex( new AvlIndex<String, Attributes>( "existence" ) );
+        store.addIndex( new AvlIndex<String, Attributes>( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ) );
         assertNotNull( store.getPresenceIndex() );
 
         assertNull( store.getOneLevelIndex() );
-        store.setOneLevelIndex( new AvlIndex<Long, Attributes>( "hierarchy" ) );
+        store.addIndex( new AvlIndex<Long, Attributes>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
         assertNotNull( store.getOneLevelIndex() );
 
         assertNull( store.getSubLevelIndex() );
-        store.setSubLevelIndex( new AvlIndex<Long, Attributes>( "sublevel" ) );
+        store.addIndex( new AvlIndex<Long, Attributes>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) );
         assertNotNull( store.getSubLevelIndex() );
 
         assertNull( store.getId() );
@@ -178,15 +176,15 @@ public class AvlStoreTest
         assertEquals( "foo", store.getId() );
 
         assertNull( store.getNdnIndex() );
-        store.setNdnIndex( new AvlIndex<String, Attributes>( "ndn" ) );
+        store.addIndex( new AvlIndex<String, Attributes>( ApacheSchemaConstants.APACHE_N_DN_AT_OID ) );
         assertNotNull( store.getNdnIndex() );
 
         assertNull( store.getOneAliasIndex() );
-        store.setOneAliasIndex( new AvlIndex<Long, Attributes>( "oneAlias" ) );
+        store.addIndex( new AvlIndex<Long, Attributes>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
         assertNotNull( store.getNdnIndex() );
 
         assertNull( store.getSubAliasIndex() );
-        store.setSubAliasIndex( new AvlIndex<Long, Attributes>( "subAlias" ) );
+        store.addIndex( new AvlIndex<Long, Attributes>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
         assertNotNull( store.getSubAliasIndex() );
 
         assertNull( store.getSuffixDn() );
@@ -194,16 +192,14 @@ public class AvlStoreTest
         assertEquals( "dc=example,dc=com", store.getSuffixDn().getName() );
 
         assertNull( store.getUpdnIndex() );
-        store.setUpdnIndex( new AvlIndex<String, Attributes>( "updn" ) );
+        store.addIndex( new AvlIndex<String, Attributes>( ApacheSchemaConstants.APACHE_UP_DN_AT_OID ) );
         assertNotNull( store.getUpdnIndex() );
 
         assertNotNull( store.getSuffixDn() );
 
         assertEquals( 0, store.getUserIndices().size() );
-        Set<Index<?, Attributes, Long>> set = new HashSet<Index<?, Attributes, Long>>();
-        set.add( new AvlIndex<Object, Attributes>( "foo" ) );
-        store.setUserIndices( set );
-        assertEquals( set.size(), store.getUserIndices().size() );
+        store.addIndex( new AvlIndex<Object, Attributes>( "1.2.3.4" ) );
+        assertEquals( 1, store.getUserIndices().size() );
 
         assertNull( store.getPartitionDir() );
         store.setPartitionDir( new File( "." ) );
@@ -225,7 +221,7 @@ public class AvlStoreTest
         assertNotNull( store.getAliasIndex() );
         try
         {
-            store.setAliasIndex( new AvlIndex<String, ServerEntry>( "alias" ) );
+            store.addIndex( new AvlIndex<String, ServerEntry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -237,7 +233,7 @@ public class AvlStoreTest
         assertNotNull( store.getPresenceIndex() );
         try
         {
-            store.setPresenceIndex( new AvlIndex<String, ServerEntry>( "existence" ) );
+            store.addIndex( new AvlIndex<String, ServerEntry>( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -247,7 +243,7 @@ public class AvlStoreTest
         assertNotNull( store.getOneLevelIndex() );
         try
         {
-            store.setOneLevelIndex( new AvlIndex<Long, ServerEntry>( "hierarchy" ) );
+            store.addIndex( new AvlIndex<Long, ServerEntry>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -257,7 +253,7 @@ public class AvlStoreTest
         assertNotNull( store.getSubLevelIndex() );
         try
         {
-            store.setSubLevelIndex( new AvlIndex<Long, ServerEntry>( "sublevel" ) );
+            store.addIndex( new AvlIndex<Long, ServerEntry>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -277,7 +273,7 @@ public class AvlStoreTest
         assertNotNull( store.getNdnIndex() );
         try
         {
-            store.setNdnIndex( new AvlIndex<String, ServerEntry>( "ndn" ) );
+            store.addIndex( new AvlIndex<String, ServerEntry>( ApacheSchemaConstants.APACHE_N_DN_AT_OID ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -287,7 +283,7 @@ public class AvlStoreTest
         assertNotNull( store.getOneAliasIndex() );
         try
         {
-            store.setOneAliasIndex( new AvlIndex<Long, ServerEntry>( "oneAlias" ) );
+            store.addIndex( new AvlIndex<Long, ServerEntry>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -297,7 +293,7 @@ public class AvlStoreTest
         assertNotNull( store.getSubAliasIndex() );
         try
         {
-            store.setSubAliasIndex( new AvlIndex<Long, ServerEntry>( "subAlias" ) );
+            store.addIndex( new AvlIndex<Long, ServerEntry>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -317,7 +313,7 @@ public class AvlStoreTest
         assertNotNull( store.getUpdnIndex() );
         try
         {
-            store.setUpdnIndex( new AvlIndex<String, ServerEntry>( "updn" ) );
+            store.addIndex( new AvlIndex<String, ServerEntry>( ApacheSchemaConstants.APACHE_UP_DN_AT_OID ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -565,7 +561,7 @@ public class AvlStoreTest
     {
         Index nonAvlIndex = new GenericIndex( "ou", 10, new File( "." ) );
 
-        Method convertIndex = store.getClass().getDeclaredMethod( "convert", Index.class );
+        Method convertIndex = store.getClass().getDeclaredMethod( "convertAndInit", Index.class );
         convertIndex.setAccessible( true );
         Object obj = convertIndex.invoke( store, nonAvlIndex );
 

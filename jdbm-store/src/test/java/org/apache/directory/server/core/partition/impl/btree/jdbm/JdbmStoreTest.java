@@ -30,10 +30,8 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import javax.naming.directory.Attributes;
@@ -48,8 +46,8 @@ import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.Cursor;
-import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -214,7 +212,7 @@ public class JdbmStoreTest
         store.setSyncOnWrite( true ); // for code coverage
 
         assertNull( store.getAliasIndex() );
-        store.setAliasIndex( new JdbmIndex<String, Attributes>( "alias" ) );
+        store.addIndex( new JdbmIndex<String, Attributes>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
         assertNotNull( store.getAliasIndex() );
 
         assertEquals( JdbmStore.DEFAULT_CACHE_SIZE, store.getCacheSize() );
@@ -222,15 +220,15 @@ public class JdbmStoreTest
         assertEquals( 24, store.getCacheSize() );
 
         assertNull( store.getPresenceIndex() );
-        store.setPresenceIndex( new JdbmIndex<String, Attributes>( "existence" ) );
+        store.addIndex( new JdbmIndex<String, Attributes>( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ) );
         assertNotNull( store.getPresenceIndex() );
 
         assertNull( store.getOneLevelIndex() );
-        store.setOneLevelIndex( new JdbmIndex<Long, Attributes>( "hierarchy" ) );
+        store.addIndex( new JdbmIndex<Long, Attributes>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
         assertNotNull( store.getOneLevelIndex() );
 
         assertNull( store.getSubLevelIndex() );
-        store.setSubLevelIndex( new JdbmIndex<Long, Attributes>( "sublevel" ) );
+        store.addIndex( new JdbmIndex<Long, Attributes>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) );
         assertNotNull( store.getSubLevelIndex() );
 
         assertNull( store.getId() );
@@ -242,11 +240,11 @@ public class JdbmStoreTest
 //        assertNotNull( store.getNdnIndex() );
 
         assertNull( store.getOneAliasIndex() );
-        store.setOneAliasIndex( new JdbmIndex<Long, Attributes>( "oneAlias" ) );
+        store.addIndex( new JdbmIndex<Long, Attributes>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
         assertNotNull( store.getOneAliasIndex() );
 
         assertNull( store.getSubAliasIndex() );
-        store.setSubAliasIndex( new JdbmIndex<Long, Attributes>( "subAlias" ) );
+        store.addIndex( new JdbmIndex<Long, Attributes>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
         assertNotNull( store.getSubAliasIndex() );
 
         assertNull( store.getSuffixDn() );
@@ -256,10 +254,8 @@ public class JdbmStoreTest
         assertNotNull( store.getSuffixDn() );
 
         assertEquals( 0, store.getUserIndices().size() );
-        Set<Index<?, Attributes, Long>> set = new HashSet<Index<?, Attributes, Long>>();
-        set.add( new JdbmIndex<Object, Attributes>( "foo" ) );
-        store.setUserIndices( set );
-        assertEquals( set.size(), store.getUserIndices().size() );
+        store.addIndex( new JdbmIndex<Object, Attributes>( "1.2.3.4" ) );
+        assertEquals( 1, store.getUserIndices().size() );
 
         assertNull( store.getPartitionDir() );
         store.setPartitionDir( new File( "." ) );
@@ -281,7 +277,7 @@ public class JdbmStoreTest
         assertNotNull( store.getAliasIndex() );
         try
         {
-            store.setAliasIndex( new JdbmIndex<String, ServerEntry>( "alias" ) );
+            store.addIndex( new JdbmIndex<String, ServerEntry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -300,7 +296,7 @@ public class JdbmStoreTest
         assertNotNull( store.getPresenceIndex() );
         try
         {
-            store.setPresenceIndex( new JdbmIndex<String, ServerEntry>( "existence" ) );
+            store.addIndex( new JdbmIndex<String, ServerEntry>( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -310,7 +306,7 @@ public class JdbmStoreTest
         assertNotNull( store.getOneLevelIndex() );
         try
         {
-            store.setOneLevelIndex( new JdbmIndex<Long, ServerEntry>( "hierarchy" ) );
+            store.addIndex( new JdbmIndex<Long, ServerEntry>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -320,7 +316,7 @@ public class JdbmStoreTest
         assertNotNull( store.getSubLevelIndex() );
         try
         {
-            store.setSubLevelIndex( new JdbmIndex<Long, ServerEntry>( "sublevel" ) );
+            store.addIndex( new JdbmIndex<Long, ServerEntry>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -342,7 +338,7 @@ public class JdbmStoreTest
         assertNotNull( store.getOneAliasIndex() );
         try
         {
-            store.setOneAliasIndex( new JdbmIndex<Long, ServerEntry>( "oneAlias" ) );
+            store.addIndex( new JdbmIndex<Long, ServerEntry>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -352,7 +348,7 @@ public class JdbmStoreTest
         assertNotNull( store.getSubAliasIndex() );
         try
         {
-            store.setSubAliasIndex( new JdbmIndex<Long, ServerEntry>( "subAlias" ) );
+            store.addIndex( new JdbmIndex<Long, ServerEntry>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -369,9 +365,10 @@ public class JdbmStoreTest
         {
         }
 
+        
         Iterator<String> systemIndices = store.systemIndices();
 
-        for ( int ii = 0; ii < 10; ii++ )
+        for ( int ii = 0; ii < 12; ii++ )
         {
             assertTrue( systemIndices.hasNext() );
             assertNotNull( systemIndices.next() );
@@ -619,7 +616,7 @@ public class JdbmStoreTest
     {
         Index nonJdbmIndex = new GenericIndex( "ou", 10, new File( "." ) );
 
-        Method convertIndex = store.getClass().getDeclaredMethod( "convertIndex", Index.class );
+        Method convertIndex = store.getClass().getDeclaredMethod( "convertAndInit", Index.class );
         convertIndex.setAccessible( true );
         Object obj = convertIndex.invoke( store, nonJdbmIndex );
 

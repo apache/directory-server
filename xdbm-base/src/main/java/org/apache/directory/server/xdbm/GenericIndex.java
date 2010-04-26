@@ -45,6 +45,17 @@ public class GenericIndex<K, O, ID> implements Index<K, O, ID>
      * Creates a new instance of GenericIndex.
      * 
      * @param attributeId the attribute ID
+     */
+    public GenericIndex( String attributeId )
+    {
+        this( attributeId, DEFAULT_INDEX_CACHE_SIZE, null );
+    }
+
+
+    /**
+     * Creates a new instance of GenericIndex.
+     * 
+     * @param attributeId the attribute ID
      * @param cacheSize the cache size
      */
     public GenericIndex( String attributeId, int cacheSize )

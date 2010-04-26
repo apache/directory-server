@@ -21,10 +21,15 @@ package org.apache.directory.server.xdbm;
 
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.ServerEntry;
@@ -87,6 +92,32 @@ public interface Store<E, ID>
      * store and it's indices to conduct search operations.
      */
 
+    public static final String[] SYS_INDEX_OID_ARRAY =
+        { ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID,
+
+        ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID,
+
+        ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID,
+
+        ApacheSchemaConstants.APACHE_N_DN_AT_OID,
+
+        ApacheSchemaConstants.APACHE_UP_DN_AT_OID,
+
+        ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
+
+        ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID,
+
+        ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID,
+
+        SchemaConstants.ENTRY_CSN_AT_OID,
+
+        SchemaConstants.ENTRY_UUID_AT_OID,
+
+        SchemaConstants.OBJECT_CLASS_AT_OID };
+    public static final Set<String> SYS_INDEX_OIDS = Collections.unmodifiableSet( new HashSet<String>( Arrays
+        .asList( SYS_INDEX_OID_ARRAY ) ) );
+
+    
     /**
      * Sets the partition directory (working directory) for the store.
      * 
@@ -104,13 +135,8 @@ public interface Store<E, ID>
 
 
     /**
-     * Stores the list of user index
-     * @param userIndices The list of user index
-     */
-    void setUserIndices( Set<Index<?, E, ID>> userIndices );
-
-
-    /**
+     * Gets the user indices.
+     * 
      * @return The list of user index
      */
     Set<Index<?, E, ID>> getUserIndices();
@@ -214,7 +240,9 @@ public interface Store<E, ID>
 
 
     /**
-     * Adds a user index to the list of index for this store
+     * Adds a (system or user) index to the list of index for this store. 
+     * Note that the attribute id returned by Index.getAttributeId() must be
+     * the numeric OID. 
      * @param index The index to add
      * @throws Exception If the addition failed
      */
@@ -231,25 +259,9 @@ public interface Store<E, ID>
 
 
     /**
-     * Set the Presence index
-     * @param index The Presence index
-     * @throws Exception If the addition failed
-     */
-    void setPresenceIndex( Index<String, E, ID> index ) throws Exception;
-
-
-    /**
      * @return The OneLevel system index
      */
     Index<ID, E, ID> getOneLevelIndex();
-
-
-    /**
-     * Set the OneLevel index
-     * @param index The OneLevel index
-     * @throws Exception If the addition failed
-     */
-    void setOneLevelIndex( Index<ID, E, ID> index ) throws Exception;
 
 
     /**
@@ -259,25 +271,9 @@ public interface Store<E, ID>
 
 
     /**
-     * Set the SubLevel index
-     * @param index The SubLevel index
-     * @throws Exception If the addition failed
-     */
-    void setSubLevelIndex( Index<ID, E, ID> index ) throws Exception;
-
-
-    /**
      * @return The Alias system index
      */
     Index<String, E, ID> getAliasIndex();
-
-
-    /**
-     * Set the Alias index
-     * @param index The Alias index
-     * @throws Exception If the addition failed
-     */
-    void setAliasIndex( Index<String, E, ID> index ) throws Exception;
 
 
     /**
@@ -287,25 +283,9 @@ public interface Store<E, ID>
 
 
     /**
-     * Set the OneAlias index
-     * @param index The OneAlias index
-     * @throws Exception If the addition failed
-     */
-    void setOneAliasIndex( Index<ID, E, ID> index ) throws Exception;
-
-
-    /**
      * @return The SubAlias system index
      */
     Index<ID, E, ID> getSubAliasIndex();
-
-
-    /**
-     * Set the SubAlias index
-     * @param index The SubAlias index
-     * @throws Exception If the addition failed
-     */
-    void setSubAliasIndex( Index<ID, E, ID> index ) throws Exception;
 
 
     /**
@@ -315,25 +295,9 @@ public interface Store<E, ID>
 
 
     /**
-     * Set the UpDn index
-     * @param index The UpDn index
-     * @throws Exception If the addition failed
-     */
-    void setUpdnIndex( Index<String, E, ID> index ) throws Exception;
-
-
-    /**
      * @return The Ndn system index
      */
     Index<String, E, ID> getNdnIndex();
-
-
-    /**
-     * Set the NDN index
-     * @param index The NDN index
-     * @throws Exception If the addition failed
-     */
-    void setNdnIndex( Index<String, E, ID> index ) throws Exception;
 
 
     /**
@@ -343,25 +307,9 @@ public interface Store<E, ID>
 
 
     /**
-     * Set the ObjectClass index
-     * @param index The ObjectClass index
-     * @throws Exception If the addition failed
-     */
-    void setObjectClassIndex( Index<String, E, ID> index ) throws Exception;
-
-
-    /**
      * @return The EntryUUID system index
      */
     Index<String, E, ID> getEntryUuidIndex();
-
-
-    /**
-     * Set the EntryUUID index
-     * @param index The EntryUUID index
-     * @throws Exception If the addition failed
-     */
-    void setEntryUuidIndex( Index<String, E, ID> index ) throws Exception;
 
 
     /**
@@ -369,18 +317,6 @@ public interface Store<E, ID>
      */
     Index<String, E, ID> getEntryCsnIndex();
 
-
-    /**
-     * Set the EntryCSN index
-     * @param index The EntryCSN index
-     * @throws Exception If the addition failed
-     */
-    void setEntryCsnIndex( Index<String, E, ID> index ) throws Exception;
-
-
-    //------------------------------------------------------------------------
-    // End of the system index
-    //------------------------------------------------------------------------
 
     /**
      * An iterator build on top of the User's index

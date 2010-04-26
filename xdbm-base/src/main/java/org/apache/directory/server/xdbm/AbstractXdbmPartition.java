@@ -127,33 +127,9 @@ public abstract class AbstractXdbmPartition<ID> extends BTreePartition<ID>
     }
 
 
-    public final Index<String, ServerEntry, ID> getExistenceIndex()
-    {
-        return store.getPresenceIndex();
-    }
-
-
-    /**
-     * @org.apache.xbean.Property hidden="true"
-     */
-    public final void setPresenceIndexOn( Index<String, ServerEntry, ID> index ) throws Exception
-    {
-        store.setPresenceIndex( index );
-    }
-
-
     public final Index<ID, ServerEntry, ID> getOneLevelIndex()
     {
         return store.getOneLevelIndex();
-    }
-
-
-    /**
-     * @org.apache.xbean.Property hidden="true"
-     */
-    public final void setOneLevelIndexOn( Index<ID, ServerEntry, ID> index ) throws Exception
-    {
-        store.setOneLevelIndex( index );
     }
 
 
@@ -163,27 +139,9 @@ public abstract class AbstractXdbmPartition<ID> extends BTreePartition<ID>
     }
 
 
-    /**
-     * @org.apache.xbean.Property hidden="true"
-     */
-    public final void setAliasIndexOn( Index<String, ServerEntry, ID> index ) throws Exception
-    {
-        store.setAliasIndex( index );
-    }
-
-
     public final Index<ID, ServerEntry, ID> getOneAliasIndex()
     {
         return store.getOneAliasIndex();
-    }
-
-
-    /**
-     * @org.apache.xbean.Property hidden="true"
-     */
-    public final void setOneAliasIndexOn( Index<ID, ServerEntry, ID> index ) throws Exception
-    {
-        store.setOneAliasIndex( index );
     }
 
 
@@ -193,42 +151,15 @@ public abstract class AbstractXdbmPartition<ID> extends BTreePartition<ID>
     }
 
 
-    /**
-     * @org.apache.xbean.Property hidden="true"
-     */
-    public final void setSubAliasIndexOn( Index<ID, ServerEntry, ID> index ) throws Exception
-    {
-        store.setSubAliasIndex( index );
-    }
-
-
     public final Index<String, ServerEntry, ID> getUpdnIndex()
     {
         return store.getUpdnIndex();
     }
 
 
-    /**
-     * @org.apache.xbean.Property hidden="true"
-     */
-    public final void setUpdnIndexOn( Index<String, ServerEntry, ID> index ) throws Exception
-    {
-        store.setUpdnIndex( index );
-    }
-
-
     public final Index<String, ServerEntry, ID> getNdnIndex()
     {
         return store.getNdnIndex();
-    }
-
-
-    /**
-     * @org.apache.xbean.Property hidden="true"
-     */
-    public final void setNdnIndexOn( Index<String, ServerEntry, ID> index ) throws Exception
-    {
-        store.setNdnIndex( index );
     }
 
 
@@ -437,16 +368,16 @@ public abstract class AbstractXdbmPartition<ID> extends BTreePartition<ID>
         }
 
         // does nothing
-        throw new LdapAuthenticationNotSupportedException( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED,
-            I18n.err( I18n.ERR_702 ) );
+        throw new LdapAuthenticationNotSupportedException( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED, I18n
+            .err( I18n.ERR_702 ) );
     }
 
 
     public final void bind( BindOperationContext bindContext ) throws Exception
     {
         // does nothing
-        throw new LdapAuthenticationNotSupportedException( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED,
-            I18n.err( I18n.ERR_702 ) );
+        throw new LdapAuthenticationNotSupportedException( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED, I18n
+            .err( I18n.ERR_702 ) );
     }
 
 

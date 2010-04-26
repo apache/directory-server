@@ -22,12 +22,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import jdbm.RecordManager;
 import jdbm.helper.MRU;
@@ -41,7 +36,6 @@ import org.apache.directory.server.xdbm.AbstractStore;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.shared.ldap.MultiException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
@@ -60,7 +54,6 @@ import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.slf4j.Logger;
@@ -78,41 +71,8 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     /** the master table storing entries by primary key */
     private JdbmMasterTable<ServerEntry> master;
 
-    /** a map of attributeType numeric ID to user userIndices */
-    private Map<String, Index<?, E, Long>> userIndices = new HashMap<String, Index<?, E, Long>>();
-
-    /** a map of attributeType numeric ID to system userIndices */
-    private Map<String, Index<?, E, Long>> systemIndices = new HashMap<String, Index<?, E, Long>>();
-
     /** the relative distinguished name index */
     private JdbmRdnIndex<RDN, Long> rdnIdx;
-    
-    /** the attribute presence index */
-    private JdbmIndex<String, E> presenceIdx;
-
-    /** a system index on aliasedObjectName attribute */
-    private JdbmIndex<String, E> aliasIdx;
-
-    /** a system index on the entries of descendants of root DN*/
-    private JdbmIndex<Long, E> subLevelIdx;
-
-    /** the parent child relationship index */
-    private JdbmIndex<Long, E> oneLevelIdx;
-
-    /** the one level scope alias index */
-    private JdbmIndex<Long, E> oneAliasIdx;
-
-    /** the subtree scope alias index */
-    private JdbmIndex<Long, E> subAliasIdx;
-
-    /** a system index on objectClass attribute*/
-    private JdbmIndex<String, E> objectClassIdx;
-
-    /** a system index on entryCSN attribute */
-    private JdbmIndex<String, E> entryCsnIdx;
-
-    /** a system index on entryUUID attribute */
-    private JdbmIndex<String, E> entryUuidIdx;
 
     /** Static declarations to avoid lookup all over the code */
     private static AttributeType OBJECT_CLASS_AT;
@@ -121,6 +81,8 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     private static AttributeType ALIASED_OBJECT_NAME_AT;
 
     private DN contextEntryDn;
+
+
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
@@ -183,7 +145,6 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         // -------------------------------------------------------------------
         // Initializes the user and system indices
         // -------------------------------------------------------------------
-
         setupSystemIndices();
         setupUserIndices();
 
@@ -193,154 +154,16 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
 
 
     @SuppressWarnings("unchecked")
-    private void setupSystemIndices() throws Exception
+    protected void setupSystemIndices() throws Exception
     {
-        if ( systemIndices.size() > 0 )
-        {
-            HashMap<String, Index<?, E, Long>> tmp = new HashMap<String, Index<?, E, Long>>();
-
-            for ( Index<?, E, Long> index : systemIndices.values() )
-            {
-                String oid = schemaManager.getAttributeTypeRegistry().getOidByName( index.getAttributeId() );
-                tmp.put( oid, index );
-                ( ( JdbmIndex ) index ).init( schemaManager, schemaManager.lookupAttributeTypeRegistry( oid ),
-                    partitionDir );
-            }
-            systemIndices = tmp;
-        }
-
         if ( rdnIdx == null )
         {
             rdnIdx = new JdbmRdnIndex<RDN, Long>();
             rdnIdx.setAttributeId( ApacheSchemaConstants.APACHE_RDN_AT_OID );
             systemIndices.put( ApacheSchemaConstants.APACHE_RDN_AT_OID, ( JdbmIndex ) rdnIdx );
-            rdnIdx.init( schemaManager, schemaManager
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_RDN_AT_OID ), partitionDir );
-        }
-        
-        if ( presenceIdx == null )
-        {
-            presenceIdx = new JdbmIndex<String, E>();
-            presenceIdx.setAttributeId( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID );
-            systemIndices.put( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID, presenceIdx );
-            presenceIdx.init( schemaManager, schemaManager
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ), partitionDir );
         }
 
-        if ( oneLevelIdx == null )
-        {
-            oneLevelIdx = new JdbmIndex<Long, E>();
-            oneLevelIdx.setAttributeId( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
-            systemIndices.put( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID, oneLevelIdx );
-            oneLevelIdx.init( schemaManager, schemaManager
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ), partitionDir );
-        }
-
-        if ( oneAliasIdx == null )
-        {
-            oneAliasIdx = new JdbmIndex<Long, E>();
-            oneAliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
-            systemIndices.put( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, oneAliasIdx );
-            oneAliasIdx.init( schemaManager, schemaManager
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ), partitionDir );
-        }
-
-        if ( subAliasIdx == null )
-        {
-            subAliasIdx = new JdbmIndex<Long, E>();
-            subAliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
-            systemIndices.put( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, subAliasIdx );
-            subAliasIdx.init( schemaManager, schemaManager
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ), partitionDir );
-        }
-
-        if ( aliasIdx == null )
-        {
-            aliasIdx = new JdbmIndex<String, E>();
-            aliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
-            systemIndices.put( ApacheSchemaConstants.APACHE_ALIAS_AT_OID, aliasIdx );
-            aliasIdx.init( schemaManager, schemaManager
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ), partitionDir );
-        }
-
-        if ( subLevelIdx == null )
-        {
-            subLevelIdx = new JdbmIndex<Long, E>();
-            subLevelIdx.setAttributeId( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
-            systemIndices.put( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID, subLevelIdx );
-            subLevelIdx.init( schemaManager, schemaManager
-                .lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ), partitionDir );
-        }
-
-        if ( entryCsnIdx == null )
-        {
-            entryCsnIdx = new JdbmIndex<String, E>();
-            entryCsnIdx.setAttributeId( SchemaConstants.ENTRY_CSN_AT_OID );
-            systemIndices.put( SchemaConstants.ENTRY_CSN_AT_OID, entryCsnIdx );
-            entryCsnIdx.init( schemaManager, schemaManager
-                .lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT_OID ), partitionDir );
-        }
-
-        if ( entryUuidIdx == null )
-        {
-            entryUuidIdx = new JdbmIndex<String, E>();
-            entryUuidIdx.setAttributeId( SchemaConstants.ENTRY_UUID_AT_OID );
-            systemIndices.put( SchemaConstants.ENTRY_UUID_AT_OID, entryUuidIdx );
-            entryUuidIdx.init( schemaManager, schemaManager
-                .lookupAttributeTypeRegistry( SchemaConstants.ENTRY_UUID_AT_OID ), partitionDir );
-        }
-
-        if ( objectClassIdx == null )
-        {
-            objectClassIdx = new JdbmIndex<String, E>();
-            objectClassIdx.setAttributeId( SchemaConstants.OBJECT_CLASS_AT_OID );
-            systemIndices.put( SchemaConstants.OBJECT_CLASS_AT_OID, objectClassIdx );
-            objectClassIdx.init( schemaManager, schemaManager
-                .lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT_OID ), partitionDir );
-        }
-    }
-
-
-    @SuppressWarnings("unchecked")
-    private void setupUserIndices() throws Exception
-    {
-        if ( ( userIndices != null ) && ( userIndices.size() > 0 ) )
-        {
-            Map<String, Index<?, E, Long>> tmp = new HashMap<String, Index<?, E, Long>>();
-
-            for ( Index<?, E, Long> index : userIndices.values() )
-            {
-                String oid = schemaManager.getAttributeTypeRegistry().getOidByName( index.getAttributeId() );
-
-                if ( systemIndices.containsKey( oid ) )
-                {
-                    // Bypass some specific index for AttributeTypes like ObjectClass hich are already
-                    // present in the SystemIndices
-                    continue;
-                }
-                AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
-
-                // Check that the attributeType has an EQUALITY matchingRule
-                MatchingRule mr = attributeType.getEquality();
-
-                if ( mr != null )
-                {
-                    ( ( JdbmIndex ) index ).init( schemaManager, schemaManager.lookupAttributeTypeRegistry( oid ),
-                        partitionDir );
-                    tmp.put( oid, index );
-                }
-                else
-                {
-                    LOG.error( I18n.err( I18n.ERR_4, attributeType.getName() ) );
-                }
-            }
-
-            userIndices = tmp;
-        }
-        else
-        {
-            userIndices = new HashMap<String, Index<?, E, Long>>();
-        }
+        super.setupSystemIndices();
     }
 
 
@@ -433,7 +256,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         array.add( entryCsnIdx );
         array.add( entryUuidIdx );
         array.add( objectClassIdx );
-        
+
         // Sync all user defined userIndices
         for ( Index<?, E, Long> idx : array )
         {
@@ -441,7 +264,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         }
 
         rdnIdx.sync();
-        
+
         master.sync();
         recMan.commit();
     }
@@ -451,145 +274,27 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     // I N D E X   M E T H O D S
     // ------------------------------------------------------------------------
 
-    private <K> JdbmIndex<K, E> convertIndex( Index<K, E, Long> index )
+    protected Index<?, E, Long> convertAndInit( Index<?, E, Long> index ) throws Exception
     {
+        JdbmIndex<?, E> jdbmIndex;
         if ( index instanceof JdbmIndex<?, ?> )
         {
-            return ( JdbmIndex<K, E> ) index;
+            jdbmIndex = ( JdbmIndex<?, E> ) index;
         }
-
-        LOG.warn( "Supplied index {} is not a JdbmIndex.  "
-            + "Will create new JdbmIndex using copied configuration parameters.", index );
-        JdbmIndex<K, E> jdbmIndex = new JdbmIndex<K, E>( index.getAttributeId() );
-        jdbmIndex.setCacheSize( index.getCacheSize() );
-        jdbmIndex.setNumDupLimit( JdbmIndex.DEFAULT_DUPLICATE_LIMIT );
-        jdbmIndex.setWkDirPath( index.getWkDirPath() );
-        return jdbmIndex;
-    }
-
-
-    public void setUserIndices( Set<Index<?, E, Long>> userIndices )
-    {
-        protect( "userIndices" );
-        for ( Index<?, E, Long> index : userIndices )
+        else
         {
-            this.userIndices.put( index.getAttributeId(), convertIndex( index ) );
+            LOG.warn( "Supplied index {} is not a JdbmIndex.  "
+                + "Will create new JdbmIndex using copied configuration parameters.", index );
+            jdbmIndex = new JdbmIndex( index.getAttributeId() );
+            jdbmIndex.setCacheSize( index.getCacheSize() );
+            jdbmIndex.setNumDupLimit( JdbmIndex.DEFAULT_DUPLICATE_LIMIT );
+            jdbmIndex.setWkDirPath( index.getWkDirPath() );
         }
-    }
 
+        jdbmIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() ),
+            partitionDir );
 
-    public Set<Index<?, E, Long>> getUserIndices()
-    {
-        return new HashSet<Index<?, E, Long>>( userIndices.values() );
-    }
-
-
-    public void addIndex( Index<?, E, Long> index ) throws Exception
-    {
-        userIndices.put( index.getAttributeId(), convertIndex( index ) );
-    }
-
-
-    //------------------------------------------------------------------------
-    // System index
-    //------------------------------------------------------------------------
-    /**
-     * {@inheritDoc}
-     */
-    public Index<String, E, Long> getPresenceIndex()
-    {
-        return presenceIdx;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setPresenceIndex( Index<String, E, Long> index ) throws Exception
-    {
-        protect( "presenceIndex" );
-        presenceIdx = convertIndex( index );
-        systemIndices.put( index.getAttributeId(), presenceIdx );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Index<Long, E, Long> getOneLevelIndex()
-    {
-        return oneLevelIdx;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setOneLevelIndex( Index<Long, E, Long> index ) throws Exception
-    {
-        protect( "hierarchyIndex" );
-        oneLevelIdx = convertIndex( index );
-        systemIndices.put( index.getAttributeId(), oneLevelIdx );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Index<String, E, Long> getAliasIndex()
-    {
-        return aliasIdx;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setAliasIndex( Index<String, E, Long> index ) throws LdapException
-    {
-        protect( "aliasIndex" );
-        aliasIdx = convertIndex( index );
-        systemIndices.put( index.getAttributeId(), aliasIdx );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Index<Long, E, Long> getOneAliasIndex()
-    {
-        return oneAliasIdx;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setOneAliasIndex( Index<Long, E, Long> index ) throws LdapException
-    {
-        protect( "oneAliasIndex" );
-        oneAliasIdx = convertIndex( index );
-        systemIndices.put( index.getAttributeId(), oneAliasIdx );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Index<Long, E, Long> getSubAliasIndex()
-    {
-        return subAliasIdx;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setSubAliasIndex( Index<Long, E, Long> index ) throws LdapException
-    {
-        protect( "subAliasIndex" );
-        subAliasIdx = convertIndex( index );
-        systemIndices.put( index.getAttributeId(), subAliasIdx );
+        return jdbmIndex;
     }
 
 
@@ -600,15 +305,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     {
         // FIXME this method shouldn't be supported anymore after the
         // introduction of the RDN index, but keeping to minimise the number changes done to interface
-        return entryUuidIdx;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setUpdnIndex( Index<String, E, Long> index ) throws LdapException
-    {
+        return getEntryUuidIndex();
     }
 
 
@@ -618,195 +315,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     public Index<String, E, Long> getNdnIndex()
     {
         // FIXME should this be entryUuidIdx?
-        return entryCsnIdx;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setNdnIndex( Index<String, E, Long> index ) throws LdapException
-    {
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Index<Long, E, Long> getSubLevelIndex()
-    {
-        return subLevelIdx;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setSubLevelIndex( Index<Long, E, Long> index ) throws LdapException
-    {
-        protect( "subLevelIndex" );
-        subLevelIdx = convertIndex( index );
-        systemIndices.put( index.getAttributeId(), subLevelIdx );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Index<String, E, Long> getObjectClassIndex()
-    {
-        return objectClassIdx;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setObjectClassIndex( Index<String, E, Long> index ) throws LdapException
-    {
-        protect( "objectClassIndex" );
-        objectClassIdx = convertIndex( index );
-        systemIndices.put( index.getAttributeId(), objectClassIdx );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Index<String, E, Long> getEntryUuidIndex()
-    {
-        return entryUuidIdx;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setEntryUuidIndex( Index<String, E, Long> index ) throws LdapException
-    {
-        protect( "entryUuidIndex" );
-        entryUuidIdx = convertIndex( index );
-        systemIndices.put( index.getAttributeId(), entryUuidIdx );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Index<String, E, Long> getEntryCsnIndex()
-    {
-        return entryCsnIdx;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setEntryCsnIndex( Index<String, E, Long> index ) throws LdapException
-    {
-        protect( "entryCsnIndex" );
-        entryCsnIdx = convertIndex( index );
-        systemIndices.put( index.getAttributeId(), entryCsnIdx );
-    }
-
-
-    public Iterator<String> userIndices()
-    {
-        return userIndices.keySet().iterator();
-    }
-
-
-    public Iterator<String> systemIndices()
-    {
-        return systemIndices.keySet().iterator();
-    }
-
-
-    public boolean hasIndexOn( String id ) throws LdapException
-    {
-        return hasUserIndexOn( id ) || hasSystemIndexOn( id );
-    }
-
-
-    public boolean hasUserIndexOn( String id ) throws LdapException
-    {
-        return userIndices.containsKey( schemaManager.getAttributeTypeRegistry().getOidByName( id ) );
-    }
-
-
-    public boolean hasSystemIndexOn( String id ) throws LdapException
-    {
-        return systemIndices.containsKey( schemaManager.getAttributeTypeRegistry().getOidByName( id ) );
-    }
-
-
-    public Index<?, E, Long> getIndex( String id ) throws IndexNotFoundException
-    {
-        try
-        {
-            id = schemaManager.getAttributeTypeRegistry().getOidByName( id );
-        }
-        catch ( LdapException e )
-        {
-            String msg = I18n.err( I18n.ERR_128, id );
-            LOG.error( msg, e );
-            throw new IndexNotFoundException( msg, id, e );
-        }
-
-        if ( userIndices.containsKey( id ) )
-        {
-            return userIndices.get( id );
-        }
-        if ( systemIndices.containsKey( id ) )
-        {
-            return systemIndices.get( id );
-        }
-
-        throw new IndexNotFoundException( I18n.err( I18n.ERR_3, id, id ) );
-    }
-
-
-    public Index<?, E, Long> getUserIndex( String id ) throws IndexNotFoundException
-    {
-        try
-        {
-            id = schemaManager.getAttributeTypeRegistry().getOidByName( id );
-        }
-        catch ( LdapException e )
-        {
-            String msg = I18n.err( I18n.ERR_128, id );
-            LOG.error( msg, e );
-            throw new IndexNotFoundException( msg, id, e );
-        }
-
-        if ( userIndices.containsKey( id ) )
-        {
-            return userIndices.get( id );
-        }
-
-        throw new IndexNotFoundException( I18n.err( I18n.ERR_3, id, id ) );
-    }
-
-
-    public Index<?, E, Long> getSystemIndex( String id ) throws IndexNotFoundException
-    {
-        try
-        {
-            id = schemaManager.getAttributeTypeRegistry().getOidByName( id );
-        }
-        catch ( LdapException e )
-        {
-            String msg = I18n.err( I18n.ERR_128, id );
-            LOG.error( msg, e );
-            throw new IndexNotFoundException( msg, id, e );
-        }
-
-        if ( systemIndices.containsKey( id ) )
-        {
-            return systemIndices.get( id );
-        }
-
-        throw new IndexNotFoundException( I18n.err( I18n.ERR_2, id, id ) );
+        return getEntryCsnIndex();
     }
 
 
@@ -815,34 +324,34 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
      */
     public Long getEntryId( DN dn ) throws Exception
     {
-        if( !dn.isNormalized() )
+        if ( !dn.isNormalized() )
         {
             dn.normalize( schemaManager.getNormalizerMapping() );
         }
-        
+
         int dnSize = dn.size();
-        int i = suffixDn.size(); 
+        int i = suffixDn.size();
 
         RDN key = new RDN( suffixDn.getNormName() );
         key._setParentId( 0 );
-        
+
         Long curEntryId = rdnIdx.forwardLookup( key );
-        
-        for( ; i < dnSize; i++ )
+
+        for ( ; i < dnSize; i++ )
         {
             key = dn.getRdn( i );
             key._setParentId( curEntryId );
             curEntryId = rdnIdx.forwardLookup( key );
-            if( curEntryId == null )
+            if ( curEntryId == null )
             {
                 break;
             }
         }
-        
+
         return curEntryId;
     }
-    
-    
+
+
     /**
      * gives the normalized name of the DN of the entry identified by the given id
      * @param id the entry's id 
@@ -910,26 +419,26 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     {
         DN normDN = new DN( dn );
         normDN.normalize( schemaManager.getNormalizerMapping() );
-        
+
         int dnSize = normDN.size();
-        int i = suffixDn.size(); 
+        int i = suffixDn.size();
 
         RDN key = new RDN( suffixDn.getNormName() );
         key._setParentId( 0 );
 
         Long curEntryId = rdnIdx.forwardLookup( key );
-        
-        for( ; i < dnSize; i++ )
+
+        for ( ; i < dnSize; i++ )
         {
             key = normDN.getRdn( i );
             key._setParentId( curEntryId );
             curEntryId = rdnIdx.forwardLookup( key );
         }
-        
+
         return normDN;
     }
-    
-    
+
+
     /**
      * Gets the Long id of an entry's parent using the child entry's
      * normalized DN. Note that the suffix entry returns 0, which does not
@@ -944,12 +453,12 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     {
         DN normDN = new DN( dn );
         normDN.normalize( schemaManager.getNormalizerMapping() );
-        
-        if( suffixDn.equals( normDN ) )
+
+        if ( suffixDn.equals( normDN ) )
         {
             return 0L;
         }
-        
+
         normDN = buildEntryDn( dn );
         return normDN.getRdn()._getParentId();
     }
@@ -959,11 +468,11 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     {
         //return oneLevelIdx.reverseLookup( childId );
         RDN rdn = rdnIdx.reverseLookup( childId );
-        if( rdn == null )
+        if ( rdn == null )
         {
             return null;
         }
-        
+
         return rdn._getParentId();
     }
 
@@ -1257,7 +766,6 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             throw new IllegalStateException( I18n.err( I18n.ERR_218, entryDn.getNormName() ) );
         }
 
-        
         oneLevelIdx.add( parentId, id );
 
         // Update the EntryCsn index
@@ -1327,12 +835,12 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     public ServerEntry lookup( Long id ) throws Exception
     {
         ServerEntry se = ( ServerEntry ) master.get( id );
-        
-        if( se == null )
+
+        if ( se == null )
         {
             return null;
         }
-        
+
         se.setDn( buildEntryDn( id ) );
         return se;
     }
@@ -1883,7 +1391,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         // restore the parentId from the old RDN
         newRdn = newUpdn.getRdn();
         newRdn._setParentId( updn.getRdn()._getParentId() );
-        
+
         modifyDn( id, newUpdn, false ); // propagate dn changes
 
         // Update the current entry
@@ -1918,15 +1426,15 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     private void modifyDn( Long id, DN updn, boolean isMove ) throws Exception
     {
         String aliasTarget;
-        
+
         //updated the RDN index
         rdnIdx.drop( id );
-        if( !updn.isNormalized() )
+        if ( !updn.isNormalized() )
         {
             // just normalize the RDN alone
             updn.getRdn().normalize( schemaManager.getNormalizerMapping() );
         }
-        
+
         rdnIdx.add( updn.getRdn(), id );
 
         /* 
@@ -2030,12 +1538,12 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
          * user provided RDN & the new parent's UPDN.  Basically add the child's
          * UpRdn String to the tail of the new parent's Updn Name.
          */
-        
+
         DN childUpdn = buildEntryDn( childId );
         RDN childRdn = childUpdn.getRdn( childUpdn.size() - 1 );
         childRdn._setParentId( newParentId );
         DN newUpdn = buildEntryDn( newParentId );
-        
+
         newUpdn.add( childRdn );
 
         // Call the modifyDn operation with the new updn

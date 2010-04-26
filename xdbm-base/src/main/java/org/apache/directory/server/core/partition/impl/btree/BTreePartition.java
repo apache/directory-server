@@ -21,14 +21,12 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 
 import java.io.File;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 import javax.naming.directory.SearchControls;
 
-import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -66,23 +64,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  */
 public abstract class BTreePartition<ID> extends AbstractPartition
 {
-    protected static final Set<String> SYS_INDEX_OIDS;
-
-    static
-    {
-        Set<String> set = new HashSet<String>();
-        set.add( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
-        set.add( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID );
-        set.add( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
-        set.add( ApacheSchemaConstants.APACHE_N_DN_AT_OID );
-        set.add( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
-        set.add( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
-        set.add( ApacheSchemaConstants.APACHE_UP_DN_AT_OID );
-        //set.add( ApacheSchemaConstants.ENTRY_CSN_AT_OID );
-        //set.add( ApacheSchemaConstants.ENTRY_UUID_AT_OID );
-        //set.add( SchemaConstants.OBJECT_CLASS_AT_OID );
-        SYS_INDEX_OIDS = Collections.unmodifiableSet( set );
-    }
 
     /** the search engine used to search the database */
     protected SearchEngine<ServerEntry, ID> searchEngine;
@@ -427,83 +408,6 @@ public abstract class BTreePartition<ID> extends AbstractPartition
      * @return the index on the ALIAS_ATTRIBUTE
      */
     public abstract Index<String, ServerEntry, ID> getAliasIndex();
-
-
-    /**
-     * Sets the system index defined on the ALIAS_ATTRIBUTE which for LDAP would
-     * be the aliasedObjectName and for X.500 would be aliasedEntryName.
-     * 
-     * @org.apache.xbean.Property hidden="true"
-     * @param index the index on the ALIAS_ATTRIBUTE
-     * @throws Exception if there is a problem setting up the index
-     */
-    public abstract void setAliasIndexOn( Index<String, ServerEntry, ID> index ) throws Exception;
-
-
-    /**
-     * Sets the attribute existence Index.
-     *
-     * @org.apache.xbean.Property hidden="true"
-     * @param index the attribute existence Index
-     * @throws Exception if there is a problem setting up the index
-     */
-    public abstract void setPresenceIndexOn( Index<String, ServerEntry, ID> index ) throws Exception;
-
-
-    /**
-     * Sets the one level Index.
-     *
-     * @org.apache.xbean.Property hidden="true"
-     * @param index the one level Index
-     * @throws Exception if there is a problem setting up the index
-     */
-    public abstract void setOneLevelIndexOn( Index<ID, ServerEntry, ID> index ) throws Exception;
-
-
-    // TODO - add sub level index setter
-
-    /**
-     * Sets the user provided distinguished name Index.
-     *
-     * @org.apache.xbean.Property hidden="true"
-     * @param index the updn Index
-     * @throws Exception if there is a problem setting up the index
-     */
-    public abstract void setUpdnIndexOn( Index<String, ServerEntry, ID> index ) throws Exception;
-
-
-    /**
-     * Sets the normalized distinguished name Index.
-     *
-     * @org.apache.xbean.Property hidden="true"
-     * @param index the ndn Index
-     * @throws Exception if there is a problem setting up the index
-     */
-    public abstract void setNdnIndexOn( Index<String, ServerEntry, ID> index ) throws Exception;
-
-
-    /**
-     * Sets the alias index mapping parent entries with scope expanding aliases 
-     * children one level below them; this system index is used to dereference
-     * aliases on one/single level scoped searches.
-     * 
-     * @org.apache.xbean.Property hidden="true"
-     * @param index a one level alias index
-     * @throws Exception if there is a problem setting up the index
-     */
-    public abstract void setOneAliasIndexOn( Index<ID, ServerEntry, ID> index ) throws Exception;
-
-
-    /**
-     * Sets the alias index mapping relative entries with scope expanding 
-     * alias descendents; this system index is used to dereference aliases on 
-     * subtree scoped searches.
-     * 
-     * @org.apache.xbean.Property hidden="true"
-     * @param index a subtree alias index
-     * @throws Exception if there is a problem setting up the index
-     */
-    public abstract void setSubAliasIndexOn( Index<ID, ServerEntry, ID> index ) throws Exception;
 
 
     /**
