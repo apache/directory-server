@@ -1833,7 +1833,7 @@ public class DefaultServerEntryTest
         assertTrue( entry.hasObjectClass( "top" ) );
         assertTrue( entry.hasObjectClass( "person" ) );
         assertFalse( entry.hasObjectClass( "inetorgperson" ) );
-        assertFalse( entry.hasObjectClass( null ) );
+        assertFalse( entry.hasObjectClass( (String)null ) );
         assertFalse( entry.hasObjectClass( "" ) );
     }
 
@@ -3610,10 +3610,18 @@ public class DefaultServerEntryTest
     {
         DN dn = new DN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        List<EntryAttribute> result = null;
         
         // First check that this method fails if we pass a null or empty ID
-        List<EntryAttribute> result = entry.set( (String)null );
-        assertNull( result );
+        try
+        { 
+            result = entry.set( (String)null );
+            fail();
+        }
+        catch ( IllegalArgumentException iae )
+        {
+            // expected
+        }
         
         result = entry.set( "  " );
         assertNull( result );
@@ -3894,37 +3902,6 @@ public class DefaultServerEntryTest
 
         assertTrue( copyEntry.contains( "objectClass", "top", "person" ) );
         assertTrue( copyEntry.contains( "cn", "test1", "test2" ) );
-    }
-    
-    
-    /**
-     * Test the conversion method 
-     */
-    @Test
-    @Ignore
-    public void testToClientEntry() throws LdapException
-    {
-        DN dn = new DN( "ou=system" );
-        ServerEntry serverEntry = new DefaultServerEntry( schemaManager );
-        serverEntry.setDn( dn );
-        serverEntry.add( "cn", "test1", "test2" );
-        serverEntry.add( "objectClass", "top", "person" );
-        
-        Entry clientEntry = serverEntry.toClientEntry();
-        
-        assertTrue( clientEntry instanceof Entry );
-        assertFalse( clientEntry instanceof ServerEntry );
-        
-        assertTrue( clientEntry.containsAttribute( "cn", "objectClass" ) );
-        assertEquals( dn, clientEntry.getDn() );
-        
-        serverEntry.removeAttributes( "cn" );
-        assertTrue( clientEntry
-            .contains( "cn", "test1", "test2" ) );
-        
-        serverEntry.remove(  "objectClass", "person" );
-        assertTrue( clientEntry
-            .contains( "objectClass", "top", "person" ) );
     }
 }
 
