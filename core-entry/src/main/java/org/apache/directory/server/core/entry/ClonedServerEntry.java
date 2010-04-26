@@ -781,5 +781,16 @@ public class ClonedServerEntry implements ServerEntry
             
             return clientEntry;
         }
+
+        public boolean contains( String upId ) throws LdapException
+        {
+            return false;
+        }
+    }
+
+
+    public boolean contains( String upId ) throws LdapException
+    {
+        return clonedEntry.contains( upId );
     }
 }
