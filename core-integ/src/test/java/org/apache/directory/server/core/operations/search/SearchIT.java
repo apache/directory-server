@@ -46,19 +46,32 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.message.SearchResponse;
+import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.StringValue;
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.GreaterEqNode;
+import org.apache.directory.shared.ldap.filter.LessEqNode;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
- 
 
 /**
  * Tests the search() methods of the provider.
@@ -1769,4 +1782,84 @@ public class SearchIT extends AbstractLdapTestUnit
        assertFalse( map.containsKey( "ou=system" ) );
        assertFalse( map.containsKey( "ou=schema" ) );
    }
+   
+   
+   @Test
+   public void testCsnLessEqualitySearch() throws Exception
+   {
+       LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+
+       DN dn = new DN( "cn=testLowerCsnAdd,ou=system" );
+       Entry entry = new DefaultClientEntry( dn );
+       entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );
+       entry.add( SchemaConstants.CN_AT, "testLowerCsnAdd_cn" );
+       entry.add( SchemaConstants.SN_AT, "testLowerCsnAdd_sn" );
+
+       connection.add( entry );
+
+       // add an entry to have a entry with higher CSN value
+       DN dn2 = new DN( "cn=testHigherCsnAdd,ou=system" );
+       Entry entry2 = new DefaultClientEntry( dn2 );
+       entry2.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );
+       entry2.add( SchemaConstants.CN_AT, "testHigherCsnAdd_cn" );
+       entry2.add( SchemaConstants.SN_AT, "testHigherCsnAdd_sn" );
+
+       connection.add( entry2 );
+
+       entry = ( ( SearchResultEntry ) connection.lookup( dn.getName(), "+" ) ).getEntry();
+       entry2 = ( ( SearchResultEntry ) connection.lookup( dn2.getName(), "+" ) ).getEntry();
+       
+       String lowerCsn = entry.get( SchemaConstants.ENTRY_CSN_AT ).getString();
+       String higherCsn = entry2.get( SchemaConstants.ENTRY_CSN_AT ).getString();
+       
+       // usecases
+       // 1.1 Less than or Equal ( with the lower csn value)
+       testUseCases( lowerCsn, new String[]{lowerCsn}, connection, 1 );
+       
+       // 1.2 Less than or equals with a highest csn value
+       testUseCases( higherCsn, new String[]{higherCsn, lowerCsn}, connection, 1 );
+       
+       // 2.1 Greater than or Equal ( with the highest csn value )
+       testUseCases( higherCsn, new String[]{higherCsn}, connection, 2 );
+       
+       // 2.2 Greater than or Equal ( with lower csn value )
+       testUseCases( lowerCsn, new String[]{higherCsn, lowerCsn}, connection, 2 );
+   }
+
+
+   private void testUseCases( String filterCsnVal, String[] expectedCsns, LdapConnection connection, int useCaseNum ) throws Exception
+   {
+       Value val = new StringValue( filterCsnVal );
+
+       ExprNode filter = null;
+       
+       if( useCaseNum == 1 )
+       {
+           filter = new LessEqNode( SchemaConstants.ENTRY_CSN_AT, val );
+       }
+       else if( useCaseNum == 2 )
+       {
+           filter = new GreaterEqNode( SchemaConstants.ENTRY_CSN_AT, val );
+       }
+       
+       Entry loadedEntry = null;
+       
+       Set<String> csnSet = new HashSet<String>( expectedCsns.length );
+       Cursor<SearchResponse> cursor = connection.search( "ou=system", filter.toString(), SearchScope.ONELEVEL, "*",
+           "+" );
+       while ( cursor.next() )
+       {
+           loadedEntry = ( ( SearchResultEntry ) cursor.get() ).getEntry();
+           csnSet.add( loadedEntry.get( SchemaConstants.ENTRY_CSN_AT ).getString() );
+       }
+       cursor.close();
+
+       assertTrue( csnSet.size() >= expectedCsns.length );
+       
+       for( String csn : expectedCsns )
+       {
+           assertTrue( csnSet.contains( csn )  );
+       }
+   }
+
 }
