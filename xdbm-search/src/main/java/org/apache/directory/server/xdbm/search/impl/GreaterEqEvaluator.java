@@ -123,7 +123,7 @@ public class GreaterEqEvaluator<T, ID> implements Evaluator<GreaterEqNode<T>, Se
 
     public boolean evaluate( IndexEntry<?, ServerEntry, ID> indexEntry ) throws Exception
     {
-        if ( idx != null )
+        if ( idx != null && idx.isDupsEnabled() )
         {
             return idx.reverseGreaterOrEq( indexEntry.getId(), node.getValue().get() );
         }
@@ -187,7 +187,7 @@ public class GreaterEqEvaluator<T, ID> implements Evaluator<GreaterEqNode<T>, Se
 
     public boolean evaluateId( ID id ) throws Exception
     {
-        if ( idx != null )
+        if ( idx != null && idx.isDupsEnabled() )
         {
             return idx.reverseGreaterOrEq( id, node.getValue().get() );
         }

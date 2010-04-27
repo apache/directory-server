@@ -123,7 +123,7 @@ public class LessEqEvaluator<T, ID> implements Evaluator<LessEqNode<T>, ServerEn
 
     public boolean evaluateId( ID id ) throws Exception
     {
-        if ( idx != null )
+        if ( idx != null && idx.isDupsEnabled() )
         {
             return idx.reverseLessOrEq( id, node.getValue().get() );
         }
@@ -134,7 +134,7 @@ public class LessEqEvaluator<T, ID> implements Evaluator<LessEqNode<T>, ServerEn
 
     public boolean evaluate( IndexEntry<?, ServerEntry, ID> indexEntry ) throws Exception
     {
-        if ( idx != null )
+        if ( idx != null && idx.isDupsEnabled() )
         {
             return idx.reverseLessOrEq( indexEntry.getId(), node.getValue().get() );
         }
