@@ -763,6 +763,14 @@ public class LdapCoreSessionConnection implements LdapConnection
             iSearchReq.setTimeLimit( searchRequest.getTimeLimit() );
             iSearchReq.setTypesOnly( searchRequest.getTypesOnly() );
 
+            if( searchRequest.getAttributes() != null )
+            {
+                for( String at : searchRequest.getAttributes() )
+                {
+                    iSearchReq.addAttribute( at );
+                }
+            }
+
             EntryFilteringCursor entryCursor = session.search( iSearchReq );
             entryCursor.beforeFirst();
             return new EntryToResponseCursor<SearchResponse>( entryCursor );
