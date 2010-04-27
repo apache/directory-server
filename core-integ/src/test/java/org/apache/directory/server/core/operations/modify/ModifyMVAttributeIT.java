@@ -60,7 +60,7 @@ public class ModifyMVAttributeIT extends AbstractLdapTestUnit
      * With this test the Master table will grow linearily.
      */
     @Test
-    @Ignore
+    @Ignore( "Ignore atm, this is a perf test" )
     public void testAdd1000Members() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -87,7 +87,7 @@ public class ModifyMVAttributeIT extends AbstractLdapTestUnit
      * With this test the Master table will grow crazy.
      */
     @Test
-    //@Ignore
+    @Ignore( "Ignore atm, this is a perf test" )
     public void testAdd500Members() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
