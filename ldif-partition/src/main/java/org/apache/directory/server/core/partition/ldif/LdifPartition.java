@@ -828,13 +828,6 @@ public class LdifPartition extends BTreePartition<Long>
 
 
     @Override
-    public Index<String, ServerEntry, Long> getNdnIndex()
-    {
-        return wrappedPartition.getNdnIndex();
-    }
-
-
-    @Override
     public Index<Long, ServerEntry, Long> getOneAliasIndex()
     {
         return wrappedPartition.getOneAliasIndex();
@@ -901,13 +894,6 @@ public class LdifPartition extends BTreePartition<Long>
     public Iterator<String> getSystemIndices()
     {
         return wrappedPartition.getSystemIndices();
-    }
-
-
-    @Override
-    public Index<String, ServerEntry, Long> getUpdnIndex()
-    {
-        return wrappedPartition.getUpdnIndex();
     }
 
 

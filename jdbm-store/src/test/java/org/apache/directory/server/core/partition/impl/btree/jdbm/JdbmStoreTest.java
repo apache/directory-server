@@ -368,7 +368,7 @@ public class JdbmStoreTest
         
         Iterator<String> systemIndices = store.systemIndices();
 
-        for ( int ii = 0; ii < 12; ii++ )
+        for ( int ii = 0; ii < 11; ii++ )
         {
             assertTrue( systemIndices.hasNext() );
             assertNotNull( systemIndices.next() );

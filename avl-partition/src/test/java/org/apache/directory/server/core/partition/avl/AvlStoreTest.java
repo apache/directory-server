@@ -191,10 +191,6 @@ public class AvlStoreTest
         store.setSuffixDn( EXAMPLE_COM );
         assertEquals( "dc=example,dc=com", store.getSuffixDn().getName() );
 
-        assertNull( store.getUpdnIndex() );
-        store.addIndex( new AvlIndex<String, Attributes>( ApacheSchemaConstants.APACHE_UP_DN_AT_OID ) );
-        assertNotNull( store.getUpdnIndex() );
-
         assertNotNull( store.getSuffixDn() );
 
         assertEquals( 0, store.getUserIndices().size() );
@@ -310,18 +306,9 @@ public class AvlStoreTest
         {
         }
 
-        assertNotNull( store.getUpdnIndex() );
-        try
-        {
-            store.addIndex( new AvlIndex<String, ServerEntry>( ApacheSchemaConstants.APACHE_UP_DN_AT_OID ) );
-            fail();
-        }
-        catch ( IllegalStateException e )
-        {
-        }
         Iterator<String> systemIndices = store.systemIndices();
 
-        for ( int ii = 0; ii < 11; ii++ )
+        for ( int ii = 0; ii < 10; ii++ )
         {
             assertTrue( systemIndices.hasNext() );
             assertNotNull( systemIndices.next() );

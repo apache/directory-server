@@ -301,17 +301,6 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     /**
      * {@inheritDoc}
      */
-    public Index<String, E, Long> getUpdnIndex()
-    {
-        // FIXME this method shouldn't be supported anymore after the
-        // introduction of the RDN index, but keeping to minimise the number changes done to interface
-        return getEntryUuidIndex();
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public Index<String, E, Long> getNdnIndex()
     {
         // FIXME should this be entryUuidIdx?

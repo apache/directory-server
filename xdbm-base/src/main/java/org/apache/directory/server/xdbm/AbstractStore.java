@@ -84,9 +84,6 @@ public abstract class AbstractStore<E, ID> implements Store<E, ID>
     /** the normalized distinguished name index */
     protected Index<String, E, ID> ndnIdx;
 
-    /** the user provided distinguished name index */
-    protected Index<String, E, ID> updnIdx;
-
     /** the attribute presence index */
     protected Index<String, E, ID> presenceIdx;
 
@@ -254,10 +251,6 @@ public abstract class AbstractStore<E, ID> implements Store<E, ID>
         {
             addIndex( new GenericIndex<String, E, ID>( ApacheSchemaConstants.APACHE_N_DN_AT_OID ) );
         }
-        if ( getUpdnIndex() == null )
-        {
-            addIndex( new GenericIndex<String, E, ID>( ApacheSchemaConstants.APACHE_UP_DN_AT_OID ) );
-        }
         if ( getAliasIndex() == null )
         {
             addIndex( new GenericIndex<String, E, ID>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
@@ -293,7 +286,6 @@ public abstract class AbstractStore<E, ID> implements Store<E, ID>
 
         // set index shortcuts
         ndnIdx = ( Index<String, E, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_N_DN_AT_OID );
-        updnIdx = ( Index<String, E, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_UP_DN_AT_OID );
         presenceIdx = ( Index<String, E, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID );
         oneLevelIdx = ( Index<ID, E, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
         subLevelIdx = ( Index<ID, E, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
@@ -480,16 +472,6 @@ public abstract class AbstractStore<E, ID> implements Store<E, ID>
     public Index<String, E, ID> getNdnIndex()
     {
         return ( Index<String, E, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_N_DN_AT_OID );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @SuppressWarnings("unchecked")
-    public Index<String, E, ID> getUpdnIndex()
-    {
-        return ( Index<String, E, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_UP_DN_AT_OID );
     }
 
 

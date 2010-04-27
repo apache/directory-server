@@ -101,8 +101,6 @@ public interface Store<E, ID>
 
         ApacheSchemaConstants.APACHE_N_DN_AT_OID,
 
-        ApacheSchemaConstants.APACHE_UP_DN_AT_OID,
-
         ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
 
         ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID,
@@ -286,12 +284,6 @@ public interface Store<E, ID>
      * @return The SubAlias system index
      */
     Index<ID, E, ID> getSubAliasIndex();
-
-
-    /**
-     * @return The UpDN system index
-     */
-    Index<String, E, ID> getUpdnIndex();
 
 
     /**

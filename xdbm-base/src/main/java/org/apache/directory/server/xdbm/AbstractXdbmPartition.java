@@ -151,18 +151,6 @@ public abstract class AbstractXdbmPartition<ID> extends BTreePartition<ID>
     }
 
 
-    public final Index<String, ServerEntry, ID> getUpdnIndex()
-    {
-        return store.getUpdnIndex();
-    }
-
-
-    public final Index<String, ServerEntry, ID> getNdnIndex()
-    {
-        return store.getNdnIndex();
-    }
-
-
     public final Iterator<String> getUserIndices()
     {
         return store.userIndices();

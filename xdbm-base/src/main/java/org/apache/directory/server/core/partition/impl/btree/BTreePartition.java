@@ -364,24 +364,6 @@ public abstract class BTreePartition<ID> extends AbstractPartition
 
 
     /**
-     * Gets the Index mapping user provided distinguished names of entries as 
-     * Strings to the BigInteger primary keys of entries.
-     *
-     * @return the user provided distinguished name Index
-     */
-    public abstract Index<String, ServerEntry, ID> getUpdnIndex();
-
-
-    /**
-     * Gets the Index mapping the normalized distinguished names of entries as
-     * Strings to the BigInteger primary keys of entries.  
-     *
-     * @return the normalized distinguished name Index
-     */
-    public abstract Index<String, ServerEntry, ID> getNdnIndex();
-
-
-    /**
      * Gets the alias index mapping parent entries with scope expanding aliases 
      * children one level below them; this system index is used to dereference
      * aliases on one/single level scoped searches.

@@ -145,7 +145,6 @@ public class AvlStore<E> extends AbstractStore<E, Long>
         }
 
         ndnIdx.add( normName.getNormName(), id );
-        updnIdx.add( normName.getName(), id );
         oneLevelIdx.add( parentId, id );
 
         // Update the EntryCsn index
@@ -237,7 +236,6 @@ public class AvlStore<E> extends AbstractStore<E, Long>
         }
 
         ndnIdx.drop( id );
-        updnIdx.drop( id );
         oneLevelIdx.drop( id );
         entryCsnIdx.drop( id );
         entryUuidIdx.drop( id );
@@ -318,7 +316,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
      */
     public String getEntryUpdn( Long id ) throws Exception
     {
-        return updnIdx.reverseLookup( id );
+        return lookup( id ).getDn().getName();
     }
 
 
@@ -328,7 +326,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     public String getEntryUpdn( String dn ) throws Exception
     {
         Long id = ndnIdx.forwardLookup( dn );
-        return updnIdx.reverseLookup( id );
+        return getEntryUpdn( id );
     }
 
 
@@ -428,10 +426,6 @@ public class AvlStore<E> extends AbstractStore<E, Long>
         }
 
         ndnIdx.add( updn.getNormName(), id );
-
-        // update user provided DN index
-        updnIdx.drop( id );
-        updnIdx.add( updn.getName(), id );
 
         /* 
          * Read Alias Index Tuples
