@@ -469,6 +469,15 @@ public class AvlIndex<K, O> implements Index<K, O, Long>
     /**
      * {@inheritDoc}
      */
+    public boolean isDupsEnabled()
+    {
+        return reverse.isDupsEnabled();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
     public void sync() throws Exception
     {
     }

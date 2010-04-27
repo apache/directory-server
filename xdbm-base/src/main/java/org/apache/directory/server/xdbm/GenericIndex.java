@@ -306,4 +306,12 @@ public class GenericIndex<K, O, ID> implements Index<K, O, ID>
         throw new UnsupportedOperationException();
     }
 
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isDupsEnabled()
+    {
+        return false;
+    }
 }

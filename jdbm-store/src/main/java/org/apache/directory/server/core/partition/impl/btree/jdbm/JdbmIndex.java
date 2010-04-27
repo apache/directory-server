@@ -702,6 +702,15 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
 
 
     /**
+     * {@inheritDoc}
+     */
+    public boolean isDupsEnabled()
+    {
+        return reverse.isDupsEnabled();
+    }
+    
+    
+    /**
      * @see Object#toString()
      */
     public String toString()

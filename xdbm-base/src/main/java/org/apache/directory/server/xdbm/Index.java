@@ -258,4 +258,12 @@ public interface Index<K, O, ID>
 
 
     void sync() throws Exception;
+
+    
+    /**
+     * tells whether the Index implementation supports storing duplicate keys
+     *
+     * @return true if duplicate keys are allowed false otherwise 
+     */
+    boolean isDupsEnabled();
 }
