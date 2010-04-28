@@ -195,4 +195,30 @@ public enum EventType
         
         return mask;
     }
+    
+    
+    /**
+     * checks if the given mask value matches with any of the defined
+     * standard EventTypes 
+     *
+     * @param mask the mask value of the EventType
+     * @return EventType matching the mask value of the standard event types defined, else throws IllegalArgumentException 
+     */
+    public static EventType getType( int mask )
+    {
+        switch( mask )
+        {
+            case 1: return ADD;
+            
+            case 2: return DELETE;
+            
+            case 4: return MODIFY;
+            
+            case 8: return RENAME;
+            
+            case 16: return MOVE;
+            
+            default: throw new IllegalArgumentException( "unknown mask value " + mask );
+        }
+    }
 }
