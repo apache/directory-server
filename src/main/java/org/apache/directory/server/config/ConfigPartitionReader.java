@@ -72,7 +72,7 @@ import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -101,7 +101,7 @@ public class ConfigPartitionReader
     private LdifPartition configPartition;
 
     /** the search engine of the partition */
-    private SearchEngine<ServerEntry, Long> se;
+    private SearchEngine<Entry, Long> se;
 
     /** the schema manager set in the config partition */
     private SchemaManager schemaManager;
@@ -162,7 +162,7 @@ public class ConfigPartitionReader
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        IndexCursor<Long, ServerEntry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
             AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         if ( !cursor.next() )
@@ -171,7 +171,7 @@ public class ConfigPartitionReader
             return null;
         }
 
-        ForwardIndexEntry<Long, ServerEntry, Long> forwardEntry = ( ForwardIndexEntry<Long, ServerEntry, Long> ) cursor
+        ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
             .get();
         cursor.close();
 
@@ -202,7 +202,7 @@ public class ConfigPartitionReader
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        IndexCursor<Long, ServerEntry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
             AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         if ( !cursor.next() )
@@ -211,7 +211,7 @@ public class ConfigPartitionReader
             return null;
         }
 
-        ForwardIndexEntry<Long, ServerEntry, Long> forwardEntry = ( ForwardIndexEntry<Long, ServerEntry, Long> ) cursor
+        ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
             .get();
         cursor.close();
 
@@ -345,7 +345,7 @@ public class ConfigPartitionReader
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        IndexCursor<Long, ServerEntry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
             AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         if ( !cursor.next() )
@@ -354,7 +354,7 @@ public class ConfigPartitionReader
             return null;
         }
 
-        ForwardIndexEntry<Long, ServerEntry, Long> forwardEntry = ( ForwardIndexEntry<Long, ServerEntry, Long> ) cursor
+        ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
             .get();
         cursor.close();
 
@@ -387,7 +387,7 @@ public class ConfigPartitionReader
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        IndexCursor<Long, ServerEntry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
             AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         if ( !cursor.next() )
@@ -396,7 +396,7 @@ public class ConfigPartitionReader
             return null;
         }
 
-        ForwardIndexEntry<Long, ServerEntry, Long> forwardEntry = ( ForwardIndexEntry<Long, ServerEntry, Long> ) cursor
+        ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
             .get();
         cursor.close();
 
@@ -422,7 +422,7 @@ public class ConfigPartitionReader
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        IndexCursor<Long, ServerEntry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
             AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         if ( !cursor.next() )
@@ -431,7 +431,7 @@ public class ConfigPartitionReader
             return null;
         }
 
-        ForwardIndexEntry<Long, ServerEntry, Long> forwardEntry = ( ForwardIndexEntry<Long, ServerEntry, Long> ) cursor
+        ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
             .get();
         cursor.close();
 
@@ -463,7 +463,7 @@ public class ConfigPartitionReader
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        IndexCursor<Long, ServerEntry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
             AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         if ( !cursor.next() )
@@ -472,7 +472,7 @@ public class ConfigPartitionReader
             return null;
         }
         
-        ForwardIndexEntry<Long, ServerEntry, Long> forwardEntry = ( ForwardIndexEntry<Long, ServerEntry, Long> ) cursor.get();
+        ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor.get();
         cursor.close();
 
         ClonedServerEntry chgPwdEntry = configPartition.lookup( forwardEntry.getId() );
@@ -569,7 +569,7 @@ public class ConfigPartitionReader
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        IndexCursor<Long, ServerEntry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
             AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         if ( !cursor.next() )
@@ -578,7 +578,7 @@ public class ConfigPartitionReader
             return null;
         }
 
-        ForwardIndexEntry<Long, ServerEntry, Long> forwardEntry = ( ForwardIndexEntry<Long, ServerEntry, Long> ) cursor
+        ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
             .get();
         cursor.close();
 
@@ -634,7 +634,7 @@ public class ConfigPartitionReader
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        IndexCursor<Long, ServerEntry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
             AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         if ( !cursor.next() )
@@ -644,7 +644,7 @@ public class ConfigPartitionReader
                 + configPartition.getSuffixDn() );
         }
 
-        ForwardIndexEntry<Long, ServerEntry, Long> forwardEntry = ( ForwardIndexEntry<Long, ServerEntry, Long> ) cursor
+        ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
             .get();
         cursor.close();
 
@@ -778,16 +778,16 @@ public class ConfigPartitionReader
         PresenceNode filter = new PresenceNode( ConfigSchemaConstants.ADS_INTERCEPTOR_ID );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        IndexCursor<Long, ServerEntry, Long> cursor = se.cursor( interceptorsDN, AliasDerefMode.NEVER_DEREF_ALIASES,
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( interceptorsDN, AliasDerefMode.NEVER_DEREF_ALIASES,
             filter, controls );
 
         Set<InterceptorConfig> set = new TreeSet<InterceptorConfig>();
 
         while ( cursor.next() )
         {
-            ForwardIndexEntry<Long, ServerEntry, Long> forwardEntry = ( ForwardIndexEntry<Long, ServerEntry, Long> ) cursor
+            ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
                 .get();
-            ServerEntry interceptorEntry = configPartition.lookup( forwardEntry.getId() );
+            Entry interceptorEntry = configPartition.lookup( forwardEntry.getId() );
 
             String id = getString( ConfigSchemaConstants.ADS_INTERCEPTOR_ID, interceptorEntry );
             String fqcn = getString( ConfigSchemaConstants.ADS_INTERCEPTOR_CLASSNAME, interceptorEntry );
@@ -824,16 +824,16 @@ public class ConfigPartitionReader
         PresenceNode filter = new PresenceNode( ConfigSchemaConstants.ADS_PARTITION_ID );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        IndexCursor<Long, ServerEntry, Long> cursor = se.cursor( partitionsDN, AliasDerefMode.NEVER_DEREF_ALIASES,
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( partitionsDN, AliasDerefMode.NEVER_DEREF_ALIASES,
             filter, controls );
 
         Map<String, Partition> partitions = new HashMap<String, Partition>();
 
         while ( cursor.next() )
         {
-            ForwardIndexEntry<Long, ServerEntry, Long> forwardEntry = ( ForwardIndexEntry<Long, ServerEntry, Long> ) cursor
+            ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
                 .get();
-            ServerEntry partitionEntry = configPartition.lookup( forwardEntry.getId() );
+            Entry partitionEntry = configPartition.lookup( forwardEntry.getId() );
 
             if ( !isEnabled( partitionEntry ) )
             {
@@ -858,7 +858,7 @@ public class ConfigPartitionReader
     }
 
 
-    private JdbmPartition getJdbmPartition( ServerEntry partitionEntry ) throws Exception
+    private JdbmPartition getJdbmPartition( Entry partitionEntry ) throws Exception
     {
         JdbmPartition partition = new JdbmPartition();
         partition.setSchemaManager( schemaManager );
@@ -891,28 +891,28 @@ public class ConfigPartitionReader
 
         String indexesDN = partitionEntry.get( ConfigSchemaConstants.ADS_PARTITION_INDEXED_ATTRIBUTES ).getString();
 
-        Set<Index<?, ServerEntry, Long>> indexedAttributes = getIndexes( new DN( indexesDN ) );
+        Set<Index<?, Entry, Long>> indexedAttributes = getIndexes( new DN( indexesDN ) );
         partition.setIndexedAttributes( indexedAttributes );
 
         return partition;
     }
 
 
-    private Set<Index<?, ServerEntry, Long>> getIndexes( DN indexesDN ) throws Exception
+    private Set<Index<?, Entry, Long>> getIndexes( DN indexesDN ) throws Exception
     {
         PresenceNode filter = new PresenceNode( ConfigSchemaConstants.ADS_INDEX_ATTRIBUTE_ID );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        IndexCursor<Long, ServerEntry, Long> cursor = se.cursor( indexesDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter,
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( indexesDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter,
             controls );
 
-        Set<Index<?, ServerEntry, Long>> indexes = new HashSet<Index<?, ServerEntry, Long>>();
+        Set<Index<?, Entry, Long>> indexes = new HashSet<Index<?, Entry, Long>>();
 
         while ( cursor.next() )
         {
-            ForwardIndexEntry<Long, ServerEntry, Long> forwardEntry = ( ForwardIndexEntry<Long, ServerEntry, Long> ) cursor
+            ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
                 .get();
-            ServerEntry indexEntry = configPartition.lookup( forwardEntry.getId() );
+            Entry indexEntry = configPartition.lookup( forwardEntry.getId() );
 
             if ( !isEnabled( indexEntry ) )
             {
@@ -935,9 +935,9 @@ public class ConfigPartitionReader
     }
 
 
-    private JdbmIndex<?, ServerEntry> getJdbmIndex( ServerEntry indexEntry ) throws Exception
+    private JdbmIndex<?, Entry> getJdbmIndex( Entry indexEntry ) throws Exception
     {
-        JdbmIndex<String, ServerEntry> index = new JdbmIndex<String, ServerEntry>();
+        JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>();
         index.setAttributeId( getString( ConfigSchemaConstants.ADS_INDEX_ATTRIBUTE_ID, indexEntry ) );
         EntryAttribute cacheAttr = indexEntry.get( ConfigSchemaConstants.ADS_INDEX_CACHESIZE );
 
@@ -962,16 +962,16 @@ public class ConfigPartitionReader
         PresenceNode filter = new PresenceNode( ConfigSchemaConstants.ADS_TRANSPORT_ID );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        IndexCursor<Long, ServerEntry, Long> cursor = se.cursor( transportsDN, AliasDerefMode.NEVER_DEREF_ALIASES,
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( transportsDN, AliasDerefMode.NEVER_DEREF_ALIASES,
             filter, controls );
 
         List<Transport> transports = new ArrayList<Transport>();
 
         while ( cursor.next() )
         {
-            ForwardIndexEntry<Long, ServerEntry, Long> forwardEntry = ( ForwardIndexEntry<Long, ServerEntry, Long> ) cursor
+            ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
                 .get();
-            ServerEntry transportEntry = configPartition.lookup( forwardEntry.getId() );
+            Entry transportEntry = configPartition.lookup( forwardEntry.getId() );
 
             if ( !isEnabled( transportEntry ) )
             {
@@ -1143,16 +1143,16 @@ public class ConfigPartitionReader
         PresenceNode filter = new PresenceNode( ConfigSchemaConstants.ADS_HTTP_WARFILE );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        IndexCursor<Long, ServerEntry, Long> cursor = se.cursor( webAppsDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter,
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( webAppsDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter,
             controls );
 
         Set<WebApp> webApps = new HashSet<WebApp>();
 
         while ( cursor.next() )
         {
-            ForwardIndexEntry<Long, ServerEntry, Long> forwardEntry = ( ForwardIndexEntry<Long, ServerEntry, Long> ) cursor
+            ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
                 .get();
-            ServerEntry webAppEntry = configPartition.lookup( forwardEntry.getId() );
+            Entry webAppEntry = configPartition.lookup( forwardEntry.getId() );
 
             WebApp app = new WebApp();
             app.setWarFile( getString( ConfigSchemaConstants.ADS_HTTP_WARFILE, webAppEntry ) );
