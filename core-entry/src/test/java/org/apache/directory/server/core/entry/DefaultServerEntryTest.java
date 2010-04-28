@@ -44,12 +44,10 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
@@ -63,12 +61,11 @@ import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 
 /**
- * Test the DefaultServerEntry class.
+ * Test the DefaultClientEntry class.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -142,12 +139,12 @@ public class DefaultServerEntryTest
     // Test the Constructors
     //-------------------------------------------------------------------------
     /**
-     * Test for method DefaultServerEntry()
+     * Test for method DefaultClientEntry()
      */
     @Test
-    public void testDefaultServerEntry() throws Exception
+    public void testDefaultClientEntry() throws Exception
     {
-        Entry entry = new DefaultServerEntry();
+        Entry entry = new DefaultClientEntry();
         assertNotNull( entry );
         assertEquals( DN.EMPTY_DN, entry.getDn() );
         assertEquals( 0, entry.size() );
@@ -155,12 +152,12 @@ public class DefaultServerEntryTest
     
     
     /**
-     * Test for method DefaultServerEntry( registries )
+     * Test for method DefaultClientEntry( registries )
      */
     @Test
-    public void testDefaultServerEntryRegistries() throws Exception
+    public void testDefaultClientEntryRegistries() throws Exception
     {
-        Entry entry = new DefaultServerEntry( schemaManager );
+        Entry entry = new DefaultClientEntry( schemaManager );
         assertNotNull( entry );
         assertEquals( DN.EMPTY_DN, entry.getDn() );
         assertEquals( 0, entry.size() );
@@ -168,12 +165,12 @@ public class DefaultServerEntryTest
     
     
     /**
-     * Test for method DefaultServerEntry( registries, DN )
+     * Test for method DefaultClientEntry( registries, DN )
      */
     @Test
-    public void testDefaultServerEntryRegistriesDN() throws Exception
+    public void testDefaultClientEntryRegistriesDN() throws Exception
     {
-        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         assertNotNull( entry );
         assertEquals( EXAMPLE_DN, entry.getDn() );
         assertEquals( 0, entry.size() );
@@ -181,12 +178,12 @@ public class DefaultServerEntryTest
     
     
     /**
-     * Test for method DefaultServerEntry( registries, DN, AttributeType... )
+     * Test for method DefaultClientEntry( registries, DN, AttributeType... )
      */
     @Test
-    public void testDefaultServerEntryRegistriesDNAttributeTypeArray() throws Exception
+    public void testDefaultClientEntryRegistriesDNAttributeTypeArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN, atOC, atPwd, atCN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN, atOC, atPwd, atCN );
         assertNotNull( entry );
         assertEquals( EXAMPLE_DN, entry.getDn() );
         assertEquals( 3, entry.size() );
@@ -197,12 +194,12 @@ public class DefaultServerEntryTest
     
     
     /**
-     * Test for method DefaultServerEntry( registries, DN, AttributeType, upId )
+     * Test for method DefaultClientEntry( registries, DN, AttributeType, upId )
      */
     @Test
-    public void testDefaultServerEntryRegistriesDNAttributeTypeUpId() throws Exception
+    public void testDefaultClientEntryRegistriesDNAttributeTypeUpId() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN, atOC, "  OBJECTCLASS  " );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN, atOC, "  OBJECTCLASS  " );
         assertNotNull( entry );
         assertEquals( EXAMPLE_DN, entry.getDn() );
         assertEquals( 1, entry.size() );
@@ -213,12 +210,12 @@ public class DefaultServerEntryTest
     
     
     /**
-     * Test for method DefaultServerEntry( registries, DN, AttributeType, upId )
+     * Test for method DefaultClientEntry( registries, DN, AttributeType, upId )
      */
     @Test
-    public void testDefaultServerEntryRegistriesDNUpIdArray() throws Exception
+    public void testDefaultClientEntryRegistriesDNUpIdArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN, "  OBJECTCLASS  ", " Cn " );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN, "  OBJECTCLASS  ", " Cn " );
         assertNotNull( entry );
         assertEquals( EXAMPLE_DN, entry.getDn() );
         assertEquals( 2, entry.size() );
@@ -240,7 +237,7 @@ public class DefaultServerEntryTest
     @Test
     public void testAddEntryAttribute() throws Exception
     {
-        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         EntryAttribute oc = new DefaultEntryAttribute( atObjectClass, "top", "person" );
         EntryAttribute cn = new DefaultEntryAttribute( atCN, "test1", "test2" );
@@ -279,7 +276,7 @@ public class DefaultServerEntryTest
     @Test
     public void testAddStringByteArrayArray() throws Exception
     {
-        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         entry.add( "userPassword", (byte[])null );
         assertEquals( 1, entry.size() );
@@ -323,7 +320,7 @@ public class DefaultServerEntryTest
     @Test
     public void testAddStringStringArray() throws Exception
     {
-        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         entry.add( "cn", (String)null );
         assertEquals( 1, entry.size() );
@@ -367,7 +364,7 @@ public class DefaultServerEntryTest
     @Test
     public void testAddStringValueArray() throws Exception
     {
-        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         Value<String> value = new StringValue( atCN, (String)null );
         
         entry.add( "cn", value );
@@ -420,7 +417,7 @@ public class DefaultServerEntryTest
     @Test
     public void testAddAttributeTypeByteArrayArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         entry.add( atPwd, BYTES1, BYTES2 );
         assertEquals( 1, entry.size() );
@@ -443,7 +440,7 @@ public class DefaultServerEntryTest
     @Test
     public void testAddAttributeTypeStringArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         entry.add( atC, "us", "fr" );
         assertEquals( 1, entry.size() );
@@ -471,7 +468,7 @@ public class DefaultServerEntryTest
     @Test
     public void testAddAttributeTypeValueArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         Value<String> strValue1 = new StringValue( atCN, "test1" );
         Value<String> strValue2 = new StringValue( atCN, "test2" );
@@ -517,7 +514,7 @@ public class DefaultServerEntryTest
     @Test
     public void testAddStringAttributeTypeByteArrayArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         entry.add( "UserPassword", atPwd, BYTES1, BYTES2 );
         assertEquals( 1, entry.size() );
@@ -554,7 +551,7 @@ public class DefaultServerEntryTest
     @Test
     public void testAddStringAttributeTypeStringArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         entry.add( "DomainComponent", atDC, "test1", "test2" );
         assertEquals( 1, entry.size() );
@@ -589,7 +586,7 @@ public class DefaultServerEntryTest
     @Test
     public void testAddStringAttributeTypeValueArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         Value<String> strValue1 = new StringValue( atCN, "test1" );
         Value<String> strValue2 = new StringValue( atCN, "test2" );
@@ -647,7 +644,7 @@ public class DefaultServerEntryTest
     @Test public void testAddAtStringElipsis() throws Exception
     {
         DN dn = new DN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        DefaultClientEntry entry = new DefaultClientEntry( schemaManager, dn );
         
         // Test a simple addition
         entry.add( atDC, "test1" );
@@ -696,7 +693,7 @@ public class DefaultServerEntryTest
     @Test public void testAddAtBytesElipsis() throws Exception
     {
         DN dn = new DN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        DefaultClientEntry entry = new DefaultClientEntry( schemaManager, dn );
         
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
         
@@ -753,7 +750,7 @@ public class DefaultServerEntryTest
     @Test public void testAddAtServerValueElipsis() throws Exception
     {
         DN dn = new DN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        DefaultClientEntry entry = new DefaultClientEntry( schemaManager, dn );
         
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
         
@@ -858,7 +855,7 @@ public class DefaultServerEntryTest
     @Test public void testAddUpIdStringElipsis() throws Exception
     {
         DN dn = new DN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        DefaultClientEntry entry = new DefaultClientEntry( schemaManager, dn );
         
         // Test a simple addition
         entry.add( "DC", "test1" );
@@ -910,7 +907,7 @@ public class DefaultServerEntryTest
     @Test public void testAddUpIdBytesElipsis() throws Exception
     {
         DN dn = new DN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        DefaultClientEntry entry = new DefaultClientEntry( schemaManager, dn );
         
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
         
@@ -967,7 +964,7 @@ public class DefaultServerEntryTest
     @Test public void testAddUpIdServerValueElipsis() throws Exception
     {
         DN dn = new DN( "cn=test" );
-        ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        Entry entry = new DefaultClientEntry( schemaManager, dn );
         
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
         
@@ -1078,7 +1075,7 @@ public class DefaultServerEntryTest
     @Test public void testAddUpIdAtStringElipsis() throws Exception
     {
         DN dn = new DN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        DefaultClientEntry entry = new DefaultClientEntry( schemaManager, dn );
         
         // Test a simple addition
         entry.add( "dc", atDC, "test1" );
@@ -1127,7 +1124,7 @@ public class DefaultServerEntryTest
     @Test public void testAddUpIdAtBytesElipsis() throws Exception
     {
         DN dn = new DN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        DefaultClientEntry entry = new DefaultClientEntry( schemaManager, dn );
         
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
         
@@ -1184,7 +1181,7 @@ public class DefaultServerEntryTest
     @Test public void testAddUpIdAtServerValueElipsis() throws Exception
     {
         DN dn = new DN( "cn=test" );
-        ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        Entry entry = new DefaultClientEntry( schemaManager, dn );
         
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
         
@@ -1295,7 +1292,7 @@ public class DefaultServerEntryTest
     @Test
     public void testClear() throws Exception
     {
-        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
          
         assertEquals( 0, entry.size() );
         assertNull( entry.get( "ObjectClass" ) );
@@ -1319,7 +1316,7 @@ public class DefaultServerEntryTest
     @Test
     public void testClone() throws Exception
     {
-        Entry entry1 = new DefaultServerEntry( schemaManager );
+        Entry entry1 = new DefaultClientEntry( schemaManager );
         
         Entry entry2 = entry1.clone();
         
@@ -1356,7 +1353,7 @@ public class DefaultServerEntryTest
     @Test
     public void testContainsAttributeTypeByteArrayArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         assertFalse( entry.contains( (AttributeType )null, BYTES1 ) );
         assertFalse( entry.contains( atPwd, BYTES1 ) );
@@ -1379,7 +1376,7 @@ public class DefaultServerEntryTest
     @Test
     public void testContainsAttributeTypeStringArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         assertFalse( entry.contains( (AttributeType )null, "test" ) );
         assertFalse( entry.contains( atCN, "test" ) );
@@ -1402,7 +1399,7 @@ public class DefaultServerEntryTest
     @Test
     public void testContainsAttributeTypeValuesArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         Value<String> strValue1 = new StringValue( atCN, "test1" );
         Value<String> strValue2 = new StringValue( atCN, "test2" );
@@ -1437,7 +1434,7 @@ public class DefaultServerEntryTest
     @Test
     public void testContainsEntryAttributeArray() throws Exception
     {
-        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
         EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
@@ -1467,7 +1464,7 @@ public class DefaultServerEntryTest
     @Test
     public void testContainsStringByteArrayArray() throws Exception
     {
-        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         assertFalse( entry.contains( (String)null, BYTES3 ) );
         assertFalse( entry.containsAttribute( "objectClass" ) );
@@ -1491,7 +1488,7 @@ public class DefaultServerEntryTest
     @Test
     public void testContainsStringStringArray() throws Exception
     {
-        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         assertFalse( entry.contains( (String)null, "test" ) );
         assertFalse( entry.containsAttribute( "objectClass" ) );
@@ -1515,7 +1512,7 @@ public class DefaultServerEntryTest
     @Test
     public void testContainsStringValueArray() throws Exception
     {
-        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         assertFalse( entry.contains( (String)null, "test" ) );
         assertFalse( entry.containsAttribute( "objectClass" ) );
@@ -1550,7 +1547,7 @@ public class DefaultServerEntryTest
     @Test
     public void testContainsAttributeAttributeType() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         assertFalse( entry.containsAttribute( atOC ) );
         
@@ -1581,7 +1578,7 @@ public class DefaultServerEntryTest
     @Test
     public void testContainsAttributeString() throws Exception
     {
-        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         assertFalse( entry.containsAttribute( "objectClass" ) );
         
@@ -1610,8 +1607,8 @@ public class DefaultServerEntryTest
     @Test
     public void testEqualsObject() throws Exception
     {
-        Entry entry1 = new DefaultServerEntry( schemaManager );
-        Entry entry2 = new DefaultServerEntry( schemaManager );
+        Entry entry1 = new DefaultClientEntry( schemaManager );
+        Entry entry2 = new DefaultClientEntry( schemaManager );
         
         assertEquals( entry1, entry2 );
         
@@ -1658,7 +1655,7 @@ public class DefaultServerEntryTest
     @Test
     public void testGetAttributeTypes() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         assertEquals( 0, entry.getAttributeTypes().size() );
 
@@ -1686,7 +1683,7 @@ public class DefaultServerEntryTest
     @Test
     public void testGetAttributeType() throws Exception 
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
 
         assertNull( entry.get( atCN ) );
         assertNull( entry.get( (AttributeType)null ) );
@@ -1713,7 +1710,7 @@ public class DefaultServerEntryTest
     @Test
     public void testGetString() throws Exception 
     {
-        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
 
         assertNull( entry.get( "cn" ) );
         assertNull( entry.get( "badId" ) );
@@ -1742,7 +1739,7 @@ public class DefaultServerEntryTest
     @Test
     public void testGetDn() throws LdapInvalidDnException 
     {
-        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
          
         assertEquals( EXAMPLE_DN, entry.getDn() );
          
@@ -1759,8 +1756,8 @@ public class DefaultServerEntryTest
     @Test
     public void testHashCode() throws InvalidNameException, Exception
     {
-        Entry entry1 = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
-        Entry entry2 = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry1 = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
+        Entry entry2 = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         assertEquals( entry1.hashCode(), entry2.hashCode() );
         
@@ -1781,7 +1778,7 @@ public class DefaultServerEntryTest
 
         assertEquals( entry1.hashCode(), entry2.hashCode() );
         
-        Entry entry3 = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry3 = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         entry3.add( attrOC, attrSN, attrCN, attrPWD );
 
         assertEquals( entry1.hashCode(), entry3.hashCode() );
@@ -1794,7 +1791,7 @@ public class DefaultServerEntryTest
     @Test
     public void testHasObjectClassEntryAttribute() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
         
@@ -1823,7 +1820,7 @@ public class DefaultServerEntryTest
     @Test
     public void testHasObjectClassString() throws Exception
     {
-        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         assertFalse( entry.containsAttribute( "objectClass" ) );
         assertFalse( entry.hasObjectClass( "top" ) );
@@ -1877,7 +1874,7 @@ public class DefaultServerEntryTest
     @Test
     public void testIterator() throws Exception
     {
-        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
         EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
@@ -1918,7 +1915,7 @@ public class DefaultServerEntryTest
     @Test
     public void testPutAttributeTypeByteArrayArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         try
         {
@@ -1960,7 +1957,7 @@ public class DefaultServerEntryTest
     @Test
     public void testPutAttributeTypeStringArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         try
         {
@@ -2001,7 +1998,7 @@ public class DefaultServerEntryTest
     @Test
     public void testPutAttributeTypeValueArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         Value<String> strValue1 = new StringValue( atCN, "test1" );
         Value<String> strValue2 = new StringValue( atCN, "test2" );
@@ -2049,7 +2046,7 @@ public class DefaultServerEntryTest
     @Test
     public void testPutEntryAttribute() throws Exception
     {
-        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         EntryAttribute oc = new DefaultEntryAttribute( atObjectClass, "top", "person" );
         EntryAttribute cn = new DefaultEntryAttribute( atCN, "test1", "test2" );
@@ -2099,7 +2096,7 @@ public class DefaultServerEntryTest
     @Test
     public void testPutStringAttributeTypeByteArrayArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         try
         {
@@ -2174,7 +2171,7 @@ public class DefaultServerEntryTest
     @Test
     public void testPutStringAttributeTypeStringArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         try
         {
@@ -2248,7 +2245,7 @@ public class DefaultServerEntryTest
     @Test
     public void testPutStringAttributeTypeValueArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         Value<String> strValue1 = new StringValue( atCN, "test1" );
         Value<String> strValue2 = new StringValue( atCN, "test2" );
@@ -2329,7 +2326,7 @@ public class DefaultServerEntryTest
     @Test
     public void testPutStringByteArrayArray()
     {
-        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         try
         {
@@ -2397,7 +2394,7 @@ public class DefaultServerEntryTest
     @Test
     public void testPutStringStringArray()
     {
-        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         try
         {
@@ -2466,7 +2463,7 @@ public class DefaultServerEntryTest
     @Test
     public void testPutStringValueArray()
     {
-        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         Value<String> strValue1 = new StringValue( atCN, "test1" );
         Value<String> strValue2 = new StringValue( atCN, "test2" );
@@ -2547,7 +2544,7 @@ public class DefaultServerEntryTest
     @Test public void tesPutServerAttributeElipsis() throws Exception
     {
         DN dn = new DN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        DefaultClientEntry entry = new DefaultClientEntry( schemaManager, dn );
 
         // first test a null SA addition. It should be allowed.
         try
@@ -2627,7 +2624,7 @@ public class DefaultServerEntryTest
     @Test public void tesPutAtStringElipsis() throws Exception
     {
         DN dn = new DN( "dc=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        DefaultClientEntry entry = new DefaultClientEntry( schemaManager, dn );
         
         // Test an empty AT
         entry.put( atDC, (String)null );
@@ -2683,7 +2680,7 @@ public class DefaultServerEntryTest
     @Test public void tesPutAtByteElipsis() throws Exception
     {
         DN dn = new DN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        DefaultClientEntry entry = new DefaultClientEntry( schemaManager, dn );
         
         // Test an empty AT
         entry.put( atPwd, (byte[])null );
@@ -2745,7 +2742,7 @@ public class DefaultServerEntryTest
     @Test public void tesPutAtSVs() throws Exception
     {
         DN dn = new DN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        DefaultClientEntry entry = new DefaultClientEntry( schemaManager, dn );
         
         // Adding a null value to an attribute
         entry.put( atCN, (Value<?>)null );
@@ -2807,7 +2804,7 @@ public class DefaultServerEntryTest
     @Test public void tesPutUpIdStringElipsis() throws Exception
     {
         DN dn = new DN( "dc=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        DefaultClientEntry entry = new DefaultClientEntry( schemaManager, dn );
         
         // Adding a null value should be possible
         entry.put( "dc", (String)null );
@@ -2868,7 +2865,7 @@ public class DefaultServerEntryTest
     @Test public void tesPutUpIdBytesElipsis() throws Exception
     {
         DN dn = new DN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        DefaultClientEntry entry = new DefaultClientEntry( schemaManager, dn );
         
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
         
@@ -2931,7 +2928,7 @@ public class DefaultServerEntryTest
     @Test public void tesPutUpIDAtStringElipsis() throws Exception
     {
         DN dn = new DN( "dc=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        DefaultClientEntry entry = new DefaultClientEntry( schemaManager, dn );
         
         // Test that we get an error when the ID or AT are null
         try
@@ -2994,7 +2991,7 @@ public class DefaultServerEntryTest
     @Test public void tesPutUpIDAtBytesElipsis() throws Exception
     {
         DN dn = new DN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        DefaultClientEntry entry = new DefaultClientEntry( schemaManager, dn );
         
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
         
@@ -3068,7 +3065,7 @@ public class DefaultServerEntryTest
     @Test public void tesPutUpIDAtSVElipsis() throws Exception
     {
         DN dn = new DN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        DefaultClientEntry entry = new DefaultClientEntry( schemaManager, dn );
         
         // Test that we get an error when the ID or AT are null
         try
@@ -3138,7 +3135,7 @@ public class DefaultServerEntryTest
     @Test public void tesPutUpIDSVElipsis() throws Exception
     {
         DN dn = new DN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        DefaultClientEntry entry = new DefaultClientEntry( schemaManager, dn );
         
         // Test that we get an error when the ID or AT are null
         try
@@ -3184,7 +3181,7 @@ public class DefaultServerEntryTest
     @Test
     public void testRemoveAttributeTypeByteArrayArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, (byte[])null, BYTES2 );
 
@@ -3213,7 +3210,7 @@ public class DefaultServerEntryTest
     @Test
     public void testRemoveAttributeTypeStringArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         EntryAttribute attrCN = new DefaultEntryAttribute( atDC, "test1", (String)null, "test2" );
 
@@ -3242,7 +3239,7 @@ public class DefaultServerEntryTest
     @Test
     public void testRemoveAttributeTypeValueArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         Value<String> strValue1 = new StringValue( atDC, "test1" );
         Value<String> strValue2 = new StringValue( atDC, "test2" );
@@ -3278,7 +3275,7 @@ public class DefaultServerEntryTest
     @Test
     public void testRemoveEntryAttribute() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
         EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
@@ -3310,7 +3307,7 @@ public class DefaultServerEntryTest
     @Test
     public void testRemoveAttributesAttributeTypeArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
 
         EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
         EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
@@ -3338,7 +3335,7 @@ public class DefaultServerEntryTest
     @Test
     public void testRemoveAttributesStringArray() throws Exception
     {
-        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
 
         EntryAttribute attrOC = new DefaultEntryAttribute( atOC, "top", "person" );
         EntryAttribute attrCN = new DefaultEntryAttribute( atCN, "test1", "test2" );
@@ -3369,7 +3366,7 @@ public class DefaultServerEntryTest
     @Test
     public void testRemoveStringByteArrayArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         EntryAttribute attrPWD = new DefaultEntryAttribute( atPwd, BYTES1, (byte[])null, BYTES2 );
 
@@ -3402,7 +3399,7 @@ public class DefaultServerEntryTest
     @Test
     public void testRemoveStringStringArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         EntryAttribute attrCN = new DefaultEntryAttribute( atDC, "test1", (String)null, "test2" );
 
@@ -3435,7 +3432,7 @@ public class DefaultServerEntryTest
     @Test
     public void testRemoveStringValueArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         Value<String> strValue1 = new StringValue( atDC, "test1" );
         Value<String> strValue2 = new StringValue( atDC, "test2" );
@@ -3471,7 +3468,7 @@ public class DefaultServerEntryTest
     @Test public void testRemoveUpIdElipsis() throws Exception
     {
         DN dn = new DN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        DefaultClientEntry entry = new DefaultClientEntry( schemaManager, dn );
         
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
         
@@ -3530,7 +3527,7 @@ public class DefaultServerEntryTest
     @Test public void testSetATElipsis() throws Exception
     {
         DN dn = new DN( "cn=test" );
-        ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        Entry entry = new DefaultClientEntry( schemaManager, dn );
         
         List<EntryAttribute> result = null;
         
@@ -3609,7 +3606,7 @@ public class DefaultServerEntryTest
     @Test public void testSetUpID() throws Exception
     {
         DN dn = new DN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        DefaultClientEntry entry = new DefaultClientEntry( schemaManager, dn );
         List<EntryAttribute> result = null;
         
         // First check that this method fails if we pass a null or empty ID
@@ -3696,7 +3693,7 @@ public class DefaultServerEntryTest
     @Test
     public void testSetAttributeTypeArray() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
 
         entry.add( "ObjectClass", "top", "person" );
         entry.add( "cn", "test1", "test2" );
@@ -3726,7 +3723,7 @@ public class DefaultServerEntryTest
     @Test
     public void testSetStringArray() throws Exception
     {
-        Entry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
 
         entry.add( "ObjectClass", "top", "person" );
         entry.add( "cn", "test1", "test2" );
@@ -3756,7 +3753,7 @@ public class DefaultServerEntryTest
     @Test
     public void testSetDn()
     {
-        Entry entry = new DefaultServerEntry( schemaManager );
+        Entry entry = new DefaultClientEntry( schemaManager );
          
         assertEquals( DN.EMPTY_DN, entry.getDn() );
          
@@ -3771,7 +3768,7 @@ public class DefaultServerEntryTest
      @Test
      public void testSize() throws Exception
      {
-         ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+         Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
           
          assertEquals( 0, entry.size() );
          entry.add( "ObjectClass", schemaManager.lookupAttributeTypeRegistry( "ObjectClass" ), "top", "person" );
@@ -3786,12 +3783,12 @@ public class DefaultServerEntryTest
       
     
     /**
-     * Test a conversion from a ServerEntry to an BasicAttributes
+     * Test a conversion from a Entry to an BasicAttributes
      */
     @Test public void testToBasicAttributes() throws InvalidNameException, Exception
     {
         DN dn = new DN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+        DefaultClientEntry entry = new DefaultClientEntry( schemaManager, dn );
         
         AttributeType OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
         
@@ -3827,7 +3824,7 @@ public class DefaultServerEntryTest
     @Test
     public void testToString() throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager, EXAMPLE_DN );
+        Entry entry = new DefaultClientEntry( schemaManager, EXAMPLE_DN );
         
         assertEquals( "Entry\n    dn: dc=example,dc=com\n", entry.toString() );
         
@@ -3858,16 +3855,16 @@ public class DefaultServerEntryTest
     
     
     /**
-     * Test the copy constructor of a ServerEntry
+     * Test the copy constructor of a Entry
      */
     @Test 
     public void testCopyConstructorServerEntry() throws LdapException
     {
-        Entry serverEntry = new DefaultServerEntry( schemaManager );
+        Entry serverEntry = new DefaultClientEntry( schemaManager );
         serverEntry.add( "cn", "test1", "test2" );
         serverEntry.add( "objectClass", "top", "person" );
         
-        Entry copyEntry = new DefaultServerEntry( schemaManager, serverEntry );
+        Entry copyEntry = new DefaultClientEntry( schemaManager, serverEntry );
         
         assertEquals( copyEntry, serverEntry );
         assertTrue( copyEntry.contains( "objectClass", "top", "person" ) );
@@ -3892,9 +3889,9 @@ public class DefaultServerEntryTest
         clientEntry.add( "cn", "test1", "test2" );
         clientEntry.add( "objectClass", "top", "person" );
         
-        Entry copyEntry = new DefaultServerEntry( schemaManager, clientEntry );
+        Entry copyEntry = new DefaultClientEntry( schemaManager, clientEntry );
         
-        assertTrue( copyEntry instanceof ServerEntry );
+        assertTrue( copyEntry instanceof Entry );
         assertTrue( copyEntry.contains( "objectClass", "top", "person" ) );
         assertTrue( copyEntry.contains( "cn", "test1", "test2" ) );
         

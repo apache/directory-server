@@ -26,7 +26,7 @@ import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
 
@@ -36,16 +36,16 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class PresenceCursor<ID> extends AbstractIndexCursor<String, ServerEntry, ID>
+public class PresenceCursor<ID> extends AbstractIndexCursor<String, Entry, ID>
 {
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_724 );
-    private final IndexCursor<String, ServerEntry, ID> ndnCursor;
-    private final IndexCursor<String, ServerEntry, ID> presenceCursor;
+    private final IndexCursor<String, Entry, ID> ndnCursor;
+    private final IndexCursor<String, Entry, ID> presenceCursor;
     private final PresenceEvaluator<ID> presenceEvaluator;
     private boolean available = false;
 
 
-    public PresenceCursor( Store<ServerEntry, ID> db, PresenceEvaluator<ID> presenceEvaluator ) throws Exception
+    public PresenceCursor( Store<Entry, ID> db, PresenceEvaluator<ID> presenceEvaluator ) throws Exception
     {
         this.presenceEvaluator = presenceEvaluator;
         AttributeType type = presenceEvaluator.getAttributeType();
@@ -90,7 +90,7 @@ public class PresenceCursor<ID> extends AbstractIndexCursor<String, ServerEntry,
     }
 
 
-    public void before( IndexEntry<String, ServerEntry, ID> element ) throws Exception
+    public void before( IndexEntry<String, Entry, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );
         if ( presenceCursor != null )
@@ -116,7 +116,7 @@ public class PresenceCursor<ID> extends AbstractIndexCursor<String, ServerEntry,
     }
 
 
-    public void after( IndexEntry<String, ServerEntry, ID> element ) throws Exception
+    public void after( IndexEntry<String, Entry, ID> element ) throws Exception
     {
         checkNotClosed( "after()" );
         if ( presenceCursor != null )
@@ -194,7 +194,7 @@ public class PresenceCursor<ID> extends AbstractIndexCursor<String, ServerEntry,
         while ( ndnCursor.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?, ServerEntry, ID> candidate = ndnCursor.get();
+            IndexEntry<?, Entry, ID> candidate = ndnCursor.get();
             if ( presenceEvaluator.evaluate( candidate ) )
             {
                 return available = true;
@@ -216,7 +216,7 @@ public class PresenceCursor<ID> extends AbstractIndexCursor<String, ServerEntry,
         while ( ndnCursor.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?, ServerEntry, ID> candidate = ndnCursor.get();
+            IndexEntry<?, Entry, ID> candidate = ndnCursor.get();
             if ( presenceEvaluator.evaluate( candidate ) )
             {
                 return available = true;
@@ -227,7 +227,7 @@ public class PresenceCursor<ID> extends AbstractIndexCursor<String, ServerEntry,
     }
 
 
-    public IndexEntry<String, ServerEntry, ID> get() throws Exception
+    public IndexEntry<String, Entry, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
         if ( presenceCursor != null )
@@ -247,7 +247,7 @@ public class PresenceCursor<ID> extends AbstractIndexCursor<String, ServerEntry,
              * value to be the value of the attribute in question.  So we will
              * set that accordingly here.
              */
-            IndexEntry<String, ServerEntry, ID> indexEntry = ndnCursor.get();
+            IndexEntry<String, Entry, ID> indexEntry = ndnCursor.get();
             indexEntry.setValue( presenceEvaluator.getAttributeType().getOid() );
             return indexEntry;
         }

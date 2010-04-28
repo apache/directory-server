@@ -49,9 +49,8 @@ import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
@@ -163,7 +162,7 @@ public class LdifPartitionTest
     
     private ClonedServerEntry createEntry( String dn ) throws Exception
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager );
+        Entry entry = new DefaultClientEntry( schemaManager );
         entry.setDn( new DN( dn ).normalize( schemaManager.getNormalizerMapping() ) );
         entry.put( SchemaConstants.ENTRY_CSN_AT, defaultCSNFactory.newInstance().toString() );
         entry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );

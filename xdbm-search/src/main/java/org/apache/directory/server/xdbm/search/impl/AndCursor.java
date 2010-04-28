@@ -31,7 +31,7 @@ import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 
 
@@ -41,16 +41,16 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AndCursor<V, ID> extends AbstractIndexCursor<V, ServerEntry, ID>
+public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
 {
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_707 );
-    private final IndexCursor<V, ServerEntry, ID> wrapped;
-    private final List<Evaluator<? extends ExprNode, ServerEntry, ID>> evaluators;
+    private final IndexCursor<V, Entry, ID> wrapped;
+    private final List<Evaluator<? extends ExprNode, Entry, ID>> evaluators;
     private boolean available = false;
 
 
-    public AndCursor( IndexCursor<V, ServerEntry, ID> wrapped,
-        List<Evaluator<? extends ExprNode, ServerEntry, ID>> evaluators )
+    public AndCursor( IndexCursor<V, Entry, ID> wrapped,
+        List<Evaluator<? extends ExprNode, Entry, ID>> evaluators )
     {
         this.wrapped = wrapped;
         this.evaluators = optimize( evaluators );
@@ -75,13 +75,13 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, ServerEntry, ID>
     }
 
 
-    public void before( IndexEntry<V, ServerEntry, ID> element ) throws Exception
+    public void before( IndexEntry<V, Entry, ID> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
 
 
-    public void after( IndexEntry<V, ServerEntry, ID> element ) throws Exception
+    public void after( IndexEntry<V, Entry, ID> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
@@ -123,7 +123,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, ServerEntry, ID>
         {
             checkNotClosed( "previous()" );
 
-            IndexEntry<?, ServerEntry, ID> candidate = wrapped.get();
+            IndexEntry<?, Entry, ID> candidate = wrapped.get();
             if ( matches( candidate ) )
             {
                 return available = true;
@@ -139,7 +139,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, ServerEntry, ID>
         while ( wrapped.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?, ServerEntry, ID> candidate = wrapped.get();
+            IndexEntry<?, Entry, ID> candidate = wrapped.get();
             if ( matches( candidate ) )
             {
                 return available = true;
@@ -150,7 +150,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, ServerEntry, ID>
     }
 
 
-    public IndexEntry<V, ServerEntry, ID> get() throws Exception
+    public IndexEntry<V, Entry, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
         if ( available )
@@ -189,16 +189,16 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, ServerEntry, ID>
      * @param unoptimized the unoptimized list of Evaluators
      * @return optimized Evaluator list with increasing scan count ordering
      */
-    private List<Evaluator<? extends ExprNode, ServerEntry, ID>> optimize(
-        List<Evaluator<? extends ExprNode, ServerEntry, ID>> unoptimized )
+    private List<Evaluator<? extends ExprNode, Entry, ID>> optimize(
+        List<Evaluator<? extends ExprNode, Entry, ID>> unoptimized )
     {
-        List<Evaluator<? extends ExprNode, ServerEntry, ID>> optimized = new ArrayList<Evaluator<? extends ExprNode, ServerEntry, ID>>(
+        List<Evaluator<? extends ExprNode, Entry, ID>> optimized = new ArrayList<Evaluator<? extends ExprNode, Entry, ID>>(
             unoptimized.size() );
         optimized.addAll( unoptimized );
 
-        Collections.sort( optimized, new Comparator<Evaluator<?, ServerEntry, ID>>()
+        Collections.sort( optimized, new Comparator<Evaluator<?, Entry, ID>>()
         {
-            public int compare( Evaluator<?, ServerEntry, ID> e1, Evaluator<?, ServerEntry, ID> e2 )
+            public int compare( Evaluator<?, Entry, ID> e1, Evaluator<?, Entry, ID> e2 )
             {
                 long scanCount1 = ( Long ) e1.getExpression().get( "count" );
                 long scanCount2 = ( Long ) e2.getExpression().get( "count" );
@@ -227,9 +227,9 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, ServerEntry, ID>
     }
 
 
-    private boolean matches( IndexEntry<?, ServerEntry, ID> indexEntry ) throws Exception
+    private boolean matches( IndexEntry<?, Entry, ID> indexEntry ) throws Exception
     {
-        for ( Evaluator<?, ServerEntry, ID> evaluator : evaluators )
+        for ( Evaluator<?, Entry, ID> evaluator : evaluators )
         {
             if ( !evaluator.evaluate( indexEntry ) )
             {

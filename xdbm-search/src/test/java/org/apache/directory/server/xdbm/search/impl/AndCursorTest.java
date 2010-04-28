@@ -39,7 +39,7 @@ import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
@@ -71,7 +71,7 @@ public class AndCursorTest
     private static final Logger LOG = LoggerFactory.getLogger( AndCursorTest.class.getSimpleName() );
 
     File wkdir;
-    Store<ServerEntry, Long> store;
+    Store<Entry, Long> store;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
     private static SchemaManager schemaManager;
@@ -129,7 +129,7 @@ public class AndCursorTest
         wkdir.mkdirs();
 
         // initialize the store
-        store = new JdbmStore<ServerEntry>();
+        store = new JdbmStore<Entry>();
         store.setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionDir( wkdir );
@@ -171,7 +171,7 @@ public class AndCursorTest
 
         ExprNode exprNode = FilterParser.parse( filter );
 
-        IndexCursor<?, ServerEntry, Long> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
 
         cursor.beforeFirst();
 
@@ -203,12 +203,12 @@ public class AndCursorTest
     {
         AndNode andNode = new AndNode();
 
-        List<Evaluator<? extends ExprNode, ServerEntry, Long>> evaluators = new ArrayList<Evaluator<? extends ExprNode, ServerEntry, Long>>();
-        Evaluator<? extends ExprNode, ServerEntry, Long> eval;
+        List<Evaluator<? extends ExprNode, Entry, Long>> evaluators = new ArrayList<Evaluator<? extends ExprNode, Entry, Long>>();
+        Evaluator<? extends ExprNode, Entry, Long> eval;
 
         ExprNode exprNode = new SubstringNode( "cn", "J", null );
         eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
-        IndexCursor<?, ServerEntry, Long> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
+        IndexCursor<?, Entry, Long> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
 
         /* adding this results in NPE  adding Presence evaluator not 
          Substring evaluator but adding Substring cursor as wrapped cursor */
@@ -222,7 +222,7 @@ public class AndCursorTest
 
         andNode.addNode( exprNode );
 
-        IndexCursor<?, ServerEntry, Long> cursor = new AndCursor( wrapped, evaluators ); //cursorBuilder.build( andNode );
+        IndexCursor<?, Entry, Long> cursor = new AndCursor( wrapped, evaluators ); //cursorBuilder.build( andNode );
 
         cursor.beforeFirst();
 

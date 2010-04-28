@@ -38,9 +38,10 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.server.xdbm.tools.IndexUtils;
 import org.apache.directory.shared.ldap.cursor.Cursor;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
@@ -126,7 +127,7 @@ public class IndexCommand extends ToolCommand
         base.disableTransactions();
         CacheRecordManager recMan = new CacheRecordManager( base, new MRU( 1000 ) );
 
-        JdbmMasterTable<ServerEntry> master = new JdbmMasterTable<ServerEntry>( recMan, schemaManager );
+        JdbmMasterTable<Entry> master = new JdbmMasterTable<Entry>( recMan, schemaManager );
         JdbmIndex index = new JdbmIndex();
         index.setAttributeId( attributeType.getName() );
         index.setCacheSize( JdbmIndex.DEFAULT_INDEX_CACHE_SIZE );
@@ -150,13 +151,13 @@ public class IndexCommand extends ToolCommand
         existenceIdx.setWkDirPath( partitionDirectory );
         existenceIdx.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ), partitionDirectory );
 
-        Cursor<Tuple<Long,ServerEntry>> list = master.cursor();
+        Cursor<Tuple<Long,Entry>> list = master.cursor();
         
         while ( list.next() )
         {
-            Tuple<Long,ServerEntry> tuple = list.get();
+            Tuple<Long,Entry> tuple = list.get();
             Long id = tuple.getKey();
-            DefaultServerEntry entry = ( DefaultServerEntry ) tuple.getValue();
+            Entry entry = ( DefaultClientEntry ) tuple.getValue();
 
             EntryAttribute attr = entry.get( attributeType );
             if ( attr == null )

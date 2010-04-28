@@ -50,7 +50,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAffectMultipleDsaException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
@@ -89,7 +89,7 @@ public class DefaultOperationManager implements OperationManager
     }
     
     
-    private LdapReferralException buildReferralException( ServerEntry parentEntry, DN childDn ) 
+    private LdapReferralException buildReferralException( Entry parentEntry, DN childDn ) 
         throws LdapInvalidDnException, LdapURLEncodingException
     {
         // Get the Ref attributeType
@@ -125,7 +125,7 @@ public class DefaultOperationManager implements OperationManager
     
     
     private LdapReferralException buildReferralExceptionForSearch( 
-        ServerEntry parentEntry, DN childDn, SearchScope scope ) 
+        Entry parentEntry, DN childDn, SearchScope scope ) 
         throws LdapInvalidDnException, LdapURLEncodingException
     {
         // Get the Ref attributeType
@@ -228,7 +228,7 @@ public class DefaultOperationManager implements OperationManager
 
             if ( directoryService.getReferralManager().hasParentReferral( dn ) )
             {
-                ServerEntry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
+                Entry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
                 DN childDn = (DN)dn.getSuffix( parentEntry.getDn().size() );
 
                 // Depending on the Context.REFERRAL property value, we will throw
@@ -312,7 +312,7 @@ public class DefaultOperationManager implements OperationManager
             directoryService.getReferralManager().lockRead();
 
             // Check if we have an ancestor for this DN
-            ServerEntry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
+            Entry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
             
             if ( parentEntry != null )
             {
@@ -391,7 +391,7 @@ public class DefaultOperationManager implements OperationManager
             // We have to deal with the referral first
             directoryService.getReferralManager().lockRead();
 
-            ServerEntry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
+            Entry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
             
             if ( parentEntry != null )
             {
@@ -638,7 +638,7 @@ public class DefaultOperationManager implements OperationManager
             directoryService.getReferralManager().lockRead();
 
             // Check if we have an ancestor for this DN
-            ServerEntry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
+            Entry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
             
             if ( parentEntry != null )
             {
@@ -721,7 +721,7 @@ public class DefaultOperationManager implements OperationManager
             directoryService.getReferralManager().lockRead();
 
             // Check if we have an ancestor for this DN
-            ServerEntry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
+            Entry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
             
             if ( parentEntry != null )
             {
@@ -823,7 +823,7 @@ public class DefaultOperationManager implements OperationManager
             directoryService.getReferralManager().lockRead();
 
             // Check if we have an ancestor for this DN
-            ServerEntry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
+            Entry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
             
             if ( parentEntry != null )
             {
@@ -937,7 +937,7 @@ public class DefaultOperationManager implements OperationManager
             directoryService.getReferralManager().lockRead();
 
             // Check if we have an ancestor for this DN
-            ServerEntry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
+            Entry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
             
             if ( parentEntry != null )
             {
@@ -1019,7 +1019,7 @@ public class DefaultOperationManager implements OperationManager
             directoryService.getReferralManager().lockRead();
 
             // Check if we have an ancestor for this DN
-            ServerEntry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
+            Entry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
             
             if ( parentEntry != null )
             {

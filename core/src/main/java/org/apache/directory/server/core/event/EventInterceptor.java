@@ -42,7 +42,7 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.normalization.FilterNormalizingVisitor;
 import org.apache.directory.server.core.partition.ByPassConstants;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
@@ -290,7 +290,7 @@ public class EventInterceptor extends BaseInterceptor
     }
     
     
-    List<RegistrationEntry> getSelectingRegistrations( DN name, ServerEntry entry ) throws Exception
+    List<RegistrationEntry> getSelectingRegistrations( DN name, Entry entry ) throws Exception
     {
         if ( registrations.isEmpty() )
         {

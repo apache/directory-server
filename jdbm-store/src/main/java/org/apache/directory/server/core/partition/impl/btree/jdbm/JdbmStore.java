@@ -42,7 +42,7 @@ import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAliasDereferencingException;
 import org.apache.directory.shared.ldap.exception.LdapAliasException;
@@ -69,7 +69,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     private RecordManager recMan;
 
     /** the master table storing entries by primary key */
-    private JdbmMasterTable<ServerEntry> master;
+    private JdbmMasterTable<Entry> master;
 
     /** the relative distinguished name index */
     private JdbmRdnIndex<RDN, Long> rdnIdx;
@@ -140,7 +140,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
 
         // Create the master table (the table containing all the entries)
-        master = new JdbmMasterTable<ServerEntry>( recMan, schemaManager );
+        master = new JdbmMasterTable<Entry>( recMan, schemaManager );
 
         // -------------------------------------------------------------------
         // Initializes the user and system indices
@@ -683,7 +683,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
      * an entry does not exist in the Master table, then the index must be updated to reflect this.
      */
     @SuppressWarnings("unchecked")
-    public synchronized void add( ServerEntry entry ) throws Exception
+    public synchronized void add( Entry entry ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
         {
@@ -821,9 +821,9 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     }
 
 
-    public ServerEntry lookup( Long id ) throws Exception
+    public Entry lookup( Long id ) throws Exception
     {
-        ServerEntry se = ( ServerEntry ) master.get( id );
+        Entry se = ( Entry ) master.get( id );
 
         if ( se == null )
         {
@@ -840,7 +840,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
      */
     public synchronized void delete( Long id ) throws Exception
     {
-        ServerEntry entry = master.get( id );
+        Entry entry = master.get( id );
         Long parentId = getParentId( id );
 
         EntryAttribute objectClass = entry.get( OBJECT_CLASS_AT );
@@ -943,7 +943,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
      * @throws Exception if index alteration or attribute addition fails
      */
     @SuppressWarnings("unchecked")
-    private void add( Long id, ServerEntry entry, EntryAttribute mods ) throws Exception
+    private void add( Long id, Entry entry, EntryAttribute mods ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
         {
@@ -1006,7 +1006,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
      * @throws Exception if index alteration or attribute modification fails.
      */
     @SuppressWarnings("unchecked")
-    private void remove( Long id, ServerEntry entry, EntryAttribute mods ) throws Exception
+    private void remove( Long id, Entry entry, EntryAttribute mods ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
         {
@@ -1090,7 +1090,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
      * fails.
      */
     @SuppressWarnings("unchecked")
-    private void replace( Long id, ServerEntry entry, EntryAttribute mods ) throws Exception
+    private void replace( Long id, Entry entry, EntryAttribute mods ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
         {
@@ -1167,7 +1167,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     }
 
 
-    public void modify( DN dn, ModificationOperation modOp, ServerEntry mods ) throws Exception
+    public void modify( DN dn, ModificationOperation modOp, Entry mods ) throws Exception
     {
         if ( mods instanceof ClonedServerEntry )
         {
@@ -1175,7 +1175,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         }
 
         Long id = getEntryId( dn );
-        ServerEntry entry = ( ServerEntry ) master.get( id );
+        Entry entry = ( Entry ) master.get( id );
 
         for ( AttributeType attributeType : mods.getAttributeTypes() )
         {
@@ -1213,7 +1213,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     public void modify( DN dn, List<Modification> mods ) throws Exception
     {
         Long id = getEntryId( dn );
-        ServerEntry entry = ( ServerEntry ) master.get( id );
+        Entry entry = ( Entry ) master.get( id );
 
         for ( Modification mod : mods )
         {
@@ -1267,7 +1267,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     public void rename( DN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception
     {
         Long id = getEntryId( dn );
-        ServerEntry entry = lookup( id );
+        Entry entry = lookup( id );
         DN updn = entry.getDn();
 
         /* 
@@ -1455,7 +1455,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         DN newUpdn = move( oldChildDn, childId, newParentDn );
 
         // Update the current entry
-        ServerEntry entry = master.get( childId );
+        Entry entry = master.get( childId );
         entry.setDn( newUpdn );
         master.put( childId, entry );
 
@@ -1472,7 +1472,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         DN newUpdn = move( oldChildDn, childId, newParentDn );
 
         // Update the current entry
-        ServerEntry entry = master.get( childId );
+        Entry entry = master.get( childId );
         entry.setDn( newUpdn );
         master.put( childId, entry );
 

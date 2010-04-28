@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -169,7 +169,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         while ( list.next() )
         {
-            ServerEntry sr = list.get();
+            Entry sr = list.get();
             Schema schema = factory.getSchema( sr );
             schemas.put( schema.getSchemaName(), schema );
         }
@@ -188,7 +188,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         while ( list.next() )
         {
-            ServerEntry sr = list.get();
+            Entry sr = list.get();
             schemaNames.add( sr.get( SchemaConstants.CN_AT ).getString() );
         }
 
@@ -510,7 +510,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
      */
     public DN findDn( String entityName ) throws Exception
     {
-        ServerEntry sr = find( entityName );
+        Entry sr = find( entityName );
         DN dn = sr.getDn();
         dn.normalize( schemaManager.getNormalizerMapping() );
         return dn;
@@ -520,7 +520,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaPartitionDao#find(java.lang.String)
      */
-    public ServerEntry find( String entityName ) throws Exception
+    public Entry find( String entityName ) throws Exception
     {
         BranchNode filter = new OrNode();
         SimpleNode<String> nameAVA = new EqualityNode<String>( M_NAME_OID, 
@@ -546,7 +546,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
                 return null;
             }
 
-            ServerEntry sr = cursor.get();
+            Entry sr = cursor.get();
             
             if ( cursor.next() )
             {
@@ -572,7 +572,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     {
         DN dn = new DN( "cn=" + schemaName + ",ou=schema" );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        ServerEntry entry = partition.lookup( new LookupOperationContext( null, dn ) );
+        Entry entry = partition.lookup( new LookupOperationContext( null, dn ) );
         EntryAttribute disabledAttr = entry.get( disabledAttributeType );
         List<Modification> mods = new ArrayList<Modification>( 3 );
 
@@ -608,9 +608,9 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaPartitionDao#listSyntaxDependents(java.lang.String)
      */
-    public Set<ServerEntry> listSyntaxDependents( String numericOid ) throws Exception
+    public Set<Entry> listSyntaxDependents( String numericOid ) throws Exception
     {
-        Set<ServerEntry> set = new HashSet<ServerEntry>();
+        Set<Entry> set = new HashSet<Entry>();
         BranchNode filter = new AndNode();
 
         // subfilter for (| (objectClass=metaMatchingRule) (objectClass=metaAttributeType))  
@@ -655,9 +655,9 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaPartitionDao#listMatchingRuleDependents(org.apache.directory.shared.ldap.schema.MatchingRule)
      */
-    public Set<ServerEntry> listMatchingRuleDependents( MatchingRule mr ) throws Exception
+    public Set<Entry> listMatchingRuleDependents( MatchingRule mr ) throws Exception
     {
-        Set<ServerEntry> set = new HashSet<ServerEntry>();
+        Set<Entry> set = new HashSet<Entry>();
         BranchNode filter = new AndNode();
 
         // ( objectClass = metaAttributeType )
@@ -735,7 +735,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaPartitionDao#listAttributeTypeDependents(org.apache.directory.shared.ldap.schema.AttributeType)
      */
-    public Set<ServerEntry> listAttributeTypeDependents( AttributeType at ) throws Exception
+    public Set<Entry> listAttributeTypeDependents( AttributeType at ) throws Exception
     {
         /*
          * Right now the following inefficient filter is being used:
@@ -755,7 +755,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
          * )
          */
 
-        Set<ServerEntry> set = new HashSet<ServerEntry>();
+        Set<Entry> set = new HashSet<Entry>();
         BranchNode filter = new AndNode();
 
         // ( objectClass = metaAttributeType )
@@ -804,7 +804,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaPartitionDao#listSchemaDependents(java.lang.String)
      */
-    public Set<ServerEntry> listSchemaDependents( String schemaName ) throws Exception
+    public Set<Entry> listSchemaDependents( String schemaName ) throws Exception
     {
         /*
          * The following filter is being used:
@@ -812,7 +812,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
          * ( & ( objectClass = metaSchema ) ( m-dependencies = $schemaName ) )
          */
 
-        Set<ServerEntry> set = new HashSet<ServerEntry>();
+        Set<Entry> set = new HashSet<Entry>();
         BranchNode filter = new AndNode();
 
         filter.addNode( new EqualityNode<String>( OBJECTCLASS_OID, 
@@ -852,9 +852,9 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaPartitionDao#listEnabledSchemaDependents(java.lang.String)
      */
-    public Set<ServerEntry> listEnabledSchemaDependents( String schemaName ) throws Exception
+    public Set<Entry> listEnabledSchemaDependents( String schemaName ) throws Exception
     {
-        Set<ServerEntry> set = new HashSet<ServerEntry>();
+        Set<Entry> set = new HashSet<Entry>();
         BranchNode filter = new AndNode();
 
         filter.addNode( new EqualityNode<String>( OBJECTCLASS_OID, new StringValue( 
@@ -876,7 +876,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
             while ( cursor.next() )
             {
-                ServerEntry sr = cursor.get();
+                Entry sr = cursor.get();
                 EntryAttribute disabled = sr.get( disabledAttributeType );
 
                 if ( disabled == null )
@@ -904,7 +904,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaPartitionDao#listObjectClassDependents(org.apache.directory.shared.ldap.schema.ObjectClass)
      */
-    public Set<ServerEntry> listObjectClassDependents( ObjectClass oc ) throws Exception
+    public Set<Entry> listObjectClassDependents( ObjectClass oc ) throws Exception
     {
         /*
          * Right now the following inefficient filter is being used:
@@ -930,7 +930,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
          * )
          */
 
-        Set<ServerEntry> set = new HashSet<ServerEntry>();
+        Set<Entry> set = new HashSet<Entry>();
         BranchNode filter = new AndNode();
 
         BranchNode or = new OrNode();

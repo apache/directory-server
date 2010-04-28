@@ -35,7 +35,7 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
@@ -67,7 +67,7 @@ public class NestedFilterTest
     private static final Logger LOG = LoggerFactory.getLogger( NestedFilterTest.class.getSimpleName() );
 
     File wkdir;
-    Store<ServerEntry, Long> store;
+    Store<Entry, Long> store;
     static SchemaManager schemaManager = null;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
@@ -125,7 +125,7 @@ public class NestedFilterTest
         wkdir.mkdirs();
 
         // initialize the store
-        store = new JdbmStore<ServerEntry>();
+        store = new JdbmStore<Entry>();
         store.setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionDir( wkdir );
@@ -170,7 +170,7 @@ public class NestedFilterTest
         exprNode.accept( visitor );
         optimizer.annotate( exprNode );
 
-        IndexCursor<?, ServerEntry, Long> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
@@ -199,7 +199,7 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( filter );
         optimizer.annotate( exprNode );
 
-        IndexCursor<?, ServerEntry, Long> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
@@ -220,7 +220,7 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( filter );
         optimizer.annotate( exprNode );
 
-        IndexCursor<?, ServerEntry, Long> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
@@ -244,6 +244,6 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( filter );
         optimizer.annotate( exprNode );
 
-        IndexCursor<?, ServerEntry, Long> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
     }
 }

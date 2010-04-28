@@ -45,8 +45,8 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
@@ -115,7 +115,7 @@ public class IntegrationUtils
             if ( entry.isChangeAdd() )
             {
                 service.getAdminSession().add( 
-                    new DefaultServerEntry( service.getSchemaManager(), entry.getEntry() ) );
+                    new DefaultClientEntry( service.getSchemaManager(), entry.getEntry() ) );
             }
             else if ( entry.isChangeModify() )
             {
@@ -213,7 +213,7 @@ public class IntegrationUtils
         {
             case( ChangeType.ADD_ORDINAL ):
                 session.add( 
-                    new DefaultServerEntry( service.getSchemaManager(), entry.getEntry() ) ); 
+                    new DefaultClientEntry( service.getSchemaManager(), entry.getEntry() ) ); 
                 break;
                 
             case( ChangeType.DELETE_ORDINAL ):

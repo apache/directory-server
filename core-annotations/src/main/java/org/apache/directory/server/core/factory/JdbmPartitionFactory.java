@@ -26,7 +26,7 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 
 
 /**
@@ -64,9 +64,9 @@ public class JdbmPartitionFactory implements PartitionFactory
         }
 
         JdbmPartition jdbmPartition = ( JdbmPartition ) partition;
-        Set<Index<? extends Object, ServerEntry, Long>> indexedAttributes = jdbmPartition.getIndexedAttributes();
+        Set<Index<? extends Object, Entry, Long>> indexedAttributes = jdbmPartition.getIndexedAttributes();
 
-        JdbmIndex<Object, ServerEntry> index = new JdbmIndex<Object, ServerEntry>( attributeId );
+        JdbmIndex<Object, Entry> index = new JdbmIndex<Object, Entry>( attributeId );
         index.setCacheSize( cacheSize );
 
         indexedAttributes.add( index );

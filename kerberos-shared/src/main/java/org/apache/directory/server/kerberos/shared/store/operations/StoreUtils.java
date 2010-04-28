@@ -29,7 +29,7 @@ import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.StringValue;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -54,19 +54,19 @@ public class StoreUtils
     
     
     /**
-     * Creates a ServerEntry for a PrincipalStoreEntry, doing what a state 
-     * factory does but for ServerEntry instead of Attributes.
+     * Creates a Entry for a PrincipalStoreEntry, doing what a state 
+     * factory does but for Entry instead of Attributes.
      *
      * @param session the session to use to access the directory's registries
      * @param dn the distinguished name of the principal to be 
-     * @param principalEntry the principal entry to convert into a ServerEntry
+     * @param principalEntry the principal entry to convert into a Entry
      * @return the resultant server entry for the PrincipalStoreEntry argument
      * @throws Exception if there are problems accessing registries
      */
-    public static ServerEntry toServerEntry( CoreSession session, DN dn, PrincipalStoreEntry principalEntry ) 
+    public static Entry toServerEntry( CoreSession session, DN dn, PrincipalStoreEntry principalEntry ) 
         throws Exception
     {
-        ServerEntry outAttrs = session.getDirectoryService().newEntry( dn );
+        Entry outAttrs = session.getDirectoryService().newEntry( dn );
         
         // process the objectClass attribute
         outAttrs.add( SchemaConstants.OBJECT_CLASS_AT, 
@@ -111,7 +111,7 @@ public class StoreUtils
     
 
     /**
-     * Finds the ServerEntry associated with the Kerberos principal name.
+     * Finds the Entry associated with the Kerberos principal name.
      *
      * @param session the session to use for the search
      * @param searchBaseDn the base to use while searching
@@ -119,7 +119,7 @@ public class StoreUtils
      * @return the server entry for the principal or null if non-existent
      * @throws Exception if there are problems while searching the directory
      */
-    public static ServerEntry findPrincipalEntry( CoreSession session, DN searchBaseDn, String principal ) 
+    public static Entry findPrincipalEntry( CoreSession session, DN searchBaseDn, String principal ) 
         throws Exception
     {
         EntryFilteringCursor cursor = null;
@@ -133,7 +133,7 @@ public class StoreUtils
             cursor.beforeFirst();
             if ( cursor.next() )
             {
-                ServerEntry entry = cursor.get();
+                Entry entry = cursor.get();
                 LOG.debug( "Found entry {} for kerberos principal name {}", entry, principal );
                 
                 while ( cursor.next() )

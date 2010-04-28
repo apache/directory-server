@@ -26,7 +26,7 @@ import javax.swing.table.AbstractTableModel;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 
 
@@ -39,22 +39,28 @@ import org.apache.directory.shared.ldap.entry.Value;
 public class AttributesTableModel extends AbstractTableModel
 {
     private static final long serialVersionUID = 3256443603340310841L;
+    
     /** name for the key column */
     public static final String KEY_COL = "Keys";
+    
     /** name for the values column */
     public static final String VAL_COL = "Values";
 
     /** list of attribute ids */
     private final transient ArrayList<Object> keyList;
+    
     /** list of attribute values */
     private final transient ArrayList<Object> valList;
 
     /** the attributes for the entry */
-    private final ServerEntry entry;
+    private final Entry entry;
+    
     /** the unique id of the entry  */
     private final Long id;
+    
     /** the distinguished name of the entry */
     private final String dn;
+    
     /** whether or not the model is mutable */
     private boolean isMutable = true;
 
@@ -67,7 +73,7 @@ public class AttributesTableModel extends AbstractTableModel
      * @param dn the distinguished name of the entry
      * @param isMutable whether or not the model can be changed
      */
-    public AttributesTableModel( ServerEntry entry, Long id, String dn, boolean isMutable)
+    public AttributesTableModel( Entry entry, Long id, String dn, boolean isMutable)
     {
         this.dn = dn;
         this.id = id;

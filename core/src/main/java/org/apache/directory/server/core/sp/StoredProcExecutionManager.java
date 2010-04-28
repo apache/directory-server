@@ -32,7 +32,7 @@ import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.StringValue;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -140,7 +140,7 @@ public class StoredProcExecutionManager
                     throw ne;
                 }
                 
-                engine.setSPUnitEntry( (ServerEntry)spUnitEntry.getOriginalEntry() );
+                engine.setSPUnitEntry( (Entry)spUnitEntry.getOriginalEntry() );
                 return engine;
             }
 

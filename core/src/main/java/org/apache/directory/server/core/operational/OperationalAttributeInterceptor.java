@@ -48,12 +48,12 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.AVA;
@@ -167,7 +167,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     {
         String principal = getPrincipal().getName();
         
-        ServerEntry entry = opContext.getEntry();
+        Entry entry = opContext.getEntry();
 
         /*
          * @TODO : This code was probably created while working on Mitosis. Most probably dead code. Commented. 
@@ -339,7 +339,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         DN newDn = opContext.getNewDn();
         
         // add operational attributes after call in case the operation fails
-        ServerEntry serverEntry = new DefaultServerEntry( schemaManager, newDn );
+        Entry serverEntry = new DefaultClientEntry( schemaManager, newDn );
         serverEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
         serverEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
@@ -357,7 +357,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         nextInterceptor.move( opContext );
 
         // add operational attributes after call in case the operation fails
-        ServerEntry serverEntry = new DefaultServerEntry( schemaManager, opContext.getDn() );
+        Entry serverEntry = new DefaultClientEntry( schemaManager, opContext.getDn() );
         serverEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
         serverEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
@@ -377,7 +377,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         nextInterceptor.moveAndRename( opContext );
 
         // add operational attributes after call in case the operation fails
-        ServerEntry serverEntry = new DefaultServerEntry( schemaManager, opContext.getDn() );
+        Entry serverEntry = new DefaultClientEntry( schemaManager, opContext.getDn() );
         serverEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
         serverEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
@@ -449,7 +449,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      * @return true always
      * @throws Exception if there are failures in evaluation
      */
-    private boolean filterOperationalAttributes( ServerEntry attributes ) throws Exception
+    private boolean filterOperationalAttributes( Entry attributes ) throws Exception
     {
         Set<AttributeType> removedAttributes = new HashSet<AttributeType>();
 
@@ -472,7 +472,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    private void filter( LookupOperationContext lookupContext, ServerEntry entry ) throws Exception
+    private void filter( LookupOperationContext lookupContext, Entry entry ) throws Exception
     {
         DN dn = lookupContext.getDn();
         List<String> ids = lookupContext.getAttrsId();
@@ -505,7 +505,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
     
-    public void denormalizeEntryOpAttrs( ServerEntry entry ) throws Exception
+    public void denormalizeEntryOpAttrs( Entry entry ) throws Exception
     {
         if ( service.isDenormalizeOpAttrsEnabled() )
         {
@@ -592,7 +592,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    private boolean filterDenormalized( ServerEntry entry ) throws Exception
+    private boolean filterDenormalized( Entry entry ) throws Exception
     {
         denormalizeEntryOpAttrs( entry );
         return true;

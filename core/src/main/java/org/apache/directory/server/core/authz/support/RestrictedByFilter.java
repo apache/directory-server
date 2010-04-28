@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -54,14 +54,14 @@ public class RestrictedByFilter implements ACITupleFilter
             OperationContext opContext,
             Collection<DN> userGroupNames, 
             DN userName, 
-            ServerEntry userEntry, 
+            Entry userEntry, 
             AuthenticationLevel authenticationLevel,
             DN entryName, 
             String attrId, 
             Value<?> attrValue, 
-            ServerEntry entry, 
+            Entry entry, 
             Collection<MicroOperation> microOperations,
-            ServerEntry entryView )
+            Entry entryView )
         throws NamingException
     {
         if ( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
@@ -93,7 +93,7 @@ public class RestrictedByFilter implements ACITupleFilter
     }
 
 
-    public boolean isRemovable( ACITuple tuple, String attrId, Value<?> attrValue, ServerEntry entry ) throws NamingException
+    public boolean isRemovable( ACITuple tuple, String attrId, Value<?> attrValue, Entry entry ) throws NamingException
     {
         for ( ProtectedItem item : tuple.getProtectedItems() )
         {

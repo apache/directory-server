@@ -27,7 +27,7 @@ import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 
 
@@ -37,20 +37,20 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class NotCursor<V, ID> extends AbstractIndexCursor<V, ServerEntry, ID>
+public class NotCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
 {
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_718 );
-    private final IndexCursor<V, ServerEntry, ID> ndnCursor;
-    private final Evaluator<? extends ExprNode, ServerEntry, ID> childEvaluator;
+    private final IndexCursor<V, Entry, ID> ndnCursor;
+    private final Evaluator<? extends ExprNode, Entry, ID> childEvaluator;
     private boolean available = false;
 
 
     @SuppressWarnings("unchecked")
-    public NotCursor( Store<ServerEntry, ID> db, Evaluator<? extends ExprNode, ServerEntry, ID> childEvaluator )
+    public NotCursor( Store<Entry, ID> db, Evaluator<? extends ExprNode, Entry, ID> childEvaluator )
         throws Exception
     {
         this.childEvaluator = childEvaluator;
-        this.ndnCursor = ( IndexCursor<V, ServerEntry, ID> ) db.getNdnIndex().forwardCursor();
+        this.ndnCursor = ( IndexCursor<V, Entry, ID> ) db.getNdnIndex().forwardCursor();
     }
 
 
@@ -66,13 +66,13 @@ public class NotCursor<V, ID> extends AbstractIndexCursor<V, ServerEntry, ID>
     }
 
 
-    public void before( IndexEntry<V, ServerEntry, ID> element ) throws Exception
+    public void before( IndexEntry<V, Entry, ID> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
 
 
-    public void after( IndexEntry<V, ServerEntry, ID> element ) throws Exception
+    public void after( IndexEntry<V, Entry, ID> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
@@ -119,7 +119,7 @@ public class NotCursor<V, ID> extends AbstractIndexCursor<V, ServerEntry, ID>
         while ( ndnCursor.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?, ServerEntry, ID> candidate = ndnCursor.get();
+            IndexEntry<?, Entry, ID> candidate = ndnCursor.get();
             if ( !childEvaluator.evaluate( candidate ) )
             {
                 return available = true;
@@ -135,7 +135,7 @@ public class NotCursor<V, ID> extends AbstractIndexCursor<V, ServerEntry, ID>
         while ( ndnCursor.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?, ServerEntry, ID> candidate = ndnCursor.get();
+            IndexEntry<?, Entry, ID> candidate = ndnCursor.get();
             if ( !childEvaluator.evaluate( candidate ) )
             {
                 return available = true;
@@ -146,7 +146,7 @@ public class NotCursor<V, ID> extends AbstractIndexCursor<V, ServerEntry, ID>
     }
 
 
-    public IndexEntry<V, ServerEntry, ID> get() throws Exception
+    public IndexEntry<V, Entry, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
         if ( available )

@@ -28,7 +28,7 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -53,12 +53,12 @@ public interface ACITupleFilter
      * @param proxy the proxy interceptor for this filter to access the DIT
      * @param userGroupNames the collection of group ({@link DN})s which the current user belongs to
      * @param userName the {@link DN} of the current user
-     * @param userEntry the {@link ServerEntry} of the current user entry in the DIT
+     * @param userEntry the {@link Entry} of the current user entry in the DIT
      * @param authenticationLevel the level of authentication of the current user
      * @param entryName the {@link DN} of the entry the current user accesses
      * @param attrId the attribute ID the current user accesses
      * @param attrValue the value of the attribute the current user accesses
-     * @param entry the {@link ServerEntry} of the entry the current user accesses
+     * @param entry the {@link Entry} of the entry the current user accesses
      * @param microOperations the set of {@link MicroOperation}s the current user will perform
      * @param entryView in case of a Modify operation, view of the entry being modified as if the modification permitted and completed
      * @return the collection of filtered tuples
@@ -71,13 +71,13 @@ public interface ACITupleFilter
             OperationContext opContext,
             Collection<DN> userGroupNames, 
             DN userName, 
-            ServerEntry userEntry,
+            Entry userEntry,
             AuthenticationLevel authenticationLevel, 
             DN entryName, 
             String attrId,
             Value<?> attrValue, 
-            ServerEntry entry, 
+            Entry entry, 
             Collection<MicroOperation> microOperations,
-            ServerEntry entryView )
+            Entry entryView )
         throws Exception;
 }

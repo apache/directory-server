@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
@@ -66,14 +66,14 @@ public class RelatedUserClassFilter implements ACITupleFilter
             OperationContext opContext,
             Collection<DN> userGroupNames, 
             DN userName, 
-            ServerEntry userEntry, 
+            Entry userEntry, 
             AuthenticationLevel authenticationLevel,
             DN entryName, 
             String attrId, 
             Value<?> attrValue, 
-            ServerEntry entry, 
+            Entry entry, 
             Collection<MicroOperation> microOperations,
-            ServerEntry entryView )
+            Entry entryView )
         throws LdapException
     {
         if ( tuples.size() == 0 )
@@ -116,7 +116,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
     }
 
 
-    private boolean isRelated( Collection<DN> userGroupNames, DN userName, ServerEntry userEntry, 
+    private boolean isRelated( Collection<DN> userGroupNames, DN userName, Entry userEntry, 
         DN entryName, Collection<UserClass> userClasses ) throws LdapException
     {
         for ( UserClass userClass : userClasses )
@@ -185,7 +185,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
     }
 
 
-    private boolean matchUserClassSubtree( DN userName, ServerEntry userEntry, UserClass.Subtree subtree )
+    private boolean matchUserClassSubtree( DN userName, Entry userEntry, UserClass.Subtree subtree )
         throws LdapException
     {
         for ( SubtreeSpecification subtreeSpec : subtree.getSubtreeSpecifications() )

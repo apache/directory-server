@@ -27,9 +27,9 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -59,7 +59,7 @@ public class DefaultSchemaService implements SchemaService
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
     /** cached version of the schema subentry with all attributes in it */
-    private ServerEntry schemaSubentry;
+    private Entry schemaSubentry;
     private final Object lock = new Object();
 
     /** a handle on the schema partition */
@@ -281,9 +281,9 @@ public class DefaultSchemaService implements SchemaService
     /**
      * Creates the SSSE by extracting all the SchemaObjects from the registries.
      */
-    private void generateSchemaSubentry( ServerEntry mods ) throws LdapException
+    private void generateSchemaSubentry( Entry mods ) throws LdapException
     {
-        ServerEntry attrs = new DefaultServerEntry( getSchemaManager(), mods.getDn() );
+        Entry attrs = new DefaultClientEntry( getSchemaManager(), mods.getDn() );
 
         // add the objectClass attribute : 'top', 'subschema', 'subentry' and 'apacheSubschema' 
         attrs.put( SchemaConstants.OBJECT_CLASS_AT, 
@@ -338,7 +338,7 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    private void addAttribute( ServerEntry attrs, String id ) throws LdapException
+    private void addAttribute( Entry attrs, String id ) throws LdapException
     {
         EntryAttribute attr = schemaSubentry.get( id );
 
@@ -352,7 +352,7 @@ public class DefaultSchemaService implements SchemaService
     /**
      * {@inheritDoc}
      */
-    public ServerEntry getSubschemaEntryImmutable() throws Exception
+    public Entry getSubschemaEntryImmutable() throws Exception
     {
         synchronized ( schemaSubentrLock )
         {
@@ -362,7 +362,7 @@ public class DefaultSchemaService implements SchemaService
                         new LookupOperationContext( null, schemaModificationAttributesDN ) ) );
             }
     
-            return ( ServerEntry ) schemaSubentry.clone();
+            return ( Entry ) schemaSubentry.clone();
         }
     }
     
@@ -390,7 +390,7 @@ public class DefaultSchemaService implements SchemaService
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaService#getSubschemaEntryCloned()
      */
-    public ServerEntry getSubschemaEntryCloned() throws Exception
+    public Entry getSubschemaEntryCloned() throws Exception
     {
         if ( schemaSubentry == null )
         {
@@ -398,14 +398,14 @@ public class DefaultSchemaService implements SchemaService
                     new LookupOperationContext( null, schemaModificationAttributesDN ) ) );
         }
 
-        return ( ServerEntry ) schemaSubentry.clone();
+        return ( Entry ) schemaSubentry.clone();
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public ServerEntry getSubschemaEntry( String[] ids ) throws Exception
+    public Entry getSubschemaEntry( String[] ids ) throws Exception
     {
         if ( ids == null )
         {
@@ -413,7 +413,7 @@ public class DefaultSchemaService implements SchemaService
         }
 
         Set<String> setOids = new HashSet<String>();
-        ServerEntry attrs = new DefaultServerEntry( getSchemaManager(), DN.EMPTY_DN );
+        Entry attrs = new DefaultClientEntry( getSchemaManager(), DN.EMPTY_DN );
         boolean returnAllOperationalAttributes = false;
 
         synchronized( lock )
@@ -422,7 +422,7 @@ public class DefaultSchemaService implements SchemaService
             // Check if we need an update by looking at timestamps on disk
             // ---------------------------------------------------------------
 
-            ServerEntry mods = 
+            Entry mods = 
                 schemaPartition.lookup( 
                     new LookupOperationContext( null, schemaModificationAttributesDN ) );
             

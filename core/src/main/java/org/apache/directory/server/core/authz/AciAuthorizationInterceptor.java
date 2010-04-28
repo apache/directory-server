@@ -68,7 +68,7 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
@@ -261,7 +261,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * @param proxy the partition nexus proxy object
      */
     private void addPerscriptiveAciTuples( OperationContext opContext, Collection<ACITuple> tuples, DN dn,
-        ServerEntry entry ) throws Exception
+        Entry entry ) throws Exception
     {
         EntryAttribute oc = null;
         
@@ -313,7 +313,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * @param entry the target entry that access to is being regulated
      * @throws Exception if there are problems accessing attribute values
      */
-    private void addEntryAciTuples( Collection<ACITuple> tuples, ServerEntry entry ) throws Exception
+    private void addEntryAciTuples( Collection<ACITuple> tuples, Entry entry ) throws Exception
     {
         EntryAttribute entryAci = entry.get( entryAciType );
         
@@ -353,7 +353,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * @throws Exception if there are problems accessing attribute values
      * @param proxy the partition nexus proxy object
      */
-    private void addSubentryAciTuples( OperationContext opContext, Collection<ACITuple> tuples, DN dn, ServerEntry entry )
+    private void addSubentryAciTuples( OperationContext opContext, Collection<ACITuple> tuples, DN dn, Entry entry )
         throws Exception
     {
         // only perform this for subentries
@@ -366,7 +366,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // will contain the subentryACI attributes that effect subentries
         DN parentDn = ( DN ) dn.clone();
         parentDn.remove( dn.size() - 1 );
-        ServerEntry administrativeEntry = opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS ).getOriginalEntry();
+        Entry administrativeEntry = opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS ).getOriginalEntry();
         
         EntryAttribute subentryAci = administrativeEntry.get( subentryAciType );
 
@@ -423,7 +423,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapPrincipal principal = addContext.getSession().getEffectivePrincipal();
         DN principalDn = principal.getClonedName();
         
-        ServerEntry serverEntry = addContext.getEntry(); 
+        Entry serverEntry = addContext.getEntry(); 
         //Attributes entry = ServerEntryUtils.toAttributesImpl( serverEntry );
 
         DN name = addContext.getDn();
@@ -446,7 +446,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         // perform checks below here for all non-admin users
         SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class.getName() );
-        ServerEntry subentryAttrs = subentryInterceptor.getSubentryAttributes( name, serverEntry );
+        Entry subentryAttrs = subentryInterceptor.getSubentryAttributes( name, serverEntry );
         
         for ( EntryAttribute attribute:serverEntry )
         {
@@ -561,7 +561,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             /**
              * @TODO: A virtual entry can be created here for not hitting the backend again.
              */
-            ServerEntry modifiedEntry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
+            Entry modifiedEntry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
             tupleCache.subentryModified( name, mods, modifiedEntry );
             groupCache.groupModified( name, mods, entry, schemaManager );
             return;
@@ -578,7 +578,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             Collections.singleton( MicroOperation.MODIFY ), tuples, entry, null );
 
         Collection<MicroOperation> perms = null;
-        ServerEntry entryView = ( ServerEntry ) entry.clone();
+        Entry entryView = ( Entry ) entry.clone();
         
         for ( Modification mod : mods )
         {
@@ -651,7 +651,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         /**
          * @TODO: A virtual entry can be created here for not hitting the backend again.
          */
-        ServerEntry modifiedEntry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
+        Entry modifiedEntry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
         tupleCache.subentryModified( name, mods, modifiedEntry );
         groupCache.groupModified( name, mods, entry, schemaManager );
     }
@@ -715,7 +715,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * @param entry the raw entry pulled from the nexus
      * @throws Exception if undlying access to the DIT fails
      */
-    private void checkLookupAccess( LookupOperationContext lookupContext, ServerEntry entry ) throws Exception
+    private void checkLookupAccess( LookupOperationContext lookupContext, Entry entry ) throws Exception
     {
         // no permissions checks on the RootDSE
         if ( lookupContext.getDn().getNormName().trim().equals( "" ) )
@@ -779,7 +779,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         }
 
         lookupContext.setByPassed( ByPassConstants.LOOKUP_BYPASS );
-        ServerEntry entry = directoryService.getOperationManager().lookup( lookupContext );
+        Entry entry = directoryService.getOperationManager().lookup( lookupContext );
 
         checkLookupAccess( lookupContext, entry );
         
@@ -790,7 +790,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws Exception
     {
         DN oldName = renameContext.getDn();
-        ServerEntry originalEntry = null;
+        Entry originalEntry = null;
         
         if ( renameContext.getEntry() != null )
         {
@@ -894,7 +894,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
         SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class.getName() );
-        ServerEntry subentryAttrs = subentryInterceptor.getSubentryAttributes( newName, importedEntry );
+        Entry subentryAttrs = subentryInterceptor.getSubentryAttributes( newName, importedEntry );
         
         for ( EntryAttribute attribute:importedEntry )
         {
@@ -963,7 +963,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // will not be valid at the new location.
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
-        ServerEntry importedEntry = moveContext.lookup( oriChildName, 
+        Entry importedEntry = moveContext.lookup( oriChildName, 
             ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
             
         // As the target entry does not exist yet and so
@@ -973,7 +973,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // and access control subentry operational attributes.
         SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) 
             chain.get( SubentryInterceptor.class.getName() );
-        ServerEntry subentryAttrs = subentryInterceptor.getSubentryAttributes( newName, importedEntry );
+        Entry subentryAttrs = subentryInterceptor.getSubentryAttributes( newName, importedEntry );
         
         for ( EntryAttribute attribute:importedEntry )
         {
@@ -1112,7 +1112,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public void cacheNewGroup( DN name, ServerEntry entry ) throws Exception
+    public void cacheNewGroup( DN name, Entry entry ) throws Exception
     {
         groupCache.groupAdded( name, entry );
     }

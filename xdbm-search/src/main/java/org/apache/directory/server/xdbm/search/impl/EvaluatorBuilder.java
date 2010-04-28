@@ -27,7 +27,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.NotImplementedException;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -51,7 +51,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  */
 public class EvaluatorBuilder<ID>
 {
-    private final Store<ServerEntry, ID> db;
+    private final Store<Entry, ID> db;
     private final SchemaManager schemaManager;
 
 
@@ -63,14 +63,14 @@ public class EvaluatorBuilder<ID>
      * @param registries the schema registries
      * @throws Exception failure to access db or lookup schema in registries
      */
-    public EvaluatorBuilder( Store<ServerEntry, ID> db, SchemaManager schemaManager ) throws Exception
+    public EvaluatorBuilder( Store<Entry, ID> db, SchemaManager schemaManager ) throws Exception
     {
         this.db = db;
         this.schemaManager = schemaManager;
     }
 
 
-    public <T> Evaluator<? extends ExprNode, ServerEntry, ID> build( ExprNode node ) throws Exception
+    public <T> Evaluator<? extends ExprNode, Entry, ID> build( ExprNode node ) throws Exception
     {
         switch ( node.getAssertionType() )
         {
@@ -94,11 +94,11 @@ public class EvaluatorBuilder<ID>
             case SCOPE:
                 if ( ( ( ScopeNode ) node ).getScope() == SearchScope.ONELEVEL )
                 {
-                    return new OneLevelScopeEvaluator<ServerEntry, ID>( db, ( ScopeNode ) node );
+                    return new OneLevelScopeEvaluator<Entry, ID>( db, ( ScopeNode ) node );
                 }
                 else
                 {
-                    return new SubtreeScopeEvaluator<ServerEntry, ID>( db, ( ScopeNode ) node );
+                    return new SubtreeScopeEvaluator<Entry, ID>( db, ( ScopeNode ) node );
                 }
 
             case SUBSTRING:
@@ -130,7 +130,7 @@ public class EvaluatorBuilder<ID>
     AndEvaluator<ID> buildAndEvaluator( AndNode node ) throws Exception
     {
         List<ExprNode> children = node.getChildren();
-        List<Evaluator<? extends ExprNode, ServerEntry, ID>> evaluators = new ArrayList<Evaluator<? extends ExprNode, ServerEntry, ID>>(
+        List<Evaluator<? extends ExprNode, Entry, ID>> evaluators = new ArrayList<Evaluator<? extends ExprNode, Entry, ID>>(
             children.size() );
         for ( ExprNode child : children )
         {
@@ -143,7 +143,7 @@ public class EvaluatorBuilder<ID>
     OrEvaluator<ID> buildOrEvaluator( OrNode node ) throws Exception
     {
         List<ExprNode> children = node.getChildren();
-        List<Evaluator<? extends ExprNode, ServerEntry, ID>> evaluators = new ArrayList<Evaluator<? extends ExprNode, ServerEntry, ID>>(
+        List<Evaluator<? extends ExprNode, Entry, ID>> evaluators = new ArrayList<Evaluator<? extends ExprNode, Entry, ID>>(
             children.size() );
         for ( ExprNode child : children )
         {

@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
@@ -135,9 +135,9 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * Depending in the existence of this attribute in the previous entry, we will
      * have to update the entry or not.
      */
-    public boolean modify( ModifyOperationContext opContext, ServerEntry targetEntry, boolean cascade ) throws Exception
+    public boolean modify( ModifyOperationContext opContext, Entry targetEntry, boolean cascade ) throws Exception
     {
-        ServerEntry entry = opContext.getEntry();
+        Entry entry = opContext.getEntry();
         List<Modification> mods = opContext.getModItems(); 
         boolean hasModification = SCHEMA_UNCHANGED;
         
@@ -166,7 +166,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     }
 
 
-    public void moveAndRename( DN oriChildName, DN newParentName, RDN newRn, boolean deleteOldRn, ServerEntry entry, boolean cascaded ) throws LdapException
+    public void moveAndRename( DN oriChildName, DN newParentName, RDN newRn, boolean deleteOldRn, Entry entry, boolean cascaded ) throws LdapException
     {
 
     }
@@ -178,7 +178,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * @param name the dn of the new metaSchema object
      * @param entry the attributes of the new metaSchema object
      */
-    public void add( ServerEntry entry ) throws Exception
+    public void add( Entry entry ) throws Exception
     {
         DN dn = entry.getDn();
         DN parentDn = ( DN ) dn.clone();
@@ -248,7 +248,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * @param name the dn of the metaSchema object being deleted
      * @param entry the attributes of the metaSchema object 
      */
-    public void delete( ServerEntry entry, boolean cascade ) throws Exception
+    public void delete( Entry entry, boolean cascade ) throws Exception
     {
         EntryAttribute cn = entry.get( cnAT );
         String schemaName = cn.getString();
@@ -282,7 +282,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * @param entry the entry of the metaSchema object before the rename
      * @param newRdn the new commonName of the metaSchema object
      */
-    public void rename( ServerEntry entry, RDN newRdn, boolean cascade ) throws Exception
+    public void rename( Entry entry, RDN newRdn, boolean cascade ) throws Exception
     {
         String rdnAttribute = newRdn.getUpType();
         String rdnAttributeOid = registries.getAttributeTypeRegistry().getOidByName( rdnAttribute );
@@ -365,7 +365,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * UNWILLING_TO_PERFORM LdapException.
      */
     public void moveAndRename( DN oriChildName, DN newParentName, String newRn, boolean deleteOldRn, 
-        ServerEntry entry, boolean cascade ) throws LdapUnwillingToPerformException
+        Entry entry, boolean cascade ) throws LdapUnwillingToPerformException
     {
         throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
             I18n.err( I18n.ERR_383 ) );
@@ -377,7 +377,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * UNWILLING_TO_PERFORM LdapException.
      */
     public void move( DN oriChildName, DN newParentName, 
-        ServerEntry entry, boolean cascade ) throws LdapUnwillingToPerformException
+        Entry entry, boolean cascade ) throws LdapUnwillingToPerformException
     {
         throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
             I18n.err( I18n.ERR_383 ) );
@@ -669,7 +669,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * @throws NamingException if the dependencies do not resolve or are not
      * loaded (enabled)
      */
-    private void checkForDependencies( boolean isEnabled, ServerEntry entry ) throws Exception
+    private void checkForDependencies( boolean isEnabled, Entry entry ) throws Exception
     {
         EntryAttribute dependencies = entry.get( this.dependenciesAT );
 

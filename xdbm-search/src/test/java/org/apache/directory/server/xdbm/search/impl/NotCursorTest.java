@@ -38,7 +38,7 @@ import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.NotNode;
@@ -73,7 +73,7 @@ public class NotCursorTest
     CsnSyntaxChecker csnSynChecker = new CsnSyntaxChecker();
     
     File wkdir;
-    Store<ServerEntry, Long> store;
+    Store<Entry, Long> store;
     static SchemaManager schemaManager = null;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
@@ -126,7 +126,7 @@ public class NotCursorTest
         wkdir.mkdirs();
 
         // initialize the store
-        store = new JdbmStore<ServerEntry>();
+        store = new JdbmStore<Entry>();
         store.setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionDir( wkdir );
@@ -168,7 +168,7 @@ public class NotCursorTest
 
         ExprNode exprNode = FilterParser.parse( filter );
 
-        IndexCursor<?, ServerEntry, Long> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
 
         assertFalse( cursor.available() );
 
@@ -214,7 +214,7 @@ public class NotCursorTest
         NotNode notNode = new NotNode();
 
         ExprNode exprNode = new SubstringNode( "cn", "J", null );
-        Evaluator<? extends ExprNode, ServerEntry, Long> eval = new SubstringEvaluator( ( SubstringNode ) exprNode,
+        Evaluator<? extends ExprNode, Entry, Long> eval = new SubstringEvaluator( ( SubstringNode ) exprNode,
             store, schemaManager );
         notNode.addNode( exprNode );
 
@@ -294,7 +294,7 @@ public class NotCursorTest
 
         try
         {
-            cursor.after( new ForwardIndexEntry<String, ServerEntry, Long>() );
+            cursor.after( new ForwardIndexEntry<String, Entry, Long>() );
             fail( "should fail with UnsupportedOperationException " );
         }
         catch ( UnsupportedOperationException uoe )
@@ -303,7 +303,7 @@ public class NotCursorTest
 
         try
         {
-            cursor.before( new ForwardIndexEntry<String, ServerEntry, Long>() );
+            cursor.before( new ForwardIndexEntry<String, Entry, Long>() );
             fail( "should fail with UnsupportedOperationException " );
         }
         catch ( UnsupportedOperationException uoe )

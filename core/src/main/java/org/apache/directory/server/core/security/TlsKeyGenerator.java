@@ -44,7 +44,7 @@ import javax.security.auth.x500.X500Principal;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.x509.X509V1CertificateGenerator;
@@ -106,7 +106,7 @@ public class TlsKeyGenerator
      * @return the X509 certificate associated with that entry
      * @throws LdapException if there are problems accessing or decoding
      */
-    public static X509Certificate getCertificate( ServerEntry entry ) throws LdapException
+    public static X509Certificate getCertificate( Entry entry ) throws LdapException
     {
         X509Certificate cert = null;
         CertificateFactory certFactory = null;
@@ -147,7 +147,7 @@ public class TlsKeyGenerator
      * @return the private and public key pair
      * @throws LdapException if there are format or access issues
      */
-    public static KeyPair getKeyPair( ServerEntry entry ) throws LdapException
+    public static KeyPair getKeyPair( Entry entry ) throws LdapException
     {
         PublicKey publicKey = null;
         PrivateKey privateKey = null;
@@ -206,7 +206,7 @@ public class TlsKeyGenerator
      * @param entry the entry to add security attributes to
      * @throws LdapException on problems generating the content in the entry
      */
-    public static void addKeyPair( ServerEntry entry ) throws LdapException
+    public static void addKeyPair( Entry entry ) throws LdapException
     {
         EntryAttribute objectClass = entry.get( SchemaConstants.OBJECT_CLASS_AT );
         
@@ -280,12 +280,12 @@ public class TlsKeyGenerator
     
 
     /**
-     * @see #addKeyPair(ServerEntry)
+     * @see #addKeyPair(Entry)
      * 
      * TODO the code is duplicate atm, will eliminate this redundancy after finding
      * a better thought (an instant one is to call this method from the aboveaddKeyPair(entry) and remove the impl there)
      */
-    public static void addKeyPair( ServerEntry entry, String issuerDN, String subjectDN, String keyAlgo ) throws LdapException
+    public static void addKeyPair( Entry entry, String issuerDN, String subjectDN, String keyAlgo ) throws LdapException
     {
         EntryAttribute objectClass = entry.get( SchemaConstants.OBJECT_CLASS_AT );
         

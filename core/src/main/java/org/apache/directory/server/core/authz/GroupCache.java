@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.BranchNode;
@@ -146,7 +146,7 @@ public class GroupCache
 
             while ( results.next() )
             {
-                ServerEntry result = results.get();
+                Entry result = results.get();
                 DN groupDn = result.getDn().normalize( normalizerMap );
                 EntryAttribute members = getMemberAttribute( result );
 
@@ -179,7 +179,7 @@ public class GroupCache
      * @param entry the entry inspected for member attributes
      * @return the member attribute
      */
-    private EntryAttribute getMemberAttribute( ServerEntry entry ) throws LdapException
+    private EntryAttribute getMemberAttribute( Entry entry ) throws LdapException
     {
         EntryAttribute oc = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
@@ -282,7 +282,7 @@ public class GroupCache
      * @param entry the group entry's attributes
      * @throws LdapException if there are problems accessing the attr values
      */
-    public void groupAdded( DN name, ServerEntry entry ) throws LdapException
+    public void groupAdded( DN name, Entry entry ) throws LdapException
     {
         EntryAttribute members = getMemberAttribute( entry );
 
@@ -309,7 +309,7 @@ public class GroupCache
      * @param name the normalized DN of the group entry
      * @param entry the attributes of entry being deleted
      */
-    public void groupDeleted( DN name, ServerEntry entry ) throws LdapException
+    public void groupDeleted( DN name, Entry entry ) throws LdapException
     {
         EntryAttribute members = getMemberAttribute( entry );
 
@@ -374,7 +374,7 @@ public class GroupCache
      * @param entry the group entry being modified
      * @throws LdapException if there are problems accessing attribute  values
      */
-    public void groupModified( DN name, List<Modification> mods, ServerEntry entry, SchemaManager schemaManager )
+    public void groupModified( DN name, List<Modification> mods, Entry entry, SchemaManager schemaManager )
         throws LdapException
     {
         EntryAttribute members = null;
@@ -429,7 +429,7 @@ public class GroupCache
      * @param mods the modifications being performed
      * @throws LdapException if there are problems accessing attribute  values
      */
-    public void groupModified( DN name, ModificationOperation modOp, ServerEntry mods ) throws LdapException
+    public void groupModified( DN name, ModificationOperation modOp, Entry mods ) throws LdapException
     {
         EntryAttribute members = getMemberAttribute( mods );
 

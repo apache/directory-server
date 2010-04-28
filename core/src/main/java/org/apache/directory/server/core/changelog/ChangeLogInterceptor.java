@@ -41,7 +41,7 @@ import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
@@ -111,7 +111,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
             return;
         }
 
-        ServerEntry addEntry = opContext.getEntry();
+        Entry addEntry = opContext.getEntry();
 
         // we don't want to record addition of a tag as a change
         if( addEntry.get( REV_AT_OID ) != null )
@@ -143,7 +143,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     {
         // @todo make sure we're not putting in operational attributes that cannot be user modified
         // must save the entry if change log is enabled
-        ServerEntry serverEntry = null;
+        Entry serverEntry = null;
 
         if ( changeLog.isEnabled() && opContext.isFirstOperation() )
         {
@@ -191,7 +191,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
      * @return the entry's attributes (may be immutable if the schema subentry)
      * @throws Exception on error accessing the entry's attributes
      */
-    private ServerEntry getAttributes( OperationContext opContext ) throws Exception
+    private Entry getAttributes( OperationContext opContext ) throws Exception
     {
         DN dn = opContext.getDn();
         ClonedServerEntry serverEntry;
@@ -215,7 +215,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
      */
     public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
-        ServerEntry serverEntry = null;
+        Entry serverEntry = null;
         Modification modification = ServerEntryUtils.getModificationItem( opContext.getModItems(), entryDeleted );
         boolean isDelete = ( modification != null );
 
@@ -294,7 +294,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
     public void rename ( NextInterceptor next, RenameOperationContext renameContext ) throws Exception
     {
-        ServerEntry serverEntry = null;
+        Entry serverEntry = null;
         
         if ( renameContext.getEntry() != null )
         {

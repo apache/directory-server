@@ -62,7 +62,7 @@ import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
@@ -347,7 +347,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         DN target = buildTarget( DN.fromName( name ) );
 
-        ServerEntry serverEntry = null;
+        Entry serverEntry = null;
         
         try
         {
@@ -362,7 +362,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         // No object binding so we just add the attributes
         if ( null == obj )
         {
-            ServerEntry clone = ( ServerEntry ) serverEntry.clone();
+            Entry clone = ( Entry ) serverEntry.clone();
             try
             {
                 doAddOperation( target, clone );
@@ -376,7 +376,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         // First, use state factories to do a transformation
         DirStateFactory.Result res = DirectoryManager.getStateToBind( obj, name, this, getEnvironment(), attrs );
-        ServerEntry outServerEntry = null;
+        Entry outServerEntry = null;
         
         try
         {
@@ -390,7 +390,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         if ( outServerEntry != serverEntry )
         {
-            ServerEntry clone = ( ServerEntry ) serverEntry.clone();
+            Entry clone = ( Entry ) serverEntry.clone();
 
             if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
             {
@@ -436,7 +436,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         else if ( obj instanceof Serializable )
         {
             // Serialize and add outAttrs
-            ServerEntry clone = ( ServerEntry ) serverEntry.clone();
+            Entry clone = ( Entry ) serverEntry.clone();
 
             if ( outServerEntry != null && outServerEntry.size() > 0 )
             {
@@ -469,7 +469,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         else if ( obj instanceof DirContext )
         {
             // Grab attributes and merge with outAttrs
-            ServerEntry entry = null;
+            Entry entry = null;
             
             try
             {
@@ -615,7 +615,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         // Add the new context to the server which as a side effect adds
         try
         {
-            ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attributes, 
+            Entry serverEntry = ServerEntryUtils.toServerEntry( attributes, 
                 target, getDirectoryService().getSchemaManager() );
             doAddOperation( target, serverEntry );
         }

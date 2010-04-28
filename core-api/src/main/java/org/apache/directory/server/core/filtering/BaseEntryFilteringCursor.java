@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.CursorIterator;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
@@ -56,7 +56,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     private static final Logger log = LoggerFactory.getLogger( BaseEntryFilteringCursor.class );
 
     /** the underlying wrapped search results Cursor */
-    private final Cursor<ServerEntry> wrapped;
+    private final Cursor<Entry> wrapped;
     
     /** the parameters associated with the search operation */
     private final SearchingOperationContext operationContext;
@@ -82,7 +82,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
      * @param invocation the search operation invocation creating this Cursor
      * @param filter a single filter to be used
      */
-    public BaseEntryFilteringCursor( Cursor<ServerEntry> wrapped, 
+    public BaseEntryFilteringCursor( Cursor<Entry> wrapped, 
         SearchingOperationContext operationContext, EntryFilter filter )
     {
         this( wrapped, operationContext, Collections.singletonList( filter ) );
@@ -98,7 +98,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
      * @param invocation the search operation invocation creating this Cursor
      * @param filter a single filter to be used
      */
-    public BaseEntryFilteringCursor( Cursor<ServerEntry> wrapped, SearchingOperationContext operationContext )
+    public BaseEntryFilteringCursor( Cursor<Entry> wrapped, SearchingOperationContext operationContext )
     {
         this.wrapped = wrapped;
         this.operationContext = operationContext;
@@ -115,7 +115,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
      * @param invocation the search operation invocation creating this Cursor
      * @param filters a list of filters to be used
      */
-    public BaseEntryFilteringCursor( Cursor<ServerEntry> wrapped, 
+    public BaseEntryFilteringCursor( Cursor<Entry> wrapped, 
         SearchingOperationContext operationContext, List<EntryFilter> filters )
     {
         this.wrapped = wrapped;
@@ -500,7 +500,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         {
             boolean accepted = true;
             
-            ServerEntry tempEntry = wrapped.get();
+            Entry tempEntry = wrapped.get();
             if ( tempEntry instanceof ClonedServerEntry )
             {
                 tempResult = ( ClonedServerEntry ) tempEntry;

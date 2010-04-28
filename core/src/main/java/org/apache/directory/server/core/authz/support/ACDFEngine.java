@@ -45,7 +45,7 @@ import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.name.DN;
@@ -137,8 +137,8 @@ public class ACDFEngine
         Value<?> attrValue, 
         Collection<MicroOperation> microOperations, 
         Collection<ACITuple> aciTuples, 
-        ServerEntry entry, 
-        ServerEntry entryView ) throws Exception
+        Entry entry, 
+        Entry entryView ) throws Exception
     {
         if ( !hasPermission( schemaManager, opContext, userGroupNames, username, authenticationLevel, entryName, 
             attrId, attrValue, microOperations, aciTuples, entry, entryView ) )
@@ -195,15 +195,15 @@ public class ACDFEngine
         Value<?> attrValue, 
         Collection<MicroOperation> microOperations, 
         Collection<ACITuple> aciTuples, 
-        ServerEntry entry, 
-        ServerEntry entryView ) throws Exception
+        Entry entry, 
+        Entry entryView ) throws Exception
     {
         if ( entryName == null )
         {
             throw new NullPointerException( "entryName" );
         }
 
-        ServerEntry userEntry = opContext.lookup( userName, USER_LOOKUP_BYPASS );
+        Entry userEntry = opContext.lookup( userName, USER_LOOKUP_BYPASS );
 
         // Determine the scope of the requested operation.
         OperationScope scope;

@@ -28,11 +28,11 @@ import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.CursorIterator;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
-public class MockCursor implements Cursor<ServerEntry>
+public class MockCursor implements Cursor<Entry>
 {
     final int count;
     int ii;
@@ -76,7 +76,7 @@ public class MockCursor implements Cursor<ServerEntry>
     }
 
 
-    public void after( ServerEntry element ) throws Exception
+    public void after( Entry element ) throws Exception
     {
     }
 
@@ -86,7 +86,7 @@ public class MockCursor implements Cursor<ServerEntry>
     }
 
 
-    public void before( ServerEntry element ) throws Exception
+    public void before( Entry element ) throws Exception
     {
         throw new NotImplementedException();
     }
@@ -105,9 +105,9 @@ public class MockCursor implements Cursor<ServerEntry>
     }
 
 
-    public ServerEntry get() throws Exception
+    public Entry get() throws Exception
     {
-        return new DefaultServerEntry( schemaManager );
+        return new DefaultClientEntry( schemaManager );
     }
 
 
@@ -155,9 +155,9 @@ public class MockCursor implements Cursor<ServerEntry>
     }
 
 
-    public Iterator<ServerEntry> iterator()
+    public Iterator<Entry> iterator()
     {
-        return new CursorIterator<ServerEntry>( this );
+        return new CursorIterator<Entry>( this );
     }
 
 

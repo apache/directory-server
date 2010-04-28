@@ -54,7 +54,7 @@ import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
@@ -351,7 +351,7 @@ public final class SchemaPartition extends AbstractPartition
      */
     public void modify( ModifyOperationContext opContext ) throws Exception
     {
-        ServerEntry entry = opContext.getEntry();
+        Entry entry = opContext.getEntry();
 
         if ( entry == null )
         {
@@ -359,7 +359,7 @@ public final class SchemaPartition extends AbstractPartition
             entry = wrapped.lookup( lookupCtx );
         }
 
-        ServerEntry targetEntry = ( ServerEntry ) SchemaUtils.getTargetEntry( opContext.getModItems(), entry );
+        Entry targetEntry = ( Entry ) SchemaUtils.getTargetEntry( opContext.getModItems(), entry );
 
         boolean cascade = opContext.hasRequestControl( CascadeControl.CONTROL_OID );
 

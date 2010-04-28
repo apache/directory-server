@@ -53,8 +53,8 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapPartialResultException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.DN;
@@ -103,7 +103,7 @@ public class ReferralIT extends AbstractLdapTestUnit
 
         LdifEntry akarasulu = getUserAddLdif();
         service.getAdminSession().add( 
-            new DefaultServerEntry( service.getSchemaManager(), akarasulu.getEntry() ), true ); 
+            new DefaultClientEntry( service.getSchemaManager(), akarasulu.getEntry() ), true ); 
 
         // -------------------------------------------------------------------
         // Adds a referral entry regardless of referral handling settings
@@ -328,7 +328,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         // encounter referral errors with referral setting set to throw.
         // -------------------------------------------------------------------
         DN userDN = new DN( "cn=alex karasulu,ou=apache,ou=users,ou=system" );
-        ServerEntry userEntry = new DefaultServerEntry( service.getSchemaManager(), userDN );
+        Entry userEntry = new DefaultClientEntry( service.getSchemaManager(), userDN );
         
         userEntry.add(  "ObjectClass", "top", "person" );
         userEntry.add( "sn", "karasulu" );

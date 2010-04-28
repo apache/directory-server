@@ -35,7 +35,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.csn.Csn;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -419,12 +419,12 @@ public interface DirectoryService extends ServerEntryFactory
     
 
     /**
-     * Create a new ServerEntry.
+     * Create a new Entry.
      * 
      * @param ldif the String representing the attributes, in LDIF format
      * @param dn the DN for this new entry
      */
-    ServerEntry newEntry( String ldif, String dn );
+    Entry newEntry( String ldif, String dn );
     
     
     /**

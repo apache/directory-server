@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -90,7 +90,7 @@ public class ChangePassword implements DirectoryServiceOperation
         
         //FIXME check if keyderivation is necessary
         
-        ServerEntry entry = StoreUtils.findPrincipalEntry( session, searchBaseDn, principal.getName() );
+        Entry entry = StoreUtils.findPrincipalEntry( session, searchBaseDn, principal.getName() );
         session.modify( entry.getDn(), mods );
 
         return entry.getDn().toString();

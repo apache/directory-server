@@ -47,7 +47,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.shared.ldap.MultiException;
 import org.apache.directory.shared.ldap.cursor.Cursor;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -208,7 +208,7 @@ public class DumpCommand extends ToolCommand
         base.disableTransactions();
         CacheRecordManager recMan = new CacheRecordManager( base, new MRU( 1000 ) );
 
-        JdbmMasterTable<ServerEntry> master = new JdbmMasterTable<ServerEntry>( recMan, schemaManager );
+        JdbmMasterTable<Entry> master = new JdbmMasterTable<Entry>( recMan, schemaManager );
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( "apacheUpdn" );
         JdbmIndex idIndex = new JdbmIndex();
         idIndex.setAttributeId( attributeType.getName() );
@@ -218,12 +218,12 @@ public class DumpCommand extends ToolCommand
         idIndex.init( schemaManager, attributeType, partitionDirectory );
 
         out.println( "#---------------------" );
-        Cursor<Tuple<Long,ServerEntry>> list = master.cursor();
+        Cursor<Tuple<Long,Entry>> list = master.cursor();
         StringBuffer buf = new StringBuffer();
         
         while ( list.next() )
         {
-            Tuple<Long,ServerEntry> tuple = list.get();
+            Tuple<Long,Entry> tuple = list.get();
             Long id = tuple.getKey();
             String dn = ( String ) idIndex.reverseLookup( id );
             Attributes entry = ( Attributes ) tuple.getValue();

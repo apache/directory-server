@@ -48,7 +48,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -157,7 +157,7 @@ public class TriggerSpecCache
     }
 
 
-    private boolean hasPrescriptiveTrigger( ServerEntry entry ) throws Exception
+    private boolean hasPrescriptiveTrigger( Entry entry ) throws Exception
     {
         // only do something if the entry contains prescriptiveTrigger
         EntryAttribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
@@ -166,7 +166,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryAdded( DN normName, ServerEntry entry ) throws Exception
+    public void subentryAdded( DN normName, Entry entry ) throws Exception
     {
         // only do something if the entry contains prescriptiveTrigger
         EntryAttribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
@@ -199,7 +199,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryDeleted( DN normName, ServerEntry entry ) throws Exception
+    public void subentryDeleted( DN normName, Entry entry ) throws Exception
     {
         if ( !hasPrescriptiveTrigger( entry ) )
         {
@@ -210,7 +210,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryModified( ModifyOperationContext opContext, ServerEntry entry ) throws Exception
+    public void subentryModified( ModifyOperationContext opContext, Entry entry ) throws Exception
     {
         if ( !hasPrescriptiveTrigger( entry ) )
         {

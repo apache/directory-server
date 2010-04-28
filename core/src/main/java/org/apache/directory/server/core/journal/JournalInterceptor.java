@@ -32,7 +32,7 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -107,7 +107,7 @@ public class JournalInterceptor extends BaseInterceptor
             opRevision = revision.incrementAndGet();
             
             // Store the added entry
-            ServerEntry addEntry = opContext.getEntry();
+            Entry addEntry = opContext.getEntry();
 
             LdifEntry ldif = new LdifEntry();
             ldif.setChangeType( ChangeType.Add );

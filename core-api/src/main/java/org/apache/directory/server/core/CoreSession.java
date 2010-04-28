@@ -30,8 +30,8 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
@@ -206,7 +206,7 @@ public interface CoreSession
      * @param entry the entry to add
      * @exception Exception on failures to add the entry
      */
-    void add( ServerEntry entry ) throws Exception;
+    void add( Entry entry ) throws Exception;
     
     
     /**
@@ -216,7 +216,7 @@ public interface CoreSession
      * @param log a flag set if the added entry should be stored in the changeLog
      * @exception Exception on failures to add the entry
      */
-    void add( ServerEntry entry, LogChange log ) throws Exception;
+    void add( Entry entry, LogChange log ) throws Exception;
     
     
     /**
@@ -228,7 +228,7 @@ public interface CoreSession
      * @param ignoreReferral a flag to tell the server to ignore referrals
      * @exception Exception on failures to add the entry
      */
-    void add( ServerEntry entry, boolean ignoreReferral ) throws Exception;
+    void add( Entry entry, boolean ignoreReferral ) throws Exception;
     
     
     /**
@@ -241,7 +241,7 @@ public interface CoreSession
      * @param log a flag set if the added entry should be stored in the changeLog
      * @exception Exception on failures to add the entry
      */
-    void add( ServerEntry entry, boolean ignoreReferral, LogChange log ) throws Exception;
+    void add( Entry entry, boolean ignoreReferral, LogChange log ) throws Exception;
     
     
     /**

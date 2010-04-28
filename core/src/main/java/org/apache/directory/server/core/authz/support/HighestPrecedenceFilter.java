@@ -29,7 +29,7 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -51,14 +51,14 @@ public class HighestPrecedenceFilter implements ACITupleFilter
             OperationContext opContext,
             Collection<DN> userGroupNames, 
             DN userName, 
-            ServerEntry userEntry, 
+            Entry userEntry, 
             AuthenticationLevel authenticationLevel,
             DN entryName, 
             String attrId, 
             Value<?> attrValue, 
-            ServerEntry entry, 
+            Entry entry, 
             Collection<MicroOperation> microOperations,
-            ServerEntry entryView )
+            Entry entryView )
         throws NamingException
     {
         if ( tuples.size() <= 1 )

@@ -36,8 +36,8 @@ import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.StringValue;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.loader.ldif.JarLdifSchemaLoader;
@@ -61,7 +61,7 @@ public class RestrictedByFilterTest
     private static final Set<MicroOperation> MO_EMPTY_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
 
     private static final Collection<ProtectedItem> PROTECTED_ITEMS = new ArrayList<ProtectedItem>();
-    private static ServerEntry ENTRY;
+    private static Entry ENTRY;
 
     static
     {
@@ -91,7 +91,7 @@ public class RestrictedByFilterTest
 
         DN entryName = new DN( "ou=test, ou=system" );
         PROTECTED_ITEMS.add( new ProtectedItem.MaxImmSub( 2 ) );
-        ENTRY = new DefaultServerEntry( schemaManager, entryName );
+        ENTRY = new DefaultClientEntry( schemaManager, entryName );
 
         ENTRY.put( "cn", "1", "2" );
     }

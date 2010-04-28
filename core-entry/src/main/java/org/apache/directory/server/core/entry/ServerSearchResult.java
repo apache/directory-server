@@ -21,7 +21,7 @@ package org.apache.directory.server.core.entry;
 
 
 
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
 
 /**
@@ -37,7 +37,7 @@ public class ServerSearchResult
     private DN dn;
     
     /** The associated entry */
-    private ServerEntry serverEntry;
+    private Entry serverEntry;
     
     /** Tells if the name is relative to the target context */
     private boolean isRelative;
@@ -46,7 +46,7 @@ public class ServerSearchResult
     private Object object;
     
 
-    public ServerSearchResult( DN dn, Object obj, ServerEntry serverEntry )
+    public ServerSearchResult( DN dn, Object obj, Entry serverEntry )
     {
         this.dn = dn;
         this.serverEntry = serverEntry;
@@ -54,7 +54,7 @@ public class ServerSearchResult
     }
 
 
-    public ServerSearchResult( DN dn, Object obj, ServerEntry serverEntry, boolean isRelative )
+    public ServerSearchResult( DN dn, Object obj, Entry serverEntry, boolean isRelative )
     {
         this.dn = dn;
         this.serverEntry = serverEntry;
@@ -63,7 +63,7 @@ public class ServerSearchResult
     }
 
 
-    public ServerSearchResult( DN dn, String className, Object obj, ServerEntry serverEntry )
+    public ServerSearchResult( DN dn, String className, Object obj, Entry serverEntry )
     {
         this.dn = dn;
         this.serverEntry = serverEntry;
@@ -71,7 +71,7 @@ public class ServerSearchResult
     }
 
 
-    public ServerSearchResult( DN dn, String className, Object obj, ServerEntry serverEntry, boolean isRelative ) 
+    public ServerSearchResult( DN dn, String className, Object obj, Entry serverEntry, boolean isRelative ) 
     {
         this.dn = dn;
         this.serverEntry = serverEntry;
@@ -91,7 +91,7 @@ public class ServerSearchResult
     /**
      * @return The entry
      */
-    public ServerEntry getServerEntry()
+    public Entry getServerEntry()
     {
         return serverEntry;
     }
@@ -109,7 +109,7 @@ public class ServerSearchResult
     }
 
 
-    public void setServerEntry( ServerEntry serverEntry ) 
+    public void setServerEntry( Entry serverEntry ) 
     {
         this.serverEntry = serverEntry;
     }

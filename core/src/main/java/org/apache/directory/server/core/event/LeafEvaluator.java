@@ -26,7 +26,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidSearchFilterException;
@@ -106,9 +106,9 @@ public class LeafEvaluator implements Evaluator
 
 
     /**
-     * @see Evaluator#evaluate(ExprNode, String, ServerEntry)
+     * @see Evaluator#evaluate(ExprNode, String, Entry)
      */
-    public boolean evaluate( ExprNode node, DN dn, ServerEntry entry ) throws LdapException
+    public boolean evaluate( ExprNode node, DN dn, Entry entry ) throws LdapException
     {
         if ( node instanceof ScopeNode )
         {
@@ -159,7 +159,7 @@ public class LeafEvaluator implements Evaluator
      * @throws LdapException if there is a database access failure
      */
     @SuppressWarnings("unchecked")
-    private boolean evalGreaterOrLesser( SimpleNode<?> node, ServerEntry entry, boolean isGreaterOrLesser )
+    private boolean evalGreaterOrLesser( SimpleNode<?> node, Entry entry, boolean isGreaterOrLesser )
         throws LdapException
     {
         String attrId = node.getAttribute();
@@ -226,7 +226,7 @@ public class LeafEvaluator implements Evaluator
      * @param entry the perspective candidate
      * @return the ava evaluation on the perspective candidate
      */
-    private boolean evalPresence( String attrId, ServerEntry entry ) throws LdapException
+    private boolean evalPresence( String attrId, Entry entry ) throws LdapException
     {
         if ( entry == null )
         {
@@ -247,7 +247,7 @@ public class LeafEvaluator implements Evaluator
      * @throws LdapException if there is a database access failure
      */
     @SuppressWarnings("unchecked")
-    private boolean evalEquality( EqualityNode<?> node, ServerEntry entry ) throws LdapException
+    private boolean evalEquality( EqualityNode<?> node, Entry entry ) throws LdapException
     {
         Normalizer normalizer = getNormalizer( node.getAttribute() );
         Comparator comparator = getComparator( node.getAttribute() );

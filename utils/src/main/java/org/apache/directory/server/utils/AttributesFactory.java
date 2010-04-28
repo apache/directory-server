@@ -26,9 +26,9 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
@@ -56,7 +56,7 @@ import org.apache.directory.shared.ldap.util.DateUtils;
  */
 public class AttributesFactory
 {
-    public ServerEntry getAttributes( SchemaObject obj, Schema schema, SchemaManager schemaManager ) throws LdapException
+    public Entry getAttributes( SchemaObject obj, Schema schema, SchemaManager schemaManager ) throws LdapException
     {
         if ( obj instanceof LdapSyntax )
         {
@@ -95,9 +95,9 @@ public class AttributesFactory
     }
     
     
-    public ServerEntry getAttributes( Schema schema, SchemaManager schemaManager ) throws LdapException
+    public Entry getAttributes( Schema schema, SchemaManager schemaManager ) throws LdapException
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager );
+        Entry entry = new DefaultClientEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_SCHEMA_OC );
         entry.put( SchemaConstants.CN_AT, schema.getSchemaName() );
@@ -127,9 +127,9 @@ public class AttributesFactory
     }
     
     
-    public ServerEntry getAttributes( SyntaxChecker syntaxChecker, Schema schema, SchemaManager schemaManager )
+    public Entry getAttributes( SyntaxChecker syntaxChecker, Schema schema, SchemaManager schemaManager )
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager );
+        Entry entry = new DefaultClientEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_SYNTAX_CHECKER_OC );
         entry.put( MetaSchemaConstants.M_OID_AT, syntaxChecker.getOid() );
@@ -141,9 +141,9 @@ public class AttributesFactory
     }
 
     
-    public ServerEntry getAttributes( LdapSyntax syntax, Schema schema, SchemaManager schemaManager ) throws LdapException
+    public Entry getAttributes( LdapSyntax syntax, Schema schema, SchemaManager schemaManager ) throws LdapException
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager );
+        Entry entry = new DefaultClientEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_SYNTAX_OC );
         entry.put( MetaSchemaConstants.X_HUMAN_READABLE_AT, getBoolean( syntax.isHumanReadable() ) );
@@ -155,9 +155,9 @@ public class AttributesFactory
     }
 
     
-    public ServerEntry getAttributes( String oid, Normalizer normalizer, Schema schema, SchemaManager schemaManager )
+    public Entry getAttributes( String oid, Normalizer normalizer, Schema schema, SchemaManager schemaManager )
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager );
+        Entry entry = new DefaultClientEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_NORMALIZER_OC );
         entry.put( MetaSchemaConstants.M_OID_AT, oid );
@@ -168,9 +168,9 @@ public class AttributesFactory
     }
 
     
-    public ServerEntry getAttributes( String oid, LdapComparator<? super Object> comparator, Schema schema, SchemaManager schemaManager )
+    public Entry getAttributes( String oid, LdapComparator<? super Object> comparator, Schema schema, SchemaManager schemaManager )
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager );
+        Entry entry = new DefaultClientEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_COMPARATOR_OC );
         entry.put( MetaSchemaConstants.M_OID_AT, oid );
@@ -187,9 +187,9 @@ public class AttributesFactory
      * @return Attributes
      * @throws LdapException
      */
-    public ServerEntry getAttributes( MatchingRule matchingRule, Schema schema, SchemaManager schemaManager ) throws LdapException
+    public Entry getAttributes( MatchingRule matchingRule, Schema schema, SchemaManager schemaManager ) throws LdapException
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager );
+        Entry entry = new DefaultClientEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_MATCHING_RULE_OC );
         entry.put( MetaSchemaConstants.M_SYNTAX_AT, matchingRule.getSyntaxOid() );
@@ -200,9 +200,9 @@ public class AttributesFactory
     }
 
     
-    public ServerEntry getAttributes( MatchingRuleUse matchingRuleUse, Schema schema, SchemaManager schemaManager )
+    public Entry getAttributes( MatchingRuleUse matchingRuleUse, Schema schema, SchemaManager schemaManager )
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager );
+        Entry entry = new DefaultClientEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, "" );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
@@ -211,9 +211,9 @@ public class AttributesFactory
     }
 
     
-    public ServerEntry getAttributes( DITStructureRule dITStructureRule, Schema schema, SchemaManager schemaManager )
+    public Entry getAttributes( DITStructureRule dITStructureRule, Schema schema, SchemaManager schemaManager )
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager );
+        Entry entry = new DefaultClientEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, "" );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
@@ -222,9 +222,9 @@ public class AttributesFactory
     }
 
     
-    public ServerEntry getAttributes( DITContentRule dITContentRule, Schema schema, SchemaManager schemaManager )
+    public Entry getAttributes( DITContentRule dITContentRule, Schema schema, SchemaManager schemaManager )
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager );
+        Entry entry = new DefaultClientEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, "" );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
@@ -233,9 +233,9 @@ public class AttributesFactory
     }
 
     
-    public ServerEntry getAttributes( NameForm nameForm, Schema schema, SchemaManager schemaManager )
+    public Entry getAttributes( NameForm nameForm, Schema schema, SchemaManager schemaManager )
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager );
+        Entry entry = new DefaultClientEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, "" );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
@@ -262,9 +262,9 @@ public class AttributesFactory
      * @return Attributes
      * @throws LdapException
      */
-    public ServerEntry getAttributes( AttributeType attributeType, Schema schema, SchemaManager schemaManager ) throws LdapException
+    public Entry getAttributes( AttributeType attributeType, Schema schema, SchemaManager schemaManager ) throws LdapException
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager );
+        Entry entry = new DefaultClientEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC );
         entry.put( MetaSchemaConstants.M_SYNTAX_AT, attributeType.getSyntaxOid() );
@@ -322,9 +322,9 @@ public class AttributesFactory
      * @return the attributes of the metaSchema entry representing the objectClass
      * @throws LdapException if there are any problems
      */
-    public ServerEntry getAttributes( ObjectClass objectClass, Schema schema, SchemaManager schemaManager ) throws LdapException
+    public Entry getAttributes( ObjectClass objectClass, Schema schema, SchemaManager schemaManager ) throws LdapException
     {
-        ServerEntry entry = new DefaultServerEntry( schemaManager );
+        Entry entry = new DefaultClientEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_OBJECT_CLASS_OC );
         entry.put( MetaSchemaConstants.M_TYPE_OBJECT_CLASS_AT, objectClass.getType().toString() );
@@ -376,7 +376,7 @@ public class AttributesFactory
     }
     
     
-    private final void injectCommon( SchemaObject object, ServerEntry entry, SchemaManager schemaManager ) throws LdapException
+    private final void injectCommon( SchemaObject object, Entry entry, SchemaManager schemaManager ) throws LdapException
     {
         injectNames( object.getNames(), entry, schemaManager );
         entry.put( MetaSchemaConstants.M_OBSOLETE_AT, getBoolean( object.isObsolete() ) );
@@ -389,7 +389,7 @@ public class AttributesFactory
     }
     
     
-    private final void injectNames( List<String> names, ServerEntry entry, SchemaManager schemaManager ) throws LdapException
+    private final void injectNames( List<String> names, Entry entry, SchemaManager schemaManager ) throws LdapException
     {
         if ( ( names == null ) || ( names.size() == 0 ) )
         {

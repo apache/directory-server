@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
@@ -61,7 +61,7 @@ public class CollectiveAttributesSchemaChecker
         this.schemaManager = schemaManager;
     }
     
-    /* package scope*/ void checkAdd( DN normName, ServerEntry entry ) throws Exception
+    /* package scope*/ void checkAdd( DN normName, Entry entry ) throws Exception
     {
         if ( entry.hasObjectClass( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
         {
@@ -80,8 +80,8 @@ public class CollectiveAttributesSchemaChecker
     
     public void checkModify( OperationContext opContext, DN normName, List<Modification> mods ) throws Exception
     {
-        ServerEntry originalEntry = opContext.lookup( normName, ByPassConstants.LOOKUP_BYPASS );
-        ServerEntry targetEntry = (ServerEntry)SchemaUtils.getTargetEntry( mods, originalEntry );
+        Entry originalEntry = opContext.lookup( normName, ByPassConstants.LOOKUP_BYPASS );
+        Entry targetEntry = (Entry)SchemaUtils.getTargetEntry( mods, originalEntry );
         
         EntryAttribute targetObjectClasses = targetEntry.get( SchemaConstants.OBJECT_CLASS_AT );
         
@@ -134,7 +134,7 @@ public class CollectiveAttributesSchemaChecker
     }
     
     
-    private boolean containsAnyCollectiveAttributes( ServerEntry entry ) throws NamingException
+    private boolean containsAnyCollectiveAttributes( Entry entry ) throws NamingException
     {
         Set<AttributeType> attributeTypes = entry.getAttributeTypes();
         

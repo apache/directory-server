@@ -27,22 +27,22 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.CursorIterator;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 
 
 /**
- * Adapts index cursors to return just ServerEntry objects.
+ * Adapts index cursors to return just Entry objects.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ServerEntryCursorAdaptor<ID> implements Cursor<ServerEntry>
+public class ServerEntryCursorAdaptor<ID> implements Cursor<Entry>
 {
     private final BTreePartition<ID> db;
-    private final IndexCursor<ID, ServerEntry, ID> indexCursor;
+    private final IndexCursor<ID, Entry, ID> indexCursor;
 
 
-    public ServerEntryCursorAdaptor( BTreePartition<ID> db, IndexCursor<ID, ServerEntry, ID> indexCursor )
+    public ServerEntryCursorAdaptor( BTreePartition<ID> db, IndexCursor<ID, Entry, ID> indexCursor )
     {
         this.db = db;
         this.indexCursor = indexCursor;
@@ -52,7 +52,7 @@ public class ServerEntryCursorAdaptor<ID> implements Cursor<ServerEntry>
     /* 
      * @see Cursor#after(java.lang.Object)
      */
-    public void after( ServerEntry element ) throws Exception
+    public void after( Entry element ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
@@ -79,7 +79,7 @@ public class ServerEntryCursorAdaptor<ID> implements Cursor<ServerEntry>
     /* 
      * @see Cursor#before(java.lang.Object)
      */
-    public void before( ServerEntry element ) throws Exception
+    public void before( Entry element ) throws Exception
     {
         throw new UnsupportedOperationException();
     }
@@ -130,9 +130,9 @@ public class ServerEntryCursorAdaptor<ID> implements Cursor<ServerEntry>
     /* 
      * @see Cursor#get()
      */
-    public ServerEntry get() throws Exception
+    public Entry get() throws Exception
     {
-        IndexEntry<ID, ServerEntry, ID> indexEntry = indexCursor.get();
+        IndexEntry<ID, Entry, ID> indexEntry = indexCursor.get();
 
         if ( indexEntry.getObject() == null )
         {
@@ -191,8 +191,8 @@ public class ServerEntryCursorAdaptor<ID> implements Cursor<ServerEntry>
     /* 
      * @see Iterable#iterator()
      */
-    public Iterator<ServerEntry> iterator()
+    public Iterator<Entry> iterator()
     {
-        return new CursorIterator<ServerEntry>( this );
+        return new CursorIterator<Entry>( this );
     }
 }

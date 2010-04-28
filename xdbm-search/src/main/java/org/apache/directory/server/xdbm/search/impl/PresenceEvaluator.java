@@ -27,7 +27,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -40,16 +40,16 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class PresenceEvaluator<ID> implements Evaluator<PresenceNode, ServerEntry, ID>
+public class PresenceEvaluator<ID> implements Evaluator<PresenceNode, Entry, ID>
 {
     private final PresenceNode node;
-    private final Store<ServerEntry, ID> db;
+    private final Store<Entry, ID> db;
     private final AttributeType type;
     private final SchemaManager schemaManager;
-    private final Index<String, ServerEntry, ID> idx;
+    private final Index<String, Entry, ID> idx;
 
 
-    public PresenceEvaluator( PresenceNode node, Store<ServerEntry, ID> db, SchemaManager schemaManager )
+    public PresenceEvaluator( PresenceNode node, Store<Entry, ID> db, SchemaManager schemaManager )
         throws Exception
     {
         this.db = db;
@@ -82,14 +82,14 @@ public class PresenceEvaluator<ID> implements Evaluator<PresenceNode, ServerEntr
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    public boolean evaluate( IndexEntry<?, ServerEntry, ID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, Entry, ID> indexEntry ) throws Exception
     {
         if ( idx != null )
         {
             return idx.forward( type.getOid(), indexEntry.getId() );
         }
 
-        ServerEntry entry = indexEntry.getObject();
+        Entry entry = indexEntry.getObject();
 
         // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )
@@ -117,7 +117,7 @@ public class PresenceEvaluator<ID> implements Evaluator<PresenceNode, ServerEntr
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    public boolean evaluateEntry( ServerEntry entry ) throws Exception
+    public boolean evaluateEntry( Entry entry ) throws Exception
     {
         if ( db.hasSystemIndexOn( node.getAttribute() ) )
         {

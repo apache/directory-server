@@ -47,7 +47,7 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapOtherException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
@@ -176,13 +176,13 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         
         // should be fine with unique OID
         service.getAdminSession().add( 
-            new DefaultServerEntry( service.getSchemaManager(), numberOfGunsAttrEntry.getEntry() ) ); 
+            new DefaultClientEntry( service.getSchemaManager(), numberOfGunsAttrEntry.getEntry() ) ); 
 
         // should blow chuncks using same OID
         try
         {
             service.getAdminSession().add( 
-                new DefaultServerEntry( service.getSchemaManager(), shipOCEntry.getEntry() ) ); 
+                new DefaultClientEntry( service.getSchemaManager(), shipOCEntry.getEntry() ) ); 
             
             fail( "Should not be possible to create two schema entities with the same OID." );
         }

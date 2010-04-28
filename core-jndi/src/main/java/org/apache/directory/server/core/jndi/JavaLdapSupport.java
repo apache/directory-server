@@ -32,7 +32,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -82,7 +82,7 @@ class JavaLdapSupport
      * @return the deserialized object
      * @throws NamingException if the object cannot be serialized
      */
-    static Object deserialize( ServerEntry serverEntry ) throws NamingException
+    static Object deserialize( Entry serverEntry ) throws NamingException
     {
         ObjectInputStream in = null;
         String className = null;
@@ -177,7 +177,7 @@ class JavaLdapSupport
      * @param obj the object to serialize
      * @throws NamingException if the object cannot be serialized
      */
-    static void serialize( ServerEntry entry, Object obj, SchemaManager schemaManager ) throws LdapException
+    static void serialize( Entry entry, Object obj, SchemaManager schemaManager ) throws LdapException
     {
         /* Let's add the object classes first:
          * objectClass: top

@@ -39,11 +39,11 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
@@ -91,7 +91,7 @@ public class ServerEntryUtils
      *
      * @return An instance of a AttributesImpl() object
      */
-    public static Attributes toBasicAttributes( ServerEntry entry )
+    public static Attributes toBasicAttributes( Entry entry )
     {
         if ( entry == null )
         {
@@ -207,14 +207,14 @@ public class ServerEntryUtils
      * 
      * @throws LdapInvalidAttributeTypeException If we get an invalid attribute
      */
-    public static ServerEntry toServerEntry( Attributes attributes, DN dn, SchemaManager schemaManager ) 
+    public static Entry toServerEntry( Attributes attributes, DN dn, SchemaManager schemaManager ) 
             throws LdapInvalidAttributeTypeException
     {
         if ( attributes instanceof BasicAttributes )
         {
             try 
             {
-                ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
+                Entry entry = new DefaultClientEntry( schemaManager, dn );
     
                 for ( NamingEnumeration<? extends Attribute> attrs = attributes.getAll(); attrs.hasMoreElements(); )
                 {
@@ -256,9 +256,9 @@ public class ServerEntryUtils
      * @return the resultant entry after the modification has taken place
      * @throws LdapException if there are problems accessing attributes
      */
-    public static ServerEntry getTargetEntry( Modification mod, ServerEntry entry, SchemaManager schemaManager ) throws LdapException
+    public static Entry getTargetEntry( Modification mod, Entry entry, SchemaManager schemaManager ) throws LdapException
     {
-        ServerEntry targetEntry = ( ServerEntry ) entry.clone();
+        Entry targetEntry = ( Entry ) entry.clone();
         ModificationOperation modOp = mod.getOperation();
         String id = mod.getAttribute().getId();
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( id );

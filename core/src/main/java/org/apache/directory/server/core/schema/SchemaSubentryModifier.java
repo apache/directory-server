@@ -33,9 +33,8 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.utils.AttributesFactory;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -150,7 +149,7 @@ public class SchemaSubentryModifier
         
         Entry entry = getEntry( dn, comparatorDescription );
 
-        opContext.add( (ServerEntry)entry, BYPASS );
+        opContext.add( (Entry)entry, BYPASS );
     }
     
     
@@ -165,7 +164,7 @@ public class SchemaSubentryModifier
         
         Entry entry = getEntry( dn, normalizerDescription );
 
-        opContext.add( (ServerEntry)entry, BYPASS );
+        opContext.add( (Entry)entry, BYPASS );
     }
     
     
@@ -179,7 +178,7 @@ public class SchemaSubentryModifier
             SchemaConstants.OU_SCHEMA );
         
         Entry entry = getEntry( dn, syntaxCheckerDescription );
-        opContext.add( (ServerEntry)entry, BYPASS );
+        opContext.add( (Entry)entry, BYPASS );
     }
     
     
@@ -187,7 +186,7 @@ public class SchemaSubentryModifier
     {
         Schema schema = schemaManager.getLoadedSchema( obj.getSchemaName() );
         DN dn = getDn( obj );
-        ServerEntry entry = factory.getAttributes( obj, schema, schemaManager );
+        Entry entry = factory.getAttributes( obj, schema, schemaManager );
         entry.setDn( dn );
 
         opContext.add( entry, BYPASS );
@@ -241,7 +240,7 @@ public class SchemaSubentryModifier
 
     private Entry getEntry( DN dn, LdapComparatorDescription comparatorDescription )
     {
-        Entry entry = new DefaultServerEntry( schemaManager, dn );
+        Entry entry = new DefaultClientEntry( schemaManager, dn );
         
         entry.put( SchemaConstants.OBJECT_CLASS_AT, 
                     SchemaConstants.TOP_OC, 
@@ -268,7 +267,7 @@ public class SchemaSubentryModifier
 
     private Entry getEntry( DN dn, NormalizerDescription normalizerDescription )
     {
-        Entry entry = new DefaultServerEntry( schemaManager, dn );
+        Entry entry = new DefaultClientEntry( schemaManager, dn );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, 
             SchemaConstants.TOP_OC, 
@@ -306,7 +305,7 @@ public class SchemaSubentryModifier
     
     private Entry getEntry( DN dn, SyntaxCheckerDescription syntaxCheckerDescription )
     {
-        Entry entry = new DefaultServerEntry( schemaManager, dn );
+        Entry entry = new DefaultClientEntry( schemaManager, dn );
         
         entry.put( SchemaConstants.OBJECT_CLASS_AT, 
             SchemaConstants.TOP_OC, 

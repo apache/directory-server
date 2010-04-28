@@ -33,7 +33,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.AndNode;
@@ -101,11 +101,11 @@ public class LdapClassLoader extends ClassLoader
                     if ( cursor.next() ) // there should be only one!
                     {
                         log.debug( "Class {} found under {} search context.", name, base );
-                        ServerEntry classEntry = cursor.get();
+                        Entry classEntry = cursor.get();
 
                         if ( cursor.next() )
                         {
-                            ServerEntry other = cursor.get();
+                            Entry other = cursor.get();
                             log.warn( "More than one class found on classpath at locations: {} \n\tand {}", 
                                 classEntry, other );
                         }
@@ -142,7 +142,7 @@ public class LdapClassLoader extends ClassLoader
             // copy - there's absolutely no reason why we should be performing this
             // lookup every time!!!
             
-            ServerEntry configEntry = null;
+            Entry configEntry = null;
             
             try
             {

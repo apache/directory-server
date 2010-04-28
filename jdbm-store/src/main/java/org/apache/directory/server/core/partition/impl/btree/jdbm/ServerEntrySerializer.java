@@ -28,7 +28,8 @@ import java.io.ObjectOutputStream;
 import jdbm.helper.Serializer;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,12 +114,12 @@ public class ServerEntrySerializer implements Serializer
      */
     public byte[] serialize( Object object ) throws IOException
     {
-        DefaultServerEntry entry = ( DefaultServerEntry ) object;
+        Entry entry = ( DefaultClientEntry ) object;
         
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
-        entry.serialize( out );
+        ((DefaultClientEntry)entry).serialize( out );
 
         // Note : we don't store the ObjectClassAttribute. I has already
         // been stored as an attribute.
@@ -136,21 +137,21 @@ public class ServerEntrySerializer implements Serializer
 
     
     /**
-     *  Deserialize a ServerEntry.
+     *  Deserialize a Entry.
      *  
      *  @param bytes the byte array containing the serialized entry
-     *  @return An instance of a ServerEntry object 
-     *  @throws IOException if we can't deserialize the ServerEntry
+     *  @return An instance of a Entry object 
+     *  @throws IOException if we can't deserialize the Entry
      */
     public Object deserialize( byte[] bytes ) throws IOException
     {
         ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( bytes ) );
 
-        DefaultServerEntry serverEntry = new DefaultServerEntry( schemaManager );
+        Entry serverEntry = new DefaultClientEntry( schemaManager );
         
         try
         {
-            serverEntry.deserialize( in );
+            ((DefaultClientEntry)serverEntry).deserialize( in );
             
             return serverEntry;
         }

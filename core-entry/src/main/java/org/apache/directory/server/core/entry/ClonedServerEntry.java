@@ -31,7 +31,6 @@ import java.util.Set;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -46,13 +45,13 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ClonedServerEntry implements ServerEntry
+public class ClonedServerEntry implements Entry
 {
     /** The original entry as returned by the backend */
-    private final ServerEntry originalEntry;
+    private final Entry originalEntry;
     
     /** The copied entry */
-    private final ServerEntry clonedEntry;
+    private final Entry clonedEntry;
 
     
     /**
@@ -62,17 +61,17 @@ public class ClonedServerEntry implements ServerEntry
      *
      * @param originalEntry The original entry
      */
-    public ClonedServerEntry( ServerEntry originalEntry )
+    public ClonedServerEntry( Entry originalEntry )
     {
-        this.originalEntry = ( ServerEntry )originalEntry.clone();
-        this.clonedEntry = ( ServerEntry ) originalEntry.clone();
+        this.originalEntry = ( Entry )originalEntry.clone();
+        this.clonedEntry = ( Entry ) originalEntry.clone();
     }
     
     
     /**
      * @return the originalEntry
      */
-    public ServerEntry getOriginalEntry()
+    public Entry getOriginalEntry()
     {
         return originalEntry;
     }
@@ -443,9 +442,9 @@ public class ClonedServerEntry implements ServerEntry
     }
     
     
-    public ServerEntry clone()
+    public Entry clone()
     {
-        return ( ServerEntry ) clonedEntry.clone();
+        return ( Entry ) clonedEntry.clone();
     }
     
     
@@ -466,9 +465,9 @@ public class ClonedServerEntry implements ServerEntry
         {
             other = ((ClonedServerEntry)obj).getClonedEntry();
         }
-        else if ( obj instanceof ServerEntry )
+        else if ( obj instanceof Entry )
         {
-            other = (ServerEntry)obj;
+            other = (Entry)obj;
         }
         else 
         {
@@ -485,7 +484,7 @@ public class ClonedServerEntry implements ServerEntry
     }
     
     
-    class EmptyEntry implements ServerEntry
+    class EmptyEntry implements Entry
     {
         DN dn;
         
@@ -751,7 +750,7 @@ public class ClonedServerEntry implements ServerEntry
         }
     
         
-        public ServerEntry clone()
+        public Entry clone()
         {
             return new EmptyEntry( dn );
         }

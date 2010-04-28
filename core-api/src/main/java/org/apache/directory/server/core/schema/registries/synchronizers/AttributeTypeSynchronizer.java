@@ -24,7 +24,7 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -65,7 +65,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void add( ServerEntry entry ) throws Exception
+    public void add( Entry entry ) throws Exception
     {
         DN dn = entry.getDn();
         DN parentDn = ( DN ) dn.clone();
@@ -112,11 +112,11 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public boolean modify( ModifyOperationContext opContext, ServerEntry targetEntry, boolean cascade )
+    public boolean modify( ModifyOperationContext opContext, Entry targetEntry, boolean cascade )
         throws Exception
     {
         DN name = opContext.getDn();
-        ServerEntry entry = opContext.getEntry();
+        Entry entry = opContext.getEntry();
         String schemaName = getSchemaName( name );
         String oid = getOid( entry );
         AttributeType at = factory.getAttributeType( schemaManager, targetEntry, schemaManager.getRegistries(),
@@ -141,7 +141,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void delete( ServerEntry entry, boolean cascade ) throws Exception
+    public void delete( Entry entry, boolean cascade ) throws Exception
     {
         DN dn = entry.getDn();
         DN parentDn = ( DN ) dn.clone();
@@ -193,14 +193,14 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void rename( ServerEntry entry, RDN newRdn, boolean cascade ) throws Exception
+    public void rename( Entry entry, RDN newRdn, boolean cascade ) throws Exception
     {
         String schemaName = getSchemaName( entry.getDn() );
         AttributeType oldAt = factory
             .getAttributeType( schemaManager, entry, schemaManager.getRegistries(), schemaName );
 
         // Inject the new OID
-        ServerEntry targetEntry = ( ServerEntry ) entry.clone();
+        Entry targetEntry = ( Entry ) entry.clone();
         String newOid = ( String ) newRdn.getNormValue();
         checkOidIsUnique( newOid );
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
@@ -236,14 +236,14 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
 
 
     public void moveAndRename( DN oriChildName, DN newParentName, RDN newRn, boolean deleteOldRn,
-        ServerEntry entry, boolean cascade ) throws Exception
+        Entry entry, boolean cascade ) throws Exception
     {
         checkParent( newParentName, schemaManager, SchemaConstants.ATTRIBUTE_TYPE );
         String oldSchemaName = getSchemaName( oriChildName );
         String newSchemaName = getSchemaName( newParentName );
         AttributeType oldAt = factory.getAttributeType( schemaManager, entry, schemaManager.getRegistries(),
             oldSchemaName );
-        ServerEntry targetEntry = ( ServerEntry ) entry.clone();
+        Entry targetEntry = ( Entry ) entry.clone();
         String newOid = ( String ) newRn.getNormValue();
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
         checkOidIsUnique( newOid );
@@ -287,7 +287,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void move( DN oriChildName, DN newParentName, ServerEntry entry, boolean cascade ) throws Exception
+    public void move( DN oriChildName, DN newParentName, Entry entry, boolean cascade ) throws Exception
     {
         checkParent( newParentName, schemaManager, SchemaConstants.ATTRIBUTE_TYPE );
         String oldSchemaName = getSchemaName( oriChildName );

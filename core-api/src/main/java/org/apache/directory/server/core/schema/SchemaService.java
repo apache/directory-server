@@ -1,7 +1,7 @@
 package org.apache.directory.server.core.schema;
 
 
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
@@ -45,7 +45,7 @@ public interface SchemaService
      * @return the schemaSubentry
      * @throws Exception if there is a failure to access schema timestamps
      */
-    ServerEntry getSubschemaEntryImmutable() throws Exception;
+    Entry getSubschemaEntryImmutable() throws Exception;
 
 
     /**
@@ -54,7 +54,7 @@ public interface SchemaService
      * @return the schemaSubentry
      * @throws Exception if there is a failure to access schema timestamps
      */
-    ServerEntry getSubschemaEntryCloned() throws Exception;
+    Entry getSubschemaEntryCloned() throws Exception;
 
 
     /**
@@ -65,5 +65,5 @@ public interface SchemaService
      * @return the subschema entry with the ids provided
      * @throws Exception if there are failures during schema info access
      */
-    ServerEntry getSubschemaEntry( String[] ids ) throws Exception;
+    Entry getSubschemaEntry( String[] ids ) throws Exception;
 }

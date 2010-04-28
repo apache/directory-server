@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
@@ -119,7 +119,7 @@ public class ServerSystemPreferences extends AbstractPreferences
             
             if ( ! directoryService.getAdminSession().exists( dn ) )
             {
-                ServerEntry entry = directoryService.newEntry( dn );
+                Entry entry = directoryService.newEntry( dn );
                 entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, 
                     ApacheSchemaConstants.PREF_NODE_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
                 entry.add( "prefNodeName", name );
@@ -243,7 +243,7 @@ public class ServerSystemPreferences extends AbstractPreferences
 
         try
         {
-            ServerEntry entry = directoryService.getAdminSession().lookup( dn );
+            Entry entry = directoryService.getAdminSession().lookup( dn );
 
             for ( EntryAttribute attr : entry )
             {

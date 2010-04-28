@@ -22,7 +22,7 @@ package org.apache.directory.server.core.trigger;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
 
 import org.slf4j.Logger;
@@ -53,7 +53,7 @@ public class BackupUtilitiesSP
         LOG.info( "User \"" + session.getEffectivePrincipal() + "\" has deleted entry \"" + deletedEntry + "\"" );
         DN backupDn = new DN ( "ou=backupContext,ou=system" );
         String deletedEntryRdn = deletedEntry.getDn().get( deletedEntry.getDn().size() - 1 );
-        ServerEntry entry = ( ServerEntry ) deletedEntry.getOriginalEntry().clone();
+        Entry entry = ( Entry ) deletedEntry.getOriginalEntry().clone();
         backupDn.add( deletedEntryRdn );
         entry.setDn( backupDn );
         session.add( deletedEntry );

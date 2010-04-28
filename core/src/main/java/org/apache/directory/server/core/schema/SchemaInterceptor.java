@@ -62,7 +62,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -733,7 +733,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 }
                 else
                 {
-                    return new BaseEntryFilteringCursor( new EmptyCursor<ServerEntry>(), opContext );
+                    return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), opContext );
                 }
 
                 String nodeOid = schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() );
@@ -744,13 +744,13 @@ public class SchemaInterceptor extends BaseInterceptor
                         .equals( SchemaConstants.SUBSCHEMA_OC_OID ) ) && ( node instanceof EqualityNode ) )
                 {
                     // call.setBypass( true );
-                    ServerEntry serverEntry = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );
+                    Entry serverEntry = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );
                     serverEntry.setDn( base );
-                    return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), opContext );
+                    return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), opContext );
                 }
                 else
                 {
-                    return new BaseEntryFilteringCursor( new EmptyCursor<ServerEntry>(), opContext );
+                    return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), opContext );
                 }
             }
             else if ( filter instanceof PresenceNode )
@@ -761,9 +761,9 @@ public class SchemaInterceptor extends BaseInterceptor
                 if ( node.getAttribute().equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
                 {
                     // call.setBypass( true );
-                    ServerEntry serverEntry = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );
+                    Entry serverEntry = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );
                     serverEntry.setDn( base );
-                    EntryFilteringCursor cursor = new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>(
+                    EntryFilteringCursor cursor = new BaseEntryFilteringCursor( new SingletonCursor<Entry>(
                         serverEntry ), opContext );
                     return cursor;
                 }
@@ -771,7 +771,7 @@ public class SchemaInterceptor extends BaseInterceptor
         }
 
         // In any case not handled previously, just return an empty result
-        return new BaseEntryFilteringCursor( new EmptyCursor<ServerEntry>(), opContext );
+        return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), opContext );
     }
 
 
@@ -864,7 +864,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * @return
      * @throws Exception
      */
-    private boolean isCompleteRemoval( EntryAttribute change, ServerEntry entry ) throws Exception
+    private boolean isCompleteRemoval( EntryAttribute change, Entry entry ) throws Exception
     {
         // if change size is 0 then all values are deleted then we're in trouble
         if ( change.size() == 0 )
@@ -1106,7 +1106,7 @@ public class SchemaInterceptor extends BaseInterceptor
         DN oldDn = opContext.getDn();
         RDN newRdn = opContext.getNewRdn();
         boolean deleteOldRn = opContext.getDelOldDn();
-        ServerEntry entry =  (ServerEntry)opContext.getEntry().getClonedEntry();
+        Entry entry =  (Entry)opContext.getEntry().getClonedEntry();
 
         /*
          *  Note: This is only a consistency checks, to the ensure that all
@@ -1116,7 +1116,7 @@ public class SchemaInterceptor extends BaseInterceptor
          */
         if ( deleteOldRn )
         {
-            ServerEntry tmpEntry = ( ServerEntry ) entry.clone();
+            Entry tmpEntry = ( Entry ) entry.clone();
             RDN oldRDN = oldDn.getRdn();
 
             // Delete the old RDN means we remove some attributes and values.
@@ -1181,14 +1181,14 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Modify an entry, applying the given modifications, and check if it's OK
      */
-    private void checkModifyEntry( DN dn, ServerEntry currentEntry, List<Modification> mods ) throws Exception
+    private void checkModifyEntry( DN dn, Entry currentEntry, List<Modification> mods ) throws Exception
     {
         // The first step is to check that the modifications are valid :
         // - the ATs are present in the schema
         // - The value is syntaxically correct
         //
         // While doing that, we will apply the modification to a copy of the current entry
-        ServerEntry tempEntry = (ServerEntry)currentEntry.clone();
+        Entry tempEntry = (Entry)currentEntry.clone();
         
         // Now, apply each mod one by one
         for ( Modification mod:mods )
@@ -1406,7 +1406,7 @@ public class SchemaInterceptor extends BaseInterceptor
             return;
         }
 
-        ServerEntry entry = opContext.getEntry();
+        Entry entry = opContext.getEntry();
         List<Modification> modifications = opContext.getModItems();
         checkModifyEntry( dn, entry, modifications );
         
@@ -1458,7 +1458,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    private void filterObjectClass( ServerEntry entry ) throws Exception
+    private void filterObjectClass( Entry entry ) throws Exception
     {
         List<ObjectClass> objectClasses = new ArrayList<ObjectClass>();
         EntryAttribute oc = entry.get( SchemaConstants.OBJECT_CLASS_AT );
@@ -1482,7 +1482,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    private void filterBinaryAttributes( ServerEntry entry ) throws Exception
+    private void filterBinaryAttributes( Entry entry ) throws Exception
     {
         /*
          * start converting values of attributes to byte[]s which are not
@@ -1547,7 +1547,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * 
      * We also check the syntaxes
      */
-    private void check( DN dn, ServerEntry entry ) throws Exception
+    private void check( DN dn, Entry entry ) throws Exception
     {
         // ---------------------------------------------------------------
         // First, make sure all attributes are valid schema defined attributes
@@ -1611,7 +1611,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    private void checkOcSuperior( ServerEntry entry ) throws Exception
+    private void checkOcSuperior( Entry entry ) throws Exception
     {
         // handle the m-supObjectClass meta attribute
         EntryAttribute supOC = entry.get( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT );
@@ -1680,7 +1680,7 @@ public class SchemaInterceptor extends BaseInterceptor
     public void add( NextInterceptor next, AddOperationContext addContext ) throws Exception
     {
         DN name = addContext.getDn();
-        ServerEntry entry = addContext.getEntry();
+        Entry entry = addContext.getEntry();
 
         check( name, entry );
 
@@ -1755,7 +1755,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * @return true if the objectClass values require the attribute, false otherwise
      * @throws Exception if the attribute is not recognized
      */
-    private void assertAllAttributesAllowed( DN dn, ServerEntry entry, Set<String> allowed ) throws Exception
+    private void assertAllAttributesAllowed( DN dn, Entry entry, Set<String> allowed ) throws Exception
     {
         // Never check the attributes if the extensibleObject objectClass is
         // declared for this entry
@@ -1944,7 +1944,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
     
     
-    private void assertRdn( DN dn, ServerEntry entry ) throws Exception
+    private void assertRdn( DN dn, Entry entry ) throws Exception
     {
         for ( AVA atav : dn.getRdn() )
         {
@@ -2054,11 +2054,11 @@ public class SchemaInterceptor extends BaseInterceptor
      * to valid String if they are stored as byte[], and that non Human Readable attributes
      * stored as String can be transformed to byte[]
      */
-    private void assertHumanReadable( ServerEntry entry ) throws Exception
+    private void assertHumanReadable( Entry entry ) throws Exception
     {
         boolean isModified = false;
 
-        ServerEntry clonedEntry = null;
+        Entry clonedEntry = null;
 
         // Loops on all attributes
         for ( EntryAttribute attribute : entry )
@@ -2081,7 +2081,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 if ( clonedEntry == null )
                 {
-                    clonedEntry = ( ServerEntry ) entry.clone();
+                    clonedEntry = ( Entry ) entry.clone();
                 }
 
                 // Switch the attributes

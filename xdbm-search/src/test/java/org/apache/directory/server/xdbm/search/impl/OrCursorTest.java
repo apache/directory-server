@@ -41,7 +41,7 @@ import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.OrNode;
@@ -76,7 +76,7 @@ public class OrCursorTest
     private static final Logger LOG = LoggerFactory.getLogger( OrCursorTest.class.getSimpleName() );
 
     File wkdir;
-    Store<ServerEntry, Long> store;
+    Store<Entry, Long> store;
     static SchemaManager schemaManager = null;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
@@ -128,7 +128,7 @@ public class OrCursorTest
         wkdir.mkdirs();
 
         // initialize the store
-        store = new JdbmStore<ServerEntry>();
+        store = new JdbmStore<Entry>();
         store.setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionDir( wkdir );
@@ -170,7 +170,7 @@ public class OrCursorTest
 
         ExprNode exprNode = FilterParser.parse( filter );
 
-        IndexCursor<?, ServerEntry, Long> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
 
         cursor.afterLast();
 
@@ -251,10 +251,10 @@ public class OrCursorTest
     @SuppressWarnings("unchecked")
     public void testOrCursor() throws Exception
     {
-        List<Evaluator<? extends ExprNode, ServerEntry, Long>> evaluators = new ArrayList<Evaluator<? extends ExprNode, ServerEntry, Long>>();
-        List<Cursor<IndexEntry<?, ServerEntry, Long>>> cursors = new ArrayList<Cursor<IndexEntry<?, ServerEntry, Long>>>();
-        Evaluator<? extends ExprNode, ServerEntry, Long> eval;
-        Cursor<IndexEntry<?, ServerEntry, Long>> cursor;
+        List<Evaluator<? extends ExprNode, Entry, Long>> evaluators = new ArrayList<Evaluator<? extends ExprNode, Entry, Long>>();
+        List<Cursor<IndexEntry<?, Entry, Long>>> cursors = new ArrayList<Cursor<IndexEntry<?, Entry, Long>>>();
+        Evaluator<? extends ExprNode, Entry, Long> eval;
+        Cursor<IndexEntry<?, Entry, Long>> cursor;
 
         OrNode orNode = new OrNode();
 
@@ -378,5 +378,4 @@ public class OrCursorTest
 
         cursor.get();
     }
-
 }

@@ -61,7 +61,7 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
@@ -267,7 +267,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             assertNotNull( attrs );
             SchemaEntityFactory factory = new SchemaEntityFactory();
             
-            ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attrs, DN.EMPTY_DN, service.getSchemaManager() );
+            Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, DN.EMPTY_DN, service.getSchemaManager() );
 
             SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, serverEntry, service.getSchemaManager().getRegistries(), schemaName );
             assertEquals( oid, syntaxChecker.getOid() );
@@ -1412,7 +1412,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         assertNotNull( attrs );
         SchemaEntityFactory factory = new SchemaEntityFactory();
         
-        ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attrs, DN.EMPTY_DN, service.getSchemaManager() );
+        Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, DN.EMPTY_DN, service.getSchemaManager() );
         
         AttributeType at = factory.getAttributeType( service.getSchemaManager(), serverEntry, service.getSchemaManager().getRegistries(), "nis" );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
@@ -1475,7 +1475,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         assertNotNull( attrs );
         SchemaEntityFactory factory = new SchemaEntityFactory();
         
-        ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attrs, DN.EMPTY_DN, service.getSchemaManager() );
+        Entry serverEntry = ServerEntryUtils.toServerEntry( attrs, DN.EMPTY_DN, service.getSchemaManager() );
 
         AttributeType at = factory.getAttributeType( service.getSchemaManager(), serverEntry, service.getSchemaManager().getRegistries(), "nis" );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );

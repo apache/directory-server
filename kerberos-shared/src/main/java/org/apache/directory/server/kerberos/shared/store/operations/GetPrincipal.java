@@ -39,7 +39,7 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntryModifier;
 import org.apache.directory.server.protocol.shared.store.DirectoryServiceOperation;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
 
 
@@ -91,7 +91,7 @@ public class GetPrincipal implements DirectoryServiceOperation
      * @return the entry for the principal
      * @throws NamingException if there are any access problems
      */
-    private PrincipalStoreEntry getEntry( ServerEntry entry ) throws Exception
+    private PrincipalStoreEntry getEntry( Entry entry ) throws Exception
     {
         PrincipalStoreEntryModifier modifier = new PrincipalStoreEntryModifier();
 

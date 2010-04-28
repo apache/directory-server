@@ -49,7 +49,7 @@ import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -116,7 +116,7 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void add( ServerEntry entry ) throws Exception
+    public void add( Entry entry ) throws Exception
     {
         add( entry, LogChange.TRUE );
     }
@@ -125,7 +125,7 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void add( ServerEntry entry, boolean ignoreReferral ) throws Exception
+    public void add( Entry entry, boolean ignoreReferral ) throws Exception
     {
         add( entry, ignoreReferral, LogChange.TRUE );
     }
@@ -134,7 +134,7 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void add( ServerEntry entry, LogChange log ) throws Exception
+    public void add( Entry entry, LogChange log ) throws Exception
     {
         AddOperationContext opContext = new AddOperationContext( this, entry );
 
@@ -148,7 +148,7 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void add( ServerEntry entry, boolean ignoreReferral, LogChange log ) throws Exception
+    public void add( Entry entry, boolean ignoreReferral, LogChange log ) throws Exception
     {
         AddOperationContext opContext = new AddOperationContext( this, entry );
 

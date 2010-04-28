@@ -23,7 +23,7 @@ package org.apache.directory.server.core.trigger;
 import java.util.Map;
 
 import org.apache.directory.server.core.interceptor.context.OperationContext;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
@@ -33,11 +33,11 @@ import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 public class AddStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
     private DN addedEntryName;
-    private ServerEntry addedEntry;
+    private Entry addedEntry;
     
     
     public AddStoredProcedureParameterInjector( OperationContext opContext, DN addedEntryName, 
-        ServerEntry addedEntry )
+        Entry addedEntry )
     {
         super( opContext );
         this.addedEntryName = addedEntryName;

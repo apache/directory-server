@@ -32,7 +32,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapOtherException;
@@ -162,7 +162,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     }
 
 
-    protected void checkOidIsUnique( ServerEntry entry ) throws Exception
+    protected void checkOidIsUnique( Entry entry ) throws Exception
     {
         String oid = getOid( entry );
 
@@ -177,7 +177,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      * Check that a SchemaObject exists in the global OidRegsitry, and if so,
      * return it.
      */
-    protected SchemaObject checkOidExists( ServerEntry entry ) throws Exception
+    protected SchemaObject checkOidExists( Entry entry ) throws Exception
     {
         String oid = getOid( entry );
 
@@ -318,30 +318,30 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     /**
      * {@inheritDoc}
      */
-    public abstract boolean modify( ModifyOperationContext opContext, ServerEntry targetEntry, boolean cascade ) 
+    public abstract boolean modify( ModifyOperationContext opContext, Entry targetEntry, boolean cascade ) 
         throws Exception;
     
     
-    /*public final boolean modify( DN name, ModificationOperation modOp, ServerEntry mods, ServerEntry entry, ServerEntry targetEntry, 
+    /*public final boolean modify( DN name, ModificationOperation modOp, Entry mods, Entry entry, Entry targetEntry, 
         boolean cascade ) throws Exception
     {
         return modify( name, entry, targetEntry, cascade );
     }
 
 
-    public final boolean modify( DN name, List<Modification> mods, ServerEntry entry,
-        ServerEntry targetEntry, boolean cascade ) throws Exception
+    public final boolean modify( DN name, List<Modification> mods, Entry entry,
+        Entry targetEntry, boolean cascade ) throws Exception
     {
         return modify( name, entry, targetEntry, cascade );
     }
     */
     
     
-    protected Set<String> getOids( Set<ServerEntry> results ) throws Exception
+    protected Set<String> getOids( Set<Entry> results ) throws Exception
     {
         Set<String> oids = new HashSet<String>( results.size() );
         
-        for ( ServerEntry result : results )
+        for ( Entry result : results )
         {
             DN dn = result.getDn();
             dn.normalize( schemaManager.getNormalizerMapping() );
@@ -352,7 +352,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     }
     
     
-    protected String getOid( ServerEntry entry ) throws Exception
+    protected String getOid( Entry entry ) throws Exception
     {
         EntryAttribute oid = entry.get( m_oidAT );
         

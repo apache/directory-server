@@ -19,7 +19,7 @@
  */
 package org.apache.directory.server.core;
 
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
 
 /**
@@ -83,7 +83,7 @@ public interface ReferralManager
      * @param dn The DN from which we want to get the parent referral
      * @return The parent referral of null if none is found
      */
-    ServerEntry getParentReferral( DN dn );
+    Entry getParentReferral( DN dn );
     
     
     /**
@@ -91,7 +91,7 @@ public interface ReferralManager
      *
      * @param dn The referral to add
      */
-    void addReferral( ServerEntry entry );
+    void addReferral( Entry entry );
     
     
     /**
@@ -99,7 +99,7 @@ public interface ReferralManager
      * 
      * @param dn The referral to remove
      */
-    void removeReferral( ServerEntry entry );
+    void removeReferral( Entry entry );
     
     
     /**

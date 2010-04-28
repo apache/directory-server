@@ -132,7 +132,7 @@ public class OneLevelScopeEvaluator<E, ID> implements Evaluator<ScopeNode, E, ID
      * alias dereferencing into account.
      *
      * TODO - terribly inefficient - would benefit from exposing the id of an
-     * entry within the ServerEntry
+     * entry within the Entry
      *
      * @see Evaluator#evaluate(Object)
      */

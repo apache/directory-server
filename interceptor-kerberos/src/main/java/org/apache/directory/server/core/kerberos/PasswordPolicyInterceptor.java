@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -69,7 +69,7 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
     {
         DN normName = addContext.getDn();
 
-        ServerEntry entry = addContext.getEntry();
+        Entry entry = addContext.getEntry();
 
         log.debug( "Adding the entry '{}' for DN '{}'.", entry, normName.getName() );
 

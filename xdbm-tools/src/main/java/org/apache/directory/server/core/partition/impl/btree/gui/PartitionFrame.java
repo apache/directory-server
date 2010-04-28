@@ -65,8 +65,8 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
@@ -468,7 +468,7 @@ public class PartitionFrame extends JFrame
 
                 DN ndn = new DN( StringTools.deepTrimToLower( updn ) );
 
-                ServerEntry attrs = new DefaultServerEntry( schemaManager, entry.getEntry() );
+                Entry attrs = new DefaultClientEntry( schemaManager, entry.getEntry() );
 
                 if ( null == partition.getEntryId( ndn ) )
                 {
@@ -662,7 +662,7 @@ public class PartitionFrame extends JFrame
             limitMax = Integer.parseInt( limit );
         }
 
-        IndexCursor<Long, ServerEntry, Long> cursor = partition.getSearchEngine().cursor( new DN( base ),
+        IndexCursor<Long, Entry, Long> cursor = partition.getSearchEngine().cursor( new DN( base ),
             AliasDerefMode.DEREF_ALWAYS, root, ctls );
         String[] cols = new String[2];
         cols[0] = "id";
@@ -866,7 +866,7 @@ public class PartitionFrame extends JFrame
     }
 
 
-    void displayEntry( Long id, ServerEntry entry ) throws Exception
+    void displayEntry( Long id, Entry entry ) throws Exception
     {
         String dn = partition.getEntryUpdn( id );
         AttributesTableModel model = new AttributesTableModel( entry, id, dn, false );
@@ -885,7 +885,7 @@ public class PartitionFrame extends JFrame
         // boolean doFiltered = false;
         nodes = new HashMap<Long, EntryNode>();
 
-        ServerEntry suffix = partition.lookup( partition.getEntryId( partition.getSuffixDn() ) );
+        Entry suffix = partition.lookup( partition.getEntryId( partition.getSuffixDn() ) );
         Long id = partition.getEntryId( partition.getSuffixDn() );
         root = new EntryNode( id, null, partition, suffix, nodes );
 

@@ -48,7 +48,7 @@ import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.exception.LdapOtherException;
@@ -115,7 +115,7 @@ public class TriggerInterceptor extends BaseInterceptor
      * @param proxy the partition nexus proxy 
      */
     private void addPrescriptiveTriggerSpecs( OperationContext opContext, List<TriggerSpecification> triggerSpecs, 
-        DN dn, ServerEntry entry ) throws Exception
+        DN dn, Entry entry ) throws Exception
     {
         
         /*
@@ -158,7 +158,7 @@ public class TriggerInterceptor extends BaseInterceptor
      * @param entry the target entry that is considered as the trigger source
      * @throws Exception if there are problems accessing attribute values
      */
-    private void addEntryTriggerSpecs( List<TriggerSpecification> triggerSpecs, ServerEntry entry ) throws Exception
+    private void addEntryTriggerSpecs( List<TriggerSpecification> triggerSpecs, Entry entry ) throws Exception
     {
         EntryAttribute entryTrigger = entry.get( ENTRY_TRIGGER_ATTR );
         
@@ -258,7 +258,7 @@ public class TriggerInterceptor extends BaseInterceptor
     public void add( NextInterceptor next, AddOperationContext addContext ) throws Exception
     {
         DN name = addContext.getDn();
-        ServerEntry entry = addContext.getEntry();
+        Entry entry = addContext.getEntry();
         
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
@@ -369,7 +369,7 @@ public class TriggerInterceptor extends BaseInterceptor
         }
         
         // Gather supplementary data.        
-        ServerEntry renamedEntry = (ServerEntry)renameContext.getEntry().getClonedEntry();
+        Entry renamedEntry = (Entry)renameContext.getEntry().getClonedEntry();
         
         // @TODO : To be completely reviewed !!!
         DN oldRDN = new DN( name.getRdn().getName() );
@@ -448,7 +448,7 @@ public class TriggerInterceptor extends BaseInterceptor
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
         SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class.getName() );
-        ServerEntry fakeImportedEntry = subentryInterceptor.getSubentryAttributes( newDN, importedEntry );
+        Entry fakeImportedEntry = subentryInterceptor.getSubentryAttributes( newDN, importedEntry );
         
         for ( EntryAttribute attribute:importedEntry )
         {
@@ -523,7 +523,7 @@ public class TriggerInterceptor extends BaseInterceptor
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
         SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class.getName() );
-        ServerEntry fakeImportedEntry = subentryInterceptor.getSubentryAttributes( newDN, importedEntry );
+        Entry fakeImportedEntry = subentryInterceptor.getSubentryAttributes( newDN, importedEntry );
         
         for ( EntryAttribute attribute:importedEntry )
         {

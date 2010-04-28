@@ -32,7 +32,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -153,7 +153,7 @@ public class SchemaSubentryManager
 
     
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeManager#modifySchemaSubentry(org.apache.directory.server.core.interceptor.context.ModifyOperationContext, org.apache.directory.server.core.entry.ServerEntry, org.apache.directory.server.core.entry.ServerEntry, boolean)
+     * @see org.apache.directory.server.core.schema.SchemaChangeManager#modifySchemaSubentry(org.apache.directory.server.core.interceptor.context.ModifyOperationContext, org.apache.directory.server.core.entry.Entry, org.apache.directory.server.core.entry.Entry, boolean)
      */
     public void modifySchemaSubentry( ModifyOperationContext opContext, boolean doCascadeModify ) throws Exception 
     {
@@ -185,10 +185,10 @@ public class SchemaSubentryManager
     
     
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeManager#modifySchemaSubentry(org.apache.directory.server.core.interceptor.context.ModifyOperationContext, org.apache.directory.shared.ldap.name.DN, int, org.apache.directory.server.core.entry.ServerEntry, org.apache.directory.server.core.entry.ServerEntry, org.apache.directory.server.core.entry.ServerEntry, boolean)
+     * @see org.apache.directory.server.core.schema.SchemaChangeManager#modifySchemaSubentry(org.apache.directory.server.core.interceptor.context.ModifyOperationContext, org.apache.directory.shared.ldap.name.DN, int, org.apache.directory.server.core.entry.Entry, org.apache.directory.server.core.entry.Entry, org.apache.directory.server.core.entry.Entry, boolean)
      */
-    public void modifySchemaSubentry( ModifyOperationContext opContext, DN name, int modOp, ServerEntry mods, 
-        ServerEntry subentry, ServerEntry targetSubentry, boolean doCascadeModify ) throws Exception
+    public void modifySchemaSubentry( ModifyOperationContext opContext, DN name, int modOp, Entry mods, 
+        Entry subentry, Entry targetSubentry, boolean doCascadeModify ) throws Exception
     {
         Set<AttributeType> attributeTypes = mods.getAttributeTypes();
         

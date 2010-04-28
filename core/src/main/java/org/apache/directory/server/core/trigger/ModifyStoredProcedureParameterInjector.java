@@ -29,7 +29,7 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
@@ -40,7 +40,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
 {
     private DN modifiedEntryName;
     private List<Modification> modifications;
-    private ServerEntry oldEntry;
+    private Entry oldEntry;
     
     
     public ModifyStoredProcedureParameterInjector( ModifyOperationContext opContext ) throws Exception

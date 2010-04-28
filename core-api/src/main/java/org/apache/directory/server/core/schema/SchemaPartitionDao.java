@@ -7,7 +7,7 @@ import java.util.Set;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -76,7 +76,7 @@ public interface SchemaPartitionDao
      * @throws NamingException if more than one entity has the name, or if there 
      * are underlying data access problems
      */
-    ServerEntry find( String entityName ) throws Exception;
+    Entry find( String entityName ) throws Exception;
 
 
     /**
@@ -120,16 +120,16 @@ public interface SchemaPartitionDao
      * @return the set of matchingRules and attributeTypes depending on a syntax
      * @throws NamingException if the dao fails to perform search operations
      */
-    Set<ServerEntry> listSyntaxDependents( String numericOid ) throws Exception;
+    Set<Entry> listSyntaxDependents( String numericOid ) throws Exception;
 
 
-    Set<ServerEntry> listMatchingRuleDependents( MatchingRule mr ) throws Exception;
+    Set<Entry> listMatchingRuleDependents( MatchingRule mr ) throws Exception;
 
 
     EntryFilteringCursor listAllNames() throws Exception;
 
 
-    Set<ServerEntry> listAttributeTypeDependents( AttributeType at ) throws Exception;
+    Set<Entry> listAttributeTypeDependents( AttributeType at ) throws Exception;
 
 
     /**
@@ -139,7 +139,7 @@ public interface SchemaPartitionDao
      * @return a set of SearchResults over the schemas whose m-dependency attribute contains schemaName
      * @throws NamingException if there is a problem while searching the schema partition
      */
-    Set<ServerEntry> listSchemaDependents( String schemaName ) throws Exception;
+    Set<Entry> listSchemaDependents( String schemaName ) throws Exception;
 
 
     /**
@@ -149,8 +149,8 @@ public interface SchemaPartitionDao
      * @return a set of SearchResults over the schemas whose m-dependency attribute contains schemaName
      * @throws NamingException if there is a problem while searching the schema partition
      */
-    Set<ServerEntry> listEnabledSchemaDependents( String schemaName ) throws Exception;
+    Set<Entry> listEnabledSchemaDependents( String schemaName ) throws Exception;
 
 
-    Set<ServerEntry> listObjectClassDependents( ObjectClass oc ) throws Exception;
+    Set<Entry> listObjectClassDependents( ObjectClass oc ) throws Exception;
 }

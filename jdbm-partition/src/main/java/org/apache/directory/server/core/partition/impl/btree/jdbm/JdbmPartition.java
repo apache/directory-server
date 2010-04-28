@@ -28,7 +28,7 @@ import org.apache.directory.server.xdbm.search.impl.DefaultOptimizer;
 import org.apache.directory.server.xdbm.search.impl.DefaultSearchEngine;
 import org.apache.directory.server.xdbm.search.impl.EvaluatorBuilder;
 import org.apache.directory.server.xdbm.search.impl.NoOpOptimizer;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 
 
 /**
@@ -48,7 +48,7 @@ public class JdbmPartition extends AbstractXdbmPartition<Long>
      */
     public JdbmPartition()
     {
-        super( new JdbmStore<ServerEntry>() );
+        super( new JdbmStore<Entry>() );
     }
 
 
@@ -66,7 +66,7 @@ public class JdbmPartition extends AbstractXdbmPartition<Long>
         }
         else
         {
-            optimizer = new DefaultOptimizer<ServerEntry, Long>( store );
+            optimizer = new DefaultOptimizer<Entry, Long>( store );
         }
 
         searchEngine = new DefaultSearchEngine<Long>( store, cursorBuilder, evaluatorBuilder, optimizer );
@@ -80,7 +80,7 @@ public class JdbmPartition extends AbstractXdbmPartition<Long>
         store.setSuffixDn( suffixDn );
         store.setPartitionDir( getPartitionDir() );
 
-        for ( Index<?, ServerEntry, Long> index : getIndexedAttributes() )
+        for ( Index<?, Entry, Long> index : getIndexedAttributes() )
         {
             String oid = schemaManager.getAttributeTypeRegistry().getOidByName( index.getAttributeId() );
             if ( !index.getAttributeId().equals( oid ) )
@@ -94,19 +94,19 @@ public class JdbmPartition extends AbstractXdbmPartition<Long>
     }
 
 
-    public Index<String, ServerEntry, Long> getObjectClassIndex()
+    public Index<String, Entry, Long> getObjectClassIndex()
     {
         return store.getObjectClassIndex();
     }
 
 
-    public Index<String, ServerEntry, Long> getEntryCsnIndex()
+    public Index<String, Entry, Long> getEntryCsnIndex()
     {
         return store.getEntryCsnIndex();
     }
 
 
-    public Index<String, ServerEntry, Long> getEntryUuidIndex()
+    public Index<String, Entry, Long> getEntryUuidIndex()
     {
         return store.getEntryUuidIndex();
     }

@@ -20,7 +20,7 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -33,13 +33,13 @@ import org.apache.directory.server.xdbm.search.Evaluator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class NotEvaluator<ID> implements Evaluator<NotNode, ServerEntry, ID>
+public class NotEvaluator<ID> implements Evaluator<NotNode, Entry, ID>
 {
     private final NotNode node;
-    private final Evaluator<? extends ExprNode, ServerEntry, ID> childEvaluator;
+    private final Evaluator<? extends ExprNode, Entry, ID> childEvaluator;
 
 
-    public NotEvaluator( NotNode node, Evaluator<? extends ExprNode, ServerEntry, ID> childEvaluator )
+    public NotEvaluator( NotNode node, Evaluator<? extends ExprNode, Entry, ID> childEvaluator )
     {
         this.node = node;
         this.childEvaluator = childEvaluator;
@@ -52,13 +52,13 @@ public class NotEvaluator<ID> implements Evaluator<NotNode, ServerEntry, ID>
     }
 
 
-    public boolean evaluateEntry( ServerEntry entry ) throws Exception
+    public boolean evaluateEntry( Entry entry ) throws Exception
     {
         return !childEvaluator.evaluateEntry( entry );
     }
 
 
-    public boolean evaluate( IndexEntry<?, ServerEntry, ID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, Entry, ID> indexEntry ) throws Exception
     {
         return !childEvaluator.evaluate( indexEntry );
     }

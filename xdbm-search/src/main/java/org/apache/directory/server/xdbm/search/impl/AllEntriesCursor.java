@@ -25,7 +25,7 @@ import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 
 
 /**
@@ -34,13 +34,13 @@ import org.apache.directory.shared.ldap.entry.ServerEntry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AllEntriesCursor<ID> extends AbstractIndexCursor<ID, ServerEntry, ID>
+public class AllEntriesCursor<ID> extends AbstractIndexCursor<ID, Entry, ID>
 {
-    private IndexEntry<ID, ServerEntry, ID> indexEntry = new ForwardIndexEntry<ID, ServerEntry, ID>();
-    private final IndexCursor<String, ServerEntry, ID> wrapped;
+    private IndexEntry<ID, Entry, ID> indexEntry = new ForwardIndexEntry<ID, Entry, ID>();
+    private final IndexCursor<String, Entry, ID> wrapped;
 
 
-    public AllEntriesCursor( Store<ServerEntry, ID> db ) throws Exception
+    public AllEntriesCursor( Store<Entry, ID> db ) throws Exception
     {
         // Get a reverse cursor because we want to sort by ID
         wrapped = db.getNdnIndex().reverseCursor();
@@ -70,7 +70,7 @@ public class AllEntriesCursor<ID> extends AbstractIndexCursor<ID, ServerEntry, I
     /* 
      * @see org.apache.directory.server.core.cursor.Cursor#after(java.lang.Object)
      */
-    public void after( IndexEntry<ID, ServerEntry, ID> indexEntry ) throws Exception
+    public void after( IndexEntry<ID, Entry, ID> indexEntry ) throws Exception
     {
         checkNotClosed( "after()" );
         wrapped.afterValue( indexEntry.getId(), null );
@@ -99,7 +99,7 @@ public class AllEntriesCursor<ID> extends AbstractIndexCursor<ID, ServerEntry, I
     /* 
      * @see org.apache.directory.server.core.cursor.Cursor#before(java.lang.Object)
      */
-    public void before( IndexEntry<ID, ServerEntry, ID> indexEntry ) throws Exception
+    public void before( IndexEntry<ID, Entry, ID> indexEntry ) throws Exception
     {
         checkNotClosed( "before()" );
         wrapped.beforeValue( indexEntry.getId(), null );
@@ -129,10 +129,10 @@ public class AllEntriesCursor<ID> extends AbstractIndexCursor<ID, ServerEntry, I
     /* 
      * @see org.apache.directory.server.core.cursor.Cursor#get()
      */
-    public IndexEntry<ID, ServerEntry, ID> get() throws Exception
+    public IndexEntry<ID, Entry, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        IndexEntry<String, ServerEntry, ID> wrappedEntry = wrapped.get();
+        IndexEntry<String, Entry, ID> wrappedEntry = wrapped.get();
         indexEntry.setId( wrappedEntry.getId() );
         indexEntry.setValue( wrappedEntry.getId() );
         indexEntry.setObject( wrappedEntry.getObject() );

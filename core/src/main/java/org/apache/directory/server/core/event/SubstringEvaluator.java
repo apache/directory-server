@@ -25,7 +25,7 @@ import java.util.regex.PatternSyntaxException;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidSearchFilterException;
@@ -63,9 +63,9 @@ public class SubstringEvaluator implements Evaluator
 
 
     /**
-     * @see Evaluator#evaluate( ExprNode, String, ServerEntry )
+     * @see Evaluator#evaluate( ExprNode, String, Entry )
      */
-    public boolean evaluate( ExprNode node, DN dn, ServerEntry entry ) throws LdapException
+    public boolean evaluate( ExprNode node, DN dn, Entry entry ) throws LdapException
     {
         Pattern regex = null;
         SubstringNode snode = (SubstringNode)node;

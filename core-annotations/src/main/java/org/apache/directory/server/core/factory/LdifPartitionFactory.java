@@ -26,7 +26,7 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.avl.AvlIndex;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 
 
 /**
@@ -65,9 +65,9 @@ public class LdifPartitionFactory implements PartitionFactory
         }
 
         LdifPartition ldifPartition = ( LdifPartition ) partition;
-        Set<Index<? extends Object, ServerEntry, Long>> indexedAttributes = ldifPartition.getIndexedAttributes();
+        Set<Index<? extends Object, Entry, Long>> indexedAttributes = ldifPartition.getIndexedAttributes();
 
-        AvlIndex<Object, ServerEntry> index = new AvlIndex<Object, ServerEntry>( attributeId );
+        AvlIndex<Object, Entry> index = new AvlIndex<Object, Entry>( attributeId );
         //index.setCacheSize( cacheSize );
 
         indexedAttributes.add( index );

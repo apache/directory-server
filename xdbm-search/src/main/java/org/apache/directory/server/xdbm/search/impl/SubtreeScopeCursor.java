@@ -26,7 +26,7 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 
 
 /**
@@ -36,24 +36,24 @@ import org.apache.directory.shared.ldap.entry.ServerEntry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubtreeScopeCursor<ID> extends AbstractIndexCursor<ID, ServerEntry, ID>
+public class SubtreeScopeCursor<ID> extends AbstractIndexCursor<ID, Entry, ID>
 {
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
     /** The Entry database/store */
-    private final Store<ServerEntry, ID> db;
+    private final Store<Entry, ID> db;
 
     /** A ScopeNode Evaluator */
-    private final SubtreeScopeEvaluator<ServerEntry, ID> evaluator;
+    private final SubtreeScopeEvaluator<Entry, ID> evaluator;
 
     /** A Cursor over the entries in the scope of the search base */
-    private final IndexCursor<ID, ServerEntry, ID> scopeCursor;
+    private final IndexCursor<ID, Entry, ID> scopeCursor;
 
     /** A Cursor over entries brought into scope by alias dereferencing */
-    private final IndexCursor<ID, ServerEntry, ID> dereferencedCursor;
+    private final IndexCursor<ID, Entry, ID> dereferencedCursor;
 
     /** Currently active Cursor: we switch between two cursors */
-    private IndexCursor<ID, ServerEntry, ID> cursor;
+    private IndexCursor<ID, Entry, ID> cursor;
 
     /** Whether or not this Cursor is positioned so an entry is available */
     private boolean available = false;
@@ -68,7 +68,7 @@ public class SubtreeScopeCursor<ID> extends AbstractIndexCursor<ID, ServerEntry,
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public SubtreeScopeCursor( Store<ServerEntry, ID> db, SubtreeScopeEvaluator<ServerEntry, ID> evaluator )
+    public SubtreeScopeCursor( Store<Entry, ID> db, SubtreeScopeEvaluator<Entry, ID> evaluator )
         throws Exception
     {
         this.db = db;
@@ -130,7 +130,7 @@ public class SubtreeScopeCursor<ID> extends AbstractIndexCursor<ID, ServerEntry,
     }
 
 
-    public void before( IndexEntry<ID, ServerEntry, ID> element ) throws Exception
+    public void before( IndexEntry<ID, Entry, ID> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
@@ -142,7 +142,7 @@ public class SubtreeScopeCursor<ID> extends AbstractIndexCursor<ID, ServerEntry,
     }
 
 
-    public void after( IndexEntry<ID, ServerEntry, ID> element ) throws Exception
+    public void after( IndexEntry<ID, Entry, ID> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
@@ -319,7 +319,7 @@ public class SubtreeScopeCursor<ID> extends AbstractIndexCursor<ID, ServerEntry,
     }
 
 
-    public IndexEntry<ID, ServerEntry, ID> get() throws Exception
+    public IndexEntry<ID, Entry, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
         if ( available )

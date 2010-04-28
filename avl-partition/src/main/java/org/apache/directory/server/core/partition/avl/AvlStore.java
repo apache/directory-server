@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
@@ -72,13 +72,13 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     private static AttributeType ALIASED_OBJECT_NAME_AT;
 
     /** the master table storing entries by primary key */
-    private AvlMasterTable<ServerEntry> master;
+    private AvlMasterTable<Entry> master;
 
 
     /**
      * {@inheritDoc}
      */
-    public void add( ServerEntry entry ) throws Exception
+    public void add( Entry entry ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
         {
@@ -220,7 +220,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     @SuppressWarnings("unchecked")
     public void delete( Long id ) throws Exception
     {
-        ServerEntry entry = lookup( id );
+        Entry entry = lookup( id );
         Long parentId = getParentId( id );
 
         EntryAttribute objectClass = entry.get( OBJECT_CLASS_AT );
@@ -370,7 +370,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
         ALIASED_OBJECT_NAME_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ALIASED_OBJECT_NAME_AT );
 
         // Create the master table (the table containing all the entries)
-        master = new AvlMasterTable<ServerEntry>( id, new LongComparator(), null, false );
+        master = new AvlMasterTable<Entry>( id, new LongComparator(), null, false );
 
         // -------------------------------------------------------------------
         // Initializes the user and system indices
@@ -397,7 +397,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     /**
      * {@inheritDoc}
      */
-    public ServerEntry lookup( Long id ) throws Exception
+    public Entry lookup( Long id ) throws Exception
     {
         return master.get( id );
     }
@@ -468,7 +468,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
             childUpdn.add( rdnDN.getRdn() );
 
             // Modify the child
-            ServerEntry entry = lookup( childId );
+            Entry entry = lookup( childId );
             entry.setDn( childUpdn );
             master.put( childId, entry );
 
@@ -491,7 +491,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
      * @throws Exception if index alteration or attribute addition fails
      */
     @SuppressWarnings("unchecked")
-    private void add( Long id, ServerEntry entry, EntryAttribute mods ) throws Exception
+    private void add( Long id, Entry entry, EntryAttribute mods ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
         {
@@ -554,7 +554,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
      * @throws Exception if index alteration or attribute modification fails.
      */
     @SuppressWarnings("unchecked")
-    private void remove( Long id, ServerEntry entry, EntryAttribute mods ) throws Exception
+    private void remove( Long id, Entry entry, EntryAttribute mods ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
         {
@@ -645,7 +645,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
      * fails.
      */
     @SuppressWarnings("unchecked")
-    private void replace( Long id, ServerEntry entry, EntryAttribute mods ) throws Exception
+    private void replace( Long id, Entry entry, EntryAttribute mods ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
         {
@@ -720,7 +720,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     }
 
 
-    public void modify( DN dn, ModificationOperation modOp, ServerEntry mods ) throws Exception
+    public void modify( DN dn, ModificationOperation modOp, Entry mods ) throws Exception
     {
         if ( mods instanceof ClonedServerEntry )
         {
@@ -728,7 +728,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
         }
 
         Long id = getEntryId( dn );
-        ServerEntry entry = ( ServerEntry ) master.get( id );
+        Entry entry = ( Entry ) master.get( id );
 
         for ( AttributeType attributeType : mods.getAttributeTypes() )
         {
@@ -767,7 +767,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
 
     public void modify( long entryId, List<Modification> mods ) throws Exception
     {
-        ServerEntry entry = ( ServerEntry ) master.get( entryId );
+        Entry entry = ( Entry ) master.get( entryId );
 
         for ( Modification mod : mods )
         {
@@ -803,7 +803,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
         DN newUpdn = move( oldChildDn, childId, newParentDn );
 
         // Update the current entry
-        ServerEntry entry = lookup( childId );
+        Entry entry = lookup( childId );
         entry.setDn( newUpdn );
         master.put( childId, entry );
     }
@@ -815,7 +815,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
         DN newUpdn = move( oldChildDn, childId, newParentDn );
 
         // Update the current entry
-        ServerEntry entry = lookup( childId );
+        Entry entry = lookup( childId );
         entry.setDn( newUpdn );
         master.put( childId, entry );
     }
@@ -897,7 +897,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     public void rename( DN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception
     {
         Long id = getEntryId( dn );
-        ServerEntry entry = lookup( id );
+        Entry entry = lookup( id );
         DN updn = entry.getDn();
 
         /* 

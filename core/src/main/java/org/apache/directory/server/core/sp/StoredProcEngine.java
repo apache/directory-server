@@ -21,7 +21,7 @@ package org.apache.directory.server.core.sp;
 
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 
 
 /**
@@ -46,7 +46,7 @@ public interface StoredProcEngine
      * <p>
      * This method should be called before an attempt to invoke a stored procedure via this Engine.
      */
-    public void setSPUnitEntry( final ServerEntry spUnit );
+    public void setSPUnitEntry( final Entry spUnit );
     
     
     /**

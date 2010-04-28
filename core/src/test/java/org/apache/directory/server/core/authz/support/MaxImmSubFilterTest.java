@@ -84,9 +84,9 @@ import org.apache.directory.shared.ldap.csn.Csn;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.CursorIterator;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.DN;
@@ -113,7 +113,7 @@ public class MaxImmSubFilterTest
     private static final DN ROOTDSE_NAME = new DN();
     private static DN ENTRY_NAME;
     private static Collection<ProtectedItem> PROTECTED_ITEMS = new ArrayList<ProtectedItem>();
-    private static ServerEntry ENTRY;
+    private static Entry ENTRY;
     
     /** A reference to the directory service */
     private static DirectoryService service;
@@ -126,7 +126,7 @@ public class MaxImmSubFilterTest
 
         ENTRY_NAME = new DN( "ou=test, ou=system" );
         PROTECTED_ITEMS.add( new ProtectedItem.MaxImmSub( 2 ) );
-        ENTRY = new DefaultServerEntry( service.getSchemaManager(), ENTRY_NAME );
+        ENTRY = new DefaultClientEntry( service.getSchemaManager(), ENTRY_NAME );
     }
 
 
@@ -406,7 +406,7 @@ public class MaxImmSubFilterTest
         }
 
 
-        public void add( ServerEntry entry, Collection<String> bypass ) throws Exception
+        public void add( Entry entry, Collection<String> bypass ) throws Exception
         {
         }
 
@@ -766,12 +766,12 @@ public class MaxImmSubFilterTest
         }
 
 
-        public ServerEntry newEntry( DN dn ) throws NamingException
+        public Entry newEntry( DN dn ) throws NamingException
         {
             return null;
         }
         
-        public ServerEntry newEntry( String ldif, String dn )
+        public Entry newEntry( String ldif, String dn )
         {
             return null;
         }
@@ -983,7 +983,7 @@ public class MaxImmSubFilterTest
     }
     
 
-    class BogusCursor implements Cursor<ServerEntry>
+    class BogusCursor implements Cursor<Entry>
     {
         final int count;
         int ii;
@@ -1026,7 +1026,7 @@ public class MaxImmSubFilterTest
         }
 
 
-        public void after( ServerEntry element ) throws Exception
+        public void after( Entry element ) throws Exception
         {
         }
 
@@ -1036,7 +1036,7 @@ public class MaxImmSubFilterTest
         }
 
 
-        public void before( ServerEntry element ) throws Exception
+        public void before( Entry element ) throws Exception
         {
             throw new NotImplementedException();
         }
@@ -1055,9 +1055,9 @@ public class MaxImmSubFilterTest
         }
 
 
-        public ServerEntry get() throws Exception
+        public Entry get() throws Exception
         {
-            return new DefaultServerEntry( service.getSchemaManager() );
+            return new DefaultClientEntry( service.getSchemaManager() );
         }
 
 
@@ -1105,9 +1105,9 @@ public class MaxImmSubFilterTest
         }
 
 
-        public Iterator<ServerEntry> iterator()
+        public Iterator<Entry> iterator()
         {
-            return new CursorIterator<ServerEntry>( this );
+            return new CursorIterator<Entry>( this );
         }
 
 

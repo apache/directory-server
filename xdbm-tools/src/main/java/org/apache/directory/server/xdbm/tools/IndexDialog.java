@@ -49,7 +49,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.Cursor;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.NotImplementedException;
 
@@ -406,9 +406,9 @@ public class IndexDialog<K, O, ID> extends JDialog
 
 
     @SuppressWarnings("unchecked")
-    public static void show( Index<?, ServerEntry, Long> index )
+    public static void show( Index<?, Entry, Long> index )
     {
-        IndexDialog<?, ServerEntry, Long> dialog = new IndexDialog( index );
+        IndexDialog<?, Entry, Long> dialog = new IndexDialog( index );
         dialog.setVisible( true );
     }
 }

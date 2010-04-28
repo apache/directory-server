@@ -50,7 +50,7 @@ import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAliasException;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
@@ -266,7 +266,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         if ( opContext.getDn().getNormName().equals( subschemSubentryDn.getNormName() ) )
         {
             // there is nothing under the schema subentry
-            return new BaseEntryFilteringCursor( new EmptyCursor<ServerEntry>(), opContext );
+            return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), opContext );
         }
         
         // check if entry to search exists
@@ -314,7 +314,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         
         assertHasEntry( nextInterceptor, opContext, msg, opContext.getDn() );
 
-        ServerEntry entry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
+        Entry entry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
         List<Modification> items = opContext.getModItems();
 
         for ( Modification item : items )

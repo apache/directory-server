@@ -28,7 +28,7 @@ import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 
 
 /**
@@ -37,18 +37,18 @@ import org.apache.directory.shared.ldap.entry.ServerEntry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubstringCursor<ID> extends AbstractIndexCursor<String, ServerEntry, ID>
+public class SubstringCursor<ID> extends AbstractIndexCursor<String, Entry, ID>
 {
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_725 );
     private final boolean hasIndex;
-    private final IndexCursor<String, ServerEntry, ID> wrapped;
+    private final IndexCursor<String, Entry, ID> wrapped;
     private final SubstringEvaluator<ID> evaluator;
-    private final ForwardIndexEntry<String, ServerEntry, ID> indexEntry = new ForwardIndexEntry<String, ServerEntry, ID>();
+    private final ForwardIndexEntry<String, Entry, ID> indexEntry = new ForwardIndexEntry<String, Entry, ID>();
     private boolean available = false;
 
 
     @SuppressWarnings("unchecked")
-    public SubstringCursor( Store<ServerEntry, ID> db, final SubstringEvaluator<ID> substringEvaluator )
+    public SubstringCursor( Store<Entry, ID> db, final SubstringEvaluator<ID> substringEvaluator )
         throws Exception
     {
         evaluator = substringEvaluator;
@@ -56,7 +56,7 @@ public class SubstringCursor<ID> extends AbstractIndexCursor<String, ServerEntry
 
         if ( hasIndex )
         {
-            wrapped = ( ( Index<String, ServerEntry, ID> ) db.getIndex( evaluator.getExpression().getAttribute() ) )
+            wrapped = ( ( Index<String, Entry, ID> ) db.getIndex( evaluator.getExpression().getAttribute() ) )
                 .forwardCursor();
         }
         else
@@ -95,13 +95,13 @@ public class SubstringCursor<ID> extends AbstractIndexCursor<String, ServerEntry
     }
 
 
-    public void before( IndexEntry<String, ServerEntry, ID> element ) throws Exception
+    public void before( IndexEntry<String, Entry, ID> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
 
 
-    public void after( IndexEntry<String, ServerEntry, ID> element ) throws Exception
+    public void after( IndexEntry<String, Entry, ID> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
@@ -112,7 +112,7 @@ public class SubstringCursor<ID> extends AbstractIndexCursor<String, ServerEntry
         checkNotClosed( "beforeFirst()" );
         if ( evaluator.getExpression().getInitial() != null && hasIndex )
         {
-            ForwardIndexEntry<String, ServerEntry, ID> indexEntry = new ForwardIndexEntry<String, ServerEntry, ID>();
+            ForwardIndexEntry<String, Entry, ID> indexEntry = new ForwardIndexEntry<String, Entry, ID>();
             indexEntry.setValue( evaluator.getExpression().getInitial() );
             wrapped.before( indexEntry );
         }
@@ -153,7 +153,7 @@ public class SubstringCursor<ID> extends AbstractIndexCursor<String, ServerEntry
     }
 
 
-    private boolean evaluateCandidate( IndexEntry<String, ServerEntry, ID> indexEntry ) throws Exception
+    private boolean evaluateCandidate( IndexEntry<String, Entry, ID> indexEntry ) throws Exception
     {
         if ( hasIndex )
         {
@@ -178,7 +178,7 @@ public class SubstringCursor<ID> extends AbstractIndexCursor<String, ServerEntry
         while ( wrapped.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<String, ServerEntry, ID> entry = wrapped.get();
+            IndexEntry<String, Entry, ID> entry = wrapped.get();
             if ( evaluateCandidate( entry ) )
             {
                 available = true;
@@ -199,7 +199,7 @@ public class SubstringCursor<ID> extends AbstractIndexCursor<String, ServerEntry
         while ( wrapped.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<String, ServerEntry, ID> entry = wrapped.get();
+            IndexEntry<String, Entry, ID> entry = wrapped.get();
             if ( evaluateCandidate( entry ) )
             {
                 available = true;
@@ -215,7 +215,7 @@ public class SubstringCursor<ID> extends AbstractIndexCursor<String, ServerEntry
     }
 
 
-    public IndexEntry<String, ServerEntry, ID> get() throws Exception
+    public IndexEntry<String, Entry, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
         if ( available )

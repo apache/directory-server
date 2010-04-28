@@ -36,7 +36,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
@@ -167,7 +167,7 @@ public class RegistrySynchronizerAdaptor
                 // This is one of the eleven SchemaObject :
                 // AT, C, DCR, DSR, MR, MRU, NF, N, OC, S, SC
                 RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
-                ServerEntry entry = opContext.getEntry();
+                Entry entry = opContext.getEntry();
                 synchronizer.add( entry );
                 return;
             }
@@ -177,7 +177,7 @@ public class RegistrySynchronizerAdaptor
         // e.g. ou=my custom schema,ou=schema
         if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
-            ServerEntry entry = opContext.getEntry();
+            Entry entry = opContext.getEntry();
             schemaSynchronizer.add( entry );
             return;
         }
@@ -220,7 +220,7 @@ public class RegistrySynchronizerAdaptor
     public void delete( DeleteOperationContext opContext, boolean doCascadeDelete ) 
         throws Exception
     {
-        ServerEntry entry = opContext.getEntry();
+        Entry entry = opContext.getEntry();
         
         EntryAttribute oc = entry.get( objectClassAT );
         
@@ -273,9 +273,9 @@ public class RegistrySynchronizerAdaptor
      * @param doCascadeModify Not used
      * @throws Exception If the modification failed
      */
-    public boolean modify( ModifyOperationContext opContext, ServerEntry targetEntry, boolean doCascadeModify ) throws Exception
+    public boolean modify( ModifyOperationContext opContext, Entry targetEntry, boolean doCascadeModify ) throws Exception
     {
-        ServerEntry entry = opContext.getEntry();
+        Entry entry = opContext.getEntry();
         EntryAttribute oc = entry.get( objectClassAT );
         
         for ( Value<?> value:oc )
@@ -317,7 +317,7 @@ public class RegistrySynchronizerAdaptor
     public void rename( RenameOperationContext opContext, boolean doCascadeModify ) 
         throws Exception
     {
-        ServerEntry originalEntry = opContext.getEntry().getOriginalEntry();
+        Entry originalEntry = opContext.getEntry().getOriginalEntry();
         EntryAttribute oc = originalEntry.get( objectClassAT );
         
         for ( Value<?> value:oc )
@@ -343,9 +343,9 @@ public class RegistrySynchronizerAdaptor
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeManager#replace(org.apache.directory.server.core.interceptor.context.MoveOperationContext, org.apache.directory.server.core.entry.ServerEntry, boolean)
+     * @see org.apache.directory.server.core.schema.SchemaChangeManager#replace(org.apache.directory.server.core.interceptor.context.MoveOperationContext, org.apache.directory.server.core.entry.Entry, boolean)
      */
-    public void move( MoveOperationContext opContext, ServerEntry entry, boolean cascade ) throws Exception
+    public void move( MoveOperationContext opContext, Entry entry, boolean cascade ) throws Exception
     {
         EntryAttribute oc = entry.get( objectClassAT );
         
@@ -372,9 +372,9 @@ public class RegistrySynchronizerAdaptor
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeManager#move(org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext, org.apache.directory.server.core.entry.ServerEntry, boolean)
+     * @see org.apache.directory.server.core.schema.SchemaChangeManager#move(org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext, org.apache.directory.server.core.entry.Entry, boolean)
      */
-    public void moveAndRename( MoveAndRenameOperationContext opContext, ServerEntry entry, boolean cascade ) throws Exception
+    public void moveAndRename( MoveAndRenameOperationContext opContext, Entry entry, boolean cascade ) throws Exception
     {
         EntryAttribute oc = entry.get( objectClassAT );
         

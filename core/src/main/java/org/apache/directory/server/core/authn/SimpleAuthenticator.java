@@ -51,7 +51,7 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.name.DN;
@@ -591,7 +591,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     private byte[] lookupUserPassword( BindOperationContext opContext ) throws Exception
     {
         // ---- lookup the principal entry's userPassword attribute
-        ServerEntry userEntry;
+        Entry userEntry;
 
         try
         {

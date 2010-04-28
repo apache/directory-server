@@ -58,12 +58,12 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
@@ -179,7 +179,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             while ( subentries.next() )
             {
-                ServerEntry subentry = subentries.get();
+                Entry subentry = subentries.get();
                 DN dnName = subentry.getDn();
 
                 String subtree = subentry.get( SchemaConstants.SUBTREE_SPECIFICATION_AT ).getString();
@@ -202,7 +202,7 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    private int getSubentryTypes( ServerEntry subentry ) throws Exception
+    private int getSubentryTypes( Entry subentry ) throws Exception
     {
         int types = 0;
 
@@ -322,9 +322,9 @@ public class SubentryInterceptor extends BaseInterceptor
      * @return the set of subentry op attrs for an entry
      * @throws Exception if there are problems accessing entry information
      */
-    public ServerEntry getSubentryAttributes( DN dn, ServerEntry entryAttrs ) throws Exception
+    public Entry getSubentryAttributes( DN dn, Entry entryAttrs ) throws Exception
     {
-        ServerEntry subentryAttrs = new DefaultServerEntry( schemaManager, dn );
+        Entry subentryAttrs = new DefaultClientEntry( schemaManager, dn );
         Iterator<String> list = subentryCache.nameIterator();
 
         while ( list.hasNext() )
@@ -411,7 +411,7 @@ public class SubentryInterceptor extends BaseInterceptor
             // get the name of the administrative point and its administrativeRole attributes
             DN apName = ( DN ) name.clone();
             apName.remove( name.size() - 1 );
-            ServerEntry ap = addContext.lookup( apName, ByPassConstants.LOOKUP_BYPASS );
+            Entry ap = addContext.lookup( apName, ByPassConstants.LOOKUP_BYPASS );
             EntryAttribute administrativeRole = ap.get( "administrativeRole" );
 
             // check that administrativeRole has something valid in it for us
@@ -430,7 +430,7 @@ public class SubentryInterceptor extends BaseInterceptor
              */
             Subentry subentry = new Subentry();
             subentry.setTypes( getSubentryTypes( entry ) );
-            ServerEntry operational = getSubentryOperatationalAttributes( name, subentry );
+            Entry operational = getSubentryOperatationalAttributes( name, subentry );
 
             /* ----------------------------------------------------------------
              * Parse the subtreeSpecification of the subentry and add it to the
@@ -482,7 +482,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             while ( subentries.next() )
             {
-                ServerEntry candidate = subentries.get();
+                Entry candidate = subentries.get();
                 DN dn = candidate.getDn();
                 dn.normalize( schemaManager.getNormalizerMapping() );
 
@@ -588,7 +588,7 @@ public class SubentryInterceptor extends BaseInterceptor
     public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
     {
         DN name = opContext.getDn();
-        ServerEntry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
+        Entry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
         EntryAttribute objectClasses = entry.get( objectClassType );
 
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
@@ -623,7 +623,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             while ( subentries.next() )
             {
-                ServerEntry candidate = subentries.get();
+                Entry candidate = subentries.get();
                 DN dn = new DN( candidate.getDn() );
                 dn.normalize( schemaManager.getNormalizerMapping() );
 
@@ -676,7 +676,7 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    private List<Modification> getModsOnEntryRdnChange( DN oldName, DN newName, ServerEntry entry )
+    private List<Modification> getModsOnEntryRdnChange( DN oldName, DN newName, Entry entry )
         throws Exception
     {
         List<Modification> modList = new ArrayList<Modification>();
@@ -754,7 +754,7 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         DN name = opContext.getDn();
 
-        ServerEntry entry = (ServerEntry)opContext.getEntry().getClonedEntry();
+        Entry entry = (Entry)opContext.getEntry().getClonedEntry();
 
         EntryAttribute objectClasses = entry.get( objectClassType );
 
@@ -791,7 +791,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             while ( subentries.next() )
             {
-                ServerEntry candidate = subentries.get();
+                Entry candidate = subentries.get();
                 DN dn = candidate.getDn();
                 dn.normalize( schemaManager.getNormalizerMapping() );
 
@@ -833,7 +833,7 @@ public class SubentryInterceptor extends BaseInterceptor
         DN oriChildName = opContext.getDn();
         DN parent = opContext.getParent();
 
-        ServerEntry entry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
+        Entry entry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
 
         EntryAttribute objectClasses = entry.get( objectClassType );
 
@@ -870,7 +870,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             while ( subentries.next() )
             {
-                ServerEntry candidate = subentries.get();
+                Entry candidate = subentries.get();
                 DN dn = candidate.getDn();
                 dn.normalize( schemaManager.getNormalizerMapping() );
 
@@ -912,7 +912,7 @@ public class SubentryInterceptor extends BaseInterceptor
         DN oriChildName = opContext.getDn();
         DN newParentName = opContext.getParent();
 
-        ServerEntry entry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
+        Entry entry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
 
         EntryAttribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
@@ -948,7 +948,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             while ( subentries.next() )
             {
-                ServerEntry candidate = subentries.get();
+                Entry candidate = subentries.get();
                 DN dn = candidate.getDn();
                 dn.normalize( schemaManager.getNormalizerMapping() );
 
@@ -988,7 +988,7 @@ public class SubentryInterceptor extends BaseInterceptor
     // Methods dealing subentry modification
     // -----------------------------------------------------------------------
 
-    private int getSubentryTypes( ServerEntry entry, List<Modification> mods ) throws Exception
+    private int getSubentryTypes( Entry entry, List<Modification> mods ) throws Exception
     {
         EntryAttribute ocFinalState = entry.get( SchemaConstants.OBJECT_CLASS_AT ).clone();
 
@@ -1021,7 +1021,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
         }
 
-        ServerEntry attrs = new DefaultServerEntry( schemaManager, DN.EMPTY_DN );
+        Entry attrs = new DefaultClientEntry( schemaManager, DN.EMPTY_DN );
         attrs.put( ocFinalState );
         return getSubentryTypes( attrs );
     }
@@ -1032,9 +1032,9 @@ public class SubentryInterceptor extends BaseInterceptor
         DN name = opContext.getDn();
         List<Modification> mods = opContext.getModItems();
 
-        ServerEntry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
+        Entry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
 
-        ServerEntry oldEntry = ( ServerEntry ) entry.clone();
+        Entry oldEntry = ( Entry ) entry.clone();
         EntryAttribute objectClasses = entry.get( objectClassType );
         boolean isSubtreeSpecificationModification = false;
         Modification subtreeMod = null;
@@ -1086,7 +1086,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             while ( subentries.next() )
             {
-                ServerEntry candidate = subentries.get();
+                Entry candidate = subentries.get();
                 DN dn = candidate.getDn();
                 dn.normalize( schemaManager.getNormalizerMapping() );
 
@@ -1099,7 +1099,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             // search for all selected entries by the new SS and add references to subentry
             Subentry subentry = subentryCache.getSubentry( name.getNormName() );
-            ServerEntry operational = getSubentryOperatationalAttributes( name, subentry );
+            Entry operational = getSubentryOperatationalAttributes( name, subentry );
             DN newBaseDn = ( DN ) apName.clone();
             newBaseDn.addAll( ssNew.getBase() );
             
@@ -1111,7 +1111,7 @@ public class SubentryInterceptor extends BaseInterceptor
             
             while ( subentries.next() )
             {
-                ServerEntry candidate = subentries.get();
+                Entry candidate = subentries.get();
                 DN dn = candidate.getDn();
                 dn.normalize( schemaManager.getNormalizerMapping() );
 
@@ -1128,7 +1128,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( !objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
             {
-                ServerEntry newEntry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
+                Entry newEntry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
 
                 List<Modification> subentriesOpAttrMods = getModsOnEntryModification( name, oldEntry, newEntry );
 
@@ -1146,7 +1146,7 @@ public class SubentryInterceptor extends BaseInterceptor
     // -----------------------------------------------------------------------
 
     private List<Modification> getOperationalModsForReplace( DN oldName, DN newName, Subentry subentry,
-        ServerEntry entry ) throws Exception
+        Entry entry ) throws Exception
     {
         List<Modification> modList = new ArrayList<Modification>();
 
@@ -1240,9 +1240,9 @@ public class SubentryInterceptor extends BaseInterceptor
      * @param subentry the subentry to get attributes from
      * @return the set of attributes to be added or removed from entries
      */
-    private ServerEntry getSubentryOperatationalAttributes( DN name, Subentry subentry ) throws Exception
+    private Entry getSubentryOperatationalAttributes( DN name, Subentry subentry ) throws Exception
     {
-        ServerEntry operational = new DefaultServerEntry( schemaManager, name );
+        Entry operational = new DefaultClientEntry( schemaManager, name );
 
         if ( subentry.isAccessControlSubentry() )
         {
@@ -1306,7 +1306,7 @@ public class SubentryInterceptor extends BaseInterceptor
      * @return the set of modifications required to remove an entry's reference to
      * a subentry
      */
-    private List<Modification> getOperationalModsForRemove( DN subentryDn, ServerEntry candidate )
+    private List<Modification> getOperationalModsForRemove( DN subentryDn, Entry candidate )
         throws Exception
     {
         List<Modification> modList = new ArrayList<Modification>();
@@ -1343,7 +1343,7 @@ public class SubentryInterceptor extends BaseInterceptor
      * @return the set of modifications needed to update the entry
      * @throws Exception if there are probelms accessing modification items
      */
-    public List<Modification> getOperationalModsForAdd( ServerEntry entry, ServerEntry operational )
+    public List<Modification> getOperationalModsForAdd( Entry entry, Entry operational )
         throws Exception
     {
         List<Modification> modList = new ArrayList<Modification>();
@@ -1441,7 +1441,7 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    private List<Modification> getModsOnEntryModification( DN name, ServerEntry oldEntry, ServerEntry newEntry )
+    private List<Modification> getModsOnEntryModification( DN name, Entry oldEntry, Entry newEntry )
         throws Exception
     {
         List<Modification> modList = new ArrayList<Modification>();

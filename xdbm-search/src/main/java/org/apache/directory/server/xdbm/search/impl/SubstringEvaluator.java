@@ -30,7 +30,7 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -46,10 +46,10 @@ import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubstringEvaluator<ID> implements Evaluator<SubstringNode, ServerEntry, ID>
+public class SubstringEvaluator<ID> implements Evaluator<SubstringNode, Entry, ID>
 {
     /** Database used while evaluating candidates */
-    private final Store<ServerEntry, ID> db;
+    private final Store<Entry, ID> db;
 
     /** Reference to the SchemaManager */
     private final SchemaManager schemaManager;
@@ -64,7 +64,7 @@ public class SubstringEvaluator<ID> implements Evaluator<SubstringNode, ServerEn
 
     private final Normalizer normalizer;
 
-    private final Index<String, ServerEntry, ID> idx;
+    private final Index<String, Entry, ID> idx;
 
 
     /**
@@ -76,7 +76,7 @@ public class SubstringEvaluator<ID> implements Evaluator<SubstringNode, ServerEn
      * @throws Exception if there are failures accessing resources and the db
      */
     @SuppressWarnings("unchecked")
-    public SubstringEvaluator( SubstringNode node, Store<ServerEntry, ID> db, SchemaManager schemaManager )
+    public SubstringEvaluator( SubstringNode node, Store<Entry, ID> db, SchemaManager schemaManager )
         throws Exception
     {
         this.db = db;
@@ -107,7 +107,7 @@ public class SubstringEvaluator<ID> implements Evaluator<SubstringNode, ServerEn
 
         if ( db.hasIndexOn( node.getAttribute() ) )
         {
-            idx = ( Index<String, ServerEntry, ID> ) db.getIndex( node.getAttribute() );
+            idx = ( Index<String, Entry, ID> ) db.getIndex( node.getAttribute() );
         }
         else
         {
@@ -117,12 +117,12 @@ public class SubstringEvaluator<ID> implements Evaluator<SubstringNode, ServerEn
 
 
     @SuppressWarnings("unchecked")
-    public boolean evaluate( IndexEntry<?, ServerEntry, ID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, Entry, ID> indexEntry ) throws Exception
     {
 
         if ( idx == null )
         {
-            return evaluateWithoutIndex( ( IndexEntry<String, ServerEntry, ID> ) indexEntry );
+            return evaluateWithoutIndex( ( IndexEntry<String, Entry, ID> ) indexEntry );
         }
         else
         {
@@ -145,7 +145,7 @@ public class SubstringEvaluator<ID> implements Evaluator<SubstringNode, ServerEn
     }
 
 
-    public boolean evaluateEntry( ServerEntry entry ) throws Exception
+    public boolean evaluateEntry( Entry entry ) throws Exception
     {
 
         if ( idx == null )
@@ -172,7 +172,7 @@ public class SubstringEvaluator<ID> implements Evaluator<SubstringNode, ServerEn
     }
 
 
-    private boolean evaluateWithIndex( IndexEntry<?, ServerEntry, ID> indexEntry ) throws Exception
+    private boolean evaluateWithIndex( IndexEntry<?, Entry, ID> indexEntry ) throws Exception
     {
         /*
          * Note that this is using the reverse half of the index giving a
@@ -180,12 +180,12 @@ public class SubstringEvaluator<ID> implements Evaluator<SubstringNode, ServerEn
          * Otherwise we would have to scan the entire index if there were
          * no reverse lookups.
          */
-        Cursor<IndexEntry<String, ServerEntry, ID>> entries = idx.reverseCursor( indexEntry.getId() );
+        Cursor<IndexEntry<String, Entry, ID>> entries = idx.reverseCursor( indexEntry.getId() );
 
         // cycle through the attribute values testing for a match
         while ( entries.next() )
         {
-            IndexEntry<String, ServerEntry, ID> rec = entries.get();
+            IndexEntry<String, Entry, ID> rec = entries.get();
 
             // once match is found cleanup and return true
             if ( regex.matcher( ( String ) rec.getValue() ).matches() )
@@ -200,7 +200,7 @@ public class SubstringEvaluator<ID> implements Evaluator<SubstringNode, ServerEn
     }
 
 
-    private boolean evaluateWithIndex( ServerEntry entry ) throws Exception
+    private boolean evaluateWithIndex( Entry entry ) throws Exception
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_721 ) );
     }
@@ -214,12 +214,12 @@ public class SubstringEvaluator<ID> implements Evaluator<SubstringNode, ServerEn
          * Otherwise we would have to scan the entire index if there were
          * no reverse lookups.
          */
-        Cursor<IndexEntry<String, ServerEntry, ID>> entries = idx.reverseCursor( id );
+        Cursor<IndexEntry<String, Entry, ID>> entries = idx.reverseCursor( id );
 
         // cycle through the attribute values testing for a match
         while ( entries.next() )
         {
-            IndexEntry<String, ServerEntry, ID> rec = entries.get();
+            IndexEntry<String, Entry, ID> rec = entries.get();
 
             // once match is found cleanup and return true
             if ( regex.matcher( ( String ) rec.getValue() ).matches() )
@@ -244,7 +244,7 @@ public class SubstringEvaluator<ID> implements Evaluator<SubstringNode, ServerEn
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    private boolean evaluateWithoutIndex( ServerEntry entry ) throws Exception
+    private boolean evaluateWithoutIndex( Entry entry ) throws Exception
     {
         // get the attribute
         EntryAttribute attr = entry.get( type );
@@ -321,9 +321,9 @@ public class SubstringEvaluator<ID> implements Evaluator<SubstringNode, ServerEn
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    private boolean evaluateWithoutIndex( IndexEntry<String, ServerEntry, ID> indexEntry ) throws Exception
+    private boolean evaluateWithoutIndex( IndexEntry<String, Entry, ID> indexEntry ) throws Exception
     {
-        ServerEntry entry = indexEntry.getObject();
+        Entry entry = indexEntry.getObject();
 
         // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )
@@ -333,7 +333,7 @@ public class SubstringEvaluator<ID> implements Evaluator<SubstringNode, ServerEn
         }
 
         /*
-         * Don't make a call here to evaluateWithoutIndex( ServerEntry ) for
+         * Don't make a call here to evaluateWithoutIndex( Entry ) for
          * code reuse since we do want to set the value on the indexEntry on
          * matches.
          */

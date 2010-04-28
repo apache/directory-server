@@ -32,7 +32,7 @@ import org.apache.directory.server.xdbm.search.impl.DefaultSearchEngine;
 import org.apache.directory.server.xdbm.search.impl.EvaluatorBuilder;
 import org.apache.directory.server.xdbm.search.impl.NoOpOptimizer;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 
 
 /**
@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.entry.ServerEntry;
  */
 public class AvlPartition extends AbstractXdbmPartition<Long>
 {
-    private Set<AvlIndex<?, ServerEntry>> indexedAttributes;
+    private Set<AvlIndex<?, Entry>> indexedAttributes;
 
 
     /**
@@ -51,8 +51,8 @@ public class AvlPartition extends AbstractXdbmPartition<Long>
      */
     public AvlPartition()
     {
-        super( new AvlStore<ServerEntry>() );
-        indexedAttributes = new HashSet<AvlIndex<?, ServerEntry>>();
+        super( new AvlStore<Entry>() );
+        indexedAttributes = new HashSet<AvlIndex<?, Entry>>();
     }
 
 
@@ -73,7 +73,7 @@ public class AvlPartition extends AbstractXdbmPartition<Long>
         }
         else
         {
-            optimizer = new DefaultOptimizer<ServerEntry, Long>( store );
+            optimizer = new DefaultOptimizer<Entry, Long>( store );
         }
 
         searchEngine = new DefaultSearchEngine<Long>( store, cursorBuilder, evaluatorBuilder, optimizer );
@@ -88,9 +88,9 @@ public class AvlPartition extends AbstractXdbmPartition<Long>
         suffixDn.normalize( schemaManager.getNormalizerMapping() );
         store.setSuffixDn( suffixDn );
 
-        Set<Index<?, ServerEntry, Long>> userIndices = new HashSet<Index<?, ServerEntry, Long>>();
+        Set<Index<?, Entry, Long>> userIndices = new HashSet<Index<?, Entry, Long>>();
 
-        for ( AvlIndex<?, ServerEntry> index : indexedAttributes )
+        for ( AvlIndex<?, Entry> index : indexedAttributes )
         {
             String oid = schemaManager.getAttributeTypeRegistry().getOidByName( index.getAttributeId() );
             if(!index.getAttributeId().equals( oid ))
@@ -109,7 +109,7 @@ public class AvlPartition extends AbstractXdbmPartition<Long>
      */
     public final void modify( long entryId, List<Modification> modifications ) throws Exception
     {
-        ( ( AvlStore<ServerEntry> ) store ).modify( entryId, modifications );
+        ( ( AvlStore<Entry> ) store ).modify( entryId, modifications );
     }
 
 
@@ -121,9 +121,9 @@ public class AvlPartition extends AbstractXdbmPartition<Long>
      * case the presence of this method gives significant ease and advantage to perform
      * add/delete etc. operations without creating a operation context.
      */
-    public AvlStore<ServerEntry> getStore()
+    public AvlStore<Entry> getStore()
     {
-        return ( AvlStore<ServerEntry> ) store;
+        return ( AvlStore<Entry> ) store;
     }
 
 }

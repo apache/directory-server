@@ -31,7 +31,7 @@ import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.DN;
 
@@ -292,7 +292,7 @@ public abstract class AbstractOperationContext implements OperationContext
     }
     
     
-    public void add( ServerEntry entry, Collection<String> byPassed ) throws Exception
+    public void add( Entry entry, Collection<String> byPassed ) throws Exception
     {
         AddOperationContext opContext = new AddOperationContext( session, entry );
         setup( opContext );

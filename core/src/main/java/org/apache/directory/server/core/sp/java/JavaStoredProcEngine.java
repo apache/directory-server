@@ -33,7 +33,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.sp.StoredProcEngine;
 import org.apache.directory.server.core.sp.StoredProcUtils;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.util.DirectoryClassUtils;
 
 
@@ -48,7 +48,7 @@ public class JavaStoredProcEngine implements StoredProcEngine
 
     public static final String STORED_PROC_LANG_ID = "Java";
 
-    private ServerEntry spUnit;
+    private Entry spUnit;
 
 
     /* (non-Javadoc)
@@ -124,7 +124,7 @@ public class JavaStoredProcEngine implements StoredProcEngine
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.sp.StoredProcEngine#setSPUnitEntry(javax.naming.directory.Attributes)
      */
-    public void setSPUnitEntry( ServerEntry spUnit )
+    public void setSPUnitEntry( Entry spUnit )
     {
         this.spUnit = spUnit;
     }

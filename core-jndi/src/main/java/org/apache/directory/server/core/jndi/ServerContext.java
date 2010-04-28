@@ -76,10 +76,10 @@ import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
@@ -260,7 +260,7 @@ public abstract class ServerContext implements EventContext
      * @param entry
      * @param target
      */
-    protected void doAddOperation( DN target, ServerEntry entry ) throws Exception
+    protected void doAddOperation( DN target, Entry entry ) throws Exception
     {
         // setup the op context and populate with request controls
         AddOperationContext opCtx = new AddOperationContext( session, entry );
@@ -353,12 +353,12 @@ public abstract class ServerContext implements EventContext
             
             if ( result )
             {
-                ServerEntry emptyEntry = new DefaultServerEntry( service.getSchemaManager(), DN.EMPTY_DN ); 
-                return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( emptyEntry ), (SearchOperationContext)opContext );
+                Entry emptyEntry = new DefaultClientEntry( service.getSchemaManager(), DN.EMPTY_DN ); 
+                return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( emptyEntry ), (SearchOperationContext)opContext );
             }
             else
             {
-                return new BaseEntryFilteringCursor( new EmptyCursor<ServerEntry>(), (SearchOperationContext)opContext );
+                return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), (SearchOperationContext)opContext );
             }
         }
         else
@@ -407,7 +407,7 @@ public abstract class ServerContext implements EventContext
     }
 
 
-    protected ServerEntry doGetRootDSEOperation( DN target ) throws Exception
+    protected Entry doGetRootDSEOperation( DN target ) throws Exception
     {
         GetRootDSEOperationContext opCtx = new GetRootDSEOperationContext( session, target );
         opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
@@ -422,7 +422,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after lookup operations.
      */
-    protected ServerEntry doLookupOperation( DN target ) throws Exception
+    protected Entry doLookupOperation( DN target ) throws Exception
     {
         // setup the op context and populate with request controls
         LookupOperationContext opCtx;
@@ -431,7 +431,7 @@ public abstract class ServerContext implements EventContext
         opCtx = new LookupOperationContext( session, target );
         opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
         OperationManager operationManager = service.getOperationManager();
-        ServerEntry serverEntry = operationManager.lookup( opCtx );
+        Entry serverEntry = operationManager.lookup( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -443,7 +443,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after lookup operations.
      */
-    protected ServerEntry doLookupOperation( DN target, String[] attrIds ) throws Exception
+    protected Entry doLookupOperation( DN target, String[] attrIds ) throws Exception
     {
         // setup the op context and populate with request controls
         LookupOperationContext opCtx;
@@ -716,7 +716,7 @@ public abstract class ServerContext implements EventContext
     public Context createSubcontext( Name name ) throws NamingException
     {
         DN target = buildTarget( DN.fromName( name ) );
-        ServerEntry serverEntry = service.newEntry( target );
+        Entry serverEntry = service.newEntry( target );
         
         try
         {
@@ -820,7 +820,7 @@ public abstract class ServerContext implements EventContext
     }
 
 
-    private void injectRdnAttributeValues( DN target, ServerEntry serverEntry ) throws NamingException
+    private void injectRdnAttributeValues( DN target, Entry serverEntry ) throws NamingException
     {
         // Add all the RDN attributes and their values to this entry
         RDN rdn = target.getRdn( target.size() - 1 );
@@ -850,7 +850,7 @@ public abstract class ServerContext implements EventContext
         DN target = buildTarget( DN.fromName( name ) );
 
         // let's be sure that the Attributes is case insensitive
-        ServerEntry outServerEntry = null;
+        Entry outServerEntry = null;
         
         try
         {
@@ -875,11 +875,11 @@ public abstract class ServerContext implements EventContext
             return;
         }
 
-        if ( obj instanceof ServerEntry )
+        if ( obj instanceof Entry )
         {
             try
             {
-                doAddOperation( target, ( ServerEntry ) obj );
+                doAddOperation( target, ( Entry ) obj );
             }
             catch ( Exception e )
             {
@@ -900,7 +900,7 @@ public abstract class ServerContext implements EventContext
         else if ( obj instanceof Serializable )
         {
             // Serialize and add outAttrs
-            ServerEntry serverEntry = service.newEntry( target );
+            Entry serverEntry = service.newEntry( target );
 
             if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
             {
@@ -942,7 +942,7 @@ public abstract class ServerContext implements EventContext
         else if ( obj instanceof DirContext )
         {
             // Grab attributes and merge with outAttrs
-            ServerEntry serverEntry = null;
+            Entry serverEntry = null;
             
             try
             { 
@@ -1176,7 +1176,7 @@ public abstract class ServerContext implements EventContext
         Object obj;
         DN target = buildTarget( DN.fromName( name ) );
 
-        ServerEntry serverEntry = null;
+        Entry serverEntry = null;
 
         try
         {

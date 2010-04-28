@@ -24,7 +24,7 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
@@ -66,11 +66,11 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public boolean modify( ModifyOperationContext opContext, ServerEntry targetEntry, boolean cascade )
+    public boolean modify( ModifyOperationContext opContext, Entry targetEntry, boolean cascade )
         throws Exception
     {
         DN name = opContext.getDn();
-        ServerEntry entry = opContext.getEntry();
+        Entry entry = opContext.getEntry();
         String oid = getOid( entry );
         ObjectClass oc = factory.getObjectClass( schemaManager, targetEntry, schemaManager.getRegistries(),
             getSchemaName( name ) );
@@ -91,7 +91,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void add( ServerEntry entry ) throws Exception
+    public void add( Entry entry ) throws Exception
     {
         DN dn = entry.getDn();
         DN parentDn = ( DN ) dn.clone();
@@ -140,7 +140,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void delete( ServerEntry entry, boolean cascade ) throws Exception
+    public void delete( Entry entry, boolean cascade ) throws Exception
     {
         DN dn = entry.getDn();
         DN parentDn = ( DN ) dn.clone();
@@ -192,13 +192,13 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void rename( ServerEntry entry, RDN newRdn, boolean cascade ) throws Exception
+    public void rename( Entry entry, RDN newRdn, boolean cascade ) throws Exception
     {
         String schemaName = getSchemaName( entry.getDn() );
         ObjectClass oldOc = factory.getObjectClass( schemaManager, entry, schemaManager.getRegistries(), schemaName );
 
         // Dependency constraints are not managed by this class
-        //        Set<ServerEntry> dependees = dao.listObjectClassDependents( oldOc );
+        //        Set<Entry> dependees = dao.listObjectClassDependents( oldOc );
         //        
         //        if ( dependees != null && dependees.size() > 0 )
         //        {
@@ -209,7 +209,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         //                ResultCodeEnum.UNWILLING_TO_PERFORM );
         //        }
 
-        ServerEntry targetEntry = ( ServerEntry ) entry.clone();
+        Entry targetEntry = ( Entry ) entry.clone();
         String newOid = ( String ) newRdn.getNormValue();
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
 
@@ -243,14 +243,14 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
 
 
     public void moveAndRename( DN oriChildName, DN newParentName, RDN newRdn, boolean deleteOldRn,
-        ServerEntry entry, boolean cascade ) throws Exception
+        Entry entry, boolean cascade ) throws Exception
     {
         checkNewParent( newParentName );
         String oldSchemaName = getSchemaName( oriChildName );
         ObjectClass oldOc = factory.getObjectClass( schemaManager, entry, schemaManager.getRegistries(), oldSchemaName );
 
         // this class does not handle dependencies
-        //        Set<ServerEntry> dependees = dao.listObjectClassDependents( oldOc );
+        //        Set<Entry> dependees = dao.listObjectClassDependents( oldOc );
         //        if ( dependees != null && dependees.size() > 0 )
         //        {
         //            throw new LdapUnwillingToPerformException( "The objectClass with OID " + oldOc.getOid()
@@ -261,7 +261,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         //        }
 
         String newSchemaName = getSchemaName( newParentName );
-        ServerEntry targetEntry = ( ServerEntry ) entry.clone();
+        Entry targetEntry = ( Entry ) entry.clone();
         String newOid = ( String ) newRdn.getNormValue();
         checkOidIsUnique( newOid );
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
@@ -288,7 +288,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void move( DN oriChildName, DN newParentName, ServerEntry entry, boolean cascade ) throws Exception
+    public void move( DN oriChildName, DN newParentName, Entry entry, boolean cascade ) throws Exception
     {
         checkNewParent( newParentName );
         String oldSchemaName = getSchemaName( oriChildName );
@@ -296,7 +296,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         ObjectClass oldAt = factory.getObjectClass( schemaManager, entry, schemaManager.getRegistries(), oldSchemaName );
 
         // dependencies are not managed by this class
-        //        Set<ServerEntry> dependees = dao.listObjectClassDependents( oldAt );
+        //        Set<Entry> dependees = dao.listObjectClassDependents( oldAt );
         //        if ( dependees != null && dependees.size() > 0 )
         //        {s
         //            throw new LdapUnwillingToPerformException( "The objectClass with OID " + oldAt.getOid() 

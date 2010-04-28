@@ -27,7 +27,7 @@ import javax.naming.NamingException;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 
@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 public class DeleteStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
     private DN deletedEntryName;
-    private ServerEntry deletedEntry;
+    private Entry deletedEntry;
 
     
     public DeleteStoredProcedureParameterInjector( OperationContext opContext, DN deletedEntryName ) 

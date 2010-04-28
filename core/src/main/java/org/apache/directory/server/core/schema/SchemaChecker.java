@@ -29,7 +29,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
@@ -134,7 +134,7 @@ public class SchemaChecker
      * without a STRUCTURAL objectClass
      */
     public static void preventStructuralClassRemovalOnModifyReplace( 
-        ObjectClassRegistry registry, DN name, ModificationOperation mod, ServerEntry entry ) throws LdapException
+        ObjectClassRegistry registry, DN name, ModificationOperation mod, Entry entry ) throws LdapException
     {
         if ( mod != ModificationOperation.REPLACE_ATTRIBUTE )
         {
@@ -454,7 +454,7 @@ public class SchemaChecker
      * @throws LdapException if the modify operation is removing an Rdn attribute
      */
     public static void preventRdnChangeOnModifyReplace( 
-        DN name, ModificationOperation mod, ServerEntry entry, 
+        DN name, ModificationOperation mod, Entry entry, 
         SchemaManager schemaManager )
         throws LdapException
     {
@@ -604,7 +604,7 @@ public class SchemaChecker
      * @throws LdapException if the modify operation is removing an Rdn attribute
      */
     public static void preventRdnChangeOnModifyRemove( DN name, ModificationOperation mod, 
-        ServerEntry entry, SchemaManager schemaManager )
+        Entry entry, SchemaManager schemaManager )
         throws LdapException
     {
         if ( mod != ModificationOperation.REMOVE_ATTRIBUTE )

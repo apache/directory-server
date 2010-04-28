@@ -30,10 +30,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -99,7 +99,7 @@ public class SchemaCheckerTest
     {
         DN name = new DN( "uid=akarasulu,ou=users,dc=example,dc=com" );
         ModificationOperation mod = ModificationOperation.REPLACE_ATTRIBUTE;
-        ServerEntry modifyAttributes = new DefaultServerEntry( schemaManager );
+        Entry modifyAttributes = new DefaultClientEntry( schemaManager );
         AttributeType atCN = schemaManager.lookupAttributeTypeRegistry( "cn" );
         modifyAttributes.put( new DefaultEntryAttribute( atCN ) );
 
@@ -219,7 +219,7 @@ public class SchemaCheckerTest
     {
         ModificationOperation mod = ModificationOperation.REMOVE_ATTRIBUTE;
         DN name = new DN( "ou=user,dc=example,dc=com" );
-        ServerEntry attributes = new DefaultServerEntry( schemaManager, name );
+        Entry attributes = new DefaultClientEntry( schemaManager, name );
         attributes.put( "cn", "does not matter" );
 
         // postive test which should pass
@@ -241,7 +241,7 @@ public class SchemaCheckerTest
 
         // test success using more than one attribute for the Rdn but not modifying rdn attribute
         name = new DN( "ou=users+cn=system users,dc=example,dc=com" );
-        attributes = new DefaultServerEntry( schemaManager, name );
+        attributes = new DefaultClientEntry( schemaManager, name );
         attributes.put( "sn", "does not matter" );
         SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, schemaManager );
 
@@ -261,12 +261,12 @@ public class SchemaCheckerTest
 
         // should succeed since the value being deleted from the rdn attribute is
         // is not used when composing the Rdn
-        attributes = new DefaultServerEntry( schemaManager, name );
+        attributes = new DefaultClientEntry( schemaManager, name );
         attributes.put( "ou", "container" );
         SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes, schemaManager );
 
         // now let's make it fail again just by providing the right value for ou (users)
-        attributes = new DefaultServerEntry( schemaManager, name );
+        attributes = new DefaultClientEntry( schemaManager, name );
         attributes.put( "ou", "users" );
         try
         {
@@ -289,7 +289,7 @@ public class SchemaCheckerTest
     {
         ModificationOperation mod = ModificationOperation.REPLACE_ATTRIBUTE;
         DN name = new DN( "ou=user,dc=example,dc=com" );
-        ServerEntry attributes = new DefaultServerEntry( schemaManager, name );
+        Entry attributes = new DefaultClientEntry( schemaManager, name );
         attributes.put( "cn", "does not matter" );
 
         // postive test which should pass
@@ -310,7 +310,7 @@ public class SchemaCheckerTest
 
         // test success using more than one attribute for the Rdn but not modifying rdn attribute
         name = new DN( "ou=users+cn=system users,dc=example,dc=com" );
-        attributes = new DefaultServerEntry( schemaManager, name );
+        attributes = new DefaultClientEntry( schemaManager, name );
         attributes.put( "sn", "does not matter" );
         SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, schemaManager );
 
@@ -329,13 +329,13 @@ public class SchemaCheckerTest
 
         // should succeed since the values being replaced from the rdn attribute is
         // is includes the old Rdn attribute value
-        attributes = new DefaultServerEntry( schemaManager, name );
+        attributes = new DefaultClientEntry( schemaManager, name );
         attributes.put( "ou", "container" );
         attributes.put( "ou", "users" );
         SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes, schemaManager );
 
         // now let's make it fail by not including the old value for ou (users)
-        attributes = new DefaultServerEntry( schemaManager, name );
+        attributes = new DefaultClientEntry( schemaManager, name );
         attributes.put( "ou", "container" );
         try
         {

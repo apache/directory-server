@@ -38,7 +38,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.csn.Csn;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -339,12 +339,12 @@ public class MockDirectoryService implements DirectoryService
     }
 
 
-    public ServerEntry newEntry( DN dn ) throws NamingException
+    public Entry newEntry( DN dn ) throws NamingException
     {
         return null;
     }
     
-    public ServerEntry newEntry( String ldif, String dn )
+    public Entry newEntry( String ldif, String dn )
     {
         return null;
     }

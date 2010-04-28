@@ -28,7 +28,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.LessEqNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -45,19 +45,19 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class LessEqEvaluator<T, ID> implements Evaluator<LessEqNode<T>, ServerEntry, ID>
+public class LessEqEvaluator<T, ID> implements Evaluator<LessEqNode<T>, Entry, ID>
 {
     private final LessEqNode<T> node;
-    private final Store<ServerEntry, ID> db;
+    private final Store<Entry, ID> db;
     private final SchemaManager schemaManager;
     private final AttributeType type;
     private final Normalizer normalizer;
     private final LdapComparator<? super Object> ldapComparator;
-    private final Index<T, ServerEntry, ID> idx;
+    private final Index<T, Entry, ID> idx;
 
 
     @SuppressWarnings("unchecked")
-    public LessEqEvaluator( LessEqNode<T> node, Store<ServerEntry, ID> db, SchemaManager schemaManager )
+    public LessEqEvaluator( LessEqNode<T> node, Store<Entry, ID> db, SchemaManager schemaManager )
         throws Exception
     {
         this.db = db;
@@ -67,7 +67,7 @@ public class LessEqEvaluator<T, ID> implements Evaluator<LessEqNode<T>, ServerEn
 
         if ( db.hasIndexOn( node.getAttribute() ) )
         {
-            idx = ( Index<T, ServerEntry, ID> ) db.getIndex( node.getAttribute() );
+            idx = ( Index<T, Entry, ID> ) db.getIndex( node.getAttribute() );
         }
         else
         {
@@ -132,14 +132,14 @@ public class LessEqEvaluator<T, ID> implements Evaluator<LessEqNode<T>, ServerEn
     }
 
 
-    public boolean evaluate( IndexEntry<?, ServerEntry, ID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, Entry, ID> indexEntry ) throws Exception
     {
         if ( idx != null && idx.isDupsEnabled() )
         {
             return idx.reverseLessOrEq( indexEntry.getId(), node.getValue().get() );
         }
 
-        ServerEntry entry = indexEntry.getObject();
+        Entry entry = indexEntry.getObject();
 
         // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )
@@ -158,7 +158,7 @@ public class LessEqEvaluator<T, ID> implements Evaluator<LessEqNode<T>, ServerEn
 
         // if the attribute does not exist just return false
         //noinspection unchecked
-        if ( attr != null && evaluate( ( IndexEntry<Object, ServerEntry, ID> ) indexEntry, attr ) )
+        if ( attr != null && evaluate( ( IndexEntry<Object, Entry, ID> ) indexEntry, attr ) )
         {
             return true;
         }
@@ -181,7 +181,7 @@ public class LessEqEvaluator<T, ID> implements Evaluator<LessEqNode<T>, ServerEn
                 attr = entry.get( descendant );
 
                 //noinspection unchecked
-                if ( attr != null && evaluate( ( IndexEntry<Object, ServerEntry, ID> ) indexEntry, attr ) )
+                if ( attr != null && evaluate( ( IndexEntry<Object, Entry, ID> ) indexEntry, attr ) )
                 {
                     return true;
                 }
@@ -193,7 +193,7 @@ public class LessEqEvaluator<T, ID> implements Evaluator<LessEqNode<T>, ServerEn
     }
 
 
-    public boolean evaluateEntry( ServerEntry entry ) throws Exception
+    public boolean evaluateEntry( Entry entry ) throws Exception
     {
         // get the attribute
         EntryAttribute attr = entry.get( type );
@@ -235,7 +235,7 @@ public class LessEqEvaluator<T, ID> implements Evaluator<LessEqNode<T>, ServerEn
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    private boolean evaluate( IndexEntry<Object, ServerEntry, ID> indexEntry, EntryAttribute attribute )
+    private boolean evaluate( IndexEntry<Object, Entry, ID> indexEntry, EntryAttribute attribute )
         throws Exception
     {
         /*

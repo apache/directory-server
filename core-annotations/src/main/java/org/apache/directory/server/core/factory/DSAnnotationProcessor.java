@@ -40,7 +40,7 @@ import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.GenericIndex;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.junit.runner.Description;
@@ -243,7 +243,7 @@ public class DSAnnotationProcessor
     {
         if ( entry.isChangeAdd() )
         {
-            service.getAdminSession().add( new DefaultServerEntry( service.getSchemaManager(), entry.getEntry() ) );
+            service.getAdminSession().add( new DefaultClientEntry( service.getSchemaManager(), entry.getEntry() ) );
         }
         else if ( entry.isChangeModify() )
         {

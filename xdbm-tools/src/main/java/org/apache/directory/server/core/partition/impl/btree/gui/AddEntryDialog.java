@@ -40,8 +40,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +73,7 @@ public class AddEntryDialog extends JDialog implements ActionListener
     private JButton m_cancelBut = new JButton();
     private JPopupMenu m_popup;
 
-    private ServerEntry childEntry = null;
+    private Entry childEntry = null;
 
 
     /**
@@ -85,7 +85,7 @@ public class AddEntryDialog extends JDialog implements ActionListener
     public AddEntryDialog(Frame parent, boolean modal, SchemaManager schemaManager )
     {
         super( parent, modal );
-        childEntry = new DefaultServerEntry( schemaManager );
+        childEntry = new DefaultClientEntry( schemaManager );
         childEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
         initGUI();
     }
@@ -284,7 +284,7 @@ public class AddEntryDialog extends JDialog implements ActionListener
     }
 
 
-    public ServerEntry getChildEntry()
+    public Entry getChildEntry()
     {
         return childEntry;
     }

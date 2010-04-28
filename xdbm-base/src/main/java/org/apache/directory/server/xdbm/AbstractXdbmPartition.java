@@ -33,7 +33,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -53,10 +53,10 @@ public abstract class AbstractXdbmPartition<ID> extends BTreePartition<ID>
     protected boolean optimizerEnabled = true;
 
     /** The store. */
-    protected Store<ServerEntry, ID> store;
+    protected Store<Entry, ID> store;
 
 
-    protected AbstractXdbmPartition( Store<ServerEntry, ID> store )
+    protected AbstractXdbmPartition( Store<Entry, ID> store )
     {
         this.store = store;
     }
@@ -121,31 +121,31 @@ public abstract class AbstractXdbmPartition<ID> extends BTreePartition<ID>
     // I N D E X   M E T H O D S
     // ------------------------------------------------------------------------
 
-    public final void addIndexOn( Index<? extends Object, ServerEntry, ID> index ) throws Exception
+    public final void addIndexOn( Index<? extends Object, Entry, ID> index ) throws Exception
     {
         store.addIndex( index );
     }
 
 
-    public final Index<ID, ServerEntry, ID> getOneLevelIndex()
+    public final Index<ID, Entry, ID> getOneLevelIndex()
     {
         return store.getOneLevelIndex();
     }
 
 
-    public final Index<String, ServerEntry, ID> getAliasIndex()
+    public final Index<String, Entry, ID> getAliasIndex()
     {
         return store.getAliasIndex();
     }
 
 
-    public final Index<ID, ServerEntry, ID> getOneAliasIndex()
+    public final Index<ID, Entry, ID> getOneAliasIndex()
     {
         return store.getOneAliasIndex();
     }
 
 
-    public final Index<ID, ServerEntry, ID> getSubAliasIndex()
+    public final Index<ID, Entry, ID> getSubAliasIndex()
     {
         return store.getSubAliasIndex();
     }
@@ -178,7 +178,7 @@ public abstract class AbstractXdbmPartition<ID> extends BTreePartition<ID>
     /**
      * @see org.apache.directory.server.core.partition.impl.btree.BTreePartition#getUserIndex(String)
      */
-    public final Index<? extends Object, ServerEntry, ID> getUserIndex( String id ) throws IndexNotFoundException
+    public final Index<? extends Object, Entry, ID> getUserIndex( String id ) throws IndexNotFoundException
     {
         return store.getUserIndex( id );
     }
@@ -187,7 +187,7 @@ public abstract class AbstractXdbmPartition<ID> extends BTreePartition<ID>
     /**
      * @see BTreePartition#getEntryId(String)
      */
-    public final Index<? extends Object, ServerEntry, ID> getSystemIndex( String id ) throws IndexNotFoundException
+    public final Index<? extends Object, Entry, ID> getSystemIndex( String id ) throws IndexNotFoundException
     {
         return store.getSystemIndex( id );
     }
@@ -237,7 +237,7 @@ public abstract class AbstractXdbmPartition<ID> extends BTreePartition<ID>
 
     public final void add( AddOperationContext addContext ) throws Exception
     {
-        store.add( ( ServerEntry ) ( ( ClonedServerEntry ) addContext.getEntry() ).getClonedEntry() );
+        store.add( ( Entry ) ( ( ClonedServerEntry ) addContext.getEntry() ).getClonedEntry() );
     }
 
 
@@ -253,7 +253,7 @@ public abstract class AbstractXdbmPartition<ID> extends BTreePartition<ID>
     }
 
 
-    public final IndexCursor<ID, ServerEntry, ID> list( ID id ) throws Exception
+    public final IndexCursor<ID, Entry, ID> list( ID id ) throws Exception
     {
         return store.list( id );
     }
@@ -374,13 +374,13 @@ public abstract class AbstractXdbmPartition<ID> extends BTreePartition<ID>
     }
 
 
-    public final Index<String, ServerEntry, ID> getPresenceIndex()
+    public final Index<String, Entry, ID> getPresenceIndex()
     {
         return store.getPresenceIndex();
     }
 
 
-    public final Index<ID, ServerEntry, ID> getSubLevelIndex()
+    public final Index<ID, Entry, ID> getSubLevelIndex()
     {
         return store.getSubLevelIndex();
     }

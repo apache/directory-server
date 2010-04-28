@@ -24,8 +24,8 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.internal.InternalAddRequest;
 import org.apache.directory.shared.ldap.name.DN;
 
@@ -68,7 +68,7 @@ public class AddOperationContext extends AbstractChangeOperationContext
      * @param session the current Session 
      * @param entry the entry being added
      */
-    public AddOperationContext( CoreSession session, ServerEntry entry )
+    public AddOperationContext( CoreSession session, Entry entry )
     {
         super( session, entry.getDn() );
         this.entry = new ClonedServerEntry( entry );
@@ -82,7 +82,7 @@ public class AddOperationContext extends AbstractChangeOperationContext
      * @param dn the name of the entry being added
      * @param entry the entry being added
      */
-    public AddOperationContext( CoreSession session, DN dn, ServerEntry entry )
+    public AddOperationContext( CoreSession session, DN dn, Entry entry )
     {
         super( session, dn );
         this.entry = new ClonedServerEntry( entry );
@@ -93,7 +93,7 @@ public class AddOperationContext extends AbstractChangeOperationContext
     {
         super( session );
         entry = new ClonedServerEntry( 
-            new DefaultServerEntry( session.getDirectoryService().getSchemaManager(), addRequest.getEntry() ) );
+            new DefaultClientEntry( session.getDirectoryService().getSchemaManager(), addRequest.getEntry() ) );
         dn = addRequest.getEntry().getDn();
         requestControls = addRequest.getControls();
         

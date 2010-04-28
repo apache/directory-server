@@ -22,7 +22,7 @@ package org.apache.directory.server.xdbm.tools;
 
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -36,13 +36,13 @@ import java.io.PrintStream;
  */
 public class IndexUtils
 {
-    public static void printContents( Index<?, ServerEntry, Long> idx ) throws Exception
+    public static void printContents( Index<?, Entry, Long> idx ) throws Exception
     {
         printContents( idx, System.out );
     }
 
 
-    public static void printContents( Index<?, ServerEntry, Long> idx, OutputStream outputStream ) throws Exception
+    public static void printContents( Index<?, Entry, Long> idx, OutputStream outputStream ) throws Exception
     {
         PrintStream out;
 
@@ -59,7 +59,7 @@ public class IndexUtils
             out = new PrintStream( outputStream );
         }
 
-        IndexCursor<?, ServerEntry, Long> cursor = idx.forwardCursor();
+        IndexCursor<?, Entry, Long> cursor = idx.forwardCursor();
         cursor.first();
         for ( Object entry : cursor )
         {

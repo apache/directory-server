@@ -24,7 +24,7 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
@@ -69,11 +69,11 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public boolean modify( ModifyOperationContext opContext, ServerEntry targetEntry, boolean cascade )
+    public boolean modify( ModifyOperationContext opContext, Entry targetEntry, boolean cascade )
         throws Exception
     {
         DN name = opContext.getDn();
-        ServerEntry entry = opContext.getEntry();
+        Entry entry = opContext.getEntry();
         String schemaName = getSchemaName( name );
         String oid = getOid( entry );
         SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, targetEntry, schemaManager
@@ -96,7 +96,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void add( ServerEntry entry ) throws Exception
+    public void add( Entry entry ) throws Exception
     {
         DN dn = entry.getDn();
         DN parentDn = ( DN ) dn.clone();
@@ -143,7 +143,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void delete( ServerEntry entry, boolean cascade ) throws Exception
+    public void delete( Entry entry, boolean cascade ) throws Exception
     {
         DN dn = entry.getDn();
         DN parentDn = ( DN ) dn.clone();
@@ -219,7 +219,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void rename( ServerEntry entry, RDN newRdn, boolean cascade ) throws Exception
+    public void rename( Entry entry, RDN newRdn, boolean cascade ) throws Exception
     {
         String oldOid = getOid( entry );
         String schemaName = getSchemaName( entry.getDn() );
@@ -230,7 +230,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
                 I18n.err( I18n.ERR_389, oldOid ) );
         }
 
-        ServerEntry targetEntry = ( ServerEntry ) entry.clone();
+        Entry targetEntry = ( Entry ) entry.clone();
         String newOid = ( String ) newRdn.getNormValue();
 
         if ( schemaManager.getSyntaxCheckerRegistry().contains( newOid ) )
@@ -252,7 +252,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
 
     public void moveAndRename( DN oriChildName, DN newParentName, RDN newRdn, boolean deleteOldRn,
-        ServerEntry entry, boolean cascade ) throws Exception
+        Entry entry, boolean cascade ) throws Exception
     {
         checkNewParent( newParentName );
         String oldOid = getOid( entry );
@@ -265,7 +265,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
                 I18n.err( I18n.ERR_391, oldOid ) );
         }
 
-        ServerEntry targetEntry = ( ServerEntry ) entry.clone();
+        Entry targetEntry = ( Entry ) entry.clone();
 
         String newOid = ( String ) newRdn.getNormValue();
 
@@ -291,7 +291,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void move( DN oriChildName, DN newParentName, ServerEntry entry, boolean cascade ) throws Exception
+    public void move( DN oriChildName, DN newParentName, Entry entry, boolean cascade ) throws Exception
     {
         checkNewParent( newParentName );
         String oid = getOid( entry );
@@ -319,7 +319,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    private void checkOidIsUniqueForSyntaxChecker( ServerEntry entry ) throws Exception
+    private void checkOidIsUniqueForSyntaxChecker( Entry entry ) throws Exception
     {
         String oid = getOid( entry );
 
@@ -335,7 +335,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
      * Check that a SyntaxChecker exists in the SyntaxCheckerRegistry, and if so,
      * return it.
      */
-    protected SyntaxChecker checkSyntaxCheckerOidExists( ServerEntry entry ) throws Exception
+    protected SyntaxChecker checkSyntaxCheckerOidExists( Entry entry ) throws Exception
     {
         String oid = getOid( entry );
 

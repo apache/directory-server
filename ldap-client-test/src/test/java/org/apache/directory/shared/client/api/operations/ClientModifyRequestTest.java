@@ -41,7 +41,6 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
@@ -112,7 +111,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
 
         connection.modify( modRequest );
 
-        ServerEntry entry = session.lookup( dn );
+        Entry entry = session.lookup( dn );
 
         String actual = entry.get( SchemaConstants.SN_AT ).getString();
 
@@ -136,7 +135,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
         
         connection.modify( entry, ModificationOperation.REPLACE_ATTRIBUTE );
         
-        ServerEntry lookupEntry = session.lookup( dn );
+        Entry lookupEntry = session.lookup( dn );
 
         String actualSn = lookupEntry.get( SchemaConstants.SN_AT ).getString();
         assertEquals( expectedSn, actualSn );
@@ -165,7 +164,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
             
             assertNotNull( response );
 
-            ServerEntry entry = session.lookup( dn );
+            Entry entry = session.lookup( dn );
 
             String actual = entry.get( SchemaConstants.SN_AT ).getString();
 

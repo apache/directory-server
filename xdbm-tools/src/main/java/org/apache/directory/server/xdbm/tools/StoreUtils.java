@@ -31,10 +31,8 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -64,7 +62,7 @@ public class StoreUtils
      * @param registries oid registries
      * @throws Exception on access exceptions
      */
-    public static void loadExampleData( Store<ServerEntry, Long> store, SchemaManager schemaManager ) throws Exception
+    public static void loadExampleData( Store<Entry, Long> store, SchemaManager schemaManager ) throws Exception
     {
         DN suffixDn = new DN( "o=Good Times Co." );
         suffixDn.normalize( schemaManager.getNormalizerMapping() );
@@ -73,7 +71,7 @@ public class StoreUtils
         store.init( schemaManager );
 
         // Entry #1
-        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, suffixDn );
+        DefaultClientEntry entry = new DefaultClientEntry( schemaManager, suffixDn );
         entry.add( "objectClass", "organization" );
         entry.add( "o", "Good Times Co." );
         entry.add( "postalCode", "1" );
@@ -83,7 +81,7 @@ public class StoreUtils
         // Entry #2
         DN dn = new DN( "ou=Sales,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        entry = new DefaultServerEntry( schemaManager, dn );
+        entry = new DefaultClientEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Sales" );
         entry.add( "postalCode", "1" );
@@ -93,7 +91,7 @@ public class StoreUtils
         // Entry #3
         dn = new DN( "ou=Board of Directors,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        entry = new DefaultServerEntry( schemaManager, dn );
+        entry = new DefaultClientEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Board of Directors" );
         entry.add( "postalCode", "1" );
@@ -103,7 +101,7 @@ public class StoreUtils
         // Entry #4
         dn = new DN( "ou=Engineering,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        entry = new DefaultServerEntry( schemaManager, dn );
+        entry = new DefaultClientEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Engineering" );
         entry.add( "postalCode", "2" );
@@ -113,7 +111,7 @@ public class StoreUtils
         // Entry #5
         dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        entry = new DefaultServerEntry( schemaManager, dn );
+        entry = new DefaultClientEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Sales" );
         entry.add( "cn", "JOhnny WAlkeR" );
@@ -125,7 +123,7 @@ public class StoreUtils
         // Entry #6
         dn = new DN( "cn=JIM BEAN,ou=Sales,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        entry = new DefaultServerEntry( schemaManager, dn );
+        entry = new DefaultClientEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Sales" );
         entry.add( "cn", "JIM BEAN" );
@@ -137,7 +135,7 @@ public class StoreUtils
         // Entry #7
         dn = new DN( "ou=Apache,ou=Board of Directors,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        entry = new DefaultServerEntry( schemaManager, dn );
+        entry = new DefaultClientEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Apache" );
         entry.add( "postalCode", "5" );
@@ -147,7 +145,7 @@ public class StoreUtils
         // Entry #8
         dn = new DN( "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        entry = new DefaultServerEntry( schemaManager, dn );
+        entry = new DefaultClientEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Engineering" );
         entry.add( "cn", "Jack Daniels" );
@@ -161,7 +159,7 @@ public class StoreUtils
         // Entry #9
         dn = new DN( "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        entry = new DefaultServerEntry( schemaManager, dn );
+        entry = new DefaultClientEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "ou", "Apache" );
         entry.add( "commonName", "Jim Bean" );
@@ -171,7 +169,7 @@ public class StoreUtils
         // Entry #10
         dn = new DN( "commonName=Jim Bean,ou=Board of Directors,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        entry = new DefaultServerEntry( schemaManager, dn );
+        entry = new DefaultClientEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "commonName", "Jim Bean" );
         entry.add( "aliasedObjectName", "cn=Jim Bean,ou=Sales,o=Good Times Co." );
@@ -180,7 +178,7 @@ public class StoreUtils
         // Entry #11
         dn = new DN( "2.5.4.3=Johnny Walker,ou=Engineering,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        entry = new DefaultServerEntry( schemaManager, dn );
+        entry = new DefaultClientEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "ou", "Engineering" );
         entry.add( "2.5.4.3", "Johnny Walker" );
@@ -291,7 +289,7 @@ public class StoreUtils
      * @param entry the server entry
      * @throws Exception in case of any problems in adding the entry to the store
      */
-    public static void injectEntryInStore( Store<ServerEntry, Long> store, ServerEntry entry ) throws Exception
+    public static void injectEntryInStore( Store<Entry, Long> store, Entry entry ) throws Exception
     {
         entry.add( SchemaConstants.ENTRY_CSN_AT, CSN_FACTORY.newInstance().toString() );
         entry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );

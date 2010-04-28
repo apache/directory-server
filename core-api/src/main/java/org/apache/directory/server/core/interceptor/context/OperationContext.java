@@ -28,7 +28,7 @@ import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.DN;
 
@@ -121,7 +121,7 @@ public interface OperationContext
      * InterceptorChain.  This place holder is put here to prevent the need
      * for repetitive lookups of the target entry.  Furthermore the returned
      * entry may be altered by any Interceptor in the chain and this is why a
-     * ClonedServerEntry is returned instead of a ServerEntry.  A 
+     * ClonedServerEntry is returned instead of a Entry.  A 
      * ClonedServerEntry has an immutable reference to the original state of
      * the target entry.  The original state can be accessed via a call to
      * {@link ClonedServerEntry#getOriginalEntry()}.  The return value may be 
@@ -306,7 +306,7 @@ public interface OperationContext
     void modify( DN dn, List<Modification> mods, Collection<String> byPass ) throws Exception;
     
     
-    void add( ServerEntry entry, Collection<String> byPass ) throws Exception;
+    void add( Entry entry, Collection<String> byPass ) throws Exception;
     
     
     void delete( DN dn, Collection<String> byPass ) throws Exception;

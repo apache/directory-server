@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
@@ -134,7 +134,7 @@ public class TupleCache
 
             while ( results.next() )
             {
-                ServerEntry result = results.get();
+                Entry result = results.get();
                 DN subentryDn = result.getDn().normalize( session.getDirectoryService().getSchemaManager().
                         getNormalizerMapping() );
                 EntryAttribute aci = result.get( prescriptiveAciAT );
@@ -154,7 +154,7 @@ public class TupleCache
     }
 
 
-    private boolean hasPrescriptiveACI( ServerEntry entry ) throws LdapException
+    private boolean hasPrescriptiveACI( Entry entry ) throws LdapException
     {
         // only do something if the entry contains prescriptiveACI
         EntryAttribute aci = entry.get( prescriptiveAciAT );
@@ -179,7 +179,7 @@ public class TupleCache
     }
 
 
-    public void subentryAdded( DN normName, ServerEntry entry ) throws LdapException
+    public void subentryAdded( DN normName, Entry entry ) throws LdapException
     {
         // only do something if the entry contains prescriptiveACI
         EntryAttribute aciAttr = entry.get( prescriptiveAciAT );
@@ -215,7 +215,7 @@ public class TupleCache
     }
 
 
-    public void subentryDeleted( DN normName, ServerEntry entry ) throws LdapException
+    public void subentryDeleted( DN normName, Entry entry ) throws LdapException
     {
         if ( !hasPrescriptiveACI( entry ) )
         {
@@ -226,7 +226,7 @@ public class TupleCache
     }
 
 
-    public void subentryModified( DN normName, List<Modification> mods, ServerEntry entry ) throws LdapException
+    public void subentryModified( DN normName, List<Modification> mods, Entry entry ) throws LdapException
     {
         if ( !hasPrescriptiveACI( entry ) )
         {
@@ -244,7 +244,7 @@ public class TupleCache
     }
 
 
-    public void subentryModified( DN normName, ServerEntry mods, ServerEntry entry ) throws LdapException
+    public void subentryModified( DN normName, Entry mods, Entry entry ) throws LdapException
     {
         if ( !hasPrescriptiveACI( entry ) )
         {

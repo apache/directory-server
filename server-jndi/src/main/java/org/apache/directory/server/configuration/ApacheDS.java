@@ -44,7 +44,7 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
@@ -259,7 +259,7 @@ public class ApacheDS
     private void ensureLdifFileBase() throws Exception
     {
         DN dn = new DN( ServerDNConstants.LDIF_FILES_DN );
-        ServerEntry entry = null;
+        Entry entry = null;
         
         try
         {
@@ -307,7 +307,7 @@ public class ApacheDS
             ApacheSchemaConstants.UNIX_FILE_AT;
         String oc = File.separatorChar == '\\' ? ApacheSchemaConstants.WINDOWS_FILE_OC : ApacheSchemaConstants.UNIX_FILE_OC;
 
-        ServerEntry entry = directoryService.newEntry( buildProtectedFileEntryDn( ldif ) );
+        Entry entry = directoryService.newEntry( buildProtectedFileEntryDn( ldif ) );
         entry.add( rdnAttr, getCanonical( ldif ) );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, oc );
         directoryService.getAdminSession().add( entry );

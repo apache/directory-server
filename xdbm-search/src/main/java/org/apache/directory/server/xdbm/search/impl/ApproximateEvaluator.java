@@ -28,7 +28,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -45,19 +45,19 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ApproximateEvaluator<T, ID> implements Evaluator<ApproximateNode<T>, ServerEntry, ID>
+public class ApproximateEvaluator<T, ID> implements Evaluator<ApproximateNode<T>, Entry, ID>
 {
     private final ApproximateNode<T> node;
-    private final Store<ServerEntry, ID> db;
+    private final Store<Entry, ID> db;
     private final SchemaManager schemaManager;
     private final AttributeType type;
     private final Normalizer normalizer;
     private final LdapComparator<? super Object> ldapComparator;
-    private final Index<T, ServerEntry, ID> idx;
+    private final Index<T, Entry, ID> idx;
 
 
     @SuppressWarnings("unchecked")
-    public ApproximateEvaluator( ApproximateNode<T> node, Store<ServerEntry, ID> db, SchemaManager schemaManager )
+    public ApproximateEvaluator( ApproximateNode<T> node, Store<Entry, ID> db, SchemaManager schemaManager )
         throws Exception
     {
         this.db = db;
@@ -66,7 +66,7 @@ public class ApproximateEvaluator<T, ID> implements Evaluator<ApproximateNode<T>
 
         if ( db.hasIndexOn( node.getAttribute() ) )
         {
-            idx = ( Index<T, ServerEntry, ID> ) db.getIndex( node.getAttribute() );
+            idx = ( Index<T, Entry, ID> ) db.getIndex( node.getAttribute() );
             type = null;
             normalizer = null;
             ldapComparator = null;
@@ -95,7 +95,7 @@ public class ApproximateEvaluator<T, ID> implements Evaluator<ApproximateNode<T>
     }
 
 
-    public boolean evaluateEntry( ServerEntry entry ) throws Exception
+    public boolean evaluateEntry( Entry entry ) throws Exception
     {
         // get the attribute
         EntryAttribute attr = entry.get( type );
@@ -146,14 +146,14 @@ public class ApproximateEvaluator<T, ID> implements Evaluator<ApproximateNode<T>
     }
 
 
-    public boolean evaluate( IndexEntry<?, ServerEntry, ID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, Entry, ID> indexEntry ) throws Exception
     {
         if ( idx != null )
         {
             return idx.forward( node.getValue().get(), indexEntry.getId() );
         }
 
-        ServerEntry entry = indexEntry.getObject();
+        Entry entry = indexEntry.getObject();
 
         // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )

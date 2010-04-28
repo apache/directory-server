@@ -47,7 +47,7 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
@@ -66,7 +66,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
 {
 
     /** the search engine used to search the database */
-    protected SearchEngine<ServerEntry, ID> searchEngine;
+    protected SearchEngine<Entry, ID> searchEngine;
     protected Optimizer optimizer;
 
     protected SchemaManager schemaManager;
@@ -77,8 +77,8 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     private File partitionDir;
 
     /** The rootDSE context */
-    protected ServerEntry contextEntry;
-    private Set<Index<? extends Object, ServerEntry, ID>> indexedAttributes;
+    protected Entry contextEntry;
+    private Set<Index<? extends Object, Entry, ID>> indexedAttributes;
 
 
     // ------------------------------------------------------------------------
@@ -90,7 +90,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
      */
     protected BTreePartition()
     {
-        indexedAttributes = new HashSet<Index<? extends Object, ServerEntry, ID>>();
+        indexedAttributes = new HashSet<Index<? extends Object, Entry, ID>>();
     }
 
 
@@ -138,22 +138,22 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     }
 
 
-    public void setIndexedAttributes( Set<Index<? extends Object, ServerEntry, ID>> indexedAttributes )
+    public void setIndexedAttributes( Set<Index<? extends Object, Entry, ID>> indexedAttributes )
     {
         this.indexedAttributes = indexedAttributes;
     }
 
 
-    public void addIndexedAttributes( Index<? extends Object, ServerEntry, ID>... indexes )
+    public void addIndexedAttributes( Index<? extends Object, Entry, ID>... indexes )
     {
-        for ( Index<? extends Object, ServerEntry, ID> index : indexes )
+        for ( Index<? extends Object, Entry, ID> index : indexes )
         {
             indexedAttributes.add( index );
         }
     }
 
 
-    public Set<Index<? extends Object, ServerEntry, ID>> getIndexedAttributes()
+    public Set<Index<? extends Object, Entry, ID>> getIndexedAttributes()
     {
         return indexedAttributes;
     }
@@ -219,7 +219,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
      *
      * @return the search engine
      */
-    public SearchEngine<ServerEntry, ID> getSearchEngine()
+    public SearchEngine<Entry, ID> getSearchEngine()
     {
         return searchEngine;
     }
@@ -271,7 +271,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     public EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
     {
         SearchControls searchCtls = opContext.getSearchControls();
-        IndexCursor<ID, ServerEntry, ID> underlying;
+        IndexCursor<ID, Entry, ID> underlying;
 
         underlying = searchEngine.cursor( opContext.getDn(), opContext.getAliasDerefMode(), opContext.getFilter(),
             searchCtls );
@@ -296,7 +296,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
             return entry;
         }
 
-        for ( AttributeType attributeType : ( ( ServerEntry ) entry.getOriginalEntry() ).getAttributeTypes() )
+        for ( AttributeType attributeType : ( ( Entry ) entry.getOriginalEntry() ).getAttributeTypes() )
         {
             if ( !opContext.getAttrsId().contains( attributeType.getOid() ) )
             {
@@ -333,7 +333,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     // Index Operations 
     // ------------------------------------------------------------------------
 
-    public abstract void addIndexOn( Index<? extends Object, ServerEntry, ID> index ) throws Exception;
+    public abstract void addIndexOn( Index<? extends Object, Entry, ID> index ) throws Exception;
 
 
     public abstract boolean hasUserIndexOn( String attribute ) throws Exception;
@@ -342,7 +342,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     public abstract boolean hasSystemIndexOn( String attribute ) throws Exception;
 
 
-    public abstract Index<String, ServerEntry, ID> getPresenceIndex();
+    public abstract Index<String, Entry, ID> getPresenceIndex();
 
 
     /**
@@ -351,7 +351,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
      *
      * @return the one level Index
      */
-    public abstract Index<ID, ServerEntry, ID> getOneLevelIndex();
+    public abstract Index<ID, Entry, ID> getOneLevelIndex();
 
 
     /**
@@ -360,7 +360,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
      *
      * @return the sub tree level Index
      */
-    public abstract Index<ID, ServerEntry, ID> getSubLevelIndex();
+    public abstract Index<ID, Entry, ID> getSubLevelIndex();
 
 
     /**
@@ -370,7 +370,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
      * 
      * @return the one alias index
      */
-    public abstract Index<ID, ServerEntry, ID> getOneAliasIndex();
+    public abstract Index<ID, Entry, ID> getOneAliasIndex();
 
 
     /**
@@ -380,7 +380,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
      * 
      * @return the sub alias index
      */
-    public abstract Index<ID, ServerEntry, ID> getSubAliasIndex();
+    public abstract Index<ID, Entry, ID> getSubAliasIndex();
 
 
     /**
@@ -389,7 +389,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
      * 
      * @return the index on the ALIAS_ATTRIBUTE
      */
-    public abstract Index<String, ServerEntry, ID> getAliasIndex();
+    public abstract Index<String, Entry, ID> getAliasIndex();
 
 
     /**
@@ -419,10 +419,10 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     }
 
 
-    public abstract Index<? extends Object, ServerEntry, ID> getUserIndex( String attribute ) throws Exception;
+    public abstract Index<? extends Object, Entry, ID> getUserIndex( String attribute ) throws Exception;
 
 
-    public abstract Index<? extends Object, ServerEntry, ID> getSystemIndex( String attribute ) throws Exception;
+    public abstract Index<? extends Object, Entry, ID> getSystemIndex( String attribute ) throws Exception;
 
 
     public abstract ID getEntryId( DN dn ) throws Exception;
@@ -463,7 +463,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     public abstract void delete( ID id ) throws Exception;
 
 
-    public abstract IndexCursor<ID, ServerEntry, ID> list( ID id ) throws Exception;
+    public abstract IndexCursor<ID, Entry, ID> list( ID id ) throws Exception;
 
 
     public abstract int getChildCount( ID id ) throws Exception;

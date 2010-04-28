@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.name.DN;
@@ -141,7 +141,7 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
     
-    static private boolean isReferral( ServerEntry entry ) throws NamingException
+    static private boolean isReferral( Entry entry ) throws NamingException
     {
         // Check that the entry is not null, otherwise return FALSE.
         // This is typically to cover the case where the entry has not 
@@ -232,7 +232,7 @@ public class ReferralInterceptor extends BaseInterceptor
      */
     public void add( NextInterceptor next, AddOperationContext opContext ) throws Exception
     {
-        ServerEntry entry = opContext.getEntry();
+        Entry entry = opContext.getEntry();
         
         // Check if the entry is a referral itself
         boolean isReferral = isReferral( entry );
@@ -269,7 +269,7 @@ public class ReferralInterceptor extends BaseInterceptor
      */
     public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
     {
-        ServerEntry entry = opContext.getEntry();
+        Entry entry = opContext.getEntry();
 
         // First delete the entry into the server
         next.delete( opContext );
@@ -309,7 +309,7 @@ public class ReferralInterceptor extends BaseInterceptor
             // Update the referralManager
             LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), newName );
             
-            ServerEntry newEntry = nexus.lookup( lookupContext );
+            Entry newEntry = nexus.lookup( lookupContext );
             
             referralManager.lockWrite();
             
@@ -339,7 +339,7 @@ public class ReferralInterceptor extends BaseInterceptor
             // Update the referralManager
             LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), newName );
             
-            ServerEntry newEntry = nexus.lookup( lookupContext );
+            Entry newEntry = nexus.lookup( lookupContext );
             
             referralManager.lockWrite();
             
@@ -363,7 +363,7 @@ public class ReferralInterceptor extends BaseInterceptor
             // Update the referralManager
             LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), opContext.getNewDn() );
             
-            ServerEntry newEntry = nexus.lookup( lookupContext );
+            Entry newEntry = nexus.lookup( lookupContext );
             
             referralManager.lockWrite();
             
@@ -399,7 +399,7 @@ public class ReferralInterceptor extends BaseInterceptor
         // But we will have to store the modified entry into the opContext
         LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), name );
         
-        ServerEntry newEntry = nexus.lookup( lookupContext );
+        Entry newEntry = nexus.lookup( lookupContext );
 
         // Check that we have the entry, just in case
         // TODO : entries should be locked until the operation is done on it.

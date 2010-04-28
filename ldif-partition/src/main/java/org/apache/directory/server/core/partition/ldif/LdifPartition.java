@@ -45,9 +45,8 @@ import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.ldif.LdapLdifException;
@@ -217,7 +216,7 @@ public class LdifPartition extends BTreePartition<Long>
                 if ( contextEntryFile.exists() )
                 {
                     LdifReader reader = new LdifReader( contextEntryFile );
-                    contextEntry = new DefaultServerEntry( schemaManager, reader.next().getEntry() );
+                    contextEntry = new DefaultClientEntry( schemaManager, reader.next().getEntry() );
                     reader.close();
                 }
                 else
@@ -278,7 +277,7 @@ public class LdifPartition extends BTreePartition<Long>
     @Override
     public void delete( Long id ) throws Exception
     {
-        ServerEntry entry = lookup( id );
+        Entry entry = lookup( id );
 
         wrappedPartition.delete( id );
 
@@ -404,11 +403,11 @@ public class LdifPartition extends BTreePartition<Long>
         add( modifiedEntry );
 
         // Then, if there are some children, move then to the new place
-        IndexCursor<Long, ServerEntry, Long> cursor = getSubLevelIndex().forwardCursor( entryIdOld );
+        IndexCursor<Long, Entry, Long> cursor = getSubLevelIndex().forwardCursor( entryIdOld );
 
         while ( cursor.next() )
         {
-            IndexEntry<Long, ServerEntry, Long> entry = cursor.get();
+            IndexEntry<Long, Entry, Long> entry = cursor.get();
 
             // except the parent entry add the rest of entries
             if ( entry.getId() != entryIdOld )
@@ -471,7 +470,7 @@ public class LdifPartition extends BTreePartition<Long>
                     LdifEntry ldifEntry = ldifEntries.get( 0 );
                     LOG.debug( "Adding entry {}", ldifEntry );
 
-                    ServerEntry serverEntry = new DefaultServerEntry( schemaManager, ldifEntry.getEntry() );
+                    Entry serverEntry = new DefaultClientEntry( schemaManager, ldifEntry.getEntry() );
 
                     if ( !serverEntry.containsAttribute( SchemaConstants.ENTRY_CSN_AT ) )
                     {
@@ -765,7 +764,7 @@ public class LdifPartition extends BTreePartition<Long>
 
 
     @Override
-    public void addIndexOn( Index<? extends Object, ServerEntry, Long> index ) throws Exception
+    public void addIndexOn( Index<? extends Object, Entry, Long> index ) throws Exception
     {
         wrappedPartition.addIndexOn( index );
     }
@@ -786,7 +785,7 @@ public class LdifPartition extends BTreePartition<Long>
 
 
     @Override
-    public Index<String, ServerEntry, Long> getAliasIndex()
+    public Index<String, Entry, Long> getAliasIndex()
     {
         return wrappedPartition.getAliasIndex();
     }
@@ -828,14 +827,14 @@ public class LdifPartition extends BTreePartition<Long>
 
 
     @Override
-    public Index<Long, ServerEntry, Long> getOneAliasIndex()
+    public Index<Long, Entry, Long> getOneAliasIndex()
     {
         return wrappedPartition.getOneAliasIndex();
     }
 
 
     @Override
-    public Index<Long, ServerEntry, Long> getOneLevelIndex()
+    public Index<Long, Entry, Long> getOneLevelIndex()
     {
         return wrappedPartition.getOneLevelIndex();
     }
@@ -856,7 +855,7 @@ public class LdifPartition extends BTreePartition<Long>
 
 
     @Override
-    public Index<String, ServerEntry, Long> getPresenceIndex()
+    public Index<String, Entry, Long> getPresenceIndex()
     {
         return wrappedPartition.getPresenceIndex();
     }
@@ -870,21 +869,21 @@ public class LdifPartition extends BTreePartition<Long>
 
 
     @Override
-    public Index<Long, ServerEntry, Long> getSubAliasIndex()
+    public Index<Long, Entry, Long> getSubAliasIndex()
     {
         return wrappedPartition.getSubAliasIndex();
     }
 
 
     @Override
-    public Index<Long, ServerEntry, Long> getSubLevelIndex()
+    public Index<Long, Entry, Long> getSubLevelIndex()
     {
         return wrappedPartition.getSubLevelIndex();
     }
 
 
     @Override
-    public Index<?, ServerEntry, Long> getSystemIndex( String id ) throws Exception
+    public Index<?, Entry, Long> getSystemIndex( String id ) throws Exception
     {
         return wrappedPartition.getSystemIndex( id );
     }
@@ -898,7 +897,7 @@ public class LdifPartition extends BTreePartition<Long>
 
 
     @Override
-    public Index<? extends Object, ServerEntry, Long> getUserIndex( String id ) throws Exception
+    public Index<? extends Object, Entry, Long> getUserIndex( String id ) throws Exception
     {
         return wrappedPartition.getUserIndex( id );
     }
@@ -933,7 +932,7 @@ public class LdifPartition extends BTreePartition<Long>
 
 
     @Override
-    public IndexCursor<Long, ServerEntry, Long> list( Long id ) throws Exception
+    public IndexCursor<Long, Entry, Long> list( Long id ) throws Exception
     {
         return wrappedPartition.list( id );
     }
@@ -1054,7 +1053,7 @@ public class LdifPartition extends BTreePartition<Long>
             // What can we do here ???
         }
 
-        this.contextEntry = new DefaultServerEntry( schemaManager, entries.get( 0 ).getEntry() );
+        this.contextEntry = new DefaultClientEntry( schemaManager, entries.get( 0 ).getEntry() );
     }
 
 

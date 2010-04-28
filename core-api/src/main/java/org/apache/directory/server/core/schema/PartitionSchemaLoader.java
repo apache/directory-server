@@ -38,7 +38,6 @@ import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -189,14 +188,14 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     public Set<String> listDependentSchemaNames( String schemaName ) throws Exception
     {
         Set<String> dependees = new HashSet<String>();
-        Set<ServerEntry> results = dao.listSchemaDependents( schemaName );
+        Set<Entry> results = dao.listSchemaDependents( schemaName );
 
         if ( results.isEmpty() )
         {
             return dependees;
         }
 
-        for ( ServerEntry sr : results )
+        for ( Entry sr : results )
         {
             EntryAttribute cn = sr.get( cnAT );
             dependees.add( cn.getString() );
@@ -217,14 +216,14 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     public Set<String> listEnabledDependentSchemaNames( String schemaName ) throws Exception
     {
         Set<String> dependees = new HashSet<String>();
-        Set<ServerEntry> results = dao.listEnabledSchemaDependents( schemaName );
+        Set<Entry> results = dao.listEnabledSchemaDependents( schemaName );
 
         if ( results.isEmpty() )
         {
             return dependees;
         }
 
-        for ( ServerEntry sr : results )
+        for ( Entry sr : results )
         {
             EntryAttribute cn = sr.get( cnAT );
             dependees.add( cn.getString() );
@@ -327,7 +326,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             // Loop on all the AttributeTypes and add them to the list
             while ( list.next() )
             {
-                ServerEntry result = list.get();
+                Entry result = list.get();
 
                 attributeTypeList.add( result );
             }
@@ -423,7 +422,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
             while ( list.next() )
             {
-                ServerEntry entry = list.get();
+                Entry entry = list.get();
 
                 matchingRuleList.add( entry );
             }
@@ -556,7 +555,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
             while ( list.next() )
             {
-                ServerEntry entry = list.get();
+                Entry entry = list.get();
 
                 syntaxList.add( entry );
             }
@@ -593,7 +592,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
             while ( list.next() )
             {
-                ServerEntry entry = list.get();
+                Entry entry = list.get();
 
                 syntaxCheckerList.add( entry );
             }
@@ -603,7 +602,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     }
 
 
-    private String getOid( ServerEntry entry ) throws Exception
+    private String getOid( Entry entry ) throws Exception
     {
         EntryAttribute oid = entry.get( mOidAT );
 
@@ -616,7 +615,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     }
 
 
-    private NormalizerDescription getNormalizerDescription( String schemaName, ServerEntry entry ) throws Exception
+    private NormalizerDescription getNormalizerDescription( String schemaName, Entry entry ) throws Exception
     {
         NormalizerDescription description = new NormalizerDescription( getOid( entry ) );
         List<String> values = new ArrayList<String>();
@@ -648,7 +647,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     }
 
 
-    private LdapComparatorDescription getLdapComparatorDescription( String schemaName, ServerEntry entry )
+    private LdapComparatorDescription getLdapComparatorDescription( String schemaName, Entry entry )
         throws Exception
     {
         LdapComparatorDescription description = new LdapComparatorDescription( getOid( entry ) );
@@ -676,7 +675,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     }
 
 
-    private SyntaxCheckerDescription getSyntaxCheckerDescription( String schemaName, ServerEntry entry )
+    private SyntaxCheckerDescription getSyntaxCheckerDescription( String schemaName, Entry entry )
         throws Exception
     {
         SyntaxCheckerDescription description = new SyntaxCheckerDescription( getOid( entry ) );

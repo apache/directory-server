@@ -45,7 +45,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.entry.StringValue;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.AVA;
@@ -197,7 +197,7 @@ public class NormalizationInterceptor extends BaseInterceptor
         if ( result == null )
         {
             LOG.warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
-            return new BaseEntryFilteringCursor( new EmptyCursor<ServerEntry>(), opContext );
+            return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), opContext );
         }
         else
         {
@@ -347,7 +347,7 @@ public class NormalizationInterceptor extends BaseInterceptor
      * @param dn the DN
      * @param entry the entry
      */
-    private void addRdnAttributesToEntry( DN dn, ServerEntry entry ) throws Exception
+    private void addRdnAttributesToEntry( DN dn, Entry entry ) throws Exception
     {
         if ( dn == null || entry == null )
         {

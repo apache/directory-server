@@ -51,7 +51,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -171,7 +171,7 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
         // create a new certificate
         String newIssuerDN = "cn=new_issuer_dn";
         String newSubjectDN = "cn=new_subject_dn";
-        ServerEntry entry = ldapServer.getDirectoryService().getAdminSession().lookup(
+        Entry entry = ldapServer.getDirectoryService().getAdminSession().lookup(
             new DN( "uid=admin,ou=system" ) );
         TlsKeyGenerator.addKeyPair( entry, newIssuerDN, newSubjectDN, "RSA" );
 

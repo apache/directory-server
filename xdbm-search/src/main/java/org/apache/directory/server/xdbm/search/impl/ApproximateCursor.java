@@ -27,7 +27,7 @@ import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 
 
@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.entry.Value;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class ApproximateCursor<V, ID> extends AbstractIndexCursor<V, ServerEntry, ID>
+public class ApproximateCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
 {
     private static final String UNSUPPORTED_MSG = "ApproximateCursors only support positioning by element when a user index exists on the asserted attribute.";
 
@@ -51,17 +51,17 @@ public class ApproximateCursor<V, ID> extends AbstractIndexCursor<V, ServerEntry
     private final ApproximateEvaluator<V, ID> approximateEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
-    private final IndexCursor<V, ServerEntry, ID> userIdxCursor;
+    private final IndexCursor<V, Entry, ID> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final IndexCursor<String, ServerEntry, ID> ndnIdxCursor;
+    private final IndexCursor<String, Entry, ID> ndnIdxCursor;
 
     /** used only when ndnIdxCursor is used (no index on attribute) */
     private boolean available = false;
 
 
     @SuppressWarnings("unchecked")
-    public ApproximateCursor( Store<ServerEntry, ID> db, ApproximateEvaluator<V, ID> approximateEvaluator ) throws Exception
+    public ApproximateCursor( Store<Entry, ID> db, ApproximateEvaluator<V, ID> approximateEvaluator ) throws Exception
     {
         this.approximateEvaluator = approximateEvaluator;
 
@@ -69,7 +69,7 @@ public class ApproximateCursor<V, ID> extends AbstractIndexCursor<V, ServerEntry
         Value<V> value = approximateEvaluator.getExpression().getValue();
         if ( db.hasIndexOn( attribute ) )
         {
-            Index<V, ServerEntry, ID> index = ( Index<V, ServerEntry, ID> ) db.getIndex( attribute );
+            Index<V, Entry, ID> index = ( Index<V, Entry, ID> ) db.getIndex( attribute );
             userIdxCursor = index.forwardCursor( value.get() );
             ndnIdxCursor = null;
         }
@@ -120,7 +120,7 @@ public class ApproximateCursor<V, ID> extends AbstractIndexCursor<V, ServerEntry
     }
 
 
-    public void before( IndexEntry<V, ServerEntry, ID> element ) throws Exception
+    public void before( IndexEntry<V, Entry, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );
         if ( userIdxCursor != null )
@@ -134,7 +134,7 @@ public class ApproximateCursor<V, ID> extends AbstractIndexCursor<V, ServerEntry
     }
 
 
-    public void after( IndexEntry<V, ServerEntry, ID> element ) throws Exception
+    public void after( IndexEntry<V, Entry, ID> element ) throws Exception
     {
         checkNotClosed( "after()" );
         if ( userIdxCursor != null )
@@ -202,7 +202,7 @@ public class ApproximateCursor<V, ID> extends AbstractIndexCursor<V, ServerEntry
         while ( ndnIdxCursor.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?, ServerEntry, ID> candidate = ndnIdxCursor.get();
+            IndexEntry<?, Entry, ID> candidate = ndnIdxCursor.get();
             if ( approximateEvaluator.evaluate( candidate ) )
             {
                 return available = true;
@@ -223,7 +223,7 @@ public class ApproximateCursor<V, ID> extends AbstractIndexCursor<V, ServerEntry
         while ( ndnIdxCursor.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?, ServerEntry, ID> candidate = ndnIdxCursor.get();
+            IndexEntry<?, Entry, ID> candidate = ndnIdxCursor.get();
             if ( approximateEvaluator.evaluate( candidate ) )
             {
                 return available = true;
@@ -235,7 +235,7 @@ public class ApproximateCursor<V, ID> extends AbstractIndexCursor<V, ServerEntry
 
 
     @SuppressWarnings("unchecked")
-    public IndexEntry<V, ServerEntry, ID> get() throws Exception
+    public IndexEntry<V, Entry, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
         if ( userIdxCursor != null )
@@ -245,7 +245,7 @@ public class ApproximateCursor<V, ID> extends AbstractIndexCursor<V, ServerEntry
 
         if ( available )
         {
-            return ( IndexEntry<V, ServerEntry, ID> ) ndnIdxCursor.get();
+            return ( IndexEntry<V, Entry, ID> ) ndnIdxCursor.get();
         }
 
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );

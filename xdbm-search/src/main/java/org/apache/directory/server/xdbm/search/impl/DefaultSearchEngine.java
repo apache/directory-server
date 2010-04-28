@@ -31,7 +31,7 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -48,12 +48,12 @@ import org.apache.directory.shared.ldap.name.DN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultSearchEngine<ID> implements SearchEngine<ServerEntry, ID>
+public class DefaultSearchEngine<ID> implements SearchEngine<Entry, ID>
 {
     /** the Optimizer used by this DefaultSearchEngine */
     private final Optimizer optimizer;
     /** the Database this DefaultSearchEngine operates on */
-    private final Store<ServerEntry, ID> db;
+    private final Store<Entry, ID> db;
     /** creates Cursors over entries satisfying filter expressions */
     private final CursorBuilder<ID> cursorBuilder;
     /** creates evaluators which check to see if candidates satisfy a filter expression */
@@ -72,7 +72,7 @@ public class DefaultSearchEngine<ID> implements SearchEngine<ServerEntry, ID>
      * @param evaluatorBuilder an expression evaluator builder
      * @param optimizer an optimizer to use during search
      */
-    public DefaultSearchEngine( Store<ServerEntry, ID> db, CursorBuilder<ID> cursorBuilder,
+    public DefaultSearchEngine( Store<Entry, ID> db, CursorBuilder<ID> cursorBuilder,
         EvaluatorBuilder<ID> evaluatorBuilder, Optimizer optimizer )
     {
         this.db = db;
@@ -96,7 +96,7 @@ public class DefaultSearchEngine<ID> implements SearchEngine<ServerEntry, ID>
     /**
      * @see SearchEngine#cursor(DN, AliasDerefMode, ExprNode, SearchControls)
      */
-    public IndexCursor<ID, ServerEntry, ID> cursor( DN base, AliasDerefMode aliasDerefMode, ExprNode filter,
+    public IndexCursor<ID, Entry, ID> cursor( DN base, AliasDerefMode aliasDerefMode, ExprNode filter,
         SearchControls searchCtls ) throws Exception
     {
         DN effectiveBase;
@@ -106,7 +106,7 @@ public class DefaultSearchEngine<ID> implements SearchEngine<ServerEntry, ID>
         if ( baseId == null )
         {
             // The entry is not found : ciao !
-            return new EmptyIndexCursor<ID, ServerEntry, ID>();
+            return new EmptyIndexCursor<ID, Entry, ID>();
         }
 
         String aliasedBase = db.getAliasIndex().reverseLookup( baseId );
@@ -147,18 +147,18 @@ public class DefaultSearchEngine<ID> implements SearchEngine<ServerEntry, ID>
                 effectiveBaseId = db.getEntryId( effectiveBase );
             }
 
-            IndexEntry<ID, ServerEntry, ID> indexEntry = new ForwardIndexEntry<ID, ServerEntry, ID>();
+            IndexEntry<ID, Entry, ID> indexEntry = new ForwardIndexEntry<ID, Entry, ID>();
             indexEntry.setId( effectiveBaseId );
             optimizer.annotate( filter );
-            Evaluator<? extends ExprNode, ServerEntry, ID> evaluator = evaluatorBuilder.build( filter );
+            Evaluator<? extends ExprNode, Entry, ID> evaluator = evaluatorBuilder.build( filter );
 
             if ( evaluator.evaluate( indexEntry ) )
             {
-                return new SingletonIndexCursor<ID, ServerEntry, ID>( indexEntry );
+                return new SingletonIndexCursor<ID, Entry, ID>( indexEntry );
             }
             else
             {
-                return new EmptyIndexCursor<ID, ServerEntry, ID>();
+                return new EmptyIndexCursor<ID, Entry, ID>();
             }
         }
 
@@ -171,14 +171,14 @@ public class DefaultSearchEngine<ID> implements SearchEngine<ServerEntry, ID>
 
         // Annotate the node with the optimizer and return search enumeration.
         optimizer.annotate( root );
-        return ( IndexCursor<ID, ServerEntry, ID> ) cursorBuilder.build( root );
+        return ( IndexCursor<ID, Entry, ID> ) cursorBuilder.build( root );
     }
 
 
     /**
      * @see SearchEngine#evaluator(ExprNode)
      */
-    public Evaluator<? extends ExprNode, ServerEntry, ID> evaluator( ExprNode filter ) throws Exception
+    public Evaluator<? extends ExprNode, Entry, ID> evaluator( ExprNode filter ) throws Exception
     {
         return evaluatorBuilder.build( filter );
     }

@@ -67,7 +67,7 @@ import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.name.DN;
@@ -129,7 +129,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
     {
         DN normName = addContext.getDn();
 
-        ServerEntry entry = addContext.getEntry();
+        Entry entry = addContext.getEntry();
 
         if ( ( entry.get( SchemaConstants.USER_PASSWORD_AT ) != null ) && 
             ( entry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ) != null ) )

@@ -30,7 +30,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.StringValue;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -51,7 +51,7 @@ import org.apache.directory.shared.ldap.util.tree.DnBranchNode;
 public class ReferralManagerImpl implements ReferralManager
 {
     /** The referrals tree */
-    private DnBranchNode<ServerEntry> referrals;
+    private DnBranchNode<Entry> referrals;
 
     /** A lock to guarantee the manager consistency */
     private ReentrantReadWriteLock mutex = new ReentrantReadWriteLock();
@@ -68,7 +68,7 @@ public class ReferralManagerImpl implements ReferralManager
     {
         lockWrite();
         
-        referrals = new DnBranchNode<ServerEntry>();
+        referrals = new DnBranchNode<Entry>();
         PartitionNexus nexus = directoryService.getPartitionNexus();
 
         Set<String> suffixes = nexus.listSuffixes( null );
@@ -122,11 +122,11 @@ public class ReferralManagerImpl implements ReferralManager
     /**
      * {@inheritDoc}
      */
-    public void addReferral( ServerEntry entry )
+    public void addReferral( Entry entry )
     {
         try
         {
-            ((DnBranchNode<ServerEntry>)referrals).add( entry.getDn(), entry );
+            ((DnBranchNode<Entry>)referrals).add( entry.getDn(), entry );
         }
         catch ( LdapException ne )
         {
@@ -166,7 +166,7 @@ public class ReferralManagerImpl implements ReferralManager
             
             while ( cursor.next() ) 
             {
-                ServerEntry entry = cursor.get();
+                Entry entry = cursor.get();
 
                 // Lock the referralManager
                 lockWrite();
@@ -208,7 +208,7 @@ public class ReferralManagerImpl implements ReferralManager
         
         while ( cursor.next() ) 
         {
-            ServerEntry entry = cursor.get();
+            Entry entry = cursor.get();
             
             // Add it at the right place
             removeReferral( entry );
@@ -228,7 +228,7 @@ public class ReferralManagerImpl implements ReferralManager
     /**
      * {@inheritDoc}
      */
-    public ServerEntry getParentReferral( DN dn )
+    public Entry getParentReferral( DN dn )
     {
         if ( !hasParentReferral( dn ) )
         {
@@ -244,7 +244,7 @@ public class ReferralManagerImpl implements ReferralManager
      */
     public boolean isReferral( DN dn )
     {
-        ServerEntry parent = referrals.getParentElement( dn );
+        Entry parent = referrals.getParentElement( dn );
         
         if ( parent != null )
         {
@@ -260,7 +260,7 @@ public class ReferralManagerImpl implements ReferralManager
     /**
      * {@inheritDoc}
      */
-    public void removeReferral( ServerEntry entry )
+    public void removeReferral( Entry entry )
     {
         referrals.remove( entry );
     }

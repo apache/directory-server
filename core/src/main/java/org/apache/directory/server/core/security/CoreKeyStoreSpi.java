@@ -43,7 +43,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.SingletonEnumeration;
 import org.slf4j.Logger;
@@ -77,7 +77,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
     }
 
 
-    private ServerEntry getTlsEntry() throws Exception
+    private Entry getTlsEntry() throws Exception
     {
         DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
         adminDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
@@ -137,7 +137,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
         {
             try
             {
-                ServerEntry entry = getTlsEntry();
+                Entry entry = getTlsEntry();
                 return TlsKeyGenerator.getCertificate( entry );
             }
             catch ( Exception e )
@@ -170,7 +170,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
         
         try
         {
-            ServerEntry entry = getTlsEntry();
+            Entry entry = getTlsEntry();
             if ( ArrayUtils.isEquals( cert.getEncoded(), entry.get( TlsKeyGenerator.USER_CERTIFICATE_AT ).getBytes() ) )
             {
                 return APACHEDS_ALIAS;
@@ -194,7 +194,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
         LOG.debug( "engineGetCertificateChain({}) called.", alias );
         try
         {
-            ServerEntry entry = getTlsEntry();
+            Entry entry = getTlsEntry();
             LOG.debug( "Entry:\n{}", entry );
             return new Certificate[] { TlsKeyGenerator.getCertificate( entry ) };
         }
@@ -228,7 +228,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
         
         try
         {
-            ServerEntry entry = getTlsEntry();
+            Entry entry = getTlsEntry();
             KeyPair keyPair = TlsKeyGenerator.getKeyPair( entry );
             return keyPair.getPrivate();
         }

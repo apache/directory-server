@@ -82,10 +82,10 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
@@ -127,7 +127,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
     private static final String ASF = "Apache Software Foundation";
 
     /** the read only rootDSE attributes */
-    private final ServerEntry rootDSE;
+    private final Entry rootDSE;
 
     /** The DirectoryService instance */
     private DirectoryService directoryService;
@@ -158,7 +158,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
      * @param rootDSE the root entry for the DSA
      * @throws javax.naming.Exception on failure to initialize
      */
-    public DefaultPartitionNexus( ServerEntry rootDSE ) throws Exception
+    public DefaultPartitionNexus( Entry rootDSE ) throws Exception
     {
         // setup that root DSE
         this.rootDSE = rootDSE;
@@ -305,7 +305,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
         // Add root context entry for system partition
         DN systemSuffixDn = new DN( ServerDNConstants.SYSTEM_DN );
         systemSuffixDn.normalize( schemaManager.getNormalizerMapping() );
-        ServerEntry systemEntry = new DefaultServerEntry( schemaManager, systemSuffixDn );
+        Entry systemEntry = new DefaultClientEntry( schemaManager, systemSuffixDn );
 
         // Add the ObjectClasses
         systemEntry.put( SchemaConstants.OBJECT_CLASS_AT,
@@ -725,8 +725,8 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
         // -----------------------------------------------------------
         if ( ( ids == null ) || ( ids.length == 0 ) )
         {
-            ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
-            return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( rootDSE ), searchOperationContext );
+            Entry rootDSE = (Entry)getRootDSE( null ).clone();
+            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDSE ), searchOperationContext );
         }
         
         // -----------------------------------------------------------
@@ -756,20 +756,20 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
         // return nothing
         if ( noAttribute )
         {
-            ServerEntry serverEntry = new DefaultServerEntry( schemaManager, DN.EMPTY_DN );
-            return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), searchOperationContext );
+            Entry serverEntry = new DefaultClientEntry( schemaManager, DN.EMPTY_DN );
+            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchOperationContext );
         }
         
         // return everything
         if ( allUserAttributes && allOperationalAttributes )
         {
-            ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
-            return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( rootDSE ), searchOperationContext );
+            Entry rootDSE = (Entry)getRootDSE( null ).clone();
+            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDSE ), searchOperationContext );
         }
         
-        ServerEntry serverEntry = new DefaultServerEntry( schemaManager, DN.EMPTY_DN );
+        Entry serverEntry = new DefaultClientEntry( schemaManager, DN.EMPTY_DN );
         
-        ServerEntry rootDSE = getRootDSE( new GetRootDSEOperationContext( searchOperationContext.getSession() ) );
+        Entry rootDSE = getRootDSE( new GetRootDSEOperationContext( searchOperationContext.getSession() ) );
         
         for ( EntryAttribute attribute:rootDSE )
         {
@@ -789,7 +789,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
             }
         }
 
-        return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), searchOperationContext );
+        return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchOperationContext );
     }
     
 
@@ -835,7 +835,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
             }
             else if ( isObjectScope && ( ! isSearchAll ) )
             {
-                return new BaseEntryFilteringCursor( new EmptyCursor<ServerEntry>(), opContext );
+                return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), opContext );
             }
             else if( isOnelevelScope )
             {
