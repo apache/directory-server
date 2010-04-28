@@ -70,7 +70,7 @@ import org.junit.Test;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DefaultServerEntryTest
+public class SchemaAwareEntryTest
 {
     private static final byte[] BYTES1 = new byte[]{ 'a', 'b' };
     private static final byte[] BYTES2 = new byte[]{ 'b' };
@@ -102,7 +102,7 @@ public class DefaultServerEntryTest
 
         if ( workingDirectory == null )
         {
-            String path = DefaultServerEntryTest.class.getResource( "" ).getPath();
+            String path = SchemaAwareEntryTest.class.getResource( "" ).getPath();
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }

@@ -68,7 +68,7 @@ import org.junit.Test;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DefaultEntryAttributeTest
+public class SchemaAwareEntryAttributeTest
 {
     private static LdifSchemaLoader loader;
     
@@ -110,7 +110,7 @@ public class DefaultEntryAttributeTest
     	
     	if ( workingDirectory == null )
     	{
-    	    String path = DefaultEntryAttributeTest.class.getResource( "" ).getPath();
+    	    String path = SchemaAwareEntryAttributeTest.class.getResource( "" ).getPath();
     	    int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
     	}

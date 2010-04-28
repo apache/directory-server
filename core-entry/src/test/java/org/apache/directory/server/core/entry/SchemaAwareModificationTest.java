@@ -57,7 +57,7 @@ import org.junit.Test;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ServerModificationTest
+public class SchemaAwareModificationTest
 {
     private static LdifSchemaLoader loader;
     private static SchemaManager schemaManager;
@@ -153,7 +153,7 @@ public class ServerModificationTest
     	
         if ( workingDirectory == null )
         {
-            String path = ServerModificationTest.class.getResource( "" ).getPath();
+            String path = SchemaAwareModificationTest.class.getResource( "" ).getPath();
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }
