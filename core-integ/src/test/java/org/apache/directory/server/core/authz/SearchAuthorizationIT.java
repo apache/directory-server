@@ -46,8 +46,8 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
@@ -101,12 +101,12 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
      */
     private Entry[] getTestNodes( final int count )
     {
-        Entry[] attributes = new DefaultClientEntry[count];
+        Entry[] attributes = new DefaultEntry[count];
         for ( int ii = 0; ii < count; ii++ )
         {
             try
             {
-                attributes[ii] = new DefaultClientEntry();
+                attributes[ii] = new DefaultEntry();
                 attributes[ii].add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
                 attributes[ii].add( SchemaConstants.OU_AT, String.valueOf( ii ) );
                 attributes[ii].add( SchemaConstants.OU_AT, "testEntry" );
@@ -845,7 +845,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         createUser( "billyd", "billyd" );
 
         // create an entry subordinate to the user
-        Entry phoneBook = new DefaultClientEntry( new DN( "ou=phoneBook,uid=billyd,ou=users,ou=system" ) );
+        Entry phoneBook = new DefaultEntry( new DN( "ou=phoneBook,uid=billyd,ou=users,ou=system" ) );
         phoneBook.add( SchemaConstants.OU_AT, "phoneBook" );
         phoneBook.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
 

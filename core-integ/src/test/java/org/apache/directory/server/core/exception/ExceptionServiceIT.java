@@ -42,9 +42,9 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -75,7 +75,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     {
         DN dn = ( DN ) parent.clone();
         dn.add( "ou=" + value );
-        Entry entry = new DefaultClientEntry( dn );
+        Entry entry = new DefaultEntry( dn );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "person" );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "OrganizationalPerson" );
         entry.add( SchemaConstants.CN_AT, value );
@@ -141,7 +141,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminConnection( service );
 
-        Entry entry = new DefaultClientEntry( new DN( "ou=users,ou=groups,ou=system" ) );
+        Entry entry = new DefaultEntry( new DN( "ou=users,ou=groups,ou=system" ) );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "OrganizationalUnit" );
         entry.add( SchemaConstants.OU_AT, "users" );
         
@@ -149,7 +149,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
         ModifyDnResponse resp = connection.rename( entry.getDn(), new RDN( "ou=users" ) );
         assertEquals( ResultCodeEnum.ENTRY_ALREADY_EXISTS, resp.getLdapResult().getResultCode() );
 
-        Entry userzEntry = new DefaultClientEntry( new DN( "ou=userz,ou=groups,ou=system" ) );
+        Entry userzEntry = new DefaultEntry( new DN( "ou=userz,ou=groups,ou=system" ) );
         userzEntry.add( SchemaConstants.OBJECT_CLASS_AT, "OrganizationalUnit" );
         userzEntry.add( SchemaConstants.OU_AT, "userz" );
         
@@ -399,13 +399,13 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminConnection( service );
 
-        Entry entry = new DefaultClientEntry( new DN( "cn=toanother,ou=system" ) );
+        Entry entry = new DefaultEntry( new DN( "cn=toanother,ou=system" ) );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "alias", SchemaConstants.EXTENSIBLE_OBJECT_OC );
         entry.add( "aliasedObjectName", "ou=users,ou=system" );
 
         connection.add( entry );
 
-        Entry aliasChild = new DefaultClientEntry( new DN( "ou=blah,cn=toanother,ou=system" ) );
+        Entry aliasChild = new DefaultEntry( new DN( "ou=blah,cn=toanother,ou=system" ) );
         aliasChild.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         aliasChild.add( SchemaConstants.OU_AT, "blah" );
 

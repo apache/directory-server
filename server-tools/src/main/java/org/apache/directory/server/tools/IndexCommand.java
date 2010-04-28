@@ -38,10 +38,10 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.server.xdbm.tools.IndexUtils;
 import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
@@ -157,7 +157,7 @@ public class IndexCommand extends ToolCommand
         {
             Tuple<Long,Entry> tuple = list.get();
             Long id = tuple.getKey();
-            Entry entry = ( DefaultClientEntry ) tuple.getValue();
+            Entry entry = ( DefaultEntry ) tuple.getValue();
 
             EntryAttribute attr = entry.get( attributeType );
             if ( attr == null )

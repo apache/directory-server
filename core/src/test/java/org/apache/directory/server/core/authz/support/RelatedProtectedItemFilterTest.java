@@ -42,11 +42,11 @@ import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -298,7 +298,7 @@ public class RelatedProtectedItemFilterTest
      *
     public void testRangeOfValues() throws Exception
     {
-        Entry entry = new DefaultClientEntry( service.getRegistries(), USER_NAME );
+        Entry entry = new DefaultEntry( service.getRegistries(), USER_NAME );
         entry.put( "cn", "valueA" );
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.RangeOfValues( new PresenceNode( "cn" ) ) );
 
@@ -343,7 +343,7 @@ public class RelatedProtectedItemFilterTest
         attrTypes.add( "cn" );
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.SelfValue( attrTypes ) );
 
-        Entry entry = new DefaultClientEntry( schemaManager, USER_NAME );
+        Entry entry = new DefaultEntry( schemaManager, USER_NAME );
         entry.put( "cn", USER_NAME.getNormName() );
 
         // Test wrong scope

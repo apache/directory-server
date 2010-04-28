@@ -57,10 +57,10 @@ import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.GreaterEqNode;
@@ -1790,7 +1790,7 @@ public class SearchIT extends AbstractLdapTestUnit
        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
 
        DN dn = new DN( "cn=testLowerCsnAdd,ou=system" );
-       Entry entry = new DefaultClientEntry( dn );
+       Entry entry = new DefaultEntry( dn );
        entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );
        entry.add( SchemaConstants.CN_AT, "testLowerCsnAdd_cn" );
        entry.add( SchemaConstants.SN_AT, "testLowerCsnAdd_sn" );
@@ -1799,7 +1799,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
        // add an entry to have a entry with higher CSN value
        DN dn2 = new DN( "cn=testHigherCsnAdd,ou=system" );
-       Entry entry2 = new DefaultClientEntry( dn2 );
+       Entry entry2 = new DefaultEntry( dn2 );
        entry2.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );
        entry2.add( SchemaConstants.CN_AT, "testHigherCsnAdd_cn" );
        entry2.add( SchemaConstants.SN_AT, "testHigherCsnAdd_sn" );

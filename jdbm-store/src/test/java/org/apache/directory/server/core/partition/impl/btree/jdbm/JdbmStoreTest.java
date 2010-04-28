@@ -46,13 +46,13 @@ import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.name.DN;
@@ -191,7 +191,7 @@ public class JdbmStoreTest
         // inject context entry
         DN suffixDn = new DN( "dc=example,dc=com" );
         suffixDn.normalize( schemaManager.getNormalizerMapping() );
-        Entry entry = new DefaultClientEntry( schemaManager, suffixDn );
+        Entry entry = new DefaultEntry( schemaManager, suffixDn );
         entry.add( "objectClass", "top", "domain" );
         entry.add( "dc", "example" );
         entry.add( SchemaConstants.ENTRY_CSN_AT, new CsnFactory( 0 ).newInstance().toString() );
@@ -489,7 +489,7 @@ public class JdbmStoreTest
         // add an alias and delete to test dropAliasIndices method
         DN dn = new DN( "commonName=Jack Daniels,ou=Apache,ou=Board of Directors,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        Entry entry = new DefaultClientEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "ou", "Apache" );
         entry.add( "commonName", "Jack Daniels" );
@@ -538,7 +538,7 @@ public class JdbmStoreTest
         // dn id 12
         DN martinDn = new DN( "cn=Marting King,ou=Sales,o=Good Times Co." );
         martinDn.normalize( schemaManager.getNormalizerMapping() );
-        Entry entry = new DefaultClientEntry( schemaManager, martinDn );
+        Entry entry = new DefaultEntry( schemaManager, martinDn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Sales" );
         entry.add( "cn", "Martin King" );
@@ -563,7 +563,7 @@ public class JdbmStoreTest
         // dn id 13
         DN marketingDn = new DN( "ou=Marketing,ou=Sales,o=Good Times Co." );
         marketingDn.normalize( schemaManager.getNormalizerMapping() );
-        entry = new DefaultClientEntry( schemaManager, marketingDn );
+        entry = new DefaultEntry( schemaManager, marketingDn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Marketing" );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
@@ -573,7 +573,7 @@ public class JdbmStoreTest
         // dn id 14
         DN jimmyDn = new DN( "cn=Jimmy Wales,ou=Marketing, ou=Sales,o=Good Times Co." );
         jimmyDn.normalize( schemaManager.getNormalizerMapping() );
-        entry = new DefaultClientEntry( schemaManager, jimmyDn );
+        entry = new DefaultEntry( schemaManager, jimmyDn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Marketing" );
         entry.add( "cn", "Jimmy Wales" );
@@ -630,7 +630,7 @@ public class JdbmStoreTest
     {
         DN dn = new DN( "cn=Marting King,ou=Not Present,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        Entry entry = new DefaultClientEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Not Present" );
         entry.add( "cn", "Martin King" );
@@ -643,7 +643,7 @@ public class JdbmStoreTest
     {
         DN dn = new DN( "cn=Martin King,ou=Sales,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        Entry entry = new DefaultClientEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "ou", "Sales" );
         entry.add( "cn", "Martin King" );
         store.add( entry );
@@ -674,7 +674,7 @@ public class JdbmStoreTest
     {
         DN dn = new DN( "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        Entry entry = new DefaultClientEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Engineering" );
         entry.add( "cn", "Private Ryan" );
@@ -694,7 +694,7 @@ public class JdbmStoreTest
     {
         DN dn = new DN( "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        Entry entry = new DefaultClientEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Engineering" );
         entry.add( "cn", "Private Ryan" );
@@ -721,7 +721,7 @@ public class JdbmStoreTest
     {
         DN childDn = new DN( "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
         childDn.normalize( schemaManager.getNormalizerMapping() );
-        Entry childEntry = new DefaultClientEntry( schemaManager, childDn );
+        Entry childEntry = new DefaultEntry( schemaManager, childDn );
         childEntry.add( "objectClass", "top", "person", "organizationalPerson" );
         childEntry.add( "ou", "Engineering" );
         childEntry.add( "cn", "Private Ryan" );
@@ -774,7 +774,7 @@ public class JdbmStoreTest
         assertTrue( lookedup.get( "sn" ).contains( attribVal ) );
 
         // testing the store.modify( dn, mod, entry ) API
-        Entry entry = new DefaultClientEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager, dn );
         attribVal = "+1974045779";
         entry.add( "telephoneNumber", attribVal );
 
@@ -808,7 +808,7 @@ public class JdbmStoreTest
         assertEquals( attribVal, lookedup.get( "sn" ).get().getString() );
 
         // testing the store.modify( dn, mod, entry ) API
-        Entry entry = new DefaultClientEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager, dn );
         attribVal = "JWalker";
         entry.add( "sn", attribVal );
 
@@ -838,7 +838,7 @@ public class JdbmStoreTest
         assertNull( lookedup.get( "sn" ) );
 
         // testing the store.modify( dn, mod, entry ) API
-        Entry entry = new DefaultClientEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager, dn );
 
         // add an entry for the sake of testing the remove operation
         entry.add( "sn", "JWalker" );
@@ -855,7 +855,7 @@ public class JdbmStoreTest
     {
         DN dn = new DN( "cn=Tim B,ou=Sales,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        Entry entry = new DefaultClientEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "cn", "Tim B" );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );

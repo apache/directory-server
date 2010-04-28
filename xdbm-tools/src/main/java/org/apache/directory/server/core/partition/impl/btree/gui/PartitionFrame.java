@@ -65,8 +65,8 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
@@ -468,7 +468,7 @@ public class PartitionFrame extends JFrame
 
                 DN ndn = new DN( StringTools.deepTrimToLower( updn ) );
 
-                Entry attrs = new DefaultClientEntry( schemaManager, entry.getEntry() );
+                Entry attrs = new DefaultEntry( schemaManager, entry.getEntry() );
 
                 if ( null == partition.getEntryId( ndn ) )
                 {

@@ -38,8 +38,8 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.DN;
@@ -112,7 +112,7 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
         {
             String s = String.valueOf( i );
             DN dn = new DN( "cn=" + s + ",ou=system" );
-            Entry entry = new DefaultClientEntry( dn );
+            Entry entry = new DefaultEntry( dn );
             entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );
             entry.add( SchemaConstants.CN_AT, s );
             entry.add( SchemaConstants.SN_AT, s );

@@ -30,10 +30,10 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
@@ -71,7 +71,7 @@ public class StoreUtils
         store.init( schemaManager );
 
         // Entry #1
-        DefaultClientEntry entry = new DefaultClientEntry( schemaManager, suffixDn );
+        DefaultEntry entry = new DefaultEntry( schemaManager, suffixDn );
         entry.add( "objectClass", "organization" );
         entry.add( "o", "Good Times Co." );
         entry.add( "postalCode", "1" );
@@ -81,7 +81,7 @@ public class StoreUtils
         // Entry #2
         DN dn = new DN( "ou=Sales,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        entry = new DefaultClientEntry( schemaManager, dn );
+        entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Sales" );
         entry.add( "postalCode", "1" );
@@ -91,7 +91,7 @@ public class StoreUtils
         // Entry #3
         dn = new DN( "ou=Board of Directors,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        entry = new DefaultClientEntry( schemaManager, dn );
+        entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Board of Directors" );
         entry.add( "postalCode", "1" );
@@ -101,7 +101,7 @@ public class StoreUtils
         // Entry #4
         dn = new DN( "ou=Engineering,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        entry = new DefaultClientEntry( schemaManager, dn );
+        entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Engineering" );
         entry.add( "postalCode", "2" );
@@ -111,7 +111,7 @@ public class StoreUtils
         // Entry #5
         dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        entry = new DefaultClientEntry( schemaManager, dn );
+        entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Sales" );
         entry.add( "cn", "JOhnny WAlkeR" );
@@ -123,7 +123,7 @@ public class StoreUtils
         // Entry #6
         dn = new DN( "cn=JIM BEAN,ou=Sales,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        entry = new DefaultClientEntry( schemaManager, dn );
+        entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Sales" );
         entry.add( "cn", "JIM BEAN" );
@@ -135,7 +135,7 @@ public class StoreUtils
         // Entry #7
         dn = new DN( "ou=Apache,ou=Board of Directors,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        entry = new DefaultClientEntry( schemaManager, dn );
+        entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Apache" );
         entry.add( "postalCode", "5" );
@@ -145,7 +145,7 @@ public class StoreUtils
         // Entry #8
         dn = new DN( "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        entry = new DefaultClientEntry( schemaManager, dn );
+        entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Engineering" );
         entry.add( "cn", "Jack Daniels" );
@@ -159,7 +159,7 @@ public class StoreUtils
         // Entry #9
         dn = new DN( "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        entry = new DefaultClientEntry( schemaManager, dn );
+        entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "ou", "Apache" );
         entry.add( "commonName", "Jim Bean" );
@@ -169,7 +169,7 @@ public class StoreUtils
         // Entry #10
         dn = new DN( "commonName=Jim Bean,ou=Board of Directors,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        entry = new DefaultClientEntry( schemaManager, dn );
+        entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "commonName", "Jim Bean" );
         entry.add( "aliasedObjectName", "cn=Jim Bean,ou=Sales,o=Good Times Co." );
@@ -178,7 +178,7 @@ public class StoreUtils
         // Entry #11
         dn = new DN( "2.5.4.3=Johnny Walker,ou=Engineering,o=Good Times Co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        entry = new DefaultClientEntry( schemaManager, dn );
+        entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "ou", "Engineering" );
         entry.add( "2.5.4.3", "Johnny Walker" );
@@ -199,7 +199,7 @@ public class StoreUtils
     @SuppressWarnings("unchecked")
     public Entry getAttributes( Store<Object, Long> store, Long id ) throws Exception
     {
-        Entry entry = new DefaultClientEntry();
+        Entry entry = new DefaultEntry();
 
         // Get the distinguishedName to id mapping
         entry.put( "_nDn", store.getEntryDn( id ) );

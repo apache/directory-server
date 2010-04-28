@@ -24,7 +24,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.internal.InternalAddRequest;
 import org.apache.directory.shared.ldap.name.DN;
@@ -93,7 +93,7 @@ public class AddOperationContext extends AbstractChangeOperationContext
     {
         super( session );
         entry = new ClonedServerEntry( 
-            new DefaultClientEntry( session.getDirectoryService().getSchemaManager(), addRequest.getEntry() ) );
+            new DefaultEntry( session.getDirectoryService().getSchemaManager(), addRequest.getEntry() ) );
         dn = addRequest.getEntry().getDn();
         requestControls = addRequest.getControls();
         

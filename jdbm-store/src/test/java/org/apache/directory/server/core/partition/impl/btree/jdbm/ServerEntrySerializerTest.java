@@ -30,10 +30,10 @@ import java.util.Map;
 
 import org.apache.directory.server.core.partition.impl.btree.jdbm.ServerEntrySerializer;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
@@ -125,7 +125,7 @@ public class ServerEntrySerializerTest
     @Test public void testSerializeEmtpyServerEntry() throws Exception
     {
         DN dn = DN.EMPTY_DN;
-        Entry entry = new DefaultClientEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager, dn );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
         
@@ -142,7 +142,7 @@ public class ServerEntrySerializerTest
         DN dn = new DN( "cn=text, dc=example, dc=com" );
         dn.normalize( oids );
         
-        Entry entry = new DefaultClientEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager, dn );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
         
@@ -163,7 +163,7 @@ public class ServerEntrySerializerTest
         DN dn = new DN( "cn=text, dc=example, dc=com" );
         dn.normalize( oids );
         
-        Entry entry = new DefaultClientEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
@@ -185,7 +185,7 @@ public class ServerEntrySerializerTest
         DN dn = new DN( "cn=text, dc=example, dc=com" );
         dn.normalize( oids );
         
-        Entry entry = new DefaultClientEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
         entry.add( "cn", "text", "test" );
         entry.add( "SN", (String)null );
@@ -210,7 +210,7 @@ public class ServerEntrySerializerTest
         DN dn = new DN( "" );
         dn.normalize( oids );
         
-        Entry entry = new DefaultClientEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
         entry.add( "cn", "text", "test" );
         entry.add( "SN", (String)null );
@@ -231,7 +231,7 @@ public class ServerEntrySerializerTest
         DN dn = new DN( "" );
         dn.normalize( oids );
         
-        Entry entry = new DefaultClientEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager, dn );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
         
@@ -248,7 +248,7 @@ public class ServerEntrySerializerTest
         DN dn = new DN( "" );
         dn.normalize( oids );
         
-        Entry entry = new DefaultClientEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager, dn );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
         EntryAttribute oc = new DefaultEntryAttribute( "ObjectClass", schemaManager.lookupAttributeTypeRegistry( "objectclass" ) );
@@ -267,7 +267,7 @@ public class ServerEntrySerializerTest
         DN dn = new DN( "" );
         dn.normalize( oids );
         
-        Entry entry = new DefaultClientEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager, dn );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
         entry.add( "ObjectClass", "top", "person" );
@@ -285,7 +285,7 @@ public class ServerEntrySerializerTest
         DN dn = new DN( "" );
         dn.normalize( oids );
         
-        Entry entry = new DefaultClientEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager, dn );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
         entry.add( "userPassword", StringTools.getBytesUtf8( "secret" ) );

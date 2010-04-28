@@ -38,8 +38,8 @@ import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,7 +67,7 @@ public class PartitionConfigurationIT extends AbstractLdapTestUnit
 
         DN suffixDn = new DN( "ou=removable" );
         suffixDn.normalize( service.getSchemaManager().getNormalizerMapping() );
-        Entry ctxEntry = new DefaultClientEntry( service.getSchemaManager(), suffixDn );
+        Entry ctxEntry = new DefaultEntry( service.getSchemaManager(), suffixDn );
         ctxEntry.put( "objectClass", "top" );
         ctxEntry.get( "objectClass" ).add( "organizationalUnit" );
         ctxEntry.put( "ou", "removable" );

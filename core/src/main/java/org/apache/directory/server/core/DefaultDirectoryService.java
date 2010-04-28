@@ -79,7 +79,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.Csn;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.Cursor;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -818,7 +818,7 @@ public class DefaultDirectoryService implements DirectoryService
                     {
                         case ChangeType.ADD_ORDINAL :
                             adminSession.add( 
-                                new DefaultClientEntry( schemaManager, reverse.getEntry() ), true ); 
+                                new DefaultEntry( schemaManager, reverse.getEntry() ), true ); 
                             break;
                             
                         case ChangeType.DELETE_ORDINAL :
@@ -1067,7 +1067,7 @@ public class DefaultDirectoryService implements DirectoryService
 
     public Entry newEntry( DN dn ) 
     {
-        return new DefaultClientEntry( schemaManager, dn );
+        return new DefaultEntry( schemaManager, dn );
     }
     
 
@@ -1094,7 +1094,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            Entry serverEntry = new DefaultClientEntry( schemaManager, adminDn );
+            Entry serverEntry = new DefaultEntry( schemaManager, adminDn );
             
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
                                 SchemaConstants.TOP_OC,
@@ -1129,7 +1129,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            Entry serverEntry = new DefaultClientEntry( schemaManager, userDn );
+            Entry serverEntry = new DefaultEntry( schemaManager, userDn );
             
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
                                 SchemaConstants.TOP_OC,
@@ -1155,7 +1155,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            Entry serverEntry = new DefaultClientEntry( schemaManager, groupDn );
+            Entry serverEntry = new DefaultEntry( schemaManager, groupDn );
             
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
                                 SchemaConstants.TOP_OC,
@@ -1181,7 +1181,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            Entry serverEntry = new DefaultClientEntry( schemaManager, name );
+            Entry serverEntry = new DefaultEntry( schemaManager, name );
             
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
                                 SchemaConstants.TOP_OC,
@@ -1231,7 +1231,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            Entry serverEntry = new DefaultClientEntry( schemaManager, configurationDn );
+            Entry serverEntry = new DefaultEntry( schemaManager, configurationDn );
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.ORGANIZATIONAL_UNIT_OC );
 
             serverEntry.put( SchemaConstants.OU_AT, "configuration" );
@@ -1254,7 +1254,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            Entry serverEntry = new DefaultClientEntry( schemaManager, partitionsDn );
+            Entry serverEntry = new DefaultEntry( schemaManager, partitionsDn );
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             serverEntry.put( SchemaConstants.OU_AT, "partitions" );
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
@@ -1276,7 +1276,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            Entry serverEntry = new DefaultClientEntry( schemaManager, servicesDn );
+            Entry serverEntry = new DefaultEntry( schemaManager, servicesDn );
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.ORGANIZATIONAL_UNIT_OC );
 
             serverEntry.put( SchemaConstants.OU_AT, "services" );
@@ -1299,7 +1299,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            Entry serverEntry = new DefaultClientEntry( schemaManager, interceptorsDn );
+            Entry serverEntry = new DefaultEntry( schemaManager, interceptorsDn );
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.ORGANIZATIONAL_UNIT_OC );
 
             serverEntry.put( SchemaConstants.OU_AT, "interceptors" );
@@ -1322,7 +1322,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            Entry serverEntry = new DefaultClientEntry( schemaManager, sysPrefRootDn );
+            Entry serverEntry = new DefaultEntry( schemaManager, sysPrefRootDn );
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
                 SchemaConstants.TOP_OC, 
                 SchemaConstants.ORGANIZATIONAL_UNIT_OC,
@@ -1392,7 +1392,7 @@ public class DefaultDirectoryService implements DirectoryService
 
                 try
                 {
-                    getAdminSession().add( new DefaultClientEntry( schemaManager, entry ) ); 
+                    getAdminSession().add( new DefaultEntry( schemaManager, entry ) ); 
                 }
                 catch ( Exception e )
                 {
@@ -1430,7 +1430,7 @@ public class DefaultDirectoryService implements DirectoryService
         adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), this );
         
         // @TODO - NOTE: Need to find a way to instantiate without dependency on DPN
-        partitionNexus = new DefaultPartitionNexus( new DefaultClientEntry( schemaManager, DN.EMPTY_DN ) );
+        partitionNexus = new DefaultPartitionNexus( new DefaultEntry( schemaManager, DN.EMPTY_DN ) );
         partitionNexus.setDirectoryService( this );
         partitionNexus.initialize( );
         //partitionNexus.addContextPartition( new AddContextPartitionOperationContext( adminSession, schemaService.getSchemaPartition() ) );
@@ -1486,7 +1486,7 @@ public class DefaultDirectoryService implements DirectoryService
         BufferedReader in = new BufferedReader( strIn );
 
         String line = null;
-        Entry entry = new DefaultClientEntry();
+        Entry entry = new DefaultEntry();
 
         try
         {
@@ -1557,7 +1557,7 @@ public class DefaultDirectoryService implements DirectoryService
             entry.setDn( newDn );
             
             // TODO Let's get rid of this Attributes crap
-            Entry serverEntry = new DefaultClientEntry( schemaManager, entry );
+            Entry serverEntry = new DefaultEntry( schemaManager, entry );
             return serverEntry;
         }
         catch ( Exception e )

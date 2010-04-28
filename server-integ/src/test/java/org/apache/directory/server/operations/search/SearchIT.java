@@ -61,8 +61,8 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.control.Control;
@@ -1632,7 +1632,7 @@ public class SearchIT extends AbstractLdapTestUnit
             for ( int i = 0; i < 1000; i++ )
             {
                 String dn = "cn=user" + i + "," + BASE;
-                Entry kate = new DefaultClientEntry( new DN( dn ) );
+                Entry kate = new DefaultEntry( new DN( dn ) );
 
                 kate.add( "objectclass", "top", "person" );
                 kate.add( "sn", "Bush" );

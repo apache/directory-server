@@ -35,8 +35,8 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
@@ -96,7 +96,7 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
         boolean result = true;
         
         // create the entry with the telephoneNumber attribute to compare
-        Entry testEntry = new DefaultClientEntry( entryDN );
+        Entry testEntry = new DefaultEntry( entryDN );
         testEntry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         testEntry.add( SchemaConstants.OU_AT, "testou" );
         testEntry.add( "telephoneNumber", "867-5309" ); // jenny don't change your number
@@ -276,7 +276,7 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
         LdapConnection adminCtx = getAdminConnection();
 
         DN userDN = new DN( "uid=bob,ou=users,ou=system" );
-        Entry user = new DefaultClientEntry( userDN );
+        Entry user = new DefaultEntry( userDN );
         user.add( SchemaConstants.UID_AT, "bob" );
         user.add( SchemaConstants.USER_PASSWORD_AT, "bobspassword" );
         user.add( SchemaConstants.OBJECT_CLASS_AT, "person", "organizationalPerson", "inetOrgPerson" );

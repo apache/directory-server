@@ -45,8 +45,8 @@ import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.ldif.LdapLdifException;
@@ -216,7 +216,7 @@ public class LdifPartition extends BTreePartition<Long>
                 if ( contextEntryFile.exists() )
                 {
                     LdifReader reader = new LdifReader( contextEntryFile );
-                    contextEntry = new DefaultClientEntry( schemaManager, reader.next().getEntry() );
+                    contextEntry = new DefaultEntry( schemaManager, reader.next().getEntry() );
                     reader.close();
                 }
                 else
@@ -470,7 +470,7 @@ public class LdifPartition extends BTreePartition<Long>
                     LdifEntry ldifEntry = ldifEntries.get( 0 );
                     LOG.debug( "Adding entry {}", ldifEntry );
 
-                    Entry serverEntry = new DefaultClientEntry( schemaManager, ldifEntry.getEntry() );
+                    Entry serverEntry = new DefaultEntry( schemaManager, ldifEntry.getEntry() );
 
                     if ( !serverEntry.containsAttribute( SchemaConstants.ENTRY_CSN_AT ) )
                     {
@@ -1053,7 +1053,7 @@ public class LdifPartition extends BTreePartition<Long>
             // What can we do here ???
         }
 
-        this.contextEntry = new DefaultClientEntry( schemaManager, entries.get( 0 ).getEntry() );
+        this.contextEntry = new DefaultEntry( schemaManager, entries.get( 0 ).getEntry() );
     }
 
 

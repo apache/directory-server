@@ -34,13 +34,13 @@ import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
@@ -75,7 +75,7 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
         LdifEntry akarasulu = getUserAddLdif();
 
         service.getAdminSession().add( 
-            new DefaultClientEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
+            new DefaultEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
 
         try
         {
@@ -100,7 +100,7 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
         LdifEntry akarasulu = getUserAddLdif();
 
         service.getAdminSession().add( 
-            new DefaultClientEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
+            new DefaultEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
 
         try
         {
@@ -128,7 +128,7 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
         LdifEntry akarasulu = getUserAddLdif();
         
         service.getAdminSession().add( 
-            new DefaultClientEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
+            new DefaultEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
         
         // Read the entry we just created using the akarasuluSession
         Entry readEntry = service.getAdminSession().lookup( akarasulu.getDn(), new String[]{ "userPassword"} );
@@ -170,7 +170,7 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
         LdifEntry akarasulu = getUserAddLdif();
         
         service.getAdminSession().add( 
-            new DefaultClientEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
+            new DefaultEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
 
         try
         {

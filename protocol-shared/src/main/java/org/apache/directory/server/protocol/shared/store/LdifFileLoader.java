@@ -31,9 +31,9 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.DN;
@@ -201,7 +201,7 @@ public class LdifFileLoader
                         try
                         {
                             coreSession.add( 
-                                new DefaultClientEntry( 
+                                new DefaultEntry( 
                                     coreSession.getDirectoryService().getSchemaManager(), entry ) ); 
                            count++;
                             log.info( "Created {}.", rdn );

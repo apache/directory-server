@@ -34,8 +34,8 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
@@ -90,7 +90,7 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
             DN userName = new DN( "uid=" + uid + ",ou=users,ou=system" );
             LdapConnection connection = getConnectionAs( userName, password );
 
-            Entry entry = new DefaultClientEntry( new DN( "ou=testou,ou=system" ) );
+            Entry entry = new DefaultEntry( new DN( "ou=testou,ou=system" ) );
             entry.add( SchemaConstants.OU_AT, "testou" );
             entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
             

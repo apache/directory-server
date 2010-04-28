@@ -38,11 +38,11 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.schema.SchemaService;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifRevertor;
@@ -167,7 +167,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setChangeType( ChangeType.Delete );
         forward.setDn( opContext.getDn() );
         
-        Entry reverseEntry = new DefaultClientEntry( serverEntry.getDn() );
+        Entry reverseEntry = new DefaultEntry( serverEntry.getDn() );
 
         for ( EntryAttribute attribute : serverEntry )
         {
@@ -271,7 +271,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
             forward.addModificationItem( modItem );
         }
         
-        Entry clientEntry = new DefaultClientEntry( serverEntry.getDn() );
+        Entry clientEntry = new DefaultEntry( serverEntry.getDn() );
         
         for ( EntryAttribute attribute:serverEntry )
         {

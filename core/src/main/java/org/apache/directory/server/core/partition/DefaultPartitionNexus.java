@@ -81,11 +81,11 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
@@ -305,7 +305,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
         // Add root context entry for system partition
         DN systemSuffixDn = new DN( ServerDNConstants.SYSTEM_DN );
         systemSuffixDn.normalize( schemaManager.getNormalizerMapping() );
-        Entry systemEntry = new DefaultClientEntry( schemaManager, systemSuffixDn );
+        Entry systemEntry = new DefaultEntry( schemaManager, systemSuffixDn );
 
         // Add the ObjectClasses
         systemEntry.put( SchemaConstants.OBJECT_CLASS_AT,
@@ -756,7 +756,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
         // return nothing
         if ( noAttribute )
         {
-            Entry serverEntry = new DefaultClientEntry( schemaManager, DN.EMPTY_DN );
+            Entry serverEntry = new DefaultEntry( schemaManager, DN.EMPTY_DN );
             return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchOperationContext );
         }
         
@@ -767,7 +767,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
             return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDSE ), searchOperationContext );
         }
         
-        Entry serverEntry = new DefaultClientEntry( schemaManager, DN.EMPTY_DN );
+        Entry serverEntry = new DefaultEntry( schemaManager, DN.EMPTY_DN );
         
         Entry rootDSE = getRootDSE( new GetRootDSEOperationContext( searchOperationContext.getSession() ) );
         

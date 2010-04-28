@@ -35,8 +35,8 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -97,8 +97,8 @@ public class MaxValueCountFilterTest
     public void setup() throws LdapInvalidDnException
     {
         DN entryName = new DN( "ou=test, ou=system" );
-        ENTRY = new DefaultClientEntry( schemaManager, entryName );
-        FULL_ENTRY = new DefaultClientEntry( schemaManager, entryName );
+        ENTRY = new DefaultEntry( schemaManager, entryName );
+        FULL_ENTRY = new DefaultEntry( schemaManager, entryName );
         
         ENTRY.put( "cn", "1" );
         FULL_ENTRY.put( "cn", "1", "2", "3" );

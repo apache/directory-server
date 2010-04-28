@@ -47,7 +47,7 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.junit.Before;
@@ -146,7 +146,7 @@ public class ReferralSearchIT extends AbstractLdapTestUnit
         {
             LdifEntry entry = reader.next();
             ldapServer.getDirectoryService().getAdminSession().add( 
-                new DefaultClientEntry( ldapServer.getDirectoryService().getSchemaManager(), entry.getEntry() ) ); 
+                new DefaultEntry( ldapServer.getDirectoryService().getSchemaManager(), entry.getEntry() ) ); 
         }
     }
     

@@ -39,9 +39,9 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -124,7 +124,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
     {
         DN dn = new DN( "uid=admin,ou=system" );
         
-        Entry entry = new DefaultClientEntry( dn );
+        Entry entry = new DefaultEntry( dn );
         
         String expectedSn = String.valueOf( System.currentTimeMillis() );
         String expectedCn = String.valueOf( System.currentTimeMillis() );

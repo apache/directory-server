@@ -39,8 +39,8 @@ import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
@@ -665,7 +665,7 @@ public class OneLevelScopeTest
             + SchemaConstants.O_AT_OID + "=good times co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
 
-        Entry attrs = new DefaultClientEntry( schemaManager, dn );
+        Entry attrs = new DefaultEntry( schemaManager, dn );
         attrs.add( "objectClass", "alias", "extensibleObject" );
         attrs.add( "cn", "jd" );
         attrs.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
@@ -677,7 +677,7 @@ public class OneLevelScopeTest
             + SchemaConstants.O_AT_OID + "=good times co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
 
-        attrs = new DefaultClientEntry( schemaManager, dn );
+        attrs = new DefaultEntry( schemaManager, dn );
         attrs.add( "objectClass", "person" );
         attrs.add( "cn", "jdoe" );
         attrs.add( "sn", "doe" );

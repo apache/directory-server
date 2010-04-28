@@ -80,9 +80,9 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.Csn;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -290,7 +290,7 @@ public class AddIT extends AbstractLdapTestUnit
         LdapConnection con = getClientApiConnection( ldapServer );
         
         String dn = "cn=Kate Bush," + BASE;
-        Entry kate = new DefaultClientEntry( new DN( dn ) );
+        Entry kate = new DefaultEntry( new DN( dn ) );
 
         kate.add( "objectclass", "top", "person" );
         kate.add( "sn", "Bush" );
@@ -330,7 +330,7 @@ public class AddIT extends AbstractLdapTestUnit
         LdapConnection con = getClientApiConnection( ldapServer );
 
         String dn = "cn=Kate Bush," + BASE;
-        Entry kate = new DefaultClientEntry( new DN( dn ) );
+        Entry kate = new DefaultEntry( new DN( dn ) );
         kate.add( "objectclass", "top", "person" );
         kate.add( "sn", "Bush" );
         kate.add( "cn", "Kate Bush" );
@@ -370,7 +370,7 @@ public class AddIT extends AbstractLdapTestUnit
         LdapConnection con = getClientApiConnection( ldapServer );
 
         String dn = "cn=Kate Bush," + BASE;
-        Entry kate = new DefaultClientEntry( new DN( dn ) );
+        Entry kate = new DefaultEntry( new DN( dn ) );
         
         kate.add( "objectclass", "top", "person" );
         kate.add( "sn", "Bush" );
@@ -1231,7 +1231,7 @@ public class AddIT extends AbstractLdapTestUnit
         LdapConnection con = getClientApiConnection( ldapServer );
         
         String dn = "cn=Kate Bush," + BASE;
-        Entry entry = new DefaultClientEntry( new DN( dn ) );
+        Entry entry = new DefaultEntry( new DN( dn ) );
         entry.add( "objectclass", "top", "person" );
         entry.add( "sn", "Bush" );
         entry.add( "cn", "Kate Bush" );

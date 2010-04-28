@@ -28,8 +28,8 @@ import java.io.ObjectOutputStream;
 import jdbm.helper.Serializer;
 
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,12 +114,12 @@ public class ServerEntrySerializer implements Serializer
      */
     public byte[] serialize( Object object ) throws IOException
     {
-        Entry entry = ( DefaultClientEntry ) object;
+        Entry entry = ( DefaultEntry ) object;
         
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
-        ((DefaultClientEntry)entry).serialize( out );
+        ((DefaultEntry)entry).serialize( out );
 
         // Note : we don't store the ObjectClassAttribute. I has already
         // been stored as an attribute.
@@ -147,11 +147,11 @@ public class ServerEntrySerializer implements Serializer
     {
         ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( bytes ) );
 
-        Entry serverEntry = new DefaultClientEntry( schemaManager );
+        Entry serverEntry = new DefaultEntry( schemaManager );
         
         try
         {
-            ((DefaultClientEntry)serverEntry).deserialize( in );
+            ((DefaultEntry)serverEntry).deserialize( in );
             
             return serverEntry;
         }

@@ -46,6 +46,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -53,7 +54,6 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.AVA;
@@ -339,7 +339,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         DN newDn = opContext.getNewDn();
         
         // add operational attributes after call in case the operation fails
-        Entry serverEntry = new DefaultClientEntry( schemaManager, newDn );
+        Entry serverEntry = new DefaultEntry( schemaManager, newDn );
         serverEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
         serverEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
@@ -357,7 +357,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         nextInterceptor.move( opContext );
 
         // add operational attributes after call in case the operation fails
-        Entry serverEntry = new DefaultClientEntry( schemaManager, opContext.getDn() );
+        Entry serverEntry = new DefaultEntry( schemaManager, opContext.getDn() );
         serverEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
         serverEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
@@ -377,7 +377,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         nextInterceptor.moveAndRename( opContext );
 
         // add operational attributes after call in case the operation fails
-        Entry serverEntry = new DefaultClientEntry( schemaManager, opContext.getDn() );
+        Entry serverEntry = new DefaultEntry( schemaManager, opContext.getDn() );
         serverEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
         serverEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 

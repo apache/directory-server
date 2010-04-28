@@ -28,8 +28,8 @@ import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.CursorIterator;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 public class MockCursor implements Cursor<Entry>
@@ -107,7 +107,7 @@ public class MockCursor implements Cursor<Entry>
 
     public Entry get() throws Exception
     {
-        return new DefaultClientEntry( schemaManager );
+        return new DefaultEntry( schemaManager );
     }
 
 

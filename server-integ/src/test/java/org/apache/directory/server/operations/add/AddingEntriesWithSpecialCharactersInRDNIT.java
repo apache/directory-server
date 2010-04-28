@@ -33,9 +33,9 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.name.DN;
@@ -59,7 +59,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 {
     private Entry getPersonEntry( String sn, String cn ) throws LdapException
     {
-        Entry entry = new DefaultClientEntry();
+        Entry entry = new DefaultEntry();
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "person" );
         entry.add( SchemaConstants.CN_AT, cn );
         entry.add( SchemaConstants.SN_AT, sn );
@@ -70,7 +70,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
     private Entry getOrgUnitEntry( String ou ) throws LdapException
     {
-        Entry entry = new DefaultClientEntry();
+        Entry entry = new DefaultEntry();
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         entry.add( SchemaConstants.OU_AT, ou );
         

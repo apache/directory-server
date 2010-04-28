@@ -76,10 +76,10 @@ import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
@@ -353,7 +353,7 @@ public abstract class ServerContext implements EventContext
             
             if ( result )
             {
-                Entry emptyEntry = new DefaultClientEntry( service.getSchemaManager(), DN.EMPTY_DN ); 
+                Entry emptyEntry = new DefaultEntry( service.getSchemaManager(), DN.EMPTY_DN ); 
                 return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( emptyEntry ), (SearchOperationContext)opContext );
             }
             else

@@ -40,9 +40,9 @@ import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.filter.GreaterEqNode;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -630,7 +630,7 @@ public class GreaterEqTest
 
         DN dn = new DN( "cn=jane doe,o=good times co." );
         dn.normalize( schemaManager.getNormalizerMapping() );
-        Entry attrs = new DefaultClientEntry( schemaManager, dn );
+        Entry attrs = new DefaultEntry( schemaManager, dn );
         attrs.add( "objectClass", "person" );
         attrs.add( "c-street", "3" );
         attrs.add( "cn", "jane doe" );

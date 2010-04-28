@@ -40,8 +40,8 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
@@ -102,7 +102,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
     public void testAdd() throws Exception
     {
         DN dn = new DN( "cn=testadd,ou=system" );
-        Entry entry = new DefaultClientEntry( dn ); 
+        Entry entry = new DefaultEntry( dn ); 
         entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );
         entry.add( SchemaConstants.CN_AT, "testadd_cn" );
         entry.add( SchemaConstants.SN_AT, "testadd_sn" );
@@ -121,7 +121,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
     public void testAddAsync() throws Exception
     {
         DN dn = new DN( "cn=testAsyncAdd,ou=system" );
-        Entry entry = new DefaultClientEntry( dn ); 
+        Entry entry = new DefaultEntry( dn ); 
         entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );
         entry.add( SchemaConstants.CN_AT, "testAsyncAdd_cn" );
         entry.add( SchemaConstants.SN_AT, "testAsyncAdd_sn" );

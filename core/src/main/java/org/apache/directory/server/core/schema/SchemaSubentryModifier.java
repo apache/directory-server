@@ -33,8 +33,8 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.utils.AttributesFactory;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -240,7 +240,7 @@ public class SchemaSubentryModifier
 
     private Entry getEntry( DN dn, LdapComparatorDescription comparatorDescription )
     {
-        Entry entry = new DefaultClientEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager, dn );
         
         entry.put( SchemaConstants.OBJECT_CLASS_AT, 
                     SchemaConstants.TOP_OC, 
@@ -267,7 +267,7 @@ public class SchemaSubentryModifier
 
     private Entry getEntry( DN dn, NormalizerDescription normalizerDescription )
     {
-        Entry entry = new DefaultClientEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager, dn );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, 
             SchemaConstants.TOP_OC, 
@@ -305,7 +305,7 @@ public class SchemaSubentryModifier
     
     private Entry getEntry( DN dn, SyntaxCheckerDescription syntaxCheckerDescription )
     {
-        Entry entry = new DefaultClientEntry( schemaManager, dn );
+        Entry entry = new DefaultEntry( schemaManager, dn );
         
         entry.put( SchemaConstants.OBJECT_CLASS_AT, 
             SchemaConstants.TOP_OC, 

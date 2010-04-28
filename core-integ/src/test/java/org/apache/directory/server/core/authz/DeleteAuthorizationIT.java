@@ -33,8 +33,8 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
@@ -91,7 +91,7 @@ public class DeleteAuthorizationIT extends AbstractLdapTestUnit
         DN entryDN = new DN( entryRdn + ",ou=system" );
         
         // create the entry with the telephoneNumber attribute to compare
-        Entry testEntry = new DefaultClientEntry( entryDN );
+        Entry testEntry = new DefaultEntry( entryDN );
         testEntry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         testEntry.add( SchemaConstants.OU_AT, "testou" );
 

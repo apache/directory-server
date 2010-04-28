@@ -40,8 +40,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +85,7 @@ public class AddEntryDialog extends JDialog implements ActionListener
     public AddEntryDialog(Frame parent, boolean modal, SchemaManager schemaManager )
     {
         super( parent, modal );
-        childEntry = new DefaultClientEntry( schemaManager );
+        childEntry = new DefaultEntry( schemaManager );
         childEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
         initGUI();
     }

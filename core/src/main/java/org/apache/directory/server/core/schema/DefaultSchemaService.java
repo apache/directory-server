@@ -26,10 +26,10 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -283,7 +283,7 @@ public class DefaultSchemaService implements SchemaService
      */
     private void generateSchemaSubentry( Entry mods ) throws LdapException
     {
-        Entry attrs = new DefaultClientEntry( getSchemaManager(), mods.getDn() );
+        Entry attrs = new DefaultEntry( getSchemaManager(), mods.getDn() );
 
         // add the objectClass attribute : 'top', 'subschema', 'subentry' and 'apacheSubschema' 
         attrs.put( SchemaConstants.OBJECT_CLASS_AT, 
@@ -413,7 +413,7 @@ public class DefaultSchemaService implements SchemaService
         }
 
         Set<String> setOids = new HashSet<String>();
-        Entry attrs = new DefaultClientEntry( getSchemaManager(), DN.EMPTY_DN );
+        Entry attrs = new DefaultEntry( getSchemaManager(), DN.EMPTY_DN );
         boolean returnAllOperationalAttributes = false;
 
         synchronized( lock )

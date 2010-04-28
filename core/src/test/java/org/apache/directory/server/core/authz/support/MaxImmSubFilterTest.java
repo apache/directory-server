@@ -84,7 +84,7 @@ import org.apache.directory.shared.ldap.csn.Csn;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.CursorIterator;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
@@ -126,7 +126,7 @@ public class MaxImmSubFilterTest
 
         ENTRY_NAME = new DN( "ou=test, ou=system" );
         PROTECTED_ITEMS.add( new ProtectedItem.MaxImmSub( 2 ) );
-        ENTRY = new DefaultClientEntry( service.getSchemaManager(), ENTRY_NAME );
+        ENTRY = new DefaultEntry( service.getSchemaManager(), ENTRY_NAME );
     }
 
 
@@ -1057,7 +1057,7 @@ public class MaxImmSubFilterTest
 
         public Entry get() throws Exception
         {
-            return new DefaultClientEntry( service.getSchemaManager() );
+            return new DefaultEntry( service.getSchemaManager() );
         }
 
 

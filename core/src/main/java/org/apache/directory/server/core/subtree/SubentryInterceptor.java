@@ -55,6 +55,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
@@ -63,7 +64,6 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
@@ -324,7 +324,7 @@ public class SubentryInterceptor extends BaseInterceptor
      */
     public Entry getSubentryAttributes( DN dn, Entry entryAttrs ) throws Exception
     {
-        Entry subentryAttrs = new DefaultClientEntry( schemaManager, dn );
+        Entry subentryAttrs = new DefaultEntry( schemaManager, dn );
         Iterator<String> list = subentryCache.nameIterator();
 
         while ( list.hasNext() )
@@ -1021,7 +1021,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
         }
 
-        Entry attrs = new DefaultClientEntry( schemaManager, DN.EMPTY_DN );
+        Entry attrs = new DefaultEntry( schemaManager, DN.EMPTY_DN );
         attrs.put( ocFinalState );
         return getSubentryTypes( attrs );
     }
@@ -1242,7 +1242,7 @@ public class SubentryInterceptor extends BaseInterceptor
      */
     private Entry getSubentryOperatationalAttributes( DN name, Subentry subentry ) throws Exception
     {
-        Entry operational = new DefaultClientEntry( schemaManager, name );
+        Entry operational = new DefaultEntry( schemaManager, name );
 
         if ( subentry.isAccessControlSubentry() )
         {

@@ -29,8 +29,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.directory.server.core.normalization.FilterNormalizingVisitor;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.name.DN;
@@ -123,7 +123,7 @@ public class SubtreeEvaluatorTest
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
         DN apDn = new DN( "ou=system" );
         DN entryDn = new DN( "ou=users,ou=system" );
-        Entry entry = new DefaultClientEntry( schemaManager, entryDn, "objectClass" );
+        Entry entry = new DefaultEntry( schemaManager, entryDn, "objectClass" );
 
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
@@ -143,7 +143,7 @@ public class SubtreeEvaluatorTest
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
         DN apDn = new DN( "ou=system" );
         DN entryDn = new DN( "ou=users,ou=system" );
-        Entry entry = new DefaultClientEntry( schemaManager, entryDn, "objectClass" );
+        Entry entry = new DefaultEntry( schemaManager, entryDn, "objectClass" );
 
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
@@ -165,7 +165,7 @@ public class SubtreeEvaluatorTest
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
         DN apDn = new DN( "ou=system" );
         DN entryDn = new DN( "ou=users,ou=system" );
-        Entry entry = new DefaultClientEntry( schemaManager, entryDn, "objectClass" );
+        Entry entry = new DefaultEntry( schemaManager, entryDn, "objectClass" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
@@ -200,7 +200,7 @@ public class SubtreeEvaluatorTest
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
         DN apDn = new DN( "ou=system" );
         DN entryDn = new DN( "ou=users,ou=system" );
-        Entry entry = new DefaultClientEntry( schemaManager, entryDn, "objectClass" );
+        Entry entry = new DefaultEntry( schemaManager, entryDn, "objectClass" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
@@ -235,7 +235,7 @@ public class SubtreeEvaluatorTest
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
         DN apDn = new DN( "ou=system" );
         DN entryDn = new DN( "ou=users,ou=system" );
-        Entry entry = new DefaultClientEntry( schemaManager, entryDn, "objectClass" );
+        Entry entry = new DefaultEntry( schemaManager, entryDn, "objectClass" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
@@ -270,7 +270,7 @@ public class SubtreeEvaluatorTest
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
         DN apDn = new DN( "ou=system" );
         DN entryDn = new DN( "ou=users,ou=system" );
-        Entry entry = new DefaultClientEntry( schemaManager, entryDn );
+        Entry entry = new DefaultEntry( schemaManager, entryDn );
         entry.put( "objectClass", "person" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
@@ -291,7 +291,7 @@ public class SubtreeEvaluatorTest
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
         // now change the refinement so the entry is rejected
-        entry = new DefaultClientEntry( schemaManager, entryDn );
+        entry = new DefaultEntry( schemaManager, entryDn );
         entry.put( "objectClass", "organizationalUnit" );
         
 
@@ -330,7 +330,7 @@ public class SubtreeEvaluatorTest
         DN apDn = new DN( "ou=system" );
         DN entryDn = new DN( "ou=users,ou=system" );
 
-        Entry entry = new DefaultClientEntry( schemaManager, entryDn );;
+        Entry entry = new DefaultEntry( schemaManager, entryDn );;
         entry.put( "objectClass", "person" );
         entry.put( "cn", "Ersin" );
 
@@ -340,7 +340,7 @@ public class SubtreeEvaluatorTest
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
         // now change the filter so the entry is rejected
-        entry = new DefaultClientEntry( schemaManager, entryDn );;
+        entry = new DefaultEntry( schemaManager, entryDn );;
         entry.put( "objectClass", "person" );
         entry.put( "cn", "Alex" );
 

@@ -38,9 +38,9 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 
@@ -136,7 +136,7 @@ public class AutzIntegUtils
     public static DN createGroup( String cn, String firstMemberDn ) throws Exception
     {
         DN groupDN = new DN( "cn=" + cn + ",ou=groups,ou=system" );
-        Entry entry = new DefaultClientEntry( groupDN );
+        Entry entry = new DefaultEntry( groupDN );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "groupOfUniqueNames" );
         entry.add( SchemaConstants.UNIQUE_MEMBER_AT, firstMemberDn );
         entry.add( SchemaConstants.CN_AT, cn );
@@ -173,7 +173,7 @@ public class AutzIntegUtils
     {
         LdapConnection connection = getAdminConnection();
 
-        Entry entry = new DefaultClientEntry( new DN( "uid=" + uid + ",ou=users,ou=system" ) );
+        Entry entry = new DefaultEntry( new DN( "uid=" + uid + ",ou=users,ou=system" ) );
         entry.add( SchemaConstants.UID_AT, uid );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "person", "organizationalPerson", "inetOrgPerson" );
         entry.add( SchemaConstants.SN_AT, uid );
@@ -199,7 +199,7 @@ public class AutzIntegUtils
     {
         DN groupDN = new DN( "cn=" + groupName + ",ou=groups,ou=system" );
 
-        Entry entry = new DefaultClientEntry( groupDN );
+        Entry entry = new DefaultEntry( groupDN );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, "groupOfUniqueNames" );
         // TODO might be ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED
         entry.add( SchemaConstants.UNIQUE_MEMBER_AT, "uid=admin, ou=system" );
@@ -331,7 +331,7 @@ public class AutzIntegUtils
         }
 
         // now add the A/C subentry below ou=system
-        Entry subEntry = new DefaultClientEntry( new DN( "cn=" + cn + "," + ServerDNConstants.SYSTEM_DN ) );
+        Entry subEntry = new DefaultEntry( new DN( "cn=" + cn + "," + ServerDNConstants.SYSTEM_DN ) );
         subEntry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC,
             SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC );
         subEntry.add( SchemaConstants.SUBTREE_SPECIFICATION_AT, subtree );
