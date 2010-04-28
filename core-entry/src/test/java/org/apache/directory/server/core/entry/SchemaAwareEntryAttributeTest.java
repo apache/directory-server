@@ -775,7 +775,7 @@ public class SchemaAwareEntryAttributeTest
         EntryAttribute attr6 = new DefaultEntryAttribute( atPwd );
         
         nbAdded = attr6.add( "a", (String)null );
-        assertEquals( 1, nbAdded );
+        assertEquals( 2, nbAdded );
         assertFalse( attr6.isHR() );
     }
 
@@ -830,7 +830,7 @@ public class SchemaAwareEntryAttributeTest
         EntryAttribute attr6 = new DefaultEntryAttribute( atPwd );
         
         nbAdded = attr6.add( "ab", (String)null );
-        assertEquals( 1, nbAdded );
+        assertEquals( 2, nbAdded );
         assertFalse( attr6.isHR() );
     }
 
@@ -1264,7 +1264,7 @@ public class SchemaAwareEntryAttributeTest
         EntryAttribute attr6 = new DefaultEntryAttribute( atPwd );
         
         nbAdded = attr6.add( "a", (String)null );
-        assertEquals( 1, nbAdded );
+        assertEquals( 2, nbAdded );
         assertFalse( attr6.isHR() );
     }
 

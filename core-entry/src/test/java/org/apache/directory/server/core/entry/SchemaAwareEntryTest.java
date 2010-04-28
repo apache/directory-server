@@ -63,7 +63,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-
 /**
  * Test the DefaultEntry class.
  *
@@ -287,9 +286,9 @@ public class SchemaAwareEntryTest
         
         entry.clear();
         
-        entry.add( "jpegPhoto", BYTES1, BYTES1, BYTES2 );
+        entry.add( "userPassword", BYTES1, BYTES1, BYTES2 );
         assertEquals( 1, entry.size() );
-        EntryAttribute attributeJPG = entry.get( "jpegPhoto" );
+        EntryAttribute attributeJPG = entry.get( "userPassword" );
         assertEquals( 2, attributeJPG.size() );
         assertNotNull( attributeJPG.get() );
         assertTrue( attributeJPG.contains( BYTES1 ) );
@@ -309,8 +308,8 @@ public class SchemaAwareEntryTest
          }
 
          // Cannot add String values into a binary attribute
-         entry.add( "jpegPhoto", "test", "test2" );
-         assertEquals( 0, entry.get( "jpegPhoto" ).size() );
+         entry.add( "userPassword", "test", "test2" );
+         assertEquals( 2, entry.get( "userPassword" ).size() );
     }
      
 
@@ -646,6 +645,17 @@ public class SchemaAwareEntryTest
         DN dn = new DN( "cn=test" );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
         
+        // Test that we can't inject a null AT
+        try
+        {
+            entry.add( (AttributeType)null, "test" );
+            fail();
+        }
+        catch ( IllegalArgumentException iae )
+        {
+            // Expected
+        }
+        
         // Test a simple addition
         entry.add( atDC, "test1" );
         assertNotNull( entry.get( atDC ) );
@@ -696,10 +706,33 @@ public class SchemaAwareEntryTest
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
         
         AttributeType atPassword = schemaManager.lookupAttributeTypeRegistry( "userPassword" );
+        AttributeType atJpegPhoto = schemaManager.lookupAttributeTypeRegistry( "jpegPhoto" );
         
         byte[] test1 = StringTools.getBytesUtf8( "test1" );
         byte[] test2 = StringTools.getBytesUtf8( "test2" );
         byte[] test3 = StringTools.getBytesUtf8( "test3" );
+        
+        // Test that we can't inject a null AT
+        try
+        {
+            entry.add( (AttributeType)null, test1 );
+            fail();
+        }
+        catch ( IllegalArgumentException iae )
+        {
+            // Expected
+        }
+        
+        // Test that we cannot inject a null value in an AT that does not allow it
+        try
+        {
+            entry.add( atJpegPhoto, (byte[])null );
+            fail();
+        }
+        catch ( IllegalArgumentException iae )
+        {
+            // Expected
+        }
         
         // Test a simple addition
         entry.add( atPassword, test1 );
@@ -765,6 +798,17 @@ public class SchemaAwareEntryTest
         Value<byte[]> testB1 = new BinaryValue( atPassword, b1 );
         Value<byte[]> testB2 = new BinaryValue( atPassword, b2 );
         Value<byte[]> testB3 = new BinaryValue( atPassword, b3 );
+        
+        // Test that we can't inject a null AT
+        try
+        {
+            entry.add( (AttributeType)null, test1 );
+            fail();
+        }
+        catch ( IllegalArgumentException iae )
+        {
+            // Expected
+        }
         
         // Test a simple addition in atDC
         entry.add( atDC, test1 );
@@ -2375,16 +2419,16 @@ public class SchemaAwareEntryTest
         assertNotNull( entry.get( "userPassword" ).get().get() );
         assertTrue( entry.get( "userPassword" ).contains( BYTES1 ) );
         
-        replaced = entry.put(  "jpegPhoto", BYTES1, BYTES2, BYTES1 );
-        assertNull( replaced );
-        assertEquals( 2, entry.size() );
-        assertNotNull( entry.get( "jpegPhoto" ) );
-        assertEquals( 2, entry.get( "JPEGPhoto" ).size() );
-        EntryAttribute attribute = entry.get( "jpegPhoto" );
+        replaced = entry.put(  "userPassword", BYTES1, BYTES2, BYTES1 );
+        assertNotNull( replaced );
+        assertEquals( 1, entry.size() );
+        assertNotNull( entry.get( "userPassword" ) );
+        assertEquals( 2, entry.get( "USERPassword" ).size() );
+        EntryAttribute attribute = entry.get( "userPassword" );
         assertTrue( attribute.contains( BYTES1 ) );
         assertTrue( attribute.contains( BYTES2 ) );
-        assertEquals( "jpegphoto", attribute.getId() );
-        assertEquals( "jpegPhoto", attribute.getUpId() );
+        assertEquals( "userpassword", attribute.getId() );
+        assertEquals( "userPassword", attribute.getUpId() );
     }
 
 
