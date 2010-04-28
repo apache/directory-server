@@ -888,6 +888,18 @@ public class MaxImmSubFilterTest
             // TODO Auto-generated method stub
             
         }
+
+        public String getContextCsn()
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        public void setContextCsn( String lastKnownCsn )
+        {
+            // TODO Auto-generated method stub
+            
+        }
     }
 
     

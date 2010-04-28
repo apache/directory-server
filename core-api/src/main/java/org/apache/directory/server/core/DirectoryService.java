@@ -494,4 +494,32 @@ public interface DirectoryService extends ServerEntryFactory
      * @param schemaManager The SchemaManager to associate
      */
     void setSchemaManager( SchemaManager schemaManager );
+    
+
+    /**
+     * the highest committed CSN value
+     *
+     * @param lastCommittedCsnVal the CSN value
+     */
+    void setContextCsn( String lastCommittedCsnVal );
+
+    
+    /**
+     * @return the current highest committed CSN value
+     */
+    String getContextCsn();
+    
+    
+    /**
+     * the time interval at which the DirectoryService's data is flushed to disk
+     * 
+     * @param syncPeriodMillis the syncPeriodMillis to set
+     */
+    void setSyncPeriodMillis( long syncPeriodMillis );
+    
+    
+    /**
+     * @return the syncPeriodMillis
+     */
+    long getSyncPeriodMillis();
 }

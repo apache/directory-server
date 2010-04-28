@@ -45,6 +45,7 @@ import org.apache.directory.server.core.changelog.DefaultChangeLog;
 import org.apache.directory.server.core.changelog.Tag;
 import org.apache.directory.server.core.changelog.TaggableSearchableChangeLogStore;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
@@ -229,7 +230,8 @@ public class DefaultDirectoryService implements DirectoryService
     /** The maximum size for an incoming PDU */
     private int maxPDUSize = Integer.MAX_VALUE;
 
-
+    /** the value of last successful add/update operation's CSN */
+    private String contextCsn;
     
     /**
      * The synchronizer thread. It flush data on disk periodically.
@@ -912,7 +914,19 @@ public class DefaultDirectoryService implements DirectoryService
             workerThread.start();
         }
 
+        // load the last stored valid CSN value
+        LookupOperationContext loc = new LookupOperationContext( getAdminSession() );
+        loc.setDn( systemPartition.getSuffixDn() );
+        loc.setAttrsId( new String[]{ "+" } );
+        ClonedServerEntry entry = systemPartition.lookup( loc );
         
+        EntryAttribute cntextCsnAt = entry.get( SchemaConstants.CONTEXT_CSN_AT );
+        if( cntextCsnAt != null )
+        {
+            // this is a multivalued attribute but current syncrepl provider implementation stores only ONE value at ou=system
+            contextCsn = cntextCsnAt.getString();
+        }
+
         started = true;
 
         if ( !testEntries.isEmpty() )
@@ -1694,7 +1708,7 @@ public class DefaultDirectoryService implements DirectoryService
     
     
     /**
-     * @return the syncPeriodMillis
+     * {@inheritDoc}
      */
     public long getSyncPeriodMillis()
     {
@@ -1703,10 +1717,28 @@ public class DefaultDirectoryService implements DirectoryService
 
 
     /**
-     * @param syncPeriodMillis the syncPeriodMillis to set
+     * {@inheritDoc}
      */
     public void setSyncPeriodMillis( long syncPeriodMillis )
     {
         this.syncPeriodMillis = syncPeriodMillis;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getContextCsn()
+    {
+        return contextCsn;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setContextCsn( String lastKnownCsn )
+    {
+        this.contextCsn = lastKnownCsn;
     }
 }
