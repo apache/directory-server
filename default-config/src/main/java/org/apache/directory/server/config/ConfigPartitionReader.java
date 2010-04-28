@@ -743,8 +743,7 @@ public class ConfigPartitionReader
 
         if ( syncPeriodAttr != null )
         {
-            // FIXME the DirectoryService interface doesn't have this setter
-            //dirService.setSyncPeriodMillis( Long.parseLong( syncPeriodAttr.getString() ) );
+            dirService.setSyncPeriodMillis( Long.parseLong( syncPeriodAttr.getString() ) );
         }
 
         EntryAttribute testEntryAttr = dsEntry.get( ConfigSchemaConstants.ADS_DS_TEST_ENTRIES );
