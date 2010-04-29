@@ -205,18 +205,6 @@ public abstract class AbstractXdbmPartition<ID> extends BTreePartition<ID>
     }
 
 
-    public final ID getParentId( String dn ) throws Exception
-    {
-        return store.getParentId( dn );
-    }
-
-
-    public final ID getParentId( ID childId ) throws Exception
-    {
-        return store.getParentId( childId );
-    }
-
-
     public final String getEntryUpdn( ID id ) throws Exception
     {
         return store.getEntryUpdn( id );

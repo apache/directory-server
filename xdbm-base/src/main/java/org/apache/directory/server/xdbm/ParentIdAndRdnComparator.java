@@ -18,48 +18,36 @@
  *
  */
 
-package org.apache.directory.server.core.partition.impl.btree.jdbm;
+package org.apache.directory.server.xdbm;
 
 
-import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 
 
 /**
- * A comparator used internally by the JdbmRdnIndex class
- * 
- * Note: this is a special purpose comparator which compares based on the parent IDs of
- *       the RDNs. Generic usage of this comparator is not encouraged
+ * A comparator used to compare {@link ParentIdAndRdn} stored in the RDN index.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class InternalRdnComparator extends SerializableComparator<RDN>
+public class ParentIdAndRdnComparator<ID extends Comparable<ID>> extends SerializableComparator<ParentIdAndRdn<ID>>
 {
 
     private static final long serialVersionUID = 5414960421568991202L;
 
 
-    public InternalRdnComparator( String matchingRuleOid )
+    public ParentIdAndRdnComparator( String matchingRuleOid )
     {
         super( matchingRuleOid );
     }
 
 
     @Override
-    public int compare( RDN rdn1, RDN rdn2 )
+    public int compare( ParentIdAndRdn<ID> rdn1, ParentIdAndRdn<ID> rdn2 )
     {
-        int val = rdn1.compareTo( rdn2 );
-        if ( val == 0 )
-        {
-            if ( ( rdn1._getParentId() != -1 ) && ( rdn2._getParentId() != -1 ) )
-            {
-                val = ( int ) ( rdn1._getParentId() - rdn2._getParentId() );
-            }
-        }
-
-        return val;
+        return rdn1.compareTo( rdn2 );
     }
 
 

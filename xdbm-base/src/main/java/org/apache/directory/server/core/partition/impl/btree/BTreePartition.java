@@ -431,12 +431,6 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     public abstract String getEntryDn( ID id ) throws Exception;
 
 
-    public abstract ID getParentId( String dn ) throws Exception;
-
-
-    public abstract ID getParentId( ID childId ) throws Exception;
-
-
     /**
      * Gets the user provided distinguished name.
      *

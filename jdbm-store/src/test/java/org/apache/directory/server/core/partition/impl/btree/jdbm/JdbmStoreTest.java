@@ -461,7 +461,7 @@ public class JdbmStoreTest
         assertEquals( dn.getName(), store.getEntryUpdn( 1L ) );
 
         // note that the suffix entry returns 0 for it's parent which does not exist
-        assertEquals( 0L, ( long ) store.getParentId( dn.getNormName() ) );
+        assertEquals( 0L, ( long ) store.getParentId( store.getEntryId( dn ) ) );
         assertNull( store.getParentId( 0L ) );
 
         // should NOW be allowed

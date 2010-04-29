@@ -36,6 +36,7 @@ import org.apache.directory.server.xdbm.AbstractStore;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.shared.ldap.MultiException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
@@ -72,7 +73,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     private JdbmMasterTable<Entry> master;
 
     /** the relative distinguished name index */
-    private JdbmRdnIndex<RDN, Long> rdnIdx;
+    private JdbmRdnIndex rdnIdx;
 
     /** Static declarations to avoid lookup all over the code */
     private static AttributeType OBJECT_CLASS_AT;
@@ -158,7 +159,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     {
         if ( rdnIdx == null )
         {
-            rdnIdx = new JdbmRdnIndex<RDN, Long>();
+            rdnIdx = new JdbmRdnIndex();
             rdnIdx.setAttributeId( ApacheSchemaConstants.APACHE_RDN_AT_OID );
             systemIndices.put( ApacheSchemaConstants.APACHE_RDN_AT_OID, ( JdbmIndex ) rdnIdx );
         }
@@ -321,15 +322,13 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         int dnSize = dn.size();
         int i = suffixDn.size();
 
-        RDN key = new RDN( suffixDn.getNormName() );
-        key._setParentId( 0 );
+        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, suffixDn.getRdn() );
 
         Long curEntryId = rdnIdx.forwardLookup( key );
 
         for ( ; i < dnSize; i++ )
         {
-            key = dn.getRdn( i );
-            key._setParentId( curEntryId );
+            key = new ParentIdAndRdn<Long>( curEntryId, dn.getRdn( i ) );
             curEntryId = rdnIdx.forwardLookup( key );
             if ( curEntryId == null )
             {
@@ -366,14 +365,14 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         
         do
         {
-            RDN curRdn = rdnIdx.reverseLookup( parentId );
-            parentId = curRdn._getParentId();
-            
+            ParentIdAndRdn<Long> cur = rdnIdx.reverseLookup( parentId );
+            RDN curRdn = cur.getRdn();
+            parentId = cur.getParentId();
             if ( parentId == 0 )
             {
                 // we reached the suffix, add the context entry DN
                 // we do this because the suffix can consist 
-                // of multiple RDNs, e.g. ec=example,dc=com
+                // of multiple RDNs, e.g. dc=example,dc=com
                 if ( contextEntryDn == null )
                 {
                     contextEntryDn = new DN( curRdn.getName() );
@@ -409,21 +408,20 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
      */
     private DN buildEntryDn( String dn ) throws Exception
     {
+        // TODO: what is this for???
         DN normDN = new DN( dn );
         normDN.normalize( schemaManager.getNormalizerMapping() );
 
         int dnSize = normDN.size();
         int i = suffixDn.size();
 
-        RDN key = new RDN( suffixDn.getNormName() );
-        key._setParentId( 0 );
+        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>(0L, suffixDn.getRdn());
 
         Long curEntryId = rdnIdx.forwardLookup( key );
 
         for ( ; i < dnSize; i++ )
         {
-            key = normDN.getRdn( i );
-            key._setParentId( curEntryId );
+            key = new ParentIdAndRdn<Long>(curEntryId, normDN.getRdn( i ));
             curEntryId = rdnIdx.forwardLookup( key );
         }
 
@@ -431,41 +429,15 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     }
 
 
-    /**
-     * Gets the Long id of an entry's parent using the child entry's
-     * normalized DN. Note that the suffix entry returns 0, which does not
-     * map to any entry.
-     *
-     * @param dn the normalized distinguished name of the child
-     * @return the id of the parent entry or zero if the suffix entry the
-     * normalized suffix DN string is used
-     * @throws Exception on failures to access the underlying store
-     */
-    public Long getParentId( String dn ) throws Exception
-    {
-        DN normDN = new DN( dn );
-        normDN.normalize( schemaManager.getNormalizerMapping() );
-
-        if ( suffixDn.equals( normDN ) )
-        {
-            return 0L;
-        }
-
-        normDN = buildEntryDn( dn );
-        return normDN.getRdn()._getParentId();
-    }
-
-
     public Long getParentId( Long childId ) throws Exception
     {
-        //return oneLevelIdx.reverseLookup( childId );
-        RDN rdn = rdnIdx.reverseLookup( childId );
-        if ( rdn == null )
+        ParentIdAndRdn<Long> key = rdnIdx.reverseLookup( childId );
+        if ( key == null )
         {
             return null;
         }
 
-        return rdn._getParentId();
+        return key.getParentId();
     }
 
 
@@ -599,7 +571,9 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         }
 
         // L O O K U P   T A R G E T   I D
-        targetId = rdnIdx.forwardLookup( normalizedAliasTargetDn.getRdn() );
+        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( getParentId( getEntryId( normalizedAliasTargetDn ) ),
+            normalizedAliasTargetDn.getRdn() );
+        targetId = rdnIdx.forwardLookup( key );
 
         /*
          * Check For Target Existence
@@ -725,8 +699,8 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_216, parentDn ) );
         }
 
-        rdn._setParentId( parentId );
-        rdnIdx.add( rdn, id );
+        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( parentId, rdn );
+        rdnIdx.add( key, id );
 
         EntryAttribute objectClass = entry.get( OBJECT_CLASS_AT );
 
@@ -1385,10 +1359,6 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         // gotta normalize cuz this thang is cloned and not normalized by default
         newUpdn.normalize( schemaManager.getNormalizerMapping() );
 
-        // restore the parentId from the old RDN
-        newRdn = newUpdn.getRdn();
-        newRdn._setParentId( updn.getRdn()._getParentId() );
-
         modifyDn( id, newUpdn, false ); // propagate dn changes
 
         // Update the current entry
@@ -1432,7 +1402,9 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             updn.getRdn().normalize( schemaManager.getNormalizerMapping() );
         }
 
-        rdnIdx.add( updn.getRdn(), id );
+        Long parentId = getEntryId( updn.getParent() );
+        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( parentId, updn.getRdn() );
+        rdnIdx.add( key, id );
 
         /* 
          * Read Alias Index Tuples
@@ -1538,7 +1510,6 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
 
         DN childUpdn = buildEntryDn( childId );
         RDN childRdn = childUpdn.getRdn( childUpdn.size() - 1 );
-        childRdn._setParentId( newParentId );
         DN newUpdn = buildEntryDn( newParentId );
 
         newUpdn.add( childRdn );

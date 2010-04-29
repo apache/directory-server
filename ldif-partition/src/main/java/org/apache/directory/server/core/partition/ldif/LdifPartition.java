@@ -841,20 +841,6 @@ public class LdifPartition extends BTreePartition<Long>
 
 
     @Override
-    public Long getParentId( Long childId ) throws Exception
-    {
-        return wrappedPartition.getParentId( childId );
-    }
-
-
-    @Override
-    public Long getParentId( String dn ) throws Exception
-    {
-        return wrappedPartition.getParentId( dn );
-    }
-
-
-    @Override
     public Index<String, Entry, Long> getPresenceIndex()
     {
         return wrappedPartition.getPresenceIndex();

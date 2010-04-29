@@ -386,18 +386,13 @@ public interface Store<E, ID>
 
 
     /**
-     * Gets the Long id of an entry's parent using the child entry's
-     * normalized dn. Note that the suffix entry returns 0, which does not
-     * map to any entry.
+     * Gets the ID of an entry's parent using the child entry's ID.
+     * Note that the suffix entry returns 0, which does not map to any entry.
      *
-     * @param dn the normalized distinguished name of the child
-     * @return the id of the parent entry or zero if the suffix entry the
-     * normalized suffix dn string is used
+     * @param childId the ID of the entry
+     * @return the id of the parent entry or zero if the suffix entry ID is used
      * @throws Exception on failures to access the underlying store
      */
-    ID getParentId( String dn ) throws Exception;
-
-
     ID getParentId( ID childId ) throws Exception;
 
 

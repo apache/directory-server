@@ -333,16 +333,6 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     /**
      * {@inheritDoc}
      */
-    public Long getParentId( String dn ) throws Exception
-    {
-        Long childId = ndnIdx.forwardLookup( dn );
-        return oneLevelIdx.reverseLookup( childId );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public Long getParentId( Long childId ) throws Exception
     {
         return oneLevelIdx.reverseLookup( childId );

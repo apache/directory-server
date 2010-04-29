@@ -32,10 +32,11 @@ import jdbm.recman.CacheRecordManager;
 
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.xdbm.ParentIdAndRdn;
+import org.apache.directory.server.xdbm.ParentIdAndRdnComparator;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,11 +48,11 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class JdbmRdnIndex<K, O> extends JdbmIndex<K, O>
+public class JdbmRdnIndex extends JdbmIndex<ParentIdAndRdn<Long>, Long>
 {
 
     /** A logger for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( JdbmRdnIndex.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( JdbmRdnIndex.class );
 
 
     public JdbmRdnIndex()
@@ -120,18 +121,18 @@ public class JdbmRdnIndex<K, O> extends JdbmIndex<K, O>
             throw new IOException( I18n.err( I18n.ERR_574, attribute.getName() ) );
         }
 
-        SerializableComparator comp = new InternalRdnComparator( mr.getOid() );
+        ParentIdAndRdnComparator<Long> comp = new ParentIdAndRdnComparator<Long>( mr.getOid() );
 
         LongComparator.INSTANCE.setSchemaManager( schemaManager );
 
-        forward = new JdbmTable<K, Long>( schemaManager, attribute.getName() + FORWARD_BTREE, recMan, comp, null,
-            LongSerializer.INSTANCE );
-        reverse = new JdbmTable<Long, K>( schemaManager, attribute.getName() + REVERSE_BTREE, recMan,
-            LongComparator.INSTANCE, LongSerializer.INSTANCE, null );
+        forward = new JdbmTable<ParentIdAndRdn<Long>, Long>( schemaManager, attribute.getName() + FORWARD_BTREE,
+            recMan, comp, null, LongSerializer.INSTANCE );
+        reverse = new JdbmTable<Long, ParentIdAndRdn<Long>>( schemaManager, attribute.getName() + REVERSE_BTREE,
+            recMan, LongComparator.INSTANCE, LongSerializer.INSTANCE, null );
     }
 
 
-    public void add( K rdn, Long entryId ) throws Exception
+    public void add( ParentIdAndRdn<Long> rdn, Long entryId ) throws Exception
     {
         forward.put( rdn, entryId );
         reverse.put( entryId, rdn );
@@ -140,13 +141,13 @@ public class JdbmRdnIndex<K, O> extends JdbmIndex<K, O>
 
     public void drop( Long entryId ) throws Exception
     {
-        K rdn = reverse.get( entryId );
+        ParentIdAndRdn<Long> rdn = reverse.get( entryId );
         forward.remove( rdn );
         reverse.remove( entryId );
     }
 
 
-    public void drop( K rdn, Long id ) throws Exception
+    public void drop( ParentIdAndRdn<Long> rdn, Long id ) throws Exception
     {
         long val = forward.get( rdn );
         if ( val == id )
@@ -157,7 +158,7 @@ public class JdbmRdnIndex<K, O> extends JdbmIndex<K, O>
     }
 
 
-    public K getNormalized( K rdn ) throws Exception
+    public ParentIdAndRdn<Long> getNormalized( ParentIdAndRdn<Long> rdn ) throws Exception
     {
         return rdn;
     }
