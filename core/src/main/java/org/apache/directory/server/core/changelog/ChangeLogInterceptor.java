@@ -25,7 +25,6 @@ import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -42,7 +41,6 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifRevertor;
@@ -194,7 +192,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     private Entry getAttributes( OperationContext opContext ) throws Exception
     {
         DN dn = opContext.getDn();
-        ClonedServerEntry serverEntry;
+        Entry serverEntry;
 
         // @todo make sure we're not putting in operational attributes that cannot be user modified
         if ( schemaService.isSchemaSubentry( dn.getNormName() ) )
@@ -327,7 +325,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opCtx )
         throws Exception
     {
-        ClonedServerEntry serverEntry = null;
+        Entry serverEntry = null;
         
         if ( changeLog.isEnabled() && opCtx.isFirstOperation() )
         {

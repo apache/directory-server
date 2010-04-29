@@ -363,10 +363,12 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         DN dn = new DN();
 
         long parentId = id.longValue();
+        
         do
         {
             RDN curRdn = rdnIdx.reverseLookup( parentId );
             parentId = curRdn._getParentId();
+            
             if ( parentId == 0 )
             {
                 // we reached the suffix, add the context entry DN
@@ -377,6 +379,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
                     contextEntryDn = new DN( curRdn.getName() );
                     contextEntryDn.normalize( schemaManager.getNormalizerMapping() );
                 }
+                
                 for ( RDN rdn : contextEntryDn )
                 {
                     dn.addNormalizedInOrder( rdn );
@@ -821,17 +824,22 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Entry lookup( Long id ) throws Exception
     {
-        Entry se = ( Entry ) master.get( id );
+        Entry entry = ( Entry ) master.get( id );
 
-        if ( se == null )
+        if ( entry != null )
         {
-            return null;
+            DN dn = buildEntryDn( id );
+            entry.setDn( dn );
+            
+            return entry;
         }
 
-        se.setDn( buildEntryDn( id ) );
-        return se;
+        return null;
     }
 
 

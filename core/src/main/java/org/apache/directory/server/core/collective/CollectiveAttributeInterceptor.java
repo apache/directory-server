@@ -114,11 +114,11 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
      * @param retAttrs array or attribute type to be specifically included in the result entry(s)
      * @throws NamingException if there are problems accessing subentries
      */
-    private void addCollectiveAttributes( OperationContext opContext, ClonedServerEntry entry, 
+    private void addCollectiveAttributes( OperationContext opContext, Entry entry, 
         String[] retAttrs ) throws Exception
     {
         EntryAttribute collectiveAttributeSubentries = 
-            entry.getOriginalEntry().get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+            ((ClonedServerEntry)entry).getOriginalEntry().get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
         
         /*
          * If there are no collective attribute subentries referenced then we 
@@ -136,7 +136,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
          * variance.
          */
         EntryAttribute collectiveExclusions = 
-            entry.getOriginalEntry().get( SchemaConstants.COLLECTIVE_EXCLUSIONS_AT );
+            ((ClonedServerEntry)entry).getOriginalEntry().get( SchemaConstants.COLLECTIVE_EXCLUSIONS_AT );
         Set<String> exclusions = new HashSet<String>();
         
         if ( collectiveExclusions != null )
@@ -303,10 +303,10 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     // ------------------------------------------------------------------------
 
     
-    public ClonedServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) 
+    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) 
         throws Exception
     {
-        ClonedServerEntry result = nextInterceptor.lookup( opContext );
+        Entry result = nextInterceptor.lookup( opContext );
         
         if ( result == null )
         {

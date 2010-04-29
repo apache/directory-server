@@ -55,6 +55,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
@@ -299,7 +300,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public ClonedServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws Exception
+    public Entry lookup( NextInterceptor next, LookupOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {

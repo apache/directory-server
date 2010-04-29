@@ -366,7 +366,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // will contain the subentryACI attributes that effect subentries
         DN parentDn = ( DN ) dn.clone();
         parentDn.remove( dn.size() - 1 );
-        Entry administrativeEntry = opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS ).getOriginalEntry();
+        Entry administrativeEntry = ((ClonedServerEntry)opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS )).getOriginalEntry();
         
         EntryAttribute subentryAci = administrativeEntry.get( subentryAciType );
 
@@ -507,7 +507,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return;
         }
 
-        ClonedServerEntry entry = deleteContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
+        Entry entry = deleteContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
 
         protectCriticalEntries( name );
 
@@ -522,7 +522,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( deleteContext, tuples, name, entry.getOriginalEntry() );
+        addPerscriptiveAciTuples( deleteContext, tuples, name, ((ClonedServerEntry)entry).getOriginalEntry() );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( deleteContext, tuples, name, entry );
 
@@ -540,7 +540,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         DN name = opContext.getDn();
 
         // Access the principal requesting the operation, and bypass checks if it is the admin
-        ClonedServerEntry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
+        Entry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
         
         LdapPrincipal principal = opContext.getSession().getEffectivePrincipal();
         DN principalDn = principal.getClonedName();
@@ -569,7 +569,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Set<DN> userGroups = groupCache.getGroups( principalDn.getName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( opContext, tuples, name, entry.getOriginalEntry() );
+        addPerscriptiveAciTuples( opContext, tuples, name, ((ClonedServerEntry)entry).getOriginalEntry() );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( opContext, tuples, name, entry );
 
@@ -684,17 +684,17 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return answer;
         }
 
-        ClonedServerEntry entry = entryContext.lookup( name, ByPassConstants.HAS_ENTRY_BYPASS );
+        Entry entry = entryContext.lookup( name, ByPassConstants.HAS_ENTRY_BYPASS );
         Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( entryContext, tuples, name, entry.getOriginalEntry() );
-        addEntryAciTuples( tuples, entry.getOriginalEntry() );
-        addSubentryAciTuples( entryContext, tuples, name, entry.getOriginalEntry() );
+        addPerscriptiveAciTuples( entryContext, tuples, name, ((ClonedServerEntry)entry).getOriginalEntry() );
+        addEntryAciTuples( tuples, ((ClonedServerEntry)entry).getOriginalEntry() );
+        addSubentryAciTuples( entryContext, tuples, name, ((ClonedServerEntry)entry).getOriginalEntry() );
 
         // check that we have browse access to the entry
         engine.checkPermission( schemaManager, entryContext, userGroups, principalDn, 
             principal.getAuthenticationLevel(), name, null, null,
-            BROWSE_PERMS, tuples, entry.getOriginalEntry(), null );
+            BROWSE_PERMS, tuples, ((ClonedServerEntry)entry).getOriginalEntry(), null );
 
         return next.hasEntry( entryContext );
     }
@@ -760,7 +760,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public ClonedServerEntry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws Exception
+    public Entry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws Exception
     {
         CoreSession session = lookupContext.getSession();
         DirectoryService directoryService = session.getDirectoryService();
@@ -844,7 +844,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         DN oriChildName = moveAndRenameContext.getDn();
         DN newParentName = moveAndRenameContext.getParent();
 
-        ClonedServerEntry entry = moveAndRenameContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
+        Entry entry = moveAndRenameContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
         
         LdapPrincipal principal = moveAndRenameContext.getSession().getEffectivePrincipal();
         DN principalDn = principal.getClonedName();
@@ -871,7 +871,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( moveAndRenameContext, tuples, oriChildName, entry.getOriginalEntry() );
+        addPerscriptiveAciTuples( moveAndRenameContext, tuples, oriChildName, ((ClonedServerEntry)entry).getOriginalEntry() );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( moveAndRenameContext, tuples, oriChildName, entry );
 
@@ -885,7 +885,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
         
-        ClonedServerEntry importedEntry = moveAndRenameContext.lookup( oriChildName, 
+        Entry importedEntry = moveAndRenameContext.lookup( oriChildName, 
             ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
         
         // As the target entry does not exist yet and so
@@ -923,7 +923,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         DN newParentName = moveContext.getParent();
         
         // Access the principal requesting the operation, and bypass checks if it is the admin
-        ClonedServerEntry entry = moveContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
+        Entry entry = moveContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
        
         DN newName = ( DN ) newParentName.clone();
         newName.add( oriChildName.get( oriChildName.size() - 1 ) );
@@ -950,7 +950,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( moveContext, tuples, oriChildName, entry.getOriginalEntry() );
+        addPerscriptiveAciTuples( moveContext, tuples, oriChildName, ((ClonedServerEntry)entry).getOriginalEntry() );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( moveContext, tuples, oriChildName, entry );
 
@@ -1043,7 +1043,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         String oid = opContext.getOid();
         Value<?> value = ( Value<?> ) opContext.getValue();
 
-        ClonedServerEntry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
+        Entry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
 
         LdapPrincipal principal = opContext.getSession().getEffectivePrincipal();
         DN principalDn = principal.getClonedName();
@@ -1055,7 +1055,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( opContext, tuples, name, entry.getOriginalEntry() );
+        addPerscriptiveAciTuples( opContext, tuples, name, ((ClonedServerEntry)entry).getOriginalEntry() );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( opContext, tuples, name, entry );
 
@@ -1082,7 +1082,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         }
 
         // get the present matched name
-        ClonedServerEntry entry;
+        Entry entry;
         DN matched = next.getMatchedName( opContext );
 
         // check if we have disclose on error permission for the entry at the matched dn
@@ -1094,7 +1094,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             
             Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
             Collection<ACITuple> tuples = new HashSet<ACITuple>();
-            addPerscriptiveAciTuples( opContext, tuples, matched, entry.getOriginalEntry() );
+            addPerscriptiveAciTuples( opContext, tuples, matched, ((ClonedServerEntry)entry).getOriginalEntry() );
             addEntryAciTuples( tuples, entry );
             addSubentryAciTuples( opContext, tuples, matched, entry );
 

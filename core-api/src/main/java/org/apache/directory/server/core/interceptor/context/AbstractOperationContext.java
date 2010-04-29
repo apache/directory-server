@@ -328,17 +328,18 @@ public abstract class AbstractOperationContext implements OperationContext
     }
 
 
-    public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
+    public Entry lookup( LookupOperationContext opContext ) throws Exception
     {
         if ( opContext != next )
         {
             throw new IllegalStateException( I18n.err( I18n.ERR_319 ) );
         }
+        
         return session.getDirectoryService().getOperationManager().lookup( opContext );
     }
 
 
-    public ClonedServerEntry lookup( DN dn, Collection<String> byPassed ) throws Exception
+    public Entry lookup( DN dn, Collection<String> byPassed ) throws Exception
     {
         LookupOperationContext opContext = newLookupContext( dn );
         opContext.setByPassed( byPassed );

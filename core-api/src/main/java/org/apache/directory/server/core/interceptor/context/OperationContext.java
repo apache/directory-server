@@ -297,10 +297,10 @@ public interface OperationContext
     LookupOperationContext newLookupContext( DN dn );
 
     
-    ClonedServerEntry lookup( DN dn, Collection<String> byPass ) throws Exception;
+    Entry lookup( DN dn, Collection<String> byPass ) throws Exception;
     
     
-    ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws Exception;
+    Entry lookup( LookupOperationContext lookupContext ) throws Exception;
     
     
     void modify( DN dn, List<Modification> mods, Collection<String> byPass ) throws Exception;

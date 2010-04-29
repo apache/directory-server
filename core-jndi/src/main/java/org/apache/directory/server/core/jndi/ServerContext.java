@@ -51,7 +51,6 @@ import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.OperationManager;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.event.DirectoryListener;
 import org.apache.directory.server.core.event.NotificationCriteria;
@@ -452,7 +451,7 @@ public abstract class ServerContext implements EventContext
         opCtx = new LookupOperationContext( session, target, attrIds );
         opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
         OperationManager operationManager = service.getOperationManager();
-        ClonedServerEntry serverEntry = operationManager.lookup( opCtx );
+        Entry serverEntry = operationManager.lookup( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;

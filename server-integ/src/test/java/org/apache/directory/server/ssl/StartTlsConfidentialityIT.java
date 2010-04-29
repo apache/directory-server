@@ -56,11 +56,11 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.annotations.CreateDS;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -121,7 +121,7 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
         
         ksFile = File.createTempFile( "testStore", "ks" );
         CoreSession session = ldapServer.getDirectoryService().getAdminSession();
-        ClonedServerEntry entry = session.lookup( new DN( "uid=admin,ou=system" ), CERT_IDS );
+        Entry entry = session.lookup( new DN( "uid=admin,ou=system" ), CERT_IDS );
         byte[] userCertificate = entry.get( CERT_IDS[0] ).getBytes();
         assertNotNull( userCertificate );
 

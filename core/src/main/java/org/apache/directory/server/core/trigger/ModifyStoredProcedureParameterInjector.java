@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
@@ -101,7 +100,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
     };
     
     
-    private ClonedServerEntry getEntry( OperationContext opContext ) throws Exception
+    private Entry getEntry( OperationContext opContext ) throws Exception
     {
         /**
          * Using LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS here to exclude operational attributes

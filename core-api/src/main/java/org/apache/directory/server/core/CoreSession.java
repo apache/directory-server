@@ -26,7 +26,6 @@ import java.util.Set;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.changelog.LogChange;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
@@ -362,7 +361,7 @@ public interface CoreSession
      * @param dn the name of the entry to lookup
      * @throws Exception if there are failures while looking up the entry
      */
-    ClonedServerEntry lookup( DN dn ) throws Exception;
+    Entry lookup( DN dn ) throws Exception;
 
     /**
      * Looks up an entry in the server returning all attributes: both user and
@@ -372,7 +371,7 @@ public interface CoreSession
      * @param atIds The list of attributes to return
      * @throws Exception if there are failures while looking up the entry
      */
-    ClonedServerEntry lookup( DN dn, String[] atIds ) throws Exception;
+    Entry lookup( DN dn, String[] atIds ) throws Exception;
 
     
     /**

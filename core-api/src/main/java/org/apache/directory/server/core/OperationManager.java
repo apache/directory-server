@@ -41,6 +41,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
 
 
@@ -116,7 +117,7 @@ public interface OperationManager
     /**
      * TODO document after determining if this method should be here.
      */
-    ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception;
+    Entry lookup( LookupOperationContext opContext ) throws Exception;
 
 
     /**

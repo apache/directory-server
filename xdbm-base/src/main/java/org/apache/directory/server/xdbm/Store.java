@@ -420,6 +420,13 @@ public interface Store<E, ID>
     void add( Entry entry ) throws Exception;
 
 
+    /**
+     * Get back an entry knowing its ID
+     *
+     * @param id The Entry ID we want to get back
+     * @return The found Entry, or null if not found
+     * @throws Exception If the lookup failed for any reason (except a not found entry)
+     */
     Entry lookup( ID id ) throws Exception;
 
 

@@ -49,6 +49,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
 
 
@@ -174,7 +175,7 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public ClonedServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws Exception
+    public Entry lookup( NextInterceptor next, LookupOperationContext opContext ) throws Exception
     {
         return next.lookup( opContext );
     }

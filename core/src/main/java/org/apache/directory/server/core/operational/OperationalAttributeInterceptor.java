@@ -390,9 +390,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public ClonedServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
+    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
     {
-        ClonedServerEntry result = nextInterceptor.lookup( opContext );
+        Entry result = nextInterceptor.lookup( opContext );
         
         if ( result == null )
         {

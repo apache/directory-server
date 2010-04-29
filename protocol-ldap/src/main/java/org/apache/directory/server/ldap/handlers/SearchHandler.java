@@ -41,6 +41,7 @@ import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedR
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControl;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -1025,7 +1026,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
     public void handleWithReferrals( LdapSession session, DN reqTargetDn, InternalSearchRequest req ) throws LdapException
     {
         InternalLdapResult result = req.getResultResponse().getLdapResult();
-        ClonedServerEntry entry = null;
+        Entry entry = null;
         boolean isReferral = false;
         boolean isparentReferral = false;
         ReferralManager referralManager = session.getCoreSession().getDirectoryService().getReferralManager();
@@ -1091,7 +1092,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
                 {
                     LOG.debug( "Entry is a referral: {}", entry );
                     
-                    handleReferralEntryForSearch( session, ( InternalSearchRequest ) req, entry );
+                    handleReferralEntryForSearch( session, ( InternalSearchRequest ) req, ((ClonedServerEntry)entry) );
 
                     return;
                 }
@@ -1112,7 +1113,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
             else
             {
                 // The entry is null : it has a parent referral.
-                ClonedServerEntry referralAncestor = null;
+                Entry referralAncestor = null;
     
                 try
                 {
@@ -1135,7 +1136,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
                 // if we get here then we have a valid referral ancestor
                 try
                 {
-                    InternalReferral referral = getReferralOnAncestorForSearch( session, ( InternalSearchRequest ) req, referralAncestor );
+                    InternalReferral referral = getReferralOnAncestorForSearch( session, ( InternalSearchRequest ) req, ((ClonedServerEntry)referralAncestor) );
                     
                     result.setResultCode( ResultCodeEnum.REFERRAL );
                     result.setReferral( referral );

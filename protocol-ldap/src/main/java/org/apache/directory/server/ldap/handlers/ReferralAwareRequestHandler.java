@@ -26,6 +26,7 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -123,11 +124,11 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
      * @return the farthest referral ancestor or null
      * @throws Exception if there are problems during this search
      */
-    public static final ClonedServerEntry getFarthestReferralAncestor( LdapSession session, DN target ) 
+    public static final Entry getFarthestReferralAncestor( LdapSession session, DN target ) 
         throws Exception
     {
-        ClonedServerEntry entry;
-        ClonedServerEntry farthestReferralAncestor = null;
+        Entry entry;
+        Entry farthestReferralAncestor = null;
         DN dn = ( DN ) target.clone();
         
         try
@@ -147,7 +148,7 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
             {
                 entry = session.getCoreSession().lookup( dn );
 
-                if ( isEntryReferral( entry ) )
+                if ( isEntryReferral( ((ClonedServerEntry)entry) ) )
                 {
                     farthestReferralAncestor = entry;
                 }

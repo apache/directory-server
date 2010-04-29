@@ -497,7 +497,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         
         try
         {
-            ClonedServerEntry entry = session.lookup( new DN( dn ), attributes );
+            Entry entry = session.lookup( new DN( dn ), attributes );
             resp = new SearchResultEntry();
             resp.setEntry( entry );
         }
@@ -518,7 +518,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         SearchResultEntry resp = null;
         try
         {
-            ClonedServerEntry entry = session.lookup( new DN( dn ) );
+            Entry entry = session.lookup( new DN( dn ) );
             resp = new SearchResultEntry();
             resp.setEntry( entry );
         }

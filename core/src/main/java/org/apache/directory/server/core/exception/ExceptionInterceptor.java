@@ -173,7 +173,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         {
             // We don't know if the parent is an alias or not, so we will launch a 
             // lookup, and update the cache if it's not an alias
-            ClonedServerEntry attrs;
+            Entry attrs;
             
             try
             {
@@ -188,7 +188,7 @@ public class ExceptionInterceptor extends BaseInterceptor
                 throw e2;
             }
             
-            EntryAttribute objectClass = attrs.getOriginalEntry().get( SchemaConstants.OBJECT_CLASS_AT );
+            EntryAttribute objectClass = ((ClonedServerEntry)attrs).getOriginalEntry().get( SchemaConstants.OBJECT_CLASS_AT );
             
             if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
             {
@@ -280,18 +280,25 @@ public class ExceptionInterceptor extends BaseInterceptor
     /**
      * Checks to see the base being searched exists, otherwise throws the appropriate LdapException.
      */
-    public ClonedServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
+    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
     {
-        if ( opContext.getDn().getNormName().equals( subschemSubentryDn.getNormName() ) )
+        DN dn = opContext.getDn();
+        
+        if ( dn.equals( subschemSubentryDn ) )
         {
             return nexus.getRootDSE( null );
         }
         
-        // check if entry to lookup exists
-        String msg = "Attempt to lookup non-existant entry: ";
-        assertHasEntry( nextInterceptor, opContext, msg, opContext.getDn() );
+        Entry result = nextInterceptor.lookup( opContext );
+        
+        if ( result == null )
+        {
+            LdapNoSuchObjectException e = new LdapNoSuchObjectException( "Attempt to lookup non-existant entry: " + dn.getName() );
 
-        return nextInterceptor.lookup( opContext );
+            throw e;
+        }
+        
+        return result; 
     }
 
 
@@ -552,7 +559,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     private void assertHasEntry( NextInterceptor nextInterceptor, OperationContext opContext, 
         String msg, DN dn ) throws Exception
     {
-        if ( subschemSubentryDn.getNormName().equals( dn.getNormName() ) )
+        if ( subschemSubentryDn.equals( dn ) )
         {
             return;
         }

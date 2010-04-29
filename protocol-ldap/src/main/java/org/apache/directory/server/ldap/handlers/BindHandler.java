@@ -36,6 +36,7 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
@@ -130,7 +131,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
              * detect conditions where ancestors of the DN are referrals
              * and delegate appropriately.
              */
-            ClonedServerEntry principalEntry = null;
+            Entry principalEntry = null;
 
             try
             {
@@ -151,7 +152,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
                 return;
             }
 
-            if ( principalEntry.getOriginalEntry().contains( SchemaConstants.OBJECT_CLASS_AT,
+            if ( ((ClonedServerEntry)principalEntry).getOriginalEntry().contains( SchemaConstants.OBJECT_CLASS_AT,
                 SchemaConstants.REFERRAL_OC ) )
             {
                 LOG.info( "Bind principalDn points to referral." );

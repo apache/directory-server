@@ -383,7 +383,7 @@ public final class SchemaPartition extends AbstractPartition
     public void move( MoveOperationContext opContext ) throws Exception
     {
         boolean cascade = opContext.hasRequestControl( CascadeControl.CONTROL_OID );
-        ClonedServerEntry entry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
+        Entry entry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
         synchronizer.move( opContext, entry, cascade );
         wrapped.move( opContext );
         updateSchemaModificationAttributes( opContext );
@@ -396,7 +396,7 @@ public final class SchemaPartition extends AbstractPartition
     public void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception
     {
         boolean cascade = opContext.hasRequestControl( CascadeControl.CONTROL_OID );
-        ClonedServerEntry entry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
+        Entry entry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
         synchronizer.moveAndRename( opContext, entry, cascade );
         wrapped.moveAndRename( opContext );
         updateSchemaModificationAttributes( opContext );

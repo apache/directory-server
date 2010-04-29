@@ -597,7 +597,7 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
+    public Entry lookup( LookupOperationContext opContext ) throws Exception
     {
         LOG.debug( ">> LookupOperation : {}", opContext );
         

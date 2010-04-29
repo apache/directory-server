@@ -778,10 +778,10 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Search for an entry, using its DN. Binary attributes and ObjectClass attribute are removed.
      */
-    public ClonedServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext )
+    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext )
         throws Exception
     {
-        ClonedServerEntry result = nextInterceptor.lookup( opContext );
+        Entry result = nextInterceptor.lookup( opContext );
 
         if ( result == null )
         {

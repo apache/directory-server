@@ -472,7 +472,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public ClonedServerEntry lookup( DN dn ) throws Exception
+    public Entry lookup( DN dn ) throws Exception
     {
         OperationManager operationManager = directoryService.getOperationManager();
         return operationManager.lookup( new LookupOperationContext( this, dn ) );
@@ -482,7 +482,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public ClonedServerEntry lookup( DN dn, String[] attrId ) throws Exception
+    public Entry lookup( DN dn, String[] attrId ) throws Exception
     {
         OperationManager operationManager = directoryService.getOperationManager();
         return operationManager.lookup( 

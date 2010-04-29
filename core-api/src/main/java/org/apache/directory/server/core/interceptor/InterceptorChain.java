@@ -57,6 +57,7 @@ import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -214,11 +215,11 @@ public class InterceptorChain
         }
     };
 
-    private final Map<String, Entry> name2entry = new HashMap<String, Entry>();
+    private final Map<String, Element> name2entry = new HashMap<String, Element>();
 
-    private final Entry tail;
+    private final Element tail;
 
-    private Entry head;
+    private Element head;
 
     private DirectoryService directoryService;
 
@@ -228,7 +229,7 @@ public class InterceptorChain
      */
     public InterceptorChain()
     {
-        tail = new Entry( "tail", null, null, FINAL_INTERCEPTOR );
+        tail = new Element( "tail", null, null, FINAL_INTERCEPTOR );
         head = tail;
     }
 
@@ -280,8 +281,8 @@ public class InterceptorChain
      */
     public synchronized void destroy()
     {
-        List<Entry> entries = new ArrayList<Entry>();
-        Entry e = tail;
+        List<Element> entries = new ArrayList<Element>();
+        Element e = tail;
 
         do
         {
@@ -290,7 +291,7 @@ public class InterceptorChain
         }
         while ( e != null );
 
-        for ( Entry entry:entries )
+        for ( Element entry:entries )
         {
             if ( entry != tail )
             {
@@ -314,7 +315,7 @@ public class InterceptorChain
      */
     public Interceptor get( String interceptorName )
     {
-        Entry e = name2entry.get( interceptorName );
+        Element e = name2entry.get( interceptorName );
         if ( e == null )
         {
             return null;
@@ -331,7 +332,7 @@ public class InterceptorChain
     public synchronized List<Interceptor> getAll()
     {
         List<Interceptor> result = new ArrayList<Interceptor>();
-        Entry e = head;
+        Element e = head;
 
         do
         {
@@ -359,7 +360,7 @@ public class InterceptorChain
     public synchronized void addBefore( String nextInterceptorName, Interceptor interceptor )
         throws Exception
     {
-        Entry e = name2entry.get( nextInterceptorName );
+        Element e = name2entry.get( nextInterceptorName );
         if ( e == null )
         {
             throw new ConfigurationException( I18n.err( I18n.ERR_330, nextInterceptorName ) );
@@ -377,7 +378,7 @@ public class InterceptorChain
     public synchronized void addAfter( String prevInterceptorName, Interceptor interceptor )
         throws Exception
     {
-        Entry e = name2entry.get( prevInterceptorName );
+        Element e = name2entry.get( prevInterceptorName );
         if ( e == null )
         {
             throw new ConfigurationException( I18n.err( I18n.ERR_330, prevInterceptorName ) );
@@ -407,9 +408,9 @@ public class InterceptorChain
      */
     private String deregister( String name ) throws ConfigurationException
     {
-        Entry entry = checkOldName( name );
-        Entry prevEntry = entry.prevEntry;
-        Entry nextEntry = entry.nextEntry;
+        Element entry = checkOldName( name );
+        Element prevEntry = entry.prevEntry;
+        Element nextEntry = entry.nextEntry;
 
         if ( nextEntry == null )
         {
@@ -435,27 +436,27 @@ public class InterceptorChain
     }
 
     
-    private void register0( Interceptor interceptor, Entry nextEntry ) throws Exception
+    private void register0( Interceptor interceptor, Element nextEntry ) throws Exception
     {
         String name = interceptor.getName();
 
         interceptor.init( directoryService );
-        Entry newEntry;
+        Element newEntry;
         if ( nextEntry == head )
         {
-            newEntry = new Entry( interceptor.getName(), null, head, interceptor );
+            newEntry = new Element( interceptor.getName(), null, head, interceptor );
             head.prevEntry = newEntry;
             head = newEntry;
         }
         else if ( head == tail )
         {
-            newEntry = new Entry( interceptor.getName(), null, tail, interceptor );
+            newEntry = new Element( interceptor.getName(), null, tail, interceptor );
             tail.prevEntry = newEntry;
             head = newEntry;
         }
         else
         {
-            newEntry = new Entry( interceptor.getName(), nextEntry.prevEntry, nextEntry, interceptor );
+            newEntry = new Element( interceptor.getName(), nextEntry.prevEntry, nextEntry, interceptor );
             nextEntry.prevEntry.nextEntry = newEntry;
             nextEntry.prevEntry = newEntry;
         }
@@ -471,9 +472,9 @@ public class InterceptorChain
      * @return An interceptor entry with the specified name.
      * @throws javax.naming.ConfigurationException if no interceptor has that name
      */
-    private Entry checkOldName( String name ) throws ConfigurationException
+    private Element checkOldName( String name ) throws ConfigurationException
     {
-        Entry e = name2entry.get( name );
+        Element e = name2entry.get( name );
 
         if ( e == null )
         {
@@ -503,7 +504,7 @@ public class InterceptorChain
      *
      * @return the first entry to use.
      */
-    private Entry getStartingEntry()
+    private Element getStartingEntry()
     {
         if ( InvocationStack.getInstance().isEmpty() )
         {
@@ -522,7 +523,7 @@ public class InterceptorChain
             return tail;
         }
 
-        Entry next = head;
+        Element next = head;
         
         while ( next != tail )
         {
@@ -542,7 +543,7 @@ public class InterceptorChain
 
     public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws Exception
     {
-        Entry entry = getStartingEntry();
+        Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
 
@@ -564,7 +565,7 @@ public class InterceptorChain
 
     public DN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception
     {
-        Entry entry = getStartingEntry();
+        Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
 
@@ -586,7 +587,7 @@ public class InterceptorChain
 
     public DN getSuffix( GetSuffixOperationContext opContext ) throws Exception
     {
-        Entry entry = getStartingEntry();
+        Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
 
@@ -608,7 +609,7 @@ public class InterceptorChain
 
     public boolean compare( CompareOperationContext opContext ) throws Exception
     {
-        Entry entry = getStartingEntry();
+        Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
 
@@ -630,7 +631,7 @@ public class InterceptorChain
 
     public Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception
     {
-        Entry entry = getStartingEntry();
+        Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
 
@@ -652,7 +653,7 @@ public class InterceptorChain
 
     public void addContextPartition( AddContextPartitionOperationContext opContext ) throws Exception
     {
-        Entry entry = getStartingEntry();
+        Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
 
@@ -674,7 +675,7 @@ public class InterceptorChain
 
     public void removeContextPartition( RemoveContextPartitionOperationContext opContext ) throws Exception
     {
-        Entry entry = getStartingEntry();
+        Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
 
@@ -714,7 +715,7 @@ public class InterceptorChain
                 // We have to use the admin session here, otherwise we may have
                 // trouble reading the entry due to insufficient access rights 
                 CoreSession adminSession = opContext.getSession().getDirectoryService().getAdminSession();
-                opContext.setEntry( adminSession.lookup( opContext.getDn(), SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES_ARRAY ) );
+                opContext.setEntry( (ClonedServerEntry)adminSession.lookup( opContext.getDn(), SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES_ARRAY ) );
             }
             catch ( Exception e )
             {
@@ -726,7 +727,7 @@ public class InterceptorChain
 
     public void delete( DeleteOperationContext opContext ) throws Exception
     {
-        Entry entry = getStartingEntry();
+        Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         eagerlyPopulateFields( opContext );
@@ -748,7 +749,7 @@ public class InterceptorChain
 
     public void add( AddOperationContext opContext ) throws Exception
     {
-        Entry node = getStartingEntry();
+        Element node = getStartingEntry();
         Interceptor head = node.interceptor;
         NextInterceptor next = node.nextInterceptor;
 
@@ -769,7 +770,7 @@ public class InterceptorChain
 
     public void bind( BindOperationContext opContext ) throws Exception
     {
-        Entry node = getStartingEntry();
+        Element node = getStartingEntry();
         Interceptor head = node.interceptor;
         NextInterceptor next = node.nextInterceptor;
         eagerlyPopulateFields( opContext );
@@ -791,7 +792,7 @@ public class InterceptorChain
 
     public void unbind( UnbindOperationContext opContext ) throws Exception
     {
-        Entry node = getStartingEntry();
+        Element node = getStartingEntry();
         Interceptor head = node.interceptor;
         NextInterceptor next = node.nextInterceptor;
 
@@ -812,7 +813,7 @@ public class InterceptorChain
 
     public void modify( ModifyOperationContext opContext ) throws Exception
     {
-        Entry entry = getStartingEntry();
+        Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         eagerlyPopulateFields( opContext );
@@ -834,7 +835,7 @@ public class InterceptorChain
 
     public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
     {
-        Entry entry = getStartingEntry();
+        Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         eagerlyPopulateFields( opContext );
@@ -858,7 +859,7 @@ public class InterceptorChain
     public EntryFilteringCursor search( SearchOperationContext opContext )
         throws Exception
     {
-        Entry entry = getStartingEntry();
+        Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         eagerlyPopulateFields( opContext );
@@ -879,9 +880,9 @@ public class InterceptorChain
     }
 
 
-    public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
+    public Entry lookup( LookupOperationContext opContext ) throws Exception
     {
-        Entry entry = getStartingEntry();
+        Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
 
@@ -903,7 +904,7 @@ public class InterceptorChain
 
     public boolean hasEntry( EntryOperationContext opContext ) throws Exception
     {
-        Entry entry = getStartingEntry();
+        Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
 
@@ -925,7 +926,7 @@ public class InterceptorChain
 
     public void rename( RenameOperationContext opContext ) throws Exception
     {
-        Entry entry = getStartingEntry();
+        Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         eagerlyPopulateFields( opContext );
@@ -947,7 +948,7 @@ public class InterceptorChain
 
     public void move( MoveOperationContext opContext ) throws Exception
     {
-        Entry entry = getStartingEntry();
+        Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         eagerlyPopulateFields( opContext );
@@ -969,7 +970,7 @@ public class InterceptorChain
 
     public void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception
     {
-        Entry entry = getStartingEntry();
+        Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         eagerlyPopulateFields( opContext );
@@ -991,11 +992,11 @@ public class InterceptorChain
     /**
      * Represents an internal entry of this chain.
      */
-    private class Entry
+    private class Element
     {
-        private volatile Entry prevEntry;
+        private volatile Element prevEntry;
 
-        private volatile Entry nextEntry;
+        private volatile Element nextEntry;
 
         private final String name;
 
@@ -1010,7 +1011,7 @@ public class InterceptorChain
         }
 
 
-        private Entry( String name, Entry prevEntry, Entry nextEntry, Interceptor interceptor )
+        private Element( String name, Element prevEntry, Element nextEntry, Interceptor interceptor )
         {
             this.name = name;
 
@@ -1024,17 +1025,17 @@ public class InterceptorChain
             this.interceptor = interceptor;
             this.nextInterceptor = new NextInterceptor()
             {
-                private Entry getNextEntry()
+                private Element getNextEntry()
                 {
                     if ( InvocationStack.getInstance().isEmpty() )
                     {
-                        return Entry.this.nextEntry;
+                        return Element.this.nextEntry;
                     }
 
                     OperationContext opContext = InvocationStack.getInstance().peek();
                     if ( !opContext.hasBypass() )
                     {
-                        return Entry.this.nextEntry;
+                        return Element.this.nextEntry;
                     }
 
                     //  I don't think we really need this since this check is performed by the chain when
@@ -1045,7 +1046,7 @@ public class InterceptorChain
                     //                        return tail;
                     //                    }
 
-                    Entry next = Entry.this.nextEntry;
+                    Element next = Element.this.nextEntry;
                     while ( next != tail )
                     {
                         if ( opContext.isBypassed( next.getName() ) )
@@ -1064,7 +1065,7 @@ public class InterceptorChain
 
                 public boolean compare( CompareOperationContext opContext ) throws Exception
                 {
-                    Entry next = getNextEntry();
+                    Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
 
                     try
@@ -1085,7 +1086,7 @@ public class InterceptorChain
 
                 public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws Exception
                 {
-                    Entry next = getNextEntry();
+                    Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
 
                     try
@@ -1106,7 +1107,7 @@ public class InterceptorChain
 
                 public DN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception
                 {
-                    Entry next = getNextEntry();
+                    Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
 
                     try
@@ -1127,7 +1128,7 @@ public class InterceptorChain
 
                 public DN getSuffix( GetSuffixOperationContext opContext ) throws Exception
                 {
-                    Entry next = getNextEntry();
+                    Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
 
                     try
@@ -1148,7 +1149,7 @@ public class InterceptorChain
 
                 public Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception
                 {
-                    Entry next = getNextEntry();
+                    Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
 
                     try
@@ -1169,7 +1170,7 @@ public class InterceptorChain
 
                 public void delete( DeleteOperationContext opContext ) throws Exception
                 {
-                    Entry next = getNextEntry();
+                    Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
 
                     try
@@ -1189,7 +1190,7 @@ public class InterceptorChain
 
                 public void add( AddOperationContext opContext ) throws Exception
                 {
-                    Entry next = getNextEntry();
+                    Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
 
                     try
@@ -1209,7 +1210,7 @@ public class InterceptorChain
 
                 public void modify( ModifyOperationContext opContext ) throws Exception
                 {
-                    Entry next = getNextEntry();
+                    Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
 
                     try
@@ -1229,7 +1230,7 @@ public class InterceptorChain
                 
                 public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
                 {
-                    Entry next = getNextEntry();
+                    Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
 
                     try
@@ -1251,7 +1252,7 @@ public class InterceptorChain
                 public EntryFilteringCursor search( SearchOperationContext opContext )
                     throws Exception
                 {
-                    Entry next = getNextEntry();
+                    Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
 
                     try
@@ -1270,9 +1271,9 @@ public class InterceptorChain
                 }
 
 
-                public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
+                public Entry lookup( LookupOperationContext opContext ) throws Exception
                 {
-                    Entry next = getNextEntry();
+                    Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
 
                     try
@@ -1293,7 +1294,7 @@ public class InterceptorChain
 
                 public boolean hasEntry( EntryOperationContext opContext ) throws Exception
                 {
-                    Entry next = getNextEntry();
+                    Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
 
                     try
@@ -1314,7 +1315,7 @@ public class InterceptorChain
 
                 public void rename( RenameOperationContext opContext ) throws Exception
                 {
-                    Entry next = getNextEntry();
+                    Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
 
                     try
@@ -1334,7 +1335,7 @@ public class InterceptorChain
 
                 public void move( MoveOperationContext opContext ) throws Exception
                 {
-                    Entry next = getNextEntry();
+                    Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
 
                     try
@@ -1355,7 +1356,7 @@ public class InterceptorChain
                 public void moveAndRename( MoveAndRenameOperationContext opContext )
                     throws Exception
                 {
-                    Entry next = getNextEntry();
+                    Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
 
                     try
@@ -1375,7 +1376,7 @@ public class InterceptorChain
 
                 public void bind( BindOperationContext opContext ) throws Exception
                 {
-                    Entry next = getNextEntry();
+                    Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
     
                     try
@@ -1395,7 +1396,7 @@ public class InterceptorChain
 
                 public void unbind( UnbindOperationContext opContext ) throws Exception
                 {
-                    Entry next = getNextEntry();
+                    Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
 
                     try
@@ -1415,7 +1416,7 @@ public class InterceptorChain
 
                 public void addContextPartition( AddContextPartitionOperationContext opContext ) throws Exception
                 {
-                    Entry next = getNextEntry();
+                    Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
 
                     try
@@ -1436,7 +1437,7 @@ public class InterceptorChain
 
                 public void removeContextPartition( RemoveContextPartitionOperationContext opContext ) throws Exception
                 {
-                    Entry next = getNextEntry();
+                    Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
 
                     try

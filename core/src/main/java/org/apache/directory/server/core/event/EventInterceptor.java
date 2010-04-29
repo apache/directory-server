@@ -189,7 +189,7 @@ public class EventInterceptor extends BaseInterceptor
 
     public void modify( NextInterceptor next, final ModifyOperationContext opContext ) throws Exception
     {
-        ClonedServerEntry oriEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
+        Entry oriEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
         List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), oriEntry );
         
         next.modify( opContext );
@@ -200,8 +200,8 @@ public class EventInterceptor extends BaseInterceptor
         }
 
         // Get the modified entry
-        ClonedServerEntry alteredEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
-        opContext.setAlteredEntry( alteredEntry );
+        Entry alteredEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
+        opContext.setAlteredEntry( (ClonedServerEntry)alteredEntry );
 
         for ( final RegistrationEntry registration : selecting )
         {
@@ -215,7 +215,7 @@ public class EventInterceptor extends BaseInterceptor
 
     public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
     {
-        ClonedServerEntry oriEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
+        Entry oriEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
         List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), oriEntry );
         
         next.rename( opContext );
@@ -226,8 +226,8 @@ public class EventInterceptor extends BaseInterceptor
         }
 
         // Get the modifed entry
-        ClonedServerEntry alteredEntry = opContext.lookup( opContext.getNewDn(), ByPassConstants.LOOKUP_BYPASS );
-        opContext.setAlteredEntry( alteredEntry );
+        Entry alteredEntry = opContext.lookup( opContext.getNewDn(), ByPassConstants.LOOKUP_BYPASS );
+        opContext.setAlteredEntry( (ClonedServerEntry)alteredEntry );
         
         for ( final RegistrationEntry registration : selecting )
         {
@@ -241,7 +241,7 @@ public class EventInterceptor extends BaseInterceptor
 
     public void moveAndRename( NextInterceptor next, final MoveAndRenameOperationContext opContext ) throws Exception
     {
-        ClonedServerEntry oriEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
+        Entry oriEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
         List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), oriEntry );
         next.moveAndRename( opContext );
 
@@ -250,7 +250,7 @@ public class EventInterceptor extends BaseInterceptor
             return;
         }
 
-        opContext.setAlteredEntry( opContext.lookup( opContext.getNewDn(), ByPassConstants.LOOKUP_BYPASS ) );
+        opContext.setAlteredEntry( (ClonedServerEntry)opContext.lookup( opContext.getNewDn(), ByPassConstants.LOOKUP_BYPASS ) );
         
         for ( final RegistrationEntry registration : selecting )
         {
@@ -270,7 +270,7 @@ public class EventInterceptor extends BaseInterceptor
 
     public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
     {
-        ClonedServerEntry oriEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
+        Entry oriEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
         List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), oriEntry );
         
         next.move( opContext );

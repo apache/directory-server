@@ -302,7 +302,7 @@ public class TriggerInterceptor extends BaseInterceptor
         }
         
         // Gather supplementary data.
-        ClonedServerEntry deletedEntry = deleteContext.lookup( name , ByPassConstants.LOOKUP_BYPASS );
+        Entry deletedEntry = deleteContext.lookup( name , ByPassConstants.LOOKUP_BYPASS );
         
         StoredProcedureParameterInjector injector = new DeleteStoredProcedureParameterInjector( deleteContext, name );
 
@@ -335,7 +335,7 @@ public class TriggerInterceptor extends BaseInterceptor
         DN normName = opContext.getDn();
         
         // Gather supplementary data.
-        ClonedServerEntry modifiedEntry = opContext.lookup( normName, ByPassConstants.LOOKUP_BYPASS );
+        Entry modifiedEntry = opContext.lookup( normName, ByPassConstants.LOOKUP_BYPASS );
         
         StoredProcedureParameterInjector injector = new ModifyStoredProcedureParameterInjector( opContext );
 
@@ -416,7 +416,7 @@ public class TriggerInterceptor extends BaseInterceptor
         }
         
         // Gather supplementary data.        
-        ClonedServerEntry movedEntry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
+        Entry movedEntry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
         
         DN oldRDN = new DN( oriChildName.getRdn().getName() );
         DN oldSuperiorDN = ( DN ) oriChildName.clone();
@@ -439,7 +439,7 @@ public class TriggerInterceptor extends BaseInterceptor
         // will not be valid at the new location.
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
-        ClonedServerEntry importedEntry = opContext.lookup( oriChildName, 
+        Entry importedEntry = opContext.lookup( oriChildName, 
             ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
         
         // As the target entry does not exist yet and so
@@ -490,7 +490,7 @@ public class TriggerInterceptor extends BaseInterceptor
         DN newParentName = opContext.getParent();
         
         // Gather supplementary data.        
-        ClonedServerEntry movedEntry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
+        Entry movedEntry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
         
         DN oldRDN = new DN( oriChildName.getRdn().getName() );
         RDN newRDN = new RDN( oriChildName.getRdn().getName() );
@@ -514,7 +514,7 @@ public class TriggerInterceptor extends BaseInterceptor
         // will not be valid at the new location.
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
-        ClonedServerEntry importedEntry = opContext.lookup( oriChildName, 
+        Entry importedEntry = opContext.lookup( oriChildName, 
             ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
 
         // As the target entry does not exist yet and so

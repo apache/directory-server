@@ -296,14 +296,14 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT 
         } );
         
-        ClonedServerEntry userEntry = modContext.lookup( lookupContext );
+        Entry userEntry = modContext.lookup( lookupContext );
 
         if ( userEntry == null )
         {
             throw new LdapAuthenticationException( I18n.err( I18n.ERR_512, principalDn ) );
         }
 
-        EntryAttribute objectClass = userEntry.getOriginalEntry().get( SchemaConstants.OBJECT_CLASS_AT );
+        EntryAttribute objectClass = ((ClonedServerEntry)userEntry).getOriginalEntry().get( SchemaConstants.OBJECT_CLASS_AT );
         
         if ( !objectClass.contains( SchemaConstants.KRB5_PRINCIPAL_OC ) )
         {
@@ -317,13 +317,13 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
         if ( subContext.getPrincipalName() == null )
         {
-            EntryAttribute principalAttribute = userEntry.getOriginalEntry().get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT );
+            EntryAttribute principalAttribute = ((ClonedServerEntry)userEntry).getOriginalEntry().get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT );
             String principalName = principalAttribute.getString();
             subContext.setPrincipalName( principalName );
             log.debug( "Found principal '{}' from lookup.", principalName );
         }
 
-        EntryAttribute keyVersionNumberAttr = userEntry.getOriginalEntry().get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT );
+        EntryAttribute keyVersionNumberAttr = ((ClonedServerEntry)userEntry).getOriginalEntry().get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT );
 
         if ( keyVersionNumberAttr == null )
         {

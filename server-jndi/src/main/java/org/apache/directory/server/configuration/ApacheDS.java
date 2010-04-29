@@ -341,7 +341,8 @@ public class ApacheDS
      */
     private void loadLdif( File ldifFile ) throws Exception
     {
-        ClonedServerEntry fileEntry = null;
+        Entry fileEntry = null;
+        
         try
         {
             fileEntry = directoryService.getAdminSession().lookup( buildProtectedFileEntryDn( ldifFile ) );

@@ -24,7 +24,6 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -67,7 +66,7 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
     };
     
 
-    private ClonedServerEntry getDeletedEntry( OperationContext opContext ) throws Exception
+    private Entry getDeletedEntry( OperationContext opContext ) throws Exception
     {
         /**
          * Using LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS here to exclude operational attributes

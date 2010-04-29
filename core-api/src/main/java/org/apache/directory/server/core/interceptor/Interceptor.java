@@ -43,6 +43,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
 
 import java.util.Set;
@@ -209,7 +210,7 @@ public interface Interceptor
     /**
      * Filters {@link Partition#lookup( LookupOperationContext )} call.
      */
-    ClonedServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws Exception;
+    Entry lookup( NextInterceptor next, LookupOperationContext opContext ) throws Exception;
 
 
     /**

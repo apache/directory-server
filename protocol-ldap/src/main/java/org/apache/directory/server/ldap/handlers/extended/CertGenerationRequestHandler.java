@@ -35,6 +35,7 @@ import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.ldap.codec.extended.operations.certGeneration.CertGenerationContainer;
 import org.apache.directory.shared.ldap.codec.extended.operations.certGeneration.CertGenerationDecoder;
 import org.apache.directory.shared.ldap.codec.extended.operations.certGeneration.CertGenerationObject;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.extended.CertGenerationRequest;
 import org.apache.directory.shared.ldap.message.extended.CertGenerationResponse;
 import org.apache.directory.shared.ldap.message.internal.InternalExtendedRequest;
@@ -95,10 +96,11 @@ public class CertGenerationRequestHandler implements ExtendedOperationHandler
         
         CertGenerationObject certGenObj = container.getCertGenerationObject();
         
-        ClonedServerEntry entry = session.getCoreSession().lookup( new DN( certGenObj.getTargetDN() ) );
-        if( entry != null )
+        Entry entry = session.getCoreSession().lookup( new DN( certGenObj.getTargetDN() ) );
+        
+        if ( entry != null )
         {
-            TlsKeyGenerator.addKeyPair( entry.getOriginalEntry(), certGenObj.getIssuerDN(), certGenObj.getSubjectDN(), certGenObj.getKeyAlgorithm() );
+            TlsKeyGenerator.addKeyPair( ((ClonedServerEntry)entry).getOriginalEntry(), certGenObj.getIssuerDN(), certGenObj.getSubjectDN(), certGenObj.getKeyAlgorithm() );
         }
     }
 
