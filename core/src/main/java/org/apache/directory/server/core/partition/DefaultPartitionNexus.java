@@ -627,6 +627,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
     {
         DN dn = opContext.getDn();
         
+        // This is for the case we do a lookup on the rootDSE
         if ( dn.size() == 0 )
         {
             ClonedServerEntry retval = new ClonedServerEntry( rootDSE );

@@ -100,7 +100,7 @@ public class LookupOperationContext extends AbstractOperationContext
      */
     public String[] getAttrsIdArray()
     {
-        if ( attrsId == null || attrsId.size() == 0 )
+        if ( ( attrsId == null ) || ( attrsId.size() == 0 ) )
         {
             return EMPTY;
         }

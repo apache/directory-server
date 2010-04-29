@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.normalization;
 
 
+import java.util.List;
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
@@ -259,7 +261,9 @@ public class NormalizationInterceptor extends BaseInterceptor
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
         
-        if ( opContext.getAttrsId() != null )
+        List<String> attrIds = opContext.getAttrsId();
+        
+        if ( ( attrIds != null ) && ( attrIds.size() > 0 ) )
         {
             // We have to normalize the requested IDs
             opContext.setAttrsId( normalizeAttrsId( opContext.getAttrsIdArray() ) );

@@ -494,6 +494,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     public SearchResponse lookup( String dn, String... attributes ) throws LdapException
     {
         SearchResultEntry resp = null;
+        
         try
         {
             ClonedServerEntry entry = session.lookup( new DN( dn ), attributes );

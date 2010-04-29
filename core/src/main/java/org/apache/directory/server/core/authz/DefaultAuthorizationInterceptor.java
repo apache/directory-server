@@ -398,15 +398,17 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
     public ClonedServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
     {
-        ClonedServerEntry serverEntry = nextInterceptor.lookup( opContext );
+        CoreSession session = opContext.getSession();
+        ClonedServerEntry entry = nextInterceptor.lookup( opContext );
         
-        if ( opContext.getSession().getDirectoryService().isAccessControlEnabled() || ( serverEntry == null ) )
+        if ( session.getDirectoryService().isAccessControlEnabled() || ( entry == null ) )
         {
-            return serverEntry;
+            return entry;
         }
 
-        protectLookUp( opContext.getSession().getEffectivePrincipal().getClonedName(), opContext.getDn() );
-        return serverEntry;
+        protectLookUp( session.getEffectivePrincipal().getClonedName(), opContext.getDn() );
+        
+        return entry;
     }
 
 
