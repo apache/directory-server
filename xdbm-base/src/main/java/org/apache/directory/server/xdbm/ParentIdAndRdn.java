@@ -24,6 +24,8 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.directory.shared.ldap.name.RDN;
 
@@ -38,7 +40,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
 {
 
     protected ID parentId;
-    protected RDN rdn;
+    protected RDN[] rdns;
 
 
     /**
@@ -53,12 +55,25 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
      * Creates a new instance of ParentIdAndRdn.
      *
      * @param parentId the parent ID
-     * @param rdn the RDN
+     * @param rdns the RDNs
      */
-    public ParentIdAndRdn( ID parentId, RDN rdn )
+    public ParentIdAndRdn( ID parentId, RDN... rdns )
     {
         this.parentId = parentId;
-        this.rdn = rdn;
+        this.rdns = rdns;
+    }
+
+
+    /**
+     * Creates a new instance of ParentIdAndRdn.
+     *
+     * @param parentId the parent ID
+     * @param rdns the RDNs
+     */
+    public ParentIdAndRdn( ID parentId, List<RDN> rdns )
+    {
+        this.parentId = parentId;
+        this.rdns = rdns.toArray( new RDN[rdns.size()] );
     }
 
 
@@ -85,13 +100,13 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
 
 
     /**
-     * Gets the RDN.
+     * Gets the RDNs.
      * 
-     * @return the RDN
+     * @return the RDNs
      */
-    public RDN getRdn()
+    public RDN[] getRdns()
     {
-        return rdn;
+        return rdns;
     }
 
 
@@ -100,9 +115,9 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
      * 
      * @param rdn the new RDN
      */
-    public void setRdn( RDN rdn )
+    public void setRdns( RDN[] rdns )
     {
-        this.rdn = rdn;
+        this.rdns = rdns;
     }
 
 
@@ -112,7 +127,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
         final int prime = 31;
         int result = 1;
         result = prime * result + ( ( parentId == null ) ? 0 : parentId.hashCode() );
-        result = prime * result + ( ( rdn == null ) ? 0 : rdn.hashCode() );
+        result = prime * result + Arrays.hashCode( rdns );
         return result;
     }
 
@@ -132,12 +147,22 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
 
     public int compareTo( ParentIdAndRdn<ID> o )
     {
-        int val = this.getRdn().compareTo( o.getRdn() );
-        if ( val == 0 )
+        int val = this.rdns.length - o.rdns.length;
+        if ( val != 0 )
         {
-            val = this.getParentId().compareTo( o.getParentId() );
+            return val;
         }
 
+        for ( int i = 0; i < this.rdns.length; i++ )
+        {
+            val = this.rdns[i].compareTo( o.rdns[i] );
+            if ( val != 0 )
+            {
+                return val;
+            }
+        }
+
+        val = this.getParentId().compareTo( o.getParentId() );
         return val;
     }
 
@@ -145,7 +170,11 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
     public void writeExternal( ObjectOutput out ) throws IOException
     {
         out.writeObject( parentId );
-        out.writeObject( rdn );
+        out.writeInt( rdns.length );
+        for ( RDN rdn : rdns )
+        {
+            out.writeObject( rdn );
+        }
     }
 
 
@@ -153,6 +182,11 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
         parentId = ( ID ) in.readObject();
-        rdn = ( RDN ) in.readObject();
+        int size = in.readInt();
+        rdns = new RDN[size];
+        for ( int i = 0; i < size; i++ )
+        {
+            rdns[i] = ( RDN ) in.readObject();
+        }
     }
 }

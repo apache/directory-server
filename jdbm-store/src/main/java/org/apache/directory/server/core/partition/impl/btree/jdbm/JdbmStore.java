@@ -322,7 +322,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         int dnSize = dn.size();
         int i = suffixDn.size();
 
-        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, suffixDn.getRdn() );
+        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, suffixDn.getRdns() );
 
         Long curEntryId = rdnIdx.forwardLookup( key );
 
@@ -362,33 +362,16 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         DN dn = new DN();
 
         long parentId = id.longValue();
-        
+
         do
         {
             ParentIdAndRdn<Long> cur = rdnIdx.reverseLookup( parentId );
-            RDN curRdn = cur.getRdn();
+            RDN[] rdns = cur.getRdns();
+            for ( RDN rdn : rdns )
+            {
+                dn.addNormalizedInOrder( rdn );
+            }
             parentId = cur.getParentId();
-            if ( parentId == 0 )
-            {
-                // we reached the suffix, add the context entry DN
-                // we do this because the suffix can consist 
-                // of multiple RDNs, e.g. dc=example,dc=com
-                if ( contextEntryDn == null )
-                {
-                    contextEntryDn = new DN( curRdn.getName() );
-                    contextEntryDn.normalize( schemaManager.getNormalizerMapping() );
-                }
-                
-                for ( RDN rdn : contextEntryDn )
-                {
-                    dn.addNormalizedInOrder( rdn );
-                }
-            }
-            else
-            {
-                // not the suffix, add the RDN to the DN
-                dn.addNormalizedInOrder( curRdn );
-            }
         }
         while ( parentId != 0 );
 
@@ -415,13 +398,13 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         int dnSize = normDN.size();
         int i = suffixDn.size();
 
-        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>(0L, suffixDn.getRdn());
+        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, suffixDn.getRdns() );
 
         Long curEntryId = rdnIdx.forwardLookup( key );
 
         for ( ; i < dnSize; i++ )
         {
-            key = new ParentIdAndRdn<Long>(curEntryId, normDN.getRdn( i ));
+            key = new ParentIdAndRdn<Long>( curEntryId, normDN.getRdn( i ) );
             curEntryId = rdnIdx.forwardLookup( key );
         }
 
@@ -677,20 +660,18 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         //
         DN entryDn = entry.getDn();
         DN parentDn = null;
-        RDN rdn = null;
+        ParentIdAndRdn<Long> key = null;
 
-        if ( entryDn.getNormName().equals( suffixDn.getNormName() ) )
+        if ( entryDn.equals( suffixDn ) )
         {
             parentId = 0L;
-            rdn = new RDN( suffixDn.getNormName() );
-            rdn.setUpName( entryDn.getName() );
+            key = new ParentIdAndRdn<Long>( parentId, suffixDn.getRdns() );
         }
         else
         {
-            rdn = entryDn.getRdn();
-            parentDn = ( DN ) entryDn.clone();
-            parentDn.remove( parentDn.size() - 1 );
+            parentDn = entryDn.getParent();
             parentId = getEntryId( parentDn );
+            key = new ParentIdAndRdn<Long>( parentId, entryDn.getRdn() );
         }
 
         // don't keep going if we cannot find the parent Id
@@ -699,7 +680,6 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
             throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_216, parentDn ) );
         }
 
-        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( parentId, rdn );
         rdnIdx.add( key, id );
 
         EntryAttribute objectClass = entry.get( OBJECT_CLASS_AT );
