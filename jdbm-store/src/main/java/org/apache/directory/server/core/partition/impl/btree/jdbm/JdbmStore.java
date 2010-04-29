@@ -1251,6 +1251,8 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         Long id = getEntryId( dn );
         Entry entry = lookup( id );
         DN updn = entry.getDn();
+        
+        newRdn.normalize( schemaManager.getNormalizerMapping() );
 
         /* 
          * H A N D L E   N E W   R D N
@@ -1344,25 +1346,14 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         /*
          * H A N D L E   D N   C H A N G E
          * ====================================================================
-         * 1) Build the new user defined distinguished name
-         *      - clone / copy old updn
-         *      - remove old upRdn from copy
-         *      - add the new upRdn to the copy
-         * 2) Make call to recursive modifyDn method to change the names of the
-         *    entry and its descendants
+         * We only need to update the RDN index.
+         * No need to calculate the new DN.
          */
 
-        DN newUpdn = ( DN ) updn.clone(); // copy da old updn
-        newUpdn.remove( newUpdn.size() - 1 ); // remove old upRdn
-        newUpdn.add( newRdn.getName() ); // add da new upRdn
-
-        // gotta normalize cuz this thang is cloned and not normalized by default
-        newUpdn.normalize( schemaManager.getNormalizerMapping() );
-
-        modifyDn( id, newUpdn, false ); // propagate dn changes
-
-        // Update the current entry
-        entry.setDn( newUpdn );
+        Long parentId = getParentId( id );
+        rdnIdx.drop( id );
+        ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( parentId, newRdn );
+        rdnIdx.add( key, id );
 
         master.put( id, entry );
 
