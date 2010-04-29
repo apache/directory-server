@@ -455,4 +455,28 @@ public class MockDirectoryService implements DirectoryService
         // TODO Auto-generated method stub
         return null;
     }
+
+    public String getContextCsn()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public long getSyncPeriodMillis()
+    {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    public void setContextCsn( String lastCommittedCsnVal )
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void setSyncPeriodMillis( long syncPeriodMillis )
+    {
+        // TODO Auto-generated method stub
+        
+    }
 }

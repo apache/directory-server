@@ -722,6 +722,20 @@ public class InterceptorChainTest
             // TODO Auto-generated method stub
             
         }
+
+
+        public long getSyncPeriodMillis()
+        {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+
+        public void setSyncPeriodMillis( long syncPeriodMillis )
+        {
+            // TODO Auto-generated method stub
+            
+        }
         
     }
 }
