@@ -189,15 +189,16 @@ public class SpringServerTest
             File tmpOCdb = new File( tmpDir, "dc.db" );
             assertTrue( tmpOCdb.exists() );
     
-            File tmpOClg = new File( tmpDir, "dc.lg" );
-            assertTrue( tmpOClg.exists() );
+            // if transactions are disabled there is no dc.lg file
+            //File tmpOClg = new File( tmpDir, "dc.lg" );
+            //assertTrue( tmpOClg.exists() );
             
             // Shutdown and cleanup
             apacheDS.shutdown();
             
             // Clean the /tmp/objectClass.* files
             tmpOCdb.delete();
-            tmpOClg.delete();
+            //tmpOClg.delete();
         }
         else
         {

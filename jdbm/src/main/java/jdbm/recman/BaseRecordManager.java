@@ -130,10 +130,10 @@ public final class BaseRecordManager
     /**
      * Get the underlying Transaction Manager
      */
-    public synchronized TransactionManager getTransactionManager()
+    public synchronized TransactionManager getTransactionManager() throws IOException
     {
         checkIfClosed();
-        return recordFile.txnMgr;
+        return recordFile.getTxnMgr();
     }
 
 

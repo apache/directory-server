@@ -121,11 +121,14 @@ public class JdbmIndexTest
 
             // created by this test
             File dbFile = new File( idx.getWkDirPath(), idx.getAttribute().getName() + ".db" );
-            assert dbFile.delete();
+            assertTrue( dbFile.delete() );
 
-            // created by TransactionManager
+            // created by TransactionManager, if transactions are not disabled
             File logFile = new File( idx.getWkDirPath(), idx.getAttribute().getName() + ".lg" );
-            assert logFile.delete();
+            if ( logFile.exists() )
+            {
+                assertTrue( logFile.delete() );
+            }
         }
 
         idx = null;

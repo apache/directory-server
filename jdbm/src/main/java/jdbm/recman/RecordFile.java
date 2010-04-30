@@ -63,7 +63,7 @@ import org.apache.directory.server.i18n.I18n;
  */
 public final class RecordFile 
 {
-    final TransactionManager txnMgr;
+    private TransactionManager transactionManager;
 
     // state transitions: free -> inUse -> dirty -> inTxn -> free
     // free is a cache, thus a FIFO. The rest are hashes.
@@ -101,10 +101,23 @@ public final class RecordFile
     {
         this.fileName = fileName;
         file = new RandomAccessFile(fileName + extension, "rw");
-        txnMgr = new TransactionManager( this );
     }
 
-    
+
+    TransactionManager getTxnMgr() throws IOException
+    {
+        if ( transactionsDisabled )
+        {
+            throw new IllegalStateException( "Transactions are disabled." );
+        }
+        if ( transactionManager == null )
+        {
+            transactionManager = new TransactionManager( this );
+        }
+        return transactionManager;
+    }
+
+
     /**
      * Returns the file name.
      */
@@ -276,7 +289,7 @@ public final class RecordFile
         
         if ( ! transactionsDisabled ) 
         {
-            txnMgr.start();
+            getTxnMgr().start();
         }
 
         
@@ -296,14 +309,14 @@ public final class RecordFile
             }
             else 
             {
-                txnMgr.add( node );
+                getTxnMgr().add( node );
                 inTxn.put( node.getBlockId(), node );
             }
         }
 
         if ( ! transactionsDisabled ) 
         {
-            txnMgr.commit();
+            getTxnMgr().commit();
         }
     }
 
@@ -323,7 +336,10 @@ public final class RecordFile
         //  System.out.println("rollback...");
         dirty.clear();
 
-        txnMgr.synchronizeLogFromDisk();
+        if ( ! transactionsDisabled ) 
+        {
+            getTxnMgr().synchronizeLogFromDisk();
+        }
 
         if ( ! inTxn.isEmpty() ) 
         {
@@ -343,7 +359,10 @@ public final class RecordFile
             commit();
         }
         
-        txnMgr.shutdown();
+        if( ! transactionsDisabled )
+        {
+            getTxnMgr().shutdown();
+        }
 
         if ( ! inTxn.isEmpty() ) 
         {
@@ -379,8 +398,11 @@ public final class RecordFile
      */
     void forceClose() throws IOException 
     {
-      txnMgr.forceClose();
-      file.close();
+        if ( ! transactionsDisabled ) 
+        {
+            getTxnMgr().forceClose();
+        }
+        file.close();
     }
 
     
