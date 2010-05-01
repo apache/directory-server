@@ -30,9 +30,9 @@ import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -387,9 +387,19 @@ public interface Store<E, ID extends Comparable<ID>>
     Index<?, E, ID> getSystemIndex( String id ) throws IndexNotFoundException;
 
 
+    /**
+     * Gets the entry's id. Note that the DN must be normalized!
+     * @param dn the normalized entry DN
+     * @return the entry's id
+     */
     ID getEntryId( DN dn ) throws Exception;
 
 
+    /**
+     * Gets the normalized DN of the entry identified by the given id.
+     * @param id the entry's id
+     * @return the normalized entry DN
+     */
     DN getEntryDn( ID id ) throws Exception;
 
 
@@ -404,6 +414,12 @@ public interface Store<E, ID extends Comparable<ID>>
     ID getParentId( ID childId ) throws Exception;
 
 
+    /**
+     * Gets the total count of entries within this store.
+     *
+     * @return the total count of entries within this store
+     * @throws Exception on failures to access the underlying store
+     */
     int count() throws Exception;
 
 
@@ -444,7 +460,14 @@ public interface Store<E, ID extends Comparable<ID>>
      */
     IndexCursor<ID, E, ID> list( ID id ) throws Exception;
 
-
+    
+    /**
+     * Gets the count of immediate children of the given entry ID.
+     *
+     * @param id the entry ID
+     * @return the child count 
+     * @throws Exception on failures to access the underlying store
+     */
     int getChildCount( ID id ) throws Exception;
 
 
