@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.schema.comparators.SerializableComparato
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable<E>
+public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable<Long, E>
 {
     private static final StringComparator STRCOMP = new StringComparator();
 

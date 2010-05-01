@@ -34,7 +34,7 @@ import org.apache.directory.server.xdbm.MasterTable;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AvlMasterTable<E> extends AvlTable<Long, E> implements MasterTable<E>
+public class AvlMasterTable<E> extends AvlTable<Long, E> implements MasterTable<Long, E>
 {
     private Properties props = new Properties();
     private AtomicLong counter = new AtomicLong( 0 );

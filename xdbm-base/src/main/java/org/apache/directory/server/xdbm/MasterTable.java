@@ -21,12 +21,12 @@ package org.apache.directory.server.xdbm;
 
 
 /**
- * A master table used to store indexible entries.
+ * A master table used to store indexable entries.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface MasterTable<E> extends Table<Long, E>
+public interface MasterTable<ID, E> extends Table<ID, E>
 {
     /** the base name for the db file for this table */
     String DBF = "master";
@@ -42,7 +42,7 @@ public interface MasterTable<E> extends Table<Long, E>
      * @return the entry with operational attributes and all.
      * @throws Exception if there is a read error on the underlying Db.
      */
-    E get( Long id ) throws Exception;
+    E get( ID id ) throws Exception;
 
 
     /**
@@ -53,7 +53,7 @@ public interface MasterTable<E> extends Table<Long, E>
      * @param id unique identifier of the entry to put
      * @throws Exception if there is a write error on the underlying Db.
      */
-    void put( Long id, E entry ) throws Exception;
+    void put( ID id, E entry ) throws Exception;
 
 
     /**
@@ -63,7 +63,7 @@ public interface MasterTable<E> extends Table<Long, E>
      * @return the deleted entry
      * @throws Exception if there is a write error on the underlying Db
      */
-    void delete( Long id ) throws Exception;
+    void delete( ID id ) throws Exception;
 
 
     /**
@@ -72,7 +72,7 @@ public interface MasterTable<E> extends Table<Long, E>
      *
      * @throws Exception if the admin table storing sequences cannot be read
      */
-    Long getCurrentId() throws Exception;
+    ID getCurrentId() throws Exception;
 
 
     /**
@@ -83,7 +83,7 @@ public interface MasterTable<E> extends Table<Long, E>
      * by one
      * @throws Exception on failure to update the id sequence
      */
-    Long getNextId() throws Exception;
+    ID getNextId() throws Exception;
 
 
     /**
