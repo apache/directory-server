@@ -28,7 +28,9 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
@@ -36,6 +38,7 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmStore;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
@@ -421,28 +424,20 @@ public class GreaterEqTest
 
         // ---------- test beforeFirst() ----------
 
+        Set<Tuple<String, Long>> set = new HashSet<Tuple<String, Long>>();
         cursor.beforeFirst();
         assertFalse( cursor.available() );
 
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "3", cursor.get().getValue() );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 6L, ( long ) cursor.get().getId() );
-        assertEquals( "4", cursor.get().getValue() );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 7L, ( long ) cursor.get().getId() );
-        assertEquals( "5", cursor.get().getValue() );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 8L, ( long ) cursor.get().getId() );
-        assertEquals( "6", cursor.get().getValue() );
+        while ( cursor.next() )
+        {
+            assertTrue( cursor.available() );
+            set.add( new Tuple<String, Long>( cursor.get().getValue(), cursor.get().getId() ) );
+        }
+        assertEquals( 4, set.size() );
+        assertTrue( set.contains( new Tuple<String, Long>( "3", 5L ) ) );
+        assertTrue( set.contains( new Tuple<String, Long>( "4", 6L ) ) );
+        assertTrue( set.contains( new Tuple<String, Long>( "5", 7L ) ) );
+        assertTrue( set.contains( new Tuple<String, Long>( "6", 8L ) ) );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -452,28 +447,23 @@ public class GreaterEqTest
 
         // ---------- test first() ----------
 
+        set.clear();
         cursor = new GreaterEqCursor( store, evaluator );
-        cursor.beforeFirst();
+        cursor.first();
 
-        assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "3", cursor.get().getValue() );
+        set.add( new Tuple<String, Long>( cursor.get().getValue(), cursor.get().getId() ) );
 
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 6L, ( long ) cursor.get().getId() );
-        assertEquals( "4", cursor.get().getValue() );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 7L, ( long ) cursor.get().getId() );
-        assertEquals( "5", cursor.get().getValue() );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 8L, ( long ) cursor.get().getId() );
-        assertEquals( "6", cursor.get().getValue() );
+        while ( cursor.next() )
+        {
+            assertTrue( cursor.available() );
+            set.add( new Tuple<String, Long>( cursor.get().getValue(), cursor.get().getId() ) );
+        }
+        assertEquals( 4, set.size() );
+        assertTrue( set.contains( new Tuple<String, Long>( "3", 5L ) ) );
+        assertTrue( set.contains( new Tuple<String, Long>( "4", 6L ) ) );
+        assertTrue( set.contains( new Tuple<String, Long>( "5", 7L ) ) );
+        assertTrue( set.contains( new Tuple<String, Long>( "6", 8L ) ) );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -483,56 +473,44 @@ public class GreaterEqTest
 
         // ---------- test afterLast() ----------
 
+        set.clear();
         cursor = new GreaterEqCursor( store, evaluator );
         cursor.afterLast();
         assertFalse( cursor.available() );
 
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        assertEquals( 8L, ( long ) cursor.get().getId() );
-        assertEquals( "6", cursor.get().getValue() );
-
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        assertEquals( 7L, ( long ) cursor.get().getId() );
-        assertEquals( "5", cursor.get().getValue() );
-
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        assertEquals( 6L, ( long ) cursor.get().getId() );
-        assertEquals( "4", cursor.get().getValue() );
-
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "3", cursor.get().getValue() );
+        while ( cursor.previous() )
+        {
+            assertTrue( cursor.available() );
+            set.add( new Tuple<String, Long>( cursor.get().getValue(), cursor.get().getId() ) );
+        }
+        assertEquals( 4, set.size() );
+        assertTrue( set.contains( new Tuple<String, Long>( "3", 5L ) ) );
+        assertTrue( set.contains( new Tuple<String, Long>( "4", 6L ) ) );
+        assertTrue( set.contains( new Tuple<String, Long>( "5", 7L ) ) );
+        assertTrue( set.contains( new Tuple<String, Long>( "6", 8L ) ) );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
 
         // ---------- test last() ----------
 
+        set.clear();
         cursor = new GreaterEqCursor( store, evaluator );
         cursor.last();
 
         assertTrue( cursor.available() );
-        assertEquals( 8L, ( long ) cursor.get().getId() );
-        assertEquals( "6", cursor.get().getValue() );
+        set.add( new Tuple<String, Long>( cursor.get().getValue(), cursor.get().getId() ) );
 
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        assertEquals( 7L, ( long ) cursor.get().getId() );
-        assertEquals( "5", cursor.get().getValue() );
-
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        assertEquals( 6L, ( long ) cursor.get().getId() );
-        assertEquals( "4", cursor.get().getValue() );
-
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "3", cursor.get().getValue() );
+        while ( cursor.previous() )
+        {
+            assertTrue( cursor.available() );
+            set.add( new Tuple<String, Long>( cursor.get().getValue(), cursor.get().getId() ) );
+        }
+        assertEquals( 4, set.size() );
+        assertTrue( set.contains( new Tuple<String, Long>( "3", 5L ) ) );
+        assertTrue( set.contains( new Tuple<String, Long>( "4", 6L ) ) );
+        assertTrue( set.contains( new Tuple<String, Long>( "5", 7L ) ) );
+        assertTrue( set.contains( new Tuple<String, Long>( "6", 8L ) ) );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );

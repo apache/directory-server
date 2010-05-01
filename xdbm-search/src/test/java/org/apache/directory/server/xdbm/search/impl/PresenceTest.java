@@ -27,7 +27,9 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
@@ -301,15 +303,19 @@ public class PresenceTest
         assertTrue( cursor.isElementReused() );
 
         cursor.beforeFirst();
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 5, ( long ) cursor.get().getId() );
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 6, ( long ) cursor.get().getId() );
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 8, ( long ) cursor.get().getId() );
+
+        Set<Long> set = new HashSet<Long>();
+        while ( cursor.next() )
+        {
+            assertTrue( cursor.available() );
+            assertEquals( SchemaConstants.SN_AT_OID, cursor.get().getValue() );
+            set.add( cursor.get().getId() );
+        }
+        assertEquals( 3, set.size() );
+        assertTrue( set.contains( 5L ) );
+        assertTrue( set.contains( 6L ) );
+        assertTrue( set.contains( 8L ) );
+
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
 
@@ -331,23 +337,20 @@ public class PresenceTest
         assertEquals( SchemaConstants.SN_AT_OID, cursor.get().getValue() );
 
         // test afterLast()
+        set.clear();
         cursor.afterLast();
         assertFalse( cursor.available() );
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        assertEquals( SchemaConstants.SN_AT_OID, cursor.get().getValue() );
-        assertEquals( 8, ( long ) cursor.get().getId() );
 
-        // keep testing previous
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        assertEquals( SchemaConstants.SN_AT_OID, cursor.get().getValue() );
-        assertEquals( 6, ( long ) cursor.get().getId() );
-
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        assertEquals( SchemaConstants.SN_AT_OID, cursor.get().getValue() );
-        assertEquals( 5, ( long ) cursor.get().getId() );
+        while ( cursor.previous() )
+        {
+            assertTrue( cursor.available() );
+            assertEquals( SchemaConstants.SN_AT_OID, cursor.get().getValue() );
+            set.add( cursor.get().getId() );
+        }
+        assertEquals( 3, set.size() );
+        assertTrue( set.contains( 5L ) );
+        assertTrue( set.contains( 6L ) );
+        assertTrue( set.contains( 8L ) );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );

@@ -164,14 +164,5 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     {
         return 0L;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Index<String, E, Long> getNdnIndex()
-    {
-        // FIXME should this be entryUuidIdx?
-        return getEntryCsnIndex();
-    }
     
 }

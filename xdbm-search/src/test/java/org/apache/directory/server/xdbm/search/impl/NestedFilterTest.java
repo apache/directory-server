@@ -26,12 +26,15 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmStore;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -46,6 +49,7 @@ import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.CsnSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.UuidSyntaxChecker;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -215,22 +219,23 @@ public class NestedFilterTest
     {
         String filter = "(&(|(postalCode=5)(postalCode=6))(!(ou=sales)))";
 
-        CsnSyntaxChecker csnSynChecker = new CsnSyntaxChecker();
-        
+        UuidSyntaxChecker uuidSynChecker = new UuidSyntaxChecker();
+
         ExprNode exprNode = FilterParser.parse( filter );
         optimizer.annotate( exprNode );
 
         IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
 
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 7, ( long ) cursor.get().getId() );
-        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 8, ( long ) cursor.get().getId() );
-        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
+        Set<Long> set = new HashSet<Long>();
+        while ( cursor.next() )
+        {
+            assertTrue( cursor.available() );
+            set.add( cursor.get().getId() );
+            assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getValue() ) );
+        }
+        assertEquals( 2, set.size() );
+        assertTrue( set.contains( 7L ) );
+        assertTrue( set.contains( 8L ) );
 
         assertFalse( cursor.next() );
     }

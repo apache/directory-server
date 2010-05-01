@@ -553,7 +553,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     @SuppressWarnings("unchecked")
     public Index<String, E, ID> getNdnIndex()
     {
-        return ( Index<String, E, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_N_DN_AT_OID );
+        return getEntryUuidIndex();
     }
 
 

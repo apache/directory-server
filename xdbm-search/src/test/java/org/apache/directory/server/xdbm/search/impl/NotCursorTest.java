@@ -26,6 +26,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
@@ -50,6 +52,7 @@ import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.CsnSidSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.CsnSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.UuidSyntaxChecker;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -70,8 +73,8 @@ public class NotCursorTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( NotCursorTest.class.getSimpleName() );
 
-    CsnSyntaxChecker csnSynChecker = new CsnSyntaxChecker();
-    
+    UuidSyntaxChecker uuidSynChecker = new UuidSyntaxChecker();
+
     File wkdir;
     Store<Entry, Long> store;
     static SchemaManager schemaManager = null;
@@ -174,31 +177,19 @@ public class NotCursorTest
 
         cursor.beforeFirst();
 
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 1, ( long ) cursor.get().getId() );
-        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 2, ( long ) cursor.get().getId() );
-        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 3, ( long ) cursor.get().getId() );
-        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 4, ( long ) cursor.get().getId() );
-        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 7, ( long ) cursor.get().getId() );
-        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
-
+        Set<Long> set = new HashSet<Long>();
+        while ( cursor.next() )
+        {
+            assertTrue( cursor.available() );
+            set.add( cursor.get().getId() );
+            assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getValue() ) );
+        }
+        assertEquals( 5, set.size() );
+        assertTrue( set.contains( 1L ) );
+        assertTrue( set.contains( 2L ) );
+        assertTrue( set.contains( 3L ) );
+        assertTrue( set.contains( 4L ) );
+        assertTrue( set.contains( 7L ) );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -214,69 +205,45 @@ public class NotCursorTest
         NotNode notNode = new NotNode();
 
         ExprNode exprNode = new SubstringNode( "cn", "J", null );
-        Evaluator<? extends ExprNode, Entry, Long> eval = new SubstringEvaluator( ( SubstringNode ) exprNode,
-            store, schemaManager );
+        Evaluator<? extends ExprNode, Entry, Long> eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store,
+            schemaManager );
         notNode.addNode( exprNode );
 
         NotCursor<String, Long> cursor = new NotCursor( store, eval ); //cursorBuilder.build( andNode );
+        cursor.beforeFirst();
 
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 1, ( long ) cursor.get().getId() );
-        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
-
-        cursor.first();
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 2, ( long ) cursor.get().getId() );
-        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 3, ( long ) cursor.get().getId() );
-        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 4, ( long ) cursor.get().getId() );
-        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 7, ( long ) cursor.get().getId() );
-        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
+        Set<Long> set = new HashSet<Long>();
+        while ( cursor.next() )
+        {
+            assertTrue( cursor.available() );
+            set.add( cursor.get().getId() );
+            assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getValue() ) );
+        }
+        assertEquals( 5, set.size() );
+        assertTrue( set.contains( 1L ) );
+        assertTrue( set.contains( 2L ) );
+        assertTrue( set.contains( 3L ) );
+        assertTrue( set.contains( 4L ) );
+        assertTrue( set.contains( 7L ) );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
 
         cursor.afterLast();
 
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        assertEquals( 7, ( long ) cursor.get().getId() );
-        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
-
-        cursor.last();
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        assertEquals( 4, ( long ) cursor.get().getId() );
-        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
-
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        assertEquals( 3, ( long ) cursor.get().getId() );
-        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
-
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        assertEquals( 2, ( long ) cursor.get().getId() );
-        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
-
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        assertEquals( 1, ( long ) cursor.get().getId() );
-        assertTrue( csnSynChecker.isValidSyntax( cursor.get().getValue() ) );
+        set.clear();
+        while ( cursor.previous() )
+        {
+            assertTrue( cursor.available() );
+            set.add( cursor.get().getId() );
+            assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getValue() ) );
+        }
+        assertEquals( 5, set.size() );
+        assertTrue( set.contains( 1L ) );
+        assertTrue( set.contains( 2L ) );
+        assertTrue( set.contains( 3L ) );
+        assertTrue( set.contains( 4L ) );
+        assertTrue( set.contains( 7L ) );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );

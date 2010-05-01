@@ -68,7 +68,8 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     {
         return 1L;
     };
-    
+
+
     @Override
     protected Long getRootId()
     {
@@ -236,7 +237,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     protected Index<?, E, Long> convertAndInit( Index<?, E, Long> index ) throws Exception
     {
         JdbmIndex<?, E> jdbmIndex;
-        if( index.getAttributeId().equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
+        if ( index.getAttributeId().equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
         {
             jdbmIndex = new JdbmRdnIndex();
             jdbmIndex.setAttributeId( ApacheSchemaConstants.APACHE_RDN_AT_OID );
@@ -263,38 +264,5 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
 
         return jdbmIndex;
     }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Index<String, E, Long> getNdnIndex()
-    {
-        // FIXME should this be entryUuidIdx?
-        return getEntryCsnIndex();
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
 
 }
