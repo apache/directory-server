@@ -33,6 +33,7 @@ import org.apache.directory.server.xdbm.search.impl.EvaluatorBuilder;
 import org.apache.directory.server.xdbm.search.impl.NoOpOptimizer;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -104,12 +105,9 @@ public class AvlPartition extends AbstractXdbmPartition<Long>
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
-    public final void modify( long entryId, List<Modification> modifications ) throws Exception
+    public final void modify( DN dn, List<Modification> modifications ) throws Exception
     {
-        ( ( AvlStore<Entry> ) store ).modify( entryId, modifications );
+        store.modify( dn, modifications );
     }
 
 

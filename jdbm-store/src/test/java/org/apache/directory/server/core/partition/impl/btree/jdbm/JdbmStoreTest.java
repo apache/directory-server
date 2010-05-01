@@ -49,10 +49,10 @@ import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultModification;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.name.DN;
@@ -138,7 +138,7 @@ public class JdbmStoreTest
         store.setSyncOnWrite( false );
         store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new JdbmIndex( SchemaConstants.UID_AT_OID ) );
-        
+
         StoreUtils.loadExampleData( store, schemaManager );
         LOG.debug( "Created new store" );
     }
@@ -235,9 +235,9 @@ public class JdbmStoreTest
         store.setId( "foo" );
         assertEquals( "foo", store.getId() );
 
-//        assertNull( store.getNdnIndex() );
-//        store.setNdnIndex( new JdbmIndex<String, Attributes>( "ndn" ) );
-//        assertNotNull( store.getNdnIndex() );
+        assertNull( store.getRdnIndex() );
+        store.addIndex( new JdbmRdnIndex( ApacheSchemaConstants.APACHE_RDN_AT_OID ) );
+        assertNotNull( store.getRdnIndex() );
 
         assertNull( store.getOneAliasIndex() );
         store.addIndex( new JdbmIndex<Long, Attributes>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
@@ -335,6 +335,16 @@ public class JdbmStoreTest
 
         assertNotNull( store.getNdnIndex() );
 
+        assertNotNull( store.getRdnIndex() );
+        try
+        {
+            store.addIndex( new JdbmRdnIndex( ApacheSchemaConstants.APACHE_RDN_AT_OID ) );
+            fail();
+        }
+        catch ( IllegalStateException e )
+        {
+        }
+
         assertNotNull( store.getOneAliasIndex() );
         try
         {
@@ -365,7 +375,6 @@ public class JdbmStoreTest
         {
         }
 
-        
         Iterator<String> systemIndices = store.systemIndices();
 
         for ( int ii = 0; ii < 11; ii++ )

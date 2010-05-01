@@ -21,30 +21,13 @@ package org.apache.directory.server.core.partition.avl;
 
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
-import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractStore;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.xdbm.IndexCursor;
-import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
-import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.AVA;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
-import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,212 +48,6 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     /** static logger */
     private static final Logger LOG = LoggerFactory.getLogger( AvlStore.class );
 
-    /** Two static declaration to avoid lookup all over the code */
-    private static AttributeType OBJECT_CLASS_AT;
-    private static AttributeType ALIASED_OBJECT_NAME_AT;
-
-    /** the master table storing entries by primary key */
-    private AvlMasterTable<Entry> master;
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void add( Entry entry ) throws Exception
-    {
-        if ( entry instanceof ClonedServerEntry )
-        {
-            throw new Exception( I18n.err( I18n.ERR_215 ) );
-        }
-
-        DN normName = entry.getDn();
-
-        Long id;
-        Long parentId;
-
-        id = master.getNextId();
-
-        //
-        // Suffix entry cannot have a parent since it is the root so it is 
-        // capped off using the zero value which no entry can have since 
-        // entry sequences start at 1.
-        //
-
-        DN parentDn = null;
-
-        if ( normName.getNormName().equals( suffixDn.getNormName() ) )
-        {
-            parentId = 0L;
-        }
-        else
-        {
-            parentDn = ( DN ) normName.clone();
-            parentDn.remove( parentDn.size() - 1 );
-            parentId = getEntryId( parentDn );
-        }
-
-        // don't keep going if we cannot find the parent Id
-        if ( parentId == null )
-        {
-            throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_216, parentDn ) );
-        }
-
-        EntryAttribute objectClass = entry.get( OBJECT_CLASS_AT );
-
-        if ( objectClass == null )
-        {
-            String msg = I18n.err( I18n.ERR_217, normName.getName(), entry );
-            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, msg );
-        }
-
-        // Start adding the system userIndices
-        // Why bother doing a lookup if this is not an alias.
-        // First, the ObjectClass index
-        for ( Value<?> value : objectClass )
-        {
-            objectClassIdx.add( value.getString(), id );
-        }
-
-        if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
-        {
-            EntryAttribute aliasAttr = entry.get( ALIASED_OBJECT_NAME_AT );
-            addAliasIndices( id, normName, aliasAttr.getString() );
-        }
-
-        if ( !Character.isDigit( normName.getNormName().charAt( 0 ) ) )
-        {
-            throw new IllegalStateException( I18n.err( I18n.ERR_218, normName.getNormName() ) );
-        }
-
-        ndnIdx.add( normName.getNormName(), id );
-        oneLevelIdx.add( parentId, id );
-
-        // Update the EntryCsn index
-        EntryAttribute entryCsn = entry.get( SchemaConstants.ENTRY_CSN_AT );
-
-        if ( entryCsn == null )
-        {
-            String msg = I18n.err( I18n.ERR_219, normName.getName(), entry );
-            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, msg );
-        }
-
-        entryCsnIdx.add( entryCsn.getString(), id );
-
-        // Update the EntryUuid index
-        EntryAttribute entryUuid = entry.get( SchemaConstants.ENTRY_UUID_AT );
-
-        if ( entryUuid == null )
-        {
-            String msg = I18n.err( I18n.ERR_220, normName.getName(), entry );
-            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, msg );
-        }
-
-        entryUuidIdx.add( entryUuid.getString(), id );
-
-        Long tempId = parentId;
-        while ( tempId != null && tempId != 0 && tempId != 1 )
-        {
-            subLevelIdx.add( tempId, id );
-            tempId = getParentId( tempId );
-        }
-
-        // making entry an ancestor/descendent of itself in sublevel index
-        subLevelIdx.add( id, id );
-
-        // Now work on the user defined userIndices
-        for ( EntryAttribute attribute : entry )
-        {
-            String attributeOid = attribute.getAttributeType().getOid();
-
-            if ( hasUserIndexOn( attributeOid ) )
-            {
-                Index<Object, E, Long> idx = ( Index<Object, E, Long> ) getUserIndex( attributeOid );
-
-                // here lookup by attributeId is OK since we got attributeId from 
-                // the entry via the enumeration - it's in there as is for sure
-
-                for ( Value<?> value : attribute )
-                {
-                    idx.add( value.get(), id );
-                }
-
-                // Adds only those attributes that are indexed
-                presenceIdx.add( attributeOid, id );
-            }
-        }
-
-        master.put( id, entry );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public int count() throws Exception
-    {
-        return master.count();
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @SuppressWarnings("unchecked")
-    public void delete( Long id ) throws Exception
-    {
-        Entry entry = lookup( id );
-        Long parentId = getParentId( id );
-
-        EntryAttribute objectClass = entry.get( OBJECT_CLASS_AT );
-
-        if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
-        {
-            dropAliasIndices( id );
-        }
-
-        for ( Value<?> value : objectClass )
-        {
-            objectClassIdx.drop( value.getString(), id );
-        }
-
-        ndnIdx.drop( id );
-        oneLevelIdx.drop( id );
-        entryCsnIdx.drop( id );
-        entryUuidIdx.drop( id );
-
-        if ( id != 1 )
-        {
-            subLevelIdx.drop( id );
-        }
-
-        // Remove parent's reference to entry only if entry is not the upSuffix
-        if ( !parentId.equals( 0L ) )
-        {
-            oneLevelIdx.drop( parentId, id );
-        }
-
-        for ( EntryAttribute attribute : entry )
-        {
-            String attributeOid = attribute.getAttributeType().getOid();
-
-            if ( hasUserIndexOn( attributeOid ) )
-            {
-                Index<?, E, Long> index = getUserIndex( attributeOid );
-
-                // here lookup by attributeId is ok since we got attributeId from 
-                // the entry via the enumeration - it's in there as is for sure
-                for ( Value<?> value : attribute )
-                {
-                    ( ( AvlIndex ) index ).drop( value.get(), id );
-                }
-
-                presenceIdx.drop( attributeOid, id );
-            }
-        }
-
-        master.delete( id );
-    }
-
 
     /**
      * {@inheritDoc}
@@ -284,54 +61,6 @@ public class AvlStore<E> extends AbstractStore<E, Long>
 
     /**
      * {@inheritDoc}
-     */
-    public int getChildCount( Long id ) throws Exception
-    {
-        return oneLevelIdx.count( id );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public DN getEntryDn( Long id ) throws Exception
-    {
-        DN dn = new DN( ndnIdx.reverseLookup( id ) );
-        dn.normalize( schemaManager.getNormalizerMapping() );
-        return dn;
-//        return ((DN)lookup( id ).getDn().clone()).normalize( schemaManager.getNormalizerMapping() );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Long getEntryId( DN dn ) throws Exception
-    {
-        return ndnIdx.forwardLookup( dn.getNormName() );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Long getParentId( Long childId ) throws Exception
-    {
-        return oneLevelIdx.reverseLookup( childId );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public String getProperty( String propertyName ) throws Exception
-    {
-        return master.getProperty( propertyName );
-    }
-
-
-    /**
-     * {@inheritDoc}
      * TODO why this and initRegistries on Store interface ???
      */
     public void init( SchemaManager schemaManager ) throws Exception
@@ -340,6 +69,8 @@ public class AvlStore<E> extends AbstractStore<E, Long>
 
         OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
         ALIASED_OBJECT_NAME_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ALIASED_OBJECT_NAME_AT );
+        ENTRY_CSN_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT );
+        ENTRY_UUID_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_UUID_AT );
 
         // Create the master table (the table containing all the entries)
         master = new AvlMasterTable<Entry>( id, new LongComparator(), null, false );
@@ -355,416 +86,15 @@ public class AvlStore<E> extends AbstractStore<E, Long>
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
-    public IndexCursor<Long, E, Long> list( Long id ) throws Exception
-    {
-        IndexCursor<Long, E, Long> cursor = oneLevelIdx.forwardCursor( id );
-        cursor.beforeValue( id, null );
-        return cursor;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Entry lookup( Long id ) throws Exception
-    {
-        return master.get( id );
-    }
-
-
-    /**
-     * Recursively modifies the distinguished name of an entry and the names of
-     * its descendants calling itself in the recursion.
-     *
-     * @param id the primary key of the entry
-     * @param updn User provided distinguished name to set as the new DN
-     * @param isMove whether or not the name change is due to a move operation
-     * which affects alias userIndices.
-     * @throws Exception if something goes wrong
-     */
-    private void modifyDn( Long id, DN updn, boolean isMove ) throws Exception
-    {
-        String aliasTarget;
-
-        // update normalized DN index
-        ndnIdx.drop( id );
-
-        if ( !updn.isNormalized() )
-        {
-            updn.normalize( schemaManager.getNormalizerMapping() );
-        }
-
-        ndnIdx.add( updn.getNormName(), id );
-
-        /* 
-         * Read Alias Index Tuples
-         * 
-         * If this is a name change due to a move operation then the one and
-         * subtree userIndices for aliases were purged before the aliases were
-         * moved.  Now we must add them for each alias entry we have moved.  
-         * 
-         * aliasTarget is used as a marker to tell us if we're moving an 
-         * alias.  If it is null then the moved entry is not an alias.
-         */
-        if ( isMove )
-        {
-            aliasTarget = aliasIdx.reverseLookup( id );
-
-            if ( null != aliasTarget )
-            {
-                addAliasIndices( id, getEntryDn( id ), aliasTarget );
-            }
-        }
-
-        Cursor<IndexEntry<Long, E, Long>> children = list( id );
-
-        while ( children.next() )
-        {
-            // Get the child and its id
-            IndexEntry<Long, E, Long> rec = children.get();
-            Long childId = rec.getId();
-
-            /* 
-             * Calculate the DN for the child's new name by copying the parents
-             * new name and adding the child's old upRdn to new name as its RDN
-             */
-            DN childUpdn = ( DN ) updn.clone();
-//            DN oldUpdn = new DN( getEntryUpdn( childId ) );
-            DN oldUpdn = getEntryDn( childId );
-
-            String rdn = oldUpdn.get( oldUpdn.size() - 1 );
-            DN rdnDN = new DN( rdn );
-            rdnDN.normalize( schemaManager.getNormalizerMapping() );
-            childUpdn.add( rdnDN.getRdn() );
-
-            // Modify the child
-            Entry entry = lookup( childId );
-            entry.setDn( childUpdn );
-            master.put( childId, entry );
-
-            // Recursively change the names of the children below
-            modifyDn( childId, childUpdn, isMove );
-        }
-
-        children.close();
-    }
-
-
-    public void modify( DN dn, ModificationOperation modOp, Entry mods ) throws Exception
-    {
-        if ( mods instanceof ClonedServerEntry )
-        {
-            throw new Exception( I18n.err( I18n.ERR_215 ) );
-        }
-
-        Long id = getEntryId( dn );
-        Entry entry = ( Entry ) master.get( id );
-
-        for ( AttributeType attributeType : mods.getAttributeTypes() )
-        {
-            EntryAttribute attr = mods.get( attributeType );
-
-            switch ( modOp )
-            {
-                case ADD_ATTRIBUTE:
-                    add( id, entry, attr );
-                    break;
-
-                case REMOVE_ATTRIBUTE:
-                    remove( id, entry, attr );
-                    break;
-
-                case REPLACE_ATTRIBUTE:
-                    replace( id, entry, attr );
-
-                    break;
-
-                default:
-                    throw new Exception( I18n.err( I18n.ERR_221 ) );
-            }
-        }
-
-        master.put( id, entry );
-    }
-
-
-    public void modify( DN dn, List<Modification> mods ) throws Exception
-    {
-        Long id = getEntryId( dn );
-        modify( id, mods );
-    }
-
-
-    public void modify( long entryId, List<Modification> mods ) throws Exception
-    {
-        Entry entry = ( Entry ) master.get( entryId );
-
-        for ( Modification mod : mods )
-        {
-            EntryAttribute attrMods = mod.getAttribute();
-
-            switch ( mod.getOperation() )
-            {
-                case ADD_ATTRIBUTE:
-                    add( entryId, entry, attrMods );
-                    break;
-
-                case REMOVE_ATTRIBUTE:
-                    remove( entryId, entry, attrMods );
-                    break;
-
-                case REPLACE_ATTRIBUTE:
-                    replace( entryId, entry, attrMods );
-                    break;
-
-                default:
-                    throw new Exception( I18n.err( I18n.ERR_221 ) );
-            }
-        }
-
-        master.put( entryId, entry );
-    }
-
-
-    public void move( DN oldChildDn, DN newParentDn, RDN newRdn, boolean deleteOldRdn ) throws Exception
-    {
-        Long childId = getEntryId( oldChildDn );
-        rename( oldChildDn, newRdn, deleteOldRdn );
-        DN newUpdn = move( oldChildDn, childId, newParentDn );
-
-        // Update the current entry
-        Entry entry = lookup( childId );
-        entry.setDn( newUpdn );
-        master.put( childId, entry );
-    }
-
-
-    public void move( DN oldChildDn, DN newParentDn ) throws Exception
-    {
-        Long childId = getEntryId( oldChildDn );
-        DN newUpdn = move( oldChildDn, childId, newParentDn );
-
-        // Update the current entry
-        Entry entry = lookup( childId );
-        entry.setDn( newUpdn );
-        master.put( childId, entry );
-    }
-
-
-    /**
-     * Moves an entry under a new parent.  The operation causes a shift in the
-     * parent child relationships between the old parent, new parent and the 
-     * child moved.  All other descendant entries under the child never change
-     * their direct parent child relationships.  Hence after the parent child
-     * relationship changes are broken at the old parent and set at the new
-     * parent a modifyDn operation is conducted to handle name changes 
-     * propagating down through the moved child and its descendants.
-     * 
-     * @param oldChildDn the normalized dn of the child to be moved
-     * @param childId the id of the child being moved
-     * @param newParentDn the normalized dn of the new parent for the child
-     * @throws Exception if something goes wrong
-     */
-    private DN move( DN oldChildDn, Long childId, DN newParentDn ) throws Exception
-    {
-        // Get the child and the new parent to be entries and Ids
-        Long newParentId = getEntryId( newParentDn );
-        Long oldParentId = getParentId( childId );
-
-        /*
-         * All aliases including and below oldChildDn, will be affected by
-         * the move operation with respect to one and subtree userIndices since
-         * their relationship to ancestors above oldChildDn will be 
-         * destroyed.  For each alias below and including oldChildDn we will
-         * drop the index tuples mapping ancestor ids above oldChildDn to the
-         * respective target ids of the aliases.
-         */
-        dropMovedAliasIndices( oldChildDn );
-
-        /*
-         * Drop the old parent child relationship and add the new one
-         * Set the new parent id for the child replacing the old parent id
-         */
-        oneLevelIdx.drop( oldParentId, childId );
-        oneLevelIdx.add( newParentId, childId );
-
-        updateSubLevelIndex( childId, oldParentId, newParentId );
-
-        /*
-         * Build the new user provided DN (updn) for the child using the child's
-         * user provided RDN & the new parent's UPDN.  Basically add the child's
-         * UpRdn String to the tail of the new parent's Updn Name.
-         */
-//        DN childUpdn = new DN( getEntryUpdn( childId ) );
-//        String childRdn = childUpdn.get( childUpdn.size() - 1 );
-//        DN newUpdn = new DN( getEntryUpdn( newParentId ) );         
-        DN childUpdn = getEntryDn( childId );
-        String childRdn = childUpdn.get( childUpdn.size() - 1 );
-        DN newUpdn = getEntryDn( newParentId );
-        newUpdn.add( newUpdn.size(), childRdn );
-
-        // Call the modifyDn operation with the new updn
-        modifyDn( childId, newUpdn, true );
-
-        return newUpdn;
-    }
-
-
-    /**
-     * Changes the relative distinguished name of an entry specified by a 
-     * distinguished name with the optional removal of the old RDN attribute
-     * value from the entry.  Name changes propagate down as dn changes to the 
-     * descendants of the entry where the RDN changed. 
-     * 
-     * An RDN change operation does not change parent child relationships.  It 
-     * merely propagates a name change at a point in the DIT where the RDN is 
-     * changed. The change propagates down the subtree rooted at the 
-     * distinguished name specified.
-     *
-     * @param dn the normalized distinguished name of the entry to alter
-     * @param newRdn the new RDN to set
-     * @param deleteOldRdn whether or not to remove the old RDN attr/val
-     * @throws Exception if there are any errors propagating the name changes
-     */
-    @SuppressWarnings("unchecked")
-    public void rename( DN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception
-    {
-        Long id = getEntryId( dn );
-        Entry entry = lookup( id );
-        DN updn = entry.getDn();
-
-        /* 
-         * H A N D L E   N E W   R D N
-         * ====================================================================
-         * Add the new RDN attribute to the entry.  If an index exists on the 
-         * new RDN attribute we add the index for this attribute value pair.
-         * Also we make sure that the existance index shows the existance of the
-         * new RDN attribute within this entry.
-         */
-
-        for ( AVA newAtav : newRdn )
-        {
-            String newNormType = newAtav.getNormType();
-            Object newNormValue = newAtav.getNormValue().get();
-            AttributeType newRdnAttrType = schemaManager.lookupAttributeTypeRegistry( newNormType );
-
-            entry.add( newRdnAttrType, newAtav.getUpValue() );
-
-            if ( hasUserIndexOn( newNormType ) )
-            {
-                Index<?, E, Long> index = getUserIndex( newNormType );
-                ( ( Index ) index ).add( newNormValue, id );
-
-                // Make sure the altered entry shows the existence of the new attrib
-                if ( !presenceIdx.forward( newNormType, id ) )
-                {
-                    presenceIdx.add( newNormType, id );
-                }
-            }
-        }
-
-        /*
-         * H A N D L E   O L D   R D N
-         * ====================================================================
-         * If the old RDN is to be removed we need to get the attribute and 
-         * value for it.  Keep in mind the old RDN need not be based on the 
-         * same attr as the new one.  We remove the RDN value from the entry
-         * and remove the value/id tuple from the index on the old RDN attr
-         * if any.  We also test if the delete of the old RDN index tuple 
-         * removed all the attribute values of the old RDN using a reverse
-         * lookup.  If so that means we blew away the last value of the old 
-         * RDN attribute.  In this case we need to remove the attrName/id 
-         * tuple from the existance index.
-         * 
-         * We only remove an ATAV of the old RDN if it is not included in the
-         * new RDN.
-         */
-
-        if ( deleteOldRdn )
-        {
-            RDN oldRdn = updn.getRdn();
-            for ( AVA oldAtav : oldRdn )
-            {
-                // check if the new ATAV is part of the old RDN
-                // if that is the case we do not remove the ATAV
-                boolean mustRemove = true;
-                for ( AVA newAtav : newRdn )
-                {
-                    if ( oldAtav.equals( newAtav ) )
-                    {
-                        mustRemove = false;
-                        break;
-                    }
-                }
-
-                if ( mustRemove )
-                {
-                    String oldNormType = oldAtav.getNormType();
-                    String oldNormValue = oldAtav.getNormValue().getString();
-                    AttributeType oldRdnAttrType = schemaManager.lookupAttributeTypeRegistry( oldNormType );
-                    entry.remove( oldRdnAttrType, oldNormValue );
-
-                    if ( hasUserIndexOn( oldNormType ) )
-                    {
-                        Index<?, E, Long> index = getUserIndex( oldNormType );
-                        ( ( AvlIndex ) index ).drop( oldNormValue, id );
-
-                        /*
-                         * If there is no value for id in this index due to our
-                         * drop above we remove the oldRdnAttr from the existance idx
-                         */
-                        if ( null == index.reverseLookup( id ) )
-                        {
-                            presenceIdx.drop( oldNormType, id );
-                        }
-                    }
-                }
-            }
-        }
-
-        /*
-         * H A N D L E   D N   C H A N G E
-         * ====================================================================
-         * 1) Build the new user defined distinguished name
-         *      - clone / copy old updn
-         *      - remove old upRdn from copy
-         *      - add the new upRdn to the copy
-         * 2) Make call to recursive modifyDn method to change the names of the
-         *    entry and its descendants
-         */
-
-        DN newUpdn = ( DN ) updn.clone(); // copy da old updn
-        newUpdn.remove( newUpdn.size() - 1 ); // remove old upRdn
-        newUpdn.add( newRdn.getName() ); // add da new upRdn
-
-        // gotta normalize cuz this thang is cloned and not normalized by default
-        newUpdn.normalize( schemaManager.getNormalizerMapping() );
-
-        modifyDn( id, newUpdn, false ); // propagate dn changes
-
-        // Update the current entry
-        entry.setDn( newUpdn );
-        master.put( id, entry );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setProperty( String propertyName, String propertyValue ) throws Exception
-    {
-        master.setProperty( propertyName, propertyValue );
-    }
-
-
     @Override
     protected Index<?, E, Long> convertAndInit( Index<?, E, Long> index ) throws Exception
     {
         AvlIndex<?, E> avlIndex;
-        if ( index instanceof AvlIndex<?, ?> )
+        if ( index.getAttributeId().equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
+        {
+            avlIndex = new AvlRdnIndex<E>( index.getAttributeId() );
+        }
+        else if ( index instanceof AvlIndex<?, ?> )
         {
             avlIndex = ( AvlIndex<?, E> ) index;
         }
@@ -775,71 +105,9 @@ public class AvlStore<E> extends AbstractStore<E, Long>
             avlIndex = new AvlIndex( index.getAttributeId() );
         }
 
-        avlIndex.initialize( schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() ) );
+        avlIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() ) );
 
         return avlIndex;
-    }
-
-
-    /**
-     * 
-     * updates the SubLevel Index as part of a move operation.
-     *
-     * @param childId child id to be moved
-     * @param oldParentId old parent's id
-     * @param newParentId new parent's id
-     * @throws Exception
-     */
-    private void updateSubLevelIndex( Long childId, Long oldParentId, Long newParentId ) throws Exception
-    {
-        Long tempId = oldParentId;
-        List<Long> parentIds = new ArrayList<Long>();
-
-        // find all the parents of the oldParentId
-        while ( tempId != 0 && tempId != 1 && tempId != null )
-        {
-            parentIds.add( tempId );
-            tempId = getParentId( tempId );
-        }
-
-        // find all the children of the childId
-        Cursor<IndexEntry<Long, E, Long>> cursor = subLevelIdx.forwardCursor( childId );
-
-        List<Long> childIds = new ArrayList<Long>();
-        childIds.add( childId );
-
-        while ( cursor.next() )
-        {
-            childIds.add( cursor.get().getId() );
-        }
-
-        // detach the childId and all its children from oldParentId and all it parents excluding the root
-        for ( Long pid : parentIds )
-        {
-            for ( Long cid : childIds )
-            {
-                subLevelIdx.drop( pid, cid );
-            }
-        }
-
-        parentIds.clear();
-        tempId = newParentId;
-
-        // find all the parents of the newParentId
-        while ( tempId != 0 && tempId != 1 && tempId != null )
-        {
-            parentIds.add( tempId );
-            tempId = getParentId( tempId );
-        }
-
-        // attach the childId and all its children to newParentId and all it parents excluding the root
-        for ( Long id : parentIds )
-        {
-            for ( Long cid : childIds )
-            {
-                subLevelIdx.add( id, cid );
-            }
-        }
     }
 
 
@@ -890,4 +158,20 @@ public class AvlStore<E> extends AbstractStore<E, Long>
         return 1L;
     }
 
+
+    @Override
+    protected Long getRootId()
+    {
+        return 0L;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Index<String, E, Long> getNdnIndex()
+    {
+        // FIXME should this be entryUuidIdx?
+        return getEntryCsnIndex();
+    }
+    
 }

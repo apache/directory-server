@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -44,11 +45,11 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
  */
 public class AvlIndex<K, O> implements Index<K, O, Long>
 {
-    private Normalizer normalizer;
-    private AttributeType attributeType;
-    private AvlTable<K, Long> forward;
-    private AvlTable<Long, K> reverse;
-    private String attributeId;
+    protected Normalizer normalizer;
+    protected AttributeType attributeType;
+    protected AvlTable<K, Long> forward;
+    protected AvlTable<Long, K> reverse;
+    protected String attributeId;
 
 
     public AvlIndex()
@@ -62,7 +63,7 @@ public class AvlIndex<K, O> implements Index<K, O, Long>
     }
 
 
-    void initialize( AttributeType attributeType ) throws Exception
+    public void init( SchemaManager schemaManager, AttributeType attributeType ) throws Exception
     {
         this.attributeType = attributeType;
 

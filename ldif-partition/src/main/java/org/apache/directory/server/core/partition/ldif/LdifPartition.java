@@ -312,7 +312,7 @@ public class LdifPartition extends BTreePartition<Long>
     {
         Long id = getEntryId( modifyContext.getDn() );
 
-        wrappedPartition.modify( id, modifyContext.getModItems() );
+        wrappedPartition.modify( modifyContext.getDn(), modifyContext.getModItems() );
 
         // Get the modified entry and store it in the context for post usage
         ClonedServerEntry modifiedEntry = lookup( id );

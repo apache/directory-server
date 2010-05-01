@@ -48,10 +48,10 @@ import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultModification;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.name.DN;
@@ -175,13 +175,13 @@ public class AvlStoreTest
         store.setId( "foo" );
         assertEquals( "foo", store.getId() );
 
-        assertNull( store.getNdnIndex() );
-        store.addIndex( new AvlIndex<String, Attributes>( ApacheSchemaConstants.APACHE_N_DN_AT_OID ) );
-        assertNotNull( store.getNdnIndex() );
+        assertNull( store.getRdnIndex() );
+        store.addIndex( new AvlRdnIndex( ApacheSchemaConstants.APACHE_RDN_AT_OID ) );
+        assertNotNull( store.getRdnIndex() );
 
         assertNull( store.getOneAliasIndex() );
         store.addIndex( new AvlIndex<Long, Attributes>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
-        assertNotNull( store.getNdnIndex() );
+        assertNotNull( store.getOneAliasIndex() );
 
         assertNull( store.getSubAliasIndex() );
         store.addIndex( new AvlIndex<Long, Attributes>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
@@ -267,9 +267,11 @@ public class AvlStoreTest
         }
 
         assertNotNull( store.getNdnIndex() );
+
+        assertNotNull( store.getRdnIndex() );
         try
         {
-            store.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_N_DN_AT_OID ) );
+            store.addIndex( new AvlRdnIndex( ApacheSchemaConstants.APACHE_RDN_AT_OID ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -388,9 +390,9 @@ public class AvlStoreTest
         dn.normalize( schemaManager.getNormalizerMapping() );
         assertEquals( 1L, ( long ) store.getEntryId( dn ) );
         assertEquals( 11, store.count() );
-//        assertEquals( "o=Good Times Co.", store.getEntryDn( 1L ).getName() );
-//        assertEquals( dn.getNormName(), store.getEntryDn( 1L ).getNormName() );
-//        assertEquals( dn.getName(), store.getEntryDn( 1L ).getName() );
+        //        assertEquals( "o=Good Times Co.", store.getEntryDn( 1L ).getName() );
+        //        assertEquals( dn.getNormName(), store.getEntryDn( 1L ).getNormName() );
+        //        assertEquals( dn.getName(), store.getEntryDn( 1L ).getName() );
 
         // note that the suffix entry returns 0 for it's parent which does not exist
         assertEquals( 0L, ( long ) store.getParentId( store.getEntryId( dn ) ) );
