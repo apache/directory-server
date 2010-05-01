@@ -333,23 +333,29 @@ public class SchemaSearchIT extends AbstractLdapTestUnit
     public void testSubSchemaSubEntrySearch() throws Exception
     {
         DirContext ctx = getWiredContext( ldapServer );
-        
+
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        searchControls.setReturningAttributes( new String[]{ "objectClasses" } );
+        searchControls.setReturningAttributes( new String[]
+            { "objectClasses" } );
         NamingEnumeration<SearchResult> results = ctx.search( "cn=schema", "(ObjectClass=*)", searchControls );
 
         assertTrue( results.hasMore() );
         SearchResult result = results.next();
         Attributes entry = result.getAttributes();
 
-        Attribute objectClasses = entry.get( "objectClasses" ); 
+        Attribute objectClasses = entry.get( "objectClasses" );
         NamingEnumeration<?> ocs = objectClasses.getAll();
 
         while ( ocs.hasMore() )
         {
-            String oc = (String)ocs.nextElement();
-            System.out.println( oc );
+            String oc = ( String ) ocs.nextElement();
+            if ( oc.contains( "2.5.6.6" ) )
+            {
+                assertEquals(
+                    "( 2.5.6.6 NAME 'person' DESC 'RFC2256: a person' SUP top STRUCTURAL MUST ( sn $ cn ) MAY ( userPassword $ telephoneNumber $ seeAlso $ description ) X-SCHEMA 'core' )",
+                    oc );
+            }
         }
 
         results.close();
