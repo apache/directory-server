@@ -20,6 +20,7 @@
 package org.apache.directory.server.ssl;
 
 
+import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -170,17 +171,18 @@ public class StartTlsIT extends AbstractLdapTestUnit
             }
         }
         ne.close();
-        
-        assertEquals( "ou=system", results.get( 0 ) );
-        assertEquals( "uid=admin,ou=system", results.get( 1 ) );
-        assertEquals( "ou=users,ou=system", results.get( 2 ) );
-        assertEquals( "ou=groups,ou=system", results.get( 3 ) );
-        assertEquals( "cn=Administrators,ou=groups,ou=system", results.get( 4 ) );
-        assertEquals( "ou=configuration,ou=system", results.get( 5 ) );
-        assertEquals( "ou=partitions,ou=configuration,ou=system", results.get( 6 ) );
-        assertEquals( "ou=services,ou=configuration,ou=system", results.get( 7 ) );
-        assertEquals( "ou=interceptors,ou=configuration,ou=system", results.get( 8 ) );
-        assertEquals( "prefNodeName=sysPrefRoot,ou=system", results.get( 9 ) );
+
+        assertEquals( 10, results.size() );
+        assertTrue( "Results must contain ou=system", results.contains( "ou=system" ) );
+        assertTrue( "Results must contain uid=admin,ou=system", results.contains( "uid=admin,ou=system" ) );
+        assertTrue( "Results must contain ou=users,ou=system", results.contains( "ou=users,ou=system" ) );
+        assertTrue( "Results must contain ou=groups,ou=system", results.contains( "ou=groups,ou=system" ) );
+        assertTrue( "Results must contain cn=Administrators,ou=groups,ou=system", results.contains( "cn=Administrators,ou=groups,ou=system" ) );
+        assertTrue( "Results must contain ou=configuration,ou=system", results.contains( "ou=configuration,ou=system" ) );
+        assertTrue( "Results must contain ou=partitions,ou=configuration,ou=system", results.contains( "ou=partitions,ou=configuration,ou=system" ) );
+        assertTrue( "Results must contain ou=services,ou=configuration,ou=system", results.contains( "ou=services,ou=configuration,ou=system" ) );
+        assertTrue( "Results must contain ou=interceptors,ou=configuration,ou=system", results.contains( "ou=interceptors,ou=configuration,ou=system" ) );
+        assertTrue( "Results must contain prefNodeName=sysPrefRoot,ou=system", results.contains( "prefNodeName=sysPrefRoot,ou=system" ) );
     }
     
     
