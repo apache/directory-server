@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class OneLevelScopeCursor<ID> extends AbstractIndexCursor<ID, Entry, ID>
+public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, Entry, ID>
 {
     /** Error message for unsupported operations */
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );

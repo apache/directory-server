@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubstringEvaluator<ID> implements Evaluator<SubstringNode, Entry, ID>
+public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<SubstringNode, Entry, ID>
 {
     /** Database used while evaluating candidates */
     private final Store<Entry, ID> db;

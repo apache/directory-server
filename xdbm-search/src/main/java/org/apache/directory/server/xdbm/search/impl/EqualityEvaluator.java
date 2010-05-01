@@ -49,7 +49,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EqualityEvaluator<T, ID> implements Evaluator<EqualityNode<T>, Entry, ID>
+public class EqualityEvaluator<T, ID extends Comparable<ID>> implements Evaluator<EqualityNode<T>, Entry, ID>
 {
     private final EqualityNode<T> node;
     private final Store<Entry, ID> db;

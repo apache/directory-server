@@ -48,7 +48,7 @@ import org.apache.directory.shared.ldap.name.DN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultSearchEngine<ID> implements SearchEngine<Entry, ID>
+public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEngine<Entry, ID>
 {
     /** the Optimizer used by this DefaultSearchEngine */
     private final Optimizer optimizer;

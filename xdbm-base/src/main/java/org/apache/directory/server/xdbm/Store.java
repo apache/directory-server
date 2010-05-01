@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public interface Store<E, ID>
+public interface Store<E, ID extends Comparable<ID>>
 {
     /*
      * W H Y   H A V E   A   S T O R E   I N T E R F A C E  ?
@@ -98,6 +98,8 @@ public interface Store<E, ID>
         ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID,
 
         ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID,
+
+        ApacheSchemaConstants.APACHE_RDN_AT_OID,
 
         ApacheSchemaConstants.APACHE_N_DN_AT_OID,
 
@@ -287,6 +289,12 @@ public interface Store<E, ID>
 
 
     /**
+     * @return The Rdn system index
+     */
+    Index<ParentIdAndRdn<ID>, E, ID> getRdnIndex();
+
+
+    /**
      * @return The Ndn system index
      */
     Index<String, E, ID> getNdnIndex();
@@ -382,7 +390,7 @@ public interface Store<E, ID>
     ID getEntryId( DN dn ) throws Exception;
 
 
-    String getEntryDn( ID id ) throws Exception;
+    DN getEntryDn( ID id ) throws Exception;
 
 
     /**
@@ -394,12 +402,6 @@ public interface Store<E, ID>
      * @throws Exception on failures to access the underlying store
      */
     ID getParentId( ID childId ) throws Exception;
-
-
-    String getEntryUpdn( ID id ) throws Exception;
-
-
-    String getEntryUpdn( String dn ) throws Exception;
 
 
     int count() throws Exception;

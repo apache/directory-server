@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class GreaterEqCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
+public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, Entry, ID>
 {
     private static final String UNSUPPORTED_MSG = "GreaterEqCursors only support positioning by element when a user index exists on the asserted attribute.";
 

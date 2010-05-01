@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubstringCursor<ID> extends AbstractIndexCursor<String, Entry, ID>
+public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<String, Entry, ID>
 {
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_725 );
     private final boolean hasIndex;

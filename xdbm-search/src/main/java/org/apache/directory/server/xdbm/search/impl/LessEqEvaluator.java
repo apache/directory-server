@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class LessEqEvaluator<T, ID> implements Evaluator<LessEqNode<T>, Entry, ID>
+public class LessEqEvaluator<T, ID extends Comparable<ID>> implements Evaluator<LessEqNode<T>, Entry, ID>
 {
     private final LessEqNode<T> node;
     private final Store<Entry, ID> db;

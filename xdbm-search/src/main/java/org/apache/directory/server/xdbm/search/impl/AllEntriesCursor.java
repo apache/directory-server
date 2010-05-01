@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AllEntriesCursor<ID> extends AbstractIndexCursor<ID, Entry, ID>
+public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, Entry, ID>
 {
     private IndexEntry<ID, Entry, ID> indexEntry = new ForwardIndexEntry<ID, Entry, ID>();
     private final IndexCursor<String, Entry, ID> wrapped;

@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class PresenceCursor<ID> extends AbstractIndexCursor<String, Entry, ID>
+public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<String, Entry, ID>
 {
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_724 );
     private final IndexCursor<String, Entry, ID> ndnCursor;

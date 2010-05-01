@@ -799,7 +799,7 @@ public class LdifPartition extends BTreePartition<Long>
 
 
     @Override
-    public String getEntryDn( Long id ) throws Exception
+    public DN getEntryDn( Long id ) throws Exception
     {
         return wrappedPartition.getEntryDn( id );
     }
@@ -809,20 +809,6 @@ public class LdifPartition extends BTreePartition<Long>
     public Long getEntryId( DN dn ) throws Exception
     {
         return wrappedPartition.getEntryId( dn );
-    }
-
-
-    @Override
-    public String getEntryUpdn( Long id ) throws Exception
-    {
-        return wrappedPartition.getEntryUpdn( id );
-    }
-
-
-    @Override
-    public String getEntryUpdn( String dn ) throws Exception
-    {
-        return wrappedPartition.getEntryUpdn( dn );
     }
 
 

@@ -35,7 +35,7 @@ import org.apache.directory.server.xdbm.search.Evaluator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubtreeScopeEvaluator<E, ID> implements Evaluator<ScopeNode, E, ID>
+public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Evaluator<ScopeNode, E, ID>
 {
     /** The ScopeNode containing initial search scope constraints */
     private final ScopeNode node;

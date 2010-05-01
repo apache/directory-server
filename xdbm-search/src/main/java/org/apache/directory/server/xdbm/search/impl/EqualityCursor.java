@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.entry.Value;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class EqualityCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
+public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, Entry, ID>
 {
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_714 );
 

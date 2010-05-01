@@ -185,7 +185,7 @@ public class EntryNode implements TreeNode
 
     public String getEntryDn() throws Exception
     {
-        return partition.getEntryDn( id );
+        return partition.getEntryDn( id ).getNormName();
     }
 
 
@@ -195,7 +195,7 @@ public class EntryNode implements TreeNode
 
         try
         {
-            DN dn = new DN( partition.getEntryDn( id ) );
+            DN dn = partition.getEntryDn( id );
             buf.append( "(" ).append( id ).append( ") " );
             buf.append( dn.getRdn() );
         }

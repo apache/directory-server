@@ -202,8 +202,8 @@ public class StoreUtils
         Entry entry = new DefaultEntry();
 
         // Get the distinguishedName to id mapping
-        entry.put( "_nDn", store.getEntryDn( id ) );
-        entry.put( "_upDn", store.getEntryUpdn( id ) );
+        entry.put( "_nDn", store.getEntryDn( id ).getNormName() );
+        entry.put( "_upDn", store.getEntryDn( id ).getName() );
         entry.put( "_parent", Long.toString( store.getParentId( id ) ) );
 
         // Get all standard index attribute to value mappings

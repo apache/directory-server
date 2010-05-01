@@ -456,9 +456,9 @@ public class JdbmStoreTest
         dn.normalize( schemaManager.getNormalizerMapping() );
         assertEquals( 1L, ( long ) store.getEntryId( dn ) );
         assertEquals( 11, store.count() );
-        assertEquals( "o=Good Times Co.", store.getEntryUpdn( dn.getName() ) );
-        assertEquals( dn.getNormName(), store.getEntryDn( 1L ) );
-        assertEquals( dn.getName(), store.getEntryUpdn( 1L ) );
+        assertEquals( "o=Good Times Co.", store.getEntryDn( 1L ).getName() );
+        assertEquals( dn.getNormName(), store.getEntryDn( 1L ).getNormName() );
+        assertEquals( dn.getName(), store.getEntryDn( 1L ).getName() );
 
         // note that the suffix entry returns 0 for it's parent which does not exist
         assertEquals( 0L, ( long ) store.getParentId( store.getEntryId( dn ) ) );

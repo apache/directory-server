@@ -49,7 +49,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EvaluatorBuilder<ID>
+public class EvaluatorBuilder<ID extends Comparable<ID>>
 {
     private final Store<Entry, ID> db;
     private final SchemaManager schemaManager;

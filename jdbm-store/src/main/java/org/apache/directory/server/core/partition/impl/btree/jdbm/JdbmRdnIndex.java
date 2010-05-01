@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class JdbmRdnIndex extends JdbmIndex<ParentIdAndRdn<Long>, Long>
+public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
 {
 
     /** A logger for this class */

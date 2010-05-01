@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ApproximateEvaluator<T, ID> implements Evaluator<ApproximateNode<T>, Entry, ID>
+public class ApproximateEvaluator<T, ID extends Comparable<ID>> implements Evaluator<ApproximateNode<T>, Entry, ID>
 {
     private final ApproximateNode<T> node;
     private final Store<Entry, ID> db;

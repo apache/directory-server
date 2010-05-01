@@ -428,27 +428,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     public abstract ID getEntryId( DN dn ) throws Exception;
 
 
-    public abstract String getEntryDn( ID id ) throws Exception;
-
-
-    /**
-     * Gets the user provided distinguished name.
-     *
-     * @param id the entry id
-     * @return the user provided distinguished name
-     * @throws Exception if the updn index cannot be accessed
-     */
-    public abstract String getEntryUpdn( ID id ) throws Exception;
-
-
-    /**
-     * Gets the user provided distinguished name.
-     *
-     * @param dn the normalized distinguished name
-     * @return the user provided distinguished name
-     * @throws Exception if the updn and ndn indices cannot be accessed
-     */
-    public abstract String getEntryUpdn( String dn ) throws Exception;
+    public abstract DN getEntryDn( ID id ) throws Exception;
 
 
     public abstract ClonedServerEntry lookup( ID id ) throws Exception;

@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class NotCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
+public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, Entry, ID>
 {
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_718 );
     private final IndexCursor<V, Entry, ID> ndnCursor;

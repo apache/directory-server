@@ -674,7 +674,7 @@ public class PartitionFrame extends JFrame
         {
             IndexEntry rec = ( IndexEntry ) cursor.get();
             row[0] = rec.getId();
-            row[1] = partition.getEntryDn( ( Long ) row[0] );
+            row[1] = partition.getEntryDn( ( Long ) row[0] ).getNormName();
             tableModel.addRow( row );
             count++;
         }
@@ -868,7 +868,7 @@ public class PartitionFrame extends JFrame
 
     void displayEntry( Long id, Entry entry ) throws Exception
     {
-        String dn = partition.getEntryUpdn( id );
+        String dn = partition.getEntryDn( id ).getName();
         AttributesTableModel model = new AttributesTableModel( entry, id, dn, false );
         entryTbl.setModel( model );
 

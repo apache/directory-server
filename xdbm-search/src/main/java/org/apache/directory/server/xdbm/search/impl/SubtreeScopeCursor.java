@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubtreeScopeCursor<ID> extends AbstractIndexCursor<ID, Entry, ID>
+public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, Entry, ID>
 {
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 

@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class PresenceEvaluator<ID> implements Evaluator<PresenceNode, Entry, ID>
+public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<PresenceNode, Entry, ID>
 {
     private final PresenceNode node;
     private final Store<Entry, ID> db;

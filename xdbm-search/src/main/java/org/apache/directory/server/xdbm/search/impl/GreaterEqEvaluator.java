@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class GreaterEqEvaluator<T, ID> implements Evaluator<GreaterEqNode<T>, Entry, ID>
+public class GreaterEqEvaluator<T, ID extends Comparable<ID>> implements Evaluator<GreaterEqNode<T>, Entry, ID>
 {
     private final GreaterEqNode<T> node;
     private final Store<Entry, ID> db;

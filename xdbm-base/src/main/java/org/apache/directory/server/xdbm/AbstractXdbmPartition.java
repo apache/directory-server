@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.name.RDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class AbstractXdbmPartition<ID> extends BTreePartition<ID>
+public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends BTreePartition<ID>
 {
 
     protected boolean optimizerEnabled = true;
@@ -199,21 +199,9 @@ public abstract class AbstractXdbmPartition<ID> extends BTreePartition<ID>
     }
 
 
-    public final String getEntryDn( ID id ) throws Exception
+    public final DN getEntryDn( ID id ) throws Exception
     {
         return store.getEntryDn( id );
-    }
-
-
-    public final String getEntryUpdn( ID id ) throws Exception
-    {
-        return store.getEntryUpdn( id );
-    }
-
-
-    public final String getEntryUpdn( String dn ) throws Exception
-    {
-        return store.getEntryUpdn( dn );
     }
 
 

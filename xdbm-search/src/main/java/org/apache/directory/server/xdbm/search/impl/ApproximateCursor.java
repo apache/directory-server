@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.entry.Value;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class ApproximateCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
+public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, Entry, ID>
 {
     private static final String UNSUPPORTED_MSG = "ApproximateCursors only support positioning by element when a user index exists on the asserted attribute.";
 

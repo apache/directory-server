@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.filter.SearchScope;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CursorBuilder<ID>
+public class CursorBuilder<ID extends Comparable<ID>>
 {
     /** The database used by this builder */
     private Store<Entry, ID> db = null;

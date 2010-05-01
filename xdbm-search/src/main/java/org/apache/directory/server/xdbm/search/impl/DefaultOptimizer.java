@@ -50,7 +50,7 @@ import org.apache.directory.server.xdbm.Store;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultOptimizer<E, ID> implements Optimizer
+public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
 {
     /** the database this optimizer operates on */
     private final Store<E, ID> db;
