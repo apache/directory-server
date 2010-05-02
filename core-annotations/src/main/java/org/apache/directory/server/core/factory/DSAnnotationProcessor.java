@@ -277,21 +277,14 @@ public class DSAnnotationProcessor
                 }
                 else
                 {
-                    try
-                    {
-                        LdifReader ldifReader = new LdifReader( is );
+                    LdifReader ldifReader = new LdifReader( is );
 
-                        for ( LdifEntry entry : ldifReader )
-                        {
-                            injectEntry( entry, service );
-                        }
-
-                        ldifReader.close();
-                    }
-                    catch ( Exception e )
+                    for ( LdifEntry entry : ldifReader )
                     {
-                        LOG.error( I18n.err( I18n.ERR_80, ldifFile, e.getLocalizedMessage() ) );
+                        injectEntry( entry, service );
                     }
+
+                    ldifReader.close();
                 }
             }
         }
