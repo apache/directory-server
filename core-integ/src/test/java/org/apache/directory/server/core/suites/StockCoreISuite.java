@@ -55,6 +55,7 @@ import org.apache.directory.server.core.operations.lookup.LookupIT;
 import org.apache.directory.server.core.operations.modify.ModifyAddIT;
 import org.apache.directory.server.core.operations.modify.ModifyDelIT;
 import org.apache.directory.server.core.operations.modify.ModifyMultipleChangesIT;
+import org.apache.directory.server.core.operations.search.AliasSearchIT;
 import org.apache.directory.server.core.operations.search.DIRSERVER759IT;
 import org.apache.directory.server.core.operations.search.SearchIT;
 import org.apache.directory.server.core.partition.PartitionIT;
@@ -107,6 +108,7 @@ import org.junit.runners.Suite;
         ExtensibleObjectIT.class,
         RFC2713IT.class,
         RootDSEIT.class,
+        AliasSearchIT.class,
         SearchIT.class,
         UniqueMemberIT.class,
         PreferencesIT.class,
