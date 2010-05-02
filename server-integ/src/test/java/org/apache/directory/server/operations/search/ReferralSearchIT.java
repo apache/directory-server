@@ -31,10 +31,13 @@ import static org.junit.Assert.fail;
 
 import java.io.StringReader;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.ReferralException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
@@ -258,11 +261,36 @@ public class ReferralSearchIT extends AbstractLdapTestUnit
         }
         catch ( ReferralException e )
         {
-            assertEquals( "ldap://fermi:10389/ou=users,ou=system??sub", e.getReferralInfo() );
-            assertTrue( e.skipReferral() );
-            assertEquals( "ldap://hertz:10389/ou=users,dc=example,dc=com??sub", e.getReferralInfo() );
-            assertTrue( e.skipReferral() );
-            assertEquals( "ldap://maxwell:10389/ou=users,ou=system??sub", e.getReferralInfo() );
+            // As we use the uuidIndex the order of search continuations returned by
+            // the server is not deterministic. So we collect all referrals first into
+            // an hashset and check afterwards if the expected URLs are included.
+            Set<Object> s = new HashSet<Object>();
+            s.add( e.getReferralInfo() );
+            while ( e.skipReferral() )
+            {
+                try
+                {
+                    Context ctx2 = e.getReferralContext();
+                    ctx2.list( "" );
+                }
+                catch ( NamingException ne )
+                {
+                    if ( ne instanceof ReferralException )
+                    {
+                        e = ( ReferralException ) ne;
+                        s.add( e.getReferralInfo() );
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+
+            assertEquals( 5, s.size() );
+            assertTrue( s.contains( "ldap://fermi:10389/ou=users,ou=system??sub" ) );
+            assertTrue( s.contains( "ldap://hertz:10389/ou=users,dc=example,dc=com??sub" ) );
+            assertTrue( s.contains( "ldap://maxwell:10389/ou=users,ou=system??sub" ) );
         }
 
         assertNull( results.get( "ou=remoteusers" ) );
