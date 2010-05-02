@@ -53,12 +53,12 @@ public class AvlMasterTable<E> extends AvlTable<Long, E> implements MasterTable<
     }
 
 
-    public Long getCurrentId() throws Exception
+    public Long getCurrentId( E entry ) throws Exception
     {
         return counter.longValue();
     }
 
-    public Long getNextId() throws Exception
+    public Long getNextId( E entry ) throws Exception
     {
         return counter.incrementAndGet();
     }

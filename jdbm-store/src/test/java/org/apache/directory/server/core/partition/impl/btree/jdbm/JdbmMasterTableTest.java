@@ -143,14 +143,14 @@ public class JdbmMasterTableTest
         assertNull( table.get( 0L ) );
         assertEquals( 0, table.count() );
 
-        assertEquals( 0, ( long ) table.getCurrentId() );
-        assertEquals( 1, ( long ) table.getNextId() );
-        assertEquals( 1, ( long ) table.getCurrentId() );
+        assertEquals( 0, ( long ) table.getCurrentId( null ) );
+        assertEquals( 1, ( long ) table.getNextId( null ) );
+        assertEquals( 1, ( long ) table.getCurrentId( null ) );
         assertEquals( 0, table.count() );
 
-        assertEquals( 1, ( long ) table.getCurrentId() );
-        assertEquals( 2, ( long ) table.getNextId() );
-        assertEquals( 2, ( long ) table.getCurrentId() );
+        assertEquals( 1, ( long ) table.getCurrentId( null ) );
+        assertEquals( 2, ( long ) table.getNextId( null ) );
+        assertEquals( 2, ( long ) table.getCurrentId( null ) );
 
         assertNull( table.getProperty( "foo" ) );
         table.setProperty( "foo", "bar" );

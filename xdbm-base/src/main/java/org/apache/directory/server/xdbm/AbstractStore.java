@@ -369,9 +369,9 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
 
     /**
-     * Gets the root ID of this store implementation.
+     * Gets the suffix ID of this store implementation.
      *
-     * @return the root ID
+     * @return the suffix ID
      */
     protected ID getSuffixId() throws Exception
     {
@@ -774,7 +774,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         }
 
         ID parentId;
-        ID id = master.getNextId();
+        ID id = master.getNextId( entry );
 
         //
         // Suffix entry cannot have a parent since it is the root so it is 

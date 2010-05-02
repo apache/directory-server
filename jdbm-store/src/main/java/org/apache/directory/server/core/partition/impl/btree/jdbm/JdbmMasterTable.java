@@ -183,7 +183,7 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
     }
 
 
-    public Long getCurrentId() throws Exception
+    public Long getCurrentId( E entry ) throws Exception
     {
         Long id;
 
@@ -206,7 +206,7 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
      * @throws Exception if the admin table storing sequences cannot be
      *                         read and written to.
      */
-    public Long getNextId() throws Exception
+    public Long getNextId( E entry ) throws Exception
     {
         Long nextVal;
         Long lastVal;

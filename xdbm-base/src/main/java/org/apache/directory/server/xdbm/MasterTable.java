@@ -38,8 +38,8 @@ public interface MasterTable<ID, E> extends Table<ID, E>
     /**
      * Gets an entry from this MasterTable.
      *
-     * @param id the BigInteger id of the entry to retrieve.
-     * @return the entry with operational attributes and all.
+     * @param id the id of the entry to retrieve.
+     * @return the entry with all user and operational attributes.
      * @throws Exception if there is a read error on the underlying Db.
      */
     E get( ID id ) throws Exception;
@@ -70,24 +70,26 @@ public interface MasterTable<ID, E> extends Table<ID, E>
      * Gets the value of the id sequence from this MasterTable's sequence
      * without affecting the value.
      *
+     * @param entry the entry in case the id is derived from the entry.
+     * @return the current value of this MasterTable's sequence
      * @throws Exception if the admin table storing sequences cannot be read
      */
-    ID getCurrentId() throws Exception;
+    ID getCurrentId(  E entry  ) throws Exception;
 
 
     /**
      * Gets the next value from the sequence of this MasterTable.  This has
-     * the side-effect of incrementing the sequence values perminantly.
+     * the side-effect of incrementing the sequence values permanently.
      *
-     * @return the current value of this MasterTable's sequence incremented
-     * by one
+     * @param entry the entry in case the id is derived from the entry.
+     * @return the current value of this MasterTable's sequence incremented by one
      * @throws Exception on failure to update the id sequence
      */
-    ID getNextId() throws Exception;
+    ID getNextId( E entry ) throws Exception;
 
 
     /**
-     * Gets a persistant property associated with this MasterTable.
+     * Gets a persistent property associated with this MasterTable.
      *
      * @param property the key of the property to get the value of
      * @return the value of the property
@@ -97,7 +99,7 @@ public interface MasterTable<ID, E> extends Table<ID, E>
 
 
     /**
-     * Sets a persistant property associated with this MasterTable.
+     * Sets a persistent property associated with this MasterTable.
      *
      * @param property the key of the property to set the value of
      * @param value the value of the property
