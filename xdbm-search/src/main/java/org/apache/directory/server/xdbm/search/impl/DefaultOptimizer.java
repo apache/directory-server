@@ -354,9 +354,8 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
         else if ( db.hasSystemIndexOn( node.getAttribute() ) )
         {
             // the system indices (objectClass, entryUUID, entryCSN) are maintained for
-            // each entry, so we could just return the index count
-            Index<?, E, ID> idx = db.getSystemIndex( node.getAttribute() );
-            return idx.count();
+            // each entry, so we could just return the database count
+            return db.count();
         }
 
         return Long.MAX_VALUE;
