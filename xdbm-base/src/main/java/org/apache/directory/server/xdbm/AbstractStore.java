@@ -107,9 +107,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /** a map of attributeType numeric ID to system userIndices */
     protected Map<String, Index<?, E, ID>> systemIndices = new HashMap<String, Index<?, E, ID>>();
 
-    /** the normalized distinguished name index */
-    protected Index<String, E, ID> ndnIdx;
-
     /** the attribute presence index */
     protected Index<String, E, ID> presenceIdx;
 
@@ -250,7 +247,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * Sets up the user indices.
      */
-    @SuppressWarnings("unchecked")
     protected void setupUserIndices() throws Exception
     {
         // convert and initialize system indices
@@ -298,10 +294,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         {
             addIndex( new GenericIndex<ParentIdAndRdn<ID>, E, ID>( ApacheSchemaConstants.APACHE_RDN_AT_OID ) );
         }
-        if ( getNdnIndex() == null )
-        {
-            addIndex( new GenericIndex<String, E, ID>( ApacheSchemaConstants.APACHE_N_DN_AT_OID ) );
-        }
         if ( getAliasIndex() == null )
         {
             addIndex( new GenericIndex<String, E, ID>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
@@ -337,7 +329,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         // set index shortcuts
         rdnIdx = ( Index<ParentIdAndRdn<ID>, E, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_RDN_AT_OID );
-        ndnIdx = ( Index<String, E, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_N_DN_AT_OID );
         presenceIdx = ( Index<String, E, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID );
         oneLevelIdx = ( Index<ID, E, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
         subLevelIdx = ( Index<ID, E, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
@@ -550,7 +541,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public Index<String, E, ID> getNdnIndex()
     {
         return getEntryUuidIndex();
@@ -990,6 +980,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unchecked")
     public synchronized void delete( ID id ) throws Exception
     {
         Entry entry = master.get( id );
