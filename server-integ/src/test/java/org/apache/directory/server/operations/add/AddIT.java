@@ -30,6 +30,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.naming.Context;
@@ -521,14 +523,19 @@ public class AddIT extends AbstractLdapTestUnit
         controls.setDerefLinkFlag( true );
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         containerCtx.addToEnvironment( "java.naming.ldap.derefAliases", "never" );
+        Set<String> names = new HashSet<String>();
         NamingEnumeration<SearchResult> ne = containerCtx.search( "", "(objectClass=*)", controls );
         assertTrue( ne.hasMore() );
         SearchResult sr = ne.next();
-        assertEquals( "ou=favorite", sr.getName() );
+        names.add( sr.getName() );
         assertTrue( ne.hasMore() );
         sr = ne.next();
-        assertEquals( "ou=bestFruit", sr.getName() );
-        
+        names.add( sr.getName() );
+        assertFalse( ne.hasMore() );
+        assertEquals( 2, names.size() );
+        assertTrue( names.contains( "ou=favorite" ) );
+        assertTrue( names.contains( "ou=bestFruit" ) );
+
         // search one level with dereferencing turned on
         controls = new SearchControls();
         controls.setDerefLinkFlag( true );
