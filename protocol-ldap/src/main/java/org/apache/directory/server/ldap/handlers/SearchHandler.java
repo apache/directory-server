@@ -36,6 +36,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
+import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControl;
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControl;
@@ -780,9 +781,9 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
      * @return the response for the entry
      * @throws Exception if there are problems in generating the response
      */
-    private InternalResponse generateResponse( LdapSession session, InternalSearchRequest req, ClonedServerEntry entry ) throws Exception
+    private InternalResponse generateResponse( LdapSession session, InternalSearchRequest req, Entry entry ) throws Exception
     {
-        EntryAttribute ref = entry.getOriginalEntry().get( SchemaConstants.REF_AT );
+        EntryAttribute ref = ((ClonedServerEntry)entry).getOriginalEntry().get( SchemaConstants.REF_AT );
         boolean hasManageDsaItControl = req.getControls().containsKey( ManageDsaITControl.CONTROL_OID );
 
         if ( ( ref != null ) && ! hasManageDsaItControl )
@@ -870,19 +871,9 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
      * @param req the request to get the original filter from
      * @throws Exception if there are schema access problems
      */
-    public void modifyFilter( LdapSession session, InternalSearchRequest req ) throws Exception
+    private void modifyFilter( LdapSession session, InternalSearchRequest req ) throws Exception
     {
         if ( req.hasControl( ManageDsaITControl.CONTROL_OID ) )
-        {
-            return;
-        }
-        
-        /*
-         * Do not add the OR'd (objectClass=referral) expression if the user 
-         * searches for the subSchemaSubEntry as the SchemaIntercepter can't 
-         * handle an OR'd filter.
-         */
-        if ( isSubSchemaSubEntrySearch( session, req ) )
         {
             return;
         }
@@ -901,12 +892,23 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
             
             AttributeType at = session.getCoreSession().getDirectoryService()
                 .getSchemaManager().lookupAttributeTypeRegistry( presenceNode.getAttribute() );
+            
             if ( at.getOid().equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
             {
                 return;
             }
         }
 
+        /*
+         * Do not add the OR'd (objectClass=referral) expression if the user 
+         * searches for the subSchemaSubEntry as the SchemaIntercepter can't 
+         * handle an OR'd filter.
+         */
+        if ( isSubSchemaSubEntrySearch( session, req ) )
+        {
+            return;
+        }
+        
         // using varags to add two expressions to an OR node 
         req.setFilter( new OrNode( req.getFilter(), newIsReferralEqualityNode( session ) ) );
     }
@@ -976,8 +978,11 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
             // Handle regular search requests from here down
             // ===============================================================
 
+            //long t0 = System.nanoTime();
             InternalSearchResponseDone done = doSimpleSearch( session, req );
+            //long t1 = System.nanoTime();
             session.getIoSession().write( done );
+            //.print( "Handler;" + ((t1-t0)/1000) + ";" );
         }
         catch ( Exception e )
         {
@@ -1219,7 +1224,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
      * @param req the request issued
      * @return true if the search is on the RootDSE false otherwise
      */
-    private static boolean isRootDSESearch( InternalSearchRequest req )
+    private boolean isRootDSESearch( InternalSearchRequest req )
     {
         boolean isBaseIsRoot = req.getBase().isEmpty();
         boolean isBaseScope = req.getScope() == SearchScope.OBJECT;
@@ -1259,7 +1264,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
      * 
      * @throws Exception the exception
      */
-    private static boolean isSubSchemaSubEntrySearch( LdapSession session, InternalSearchRequest req ) throws Exception
+    private boolean isSubSchemaSubEntrySearch( LdapSession session, InternalSearchRequest req ) throws Exception
     {
         DN base = req.getBase();
         String baseNormForm = ( base.isNormalized() ? base.getNormName() : base.getNormName() );
