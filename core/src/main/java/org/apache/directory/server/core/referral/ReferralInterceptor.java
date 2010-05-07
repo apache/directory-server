@@ -250,7 +250,6 @@ public class ReferralInterceptor extends BaseInterceptor
 
             referralManager.unlock();
         }
-
     }
 
 
@@ -289,7 +288,7 @@ public class ReferralInterceptor extends BaseInterceptor
 
 
     /**
-     * 
+     * {@inheritDoc}
      **/
     public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
     {
@@ -322,7 +321,7 @@ public class ReferralInterceptor extends BaseInterceptor
 
 
     /**
-     * 
+     * {@inheritDoc}
      **/
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws Exception
     {
@@ -351,6 +350,9 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     **/
     public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
     {
         // Check if the entry is a referral itself
