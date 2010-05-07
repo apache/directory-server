@@ -27,7 +27,6 @@ import java.util.Set;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.changelog.LogChange;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AbstractOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -485,8 +484,11 @@ public class DefaultCoreSession implements CoreSession
     public Entry lookup( DN dn, String[] attrId ) throws Exception
     {
         OperationManager operationManager = directoryService.getOperationManager();
-        return operationManager.lookup( 
-            new LookupOperationContext( this, dn, attrId ) );
+        LookupOperationContext lookupOperationContext = new LookupOperationContext( this, dn, attrId );
+
+        Entry entry = operationManager.lookup( lookupOperationContext );
+        
+        return entry;
     }
 
 
