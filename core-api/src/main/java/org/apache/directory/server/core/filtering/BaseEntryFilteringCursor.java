@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.entry.ClonedServerEntrySearch;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.cursor.Cursor;
@@ -507,7 +508,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
             }
             else
             {
-                tempResult = new ClonedServerEntry( tempEntry );
+                tempResult = new ClonedServerEntrySearch( tempEntry );
             }
             
             /*
@@ -578,7 +579,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         outer: while ( wrapped.previous() )
         {
             boolean accepted = true;
-            tempResult = new ClonedServerEntry( wrapped.get() );
+            tempResult = new ClonedServerEntrySearch( wrapped.get() );
             
             /*
              * O P T I M I Z A T I O N
