@@ -862,7 +862,6 @@ public class InterceptorChain
         Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
-        eagerlyPopulateFields( opContext );
 
         try
         {
