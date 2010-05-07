@@ -51,6 +51,7 @@ import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -119,7 +120,7 @@ import org.junit.runner.RunWith;
     "sn: akarasulu"
     }
 )
-public class RenameReferralIT extends AbstractLdapTestUnit
+public class RenameReferralIgnoreIT extends AbstractLdapTestUnit
 {
 
     /** The Context we are using to inject entries with JNDI */
@@ -151,18 +152,19 @@ public class RenameReferralIT extends AbstractLdapTestUnit
 
     
     /**
-     * Test a rename of a non existing entry (not a referral), with no referral 
-     * in its ancestor.
+     * Test a rename of a non existing entry (not a referral), with a referral 
+     * in its ancestor, using JNDI ignore.
      */
     @Test
-    public void testRenameNotExistingSuperiorNoReferralAncestor() throws Exception
+    public void testRenameNotExistingSuperiorReferralAncestorJNDIIgnore() throws Exception
     {
         try
         {
-            MNNCtx.rename( "cn=Emmanuel Lecharny", "cn=Alex Karasulu" );
+            MNNCtx.addToEnvironment( DirContext.REFERRAL, "ignore" );
+            MNNCtx.rename( "cn=Emmanuel Lecharny,ou=apache,ou=roles", "cn=Alex Karasulu,ou=apache,ou=roles" );
             fail();
         }
-        catch ( NameNotFoundException nnfe )
+        catch ( PartialResultException pre )
         {
             assertTrue( true );
         }
@@ -171,102 +173,56 @@ public class RenameReferralIT extends AbstractLdapTestUnit
 
     /**
      * Test a rename of a non existing entry (not a referral), with a referral 
-     * in its ancestor, using JNDI throw.
+     * in its ancestor, using the Core API with the ManageDsaIT flag.
      */
     @Test
-    public void testRenameNotExistingSuperiorReferralAncestorJNDIThrow() throws Exception
-    {
-        try
-        {
-            MNNCtx.addToEnvironment( DirContext.REFERRAL, "throw" );
-            MNNCtx.rename( "cn=Emmanuel Lecharny,ou=apache,ou=roles", "cn=Alex Karasulu,ou=apache,ou=roles" );
-            fail();
-        }
-        catch ( ReferralException re )
-        {
-            int nbRefs = 0;
-            Set<String> expectedRefs = new HashSet<String>();
-            expectedRefs.add( "ldap://hostd/cn=Emmanuel%20Lecharny,ou=apache,ou=Roles,dc=apache,dc=org" );
-            
-            do 
-            {
-                String ref = (String)re.getReferralInfo();
-                
-                assertTrue( expectedRefs.contains( ref ) );
-                nbRefs ++;
-            }
-            while ( re.skipReferral() );
-            
-            assertEquals( 1, nbRefs );
-        }
-    }
-
-
-    /**
-     * Test a rename of a non existing entry (not a referral), with a referral 
-     * in its ancestor, using the Core API without the ManageDsaIT flag.
-     */
-    @Test
-    public void testRenameNotExistingSuperiorReferralAncestorCoreAPIWithoutManageDsaIt() throws Exception
+    public void testRenameNotExistingSuperiorReferralAncestorCoreAPIWithManageDsaIt() throws Exception
     {
         CoreSession session = service.getAdminSession();
-
         try
         {
             DN dn = new DN( "cn=Emmanuel Lecharny,ou=apache,ou=roles,o=MNN,c=WW,ou=system" );
             RDN newRdn = new RDN( "cn=Alex Karasulu" );
-            session.rename( dn, newRdn, false, false );
+            session.rename( dn, newRdn, false, true );
             fail();
         }
-        catch ( LdapReferralException re )
+        catch ( LdapPartialResultException lpre )
         {
-            int nbRefs = 0;
-            Set<String> expectedRefs = new HashSet<String>();
-            expectedRefs.add( "ldap://hostd/cn=Emmanuel%20Lecharny,ou=apache,ou=Roles,dc=apache,dc=org" );
-            
-            do 
-            {
-                String ref = (String)re.getReferralInfo();
-                
-                assertTrue( expectedRefs.contains( ref ) );
-                nbRefs ++;
-            }
-            while ( re.skipReferral() );
-            
-            assertEquals( 1, nbRefs );
+            assertTrue( true );
         }
     }
 
 
     /**
-     * Test a rename of an existing entry (not a referral), with no referral 
-     * in its ancestor.
+     * Test a rename of an existing referral, using JNDI ignore. 
      */
     @Test
-    public void testRenameExistingSuperiorNotExistingNewRdnNoReferralAncestor() throws Exception
+    public void testRenameExistingReferralJNDIIgnore() throws Exception
     {
+        MNNCtx.addToEnvironment( DirContext.REFERRAL, "ignore" );
+
         // First check that the object exists
-        Object renamed = MNNCtx.lookup( "cn=Alex Karasulu" );
+        Object renamed = MNNCtx.lookup( "ou=Roles" );
         assertNotNull( renamed );
 
-        // and that the target entry is not present
+        // Also check that the new entry does not exist
         try
         {
-            renamed = MNNCtx.lookup( "cn=Emmanuel Lecharny" );
+            renamed = MNNCtx.lookup( "ou=Groups" );
             fail();
         }
         catch ( NameNotFoundException nnfe )
         {
             assertTrue( true );
         }
-
-        // Rename it
-        MNNCtx.rename( "cn=Alex Karasulu", "cn=Emmanuel Lecharny" );
         
+        // Now renames the referral
+        MNNCtx.rename( "ou=roles", "ou=groups" );
+
         // It should not be there anymore
         try
         {
-            renamed = MNNCtx.lookup( "cn=Alex Karasulu" );
+            renamed = MNNCtx.lookup( "ou=Roles" );
             fail();
         }
         catch ( NameNotFoundException nnfe )
@@ -275,88 +231,69 @@ public class RenameReferralIT extends AbstractLdapTestUnit
         }
 
         // But the new one should be there
-        renamed = MNNCtx.lookup( "cn=Emmanuel Lecharny" );
+        renamed = MNNCtx.lookup( "ou=groups" );
         assertNotNull( renamed );
     }
 
 
     /**
-     * Test a rename of an existing referral, using JNDI throw. 
+     * Test a rename of an existing referral,  using the Core API with
+     * the ManageDsaIt flag.  
      */
     @Test
-    public void testRenameExistingReferralJNDIThrow() throws Exception
-    {
-        try
-        {
-            MNNCtx.addToEnvironment( DirContext.REFERRAL, "throw" );
-            MNNCtx.rename( "ou=roles", "cn=Alex Karasulu" );
-            fail();
-        }
-        catch ( ReferralException re )
-        {
-            int nbRefs = 0;
-            Set<String> expectedRefs = new HashSet<String>();
-            expectedRefs.add( "ldap://hostd/ou=Roles,dc=apache,dc=org" );
-            
-            do 
-            {
-                String ref = (String)re.getReferralInfo();
-                
-                assertTrue( expectedRefs.contains( ref ) );
-                nbRefs ++;
-            }
-            while ( re.skipReferral() );
-            
-            assertEquals( 1, nbRefs );
-        }
-    }
-
-
-    /**
-     * Test a rename of an existing referral, using the Core API without 
-     * the ManageDsaIt flag. 
-     */
-    @Test
-    public void testRenameExistingReferralCoreApiWithoutManageDsaIt() throws Exception
+    public void testRenameExistingReferralCoreAPIWithManageDsaIt() throws Exception
     {
         CoreSession session = service.getAdminSession();
+        DN dnRoles = new DN( "ou=Roles,o=MNN,c=WW,ou=system" );
+        DN dnGroups = new DN( "ou=Groups,o=MNN,c=WW,ou=system" );
+        RDN newRdn = new RDN( "ou=Groups" );
 
+        // First check that the object exists
+        Entry renamed = session.lookup( dnRoles );
+        assertNotNull( renamed );
+
+        // Also check that the new entry does not exist
         try
         {
-            DN dn = new DN( "ou=roles,o=MNN,c=WW,ou=system" );
-            RDN newRdn = new RDN( "cn=Alex Karasulu" );
-            session.rename( dn, newRdn, false, false );
+            renamed = session.lookup( dnGroups );
             fail();
         }
-        catch ( LdapReferralException re )
+        catch ( LdapNoSuchObjectException lnsoe )
         {
-            int nbRefs = 0;
-            Set<String> expectedRefs = new HashSet<String>();
-            expectedRefs.add( "ldap://hostd/ou=Roles,dc=apache,dc=org" );
-            
-            do 
-            {
-                String ref = (String)re.getReferralInfo();
-                
-                assertTrue( expectedRefs.contains( ref ) );
-                nbRefs ++;
-            }
-            while ( re.skipReferral() );
-            
-            assertEquals( 1, nbRefs );
+            assertTrue( true );
         }
+        
+        // Now renames the referral
+        session.rename( dnRoles, newRdn, false, true );
+
+        // It should not be there anymore
+        try
+        {
+            renamed = session.lookup( dnRoles );
+            fail();
+        }
+        catch ( LdapNoSuchObjectException lnsoe )
+        {
+            assertTrue( true );
+        }
+
+        // But the new one should be there
+        renamed = session.lookup( dnGroups );
+        assertNotNull( renamed );
     }
 
 
     /**
-     * Test a rename an entry using an already existing RDN (the new entry already exists), not a referral
+     * Test a rename a referral using an already existing RDN (the new entry already exists and is a referral),
+     * using JNDI ignore
      */
     @Test
-    public void testRenameRdnExistNotReferral() throws Exception
+    public void testRenameRdnExistIsReferralJNDIIgnore() throws Exception
     {
         try
         {
-            MNNCtx.rename( "cn=Alex Karasulu", "cn=Alex" );
+            MNNCtx.addToEnvironment( DirContext.REFERRAL, "ignore" );
+            MNNCtx.rename( "ou=Roles", "ou=People" );
             fail();
         }
         catch ( NameAlreadyBoundException nabe )
@@ -368,43 +305,10 @@ public class RenameReferralIT extends AbstractLdapTestUnit
 
     /**
      * Test a rename a referral using an already existing RDN (the new entry already exists and is a referral),
-     * using JNDI throw
+     * using the Core API, with the ManageDsaIt flag
      */
     @Test
-    public void testRenameRdnExistIsReferralJNDIThrow() throws Exception
-    {
-        try
-        {
-            MNNCtx.addToEnvironment( DirContext.REFERRAL, "throw" );
-            MNNCtx.rename( "ou=Roles", "ou=People" );
-            fail();
-        }
-        catch ( ReferralException re )
-        {
-            int nbRefs = 0;
-            Set<String> expectedRefs = new HashSet<String>();
-            expectedRefs.add( "ldap://hostd/ou=Roles,dc=apache,dc=org" );
-            
-            do 
-            {
-                String ref = (String)re.getReferralInfo();
-                
-                assertTrue( expectedRefs.contains( ref ) );
-                nbRefs ++;
-            }
-            while ( re.skipReferral() );
-            
-            assertEquals( 1, nbRefs );
-        }
-    }
-
-
-    /**
-     * Test a rename a referral using an already existing RDN (the new entry already exists and is a referral),
-     * using the Core API, without the ManageDsaIt flag
-     */
-    @Test
-    public void testRenameRdnExistIsReferralCoreAPIWithoutManageDsaIt() throws Exception
+    public void testRenameRdnExistIsReferralCoreAPIWithManageDsaIt() throws Exception
     {
         CoreSession session = service.getAdminSession();
         DN dn = new DN( "ou=Roles,o=MNN,c=WW,ou=system" );
@@ -412,25 +316,12 @@ public class RenameReferralIT extends AbstractLdapTestUnit
 
         try
         {
-            session.rename( dn, newRdn, false, false );
+            session.rename( dn, newRdn, false, true );
             fail();
         }
-        catch ( LdapReferralException re )
+        catch ( LdapEntryAlreadyExistsException leaee )
         {
-            int nbRefs = 0;
-            Set<String> expectedRefs = new HashSet<String>();
-            expectedRefs.add( "ldap://hostd/ou=Roles,dc=apache,dc=org" );
-            
-            do 
-            {
-                String ref = (String)re.getReferralInfo();
-                
-                assertTrue( expectedRefs.contains( ref ) );
-                nbRefs ++;
-            }
-            while ( re.skipReferral() );
-            
-            assertEquals( 1, nbRefs );
+            assertTrue( true );
         }
     }
 }
