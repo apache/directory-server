@@ -47,11 +47,15 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 public class ClonedServerEntry implements Entry
 {
     /** The original entry as returned by the backend */
-    private final Entry originalEntry;
+    protected Entry originalEntry;
     
     /** The copied entry */
-    private final Entry clonedEntry;
+    protected Entry clonedEntry;
 
+    public ClonedServerEntry()
+    {
+        
+    }
     
     /**
      * Creates a new instance of ClonedServerEntry.
