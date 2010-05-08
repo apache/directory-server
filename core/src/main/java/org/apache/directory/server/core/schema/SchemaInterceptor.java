@@ -1456,30 +1456,6 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    private void filterObjectClass( Entry entry ) throws Exception
-    {
-        List<ObjectClass> objectClasses = new ArrayList<ObjectClass>();
-        EntryAttribute oc = entry.get( SchemaConstants.OBJECT_CLASS_AT );
-
-        if ( oc != null )
-        {
-            getObjectClasses( oc, objectClasses );
-
-            entry.removeAttributes( SchemaConstants.OBJECT_CLASS_AT );
-
-            EntryAttribute newOc = new DefaultEntryAttribute( oc.getAttributeType() );
-
-            for ( ObjectClass currentOC : objectClasses )
-            {
-                newOc.add( currentOC.getName() );
-            }
-
-            newOc.add( SchemaConstants.TOP_OC );
-            entry.put( newOc );
-        }
-    }
-
-
     private void filterBinaryAttributes( Entry entry ) throws Exception
     {
         /*
@@ -1533,7 +1509,6 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         public boolean accept( SearchingOperationContext operation, ClonedServerEntry result ) throws Exception
         {
-            filterObjectClass( result );
             filterAttributeTypes( operation, result );
             return true;
         }
