@@ -872,7 +872,11 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
             throw new LdapNoSuchObjectException();
         }
     
-        base.normalize( schemaManager.getNormalizerMapping() );
+        if ( !base.isNormalized() )
+        {
+            base.normalize( schemaManager.getNormalizerMapping() );
+        }
+        
         Partition backend = getPartition( base );
         return backend.search( opContext );
     }
