@@ -188,7 +188,12 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
     {
-        opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
+        DN dn = opContext.getDn();
+        
+        if ( !dn.isNormalized() )
+        {
+            dn.normalize( schemaManager.getNormalizerMapping() );
+        }
 
         ExprNode filter = opContext.getFilter();
         
