@@ -36,7 +36,6 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
-import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControl;
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControl;
@@ -47,6 +46,8 @@ import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
+import org.apache.directory.shared.ldap.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
@@ -59,12 +60,14 @@ import org.apache.directory.shared.ldap.message.SearchResponseReferenceImpl;
 import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.internal.InternalReferral;
 import org.apache.directory.shared.ldap.message.internal.InternalResponse;
+import org.apache.directory.shared.ldap.message.internal.InternalResultResponseRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchResponseDone;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchResponseEntry;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchResponseReference;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.util.LdapURL;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -77,7 +80,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 664302 $
  */
-public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchRequest>
+public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
 {
     private static final Logger LOG = LoggerFactory.getLogger( SearchHandler.class );
 
@@ -162,6 +165,45 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
         return;
     }
     
+    
+    /**
+     * {@inheritDoc}
+     */
+    public final void handle( LdapSession session, InternalSearchRequest req ) throws Exception
+    {
+        LOG.debug( "Handling single reply request: {}", req );
+        
+        // First, if we have the ManageDSAIt control, go directly
+        // to the handling without pre-processing the request
+        if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
+        {
+            // If the ManageDsaIT control is present, we will
+            // consider that the user wants to get entry which
+            // are referrals as plain entry. We have to return
+            // SearchResponseEntry elements instead of 
+            // SearchResponseReference elements.
+            LOG.debug( "ManageDsaITControl detected." );
+            handleIgnoringReferrals( session, req );
+        }
+        else
+        {
+            // No ManageDsaIT control. If the found entries is a referral,
+            // we will return SearchResponseReference elements.
+            LOG.debug( "ManageDsaITControl NOT detected." );
+    
+            switch ( req.getType() )
+            {
+                case SEARCH_REQUEST:
+                    handleWithReferrals( session, req );
+                    break;
+
+                default:
+                    throw new IllegalStateException( I18n.err( I18n.ERR_685, req ) );
+            }
+            
+        }
+    }
+
     
     /**
      * Handles search requests on the RootDSE. 
@@ -924,7 +966,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
      * @param session the associated session
      * @param req the received SearchRequest
      */
-    public void handleIgnoringReferrals( LdapSession session, InternalSearchRequest req )
+    private void handleIgnoringReferrals( LdapSession session, InternalSearchRequest req )
     {
         if ( IS_DEBUG )
         {
@@ -1028,16 +1070,17 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
     /**
      * Handles processing with referrals without ManageDsaIT control.
      */
-    public void handleWithReferrals( LdapSession session, DN reqTargetDn, InternalSearchRequest req ) throws LdapException
+    private void handleWithReferrals( LdapSession session, InternalSearchRequest req ) throws LdapException
     {
         InternalLdapResult result = req.getResultResponse().getLdapResult();
         Entry entry = null;
         boolean isReferral = false;
         boolean isparentReferral = false;
-        ReferralManager referralManager = session.getCoreSession().getDirectoryService().getReferralManager();
+        DirectoryService directoryService = session.getCoreSession().getDirectoryService();
+        ReferralManager referralManager = directoryService.getReferralManager();
+        DN reqTargetDn = req.getBase();
         
-        reqTargetDn.normalize( session.getCoreSession().getDirectoryService().
-            getSchemaManager().getNormalizerMapping() );
+        reqTargetDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
         
         // Check if the entry itself is a referral
         referralManager.lockRead();
@@ -1277,5 +1320,309 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
         String subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
         
         return subschemaSubentryDnNorm.equals( baseNormForm );
+    }
+
+
+    /**
+     * Handles processing with referrals without ManageDsaIT control and with 
+     * an ancestor that is a referral.  The original entry was not found and 
+     * the walk of the ancestry returned a referral.
+     * 
+     * @param referralAncestor the farthest referral ancestor of the missing 
+     * entry  
+     */
+    public InternalReferral getReferralOnAncestorForSearch( LdapSession session, InternalSearchRequest req, 
+        ClonedServerEntry referralAncestor ) throws Exception
+    {
+        LOG.debug( "Inside getReferralOnAncestor()" );
+     
+        EntryAttribute refAttr = referralAncestor.getOriginalEntry()
+            .get( SchemaConstants.REF_AT );
+        InternalReferral referral = new ReferralImpl();
+
+        for ( Value<?> value : refAttr )
+        {
+            String ref = value.getString();
+
+            LOG.debug( "Calculating LdapURL for referrence value {}", ref );
+
+            // need to add non-ldap URLs as-is
+            if ( ! ref.startsWith( "ldap" ) )
+            {
+                referral.addLdapUrl( ref );
+                continue;
+            }
+            
+            // Parse the ref value   
+            LdapURL ldapUrl = new LdapURL();
+            try
+            {
+                ldapUrl.parse( ref.toCharArray() );
+            }
+            catch ( LdapURLEncodingException e )
+            {
+                LOG.error( I18n.err( I18n.ERR_165, ref, referralAncestor ) );
+            }
+            
+            // Normalize the DN to check for same dn
+            DN urlDn = new DN( ldapUrl.getDn().getName() );
+            urlDn.normalize( session.getCoreSession().getDirectoryService().getSchemaManager()
+                .getNormalizerMapping() ); 
+            
+            if ( urlDn.getNormName().equals( req.getBase().getNormName() ) )
+            {
+                ldapUrl.setForceScopeRendering( true );
+                ldapUrl.setAttributes( req.getAttributes() );
+                ldapUrl.setScope( req.getScope().getScope() );
+                referral.addLdapUrl( ldapUrl.toString() );
+                continue;
+            }
+            
+            /*
+             * If we get here then the DN of the referral was not the same as the 
+             * DN of the ref LDAP URL.  We must calculate the remaining (difference)
+             * name past the farthest referral DN which the target name extends.
+             */
+            int diff = req.getBase().size() - referralAncestor.getDn().size();
+            DN extra = new DN();
+
+            // TODO - fix this by access unormalized RDN values
+            // seems we have to do this because get returns normalized rdns
+            DN reqUnnormalizedDn = new DN( req.getBase().getName() );
+            for ( int jj = 0; jj < diff; jj++ )
+            {
+                extra.add( reqUnnormalizedDn.get( referralAncestor.getDn().size() + jj ) );
+            }
+
+            ldapUrl.getDn().addAll( extra );
+            ldapUrl.setForceScopeRendering( true );
+            ldapUrl.setAttributes( req.getAttributes() );
+            ldapUrl.setScope( req.getScope().getScope() );
+            referral.addLdapUrl( ldapUrl.toString() );
+        }
+        
+        return referral;
+    }
+
+    
+    /**
+     * Handles processing with referrals without ManageDsaIT control and with 
+     * an ancestor that is a referral.  The original entry was not found and 
+     * the walk of the ancestry returned a referral.
+     * 
+     * @param referralAncestor the farthest referral ancestor of the missing 
+     * entry  
+     */
+    public InternalReferral getReferralOnAncestor( LdapSession session, DN reqTargetDn, InternalSearchRequest req, 
+        ClonedServerEntry referralAncestor ) throws Exception
+    {
+        LOG.debug( "Inside getReferralOnAncestor()" );
+        
+        EntryAttribute refAttr =referralAncestor.getOriginalEntry()
+            .get( SchemaConstants.REF_AT );
+        InternalReferral referral = new ReferralImpl();
+
+        for ( Value<?> value : refAttr )
+        {
+            String ref = value.getString();
+
+            LOG.debug( "Calculating LdapURL for referrence value {}", ref );
+
+            // need to add non-ldap URLs as-is
+            if ( ! ref.startsWith( "ldap" ) )
+            {
+                referral.addLdapUrl( ref );
+                continue;
+            }
+            
+            // parse the ref value and normalize the DN  
+            LdapURL ldapUrl = new LdapURL();
+            try
+            {
+                ldapUrl.parse( ref.toCharArray() );
+            }
+            catch ( LdapURLEncodingException e )
+            {
+                LOG.error( I18n.err( I18n.ERR_165, ref, referralAncestor ) );
+            }
+            
+            DN urlDn = new DN( ldapUrl.getDn().getName() );
+            urlDn.normalize( session.getCoreSession().getDirectoryService().getSchemaManager()
+                .getNormalizerMapping() ); 
+            
+            if ( urlDn.getNormName().equals( referralAncestor.getDn().getNormName() ) )
+            {
+                // according to the protocol there is no need for the dn since it is the same as this request
+                StringBuilder buf = new StringBuilder();
+                buf.append( ldapUrl.getScheme() );
+                buf.append( ldapUrl.getHost() );
+
+                if ( ldapUrl.getPort() > 0 )
+                {
+                    buf.append( ":" );
+                    buf.append( ldapUrl.getPort() );
+                }
+
+                referral.addLdapUrl( buf.toString() );
+                continue;
+            }
+            
+            /*
+             * If we get here then the DN of the referral was not the same as the 
+             * DN of the ref LDAP URL.  We must calculate the remaining (difference)
+             * name past the farthest referral DN which the target name extends.
+             */
+            int diff = reqTargetDn.size() - referralAncestor.getDn().size();
+            DN extra = new DN();
+
+            // TODO - fix this by access unormalized RDN values
+            // seems we have to do this because get returns normalized rdns
+            DN reqUnnormalizedDn = new DN( reqTargetDn.getName() );
+            for ( int jj = 0; jj < diff; jj++ )
+            {
+                extra.add( reqUnnormalizedDn.get( referralAncestor.getDn().size() + jj ) );
+            }
+
+            urlDn.addAll( extra );
+
+            StringBuilder buf = new StringBuilder();
+            buf.append( ldapUrl.getScheme() );
+            buf.append( ldapUrl.getHost() );
+
+            if ( ldapUrl.getPort() > 0 )
+            {
+                buf.append( ":" );
+                buf.append( ldapUrl.getPort() );
+            }
+
+            buf.append( "/" );
+            buf.append( LdapURL.urlEncode( urlDn.getName(), false ) );
+            referral.addLdapUrl( buf.toString() );
+        }
+        
+        return referral;
+    }
+
+    
+    /**
+     * Handles processing with referrals without ManageDsaIT control.
+     */
+    public void handleException( LdapSession session, InternalResultResponseRequest req, Exception e )
+    {
+        InternalLdapResult result = req.getResultResponse().getLdapResult();
+
+        /*
+         * Set the result code or guess the best option.
+         */
+        ResultCodeEnum code;
+        
+        if ( e instanceof LdapOperationException )
+        {
+            code = ( ( LdapOperationException ) e ).getResultCode();
+        }
+        else
+        {
+            code = ResultCodeEnum.getBestEstimate( e, req.getType() );
+        }
+        
+        result.setResultCode( code );
+
+        /*
+         * Setup the error message to put into the request and put entire
+         * exception into the message if we are in debug mode.  Note we 
+         * embed the result code name into the message.
+         */
+        String msg = code.toString() + ": failed for " + req + ": " + e.getLocalizedMessage();
+        LOG.debug( msg, e );
+        
+        if ( IS_DEBUG )
+        {
+            msg += ":\n" + ExceptionUtils.getStackTrace( e );
+        }
+        
+        result.setErrorMessage( msg );
+
+        if ( e instanceof LdapOperationException )
+        {
+            LdapOperationException ne = ( LdapOperationException ) e;
+
+            // Add the matchedDN if necessary
+            boolean setMatchedDn = 
+                code == ResultCodeEnum.NO_SUCH_OBJECT             || 
+                code == ResultCodeEnum.ALIAS_PROBLEM              ||
+                code == ResultCodeEnum.INVALID_DN_SYNTAX          || 
+                code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
+            
+            if ( ( ne.getResolvedDn() != null ) && setMatchedDn )
+            {
+                result.setMatchedDn( ( DN ) ne.getResolvedDn() );
+            }
+        }
+
+        session.getIoSession().write( req.getResultResponse() );
+    }
+    
+    
+    /**
+     * Searches up the ancestry of a DN searching for the farthest referral 
+     * ancestor.  This is required to properly handle referrals.  Note that 
+     * this function is quite costly since it attempts to lookup all the 
+     * ancestors up the hierarchy just to see if they represent referrals. 
+     * Techniques can be employed later to improve this performance hit by
+     * having an intelligent referral cache.
+     *
+     * @return the farthest referral ancestor or null
+     * @throws Exception if there are problems during this search
+     */
+    public static final Entry getFarthestReferralAncestor( LdapSession session, DN target ) 
+        throws Exception
+    {
+        Entry entry;
+        Entry farthestReferralAncestor = null;
+        DN dn = ( DN ) target.clone();
+        
+        try
+        {
+            dn.remove( dn.size() - 1 );
+        }
+        catch ( LdapInvalidDnException e2 )
+        {
+            // never thrown
+        }
+        
+        while ( ! dn.isEmpty() )
+        {
+            LOG.debug( "Walking ancestors of {} to find referrals.", dn );
+            
+            try
+            {
+                entry = session.getCoreSession().lookup( dn );
+
+                boolean isReferral = ((ClonedServerEntry)entry).getOriginalEntry().contains( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.REFERRAL_OC );
+                
+                if ( isReferral )
+                {
+                    farthestReferralAncestor = entry;
+                }
+
+                dn.remove( dn.size() - 1 );
+            }
+            catch ( LdapException e )
+            {
+                LOG.debug( "Entry for {} not found.", dn );
+
+                // update the DN as we strip last component 
+                try
+                {
+                    dn.remove( dn.size() - 1 );
+                }
+                catch ( LdapInvalidDnException e1 )
+                {
+                    // never happens
+                }
+            }
+        }
+        
+        return farthestReferralAncestor;
     }
 }
