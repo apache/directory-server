@@ -123,6 +123,7 @@ public class DSAnnotationProcessor
                     for ( CreateIndex createIndex : indexes )
                     {
                         Index index;
+                        
                         if ( createIndex.type() == Index.class )
                         {
                             // The annotation does not specify a specific index type.
@@ -136,6 +137,7 @@ public class DSAnnotationProcessor
                             index.setAttributeId( createIndex.attribute() );
                             index.setCacheSize( createIndex.cacheSize() );
                         }
+                        
                         btreePartition.addIndexedAttributes( index );
                     }
                 }
