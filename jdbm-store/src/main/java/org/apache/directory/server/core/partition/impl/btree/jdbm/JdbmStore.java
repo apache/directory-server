@@ -41,6 +41,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+/**
+ * An implementation of the Store interface using the Jdbm backend.
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class JdbmStore<E> extends AbstractStore<E, Long>
 {
     /** static logger */
@@ -233,10 +239,13 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
     // ------------------------------------------------------------------------
     // I N D E X   M E T H O D S
     // ------------------------------------------------------------------------
-
+    /**
+     * {@inheritDoc}
+     */
     protected Index<?, E, Long> convertAndInit( Index<?, E, Long> index ) throws Exception
     {
         JdbmIndex<?, E> jdbmIndex;
+        
         if ( index.getAttributeId().equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
         {
             jdbmIndex = new JdbmRdnIndex();
