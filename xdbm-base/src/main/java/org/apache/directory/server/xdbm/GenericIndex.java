@@ -35,9 +35,13 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  */
 public class GenericIndex<K, O, ID> implements Index<K, O, ID>
 {
-
+    /** The attribute identifier for this index */ 
     protected String attributeId;
+    
+    /** Index cache size */
     protected int cacheSize;
+    
+    /** Index working directory */
     protected File wkDirPath;
 
 
