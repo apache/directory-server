@@ -30,14 +30,14 @@
 
     <dependency>
       <artifactId>apacheds-i18n</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>  
 
     <dependency>
       <artifactId>apacheds-server-annotations</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>  
   </dependencies>
 </project>

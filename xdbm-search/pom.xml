@@ -34,21 +34,21 @@
   <dependencies>
     <dependency>
       <artifactId>apacheds-xdbm-base</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-jdbm-store</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-xdbm-tools</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
