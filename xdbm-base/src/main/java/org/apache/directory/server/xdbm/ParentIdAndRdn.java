@@ -32,14 +32,18 @@ import org.apache.directory.shared.ldap.name.RDN;
 
 /**
  * A wrapper for the tuple of parentId and RDN, used for the RDN index.
+ * 
+ * If the refered entry is a ContextEntry, we may have more than one RDN stored
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 917312 $
  */
 public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable, Comparable<ParentIdAndRdn<ID>>
 {
-
+    /** The entry ID */
     protected ID parentId;
+    
+    /** The list of RDN for this instance */
     protected RDN[] rdns;
 
 
@@ -124,11 +128,11 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
     @Override
     public int hashCode()
     {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ( ( parentId == null ) ? 0 : parentId.hashCode() );
-        result = prime * result + Arrays.hashCode( rdns );
-        return result;
+        int h = 37;
+        h = h*17 + ( ( parentId == null ) ? 0 : parentId.hashCode() );
+        h = h*17 + Arrays.hashCode( rdns );
+        
+        return h;
     }
 
 
@@ -136,6 +140,12 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
     @SuppressWarnings("unchecked")
     public boolean equals( Object obj )
     {
+        // Shortcut
+        if ( this == obj )
+        {
+            return true;
+        }
+        
         if ( !( obj instanceof ParentIdAndRdn<?> ) )
         {
             return false;
@@ -145,9 +155,13 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
     }
 
 
-    public int compareTo( ParentIdAndRdn<ID> o )
+    /**
+     * {@inheritDoc}
+     */
+    public int compareTo( ParentIdAndRdn<ID> that )
     {
-        int val = this.rdns.length - o.rdns.length;
+        int val = this.rdns.length - that.rdns.length;
+        
         if ( val != 0 )
         {
             return val;
@@ -155,14 +169,16 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
 
         for ( int i = 0; i < this.rdns.length; i++ )
         {
-            val = this.rdns[i].compareTo( o.rdns[i] );
+            val = this.rdns[i].compareTo( that.rdns[i] );
+            
             if ( val != 0 )
             {
                 return val;
             }
         }
 
-        val = this.getParentId().compareTo( o.getParentId() );
+        val = this.getParentId().compareTo( that.getParentId() );
+        
         return val;
     }
 
@@ -171,9 +187,10 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
     {
         out.writeObject( parentId );
         out.writeInt( rdns.length );
+
         for ( RDN rdn : rdns )
         {
-            out.writeObject( rdn );
+            rdn.writeExternal( out );
         }
     }
 
@@ -184,9 +201,44 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
         parentId = ( ID ) in.readObject();
         int size = in.readInt();
         rdns = new RDN[size];
+        
         for ( int i = 0; i < size; i++ )
         {
-            rdns[i] = ( RDN ) in.readObject();
+            RDN rdn = new RDN();
+            rdn.readExternal( in );
+            rdns[i] = rdn;
         }
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "ParentIdAndRdn<" );
+        sb.append( parentId ).append( "[" );
+        
+        boolean isFirst = true;
+        
+        for ( RDN rdn : rdns )
+        {
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                sb.append( "," );
+            }
+            
+            sb.append( rdn );
+        }
+        
+        sb.append( "]" );
+        
+        return sb.toString();
     }
 }
