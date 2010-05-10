@@ -35,8 +35,8 @@
   <dependencies>
     <dependency>
       <artifactId>apacheds-xdbm-base</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 </project>
