@@ -118,8 +118,8 @@
     <!-- Other dependencies -->
     <dependency>
       <artifactId>ldap-client-api</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
