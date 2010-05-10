@@ -297,6 +297,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
         }
         else
         {
+            // TODO : we have to deal with this case !
         }
 
         system.initialize( );
