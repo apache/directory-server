@@ -34,202 +34,202 @@
   <dependencies>
     <dependency>
       <artifactId>apacheds-avl-partition</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-core</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-core-annotations</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-core-api</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-core-avl</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-core-constants</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-core-entry</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-core-jndi</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-core-mock</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <!-- 
     <dependency>
       <artifactId>apacheds-http-integration</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     -->
     
     <dependency>
       <artifactId>apacheds-interceptor-kerberos</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-jdbm</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-jdbm-partition</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-jdbm-store</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-kerberos-shared</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-ldif-partition</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-protocol-changepw</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-protocol-dhcp</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-protocol-dns</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-protocol-kerberos</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-protocol-ldap</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-protocol-ntp</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-protocol-shared</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-server-annotations</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-server-jndi</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-server-replication</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-server-xml</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-test-framework</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-utils</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-xbean-spring</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-xdbm-base</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-xdbm-search</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-xdbm-tools</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 
