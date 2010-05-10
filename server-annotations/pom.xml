@@ -44,20 +44,20 @@
 
     <dependency>
       <artifactId>apacheds-core-annotations</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>  
 
     <dependency>
       <artifactId>apacheds-protocol-ldap</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>  
 
     <dependency>
       <artifactId>apacheds-protocol-kerberos</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>  
   </dependencies>
 </project>

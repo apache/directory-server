@@ -52,14 +52,14 @@
 
     <dependency>
       <artifactId>apacheds-interceptor-kerberos</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>  
 
     <dependency>
       <artifactId>apacheds-core-integ</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>  
 
     <dependency>

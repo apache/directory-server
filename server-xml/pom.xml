@@ -46,15 +46,15 @@
   <dependencies>
     <dependency>
       <artifactId>apacheds-xbean-spring</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <artifactId>apacheds-protocol-changepw</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -67,43 +67,43 @@
     
     <dependency>
       <artifactId>apacheds-protocol-kerberos</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-protocol-dns</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-protocol-ldap</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     
     <dependency>
       <artifactId>apacheds-protocol-ntp</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <artifactId>apacheds-server-jndi</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <artifactId>apacheds-http-integration</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
 
