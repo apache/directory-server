@@ -39,21 +39,21 @@
   <dependencies>
     <dependency>
       <artifactId>apacheds-i18n</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
 
     <!-- TODO remove dependency on JNDI core -->
     <dependency>
       <artifactId>apacheds-core-jndi</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <artifactId>apacheds-protocol-shared</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 

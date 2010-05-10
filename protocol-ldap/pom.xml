@@ -38,20 +38,20 @@
   <dependencies>
     <dependency>
       <artifactId>apacheds-i18n</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <artifactId>apacheds-kerberos-shared</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <artifactId>apacheds-xdbm-tools</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 

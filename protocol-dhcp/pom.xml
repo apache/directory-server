@@ -39,8 +39,8 @@
   <dependencies>
     <dependency>
       <artifactId>apacheds-protocol-shared</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 </project>

@@ -38,20 +38,20 @@
   <dependencies>
     <dependency>
       <artifactId>apacheds-i18n</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <artifactId>apacheds-avl-partition</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <artifactId>apacheds-core-mock</artifactId>
-      <groupId>${groupId}</groupId>
-      <version>${version}</version>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 
