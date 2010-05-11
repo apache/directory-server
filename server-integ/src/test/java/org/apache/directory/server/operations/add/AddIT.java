@@ -921,7 +921,7 @@ public class AddIT extends AbstractLdapTestUnit
         Attributes person = new BasicAttributes( "objectClass", "inetOrgPerson", true );
         person.get( "objectClass" ).add( "top" );
         person.get( "objectClass" ).add( "person" );
-        person.get( "objectClass" ).add( "organizationalperson" );
+        person.get( "objectClass" ).add( "organizationalPerson" );
         person.put( "sn", "Michael Jackson" );
         person.put( "cn", "Jackson" );
 
@@ -959,7 +959,7 @@ public class AddIT extends AbstractLdapTestUnit
         Attributes person = new BasicAttributes( "objectClass", "inetOrgPerson", true );
         person.get( "objectClass" ).add( "top" );
         person.get( "objectClass" ).add( "person" );
-        person.get( "objectClass" ).add( "organizationalperson" );
+        person.get( "objectClass" ).add( "organizationalPerson" );
         person.put( "givenName", "Michael" );
         person.put( "sn", "Michael Jackson" );
         person.put( "cn", "Jackson" );
@@ -1004,7 +1004,7 @@ public class AddIT extends AbstractLdapTestUnit
         Attributes person = new BasicAttributes( "objectClass", "inetOrgPerson", true );
         person.get( "objectClass" ).add( "top" );
         person.get( "objectClass" ).add( "person" );
-        person.get( "objectClass" ).add( "organizationalperson" );
+        person.get( "objectClass" ).add( "organizationalPerson" );
         person.put( "displayName", "Michael" );
         person.put( "sn", "Michael Jackson" );
         person.put( "cn", "Jackson" );
@@ -1045,7 +1045,7 @@ public class AddIT extends AbstractLdapTestUnit
         Attributes person = new BasicAttributes( "objectClass", "inetOrgPerson", true );
         person.get( "objectClass" ).add( "top" );
         person.get( "objectClass" ).add( "person" );
-        person.get( "objectClass" ).add( "organizationalperson" );
+        person.get( "objectClass" ).add( "organizationalPerson" );
         person.put( "sn", "Michael Jackson" );
         person.put( "cn", "Jackson" );
 
