@@ -35,7 +35,8 @@ import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.message.SearchResponse;
 import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.cursor.Cursor;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.name.DN;
 import org.slf4j.Logger;
@@ -82,7 +83,7 @@ public class EntryInjector extends JPanel implements ActionListener
         {
             String cn = "entry-" + System.currentTimeMillis();
             DN dn = new DN( "cn=" + cn + "," + config.getBaseDn() );
-            DefaultClientEntry entry = new DefaultClientEntry();
+            Entry entry = new DefaultEntry();
             entry.add( "objectclass", "person" );
             entry.add( "cn", cn );
             entry.add( "sn", cn );
@@ -108,7 +109,7 @@ public class EntryInjector extends JPanel implements ActionListener
             }
             else if( dn == null )
             {
-                Cursor<SearchResponse> cursor = connection.search( config.getBaseDn(), config.getFilter(), SearchScope.getSearchScope( config.getSearchScope() ), config.getAttributes() );
+                Cursor<SearchResponse> cursor = connection.search( config.getBaseDn(), config.getFilter(), config.getSearchScope(), config.getAttributes() );
                 cursor.beforeFirst();
                 if( cursor.next() && cursor.next() ) // to skip the baseDN
                 {
