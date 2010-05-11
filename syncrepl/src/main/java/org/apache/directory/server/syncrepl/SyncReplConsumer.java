@@ -51,13 +51,15 @@ import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControl;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControlDecoder;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControl;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControlDecoder;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.DefaultServerEntry;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
@@ -65,9 +67,11 @@ import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.Control;
+import org.apache.directory.shared.ldap.message.control.replication.SyncModifyDnType;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationModeEnum;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -122,10 +126,12 @@ public class SyncReplConsumer
     private SyncDoneValueControlDecoder syncDoneControlDecoder = new SyncDoneValueControlDecoder();
 
     private SyncStateValueControlDecoder syncStateControlDecoder = new SyncStateValueControlDecoder();
+    
+    private SyncModifyDnControlDecoder syncModifyDnControlDecoder = new SyncModifyDnControlDecoder();
 
     /** attributes on which modification should be ignored */
     private static final String[] MOD_IGNORE_AT = new String[]
-        { SchemaConstants.ENTRY_UUID_AT, SchemaConstants.ENTRY_CSN_AT }; //{ "1.3.6.1.1.16.4", "1.3.6.1.4.1.4203.666.1.7" };
+        { SchemaConstants.ENTRY_UUID_AT, SchemaConstants.ENTRY_CSN_AT, SchemaConstants.MODIFIERS_NAME_AT, SchemaConstants.MODIFY_TIMESTAMP_AT, SchemaConstants.CREATE_TIMESTAMP_AT, SchemaConstants.CREATORS_NAME_AT };
 
     /** flag to indicate whether the current phase is for deleting entries */
     private boolean refreshDeletes;
@@ -183,7 +189,7 @@ public class SyncReplConsumer
             }
 
             // Do a bind
-            BindResponse bindResponse = connection.bind( config.getBindDn(), config.getCredentials() );
+            BindResponse bindResponse = connection.bind( config.getReplUserDn(), config.getReplUserPassword() );
 
             // Check that it' not null and valid
             if ( bindResponse == null )
@@ -231,7 +237,7 @@ public class SyncReplConsumer
 
         // the only valid values are NEVER_DEREF_ALIASES and DEREF_FINDING_BASE_OBJ
         searchRequest.setDerefAliases( AliasDerefMode.NEVER_DEREF_ALIASES );
-        searchRequest.setScope( SearchScope.getSearchScope( config.getSearchScope() ) );
+        searchRequest.setScope( config.getSearchScope() );
         searchRequest.setTypesOnly( false );
 
         searchRequest.addAttributes( config.getAttributes() );
@@ -292,7 +298,7 @@ public class SyncReplConsumer
 
     public void handleSearchReference( SearchResultReference searchRef )
     {
-        // this method won't be called cause the provider will server the referrals as
+        // this method won't be called cause the provider will serve the referrals as
         // normal entry objects due to the usage of ManageDsaITControl in the search request
     }
 
@@ -311,8 +317,7 @@ public class SyncReplConsumer
 
             try
             {
-                syncStateCtrl = ( SyncStateValueControl ) syncStateControlDecoder.decode( ctrl.getValue(),
-                    syncStateCtrl );
+                syncStateCtrl = ( SyncStateValueControl ) syncStateControlDecoder.decode( ctrl.getValue(), syncStateCtrl );
             }
             catch ( Exception e )
             {
@@ -343,7 +348,7 @@ public class SyncReplConsumer
                     {
                         LOG.debug( "adding entry with dn {}", remoteEntry.getDn().getName() );
                         LOG.debug( remoteEntry.toString() );
-                        session.add( new DefaultServerEntry( schemaManager, remoteEntry ) );
+                        session.add( new DefaultEntry( schemaManager, remoteEntry ) );
                     }
                     // in refreshOnly mode the modified entry will be sent with state ADD
                     else if ( !config.isRefreshPersist() )
@@ -357,6 +362,25 @@ public class SyncReplConsumer
                 case MODIFY:
                     LOG.debug( "modifying entry with dn {}", remoteEntry.getDn().getName() );
                     modify( remoteEntry );
+                    break;
+                    
+                case MODDN:
+                    Control adsModDnControl = syncResult.getControl( SyncModifyDnControl.CONTROL_OID );
+                    //Apache Directory Server's special control
+                    SyncModifyDnControl syncModDnControl = new SyncModifyDnControl();
+                    
+                    try
+                    {
+                        LOG.debug( "decoding the SyncModifyDnControl.." );
+                        syncModDnControl = ( SyncModifyDnControl ) syncModifyDnControlDecoder.decode( adsModDnControl.getValue(), syncModDnControl );
+                    }
+                    catch( Exception e )
+                    {
+                        syncModDnControl = null;
+                        LOG.error( "Failed to decode the SyncModifyDnControl", e );
+                    }
+                    
+                    applyModDnOperation( syncModDnControl );
                     break;
 
                 case DELETE:
@@ -381,12 +405,13 @@ public class SyncReplConsumer
     /**
      * {@inheritDoc}
      */
-    public void handleSyncInfo( byte[] syncinfo )
+    public void handleSyncInfo( SearchIntermediateResponse syncInfoResp )
     {
         try
         {
             LOG.debug( "............... inside handleSyncInfo ..............." );
 
+            byte[] syncinfo = syncInfoResp.getResponseValue();
             SyncInfoValueControl syncInfoValue = ( SyncInfoValueControl ) decoder.decode( syncinfo, null );
 
             byte[] cookie = syncInfoValue.getCookie();
@@ -438,7 +463,7 @@ public class SyncReplConsumer
         {
             try
             {
-                Thread.sleep( config.getConsumerInterval() );
+                Thread.sleep( config.getRefreshInterval() );
             }
             catch ( InterruptedException e )
             {
@@ -516,7 +541,7 @@ public class SyncReplConsumer
             }
             else if ( resp instanceof SearchIntermediateResponse )
             {
-                handleSyncInfo( ( ( SearchIntermediateResponse ) resp ).getResponseValue() );
+                handleSyncInfo( ( SearchIntermediateResponse ) resp );
             }
             
             resp = sf.get();
@@ -639,7 +664,44 @@ public class SyncReplConsumer
         }
     }
 
+    
+    private void applyModDnOperation( SyncModifyDnControl modDnControl ) throws Exception
+    {
+        SyncModifyDnType modDnType = modDnControl.getModDnType();
+        
+        DN entryDn = new DN( modDnControl.getEntryDn() );
+        switch( modDnType )
+        {
+            case MOVE:
+                LOG.debug( "moving {} to the new parent {}", entryDn, modDnControl.getNewSuperiorDn() );
+                
+                session.move( entryDn, new DN( modDnControl.getNewSuperiorDn() ) );
+                break;
+            
+            case RENAME:
+                
+                RDN newRdn = new RDN( modDnControl.getNewRdn() );
+                boolean deleteOldRdn =  modDnControl.isDeleteOldRdn();
+                LOG.debug( "renaming the DN {} with new RDN {} and deleteOldRdn flag set to {}", 
+                    new String[]{ entryDn.getName(), newRdn.getName(), String.valueOf( deleteOldRdn ) } );
+                
+                session.rename( entryDn, newRdn, deleteOldRdn );
+                break;
+            
+            case MOVEANDRENAME:
+                
+                DN newParentDn = new DN( modDnControl.getNewSuperiorDn() );
+                newRdn = new RDN( modDnControl.getNewRdn() );
+                deleteOldRdn =  modDnControl.isDeleteOldRdn();
+                
+                LOG.debug( "moveAndRename on the DN {} with new newParent DN {}, new RDN {} and deleteOldRdn flag set to {}", 
+                    new String[]{ entryDn.getName(), newParentDn.getName(), newRdn.getName(), String.valueOf( deleteOldRdn ) } );
+                
+                session.moveAndRename( entryDn, newParentDn, newRdn, deleteOldRdn );
+        }
+    }
 
+    
     private void modify( Entry remoteEntry ) throws Exception
     {
         Entry localEntry = session.lookup( remoteEntry.getDn() );
@@ -658,12 +720,12 @@ public class SyncReplConsumer
 
             if ( remoteAttr != null ) // would be better if we compare the values also? or will it consume more time?
             {
-                mod = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, remoteAttr );
+                mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, remoteAttr );
                 remoteEntry.remove( remoteAttr );
             }
             else
             {
-                mod = new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, localAttr );
+                mod = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, localAttr );
             }
 
             mods.add( mod );
@@ -674,7 +736,7 @@ public class SyncReplConsumer
             itr = remoteEntry.iterator();
             while ( itr.hasNext() )
             {
-                mods.add( new ServerModification( ModificationOperation.ADD_ATTRIBUTE, itr.next() ) );
+                mods.add( new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, itr.next() ) );
             }
         }
 
@@ -792,7 +854,7 @@ public class SyncReplConsumer
                     doSyncSearch( SynchronizationModeEnum.REFRESH_ONLY );
 
                     LOG.info( "--------------------- Sleep for a little while ------------------" );
-                    Thread.sleep( config.getConsumerInterval() );
+                    Thread.sleep( config.getRefreshInterval() );
                     LOG.debug( "--------------------- syncing again ------------------" );
 
                 }
