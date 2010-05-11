@@ -22,7 +22,6 @@ package org.apache.directory.server.xdbm;
 
 
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 
 
@@ -34,27 +33,26 @@ import org.apache.directory.shared.ldap.schema.comparators.SerializableComparato
  */
 public class ParentIdAndRdnComparator<ID extends Comparable<ID>> extends SerializableComparator<ParentIdAndRdn<ID>>
 {
-
     private static final long serialVersionUID = 5414960421568991202L;
 
 
+    /**
+     * Creates a new instance of ParentIdAndRdnComparator.
+     *
+     * @param matchingRuleOid The associated MatchingRule
+     */
     public ParentIdAndRdnComparator( String matchingRuleOid )
     {
         super( matchingRuleOid );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int compare( ParentIdAndRdn<ID> rdn1, ParentIdAndRdn<ID> rdn2 )
     {
         return rdn1.compareTo( rdn2 );
     }
-
-
-    @Override
-    public void setSchemaManager( SchemaManager schemaManager )
-    {
-        // no need to deal with the schema manager
-    }
-
 }
