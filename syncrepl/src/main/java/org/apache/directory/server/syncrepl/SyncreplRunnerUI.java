@@ -51,7 +51,7 @@ import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtende
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -98,9 +98,14 @@ public class SyncreplRunnerUI implements ActionListener
 
     private EntryInjector entryInjector;
 
-    private String provServerHost = "192.168.22.105";
-    private int provServerPort = 389;
-    private String provServerBindDn = "cn=Manager,dc=example,dc=com";
+//    private String provServerHost = "192.168.22.105";
+//    private int provServerPort = 389;
+//    private String provServerBindDn = "cn=Manager,dc=example,dc=com";
+    
+    private String provServerHost = "localhost";
+    private int provServerPort = 10389;
+    private String provServerBindDn = "uid=admin,ou=system";
+  
     private String provServerPwd = "secret";
 
     private boolean connected;
@@ -111,18 +116,18 @@ public class SyncreplRunnerUI implements ActionListener
         config = new SyncreplConfiguration();
         config.setProviderHost( provServerHost );
         config.setPort( provServerPort );
-        config.setBindDn( provServerBindDn );
-        config.setCredentials( provServerPwd );
+        config.setReplUserDn( provServerBindDn );
+        config.setReplUserPassword( provServerPwd );
         config.setBaseDn( "dc=example,dc=com" );
         config.setFilter( "(objectclass=*)" );
-        config.setAttributes( "*,ref,entryUUID,entryCSN" );
-        config.setSearchScope( SearchScope.SUBTREE.getScope() );
+        config.setAttributes( new String[]{ "*", "ref", "entryUUID", "entryCSN" } );
+        config.setSearchScope( SearchScope.SUBTREE );
         config.setReplicaId( 1 );
         config.setRefreshPersist( true );
-        config.setConsumerInterval( 60 * 1000 );
+        config.setRefreshInterval( 60 * 1000 );
         agent.setConfig( config );
 
-        workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/syncrepl-work" );
+        workDir = new File( "/Users/kayyagari/Desktop/syncrepl-work" );//new File( System.getProperty( "java.io.tmpdir" ) + "/syncrepl-work" );
     }
 
 
@@ -206,13 +211,13 @@ public class SyncreplRunnerUI implements ActionListener
             dirService.setWorkingDirectory( workDir );
             int consumerPort = AvailablePortFinder.getNextAvailable( 1024 );
 
-            initSchema();
-            initSystemPartition();
+            initSchema( dirService );
+            initSystemPartition( dirService );
 
             ldapServer = new LdapServer();
             ldapServer.setTransports( new TcpTransport( consumerPort ) );
             ldapServer.setDirectoryService( dirService );
-
+            
             DN suffix = new DN( config.getBaseDn() );
             JdbmPartition partition = new JdbmPartition();
             partition.setSuffix( suffix.getName() );
@@ -222,8 +227,8 @@ public class SyncreplRunnerUI implements ActionListener
             partition.setSchemaManager( dirService.getSchemaManager() );
 
             // Add objectClass attribute for the system partition
-            Set<Index<?, ServerEntry, Long>> indexedAttrs = new HashSet<Index<?, ServerEntry, Long>>();
-            indexedAttrs.add( new JdbmIndex<Object, ServerEntry>( SchemaConstants.ENTRY_UUID_AT ) );
+            Set<Index<?, Entry, Long>> indexedAttrs = new HashSet<Index<?, Entry, Long>>();
+            indexedAttrs.add( new JdbmIndex<Object, Entry>( SchemaConstants.ENTRY_UUID_AT ) );
             ( ( JdbmPartition ) partition ).setIndexedAttributes( indexedAttrs );
 
             partition.initialize();
@@ -276,6 +281,7 @@ public class SyncreplRunnerUI implements ActionListener
 
         frame.getContentPane().add( serverPanel, BorderLayout.NORTH );
         frame.getContentPane().add( entryInjector, BorderLayout.SOUTH );
+        
         frame.addWindowListener( new WindowAdapter()
         {
             @Override
@@ -343,13 +349,13 @@ public class SyncreplRunnerUI implements ActionListener
     }
 
 
-    private void initSchema() throws Exception
+    private void initSchema( DirectoryService service ) throws Exception
     {
-        SchemaPartition schemaPartition = dirService.getSchemaService().getSchemaPartition();
+        SchemaPartition schemaPartition = service.getSchemaService().getSchemaPartition();
 
         // Init the LdifPartition
         LdifPartition ldifPartition = new LdifPartition();
-        String workingDirectory = dirService.getWorkingDirectory().getPath();
+        String workingDirectory = service.getWorkingDirectory().getPath();
         ldifPartition.setWorkingDirectory( workingDirectory + "/schema" );
 
         // Extract the schema on disk (a brand new one) and load the registries
@@ -361,7 +367,7 @@ public class SyncreplRunnerUI implements ActionListener
 
         SchemaLoader loader = new LdifSchemaLoader( schemaRepository );
         SchemaManager schemaManager = new DefaultSchemaManager( loader );
-        dirService.setSchemaManager( schemaManager );
+        service.setSchemaManager( schemaManager );
 
         // We have to load the schema now, otherwise we won't be able
         // to initialize the Partitions, as we won't be able to parse 
@@ -379,7 +385,7 @@ public class SyncreplRunnerUI implements ActionListener
     }
 
 
-    private void initSystemPartition() throws Exception
+    private void initSystemPartition( DirectoryService service ) throws Exception
     {
         // change the working directory to something that is unique
         // on the system and somewhere either under target directory
@@ -390,15 +396,15 @@ public class SyncreplRunnerUI implements ActionListener
         systemPartition.setId( "system" );
         ( ( JdbmPartition ) systemPartition ).setCacheSize( 500 );
         systemPartition.setSuffix( ServerDNConstants.SYSTEM_DN );
-        systemPartition.setSchemaManager( dirService.getSchemaManager() );
-        ( ( JdbmPartition ) systemPartition ).setPartitionDir( new File( dirService.getWorkingDirectory(), "system" ) );
+        systemPartition.setSchemaManager( service.getSchemaManager() );
+        ( ( JdbmPartition ) systemPartition ).setPartitionDir( new File( service.getWorkingDirectory(), "system" ) );
 
         // Add objectClass attribute for the system partition
-        Set<Index<?, ServerEntry, Long>> indexedAttrs = new HashSet<Index<?, ServerEntry, Long>>();
-        indexedAttrs.add( new JdbmIndex<Object, ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
+        Set<Index<?, Entry, Long>> indexedAttrs = new HashSet<Index<?, Entry, Long>>();
+        indexedAttrs.add( new JdbmIndex<Object, Entry>( SchemaConstants.OBJECT_CLASS_AT ) );
         ( ( JdbmPartition ) systemPartition ).setIndexedAttributes( indexedAttrs );
 
-        dirService.setSystemPartition( systemPartition );
+        service.setSystemPartition( systemPartition );
     }
 
 
