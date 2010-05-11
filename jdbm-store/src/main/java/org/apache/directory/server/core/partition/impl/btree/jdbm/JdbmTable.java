@@ -991,6 +991,34 @@ public class JdbmTable<K,V> implements Table<K,V>
     // ------------------------------------------------------------------------
     // Private/Package Utility Methods 
     // ------------------------------------------------------------------------
+    
+
+    /**
+     * Added to check that we actually switch from one data structure to the 
+     * B+Tree structure on disk for duplicates that go beyond the threshold.
+     */
+    boolean isKeyUsingBTree( K key ) throws Exception
+    {
+        if ( key == null )
+        {
+            throw new NullPointerException( "key is null" );
+        }
+
+        if ( ! allowsDuplicates )
+        {
+            return false;
+        }                         
+
+        DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
+        if ( values.isBTreeRedirect() )
+        {
+            return true;
+        }
+        
+        return false;
+    }
+
+    
     DupsContainer<V> getDupsContainer( byte[] serialized ) throws IOException
     {
         if ( serialized == null )

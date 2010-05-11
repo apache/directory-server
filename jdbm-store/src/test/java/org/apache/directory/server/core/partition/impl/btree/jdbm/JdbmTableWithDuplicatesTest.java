@@ -33,7 +33,6 @@ import jdbm.helper.DefaultSerializer;
 import jdbm.helper.IntegerSerializer;
 import jdbm.recman.BaseRecordManager;
 
-import org.apache.directory.server.xdbm.Table;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
@@ -68,13 +67,12 @@ public class JdbmTableWithDuplicatesTest
     private static final String SIZE_MINUS_ONE_STR = "14";
     private static final String SIZE_STR = "15";
     private static final String SIZE_PLUS_ONE_STR = "16";
-    private static final String SIZE_PLUS_TWO_STR = "17";
 
     private static final String SIZE2_MINUS_ONE_STR = "29";
     private static final String SIZE2_STR = "30";
     private static final String SIZE2_PLUS_ONE_STR = "31";
     
-    transient Table<String,String> table;
+    transient JdbmTable<String,String> table;
     transient File dbFile;
     transient RecordManager recman;
     private static SchemaManager schemaManager;
@@ -163,8 +161,8 @@ public class JdbmTableWithDuplicatesTest
     @Test
     public void testSerializers() throws Exception
     {
-        assertNotNull( ( ( JdbmTable ) table ).getKeySerializer() );
-        assertNotNull( ( ( JdbmTable ) table ).getValueSerializer() );
+        assertNotNull( table.getKeySerializer() );
+        assertNotNull( ( ( JdbmTable<?,?> ) table ).getValueSerializer() );
     }
 
 
@@ -179,7 +177,7 @@ public class JdbmTableWithDuplicatesTest
     @Test( expected = NullPointerException.class )
     public void testNullKeyComparator() throws Exception
     {
-        assertNotNull( ( ( JdbmTable ) table ).getKeyComparator() );
+        assertNotNull( table.getKeyComparator() );
 
         SerializableComparator<String> comparator = new SerializableComparator<String>( SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
         comparator.setSchemaManager( schemaManager );
@@ -192,7 +190,7 @@ public class JdbmTableWithDuplicatesTest
     @Test( expected = NullPointerException.class )
     public void testNullValueComparator() throws Exception
     {
-        assertNotNull( ( ( JdbmTable ) table ).getValueComparator() );
+        assertNotNull( table.getValueComparator() );
 
         SerializableComparator<String> comparator = new SerializableComparator<String>( SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
         comparator.setSchemaManager( schemaManager );
@@ -466,6 +464,8 @@ public class JdbmTableWithDuplicatesTest
     @Test
     public void testDuplicateLimit() throws Exception
     {
+        assertFalse( table.isKeyUsingBTree( "1" ) );
+        
         for ( int i = 0; i < SIZE; i++ )
         {
             String istr = Integer.toString( i );
@@ -473,17 +473,20 @@ public class JdbmTableWithDuplicatesTest
         }
         assertEquals( SIZE, table.count() );
         assertEquals( SIZE, table.count( "1" ) );
-
+        assertFalse( table.isKeyUsingBTree( "1" ) );
+        
         // this switches to B+Trees from AvlTree
         table.put( "1", SIZE_STR );
         assertEquals( SIZE + 1, table.count() );
         assertEquals( SIZE + 1, table.count( "1" ) );
+        assertTrue( table.isKeyUsingBTree( "1" ) );
 
         // go one more over still a B+Tree
         table.put( "1", SIZE_PLUS_ONE_STR );
         assertEquals( SIZE + 2, table.count() );
         assertEquals( SIZE + 2, table.count( "1" ) );
         assertEquals( "0", table.get( "1" ) );
+        assertTrue( table.isKeyUsingBTree( "1" ) );
         
         // now start removing and see what happens 
         table.remove( "1", SIZE_PLUS_ONE_STR );
@@ -491,6 +494,7 @@ public class JdbmTableWithDuplicatesTest
         assertTrue( table.has( "1", SIZE_STR ) );
         assertEquals( SIZE + 1, table.count() );
         assertEquals( SIZE + 1, table.count( "1" ) );
+        assertTrue( table.isKeyUsingBTree( "1" ) );
 
         // this switches to AvlTree from B+Trees
         table.remove( "1", SIZE_STR );
@@ -498,11 +502,13 @@ public class JdbmTableWithDuplicatesTest
         assertEquals( SIZE, table.count() );
         assertEquals( SIZE, table.count( "1" ) );
         assertEquals( "0", table.get( "1" ) );
+        assertFalse( table.isKeyUsingBTree( "1" ) );
     
         for ( int i = SIZE - 1; i >= 0; i-- )
         {
             String istr = Integer.toString( i );
             table.remove( "1", istr );
+            assertFalse( table.isKeyUsingBTree( "1" ) );
         }
         
         assertEquals( 0, table.count() );
@@ -511,9 +517,15 @@ public class JdbmTableWithDuplicatesTest
         {
             String istr = Integer.toString( i );
             table.put( "1", istr );
+            assertFalse( table.isKeyUsingBTree( "1" ) );
         }
         
-        assertEquals( SIZE - 1, table.count() );
+        // this switches back to using B+Trees from AvlTree
+        table.put( "1", SIZE_STR ) ;
+        table.put( "1", SIZE_PLUS_ONE_STR );
+        assertTrue( table.isKeyUsingBTree( "1" ) );
+        
+        assertEquals( SIZE + 1, table.count() );
         table.remove( "1" );
         assertEquals( 0, table.count() );
     }
@@ -571,8 +583,8 @@ public class JdbmTableWithDuplicatesTest
     @Test
     public void testMiscellaneous() throws Exception
     {
-        assertNotNull( ( ( JdbmTable ) table ).getMarshaller() );
-        ( ( JdbmTable ) table ).close();
+        assertNotNull( table.getMarshaller() );
+        table.close();
 
         // test value btree creation without serializer
         SerializableComparator<String> comparator = new SerializableComparator<String>( SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
@@ -580,7 +592,7 @@ public class JdbmTableWithDuplicatesTest
 
         table = new JdbmTable<String,String>( schemaManager, "test", SIZE, recman,
                 comparator, comparator, new DefaultSerializer(), null );
-        assertNull( ( ( JdbmTable ) table ).getValueSerializer() );
+        assertNull( table.getValueSerializer() );
         
         for ( int i = 0; i < SIZE + 1; i++ )
         {
