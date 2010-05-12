@@ -29,9 +29,9 @@ package org.apache.directory.server.config;
  */
 public interface ConfigSchemaConstants
 {
-    String ADS_LDAP_SERVER = "ads-ldapServer";
+    String ADS_LDAP_SERVER_OC = "ads-ldapServer";
 
-    String ADS_KERBEROS_SERVER = "ads-kerberosServer";
+    String ADS_KERBEROS_SERVER_OC = "ads-kerberosServer";
 
     String ADS_SERVER_ID = "ads-serverId";
 
@@ -63,13 +63,13 @@ public interface ConfigSchemaConstants
 
     String ADS_KRB_BODY_CHECKSUM_VERIFIED = "ads-krbBodyChecksumVerified";
 
-    String ADS_DNS_SERVER = "ads-dnsServer";
+    String ADS_DNS_SERVER_OC = "ads-dnsServer";
 
-    String ADS_DHCP_SERVER = "ads-dhcpServer";
+    String ADS_DHCP_SERVER_OC = "ads-dhcpServer";
 
-    String ADS_NTP_SERVER = "ads-ntpServer";
+    String ADS_NTP_SERVER_OC = "ads-ntpServer";
 
-    String ADS_HTTP_SERVER = "ads-httpServer";
+    String ADS_HTTP_SERVER_OC = "ads-httpServer";
 
     String ADS_HTTP_CONFFILE = "ads-httpConfFile";
 
@@ -173,5 +173,41 @@ public interface ConfigSchemaConstants
     
     String ADS_CHANGEPWD_SERVICE_PRINCIPAL = "ads-chgPwdServicePrincipal";
     
-    String ADS_CHANGEPWD_SERVER = "ads-changePasswordServer";
+    String ADS_CHANGEPWD_SERVER_OC = "ads-changePasswordServer";
+    
+    String ADS_REPL_SEARCH_FILTER = "ads-replSearchFilter";
+    
+    String ADS_REPL_LAST_SENT_CSN = "ads-replLastSentCsn";
+    
+    String ADS_REPL_ALIAS_DEREF_MODE = "ads-replAliasDerefMode";
+    
+    String ADS_REPL_BASE = "ads-replBase";
+    
+    String ADS_REPL_SEARCH_SCOPE = "ads-replSearchScope";
+    
+    String ADS_REPL_REFRESH_N_PERSIST = "ads-replRefreshNPersist";
+    
+    String ADS_REPL_PROV_HOST_NAME = "ads-replProvHostName";
+    
+    String ADS_REPL_PROV_PORT = "ads-replProvPort";
+    
+    String ADS_REPL_USER_DN = "ads-replUserDn";
+    
+    String ADS_REPL_USER_PASSWORD = "ads-replUserPassword";
+    
+    String ADS_REPL_REFRESH_INTERVAL = "ads-replRefreshInterval";
+    
+    String ADS_REPL_ATTRIBUTE = "ads-replAttribute";
+    
+    String ADS_REPL_SEARCH_SIZE_LIMIT = "ads-replSearchSizeLimit";
+    
+    String ADS_REPL_SEARCH_TIMEOUT = "ads-replSearchTimeOut";
+    
+    String ADS_REPL_COOKIE = "ads-replCookie";
+    
+    String ADS_REPL_CONSUMER_OC = "ads-replConsumer";
+    
+    String ADS_REPL_PROVIDER_OC = "ads-replProvider";
+    
+    String ADS_REPL_PROVIDER_IMPL = "ads-replProviderImpl";
 }

@@ -60,6 +60,8 @@ import org.apache.directory.server.integration.http.WebApp;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.replication.ReplicationProvider;
+import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.server.ntp.NtpServer;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
@@ -72,11 +74,11 @@ import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
@@ -158,7 +160,7 @@ public class ConfigPartitionReader
     public LdapServer getLdapServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
-            ConfigSchemaConstants.ADS_LDAP_SERVER ) );
+            ConfigSchemaConstants.ADS_LDAP_SERVER_OC ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
@@ -191,6 +193,23 @@ public class ConfigPartitionReader
         Transport[] transports = getTransports( transportsDN );
         server.setTransports( transports );
 
+        EntryAttribute replProvImplAttr = ldapServerEntry.get( ConfigSchemaConstants.ADS_REPL_PROVIDER_IMPL );
+        if( replProvImplAttr != null )
+        {
+            String fqcn = replProvImplAttr.getString();
+            try
+            {
+                Class replProvImplClz = Class.forName( fqcn );
+                ReplicationProvider rp = ( ReplicationProvider ) replProvImplClz.newInstance();
+                server.setReplicationProvider( rp );
+            }
+            catch( ClassNotFoundException e )
+            {
+                LOG.error( "Failed to load and instantiate ReplicationProvider implementation", e );
+                throw e;
+            }
+        }
+        
         return server;
     }
 
@@ -198,7 +217,7 @@ public class ConfigPartitionReader
     public KdcServer getKdcServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
-            ConfigSchemaConstants.ADS_KERBEROS_SERVER ) );
+            ConfigSchemaConstants.ADS_KERBEROS_SERVER_OC ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
@@ -341,7 +360,7 @@ public class ConfigPartitionReader
     public DnsServer getDnsServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
-            ConfigSchemaConstants.ADS_DNS_SERVER ) );
+            ConfigSchemaConstants.ADS_DNS_SERVER_OC ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
@@ -383,7 +402,7 @@ public class ConfigPartitionReader
     private DhcpService getDhcpServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
-            ConfigSchemaConstants.ADS_DHCP_SERVER ) );
+            ConfigSchemaConstants.ADS_DHCP_SERVER_OC ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
@@ -418,7 +437,7 @@ public class ConfigPartitionReader
     public NtpServer getNtpServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
-            ConfigSchemaConstants.ADS_NTP_SERVER ) );
+            ConfigSchemaConstants.ADS_NTP_SERVER_OC ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
@@ -459,7 +478,7 @@ public class ConfigPartitionReader
     public ChangePasswordServer getChangePwdServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
-            ConfigSchemaConstants.ADS_CHANGEPWD_SERVER ) );
+            ConfigSchemaConstants.ADS_CHANGEPWD_SERVER_OC ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
@@ -565,7 +584,7 @@ public class ConfigPartitionReader
     public HttpServer getHttpServer() throws Exception
     {
         EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
-            ConfigSchemaConstants.ADS_HTTP_SERVER ) );
+            ConfigSchemaConstants.ADS_HTTP_SERVER_OC ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
@@ -765,6 +784,133 @@ public class ConfigPartitionReader
     }
 
 
+    public List<SyncreplConfiguration> getReplicationConfigs() throws Exception
+    {
+        PresenceNode filter = new PresenceNode( ConfigSchemaConstants.ADS_REPL_PROVIDER_OC );
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
+            AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
+
+        List<SyncreplConfiguration> syncReplConfigLst = new ArrayList<SyncreplConfiguration>();
+
+        if ( !cursor.next() )
+        {
+            return syncReplConfigLst;
+        }
+     
+        while( cursor.next() )
+        {
+            ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor.get();
+        
+            ClonedServerEntry entry = configPartition.lookup( forwardEntry.getId() );
+
+            LOG.debug( "syncrepl configuration entry {}", entry );
+            
+            if( !isEnabled( entry ) )
+            {
+                continue;
+            }
+
+            SyncreplConfiguration config = new SyncreplConfiguration();
+            
+            // mandatory attribues
+            config.setReplicaId( getInt( ConfigSchemaConstants.ADS_DS_REPLICA_ID, entry ) );
+            config.setProviderHost( entry.get( ConfigSchemaConstants.ADS_REPL_PROV_HOST_NAME ).getString() );
+            config.setBaseDn( entry.get( ConfigSchemaConstants.ADS_REPL_BASE ).getString() );
+            
+            // optional attributes
+            
+            EntryAttribute aliasDerefAttr = entry.get( ConfigSchemaConstants.ADS_REPL_ALIAS_DEREF_MODE );
+            if( aliasDerefAttr != null )
+            {
+                config.setAliasDerefMode( AliasDerefMode.getDerefMode( getInt( aliasDerefAttr ) ) );
+            }
+            
+            EntryAttribute replSrchAtAttr = entry.get( ConfigSchemaConstants.ADS_REPL_ATTRIBUTE );
+            if( replSrchAtAttr != null )
+            {
+                int size = replSrchAtAttr.size();
+                String[] attrNames = new String[ size ];
+                for( int i=0; i< size; i++ )
+                {
+                    attrNames[i] = replSrchAtAttr.get( i ).getString();
+                }
+                
+                config.setAttributes( attrNames );
+            }
+            
+            EntryAttribute provPortAttr = entry.get( ConfigSchemaConstants.ADS_REPL_PROV_PORT );
+            if( provPortAttr != null )
+            {
+                config.setPort( getInt( provPortAttr ) );
+            }
+            
+            EntryAttribute refreshIntAttr = entry.get( ConfigSchemaConstants.ADS_REPL_REFRESH_INTERVAL );
+            if( refreshIntAttr != null )
+            {
+                config.setRefreshInterval( getInt( refreshIntAttr) );
+            }
+            
+            EntryAttribute refNPersistAttr = entry.get( ConfigSchemaConstants.ADS_REPL_REFRESH_N_PERSIST );
+            if( refNPersistAttr != null )
+            {
+                config.setRefreshPersist( Boolean.parseBoolean( refNPersistAttr.getString() ) );
+            }
+            
+            EntryAttribute searchScopeAttr = entry.get( ConfigSchemaConstants.ADS_REPL_SEARCH_SCOPE );
+            if( searchScopeAttr != null )
+            {
+                config.setSearchScope( SearchScope.getSearchScope( getInt( searchScopeAttr ) ) );
+            }
+            
+            EntryAttribute searchFilterAttr = entry.get( ConfigSchemaConstants.ADS_REPL_SEARCH_FILTER );
+            if( searchFilterAttr != null )
+            {
+                config.setFilter( searchFilterAttr.getString() );
+            }
+
+            EntryAttribute searchSizeAttr = entry.get( ConfigSchemaConstants.ADS_REPL_SEARCH_SIZE_LIMIT );
+            if( searchSizeAttr != null )
+            {
+                config.setSearchSizeLimit( getInt( searchSizeAttr ) );
+            }
+            
+            EntryAttribute searchTimeAttr = entry.get( ConfigSchemaConstants.ADS_REPL_SEARCH_TIMEOUT );
+            if( searchTimeAttr != null )
+            {
+                config.setSearchTimeout( getInt( searchTimeAttr ) );
+            }
+
+            
+            EntryAttribute replUserAttr = entry.get( ConfigSchemaConstants.ADS_REPL_USER_DN );
+            if( replUserAttr != null )
+            {
+                config.setReplUserDn( replUserAttr.getString() );
+            }
+            
+            EntryAttribute replUserPwdAttr = entry.get( ConfigSchemaConstants.ADS_REPL_USER_PASSWORD );
+            if( replUserPwdAttr != null )
+            {
+                config.setReplUserPassword( replUserPwdAttr.getBytes() );
+            }
+            
+            EntryAttribute replCookieAttr = entry.get( ConfigSchemaConstants.ADS_REPL_COOKIE );
+            if( replCookieAttr != null )
+            {
+                config.setCookie( replCookieAttr.getBytes() );
+            }
+            
+            syncReplConfigLst.add( config );
+        }
+     
+        cursor.close();
+        
+        return syncReplConfigLst;
+    }
+    
+    
     /**
      * reads the Interceptor configuration and instantiates them in the order specified
      *
@@ -1230,6 +1376,12 @@ public class ConfigPartitionReader
     }
 
 
+    private int getInt( EntryAttribute attr ) throws Exception
+    {
+        return Integer.parseInt( attr.getString() );
+    }
+
+    
     private boolean isEnabled( Entry entry ) throws Exception
     {
         EntryAttribute enabledAttr = entry.get( ConfigSchemaConstants.ADS_ENABLED );
