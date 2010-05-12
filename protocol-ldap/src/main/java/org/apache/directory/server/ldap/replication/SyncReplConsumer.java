@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.syncrepl;
+package org.apache.directory.server.ldap.replication;
 
 
 import java.io.File;
