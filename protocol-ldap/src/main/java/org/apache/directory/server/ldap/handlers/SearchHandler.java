@@ -36,14 +36,16 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
+import org.apache.directory.server.ldap.replication.ReplicationProvider;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControl;
 import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedResultsControl;
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControl;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
@@ -90,6 +92,7 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
     /** cached to save redundant lookups into registries */ 
     private AttributeType objectClassAttributeType;
     
+    protected ReplicationProvider replicationProvider;
     
     /**
      * Constructs a new filter EqualityNode asserting that a candidate 
@@ -173,6 +176,11 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
     {
         LOG.debug( "Handling single reply request: {}", req );
         
+        // check firt for the syncrepl search request control
+        if ( req.getControls().containsKey( SyncRequestValueControl.CONTROL_OID ) )
+        {
+            handleSyncreplSearch( session, req );
+        }
         // First, if we have the ManageDSAIt control, go directly
         // to the handling without pre-processing the request
         if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
@@ -1625,4 +1633,25 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
         
         return farthestReferralAncestor;
     }
+
+
+    public void setReplicationProvider( ReplicationProvider prov )
+    {
+        this.replicationProvider = prov;
+    }
+
+    
+    /**
+     * 
+     * handles the syncrepl search
+     * 
+     * @param session the LDAP session under which processing occurs
+     * @param req the request to be handled
+     * @throws LdapException
+     */
+    public void handleSyncreplSearch( LdapSession session, InternalSearchRequest req ) throws LdapException
+    {
+        replicationProvider.handleSyncRequest( session, req );
+    }
+
 }

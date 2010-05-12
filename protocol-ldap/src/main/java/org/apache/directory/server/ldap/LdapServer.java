@@ -55,6 +55,7 @@ import org.apache.directory.server.ldap.handlers.UnbindHandler;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.ldap.handlers.ssl.LdapsInitializer;
+import org.apache.directory.server.ldap.replication.ReplicationProvider;
 import org.apache.directory.server.ldap.replication.ReplicationSystem;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
@@ -221,6 +222,8 @@ public class LdapServer extends DirectoryBackedService
     private KeyStore keyStore = null;
 
     private IoFilterChainBuilder chainBuilder;
+    
+    private ReplicationProvider replicationProvider;
     
     /**
      * Creates an LDAP protocol provider.
@@ -443,6 +446,12 @@ public class LdapServer extends DirectoryBackedService
              */ 
             installDefaultHandlers();      
 
+            if( replicationProvider != null )
+            {
+                replicationProvider.init( this );
+                ( ( SearchHandler ) getSearchHandler() ).setReplicationProvider( replicationProvider );
+            }
+            
             startNetwork( transport, chain );
         }
         
@@ -511,6 +520,11 @@ public class LdapServer extends DirectoryBackedService
                 {
                     future.await( 1000L );
                     sessionIt.next().close( true );
+                }
+
+                if( replicationProvider != null )
+                {
+                    replicationProvider.stop();
                 }
             }
         }
@@ -1278,8 +1292,14 @@ public class LdapServer extends DirectoryBackedService
     {
         return replicationSystem;
     }
+
     
-    
+    public void setReplicationProvider( ReplicationProvider replicationProvider )
+    {
+        this.replicationProvider = replicationProvider;
+    }
+
+
     /**
      * @see Object#toString()
      */
