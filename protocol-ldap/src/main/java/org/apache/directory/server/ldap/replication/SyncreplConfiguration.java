@@ -19,58 +19,70 @@
  */
 package org.apache.directory.server.ldap.replication;
 
+
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.util.StringTools;
+
 
 /**
  * 
  * A class for holding the syncrepl consumer's configuration.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class SyncreplConfiguration
 {
-    /** host name of the syncrepl provider server */
-    private String providerHost;
+    /** host name of the syncrepl provider server, default value is localhost */
+    private String providerHost = "localhost";
 
-    /** port number of the syncrepl provider server */
-    private int port;
+    /** port number of the syncrepl provider server, default is 389 */
+    private int port = 389;
 
-    /** bind dn */
-    private String bindDn;
+    /** replication user's DN */
+    private String replUserDn;
 
-    /** password for binding with bind dn */
-    private String credentials;
+    /** password for binding with replication user dn */
+    private byte[] replUserPassword;
 
-    /** flag to represent refresh and persist or refreh only mode */
+    /** flag to represent refresh and persist or refresh only mode, defaults to true */
     private boolean refreshPersist = true;
 
-    /** time interval for successive sync requests */
-    private long consumerInterval = 5 * 1000;
+    /** time interval for successive sync requests, default is 5 seconds */
+    private long refreshInterval = 5 * 1000;
 
-    /** the base DN whose content will be searched for syncing */
+    /** the base DN whose content will be searched for replicating */
     private String baseDn;
 
-    /** the ldap filter for fetching the entries */
-    private String filter;
+    /** the ldap filter for fetching the entries, default value is (objectClass=*) */
+    private String filter = "(objectClass=*)";
 
-    /** a comma separated string of attribute names */
-    private String attributes;
+    /** names of attributes to be replicated, default value is all user attributes */
+    private String[] attributes = new String[]{ SchemaConstants.ALL_USER_ATTRIBUTES };
 
-    /** the number for setting the limit on number of search results to be fetched
+    /** the numer for setting the limit on number of search results to be fetched
      * default value is 0 (i.e no limit) */
-    private long searchSizeLimit = 0L;
+    private int searchSizeLimit = 0;
 
     /** the timeout value to be used while doing a search 
      * default value is 0 (i.e no limit)*/
     private int searchTimeout = 0;
 
-    /** the search scope */
-    private int searchScope = SearchScope.ONELEVEL.getScope();
+    /** the search scope, default is sub tree level */
+    private SearchScope searchScope = SearchScope.SUBTREE;
+    
+    /** alias dereferencing mode, default is set to 'never deref aliases' */
+    private AliasDerefMode aliasDerefMode = AliasDerefMode.NEVER_DEREF_ALIASES;
 
+    /** the cookie received from server */
+    private byte[] cookie;
+    
     /** the replica's id */
     private int replicaId;
-    
+
+
     /**
      * @return the providerHost
      */
@@ -78,6 +90,7 @@ public class SyncreplConfiguration
     {
         return providerHost;
     }
+
 
     /**
      * @param providerHost the providerHost to set
@@ -87,6 +100,7 @@ public class SyncreplConfiguration
         this.providerHost = providerHost;
     }
 
+
     /**
      * @return the port
      */
@@ -94,6 +108,7 @@ public class SyncreplConfiguration
     {
         return port;
     }
+
 
     /**
      * @param port the port to set
@@ -103,38 +118,52 @@ public class SyncreplConfiguration
         this.port = port;
     }
 
-    /**
-     * @return the bindDn
-     */
-    public String getBindDn()
-    {
-        return bindDn;
-    }
 
     /**
-     * @param bindDn the bindDn to set
+     * @return the replication user's DN
      */
-    public void setBindDn( String bindDn )
+    public String getReplUserDn()
     {
-        this.bindDn = bindDn;
+        return replUserDn;
     }
+
 
     /**
-     * @return the credentials
+     * @param replUserdDn the DN of the replication user
      */
-    public String getCredentials()
+    public void setReplUserDn( String replUserdDn )
     {
-        return credentials;
+        this.replUserDn = replUserdDn;
     }
+
 
     /**
-     * @param credentials the credentials to set
+     * @return the replication user's password
      */
-    public void setCredentials( String credentials )
+    public String getReplUserPassword()
     {
-        this.credentials = credentials;
+        return StringTools.utf8ToString( replUserPassword );
     }
 
+
+    /**
+     * @param replUserPassword the replication user's password
+     */
+    public void setReplUserPassword( String replUserPassword )
+    {
+        setReplUserPassword( replUserPassword.getBytes() );
+    }
+
+
+    /**
+     * @param replUserPassword the replication user's password
+     */
+    public void setReplUserPassword( byte[] replUserPassword )
+    {
+        this.replUserPassword = replUserPassword;
+    }
+
+    
     /**
      * @return the refreshPersist
      */
@@ -142,6 +171,7 @@ public class SyncreplConfiguration
     {
         return refreshPersist;
     }
+
 
     /**
      * @param refreshPersist the refreshPersist to set
@@ -151,21 +181,24 @@ public class SyncreplConfiguration
         this.refreshPersist = refreshPersist;
     }
 
-    /**
-     * @return the consumerInterval
-     */
-    public long getConsumerInterval()
-    {
-        return consumerInterval;
-    }
 
     /**
-     * @param consumerInterval the consumerInterval to set
+     * @return the refresh interval
      */
-    public void setConsumerInterval( long consumerInterval )
+    public long getRefreshInterval()
     {
-        this.consumerInterval = consumerInterval;
+        return refreshInterval;
     }
+
+
+    /**
+     * @param refreshInterval the consumerInterval to set
+     */
+    public void setRefreshInterval( long refreshInterval )
+    {
+        this.refreshInterval = refreshInterval;
+    }
+
 
     /**
      * @return the baseDn
@@ -175,6 +208,7 @@ public class SyncreplConfiguration
         return baseDn;
     }
 
+
     /**
      * @param baseDn the baseDn to set
      */
@@ -182,6 +216,7 @@ public class SyncreplConfiguration
     {
         this.baseDn = baseDn;
     }
+
 
     /**
      * @return the filter
@@ -191,6 +226,7 @@ public class SyncreplConfiguration
         return filter;
     }
 
+
     /**
      * @param filter the filter to set
      */
@@ -199,37 +235,42 @@ public class SyncreplConfiguration
         this.filter = filter;
     }
 
+
     /**
      * @return the attributes
      */
-    public String getAttributes()
+    public String[] getAttributes()
     {
         return attributes;
     }
 
+
     /**
      * @param attributes the attributes to set
      */
-    public void setAttributes( String attributes )
+    public void setAttributes( String[] attributes )
     {
         this.attributes = attributes;
     }
 
+
     /**
      * @return the searchSizeLimit
      */
-    public long getSearchSizeLimit()
+    public int getSearchSizeLimit()
     {
         return searchSizeLimit;
     }
 
+
     /**
      * @param searchSizeLimit the searchSizeLimit to set
      */
-    public void setSearchSizeLimit( long searchSizeLimit )
+    public void setSearchSizeLimit( int searchSizeLimit )
     {
         this.searchSizeLimit = searchSizeLimit;
     }
+
 
     /**
      * @return the searchTimeout
@@ -239,6 +280,7 @@ public class SyncreplConfiguration
         return searchTimeout;
     }
 
+
     /**
      * @param searchTimeout the searchTimeout to set
      */
@@ -247,21 +289,24 @@ public class SyncreplConfiguration
         this.searchTimeout = searchTimeout;
     }
 
+
     /**
      * @return the searchScope
      */
-    public int getSearchScope()
+    public SearchScope getSearchScope()
     {
         return searchScope;
     }
 
+
     /**
      * @param searchScope the searchScope to set
      */
-    public void setSearchScope( int searchScope )
+    public void setSearchScope( SearchScope searchScope )
     {
         this.searchScope = searchScope;
     }
+
 
     /**
      * @return the replicaId
@@ -271,6 +316,7 @@ public class SyncreplConfiguration
         return replicaId;
     }
 
+
     /**
      * @param replicaId the replicaId to set
      */
@@ -279,6 +325,33 @@ public class SyncreplConfiguration
         this.replicaId = replicaId;
     }
 
-    
+
+    public AliasDerefMode getAliasDerefMode()
+    {
+        return aliasDerefMode;
+    }
+
+
+    public void setAliasDerefMode( AliasDerefMode aliasDerefMode )
+    {
+        if( aliasDerefMode != AliasDerefMode.NEVER_DEREF_ALIASES || aliasDerefMode != AliasDerefMode.DEREF_FINDING_BASE_OBJ )
+        {
+            throw new IllegalArgumentException( "alias deref mode should only be set to either 'NEVER_DEREF_ALIASES' or 'DEREF_FINDING_BASE_OBJ'" );
+        }
+        
+        this.aliasDerefMode = aliasDerefMode;
+    }
+
+
+    public byte[] getCookie()
+    {
+        return cookie;
+    }
+
+
+    public void setCookie( byte[] cookie )
+    {
+        this.cookie = cookie;
+    }
     
 }
