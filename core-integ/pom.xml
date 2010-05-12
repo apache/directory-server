@@ -103,6 +103,7 @@
               </includes>
               <excludes>
                 <exclude>**/ReferralIT.java</exclude>
+                <exclude>**/*PerfIT.java</exclude>
               </excludes>
             </configuration>
           </plugin>
@@ -175,7 +176,7 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <excludes>
-                <exclude>**/*PTest.java</exclude>
+                <exclude>**/*PerfTest.java</exclude>
                 <exclude>**/*ITest.java</exclude>
               </excludes>
             </configuration>
