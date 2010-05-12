@@ -47,7 +47,9 @@
 package jdbm.recman;
 
 
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import org.apache.directory.server.i18n.I18n;
 
@@ -57,6 +59,8 @@ import org.apache.directory.server.i18n.I18n;
  * write data to and from it. The readers and writers are just the ones that 
  * the rest of the toolkit needs, nothing else. Values written are compatible 
  * with java.io routines.
+ * 
+ * This block is never accessed directly, so it does not have to be thread-safe.
  *
  * @see java.io.DataInput
  * @see java.io.DataOutput
@@ -65,11 +69,18 @@ public final class BlockIo implements java.io.Externalizable
 {
     public final static long serialVersionUID = 2L;
 
+    /** The block Identifier */
     private long blockId;
 
-    private transient byte[] data; // work area
+    /** The row data contained in this block */
+    private transient byte[] data;
+    
     private transient BlockView view = null;
+    
+    /** A flag set when this block has been modified */
     private transient boolean dirty = false;
+    
+    /** The number of pending transaction on this block */
     private transient int transactionCount = 0;
 
     
@@ -83,14 +94,17 @@ public final class BlockIo implements java.io.Externalizable
 
     
     /**
-     * Constructs a new BlockIo instance working on the indicated buffer.
+     * Constructs a new BlockIo instance.
+     * 
+     * @param blockId The identifier for this block
+     * @param data The data to store
      */
     BlockIo( long blockId, byte[] data ) 
     {
         // remove me for production version
-        if ( blockId > 10000000000L )
+        if ( blockId < 0 )
         {
-            throw new Error( I18n.err( I18n.ERR_539, blockId ) );
+            throw new Error( I18n.err( I18n.ERR_539_BAD_BLOCK_ID, blockId ) );
         }
         
         this.blockId = blockId;
@@ -99,7 +113,7 @@ public final class BlockIo implements java.io.Externalizable
 
     
     /**
-     * Returns the underlying array
+     * @return the underlying array
      */
     byte[] getData() 
     {
@@ -109,26 +123,27 @@ public final class BlockIo implements java.io.Externalizable
     
     /**
      * Sets the block number. Should only be called by RecordFile.
+     * 
+     * @param The block identifier
      */
-    void setBlockId( long id ) 
+    void setBlockId( long blockId ) 
     {
         if ( isInTransaction() )
         {
             throw new Error( I18n.err( I18n.ERR_540 ) );
         }
         
-        // remove me for production version
-        if (id > 10000000000L)
+        if ( blockId < 0 )
         {
-            throw new Error( I18n.err( I18n.ERR_539, id ) );
+            throw new Error( I18n.err( I18n.ERR_539_BAD_BLOCK_ID, blockId ) );
         }
             
-        blockId = id;
+        this.blockId = blockId;
     }
 
     
     /**
-     * Returns the block number.
+     * @return the block number.
      */
     long getBlockId() 
     {
@@ -137,7 +152,7 @@ public final class BlockIo implements java.io.Externalizable
 
     
     /**
-     * Returns the current view of the block.
+     * @return the current view of the block.
      */
     public BlockView getView() 
     {
@@ -193,7 +208,7 @@ public final class BlockIo implements java.io.Externalizable
 
     /**
      * Increments transaction count for this block, to signal that this
-     * block is in the log but not yet in the data file. The method also
+     * block is in the log but not yet in the data recordFile. The method also
      * takes a snapshot so that the data may be modified in new transactions.
      */
     synchronized void incrementTransactionCount() 
@@ -207,11 +222,12 @@ public final class BlockIo implements java.io.Externalizable
     
     /**
      * Decrements transaction count for this block, to signal that this
-     * block has been written from the log to the data file.
+     * block has been written from the log to the data recordFile.
      */
     synchronized void decrementTransactionCount() 
     {
         transactionCount--;
+        
         if ( transactionCount < 0 )
         {
             throw new Error( I18n.err( I18n.ERR_541, getBlockId() ) );
@@ -302,17 +318,6 @@ public final class BlockIo implements java.io.Externalizable
                         ( ( data[pos+5] & 0xff ) << 16 ) |
                         ( ( data[pos+6] & 0xff ) <<  8 ) |
                         ( ( data[pos+7] & 0xff )       ) ) & 0xffffffff );
-        /* Original version by Alex Boisvert.  Might be faster on 64-bit JVMs.
-        return
-            ( ( ( long ) ( data[pos+0] & 0xff ) << 56 ) |
-              ( ( long ) ( data[pos+1] & 0xff ) << 48 ) |
-              ( ( long ) ( data[pos+2] & 0xff ) << 40 ) |
-              ( ( long ) ( data[pos+3] & 0xff ) << 32 ) |
-              ( ( long ) ( data[pos+4] & 0xff ) << 24 ) |
-              ( ( long ) ( data[pos+5] & 0xff ) << 16 ) |
-              ( ( long ) ( data[pos+6] & 0xff ) <<  8 ) |
-              ( ( long ) ( data[pos+7] & 0xff ) <<  0 ) );
-        */
     }
 
     
@@ -355,7 +360,6 @@ public final class BlockIo implements java.io.Externalizable
 
     
     // implement externalizable interface
-
     public void writeExternal( ObjectOutput out ) throws IOException 
     {
         out.writeLong( blockId );

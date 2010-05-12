@@ -343,8 +343,11 @@ public class CacheRecordManager implements RecordManager
     public synchronized void commit() throws IOException
     {
         checkIfClosed();
+        long t0 = System.nanoTime();
         updateCacheEntries();
+        long t1 = System.nanoTime();
         recMgr.commit();
+        long t2 = System.nanoTime();
     }
 
 
@@ -404,9 +407,11 @@ public class CacheRecordManager implements RecordManager
     protected void updateCacheEntries() throws IOException
     {
         Enumeration<CacheEntry> enume = cache.elements();
+        
         while ( enume.hasMoreElements() ) 
         {
             CacheEntry entry = enume.nextElement();
+            
             if ( entry.isDirty ) 
             {
                 recMgr.update( entry.recid, entry.obj, entry.serializer );
@@ -416,6 +421,9 @@ public class CacheRecordManager implements RecordManager
     }
 
     
+    /**
+     * A class to store a cached entry. 
+     */
     private class CacheEntry
     {
         long recid;

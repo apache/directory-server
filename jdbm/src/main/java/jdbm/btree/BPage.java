@@ -85,15 +85,13 @@ public final class BPage implements Serializer
 
     private static final boolean DEBUG = false;
 
-    /**
-     * Version id for serialization.
-     */
+    /** Version id for serialization. */
     final static long serialVersionUID = 1L;
 
     /**
      * Parent B+Tree.
      */
-    transient BTree _btree;
+    transient BTree btree;
 
     /**
      * This BPage's record ID in the PageManager.
@@ -103,7 +101,7 @@ public final class BPage implements Serializer
     /**
      * Flag indicating if this is a leaf BPage.
      */
-    protected boolean _isLeaf;
+    protected boolean isLeaf;
 
     /**
      * Keys of children nodes
@@ -115,24 +113,16 @@ public final class BPage implements Serializer
      */
     protected Object[] _values;
 
-    /**
-     * Children pages (recids) associated with keys.  (Only valid if non-leaf BPage)
-     */
-    protected long[] _children;
+    /** Children pages (recids) associated with keys.  (Only valid if non-leaf BPage) */
+    protected long[] children;
 
-    /**
-     * Index of first used item at the page
-     */
+    /** Index of first used item at the page */
     protected int _first;
 
-    /**
-     * Previous leaf BPage (only if this BPage is a leaf)
-     */
+    /** Previous leaf BPage (only if this BPage is a leaf) */
     protected long _previous;
 
-    /**
-     * Next leaf BPage (only if this BPage is a leaf)
-     */
+    /** Next leaf BPage (only if this BPage is a leaf) */
     protected long _next;
 
 
@@ -150,21 +140,21 @@ public final class BPage implements Serializer
      */
     BPage( BTree btree, BPage root, BPage overflow ) throws IOException
     {
-        _btree = btree;
+        this.btree = btree;
 
-        _isLeaf = false;
+        isLeaf = false;
 
-        _first = _btree._pageSize - 2;
+        _first = btree.pageSize - 2;
 
-        _keys = new Object[_btree._pageSize];
-        _keys[_btree._pageSize - 2] = overflow.getLargestKey();
-        _keys[_btree._pageSize - 1] = root.getLargestKey();
+        _keys = new Object[btree.pageSize];
+        _keys[btree.pageSize - 2] = overflow.getLargestKey();
+        _keys[btree.pageSize - 1] = root.getLargestKey();
 
-        _children = new long[_btree._pageSize];
-        _children[_btree._pageSize - 2] = overflow._recid;
-        _children[_btree._pageSize - 1] = root._recid;
+        children = new long[btree.pageSize];
+        children[btree.pageSize - 2] = overflow._recid;
+        children[btree.pageSize - 1] = root._recid;
 
-        _recid = _btree._recman.insert( this, this );
+        _recid = btree.recordManager.insert( this, this );
     }
 
 
@@ -173,21 +163,21 @@ public final class BPage implements Serializer
      */
     BPage( BTree btree, Object key, Object value ) throws IOException
     {
-        _btree = btree;
+        this.btree = btree;
 
-        _isLeaf = true;
+        isLeaf = true;
 
-        _first = btree._pageSize - 2;
+        _first = btree.pageSize - 2;
 
-        _keys = new Object[_btree._pageSize];
-        _keys[_btree._pageSize - 2] = key;
-        _keys[_btree._pageSize - 1] = null; // I am the root BPage for now
+        _keys = new Object[btree.pageSize];
+        _keys[btree.pageSize - 2] = key;
+        _keys[btree.pageSize - 1] = null; // I am the root BPage for now
 
-        _values = new Object[_btree._pageSize];
-        _values[_btree._pageSize - 2] = value;
-        _values[_btree._pageSize - 1] = null; // I am the root BPage for now
+        _values = new Object[btree.pageSize];
+        _values[btree.pageSize - 2] = value;
+        _values[btree.pageSize - 1] = null; // I am the root BPage for now
 
-        _recid = _btree._recman.insert( this, this );
+        _recid = btree.recordManager.insert( this, this );
     }
 
 
@@ -196,24 +186,24 @@ public final class BPage implements Serializer
      */
     BPage( BTree btree, boolean isLeaf ) throws IOException
     {
-        _btree = btree;
+        this.btree = btree;
 
-        _isLeaf = isLeaf;
+        this.isLeaf = isLeaf;
 
         // page will initially be half-full
-        _first = _btree._pageSize / 2;
+        _first = btree.pageSize / 2;
 
-        _keys = new Object[_btree._pageSize];
+        _keys = new Object[btree.pageSize];
         if ( isLeaf )
         {
-            _values = new Object[_btree._pageSize];
+            _values = new Object[btree.pageSize];
         }
         else
         {
-            _children = new long[_btree._pageSize];
+            children = new long[btree.pageSize];
         }
 
-        _recid = _btree._recman.insert( this, this );
+        _recid = btree.recordManager.insert( this, this );
     }
 
 
@@ -223,7 +213,7 @@ public final class BPage implements Serializer
      */
     Object getLargestKey()
     {
-        return _keys[_btree._pageSize - 1];
+        return _keys[btree.pageSize - 1];
     }
 
 
@@ -232,13 +222,13 @@ public final class BPage implements Serializer
      */
     boolean isEmpty()
     {
-        if ( _isLeaf )
+        if ( isLeaf )
         {
             return ( _first == _values.length - 1 );
         }
         else
         {
-            return ( _first == _children.length - 1 );
+            return ( _first == children.length - 1 );
         }
     }
 
@@ -294,7 +284,7 @@ public final class BPage implements Serializer
      */
     TupleBrowser findFirst() throws IOException
     {
-        if ( _isLeaf )
+        if ( isLeaf )
         {
             return new Browser( this, _first );
         }
@@ -350,7 +340,7 @@ public final class BPage implements Serializer
                 if ( replace )
                 {
                     _values[index] = value;
-                    _btree._recman.update( _recid, this, this );
+                    btree.recordManager.update( _recid, this, this );
                 }
                 // return the existing key
                 return result;
@@ -391,7 +381,7 @@ public final class BPage implements Serializer
         }
 
         // if we get here, we need to insert a new entry on the BPage
-        // before _children[ index ]
+        // before children[ index ]
         if ( !isFull() )
         {
             if ( height == 0 )
@@ -402,13 +392,13 @@ public final class BPage implements Serializer
             {
                 insertChild( this, index - 1, key, overflow );
             }
-            _btree._recman.update( _recid, this, this );
+            btree.recordManager.update( _recid, this, this );
             return result;
         }
 
         // page is full, we must divide the page
-        int half = _btree._pageSize >> 1;
-        BPage newPage = new BPage( _btree, _isLeaf );
+        int half = btree.pageSize >> 1;
+        BPage newPage = new BPage( btree, isLeaf );
         if ( index < half )
         {
             // move lower-half of entries to overflow BPage,
@@ -468,7 +458,7 @@ public final class BPage implements Serializer
             }
         }
 
-        if ( _isLeaf )
+        if ( isLeaf )
         {
             // link newly created BPage
             newPage._previous = _previous;
@@ -477,13 +467,13 @@ public final class BPage implements Serializer
             {
                 BPage previous = loadBPage( _previous );
                 previous._next = newPage._recid;
-                _btree._recman.update( _previous, previous, this );
+                btree.recordManager.update( _previous, previous, this );
             }
             _previous = newPage._recid;
         }
 
-        _btree._recman.update( _recid, this, this );
-        _btree._recman.update( newPage._recid, newPage, this );
+        btree.recordManager.update( _recid, this, this );
+        btree.recordManager.update( newPage._recid, newPage, this );
 
         result._overflow = newPage;
         return result;
@@ -501,7 +491,7 @@ public final class BPage implements Serializer
     {
         RemoveResult result;
 
-        int half = _btree._pageSize / 2;
+        int half = btree.pageSize / 2;
         int index = findChildren( key );
 
         height -= 1;
@@ -517,7 +507,7 @@ public final class BPage implements Serializer
             removeEntry( this, index );
 
             // update this BPage
-            _btree._recman.update( _recid, this, this );
+            btree.recordManager.update( _recid, this, this );
 
         }
         else
@@ -528,7 +518,7 @@ public final class BPage implements Serializer
 
             // update children
             _keys[index] = child.getLargestKey();
-            _btree._recman.update( _recid, this, this );
+            btree.recordManager.update( _recid, this, this );
 
             if ( result._underflow )
             {
@@ -537,7 +527,7 @@ public final class BPage implements Serializer
                 {
                     throw new IllegalStateException( I18n.err( I18n.ERR_513, "1" ) );
                 }
-                if ( index < _children.length - 1 )
+                if ( index < children.length - 1 )
                 {
                     // exists greater brother page
                     BPage brother = childBPage( index + 1 );
@@ -548,7 +538,7 @@ public final class BPage implements Serializer
                         int steal = ( half - bfirst + 1 ) / 2;
                         brother._first += steal;
                         child._first -= steal;
-                        if ( child._isLeaf )
+                        if ( child.isLeaf )
                         {
                             copyEntries( child, half + 1, child, half + 1 - steal, half - 1 );
                             copyEntries( brother, bfirst, child, 2 * half - steal, steal );
@@ -561,7 +551,7 @@ public final class BPage implements Serializer
 
                         for ( int i = bfirst; i < bfirst + steal; i++ )
                         {
-                            if ( brother._isLeaf )
+                            if ( brother.isLeaf )
                             {
                                 setEntry( brother, i, null, null );
                             }
@@ -577,9 +567,9 @@ public final class BPage implements Serializer
                         // no change in previous/next BPage
 
                         // update BPages
-                        _btree._recman.update( _recid, this, this );
-                        _btree._recman.update( brother._recid, brother, this );
-                        _btree._recman.update( child._recid, child, this );
+                        btree.recordManager.update( _recid, this, this );
+                        btree.recordManager.update( brother._recid, brother, this );
+                        btree.recordManager.update( child._recid, child, this );
 
                     }
                     else
@@ -591,7 +581,7 @@ public final class BPage implements Serializer
                         }
 
                         brother._first = 1;
-                        if ( child._isLeaf )
+                        if ( child.isLeaf )
                         {
                             copyEntries( child, half + 1, brother, 1, half - 1 );
                         }
@@ -599,10 +589,10 @@ public final class BPage implements Serializer
                         {
                             copyChildren( child, half + 1, brother, 1, half - 1 );
                         }
-                        _btree._recman.update( brother._recid, brother, this );
+                        btree.recordManager.update( brother._recid, brother, this );
 
                         // remove "child" from current BPage
-                        if ( _isLeaf )
+                        if ( isLeaf )
                         {
                             copyEntries( this, _first, this, _first + 1, index - _first );
                             setEntry( this, _first, null, null );
@@ -613,24 +603,24 @@ public final class BPage implements Serializer
                             setChild( this, _first, null, -1 );
                         }
                         _first += 1;
-                        _btree._recman.update( _recid, this, this );
+                        btree.recordManager.update( _recid, this, this );
 
                         // re-link previous and next BPages
                         if ( child._previous != 0 )
                         {
                             BPage prev = loadBPage( child._previous );
                             prev._next = child._next;
-                            _btree._recman.update( prev._recid, prev, this );
+                            btree.recordManager.update( prev._recid, prev, this );
                         }
                         if ( child._next != 0 )
                         {
                             BPage next = loadBPage( child._next );
                             next._previous = child._previous;
-                            _btree._recman.update( next._recid, next, this );
+                            btree.recordManager.update( next._recid, next, this );
                         }
 
                         // delete "child" BPage
-                        _btree._recman.delete( child._recid );
+                        btree.recordManager.delete( child._recid );
                     }
                 }
                 else
@@ -644,7 +634,7 @@ public final class BPage implements Serializer
                         int steal = ( half - bfirst + 1 ) / 2;
                         brother._first += steal;
                         child._first -= steal;
-                        if ( child._isLeaf )
+                        if ( child.isLeaf )
                         {
                             copyEntries( brother, 2 * half - steal, child, half + 1 - steal, steal );
                             copyEntries( brother, bfirst, brother, bfirst + steal, 2 * half - bfirst - steal );
@@ -657,7 +647,7 @@ public final class BPage implements Serializer
 
                         for ( int i = bfirst; i < bfirst + steal; i++ )
                         {
-                            if ( brother._isLeaf )
+                            if ( brother.isLeaf )
                             {
                                 setEntry( brother, i, null, null );
                             }
@@ -673,9 +663,9 @@ public final class BPage implements Serializer
                         // no change in previous/next BPage
 
                         // update BPages
-                        _btree._recman.update( _recid, this, this );
-                        _btree._recman.update( brother._recid, brother, this );
-                        _btree._recman.update( child._recid, child, this );
+                        btree.recordManager.update( _recid, this, this );
+                        btree.recordManager.update( brother._recid, brother, this );
+                        btree.recordManager.update( child._recid, child, this );
 
                     }
                     else
@@ -687,7 +677,7 @@ public final class BPage implements Serializer
                         }
 
                         child._first = 1;
-                        if ( child._isLeaf )
+                        if ( child.isLeaf )
                         {
                             copyEntries( brother, half, child, 1, half );
                         }
@@ -695,10 +685,10 @@ public final class BPage implements Serializer
                         {
                             copyChildren( brother, half, child, 1, half );
                         }
-                        _btree._recman.update( child._recid, child, this );
+                        btree.recordManager.update( child._recid, child, this );
 
                         // remove "brother" from current BPage
-                        if ( _isLeaf )
+                        if ( isLeaf )
                         {
                             copyEntries( this, _first, this, _first + 1, index - 1 - _first );
                             setEntry( this, _first, null, null );
@@ -709,24 +699,24 @@ public final class BPage implements Serializer
                             setChild( this, _first, null, -1 );
                         }
                         _first += 1;
-                        _btree._recman.update( _recid, this, this );
+                        btree.recordManager.update( _recid, this, this );
 
                         // re-link previous and next BPages
                         if ( brother._previous != 0 )
                         {
                             BPage prev = loadBPage( brother._previous );
                             prev._next = brother._next;
-                            _btree._recman.update( prev._recid, prev, this );
+                            btree.recordManager.update( prev._recid, prev, this );
                         }
                         if ( brother._next != 0 )
                         {
                             BPage next = loadBPage( brother._next );
                             next._previous = brother._previous;
-                            _btree._recman.update( next._recid, next, this );
+                            btree.recordManager.update( next._recid, next, this );
                         }
 
                         // delete "brother" BPage
-                        _btree._recman.delete( brother._recid );
+                        btree.recordManager.delete( brother._recid );
                     }
                 }
             }
@@ -748,7 +738,7 @@ public final class BPage implements Serializer
     private int findChildren( Object key )
     {
         int left = _first;
-        int right = _btree._pageSize - 1;
+        int right = btree.pageSize - 1;
 
         // binary search
         while ( left < right )
@@ -792,7 +782,7 @@ public final class BPage implements Serializer
     private static void insertChild( BPage page, int index, Object key, long child )
     {
         Object[] keys = page._keys;
-        long[] children = page._children;
+        long[] children = page.children;
         int start = page._first;
         int count = index - page._first + 1;
 
@@ -858,7 +848,7 @@ public final class BPage implements Serializer
     private static void setChild( BPage page, int index, Object key, long recid )
     {
         page._keys[index] = key;
-        page._children[index] = recid;
+        page.children[index] = recid;
     }
 
 
@@ -878,7 +868,7 @@ public final class BPage implements Serializer
     private static void copyChildren( BPage source, int indexSource, BPage dest, int indexDest, int count )
     {
         System.arraycopy( source._keys, indexSource, dest._keys, indexDest, count );
-        System.arraycopy( source._children, indexSource, dest._children, indexDest, count );
+        System.arraycopy( source.children, indexSource, dest.children, indexDest, count );
     }
 
 
@@ -887,7 +877,7 @@ public final class BPage implements Serializer
      */
     BPage childBPage( int index ) throws IOException
     {
-        return loadBPage( _children[index] );
+        return loadBPage( children[index] );
     }
 
 
@@ -896,9 +886,9 @@ public final class BPage implements Serializer
      */
     private BPage loadBPage( long recid ) throws IOException
     {
-        BPage child = ( BPage ) _btree._recman.fetch( recid, this );
+        BPage child = ( BPage ) btree.recordManager.fetch( recid, this );
         child._recid = recid;
-        child._btree = _btree;
+        child.btree = btree;
         return child;
     }
 
@@ -913,7 +903,7 @@ public final class BPage implements Serializer
         {
             return -1;
         }
-        return _btree._comparator.compare( value1, value2 );
+        return btree.comparator.compare( value1, value2 );
     }
 
 
@@ -957,15 +947,15 @@ public final class BPage implements Serializer
         }
         System.out.println( prefix + "-------------------------------------- BPage recid=" + _recid );
         System.out.println( prefix + "first=" + _first );
-        for ( int i = 0; i < _btree._pageSize; i++ )
+        for ( int i = 0; i < btree.pageSize; i++ )
         {
-            if ( _isLeaf )
+            if ( isLeaf )
             {
                 System.out.println( prefix + "BPage [" + i + "] " + _keys[i] + " " + _values[i] );
             }
             else
             {
-                System.out.println( prefix + "BPage [" + i + "] " + _keys[i] + " " + _children[i] );
+                System.out.println( prefix + "BPage [" + i + "] " + _keys[i] + " " + children[i] );
             }
         }
         System.out.println( prefix + "--------------------------------------" );
@@ -982,7 +972,7 @@ public final class BPage implements Serializer
         level += 1;
         if ( height > 0 )
         {
-            for ( int i = _first; i < _btree._pageSize; i++ )
+            for ( int i = _first; i < btree.pageSize; i++ )
             {
                 if ( _keys[i] == null )
                     break;
@@ -1000,7 +990,7 @@ public final class BPage implements Serializer
      */
     private void assertConsistency()
     {
-        for ( int i = _first; i < _btree._pageSize - 1; i++ )
+        for ( int i = _first; i < btree.pageSize - 1; i++ )
         {
             if ( compare( ( byte[] ) _keys[i], ( byte[] ) _keys[i + 1] ) >= 0 )
             {
@@ -1020,7 +1010,7 @@ public final class BPage implements Serializer
         assertConsistency();
         if ( --height > 0 )
         {
-            for ( int i = _first; i < _btree._pageSize; i++ )
+            for ( int i = _first; i < btree.pageSize; i++ )
             {
                 if ( _keys[i] == null )
                     break;
@@ -1054,8 +1044,8 @@ public final class BPage implements Serializer
         bais = new ByteArrayInputStream( serialized );
         ois = new ObjectInputStream( bais );
 
-        bpage._isLeaf = ois.readBoolean();
-        if ( bpage._isLeaf )
+        bpage.isLeaf = ois.readBoolean();
+        if ( bpage.isLeaf )
         {
             bpage._previous = ois.readLong();
             bpage._next = ois.readLong();
@@ -1063,12 +1053,12 @@ public final class BPage implements Serializer
 
         bpage._first = ois.readInt();
 
-        bpage._keys = new Object[_btree._pageSize];
+        bpage._keys = new Object[btree.pageSize];
         try
         {
-            for ( int i = bpage._first; i < _btree._pageSize; i++ )
+            for ( int i = bpage._first; i < btree.pageSize; i++ )
             {
-                if ( _btree._keySerializer == null )
+                if ( btree.keySerializer == null )
                 {
                     bpage._keys[i] = ois.readObject();
                 }
@@ -1077,7 +1067,7 @@ public final class BPage implements Serializer
                     serialized = readByteArray( ois );
                     if ( serialized != null )
                     {
-                        bpage._keys[i] = _btree._keySerializer.deserialize( serialized );
+                        bpage._keys[i] = btree.keySerializer.deserialize( serialized );
                     }
                 }
             }
@@ -1087,14 +1077,14 @@ public final class BPage implements Serializer
             throw new IOException( except.getLocalizedMessage() );
         }
 
-        if ( bpage._isLeaf )
+        if ( bpage.isLeaf )
         {
-            bpage._values = new Object[_btree._pageSize];
+            bpage._values = new Object[btree.pageSize];
             try
             {
-                for ( int i = bpage._first; i < _btree._pageSize; i++ )
+                for ( int i = bpage._first; i < btree.pageSize; i++ )
                 {
-                    if ( _btree._valueSerializer == null )
+                    if ( btree.valueSerializer == null )
                     {
                         bpage._values[i] = ois.readObject();
                     }
@@ -1103,7 +1093,7 @@ public final class BPage implements Serializer
                         serialized = readByteArray( ois );
                         if ( serialized != null )
                         {
-                            bpage._values[i] = _btree._valueSerializer.deserialize( serialized );
+                            bpage._values[i] = btree.valueSerializer.deserialize( serialized );
                         }
                     }
                 }
@@ -1115,10 +1105,10 @@ public final class BPage implements Serializer
         }
         else
         {
-            bpage._children = new long[_btree._pageSize];
-            for ( int i = bpage._first; i < _btree._pageSize; i++ )
+            bpage.children = new long[btree.pageSize];
+            for ( int i = bpage._first; i < btree.pageSize; i++ )
             {
-                bpage._children[i] = ois.readLong();
+                bpage.children[i] = ois.readLong();
             }
         }
         ois.close();
@@ -1150,8 +1140,8 @@ public final class BPage implements Serializer
         baos = new ByteArrayOutputStream();
         oos = new ObjectOutputStream( baos );
 
-        oos.writeBoolean( bpage._isLeaf );
-        if ( bpage._isLeaf )
+        oos.writeBoolean( bpage.isLeaf );
+        if ( bpage.isLeaf )
         {
             oos.writeLong( bpage._previous );
             oos.writeLong( bpage._next );
@@ -1159,9 +1149,9 @@ public final class BPage implements Serializer
 
         oos.writeInt( bpage._first );
 
-        for ( int i = bpage._first; i < _btree._pageSize; i++ )
+        for ( int i = bpage._first; i < btree.pageSize; i++ )
         {
-            if ( _btree._keySerializer == null )
+            if ( btree.keySerializer == null )
             {
                 oos.writeObject( bpage._keys[i] );
             }
@@ -1169,7 +1159,7 @@ public final class BPage implements Serializer
             {
                 if ( bpage._keys[i] != null )
                 {
-                    serialized = _btree._keySerializer.serialize( bpage._keys[i] );
+                    serialized = btree.keySerializer.serialize( bpage._keys[i] );
                     writeByteArray( oos, serialized );
                 }
                 else
@@ -1179,11 +1169,11 @@ public final class BPage implements Serializer
             }
         }
 
-        if ( bpage._isLeaf )
+        if ( bpage.isLeaf )
         {
-            for ( int i = bpage._first; i < _btree._pageSize; i++ )
+            for ( int i = bpage._first; i < btree.pageSize; i++ )
             {
-                if ( _btree._valueSerializer == null )
+                if ( btree.valueSerializer == null )
                 {
                     oos.writeObject( bpage._values[i] );
                 }
@@ -1191,7 +1181,7 @@ public final class BPage implements Serializer
                 {
                     if ( bpage._values[i] != null )
                     {
-                        serialized = _btree._valueSerializer.serialize( bpage._values[i] );
+                        serialized = btree.valueSerializer.serialize( bpage._values[i] );
                         writeByteArray( oos, serialized );
                     }
                     else
@@ -1203,9 +1193,9 @@ public final class BPage implements Serializer
         }
         else
         {
-            for ( int i = bpage._first; i < _btree._pageSize; i++ )
+            for ( int i = bpage._first; i < btree.pageSize; i++ )
             {
-                oos.writeLong( bpage._children[i] );
+                oos.writeLong( bpage.children[i] );
             }
         }
 
@@ -1284,7 +1274,7 @@ public final class BPage implements Serializer
 
         public boolean getNext( Tuple tuple ) throws IOException
         {
-            if ( _index < _page._btree._pageSize )
+            if ( _index < _page.btree.pageSize )
             {
                 if ( _page._keys[_index] == null )
                 {
@@ -1313,7 +1303,7 @@ public final class BPage implements Serializer
                 if ( _page._previous != 0 )
                 {
                     _page = _page.loadBPage( _page._previous );
-                    _index = _page._btree._pageSize;
+                    _index = _page.btree.pageSize;
                 }
                 else
                 {

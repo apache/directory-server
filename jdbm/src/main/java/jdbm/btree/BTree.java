@@ -94,66 +94,44 @@ public class BTree implements Externalizable
 
     private static final boolean DEBUG = false;
 
-    /**
-     * Version id for serialization.
-     */
+    /** Version id for serialization. */
     final static long serialVersionUID = 1L;
 
-    /**
-     * Default page size (number of entries per node)
-     */
+    /** Default page size (number of entries per node) */
     public static final int DEFAULT_SIZE = 16;
 
-    /**
-     * Page manager used to persist changes in BPages
-     */
-    protected transient RecordManager _recman;
+    /** Page manager used to persist changes in BPages */
+    protected transient RecordManager recordManager;
 
-    /**
-     * This BTree's record ID in the PageManager.
-     */
-    private transient long _recid;
+    /** This BTree's record ID in the PageManager. */
+    private transient long recordId;
 
-    /**
-     * Comparator used to index entries.
-     */
-    protected Comparator _comparator;
+    /** Comparator used to index entries. */
+    protected Comparator comparator;
 
-    /**
-     * Serializer used to serialize index keys (optional)
-     */
-    protected Serializer _keySerializer;
+    /** Serializer used to serialize index keys (optional) */
+    protected Serializer keySerializer;
 
-    /**
-     * Serializer used to serialize index values (optional)
-     */
-    protected Serializer _valueSerializer;
+    /** Serializer used to serialize index values (optional) */
+    protected Serializer valueSerializer;
 
     /**
      * Height of the B+Tree.  This is the number of BPages you have to traverse
      * to get to a leaf BPage, starting from the root.
      */
-    private int _height;
+    private int bTreeHeight;
 
-    /**
-     * Recid of the root BPage
-     */
-    private transient long _root;
+    /** Recid of the root BPage */
+    private transient long rootId;
 
-    /**
-     * Number of entries in each BPage.
-     */
-    protected int _pageSize;
+    /** Number of entries in each BPage. */
+    protected int pageSize;
 
-    /**
-     * Total number of entries in the BTree
-     */
-    protected int _entries;
+    /** Total number of entries in the BTree */
+    protected int nbEntries;
 
-    /**
-     * Serializer used for BPages of this tree
-     */
-    private transient BPage _bpageSerializer;
+    /** Serializer used for BPages of this tree */
+    private transient BPage bpageSerializer;
 
 
     /**
@@ -238,14 +216,14 @@ public class BTree implements Externalizable
         }
 
         btree = new BTree();
-        btree._recman = recman;
-        btree._comparator = comparator;
-        btree._keySerializer = keySerializer;
-        btree._valueSerializer = valueSerializer;
-        btree._pageSize = pageSize;
-        btree._bpageSerializer = new BPage();
-        btree._bpageSerializer._btree = btree;
-        btree._recid = recman.insert( btree );
+        btree.recordManager = recman;
+        btree.comparator = comparator;
+        btree.keySerializer = keySerializer;
+        btree.valueSerializer = valueSerializer;
+        btree.pageSize = pageSize;
+        btree.bpageSerializer = new BPage();
+        btree.bpageSerializer.btree = btree;
+        btree.recordId = recman.insert( btree );
         return btree;
     }
 
@@ -259,10 +237,10 @@ public class BTree implements Externalizable
     public static BTree load( RecordManager recman, long recid ) throws IOException
     {
         BTree btree = ( BTree ) recman.fetch( recid );
-        btree._recid = recid;
-        btree._recman = recman;
-        btree._bpageSerializer = new BPage();
-        btree._bpageSerializer._btree = btree;
+        btree.recordId = recid;
+        btree.recordManager = recman;
+        btree.bpageSerializer = new BPage();
+        btree.bpageSerializer.btree = btree;
         return btree;
     }
 
@@ -300,15 +278,15 @@ public class BTree implements Externalizable
                 System.out.println( "BTree.insert() new root BPage" );
             }
             rootPage = new BPage( this, key, value );
-            _root = rootPage._recid;
-            _height = 1;
-            _entries = 1;
-            _recman.update( _recid, this );
+            rootId = rootPage._recid;
+            bTreeHeight = 1;
+            nbEntries = 1;
+            recordManager.update( recordId, this );
             return null;
         }
         else
         {
-            BPage.InsertResult insert = rootPage.insert( _height, key, value, replace );
+            BPage.InsertResult insert = rootPage.insert( bTreeHeight, key, value, replace );
             boolean dirty = false;
             if ( insert._overflow != null )
             {
@@ -318,18 +296,18 @@ public class BTree implements Externalizable
                     System.out.println( "BTree.insert() replace root BPage due to overflow" );
                 }
                 rootPage = new BPage( this, rootPage, insert._overflow );
-                _root = rootPage._recid;
-                _height += 1;
+                rootId = rootPage._recid;
+                bTreeHeight += 1;
                 dirty = true;
             }
             if ( insert._existing == null )
             {
-                _entries++;
+                nbEntries++;
                 dirty = true;
             }
             if ( dirty )
             {
-                _recman.update( _recid, this );
+                recordManager.update( recordId, this );
             }
             // insert might have returned an existing value
             return insert._existing;
@@ -357,30 +335,30 @@ public class BTree implements Externalizable
             return null;
         }
         boolean dirty = false;
-        BPage.RemoveResult remove = rootPage.remove( _height, key );
+        BPage.RemoveResult remove = rootPage.remove( bTreeHeight, key );
         if ( remove._underflow && rootPage.isEmpty() )
         {
-            _height -= 1;
+            bTreeHeight -= 1;
             dirty = true;
 
-            _recman.delete( _root );
-            if ( _height == 0 )
+            recordManager.delete( rootId );
+            if ( bTreeHeight == 0 )
             {
-                _root = 0;
+                rootId = 0;
             }
             else
             {
-                _root = rootPage.childBPage( _pageSize - 1 )._recid;
+                rootId = rootPage.childBPage( pageSize - 1 )._recid;
             }
         }
         if ( remove._value != null )
         {
-            _entries--;
+            nbEntries--;
             dirty = true;
         }
         if ( dirty )
         {
-            _recman.update( _recid, this );
+            recordManager.update( recordId, this );
         }
         return remove._value;
     }
@@ -405,13 +383,13 @@ public class BTree implements Externalizable
         }
 
         Tuple tuple = new Tuple( null, null );
-        TupleBrowser browser = rootPage.find( _height, key );
+        TupleBrowser browser = rootPage.find( bTreeHeight, key );
 
         if ( browser.getNext( tuple ) )
         {
             // find returns the matching key or the next ordered key, so we must
             // check if we have an exact match
-            if ( _comparator.compare( key, tuple.getKey() ) != 0 )
+            if ( comparator.compare( key, tuple.getKey() ) != 0 )
             {
                 return null;
             }
@@ -500,7 +478,7 @@ public class BTree implements Externalizable
         {
             return EmptyBrowser.INSTANCE;
         }
-        TupleBrowser browser = rootPage.find( _height, key );
+        TupleBrowser browser = rootPage.find( bTreeHeight, key );
         return browser;
     }
 
@@ -510,7 +488,7 @@ public class BTree implements Externalizable
      */
     public synchronized int size()
     {
-        return _entries;
+        return nbEntries;
     }
 
 
@@ -519,7 +497,7 @@ public class BTree implements Externalizable
      */
     public long getRecid()
     {
-        return _recid;
+        return recordId;
     }
 
 
@@ -528,13 +506,13 @@ public class BTree implements Externalizable
      */
     private BPage getRoot() throws IOException
     {
-        if ( _root == 0 )
+        if ( rootId == 0 )
         {
             return null;
         }
-        BPage root = ( BPage ) _recman.fetch( _root, _bpageSerializer );
-        root._recid = _root;
-        root._btree = this;
+        BPage root = ( BPage ) recordManager.fetch( rootId, bpageSerializer );
+        root._recid = rootId;
+        root.btree = this;
         return root;
     }
 
@@ -544,13 +522,13 @@ public class BTree implements Externalizable
      */
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
-        _comparator = ( Comparator ) in.readObject();
-        _keySerializer = ( Serializer ) in.readObject();
-        _valueSerializer = ( Serializer ) in.readObject();
-        _height = in.readInt();
-        _root = in.readLong();
-        _pageSize = in.readInt();
-        _entries = in.readInt();
+        comparator = ( Comparator ) in.readObject();
+        keySerializer = ( Serializer ) in.readObject();
+        valueSerializer = ( Serializer ) in.readObject();
+        bTreeHeight = in.readInt();
+        rootId = in.readLong();
+        pageSize = in.readInt();
+        nbEntries = in.readInt();
     }
 
 
@@ -559,39 +537,22 @@ public class BTree implements Externalizable
      */
     public void writeExternal( ObjectOutput out ) throws IOException
     {
-        out.writeObject( _comparator );
-        out.writeObject( _keySerializer );
-        out.writeObject( _valueSerializer );
-        out.writeInt( _height );
-        out.writeLong( _root );
-        out.writeInt( _pageSize );
-        out.writeInt( _entries );
+        out.writeObject( comparator );
+        out.writeObject( keySerializer );
+        out.writeObject( valueSerializer );
+        out.writeInt( bTreeHeight );
+        out.writeLong( rootId );
+        out.writeInt( pageSize );
+        out.writeInt( nbEntries );
     }
 
 
     public void setValueSerializer( Serializer valueSerializer )
     {
-        _valueSerializer = valueSerializer;
+        this.valueSerializer = valueSerializer;
     }
 
-    /*
-    public void assert() throws IOException {
-        BPage root = getRoot();
-        if ( root != null ) {
-            root.assertRecursive( _height );
-        }
-    }
-    */
-
-    /*
-    public void dump() throws IOException {
-        BPage root = getRoot();
-        if ( root != null ) {
-            root.dumpRecursive( _height, 0 );
-        }
-    }
-    */
-
+    
     /** PRIVATE INNER CLASS
      *  Browser returning no element.
      */
@@ -615,10 +576,10 @@ public class BTree implements Externalizable
 
 
     /**
-     * @return the _comparator
+     * @return the comparator
      */
     public Comparator getComparator()
     {
-        return _comparator;
+        return comparator;
     }
 }

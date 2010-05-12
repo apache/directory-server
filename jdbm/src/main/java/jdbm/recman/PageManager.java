@@ -53,34 +53,36 @@ import org.apache.directory.server.i18n.I18n;
 
 
 /**
- * This class manages the linked lists of pages that make up a file.
+ * This class manages the linked lists of pages that make up a recordFile.
  */
 final class PageManager 
 {
-    // our record file
-    private RecordFile file;
+    // our record recordFile
+    private RecordFile recordFile;
+    
     // header data
     private FileHeader header;
-    // file header containing block
+    
+    // recordFile header containing block
     private BlockIo headerBuf;
 
     
     /**
-     * Creates a new page manager using the indicated record file.
+     * Creates a new page manager using the indicated record recordFile.
      */
-    PageManager( RecordFile file ) throws IOException 
+    PageManager( RecordFile recordFile ) throws IOException 
     {
-        this.file = file;
+        this.recordFile = recordFile;
         
-        // Note that we hold on to the file header node.
-        headerBuf = file.get( 0 );
+        // Note that we hold on to the recordFile header node.
+        headerBuf = recordFile.get( 0 );
         
-        // Assume file is new if the file header's magic number is 0. 
+        // Assume recordFile is new if the recordFile header's magic number is 0. 
         if ( headerBuf.readShort( 0 ) == 0 )
         {
             header = new FileHeader( headerBuf, true );
         }
-        else // header is for existing file
+        else // header is for existing recordFile
         {
             header = new FileHeader( headerBuf, false );
         }
@@ -114,7 +116,7 @@ final class PageManager
 
             if ( retval == 0 )
             {
-                // very new file - allocate record #1
+                // very new recordFile - allocate record #1
                 retval = 1;
             }
             
@@ -123,7 +125,7 @@ final class PageManager
         }
         
         // Cool. We have a record, add it to the correct list
-        BlockIo buf = file.get( retval );
+        BlockIo buf = recordFile.get( retval );
         PageHeader pageHdr = null;
         
         if ( isNew )
@@ -150,15 +152,15 @@ final class PageManager
         }
         
         header.setLastOf( type, retval );
-        file.release( retval, true );
+        recordFile.release( retval, true );
         
         // If there's a previous, fix up its pointer
         if ( oldLast != 0 ) 
         {
-            buf = file.get( oldLast );
+            buf = recordFile.get( oldLast );
             pageHdr = PageHeader.getView( buf );
             pageHdr.setNext( retval );
-            file.release( oldLast, true );
+            recordFile.release( oldLast, true );
         }
         
         // remove the view, we have modified the type.
@@ -184,7 +186,7 @@ final class PageManager
         }
         
         // get the page and read next and previous pointers
-        BlockIo buf = file.get( recid );
+        BlockIo buf = recordFile.get( recid );
         PageHeader pageHdr = PageHeader.getView( buf );
         long prev = pageHdr.getPrev();
         long next = pageHdr.getNext();
@@ -195,15 +197,15 @@ final class PageManager
         pageHdr.setPrev( 0 );
         
         header.setFirstOf( Magic.FREE_PAGE, recid );
-        file.release( recid, true );
+        recordFile.release( recid, true );
         
         // remove the page from its old list
         if ( prev != 0 ) 
         {
-            buf = file.get( prev );
+            buf = recordFile.get( prev );
             pageHdr = PageHeader.getView( buf );
             pageHdr.setNext( next );
-            file.release( prev, true );
+            recordFile.release( prev, true );
         }
         else 
         {
@@ -212,10 +214,10 @@ final class PageManager
         
         if ( next != 0 ) 
         {
-            buf = file.get( next );
+            buf = recordFile.get( next );
             pageHdr = PageHeader.getView( buf );
             pageHdr.setPrev( prev );
-            file.release( next, true );
+            recordFile.release( next, true );
         }
         else 
         {
@@ -231,11 +233,11 @@ final class PageManager
     {
         try 
         {
-            return PageHeader.getView( file.get( block ) ).getNext();
+            return PageHeader.getView( recordFile.get( block ) ).getNext();
         } 
         finally 
         {
-            file.release( block, false );
+            recordFile.release( block, false );
         }
     }
     
@@ -247,11 +249,11 @@ final class PageManager
     {
         try 
         {
-            return PageHeader.getView( file.get( block ) ).getPrev();
+            return PageHeader.getView( recordFile.get( block ) ).getPrev();
         } 
         finally 
         {
-            file.release( block, false );
+            recordFile.release( block, false );
         }
     }
     
@@ -282,11 +284,11 @@ final class PageManager
     void commit() throws IOException 
     {
         // write the header out
-        file.release( headerBuf );
-        file.commit();
+        recordFile.release( headerBuf );
+        recordFile.commit();
 
         // and obtain it again
-        headerBuf = file.get( 0 );
+        headerBuf = recordFile.get( 0 );
         header = new FileHeader( headerBuf, false );
     }
 
@@ -300,10 +302,10 @@ final class PageManager
     void rollback() throws IOException 
     {
         // release header
-        file.discard( headerBuf );
-        file.rollback();
+        recordFile.discard( headerBuf );
+        recordFile.rollback();
         // and obtain it again
-        headerBuf = file.get( 0 );
+        headerBuf = recordFile.get( 0 );
         
         if ( headerBuf.readShort( 0 ) == 0 )
         {
@@ -322,19 +324,24 @@ final class PageManager
      */
     void close() throws IOException 
     {   
-        file.release( headerBuf );
-        file.commit();
+        recordFile.release( headerBuf );
+        recordFile.commit();
         headerBuf = null;
         header = null;
-        file = null;
+        recordFile = null;
     }
     
     
     /**
-     *  Returns the file header.
+     *  Returns the recordFile header.
      */
     FileHeader getFileHeader() 
     {
         return header;
     }    
+    
+    RecordFile getRecordFile()
+    {
+        return recordFile;
+    }
 }

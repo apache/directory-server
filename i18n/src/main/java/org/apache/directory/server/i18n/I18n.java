@@ -577,7 +577,7 @@ public class I18n
     public static String ERR_536 = "ERR_536";
     public static String ERR_537 = "ERR_537";
     public static String ERR_538 = "ERR_538";
-    public static String ERR_539 = "ERR_539";
+    public static String ERR_539_BAD_BLOCK_ID = "ERR_539_BAD_BLOCK_ID";
     public static String ERR_540 = "ERR_540";
     public static String ERR_541 = "ERR_541";
     public static String ERR_542 = "ERR_542";

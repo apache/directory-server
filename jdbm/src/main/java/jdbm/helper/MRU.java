@@ -177,7 +177,7 @@ public class MRU implements CachePolicy
      */
     public void addListener(CachePolicyListener listener) {
         if (listener == null) {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_539 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_539_BAD_BLOCK_ID ) );
         }
         if ( ! listeners.contains(listener)) {
             listeners.addElement(listener);

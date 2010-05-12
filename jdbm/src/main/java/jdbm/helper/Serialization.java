@@ -67,6 +67,7 @@ public final class Serialization
     public static byte[] serialize( Object obj )
         throws IOException
     {
+        long tt0 = System.currentTimeMillis();
         ByteArrayOutputStream  baos;
         ObjectOutputStream     oos;
 
@@ -75,7 +76,16 @@ public final class Serialization
         oos.writeObject( obj );
         oos.close();
 
-        return baos.toByteArray();
+        long tt1 = System.currentTimeMillis();
+        byte[] res = baos.toByteArray();
+        long tt2 = System.currentTimeMillis();
+        
+        if ( tt2 - tt0 > 400 )
+        {
+            System.out.println( ( tt1 - tt0 ) + " /  " + ( tt2 - tt1 ) );
+        }
+        
+        return res;
     }
 
 

@@ -57,19 +57,19 @@ final class PhysicalRowIdManager
 {
     // The file we're talking to and the associated page manager.
     private RecordFile file;
-    private PageManager pageman;
+    private PageManager pageManager;
     private FreePhysicalRowIdPageManager freeman;
 
     /**
      *  Creates a new rowid manager using the indicated record file.
      *  and page manager.
      */
-    PhysicalRowIdManager( RecordFile file, PageManager pageManager )
+    PhysicalRowIdManager( PageManager pageManager )
         throws IOException
     {
-        this.file = file;
-        this.pageman = pageManager;
-        this.freeman = new FreePhysicalRowIdPageManager(file, pageman);
+        this.pageManager = pageManager;
+        this.file = pageManager.getRecordFile();
+        this.freeman = new FreePhysicalRowIdPageManager( pageManager );
     }
 
     /**
@@ -91,15 +91,16 @@ final class PhysicalRowIdManager
         throws IOException
     {
         // fetch the record header
-        BlockIo block = file.get( rowid.getBlock() );
+        BlockIo block = pageManager.getRecordFile().get( rowid.getBlock() );
         RecordHeader head = new RecordHeader( block, rowid.getOffset() );
+        
         if ( length > head.getAvailableSize() ) {
             // not enough space - we need to copy to a new rowid.
-            file.release( block );
+            pageManager.getRecordFile().release( block );
             free( rowid );
             rowid = alloc( length );
         } else {
-            file.release( block );
+            pageManager.getRecordFile().release( block );
         }
 
         // 'nuff space, write it in and return the rowid.
@@ -123,7 +124,7 @@ final class PhysicalRowIdManager
         throws IOException 
     {
         // fetch the record header
-        PageCursor curs = new PageCursor( pageman, rowid.getBlock() );
+        PageCursor curs = new PageCursor( pageManager, rowid.getBlock() );
         BlockIo block = file.get( curs.getCurrent() );
         RecordHeader head = new RecordHeader( block, rowid.getOffset() );
 
@@ -173,7 +174,7 @@ final class PhysicalRowIdManager
         Location retval = freeman.get( size );
         if ( retval == null ) {
             // temporary work around for DIRSERVER-1459
-            retval = allocNew( size * 2, pageman.getLast( Magic.USED_PAGE ) );
+            retval = allocNew( size * 2, pageManager.getLast( Magic.USED_PAGE ) );
         }
         return retval;
     }
@@ -190,7 +191,7 @@ final class PhysicalRowIdManager
         DataPage curPage;
         if ( start == 0 ) {
             // we need to create a new page.
-            start = pageman.allocate( Magic.USED_PAGE );
+            start = pageManager.allocate( Magic.USED_PAGE );
             curBlock = file.get( start );
             curPage = DataPage.getDataPageView( curBlock );
             curPage.setFirst( DataPage.O_DATA );
@@ -249,7 +250,7 @@ final class PhysicalRowIdManager
             int neededLeft = size - freeHere;
             // Refactor these two blocks!
             while ( neededLeft >= DataPage.DATA_PER_PAGE ) {
-                start = pageman.allocate( Magic.USED_PAGE );
+                start = pageManager.allocate( Magic.USED_PAGE );
                 curBlock = file.get( start );
                 curPage = DataPage.getDataPageView( curBlock );
                 curPage.setFirst( (short) 0 ); // no rowids, just data
@@ -258,7 +259,7 @@ final class PhysicalRowIdManager
             }
             if ( neededLeft > 0 ) {
                 // done with whole chunks, allocate last fragment.
-                start = pageman.allocate( Magic.USED_PAGE );
+                start = pageManager.allocate( Magic.USED_PAGE );
                 curBlock = file.get( start );
                 curPage = DataPage.getDataPageView( curBlock );
                 curPage.setFirst( (short) (DataPage.O_DATA + neededLeft) );
@@ -299,7 +300,7 @@ final class PhysicalRowIdManager
     private void write(Location rowid, byte[] data, int start, int length )
         throws IOException
     {
-        PageCursor curs = new PageCursor( pageman, rowid.getBlock() );
+        PageCursor curs = new PageCursor( pageManager, rowid.getBlock() );
         BlockIo block = file.get( curs.getCurrent() );
         RecordHeader hdr = new RecordHeader( block, rowid.getOffset() );
         hdr.setCurrentSize( length );
