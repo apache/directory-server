@@ -115,6 +115,9 @@
                 <include>**/*PasswordPolicyServiceIT.java</include>
                 <include>**/*StoredProcedureIT.java</include>
               </includes>
+              <excludes>
+                <exclude>**/*PerfIT.java</exclude>
+              </excludes>
             </configuration>
           </plugin>
         </plugins>
