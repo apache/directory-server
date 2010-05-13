@@ -50,8 +50,8 @@ public class SyncreplConfiguration
     /** flag to represent refresh and persist or refresh only mode, defaults to true */
     private boolean refreshPersist = true;
 
-    /** time interval for successive sync requests, default is 5 seconds */
-    private long refreshInterval = 5 * 1000;
+    /** time interval for successive sync requests, default is 60 seconds */
+    private long refreshInterval = 60 * 1000;
 
     /** the base DN whose content will be searched for replicating */
     private String baseDn;
@@ -82,6 +82,8 @@ public class SyncreplConfiguration
     /** the replica's id */
     private int replicaId;
 
+    
+    private static final String REPL_CONFIG_AREA = "ou=replProviders,ou=config";
 
     /**
      * @return the providerHost
@@ -196,6 +198,10 @@ public class SyncreplConfiguration
      */
     public void setRefreshInterval( long refreshInterval )
     {
+        if( refreshInterval <= 0 )
+        {
+            throw new IllegalArgumentException( "refresh interval should be more than zero" );
+        }
         this.refreshInterval = refreshInterval;
     }
 
@@ -354,4 +360,9 @@ public class SyncreplConfiguration
         this.cookie = cookie;
     }
     
+    
+    public String getConfigEntryDn()
+    {
+        return "ads-dsReplicaId=" + replicaId + "," + REPL_CONFIG_AREA; 
+    }
 }

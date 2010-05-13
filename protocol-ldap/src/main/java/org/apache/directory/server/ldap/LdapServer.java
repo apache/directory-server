@@ -57,6 +57,8 @@ import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.ldap.handlers.ssl.LdapsInitializer;
 import org.apache.directory.server.ldap.replication.ReplicationProvider;
 import org.apache.directory.server.ldap.replication.ReplicationSystem;
+import org.apache.directory.server.ldap.replication.SyncReplConsumer;
+import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
@@ -224,6 +226,10 @@ public class LdapServer extends DirectoryBackedService
     private IoFilterChainBuilder chainBuilder;
     
     private ReplicationProvider replicationProvider;
+    
+    private List<SyncreplConfiguration> providerConfigs;
+    
+    private List<SyncReplConsumer> replConsumers;
     
     /**
      * Creates an LDAP protocol provider.
@@ -445,16 +451,18 @@ public class LdapServer extends DirectoryBackedService
              * access to the DirectoryServer instance.
              */ 
             installDefaultHandlers();      
-
-            if( replicationProvider != null )
-            {
-                replicationProvider.init( this );
-                ( ( SearchHandler ) getSearchHandler() ).setReplicationProvider( replicationProvider );
-            }
             
             startNetwork( transport, chain );
         }
         
+        if( replicationProvider != null )
+        {
+            replicationProvider.init( this );
+            ( ( SearchHandler ) getSearchHandler() ).setReplicationProvider( replicationProvider );
+        }
+        
+        startConsumers();
+
         started = true;
         
         LOG.info( "Ldap service started." );
@@ -527,6 +535,8 @@ public class LdapServer extends DirectoryBackedService
                     replicationProvider.stop();
                 }
             }
+            
+            stopConsumers();
         }
         catch ( Exception e )
         {
@@ -601,6 +611,62 @@ public class LdapServer extends DirectoryBackedService
     }
 
 
+    /**
+     * starts the replication consumers
+     */
+    private void startConsumers() throws Exception
+    {
+        if( providerConfigs != null )
+        {
+            replConsumers = new ArrayList<SyncReplConsumer>( providerConfigs.size() );
+            
+            for( final SyncreplConfiguration config : providerConfigs )
+            {
+                Runnable consumerTask = new Runnable()
+                {
+                    public void run()
+                    {
+                        try
+                        {
+                            SyncReplConsumer consumer = new SyncReplConsumer();
+                            LOG.info( "starting the replication consumer with config {}", config );
+                            consumer.init( getDirectoryService(), config );
+                            consumer.connect();
+                            replConsumers.add( consumer );
+                            consumer.startSync();
+                        }
+                        catch( Exception e )
+                        {
+                            LOG.error( "Failed to start the consumer with config {}", config );
+                            throw new RuntimeException( e );
+                        }
+                    }
+                };
+                
+                Thread consumerThread = new Thread( consumerTask );
+                consumerThread.setDaemon( true );
+                consumerThread.start();
+            }
+        }
+    }
+
+
+    /**
+     * stops the replication consumers
+     */
+    private void stopConsumers()
+    {
+        if( replConsumers != null )
+        {
+            for( SyncReplConsumer consumer : replConsumers )
+            {
+                LOG.info( "stopping the consumer with id {}", consumer.getConfig().getReplicaId() );
+                consumer.disconnet();
+            }
+        }
+    }
+    
+    
     public String getName()
     {
         return SERVICE_NAME;
@@ -1297,6 +1363,12 @@ public class LdapServer extends DirectoryBackedService
     public void setReplicationProvider( ReplicationProvider replicationProvider )
     {
         this.replicationProvider = replicationProvider;
+    }
+
+
+    public void setReplProviderConfigs( List<SyncreplConfiguration> providerConfigs )
+    {
+        this.providerConfigs = providerConfigs;
     }
 
 

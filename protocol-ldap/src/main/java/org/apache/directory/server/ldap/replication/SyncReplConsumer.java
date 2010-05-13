@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -141,6 +142,8 @@ public class SyncReplConsumer
 
     private RefresherThread refreshThread;
 
+    /** the cookie that was saved last time */
+    private byte[] lastSavedCookie;
 
     /**
      * @return the config
@@ -151,17 +154,9 @@ public class SyncReplConsumer
     }
 
 
-    /**
-     * @param config the config to set
-     */
-    public void setConfig( SyncreplConfiguration config )
+    public void init( DirectoryService directoryservice, SyncreplConfiguration config ) throws Exception
     {
         this.config = config;
-    }
-
-
-    public void init( DirectoryService directoryservice ) throws Exception
-    {
         this.directoryService = directoryservice;
 
         File cookieDir = new File( directoryservice.getWorkingDirectory(), "cookies" );
@@ -172,6 +167,8 @@ public class SyncReplConsumer
         session = directoryService.getAdminSession();
 
         schemaManager = directoryservice.getSchemaManager();
+        
+        prepareSyncSearchRequest();
     }
 
 
@@ -235,8 +232,7 @@ public class SyncReplConsumer
         searchRequest.setSizeLimit( config.getSearchSizeLimit() );
         searchRequest.setTimeLimit( config.getSearchTimeout() );
 
-        // the only valid values are NEVER_DEREF_ALIASES and DEREF_FINDING_BASE_OBJ
-        searchRequest.setDerefAliases( AliasDerefMode.NEVER_DEREF_ALIASES );
+        searchRequest.setDerefAliases( config.getAliasDerefMode() );
         searchRequest.setScope( config.getSearchScope() );
         searchRequest.setTypesOnly( false );
 
@@ -485,6 +481,7 @@ public class SyncReplConsumer
     {
         // read the cookie if persisted
         readCookie();
+        startCookieUpdater( config.getRefreshInterval() );
 
         if ( config.isRefreshPersist() )
         {
@@ -585,6 +582,7 @@ public class SyncReplConsumer
 
 
     /**
+     * FIXME store it in DiT
      * stores the cookie in a file.
      */
     private void storeCookie()
@@ -594,6 +592,14 @@ public class SyncReplConsumer
             return;
         }
 
+        if( lastSavedCookie != null )
+        {
+            if( Arrays.equals( syncCookie, lastSavedCookie ) )
+            {
+                return;
+            }
+        }
+        
         try
         {
             FileOutputStream fout = new FileOutputStream( cookieFile );
@@ -601,6 +607,9 @@ public class SyncReplConsumer
             fout.write( syncCookie );
             fout.close();
 
+            lastSavedCookie = new byte[ syncCookie.length ];
+            System.arraycopy( syncCookie, 0, lastSavedCookie, 0, syncCookie.length );
+            
             LOG.debug( "stored the cookie" );
         }
         catch ( Exception e )
@@ -624,6 +633,9 @@ public class SyncReplConsumer
                 fin.read( syncCookie );
                 fin.close();
 
+                lastSavedCookie = new byte[ syncCookie.length ];
+                System.arraycopy( syncCookie, 0, lastSavedCookie, 0, syncCookie.length );
+                
                 LOG.debug( "read the cookie from file: " + StringTools.utf8ToString( syncCookie ) );
             }
         }
@@ -878,4 +890,32 @@ public class SyncReplConsumer
         }
     }
 
+    
+    private void startCookieUpdater( final long delayMillis )
+    {
+        Runnable cookieSaver = new Runnable()
+        {
+            public void run()
+            {
+                while( !disconnected )
+                {
+                    storeCookie();
+                    try
+                    {
+                        Thread.sleep( delayMillis );
+                    }
+                    catch( Exception e )
+                    {
+                        LOG.warn( "Cookie saver task encountered an exception while sleeping", e );
+                    }
+                }
+            }
+        };
+        
+        Thread cookieSaverThread = new Thread( cookieSaver );
+        cookieSaverThread.setDaemon( true );
+        
+        LOG.debug( "starting the cookie saver thread" );
+        cookieSaverThread.start();
+    }
 }
