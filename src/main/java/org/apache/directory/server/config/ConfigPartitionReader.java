@@ -199,7 +199,7 @@ public class ConfigPartitionReader
             String fqcn = replProvImplAttr.getString();
             try
             {
-                Class replProvImplClz = Class.forName( fqcn );
+                Class<?> replProvImplClz = Class.forName( fqcn );
                 ReplicationProvider rp = ( ReplicationProvider ) replProvImplClz.newInstance();
                 server.setReplicationProvider( rp );
             }
@@ -209,6 +209,8 @@ public class ConfigPartitionReader
                 throw e;
             }
         }
+        
+        server.setReplProviderConfigs( getReplProviderConfigs() );
         
         return server;
     }
@@ -784,11 +786,13 @@ public class ConfigPartitionReader
     }
 
 
-    public List<SyncreplConfiguration> getReplicationConfigs() throws Exception
+    private List<SyncreplConfiguration> getReplProviderConfigs() throws Exception
     {
-        PresenceNode filter = new PresenceNode( ConfigSchemaConstants.ADS_REPL_PROVIDER_OC );
+        EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
+            ConfigSchemaConstants.ADS_REPL_PROVIDER_OC ) );
+
         SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
         IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
             AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
@@ -800,7 +804,7 @@ public class ConfigPartitionReader
             return syncReplConfigLst;
         }
      
-        while( cursor.next() )
+        do
         {
             ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor.get();
         
@@ -904,7 +908,8 @@ public class ConfigPartitionReader
             
             syncReplConfigLst.add( config );
         }
-     
+        while( cursor.next() );
+        
         cursor.close();
         
         return syncReplConfigLst;
