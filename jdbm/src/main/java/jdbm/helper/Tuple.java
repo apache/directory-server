@@ -53,24 +53,20 @@ package jdbm.helper;
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @version $Id: Tuple.java,v 1.2 2001/05/19 14:02:00 boisvert Exp $
  */
-public final class Tuple {
+public final class Tuple<K, V> {
 
-    /**
-     * Key
-     */
-    private Object _key;
+    /** Key */
+    private K key;
 
-
-    /**
-     * Value
-     */
-    private Object _value;
+    /** Value */
+    private V value;
 
 
     /**
      * Construct an empty Tuple.
      */
-    public Tuple() {
+    public Tuple() 
+    {
         // empty
     }
 
@@ -81,41 +77,45 @@ public final class Tuple {
      * @param key The key.
      * @param value The value.
      */
-    public Tuple( Object key, Object value ) {
-        _key = key;
-        _value = value;
+    public Tuple( K key, V value ) 
+    {
+        this.key = key;
+        this.value = value;
     }
 
 
     /**
      * Get the key.
      */
-    public Object getKey() {
-        return _key;
+    public K getKey() 
+    {
+        return this.key;
     }
 
 
     /**
      * Set the key.
      */
-    public void setKey( Object key ) {
-        _key = key;
+    public void setKey( K key ) 
+    {
+        this.key = key;
     }
 
 
     /**
      * Get the value.
      */
-    public Object getValue() {
-        return _value;
+    public V getValue() 
+    {
+        return value;
     }
 
 
     /**
      * Set the value.
      */
-    public void setValue( Object value ) {
-        _value = value;
+    public void setValue( V value ) 
+    {
+        this.value = value;
     }
-
 }

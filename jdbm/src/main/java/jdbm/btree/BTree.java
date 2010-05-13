@@ -91,7 +91,6 @@ import jdbm.helper.TupleBrowser;
  */
 public class BTree implements Externalizable
 {
-
     private static final boolean DEBUG = false;
 
     /** Version id for serialization. */
@@ -121,7 +120,7 @@ public class BTree implements Externalizable
      */
     private int bTreeHeight;
 
-    /** Recid of the root BPage */
+    /** Record id of the root BPage */
     private transient long rootId;
 
     /** Number of entries in each BPage. */
@@ -131,7 +130,7 @@ public class BTree implements Externalizable
     protected int nbEntries;
 
     /** Serializer used for BPages of this tree */
-    private transient BPage bpageSerializer;
+    private transient BPage<Object, Object> bpageSerializer;
 
 
     /**
@@ -149,7 +148,7 @@ public class BTree implements Externalizable
      * @param recman Record manager used for persistence.
      * @param comparator Comparator used to order index entries
      */
-    public static BTree createInstance( RecordManager recman, Comparator comparator ) throws IOException
+    public static BTree createInstance( RecordManager recman, Comparator<?> comparator ) throws IOException
     {
         return createInstance( recman, comparator, null, null, DEFAULT_SIZE );
     }
@@ -163,7 +162,7 @@ public class BTree implements Externalizable
      * @param valueSerializer Serializer used to serialize index values (optional)
      * @param comparator Comparator used to order index entries
      */
-    public static BTree createInstance( RecordManager recman, Comparator comparator, Serializer keySerializer,
+    public static BTree createInstance( RecordManager recman, Comparator<?> comparator, Serializer keySerializer,
         Serializer valueSerializer ) throws IOException
     {
         return createInstance( recman, comparator, keySerializer, valueSerializer, DEFAULT_SIZE );
@@ -179,7 +178,7 @@ public class BTree implements Externalizable
      * @param valueSerializer Serializer used to serialize index values (optional)
      * @param pageSize Number of entries per page (must be even).
      */
-    public static BTree createInstance( RecordManager recman, Comparator comparator, Serializer keySerializer,
+    public static BTree createInstance( RecordManager recman, Comparator<?> comparator, Serializer keySerializer,
         Serializer valueSerializer, int pageSize ) throws IOException
     {
         BTree btree;
@@ -221,9 +220,10 @@ public class BTree implements Externalizable
         btree.keySerializer = keySerializer;
         btree.valueSerializer = valueSerializer;
         btree.pageSize = pageSize;
-        btree.bpageSerializer = new BPage();
+        btree.bpageSerializer = new BPage<Object, Object>();
         btree.bpageSerializer.btree = btree;
         btree.recordId = recman.insert( btree );
+        
         return btree;
     }
 
@@ -239,8 +239,9 @@ public class BTree implements Externalizable
         BTree btree = ( BTree ) recman.fetch( recid );
         btree.recordId = recid;
         btree.recordManager = recman;
-        btree.bpageSerializer = new BPage();
+        btree.bpageSerializer = new BPage<Object, Object>();
         btree.bpageSerializer.btree = btree;
+        
         return btree;
     }
 
@@ -263,12 +264,13 @@ public class BTree implements Externalizable
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_523 ) );
         }
+        
         if ( value == null )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_524 ) );
         }
 
-        BPage rootPage = getRoot();
+        BPage<Object, Object> rootPage = getRoot();
 
         if ( rootPage == null )
         {
@@ -277,40 +279,47 @@ public class BTree implements Externalizable
             {
                 System.out.println( "BTree.insert() new root BPage" );
             }
-            rootPage = new BPage( this, key, value );
-            rootId = rootPage._recid;
+            
+            rootPage = new BPage<Object, Object>( this, key, value );
+            rootId = rootPage.recid;
             bTreeHeight = 1;
             nbEntries = 1;
             recordManager.update( recordId, this );
+            
             return null;
         }
         else
         {
             BPage.InsertResult insert = rootPage.insert( bTreeHeight, key, value, replace );
             boolean dirty = false;
-            if ( insert._overflow != null )
+            
+            if ( insert.overflow != null )
             {
                 // current root page overflowed, we replace with a new root page
                 if ( DEBUG )
                 {
                     System.out.println( "BTree.insert() replace root BPage due to overflow" );
                 }
-                rootPage = new BPage( this, rootPage, insert._overflow );
-                rootId = rootPage._recid;
+                
+                rootPage = new BPage<Object, Object>( this, rootPage, insert.overflow );
+                rootId = rootPage.recid;
                 bTreeHeight += 1;
                 dirty = true;
             }
-            if ( insert._existing == null )
+            
+            if ( insert.existing == null )
             {
                 nbEntries++;
                 dirty = true;
             }
+            
             if ( dirty )
             {
                 recordManager.update( recordId, this );
             }
+            
             // insert might have returned an existing value
-            return insert._existing;
+            return insert.existing;
         }
     }
 
@@ -329,38 +338,45 @@ public class BTree implements Externalizable
             throw new IllegalArgumentException( I18n.err( I18n.ERR_523 ) );
         }
 
-        BPage rootPage = getRoot();
+        BPage<Object, Object> rootPage = getRoot();
+        
         if ( rootPage == null )
         {
             return null;
         }
+        
         boolean dirty = false;
         BPage.RemoveResult remove = rootPage.remove( bTreeHeight, key );
-        if ( remove._underflow && rootPage.isEmpty() )
+        
+        if ( remove.underflow && rootPage.isEmpty() )
         {
             bTreeHeight -= 1;
             dirty = true;
 
             recordManager.delete( rootId );
+            
             if ( bTreeHeight == 0 )
             {
                 rootId = 0;
             }
             else
             {
-                rootId = rootPage.childBPage( pageSize - 1 )._recid;
+                rootId = rootPage.childBPage( pageSize - 1 ).recid;
             }
         }
-        if ( remove._value != null )
+        
+        if ( remove.value != null )
         {
             nbEntries--;
             dirty = true;
         }
+        
         if ( dirty )
         {
             recordManager.update( recordId, this );
         }
-        return remove._value;
+        
+        return remove.value;
     }
 
 
@@ -376,13 +392,15 @@ public class BTree implements Externalizable
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_523 ) );
         }
-        BPage rootPage = getRoot();
+        
+        BPage<Object, Object> rootPage = getRoot();
+        
         if ( rootPage == null )
         {
             return null;
         }
 
-        Tuple tuple = new Tuple( null, null );
+        Tuple<Object, Object> tuple = new Tuple<Object, Object>( null, null );
         TupleBrowser browser = rootPage.find( bTreeHeight, key );
 
         if ( browser.getNext( tuple ) )
@@ -413,9 +431,9 @@ public class BTree implements Externalizable
      * @return Value associated with the key, or a greater entry, or null if no
      *         greater entry was found.
      */
-    public synchronized Tuple findGreaterOrEqual( Object key ) throws IOException
+    public synchronized Tuple<Object, Object> findGreaterOrEqual( Object key ) throws IOException
     {
-        Tuple tuple;
+        Tuple<Object, Object> tuple;
         TupleBrowser browser;
 
         if ( key == null )
@@ -425,8 +443,9 @@ public class BTree implements Externalizable
             return null;
         }
 
-        tuple = new Tuple( null, null );
+        tuple = new Tuple<Object, Object>( null, null );
         browser = browse( key );
+        
         if ( browser.getNext( tuple ) )
         {
             return tuple;
@@ -447,14 +466,17 @@ public class BTree implements Externalizable
      *
      * @return Browser positionned at the beginning of the BTree.
      */
-    public synchronized TupleBrowser browse() throws IOException
+    public synchronized TupleBrowser<Object, Object> browse() throws IOException
     {
-        BPage rootPage = getRoot();
+        BPage<Object, Object> rootPage = getRoot();
+        
         if ( rootPage == null )
         {
             return EmptyBrowser.INSTANCE;
         }
-        TupleBrowser browser = rootPage.findFirst();
+        
+        TupleBrowser<Object, Object> browser = rootPage.findFirst();
+        
         return browser;
     }
 
@@ -473,12 +495,15 @@ public class BTree implements Externalizable
      */
     public synchronized TupleBrowser browse( Object key ) throws IOException
     {
-        BPage rootPage = getRoot();
+        BPage<Object, Object> rootPage = getRoot();
+        
         if ( rootPage == null )
         {
             return EmptyBrowser.INSTANCE;
         }
+        
         TupleBrowser browser = rootPage.find( bTreeHeight, key );
+        
         return browser;
     }
 
@@ -502,17 +527,19 @@ public class BTree implements Externalizable
 
 
     /**
-     * Return the root BPage, or null if it doesn't exist.
+     * Return the root BPage<Object, Object>, or null if it doesn't exist.
      */
-    private BPage getRoot() throws IOException
+    private BPage<Object, Object> getRoot() throws IOException
     {
         if ( rootId == 0 )
         {
             return null;
         }
-        BPage root = ( BPage ) recordManager.fetch( rootId, bpageSerializer );
-        root._recid = rootId;
+        
+        BPage<Object, Object> root = ( BPage<Object, Object> ) recordManager.fetch( rootId, bpageSerializer );
+        root.recid = rootId;
         root.btree = this;
+        
         return root;
     }
 
@@ -556,19 +583,16 @@ public class BTree implements Externalizable
     /** PRIVATE INNER CLASS
      *  Browser returning no element.
      */
-    static class EmptyBrowser extends TupleBrowser
+    static class EmptyBrowser extends TupleBrowser<Object, Object>
     {
-
-        static TupleBrowser INSTANCE = new EmptyBrowser();
-
-
-        public boolean getNext( Tuple tuple )
+        static EmptyBrowser INSTANCE = new EmptyBrowser();
+        
+        public boolean getNext( Tuple<Object, Object> tuple )
         {
             return false;
         }
 
-
-        public boolean getPrevious( Tuple tuple )
+        public boolean getPrevious( Tuple<Object, Object> tuple )
         {
             return false;
         }

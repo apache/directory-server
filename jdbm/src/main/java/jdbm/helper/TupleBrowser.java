@@ -55,8 +55,7 @@ import java.io.IOException;
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @version $Id: TupleBrowser.java,v 1.2 2001/05/19 14:02:00 boisvert Exp $
  */
-public abstract class TupleBrowser {
-
+public abstract class TupleBrowser<K, V> {
     /**
      * Get the next tuple.
      *
@@ -64,8 +63,7 @@ public abstract class TupleBrowser {
      * @return True if values have been copied in tuple, or false if there is
      *         no next tuple.
      */
-    public abstract boolean getNext( Tuple tuple )
-        throws IOException;
+    public abstract boolean getNext( Tuple<K, V> tuple ) throws IOException;
 
 
     /**
@@ -75,7 +73,5 @@ public abstract class TupleBrowser {
      * @return True if values have been copied in tuple, or false if there is
      *         no previous tuple.
      */
-    public abstract boolean getPrevious( Tuple tuple )
-        throws IOException;
-
+    public abstract boolean getPrevious( Tuple<K, V> tuple ) throws IOException;
 }
