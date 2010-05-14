@@ -25,9 +25,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
@@ -61,9 +64,12 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
+import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -73,6 +79,8 @@ import org.apache.directory.shared.ldap.message.control.replication.SyncStateTyp
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationModeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -98,7 +106,7 @@ public class SyncReplConsumer
     private byte[] syncCookie;
 
     /** the logger */
-    private static final Logger LOG = LoggerFactory.getLogger( SyncReplConsumer.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( SyncReplConsumer.class );
 
     /** conection to the syncrepl provider */
     private LdapAsyncConnection connection;
@@ -145,6 +153,13 @@ public class SyncReplConsumer
     /** the cookie that was saved last time */
     private byte[] lastSavedCookie;
 
+    private static AttributeType ENTRY_UUID_AT;
+    
+    private static final PresenceNode ENTRY_UUID_PRESENCE_FILTER = new PresenceNode( SchemaConstants.ENTRY_UUID_AT );
+
+    private static final Set<AttributeTypeOptions> ENTRY_UUID_ATOP_SET = new HashSet<AttributeTypeOptions>();
+
+    
     /**
      * @return the config
      */
@@ -167,6 +182,10 @@ public class SyncReplConsumer
         session = directoryService.getAdminSession();
 
         schemaManager = directoryservice.getSchemaManager();
+        
+        ENTRY_UUID_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_UUID_AT );
+        
+        ENTRY_UUID_ATOP_SET.add( new AttributeTypeOptions( ENTRY_UUID_AT ) );
         
         prepareSyncSearchRequest();
     }
@@ -251,8 +270,11 @@ public class SyncReplConsumer
         SyncDoneValueControl syncDoneCtrl = new SyncDoneValueControl();
         try
         {
-            syncDoneCtrl = ( SyncDoneValueControl ) syncDoneControlDecoder.decode( ctrl.getValue(), syncDoneCtrl );
-            refreshDeletes = syncDoneCtrl.isRefreshDeletes();
+            if( ctrl != null )
+            {
+                syncDoneCtrl = ( SyncDoneValueControl ) syncDoneControlDecoder.decode( ctrl.getValue(), syncDoneCtrl );
+                refreshDeletes = syncDoneCtrl.isRefreshDeletes();
+            }
         }
         catch ( Exception e )
         {
@@ -286,6 +308,11 @@ public class SyncReplConsumer
         {
             // log the error and handle it appropriately
             LOG.warn( "sync operation was not successful, received result code {}", resultCode );
+            if( resultCode == ResultCodeEnum.NO_SUCH_OBJECT )
+            {
+                LOG.warn( "given replication base DN {} is not found on provider, disconnecting the consumer from the provider", config.getBaseDn() );
+                disconnet();
+            }
         }
 
         LOG.debug( "//////////////// END handleSearchDone//////////////////////" );
@@ -426,9 +453,14 @@ public class SyncReplConsumer
             List<byte[]> uuidList = syncInfoValue.getSyncUUIDs();
             // if refreshDeletes set to true then delete all the entries with entryUUID
             // present in the syncIdSet 
-            if ( syncInfoValue.isRefreshDeletes() && ( uuidList != null ) )
+            if ( syncInfoValue.isRefreshDeletes() )
             {
-                deleteEntries( uuidList );
+                deleteEntries( uuidList, false );
+            }
+            else
+            {
+                LOG.debug( "refresh present syncinfo list has {} UUIDs", uuidList.size() );
+                deleteEntries( uuidList, true );
             }
 
             LOG.info( "refreshDone: " + syncInfoValue.isRefreshDone() );
@@ -762,7 +794,7 @@ public class SyncReplConsumer
      * @param uuidList the list of UUIDs 
      * @throws Exception in case of any problems while deleting the entries
      */
-    public void deleteEntries( List<byte[]> uuidList ) throws Exception
+    public void deleteEntries( List<byte[]> uuidList, boolean isRefreshPresent ) throws Exception
     {
         if ( uuidList == null || uuidList.isEmpty() )
         {
@@ -783,7 +815,7 @@ public class SyncReplConsumer
         for ( ; i < count; i++ )
         {
             startIndex = i * NODE_LIMIT;
-            _deleteEntries_( uuidList.subList( startIndex, startIndex + NODE_LIMIT ) );
+            _deleteEntries_( uuidList.subList( startIndex, startIndex + NODE_LIMIT ), isRefreshPresent );
         }
 
         if ( ( uuidList.size() % NODE_LIMIT ) != 0 )
@@ -793,7 +825,7 @@ public class SyncReplConsumer
             {
                 startIndex = i * NODE_LIMIT;
             }
-            _deleteEntries_( uuidList.subList( startIndex, uuidList.size() ) );
+            _deleteEntries_( uuidList.subList( startIndex, uuidList.size() ), isRefreshPresent );
         }
     }
 
@@ -803,7 +835,7 @@ public class SyncReplConsumer
      *
      * @param limitedUuidList a list of UUIDs whose size is less than or equal to #NODE_LIMIT
      */
-    private void _deleteEntries_( List<byte[]> limitedUuidList ) throws Exception
+    private void _deleteEntries_( List<byte[]> limitedUuidList, boolean isRefreshPresent ) throws Exception
     {
         ExprNode filter = null;
         int size = limitedUuidList.size();
@@ -812,35 +844,57 @@ public class SyncReplConsumer
             String uuid = StringTools.uuidToString( limitedUuidList.get( 0 ) );
             filter = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT,
                 new org.apache.directory.shared.ldap.entry.StringValue( uuid ) );
+            if( isRefreshPresent )
+            {
+                filter = new NotNode( filter );   
+            }
         }
         else
         {
-            filter = new OrNode();
+            if( isRefreshPresent )
+            {
+                filter = new AndNode();
+            }
+            else
+            {
+                filter = new OrNode();
+            }
+            
             for ( int i = 0; i < size; i++ )
             {
                 String uuid = StringTools.uuidToString( limitedUuidList.get( i ) );
-                EqualityNode<String> uuidEqNode = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT,
+                ExprNode uuidEqNode = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT,
                     new org.apache.directory.shared.ldap.entry.StringValue( uuid ) );
-                ( ( OrNode ) filter ).addNode( uuidEqNode );
+
+                if( isRefreshPresent )
+                {
+                    uuidEqNode = new NotNode( uuidEqNode );
+                    ( ( AndNode ) filter ).addNode( uuidEqNode );
+                }
+                else
+                {
+                    ( ( OrNode ) filter ).addNode( uuidEqNode );
+                }
             }
         }
 
         DN dn = new DN( config.getBaseDn() );
         dn.normalize( schemaManager.getNormalizerMapping() );
 
-        EntryFilteringCursor cursor = session.search( dn, SearchScope.SUBTREE, filter,
-            AliasDerefMode.NEVER_DEREF_ALIASES, new HashSet() );
+        LOG.debug( "selecting entries to be deleted using filter {}", filter.toString() );
+        EntryFilteringCursor cursor = session.search( dn, SearchScope.SUBTREE, filter, AliasDerefMode.NEVER_DEREF_ALIASES, ENTRY_UUID_ATOP_SET );
         cursor.beforeFirst();
 
         while ( cursor.next() )
         {
             ClonedServerEntry entry = cursor.get();
-            session.delete( new DN( entry.getDn().getName() ), true );
+            deleteRecursive( entry.getDn(), null );
         }
 
         cursor.close();
     }
 
+    
     /**
      * A Thread implementation for synchronizing the DIT in refreshOnly mode
      */
@@ -918,4 +972,87 @@ public class SyncReplConsumer
         LOG.debug( "starting the cookie saver thread" );
         cookieSaverThread.start();
     }
+    
+    
+    /**
+     * removes all child entries present under the given DN and finally the DN itself
+     * 
+     * Working:
+     *          This is a recursive function which maintains a Map<DN,Cursor>.
+     *          The way the cascade delete works is by checking for children for a 
+     *          given DN(i.e opening a search cursor) and if the cursor is empty
+     *          then delete the DN else for each entry's DN present in cursor call
+     *          deleteChildren() with the DN and the reference to the map.
+     *          
+     *          The reason for opening a search cursor is based on an assumption
+     *          that an entry *might* contain children, consider the below DIT fragment
+     *          
+     *          parent
+     *          /     \
+     *        child1   child2
+     *                 /     \
+     *               grand21  grand22
+     *               
+     *           The below method works better in the case where the tree depth is >1 
+     *          
+     *   In the case of passing a non-null DeleteListener, the return value will always be null, cause the
+     *   operation is treated as asynchronous and response result will be sent using the listener callback
+     *   
+     * @param rootDn the DN which will be removed after removing its children
+     * @param map a map to hold the Cursor related to a DN
+     * @throws Exception If the DN is not valid or if the deletion failed
+     */
+    private void deleteRecursive( DN rootDn, Map<DN, EntryFilteringCursor> cursorMap ) throws Exception
+    {
+        LOG.debug( "searching for {}", rootDn.getName() );
+        EntryFilteringCursor cursor = null;
+
+        try
+        {
+            if ( cursorMap == null )
+            {
+                cursorMap = new HashMap<DN, EntryFilteringCursor>();
+            }
+
+            cursor = cursorMap.get( rootDn );
+
+            if ( cursor == null )
+            {
+                cursor = session.search( rootDn,SearchScope.ONELEVEL, ENTRY_UUID_PRESENCE_FILTER, AliasDerefMode.NEVER_DEREF_ALIASES, ENTRY_UUID_ATOP_SET );
+                cursor.beforeFirst();
+                LOG.debug( "putting cursor for {}", rootDn.getName() );
+                cursorMap.put( rootDn, cursor );
+            }
+
+            if ( !cursor.next() ) // if this is a leaf entry's DN
+            {
+                LOG.debug( "deleting {}", rootDn.getName() );
+                cursorMap.remove( rootDn );
+                cursor.close();
+                session.delete( rootDn );
+            }
+            else
+            {
+                do
+                {
+                    ClonedServerEntry entry = cursor.get();
+
+                    deleteRecursive( entry.getDn(), cursorMap );
+                }
+                while ( cursor.next() );
+
+                cursorMap.remove( rootDn );
+                cursor.close();
+                LOG.debug( "deleting {}", rootDn.getName() );
+                session.delete( rootDn );
+            }
+        }
+        catch ( Exception e )
+        {
+            String msg = "Failed to delete child entries under the DN " + rootDn.getName();
+            LOG.error( msg, e );
+            throw e;
+        }
+    }
+
 }
