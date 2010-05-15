@@ -78,11 +78,6 @@ public class ReverseIndexEntry<V, O, ID> implements IndexEntry<V, O, ID>
 
     public O getObject()
     {
-        if ( obj == null )
-        {
-            return null;
-        }
-
         return obj;
     }
 
