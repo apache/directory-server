@@ -69,12 +69,6 @@
     </dependency>
     
     <dependency>
-      <artifactId>apacheds-core-entry</artifactId>
-      <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
-    </dependency>
-    
-    <dependency>
       <artifactId>apacheds-core-jndi</artifactId>
       <groupId>${project.groupId}</groupId>
       <version>${project.version}</version>

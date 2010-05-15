@@ -55,12 +55,6 @@
     </dependency>
 
     <dependency>
-      <artifactId>apacheds-core-entry</artifactId>
-      <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
       <artifactId>apacheds-core-avl</artifactId>
       <groupId>${project.groupId}</groupId>
       <version>${project.version}</version>

@@ -43,7 +43,7 @@
     </dependency>
 
     <dependency>
-      <artifactId>apacheds-core-entry</artifactId>
+      <artifactId>apacheds-i18n</artifactId>
       <groupId>${project.groupId}</groupId>
       <version>${project.version}</version>
     </dependency>

@@ -62,12 +62,6 @@
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-core-entry</artifactId>
-      <version>${org.apache.directory.server.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-protocol-ldap</artifactId>
       <version>${org.apache.directory.server.version}</version>
     </dependency>
