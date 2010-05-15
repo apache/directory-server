@@ -416,6 +416,8 @@ public class SchemaInterceptor extends BaseInterceptor
      *
      * @param searchCtls The SearchControls we will filter
      */
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     private void filterAttributesToReturn( SearchControls searchCtls )
     {
         String[] attributes = searchCtls.getReturningAttributes();
@@ -1415,6 +1417,8 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Filter the attributes by removing the ones which are not allowed
      */
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     private void filterAttributeTypes( SearchingOperationContext operation, ClonedServerEntry result )
     {
         if ( operation.getReturningAttributes() == null )

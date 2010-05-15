@@ -68,6 +68,8 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
     }
 
 
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     private ID getContextEntryId() throws Exception
     {
         if ( contextEntryId == null )

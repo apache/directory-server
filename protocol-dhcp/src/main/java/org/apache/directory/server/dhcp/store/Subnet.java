@@ -46,6 +46,8 @@ public class Subnet extends DhcpConfigElement
     private InetAddress rangeMax;
 
 
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     public Subnet(InetAddress address, InetAddress netmask, InetAddress rangeMin, InetAddress rangeMax)
     {
         // mask address to match subnet

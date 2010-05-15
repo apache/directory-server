@@ -702,6 +702,8 @@ public class InterceptorChain
      *
      * @param opContext the operation context to populate with cached fields
      */
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     private void eagerlyPopulateFields( OperationContext opContext )
     {
         // If the entry field is not set for ops other than add for example 

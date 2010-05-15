@@ -141,6 +141,8 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
     
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     static private boolean isReferral( Entry entry ) throws NamingException
     {
         // Check that the entry is not null, otherwise return FALSE.

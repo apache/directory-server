@@ -315,6 +315,8 @@ public class HostAddress extends AbstractAsn1Object
     /**
      * @see Object#toString()
      */
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     public String toString()
     {
         String result = "";

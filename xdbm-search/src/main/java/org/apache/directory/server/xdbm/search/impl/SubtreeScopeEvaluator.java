@@ -87,6 +87,8 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
     private ID contextEntryId;
 
 
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     private ID getContextEntryId() throws Exception
     {
         if ( contextEntryId == null )

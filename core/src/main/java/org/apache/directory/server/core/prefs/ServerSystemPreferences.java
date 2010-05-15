@@ -77,6 +77,8 @@ public class ServerSystemPreferences extends AbstractPreferences
      * Creates a preferences object for the system preferences root.
      * @param directoryService the directory service core
      */
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     public ServerSystemPreferences( DirectoryService directoryService )
     {
         super( null, "" );

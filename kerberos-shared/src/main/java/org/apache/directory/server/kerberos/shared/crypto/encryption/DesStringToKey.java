@@ -317,6 +317,8 @@ public class DesStringToKey
      * @param string The String to encode.
      * @return The encoded String.
      */
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     protected byte[] characterEncodeString( String string )
     {
         byte encodedByteArray[] = new byte[string.length()];

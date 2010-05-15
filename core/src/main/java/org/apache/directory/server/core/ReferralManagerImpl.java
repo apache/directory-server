@@ -122,6 +122,8 @@ public class ReferralManagerImpl implements ReferralManager
     /**
      * {@inheritDoc}
      */
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     public void addReferral( Entry entry )
     {
         try

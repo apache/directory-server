@@ -53,6 +53,8 @@ import org.apache.mina.core.buffer.IoBuffer;
  */
 public class AddressRecordEncoder extends ResourceRecordEncoder
 {
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     protected void putResourceRecordData( IoBuffer byteBuffer, ResourceRecord record )
     {
         String ipAddress = record.get( DnsAttribute.IP_ADDRESS );

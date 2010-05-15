@@ -339,6 +339,8 @@ public class ApacheDS
      * @param ldifFile The ldif file to read
      * @throws NamingException If something went wrong while loading the entries
      */
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     private void loadLdif( File ldifFile ) throws Exception
     {
         Entry fileEntry = null;

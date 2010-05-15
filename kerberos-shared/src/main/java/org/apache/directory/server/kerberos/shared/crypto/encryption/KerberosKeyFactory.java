@@ -83,6 +83,8 @@ public class KerberosKeyFactory
      * @param ciphers The set of ciphers to derive keys for.
      * @return The list of KerberosKey's.
      */
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     public static Map<EncryptionType, EncryptionKey> getKerberosKeys( String principalName, String passPhrase,
         Set<EncryptionType> ciphers )
     {

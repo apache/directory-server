@@ -127,6 +127,8 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     private void loadRevision() throws Exception
     {
         File revFile = new File( workingDirectory, REV_FILE );
@@ -194,6 +196,8 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     private void saveTags() throws Exception
     {
         File tagFile = new File( workingDirectory, TAG_FILE );
@@ -249,6 +253,8 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     private void loadTags() throws Exception
     {
         File revFile = new File( workingDirectory, REV_FILE );
@@ -316,6 +322,8 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     private void loadChangeLog() throws Exception
     {
         File file = new File( workingDirectory, CHANGELOG_FILE );
@@ -363,6 +371,8 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     private void saveChangeLog() throws Exception
     {
         File file = new File( workingDirectory, CHANGELOG_FILE );

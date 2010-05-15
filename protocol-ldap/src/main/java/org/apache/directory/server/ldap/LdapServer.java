@@ -335,6 +335,8 @@ public class LdapServer extends DirectoryBackedService
     /**
      * loads the digital certificate either from a keystore file or from the admin entry in DIT
      */
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     private void loadKeyStore() throws Exception
     {
         if ( StringTools.isEmpty( keystoreFile ) )

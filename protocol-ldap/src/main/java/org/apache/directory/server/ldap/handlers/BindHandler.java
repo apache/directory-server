@@ -86,6 +86,8 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
      * @param message The BindRequest received
      * @throws Exception If the authentication cannot be done
      */
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     public void handleSimpleAuth( LdapSession ldapSession, InternalBindRequest bindRequest ) throws Exception
     {
         // if the user is already bound, we have to unbind him

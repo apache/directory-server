@@ -1494,6 +1494,8 @@ public class DefaultDirectoryService implements DirectoryService
      * @param text The ldif format file
      * @return An entry.
      */
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     private Entry readEntry( String text )
     {
         StringReader strIn = new StringReader( text );
