@@ -46,7 +46,6 @@ import org.apache.directory.ldap.client.api.message.ModifyResponse;
 import org.apache.directory.ldap.client.api.message.SearchRequest;
 import org.apache.directory.ldap.client.api.message.SearchResponse;
 import org.apache.directory.ldap.client.api.message.SearchResultEntry;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.NotImplementedException;
@@ -79,6 +78,8 @@ import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -99,6 +100,8 @@ public class LdapCoreSessionConnection implements LdapConnection
     /** the session's DirectoryService */
     private DirectoryService directoryService;
 
+    private static final Logger LOG = LoggerFactory.getLogger( LdapCoreSessionConnection.class );
+    
     public LdapCoreSessionConnection()
     {
 
@@ -491,8 +494,6 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    // This will suppress PMD.EmptyCatchBlock warnings in this method
-    @SuppressWarnings("PMD.EmptyCatchBlock")
     public SearchResponse lookup( String dn, String... attributes ) throws LdapException
     {
         SearchResultEntry resp = null;
@@ -506,6 +507,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         catch ( Exception e )
         {
             // do nothing
+            LOG.warn( e.getMessage(), e );
         }
 
         return resp;
@@ -515,8 +517,6 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    // This will suppress PMD.EmptyCatchBlock warnings in this method
-    @SuppressWarnings("PMD.EmptyCatchBlock")
     public SearchResponse lookup( String dn ) throws LdapException
     {
         SearchResultEntry resp = null;
@@ -529,6 +529,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         catch ( Exception e )
         {
             // do nothing
+            LOG.warn( e.getMessage(), e );
         }
 
         return resp;
@@ -744,8 +745,6 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    // This will suppress PMD.EmptyCatchBlock warnings in this method
-    @SuppressWarnings("PMD.EmptyCatchBlock")
     public Cursor<SearchResponse> search( SearchRequest searchRequest ) throws LdapException
     {
         try
@@ -773,6 +772,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch ( Exception e )
         {
+            LOG.warn( e.getMessage(), e );
         }
 
         return new EmptyCursor<SearchResponse>();
@@ -890,8 +890,6 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    // This will suppress PMD.EmptyCatchBlock warnings in this method
-    @SuppressWarnings("PMD.EmptyCatchBlock")
     public BindResponse bind() throws LdapException, IOException
     {
         try
@@ -900,6 +898,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch( Exception e )
         {
+            LOG.warn( e.getMessage(), e );
         }
         
         return null;
@@ -909,8 +908,6 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    // This will suppress PMD.EmptyCatchBlock warnings in this method
-    @SuppressWarnings("PMD.EmptyCatchBlock")
     public BindResponse bind( BindRequest bindRequest ) throws LdapException, IOException
     {
         try
@@ -927,6 +924,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch( Exception e )
         {
+            LOG.warn( e.getMessage(), e );
         }
         
         return null;
@@ -936,8 +934,6 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
-    // This will suppress PMD.EmptyCatchBlock warnings in this method
-    @SuppressWarnings("PMD.EmptyCatchBlock")
     public BindResponse bind( DN name, String credentials ) throws LdapException, IOException
     {
         try
@@ -946,6 +942,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
         catch( Exception e )
         {
+            LOG.warn( e.getMessage(), e );
         }
         
         return null;
