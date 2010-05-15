@@ -20,20 +20,13 @@
 package org.apache.directory.server.constants;
 
 /**
- * A utility class where we declare all the statically defined DN used in the server.
+ * DN constants used in the server.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$
  */
-public class ServerDNConstants
+public interface ServerDNConstants
 {
-    /**
-     * A private constructor to protect this class containing only constants
-     */
-    private ServerDNConstants()
-    {
-        
-    }
     
     /** The administrators group DN */
     public static final String ADMINISTRATORS_GROUP_DN      = "cn=Administrators,ou=groups,ou=system";
