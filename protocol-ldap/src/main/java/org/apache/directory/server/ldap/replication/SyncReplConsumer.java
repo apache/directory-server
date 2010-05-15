@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.directory.ldap.client.api.LdapAsyncConnection;
+import org.apache.directory.ldap.client.api.ConnectionClosedEventListener;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.SearchFuture;
 import org.apache.directory.ldap.client.api.message.BindResponse;
@@ -59,6 +59,7 @@ import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.
 import org.apache.directory.shared.ldap.codec.controls.replication.syncmodifydn.SyncModifyDnControlDecoder;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -96,7 +97,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class SyncReplConsumer
+public class SyncReplConsumer implements ConnectionClosedEventListener
 {
 
     /** the syncrepl configuration */
@@ -109,7 +110,7 @@ public class SyncReplConsumer
     private static final Logger LOG = LoggerFactory.getLogger( SyncReplConsumer.class );
 
     /** conection to the syncrepl provider */
-    private LdapAsyncConnection connection;
+    private LdapNetworkConnection connection;
 
     /** the search request with control */
     private SearchRequest searchRequest;
@@ -135,12 +136,13 @@ public class SyncReplConsumer
     private SyncDoneValueControlDecoder syncDoneControlDecoder = new SyncDoneValueControlDecoder();
 
     private SyncStateValueControlDecoder syncStateControlDecoder = new SyncStateValueControlDecoder();
-    
+
     private SyncModifyDnControlDecoder syncModifyDnControlDecoder = new SyncModifyDnControlDecoder();
 
     /** attributes on which modification should be ignored */
     private static final String[] MOD_IGNORE_AT = new String[]
-        { SchemaConstants.ENTRY_UUID_AT, SchemaConstants.ENTRY_CSN_AT, SchemaConstants.MODIFIERS_NAME_AT, SchemaConstants.MODIFY_TIMESTAMP_AT, SchemaConstants.CREATE_TIMESTAMP_AT, SchemaConstants.CREATORS_NAME_AT };
+        { SchemaConstants.ENTRY_UUID_AT, SchemaConstants.ENTRY_CSN_AT, SchemaConstants.MODIFIERS_NAME_AT,
+            SchemaConstants.MODIFY_TIMESTAMP_AT, SchemaConstants.CREATE_TIMESTAMP_AT, SchemaConstants.CREATORS_NAME_AT };
 
     /** flag to indicate whether the current phase is for deleting entries */
     private boolean refreshDeletes;
@@ -154,12 +156,18 @@ public class SyncReplConsumer
     private byte[] lastSavedCookie;
 
     private static AttributeType ENTRY_UUID_AT;
-    
+
     private static final PresenceNode ENTRY_UUID_PRESENCE_FILTER = new PresenceNode( SchemaConstants.ENTRY_UUID_AT );
 
     private static final Set<AttributeTypeOptions> ENTRY_UUID_ATOP_SET = new HashSet<AttributeTypeOptions>();
 
-    
+    private List<Modification> cookieModLst;
+
+    private DN configEntryDn;
+
+    private static AttributeType COOKIE_AT_TYPE;
+
+
     /**
      * @return the config
      */
@@ -174,19 +182,32 @@ public class SyncReplConsumer
         this.config = config;
         this.directoryService = directoryservice;
 
-        File cookieDir = new File( directoryservice.getWorkingDirectory(), "cookies" );
-        cookieDir.mkdir();
-
-        cookieFile = new File( cookieDir, String.valueOf( config.getReplicaId() ) );
+        if( config.isStoreCookieInFile() )
+        {
+            File cookieDir = new File( directoryservice.getWorkingDirectory(), "cookies" );
+            cookieDir.mkdir();
+            
+            cookieFile = new File( cookieDir, String.valueOf( config.getReplicaId() ) );
+        }
 
         session = directoryService.getAdminSession();
 
         schemaManager = directoryservice.getSchemaManager();
-        
+
         ENTRY_UUID_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_UUID_AT );
-        
+
         ENTRY_UUID_ATOP_SET.add( new AttributeTypeOptions( ENTRY_UUID_AT ) );
-        
+
+        COOKIE_AT_TYPE = schemaManager.lookupAttributeTypeRegistry( "ads-replCookie" );
+        EntryAttribute cookieAttr = new DefaultEntryAttribute( COOKIE_AT_TYPE );
+
+        Modification cookieMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, cookieAttr );
+        cookieModLst = new ArrayList<Modification>( 1 );
+        cookieModLst.add( cookieMod );
+
+        configEntryDn = new DN( config.getConfigEntryDn() );
+        configEntryDn.normalize( schemaManager.getNormalizerMapping() );
+
         prepareSyncSearchRequest();
     }
 
@@ -202,6 +223,7 @@ public class SyncReplConsumer
             if ( connection == null )
             {
                 connection = new LdapNetworkConnection( providerHost, port );
+                connection.addConnectionClosedEventListener( this );
             }
 
             // Do a bind
@@ -256,9 +278,11 @@ public class SyncReplConsumer
         searchRequest.setTypesOnly( false );
 
         searchRequest.addAttributes( config.getAttributes() );
-        
-        // to treat the referrals as normal entries
-        searchRequest.add( new ManageDsaITControl() );
+
+        if( !config.isChaseReferrals() )
+        {
+            searchRequest.add( new ManageDsaITControl() );
+        }
     }
 
 
@@ -270,7 +294,7 @@ public class SyncReplConsumer
         SyncDoneValueControl syncDoneCtrl = new SyncDoneValueControl();
         try
         {
-            if( ctrl != null )
+            if ( ctrl != null )
             {
                 syncDoneCtrl = ( SyncDoneValueControl ) syncDoneControlDecoder.decode( ctrl.getValue(), syncDoneCtrl );
                 refreshDeletes = syncDoneCtrl.isRefreshDeletes();
@@ -292,29 +316,24 @@ public class SyncReplConsumer
         if ( resultCode == ResultCodeEnum.E_SYNC_REFRESH_REQUIRED )
         {
             LOG.info( "unable to perform the content synchronization cause E_SYNC_REFRESH_REQUIRED" );
-            /*
-                The server may return e-syncRefreshRequired
-                result code on the initial content poll if it is safe to do so when
-                it is unable to perform the operation due to various reasons.
-                reloadHint is set to FALSE in the SearchRequest Message requesting
-                the initial content poll.
-                
-                TODO: Q: The default value is already FALSE then why should this be set to FALSE
-                and how that will help in achieving convergence? should the cookie be reset to null?)
-             */
-            //removeCookie();
+            //TODO removing the cookie is OK, what next, how to return from this function and and do resync again 
+            removeCookie();
         }
         else if ( resultCode != ResultCodeEnum.SUCCESS )
         {
             // log the error and handle it appropriately
             LOG.warn( "sync operation was not successful, received result code {}", resultCode );
-            if( resultCode == ResultCodeEnum.NO_SUCH_OBJECT )
+            if ( resultCode == ResultCodeEnum.NO_SUCH_OBJECT )
             {
-                LOG.warn( "given replication base DN {} is not found on provider, disconnecting the consumer from the provider", config.getBaseDn() );
+                LOG
+                    .warn(
+                        "given replication base DN {} is not found on provider, disconnecting the consumer from the provider",
+                        config.getBaseDn() );
                 disconnet();
             }
         }
 
+        storeCookie();
         LOG.debug( "//////////////// END handleSearchDone//////////////////////" );
     }
 
@@ -331,16 +350,18 @@ public class SyncReplConsumer
 
         LOG.debug( "------------- starting handleSearchResult ------------" );
 
+        SyncStateValueControl syncStateCtrl = new SyncStateValueControl();
+
         try
         {
             Entry remoteEntry = syncResult.getEntry();
 
             Control ctrl = syncResult.getControl( SyncStateValueControl.CONTROL_OID );
-            SyncStateValueControl syncStateCtrl = new SyncStateValueControl();
 
             try
             {
-                syncStateCtrl = ( SyncStateValueControl ) syncStateControlDecoder.decode( ctrl.getValue(), syncStateCtrl );
+                syncStateCtrl = ( SyncStateValueControl ) syncStateControlDecoder.decode( ctrl.getValue(),
+                    syncStateCtrl );
             }
             catch ( Exception e )
             {
@@ -374,7 +395,7 @@ public class SyncReplConsumer
                         session.add( new DefaultEntry( schemaManager, remoteEntry ) );
                     }
                     // in refreshOnly mode the modified entry will be sent with state ADD
-                    else if ( !config.isRefreshPersist() )
+                    else if ( !config.isRefreshNPersist() )
                     {
                         LOG.debug( "updating entry in refreshOnly mode {}", remoteEntry.getDn().getName() );
                         modify( remoteEntry );
@@ -386,34 +407,36 @@ public class SyncReplConsumer
                     LOG.debug( "modifying entry with dn {}", remoteEntry.getDn().getName() );
                     modify( remoteEntry );
                     break;
-                    
+
                 case MODDN:
                     Control adsModDnControl = syncResult.getControl( SyncModifyDnControl.CONTROL_OID );
                     //Apache Directory Server's special control
                     SyncModifyDnControl syncModDnControl = new SyncModifyDnControl();
-                    
-                    try
-                    {
-                        LOG.debug( "decoding the SyncModifyDnControl.." );
-                        syncModDnControl = ( SyncModifyDnControl ) syncModifyDnControlDecoder.decode( adsModDnControl.getValue(), syncModDnControl );
-                    }
-                    catch( Exception e )
-                    {
-                        syncModDnControl = null;
-                        LOG.error( "Failed to decode the SyncModifyDnControl", e );
-                    }
-                    
+
+                    LOG.debug( "decoding the SyncModifyDnControl.." );
+                    syncModDnControl = ( SyncModifyDnControl ) syncModifyDnControlDecoder.decode( adsModDnControl
+                        .getValue(), syncModDnControl );
+
                     applyModDnOperation( syncModDnControl );
                     break;
 
                 case DELETE:
                     LOG.debug( "deleting entry with dn {}", remoteEntry.getDn().getName() );
-                    session.delete( remoteEntry.getDn() );
+                    // incase of a MODDN operation resulting in a branch to be moved out of scope
+                    // ApacheDS replication provider sends a single delete event on the DN of the moved branch
+                    // so the branch needs to be recursively deleted here
+                    deleteRecursive( remoteEntry.getDn(), null );
                     break;
 
                 case PRESENT:
                     LOG.debug( "entry present {}", remoteEntry );
                     break;
+            }
+            
+            // store the cookie only if the above operation was successful
+            if ( syncStateCtrl.getCookie() != null )
+            {
+                storeCookie();
             }
         }
         catch ( Exception e )
@@ -445,7 +468,6 @@ public class SyncReplConsumer
                 syncCookie = cookie;
             }
 
-
             LOG.info( "refreshDeletes: " + syncInfoValue.isRefreshDeletes() );
             refreshDeletes = syncInfoValue.isRefreshDeletes();
             refreshDone = syncInfoValue.isRefreshDone();
@@ -459,11 +481,12 @@ public class SyncReplConsumer
             }
             else
             {
-                LOG.debug( "refresh present syncinfo list has {} UUIDs", uuidList.size() );
                 deleteEntries( uuidList, true );
             }
 
             LOG.info( "refreshDone: " + syncInfoValue.isRefreshDone() );
+            
+            storeCookie();
         }
         catch ( Exception de )
         {
@@ -478,7 +501,7 @@ public class SyncReplConsumer
     /**
      * {@inheritDoc}
      */
-    public void handleSessionClosed()
+    public void connectionClosed()
     {
         if ( disconnected )
         {
@@ -513,9 +536,8 @@ public class SyncReplConsumer
     {
         // read the cookie if persisted
         readCookie();
-        startCookieUpdater( config.getRefreshInterval() );
 
-        if ( config.isRefreshPersist() )
+        if ( config.isRefreshNPersist() )
         {
             try
             {
@@ -572,10 +594,10 @@ public class SyncReplConsumer
             {
                 handleSyncInfo( ( SearchIntermediateResponse ) resp );
             }
-            
+
             resp = sf.get();
         }
-        
+
         handleSearchDone( ( SearchResultDone ) resp );
     }
 
@@ -614,8 +636,7 @@ public class SyncReplConsumer
 
 
     /**
-     * FIXME store it in DiT
-     * stores the cookie in a file.
+     * stores the cookie.
      */
     private void storeCookie()
     {
@@ -624,24 +645,35 @@ public class SyncReplConsumer
             return;
         }
 
-        if( lastSavedCookie != null )
+        if ( lastSavedCookie != null )
         {
-            if( Arrays.equals( syncCookie, lastSavedCookie ) )
+            if ( Arrays.equals( syncCookie, lastSavedCookie ) )
             {
                 return;
             }
         }
-        
+
         try
         {
-            FileOutputStream fout = new FileOutputStream( cookieFile );
-            fout.write( syncCookie.length );
-            fout.write( syncCookie );
-            fout.close();
+            if ( config.isStoreCookieInFile() )
+            {
+                FileOutputStream fout = new FileOutputStream( cookieFile );
+                fout.write( syncCookie.length );
+                fout.write( syncCookie );
+                fout.close();
+            }
+            else
+            {
+                EntryAttribute attr = cookieModLst.get( 0 ).getAttribute();
+                attr.clear();
+                attr.add( syncCookie );
 
-            lastSavedCookie = new byte[ syncCookie.length ];
+                session.modify( configEntryDn, cookieModLst );
+            }
+
+            lastSavedCookie = new byte[syncCookie.length];
             System.arraycopy( syncCookie, 0, lastSavedCookie, 0, syncCookie.length );
-            
+
             LOG.debug( "stored the cookie" );
         }
         catch ( Exception e )
@@ -652,23 +684,49 @@ public class SyncReplConsumer
 
 
     /**
-     * read the cookie from a file(if exists).
+     * read the cookie
      */
     private void readCookie()
     {
         try
         {
-            if ( cookieFile.exists() && ( cookieFile.length() > 0 ) )
+            if ( config.isStoreCookieInFile() )
             {
-                FileInputStream fin = new FileInputStream( cookieFile );
-                syncCookie = new byte[fin.read()];
-                fin.read( syncCookie );
-                fin.close();
+                if ( cookieFile.exists() && ( cookieFile.length() > 0 ) )
+                {
+                    FileInputStream fin = new FileInputStream( cookieFile );
+                    syncCookie = new byte[fin.read()];
+                    fin.read( syncCookie );
+                    fin.close();
 
-                lastSavedCookie = new byte[ syncCookie.length ];
-                System.arraycopy( syncCookie, 0, lastSavedCookie, 0, syncCookie.length );
-                
-                LOG.debug( "read the cookie from file: " + StringTools.utf8ToString( syncCookie ) );
+                    lastSavedCookie = new byte[syncCookie.length];
+                    System.arraycopy( syncCookie, 0, lastSavedCookie, 0, syncCookie.length );
+
+                    LOG.debug( "read the cookie from file: " + StringTools.utf8ToString( syncCookie ) );
+                }
+            }
+            else
+            {
+                try
+                {
+                    Entry entry = session.lookup( configEntryDn, new String[]
+                        { "ads-replCookie" } );
+                    if ( entry != null )
+                    {
+                        EntryAttribute attr = entry.get( COOKIE_AT_TYPE );
+                        if ( attr != null )
+                        {
+                            syncCookie = attr.getBytes();
+                            LOG.debug( "loaded cookie from DIT" );
+                        }
+                    }
+                }
+                catch ( Exception e )
+                {
+                    // can be ignored, most likely happens if there is no entry with the given DN
+                    // log in debug mode
+                    LOG.debug( "Failed to read the cookie from the entry", e );
+                }
             }
         }
         catch ( Exception e )
@@ -679,73 +737,83 @@ public class SyncReplConsumer
 
 
     /**
-     * deletes the cookie file if it exists and is not empty
-     * and resets the syncCookie to null
+     * deletes the cookie and resets the syncCookie to null
      */
-    private void removeCookie()
+    public void removeCookie()
     {
-        if ( cookieFile.exists() && ( cookieFile.length() > 0 ) )
+        if ( config.isStoreCookieInFile() )
         {
-            boolean deleted = cookieFile.delete();
-            LOG.info( "deleted cookie file {}", deleted );
+            if ( cookieFile.exists() && ( cookieFile.length() > 0 ) )
+            {
+                boolean deleted = cookieFile.delete();
+                LOG.info( "deleted cookie file {}", deleted );
+            }
+        }
+        else
+        {
+            try
+            {
+                EntryAttribute cookieAttr = new DefaultEntryAttribute( COOKIE_AT_TYPE );
+                Modification deleteCookieMod = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
+                    cookieAttr );
+                List<Modification> deleteModLst = new ArrayList<Modification>();
+                deleteModLst.add( deleteCookieMod );
+                session.modify( configEntryDn, deleteModLst );
+            }
+            catch ( Exception e )
+            {
+                LOG.warn( "Failed to delete the cookie from the entry with DN {}", configEntryDn );
+                LOG.warn( "{}", e );
+            }
         }
 
         LOG.info( "resetting sync cookie" );
 
         syncCookie = null;
+        lastSavedCookie = null;
     }
 
 
-    /**
-     * deletes the cookie file(if exists) 
-     */
-    public void deleteCookieFile()
-    {
-        if ( cookieFile != null && cookieFile.exists() )
-        {
-            LOG.debug( "deleting the cookie file" );
-            cookieFile.delete();
-        }
-    }
-
-    
     private void applyModDnOperation( SyncModifyDnControl modDnControl ) throws Exception
     {
         SyncModifyDnType modDnType = modDnControl.getModDnType();
-        
+
         DN entryDn = new DN( modDnControl.getEntryDn() );
-        switch( modDnType )
+        switch ( modDnType )
         {
             case MOVE:
-                LOG.debug( "moving {} to the new parent {}", entryDn, modDnControl.getNewSuperiorDn() );
                 
+                LOG.debug( "moving {} to the new parent {}", entryDn, modDnControl.getNewSuperiorDn() );
+               
                 session.move( entryDn, new DN( modDnControl.getNewSuperiorDn() ) );
                 break;
-            
+
             case RENAME:
-                
+
                 RDN newRdn = new RDN( modDnControl.getNewRdn() );
-                boolean deleteOldRdn =  modDnControl.isDeleteOldRdn();
-                LOG.debug( "renaming the DN {} with new RDN {} and deleteOldRdn flag set to {}", 
-                    new String[]{ entryDn.getName(), newRdn.getName(), String.valueOf( deleteOldRdn ) } );
-                
+                boolean deleteOldRdn = modDnControl.isDeleteOldRdn();
+                LOG.debug( "renaming the DN {} with new RDN {} and deleteOldRdn flag set to {}", new String[]
+                    { entryDn.getName(), newRdn.getName(), String.valueOf( deleteOldRdn ) } );
+
                 session.rename( entryDn, newRdn, deleteOldRdn );
                 break;
-            
+
             case MOVEANDRENAME:
-                
+
                 DN newParentDn = new DN( modDnControl.getNewSuperiorDn() );
                 newRdn = new RDN( modDnControl.getNewRdn() );
-                deleteOldRdn =  modDnControl.isDeleteOldRdn();
-                
-                LOG.debug( "moveAndRename on the DN {} with new newParent DN {}, new RDN {} and deleteOldRdn flag set to {}", 
-                    new String[]{ entryDn.getName(), newParentDn.getName(), newRdn.getName(), String.valueOf( deleteOldRdn ) } );
-                
+                deleteOldRdn = modDnControl.isDeleteOldRdn();
+
+                LOG.debug(
+                    "moveAndRename on the DN {} with new newParent DN {}, new RDN {} and deleteOldRdn flag set to {}",
+                    new String[]
+                        { entryDn.getName(), newParentDn.getName(), newRdn.getName(), String.valueOf( deleteOldRdn ) } );
+
                 session.moveAndRename( entryDn, newParentDn, newRdn, deleteOldRdn );
         }
     }
 
-    
+
     private void modify( Entry remoteEntry ) throws Exception
     {
         Entry localEntry = session.lookup( remoteEntry.getDn() );
@@ -806,6 +874,16 @@ public class SyncReplConsumer
             LOG.info( "uuid: {}", StringTools.uuidToString( uuid ) );
         }
 
+        // if it is refreshPresent list then send all the UUIDs for
+        // filtering, otherwise breaking the list will cause the
+        // other present entries to be deleted from DIT 
+        if( isRefreshPresent )
+        {
+            LOG.debug( "refresh present syncinfo list has {} UUIDs", uuidList.size() );
+            _deleteEntries_( uuidList, isRefreshPresent );
+            return;
+        }
+        
         int NODE_LIMIT = 10;
 
         int count = uuidList.size() / NODE_LIMIT;
@@ -833,7 +911,8 @@ public class SyncReplConsumer
     /**
      * do not call this method directly, instead call deleteEntries()
      *
-     * @param limitedUuidList a list of UUIDs whose size is less than or equal to #NODE_LIMIT
+     * @param limitedUuidList a list of UUIDs whose size is less than or equal to #NODE_LIMIT (node limit applies ony for refreshDeletes list)
+     * @param isRefreshPresent a flag indicating the type of entries present in the UUID list
      */
     private void _deleteEntries_( List<byte[]> limitedUuidList, boolean isRefreshPresent ) throws Exception
     {
@@ -844,14 +923,14 @@ public class SyncReplConsumer
             String uuid = StringTools.uuidToString( limitedUuidList.get( 0 ) );
             filter = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT,
                 new org.apache.directory.shared.ldap.entry.StringValue( uuid ) );
-            if( isRefreshPresent )
+            if ( isRefreshPresent )
             {
-                filter = new NotNode( filter );   
+                filter = new NotNode( filter );
             }
         }
         else
         {
-            if( isRefreshPresent )
+            if ( isRefreshPresent )
             {
                 filter = new AndNode();
             }
@@ -859,14 +938,14 @@ public class SyncReplConsumer
             {
                 filter = new OrNode();
             }
-            
+
             for ( int i = 0; i < size; i++ )
             {
                 String uuid = StringTools.uuidToString( limitedUuidList.get( i ) );
                 ExprNode uuidEqNode = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT,
                     new org.apache.directory.shared.ldap.entry.StringValue( uuid ) );
 
-                if( isRefreshPresent )
+                if ( isRefreshPresent )
                 {
                     uuidEqNode = new NotNode( uuidEqNode );
                     ( ( AndNode ) filter ).addNode( uuidEqNode );
@@ -882,7 +961,8 @@ public class SyncReplConsumer
         dn.normalize( schemaManager.getNormalizerMapping() );
 
         LOG.debug( "selecting entries to be deleted using filter {}", filter.toString() );
-        EntryFilteringCursor cursor = session.search( dn, SearchScope.SUBTREE, filter, AliasDerefMode.NEVER_DEREF_ALIASES, ENTRY_UUID_ATOP_SET );
+        EntryFilteringCursor cursor = session.search( dn, SearchScope.SUBTREE, filter,
+            AliasDerefMode.NEVER_DEREF_ALIASES, ENTRY_UUID_ATOP_SET );
         cursor.beforeFirst();
 
         while ( cursor.next() )
@@ -894,7 +974,6 @@ public class SyncReplConsumer
         cursor.close();
     }
 
-    
     /**
      * A Thread implementation for synchronizing the DIT in refreshOnly mode
      */
@@ -944,36 +1023,7 @@ public class SyncReplConsumer
         }
     }
 
-    
-    private void startCookieUpdater( final long delayMillis )
-    {
-        Runnable cookieSaver = new Runnable()
-        {
-            public void run()
-            {
-                while( !disconnected )
-                {
-                    storeCookie();
-                    try
-                    {
-                        Thread.sleep( delayMillis );
-                    }
-                    catch( Exception e )
-                    {
-                        LOG.warn( "Cookie saver task encountered an exception while sleeping", e );
-                    }
-                }
-            }
-        };
-        
-        Thread cookieSaverThread = new Thread( cookieSaver );
-        cookieSaverThread.setDaemon( true );
-        
-        LOG.debug( "starting the cookie saver thread" );
-        cookieSaverThread.start();
-    }
-    
-    
+
     /**
      * removes all child entries present under the given DN and finally the DN itself
      * 
@@ -1018,7 +1068,8 @@ public class SyncReplConsumer
 
             if ( cursor == null )
             {
-                cursor = session.search( rootDn,SearchScope.ONELEVEL, ENTRY_UUID_PRESENCE_FILTER, AliasDerefMode.NEVER_DEREF_ALIASES, ENTRY_UUID_ATOP_SET );
+                cursor = session.search( rootDn, SearchScope.ONELEVEL, ENTRY_UUID_PRESENCE_FILTER,
+                    AliasDerefMode.NEVER_DEREF_ALIASES, ENTRY_UUID_ATOP_SET );
                 cursor.beforeFirst();
                 LOG.debug( "putting cursor for {}", rootDn.getName() );
                 cursorMap.put( rootDn, cursor );

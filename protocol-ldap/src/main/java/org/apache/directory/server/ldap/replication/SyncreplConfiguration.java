@@ -20,6 +20,9 @@
 package org.apache.directory.server.ldap.replication;
 
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
@@ -48,7 +51,7 @@ public class SyncreplConfiguration
     private byte[] replUserPassword;
 
     /** flag to represent refresh and persist or refresh only mode, defaults to true */
-    private boolean refreshPersist = true;
+    private boolean refreshNPersist = true;
 
     /** time interval for successive sync requests, default is 60 seconds */
     private long refreshInterval = 60 * 1000;
@@ -60,7 +63,7 @@ public class SyncreplConfiguration
     private String filter = "(objectClass=*)";
 
     /** names of attributes to be replicated, default value is all user attributes */
-    private String[] attributes = new String[]{ SchemaConstants.ALL_USER_ATTRIBUTES };
+    private Set<String> attributes;
 
     /** the numer for setting the limit on number of search results to be fetched
      * default value is 0 (i.e no limit) */
@@ -72,18 +75,38 @@ public class SyncreplConfiguration
 
     /** the search scope, default is sub tree level */
     private SearchScope searchScope = SearchScope.SUBTREE;
-    
+
     /** alias dereferencing mode, default is set to 'never deref aliases' */
     private AliasDerefMode aliasDerefMode = AliasDerefMode.NEVER_DEREF_ALIASES;
 
     /** the cookie received from server */
     private byte[] cookie;
-    
+
     /** the replica's id */
     private int replicaId;
 
-    
+    /** a flag to indicate to store the cookie in a file, default is false
+     *  NOTE: a value of true indicates that the cookie will be stored
+     *  on file system, which is useful while testing the consumer
+     *  without loading config partition
+     */
+    private boolean storeCookieInFile = false;
+
     private static final String REPL_CONFIG_AREA = "ou=replProviders,ou=config";
+
+    /** flag to indicate whether to chase referrals or not, default is false hence passes ManageDsaITControl with syncsearch request*/
+    private boolean chaseReferrals = false;
+
+
+    public SyncreplConfiguration()
+    {
+        attributes = new HashSet<String>();
+        attributes.add( SchemaConstants.ALL_USER_ATTRIBUTES );
+        attributes.add( SchemaConstants.ENTRY_UUID_AT.toLowerCase() );
+        attributes.add( SchemaConstants.ENTRY_CSN_AT.toLowerCase() );
+        attributes.add( SchemaConstants.REF_AT.toLowerCase() );
+    }
+
 
     /**
      * @return the providerHost
@@ -165,22 +188,22 @@ public class SyncreplConfiguration
         this.replUserPassword = replUserPassword;
     }
 
-    
+
     /**
      * @return the refreshPersist
      */
-    public boolean isRefreshPersist()
+    public boolean isRefreshNPersist()
     {
-        return refreshPersist;
+        return refreshNPersist;
     }
 
 
     /**
-     * @param refreshPersist the refreshPersist to set
+     * @param refreshNPersist the falg indicating to run the consumer in refreshAndPersist mode
      */
-    public void setRefreshPersist( boolean refreshPersist )
+    public void setRefreshNPersist( boolean refreshNPersist )
     {
-        this.refreshPersist = refreshPersist;
+        this.refreshNPersist = refreshNPersist;
     }
 
 
@@ -198,7 +221,7 @@ public class SyncreplConfiguration
      */
     public void setRefreshInterval( long refreshInterval )
     {
-        if( refreshInterval <= 0 )
+        if ( refreshInterval <= 0 )
         {
             throw new IllegalArgumentException( "refresh interval should be more than zero" );
         }
@@ -247,16 +270,37 @@ public class SyncreplConfiguration
      */
     public String[] getAttributes()
     {
-        return attributes;
+        return attributes.toArray( new String[]
+            {} );
     }
 
 
     /**
-     * @param attributes the attributes to set
+     * @param attr the attributes to set
      */
-    public void setAttributes( String[] attributes )
+    public void setAttributes( String[] attr )
     {
-        this.attributes = attributes;
+        if ( attr == null )
+        {
+            throw new IllegalArgumentException( "attributes to be replicated cannot be null or empty" );
+        }
+
+        // if user specified some attributes then remove the * from attributes
+        // NOTE: if the user specifies * in the given array that eventually gets added later
+        if( attr.length > 0 )
+        {
+            attributes.remove( SchemaConstants.ALL_USER_ATTRIBUTES );
+        }
+        
+        for ( String at : attr )
+        {
+            at = at.trim();
+
+            if ( !attributes.contains( at.toLowerCase() ) )
+            {
+                attributes.add( at );
+            }
+        }
     }
 
 
@@ -274,6 +318,11 @@ public class SyncreplConfiguration
      */
     public void setSearchSizeLimit( int searchSizeLimit )
     {
+        if( searchTimeout < 0 )
+        {
+            throw new IllegalArgumentException( "search size limit value cannot be negative " + searchSizeLimit );
+        }
+        
         this.searchSizeLimit = searchSizeLimit;
     }
 
@@ -292,6 +341,11 @@ public class SyncreplConfiguration
      */
     public void setSearchTimeout( int searchTimeout )
     {
+        if( searchTimeout < 0 )
+        {
+            throw new IllegalArgumentException( "search timeout value cannot be negative " + searchTimeout );
+        }
+        
         this.searchTimeout = searchTimeout;
     }
 
@@ -340,11 +394,13 @@ public class SyncreplConfiguration
 
     public void setAliasDerefMode( AliasDerefMode aliasDerefMode )
     {
-        if( aliasDerefMode != AliasDerefMode.NEVER_DEREF_ALIASES || aliasDerefMode != AliasDerefMode.DEREF_FINDING_BASE_OBJ )
+        if ( aliasDerefMode != AliasDerefMode.NEVER_DEREF_ALIASES
+            || aliasDerefMode != AliasDerefMode.DEREF_FINDING_BASE_OBJ )
         {
-            throw new IllegalArgumentException( "alias deref mode should only be set to either 'NEVER_DEREF_ALIASES' or 'DEREF_FINDING_BASE_OBJ'" );
+            throw new IllegalArgumentException(
+                "alias deref mode should only be set to either 'NEVER_DEREF_ALIASES' or 'DEREF_FINDING_BASE_OBJ'" );
         }
-        
+
         this.aliasDerefMode = aliasDerefMode;
     }
 
@@ -359,10 +415,40 @@ public class SyncreplConfiguration
     {
         this.cookie = cookie;
     }
-    
-    
+
+
+    public boolean isStoreCookieInFile()
+    {
+        return storeCookieInFile;
+    }
+
+
+    public void setStoreCookieInFile( boolean storeCookieInFile )
+    {
+        this.storeCookieInFile = storeCookieInFile;
+    }
+
+
+    public boolean isChaseReferrals()
+    {
+        return chaseReferrals;
+    }
+
+
+    public void setChaseReferrals( boolean chaseReferrals )
+    {
+        if ( chaseReferrals )
+        {
+            throw new UnsupportedOperationException( "client-api currently doesn't support chasing referrals" );
+        }
+
+        this.chaseReferrals = chaseReferrals;
+    }
+
+
     public String getConfigEntryDn()
     {
-        return "ads-dsReplicaId=" + replicaId + "," + REPL_CONFIG_AREA; 
+        return "ads-dsReplicaId=" + replicaId + "," + REPL_CONFIG_AREA;
     }
+
 }
