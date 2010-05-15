@@ -860,7 +860,7 @@ public class ConfigPartitionReader
             EntryAttribute refNPersistAttr = entry.get( ConfigSchemaConstants.ADS_REPL_REFRESH_N_PERSIST );
             if( refNPersistAttr != null )
             {
-                config.setRefreshPersist( Boolean.parseBoolean( refNPersistAttr.getString() ) );
+                config.setRefreshNPersist( Boolean.parseBoolean( refNPersistAttr.getString() ) );
             }
             
             EntryAttribute searchScopeAttr = entry.get( ConfigSchemaConstants.ADS_REPL_SEARCH_SCOPE );
