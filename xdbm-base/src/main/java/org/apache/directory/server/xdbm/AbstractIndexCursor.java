@@ -42,7 +42,7 @@ public abstract class AbstractIndexCursor<K, E, ID> implements IndexCursor<K, E,
     {
         if ( monitor == null )
         {
-            throw new NullPointerException( "monitor" );
+            throw new IllegalArgumentException( "monitor" );
         }
 
         this.monitor = monitor;
