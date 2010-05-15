@@ -19,7 +19,7 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.directory.server</groupId>
-  <version>1.5.7-SNAPSHOT</version>
+  <version>1.5.8-SNAPSHOT</version>
   <artifactId>1.5-with-dependencies</artifactId>
   <name>ApacheDS 1.5 Build With Dependencies</name>
   <inceptionYear>2003</inceptionYear>
