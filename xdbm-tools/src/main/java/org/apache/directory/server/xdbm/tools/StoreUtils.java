@@ -62,6 +62,8 @@ public class StoreUtils
      * @param registries oid registries
      * @throws Exception on access exceptions
      */
+    //This will suppress PMD.AvoidUsingHardCodedIP warnings in this class
+    @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
     public static void loadExampleData( Store<Entry, Long> store, SchemaManager schemaManager ) throws Exception
     {
         DN suffixDn = new DN( "o=Good Times Co." );

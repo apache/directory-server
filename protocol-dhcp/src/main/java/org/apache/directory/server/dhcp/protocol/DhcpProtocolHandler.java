@@ -131,6 +131,8 @@ public class DhcpProtocolHandler implements IoHandler {
      * @param reply
      * @return
      */
+    //This will suppress PMD.AvoidUsingHardCodedIP warnings in this class
+    @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
     private InetSocketAddress determineMessageDestination(DhcpMessage request,
             DhcpMessage reply) {
 

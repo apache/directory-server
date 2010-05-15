@@ -63,6 +63,8 @@ public class SimpleDhcpStore extends AbstractDhcpStore
     private List subnets = new ArrayList();
 
 
+    //This will suppress PMD.AvoidUsingHardCodedIP warnings in this class
+    @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
     public SimpleDhcpStore()
     {
         try

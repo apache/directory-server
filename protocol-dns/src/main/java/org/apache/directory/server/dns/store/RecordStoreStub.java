@@ -37,6 +37,8 @@ import org.apache.directory.server.dns.messages.ResourceRecordModifier;
  */
 public class RecordStoreStub implements RecordStore
 {
+    //This will suppress PMD.AvoidUsingHardCodedIP warnings in this class
+    @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
     public Set<ResourceRecord> getRecords( QuestionRecord question ) throws DnsException
     {
         Set<ResourceRecord> set = new HashSet<ResourceRecord>();

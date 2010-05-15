@@ -95,7 +95,10 @@ public class TestServerEntryUtils
         }
     }
 
-    /* no protection*/ static AttributeType getCaseIgnoringAttributeNoNumbersType()
+    /* no protection*/ 
+    //This will suppress PMD.AvoidUsingHardCodedIP warnings in this class
+    @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
+    static AttributeType getCaseIgnoringAttributeNoNumbersType()
     {
         AttributeType attributeType = new AttributeType( "1.1.3.1" );
         LdapSyntax syntax = new LdapSyntax( "1.1.1.1", "", true );

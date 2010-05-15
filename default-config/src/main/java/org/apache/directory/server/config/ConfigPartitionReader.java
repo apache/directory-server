@@ -1136,6 +1136,8 @@ public class ConfigPartitionReader
     }
 
 
+    //This will suppress PMD.AvoidUsingHardCodedIP warnings in this class
+    @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
     private Transport getTransport( Entry transportEntry ) throws Exception
     {
         Transport transport = null;
