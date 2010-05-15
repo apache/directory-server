@@ -503,7 +503,6 @@
   <modules>
     <module>i18n</module>
     <module>all</module>
-    <module>utils</module>
     <module>jdbm</module>
     <module>jdbm-store</module>
     <module>jdbm-partition</module>

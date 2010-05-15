@@ -51,12 +51,6 @@
     </dependency>
 
     <dependency>
-      <artifactId>apacheds-utils</artifactId>
-      <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>bouncycastle</groupId>
       <artifactId>bcprov-jdk15</artifactId>
       <version>${bcprov.version}</version>

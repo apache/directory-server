@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.utils; 
+package org.apache.directory.server.core.schema; 
 
 
 import java.util.List;

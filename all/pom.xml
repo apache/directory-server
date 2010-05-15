@@ -197,12 +197,6 @@
     </dependency>
     
     <dependency>
-      <artifactId>apacheds-utils</artifactId>
-      <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
-    </dependency>
-    
-    <dependency>
       <artifactId>apacheds-xbean-spring</artifactId>
       <groupId>${project.groupId}</groupId>
       <version>${project.version}</version>
