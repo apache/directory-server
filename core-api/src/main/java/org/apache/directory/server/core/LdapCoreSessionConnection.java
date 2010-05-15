@@ -491,6 +491,8 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     public SearchResponse lookup( String dn, String... attributes ) throws LdapException
     {
         SearchResultEntry resp = null;
@@ -513,6 +515,8 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     public SearchResponse lookup( String dn ) throws LdapException
     {
         SearchResultEntry resp = null;
@@ -740,6 +744,8 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     public Cursor<SearchResponse> search( SearchRequest searchRequest ) throws LdapException
     {
         try
@@ -884,6 +890,8 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     public BindResponse bind() throws LdapException, IOException
     {
         try
@@ -901,6 +909,8 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     public BindResponse bind( BindRequest bindRequest ) throws LdapException, IOException
     {
         try
@@ -926,6 +936,8 @@ public class LdapCoreSessionConnection implements LdapConnection
     /**
      * {@inheritDoc}
      */
+    // This will suppress PMD.EmptyCatchBlock warnings in this method
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     public BindResponse bind( DN name, String credentials ) throws LdapException, IOException
     {
         try
