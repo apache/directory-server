@@ -271,23 +271,10 @@ public final class BaseRecordManager
 
         Location logRecid = new Location( recid );
         Location physRecid = logMgr.fetch( logRecid );
-        long t3 = 0;
 
         String c = obj.getClass().getName();
         
-        long t0 = System.currentTimeMillis();
         byte[] data = serializer.serialize( obj );
-        long t1 = System.currentTimeMillis();
-        
-        if ( ( ( ( t1 - t0 ) ) > 400 ) && c.equals( "java.lang.Integer" ) )
-        {
-            System.out.println( (t1-t0) + " : " + c );
-            
-            long tt0 = System.currentTimeMillis();
-            byte[] data2 = serializer.serialize( obj );
-            long tt1 = System.currentTimeMillis();
-            System.out.println( (tt1-tt0) + " *: " + c );
-        }
         
         if ( DEBUG ) 
         {
@@ -295,19 +282,11 @@ public final class BaseRecordManager
         }
         
         Location newRecid = physMgr.update( physRecid, data, 0, data.length );
-        long t2 = System.nanoTime();
         
         if ( ! newRecid.equals( physRecid ) ) 
         {
             logMgr.update( logRecid, newRecid );
-            t3 = System.nanoTime();
         }
-        else
-        {
-            t3 = t2;
-        }
-
-        //System.out.println( "serailize : " + (t1 - t0)/1000 + ", pysical = " + ( t2 - t1 ) / 1000 + ", logical = " + ( t3 - t2 ) / 1000 );
     }
 
 
