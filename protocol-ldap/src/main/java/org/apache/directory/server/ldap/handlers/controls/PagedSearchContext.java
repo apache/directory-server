@@ -21,6 +21,7 @@ package org.apache.directory.server.ldap.handlers.controls;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.ldap.LdapSession;
@@ -52,13 +53,13 @@ public class PagedSearchContext
     private byte[] cookie;
     
     /** The integer value for the cookie */
-    private int cookieValue;
+    private AtomicInteger cookieValue;
     
     /** The associated cursor for the current search request */
     private EntryFilteringCursor cursor;
     
     /**
-     * Creates a new instance of this class, storing the Searchrequest into it.
+     * Creates a new instance of this class, storing the SearchRequest into it.
      */
     public PagedSearchContext( InternalSearchRequest searchRequest )
     {
@@ -68,9 +69,9 @@ public class PagedSearchContext
         // We compute a key for this cookie. It combines the search request
         // and some time seed, in order to avoid possible collisions, as
         // a user may send more than one PagedSearch on the same session.
-        cookieValue = (int)(System.nanoTime()*17) + searchRequest.getMessageId();
+        cookieValue = new AtomicInteger( searchRequest.getMessageId() << 16 );
         
-        cookie = Value.getBytes( cookieValue );
+        cookie = Value.getBytes( cookieValue.get() );
     }
     
     
@@ -89,7 +90,7 @@ public class PagedSearchContext
     
     public int getCookieValue()
     {
-        return cookieValue;
+        return cookieValue.get();
     }
     
     
@@ -101,8 +102,7 @@ public class PagedSearchContext
      */
     public byte[] getNewCookie()
     {
-        cookieValue = cookieValue + (int)(System.nanoTime()*17);
-        cookie = Value.getBytes( cookieValue );
+        cookie = Value.getBytes( cookieValue.incrementAndGet() );
         
         return cookie;
     }
