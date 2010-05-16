@@ -127,6 +127,7 @@ public final class BPage<K, V> implements Serializer
     /**
      * Root page overflow constructor
      */
+    @SuppressWarnings("unchecked")
     BPage( BTree btree, BPage<K, V> root, BPage<K, V> overflow ) throws IOException
     {
         this.btree = btree;
@@ -150,6 +151,7 @@ public final class BPage<K, V> implements Serializer
     /**
      * Root page (first insert) constructor.
      */
+    @SuppressWarnings("unchecked") // Cannot create an array of generic objects
     BPage( BTree btree, K key, V value ) throws IOException
     {
         this.btree = btree;
@@ -173,6 +175,7 @@ public final class BPage<K, V> implements Serializer
     /**
      * Overflow page constructor.  Creates an empty BPage.
      */
+    @SuppressWarnings("unchecked") // Cannot create an array of generic objects
     BPage( BTree btree, boolean isLeaf ) throws IOException
     {
         this.btree = btree;
