@@ -109,7 +109,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     /** the logger */
     private static final Logger LOG = LoggerFactory.getLogger( SyncReplConsumer.class );
 
-    /** conection to the syncrepl provider */
+    /** connection to the syncrepl provider */
     private LdapNetworkConnection connection;
 
     /** the search request with control */
@@ -127,7 +127,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     /** the cookie file */
     private File cookieFile;
 
-    /** flag to indicate whether the consumer was diconncted */
+    /** flag to indicate whether the consumer was disconnected */
     private boolean disconnected;
 
     /** the core session */
@@ -143,12 +143,6 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     private static final String[] MOD_IGNORE_AT = new String[]
         { SchemaConstants.ENTRY_UUID_AT, SchemaConstants.ENTRY_CSN_AT, SchemaConstants.MODIFIERS_NAME_AT,
             SchemaConstants.MODIFY_TIMESTAMP_AT, SchemaConstants.CREATE_TIMESTAMP_AT, SchemaConstants.CREATORS_NAME_AT };
-
-    /** flag to indicate whether the current phase is for deleting entries */
-    private boolean refreshDeletes;
-
-    /** flag set after receiving refreshPresent Sync Info message */
-    private boolean refreshDone;
 
     private RefresherThread refreshThread;
 
@@ -182,11 +176,11 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         this.config = config;
         this.directoryService = directoryservice;
 
-        if( config.isStoreCookieInFile() )
+        if ( config.isStoreCookieInFile() )
         {
             File cookieDir = new File( directoryservice.getWorkingDirectory(), "cookies" );
             cookieDir.mkdir();
-            
+
             cookieFile = new File( cookieDir, String.valueOf( config.getReplicaId() ) );
         }
 
@@ -279,14 +273,14 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
         searchRequest.addAttributes( config.getAttributes() );
 
-        if( !config.isChaseReferrals() )
+        if ( !config.isChaseReferrals() )
         {
             searchRequest.add( new ManageDsaITControl() );
         }
     }
 
 
-    public void handleSearchDone( SearchResultDone searchDone )
+    public ResultCodeEnum handleSearchDone( SearchResultDone searchDone )
     {
         LOG.debug( "///////////////// handleSearchDone //////////////////" );
 
@@ -297,7 +291,6 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             if ( ctrl != null )
             {
                 syncDoneCtrl = ( SyncDoneValueControl ) syncDoneControlDecoder.decode( ctrl.getValue(), syncDoneCtrl );
-                refreshDeletes = syncDoneCtrl.isRefreshDeletes();
             }
         }
         catch ( Exception e )
@@ -309,32 +302,12 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         {
             syncCookie = syncDoneCtrl.getCookie();
             LOG.debug( "assigning cookie from sync done value control: " + StringTools.utf8ToString( syncCookie ) );
+            storeCookie();
         }
 
-        ResultCodeEnum resultCode = searchDone.getLdapResult().getResultCode();
-
-        if ( resultCode == ResultCodeEnum.E_SYNC_REFRESH_REQUIRED )
-        {
-            LOG.info( "unable to perform the content synchronization cause E_SYNC_REFRESH_REQUIRED" );
-            //TODO removing the cookie is OK, what next, how to return from this function and and do resync again 
-            removeCookie();
-        }
-        else if ( resultCode != ResultCodeEnum.SUCCESS )
-        {
-            // log the error and handle it appropriately
-            LOG.warn( "sync operation was not successful, received result code {}", resultCode );
-            if ( resultCode == ResultCodeEnum.NO_SUCH_OBJECT )
-            {
-                LOG
-                    .warn(
-                        "given replication base DN {} is not found on provider, disconnecting the consumer from the provider",
-                        config.getBaseDn() );
-                disconnet();
-            }
-        }
-
-        storeCookie();
         LOG.debug( "//////////////// END handleSearchDone//////////////////////" );
+
+        return searchDone.getLdapResult().getResultCode();
     }
 
 
@@ -432,7 +405,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
                     LOG.debug( "entry present {}", remoteEntry );
                     break;
             }
-            
+
             // store the cookie only if the above operation was successful
             if ( syncStateCtrl.getCookie() != null )
             {
@@ -469,8 +442,6 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             }
 
             LOG.info( "refreshDeletes: " + syncInfoValue.isRefreshDeletes() );
-            refreshDeletes = syncInfoValue.isRefreshDeletes();
-            refreshDone = syncInfoValue.isRefreshDone();
 
             List<byte[]> uuidList = syncInfoValue.getSyncUUIDs();
             // if refreshDeletes set to true then delete all the entries with entryUUID
@@ -485,7 +456,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             }
 
             LOG.info( "refreshDone: " + syncInfoValue.isRefreshDone() );
-            
+
             storeCookie();
         }
         catch ( Exception de )
@@ -542,7 +513,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             try
             {
                 LOG.debug( "==================== Refresh And Persist ==========" );
-                doSyncSearch( SynchronizationModeEnum.REFRESH_AND_PERSIST );
+                doSyncSearch( SynchronizationModeEnum.REFRESH_AND_PERSIST, false );
             }
             catch ( Exception e )
             {
@@ -562,11 +533,13 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
      *
      * @throws Exception in case of any problems encountered while searching
      */
-    private void doSyncSearch( SynchronizationModeEnum syncType ) throws Exception
+    private void doSyncSearch( SynchronizationModeEnum syncType, boolean reloadHint ) throws Exception
     {
         SyncRequestValueControl syncReq = new SyncRequestValueControl();
 
         syncReq.setMode( syncType );
+        syncReq.setReloadHint( reloadHint );
+        
         if ( syncCookie != null )
         {
             LOG.debug( "searching with searchRequest, cookie '{}'", StringTools.utf8ToString( syncCookie ) );
@@ -598,7 +571,35 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             resp = sf.get();
         }
 
-        handleSearchDone( ( SearchResultDone ) resp );
+        ResultCodeEnum resultCode = handleSearchDone( ( SearchResultDone ) resp );
+        
+        LOG.debug( "sync operation returned result code {}", resultCode );
+        if ( resultCode == ResultCodeEnum.NO_SUCH_OBJECT )
+        {
+            // log the error and handle it appropriately
+            LOG.warn( "given replication base DN {} is not found on provider", config.getBaseDn() );
+            if( syncType == SynchronizationModeEnum.REFRESH_AND_PERSIST )
+            {
+                LOG.warn( "disconnecting the consumer running in refreshAndPersist mode from the provider" );
+                disconnet();
+            }
+        }
+        else if ( resultCode == ResultCodeEnum.E_SYNC_REFRESH_REQUIRED )
+        {
+            LOG.info( "unable to perform the content synchronization cause E_SYNC_REFRESH_REQUIRED" );
+            try
+            {
+                deleteRecursive( new DN( config.getBaseDn() ), null );
+            }
+            catch( Exception e )
+            {
+                LOG.error( "Failed to delete the replica base as part of handling E_SYNC_REFRESH_REQUIRED, disconnecting the consumer", e );
+                disconnet();
+            }
+            
+            removeCookie();
+            doSyncSearch( syncType, true );
+        }
     }
 
 
@@ -710,13 +711,14 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
                 try
                 {
                     Entry entry = session.lookup( configEntryDn, new String[]
-                        { "ads-replCookie" } );
+                        { COOKIE_AT_TYPE.getName() } );
                     if ( entry != null )
                     {
                         EntryAttribute attr = entry.get( COOKIE_AT_TYPE );
                         if ( attr != null )
                         {
                             syncCookie = attr.getBytes();
+                            lastSavedCookie = syncCookie;
                             LOG.debug( "loaded cookie from DIT" );
                         }
                     }
@@ -782,9 +784,9 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         switch ( modDnType )
         {
             case MOVE:
-                
+
                 LOG.debug( "moving {} to the new parent {}", entryDn, modDnControl.getNewSuperiorDn() );
-               
+
                 session.move( entryDn, new DN( modDnControl.getNewSuperiorDn() ) );
                 break;
 
@@ -877,13 +879,13 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
         // if it is refreshPresent list then send all the UUIDs for
         // filtering, otherwise breaking the list will cause the
         // other present entries to be deleted from DIT 
-        if( isRefreshPresent )
+        if ( isRefreshPresent )
         {
             LOG.debug( "refresh present syncinfo list has {} UUIDs", uuidList.size() );
             _deleteEntries_( uuidList, isRefreshPresent );
             return;
         }
-        
+
         int NODE_LIMIT = 10;
 
         int count = uuidList.size() / NODE_LIMIT;
@@ -911,7 +913,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
     /**
      * do not call this method directly, instead call deleteEntries()
      *
-     * @param limitedUuidList a list of UUIDs whose size is less than or equal to #NODE_LIMIT (node limit applies ony for refreshDeletes list)
+     * @param limitedUuidList a list of UUIDs whose size is less than or equal to #NODE_LIMIT (node limit applies only for refreshDeletes list)
      * @param isRefreshPresent a flag indicating the type of entries present in the UUID list
      */
     private void _deleteEntries_( List<byte[]> limitedUuidList, boolean isRefreshPresent ) throws Exception
@@ -996,7 +998,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
 
                 try
                 {
-                    doSyncSearch( SynchronizationModeEnum.REFRESH_ONLY );
+                    doSyncSearch( SynchronizationModeEnum.REFRESH_ONLY, false );
 
                     LOG.info( "--------------------- Sleep for a little while ------------------" );
                     Thread.sleep( config.getRefreshInterval() );
