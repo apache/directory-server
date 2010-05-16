@@ -104,16 +104,6 @@
             <configuration>
               <includes>
                 <include>**/*ISuite.java</include>
-                <include>**/*IndexedNegationSearchIT.java</include>
-                <!-- commenting this test makes running the test suite with -Dintegration pass
-                     so far no clue why is this test despite having it own instance of LdapServer
-                     causes the StartTlsIT tests fail
-                 <include>**/*LdapsIT.java</include> -->
-                <include>**/*MiscBindIT.java</include>
-                <include>**/*SaslBindIT.java</include>
-                <include>**/*KeyDerivationServiceIT.java</include>
-                <include>**/*PasswordPolicyServiceIT.java</include>
-                <include>**/*StoredProcedureIT.java</include>
               </includes>
               <excludes>
                 <exclude>**/*PerfIT.java</exclude>

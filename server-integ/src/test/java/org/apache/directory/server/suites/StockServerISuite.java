@@ -27,6 +27,8 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.FrameworkSuite;
+import org.apache.directory.server.kerberos.KeyDerivationServiceIT;
+import org.apache.directory.server.kerberos.PasswordPolicyServiceIT;
 import org.apache.directory.server.operations.add.AddIT;
 import org.apache.directory.server.operations.add.AddingEntriesWithSpecialCharactersInRDNIT;
 import org.apache.directory.server.operations.bind.BindIT;
@@ -56,7 +58,10 @@ import org.apache.directory.server.operations.search.SchemaSearchIT;
 import org.apache.directory.server.operations.search.SearchIT;
 import org.apache.directory.server.operations.search.SearchLimitsIT;
 import org.apache.directory.server.ssl.LdapsIT;
+import org.apache.directory.server.ssl.LdapsUpdateCertificateIT;
+import org.apache.directory.server.ssl.StartTlsConfidentialityIT;
 import org.apache.directory.server.ssl.StartTlsIT;
+import org.apache.directory.server.ssl.StartTlsUpdateCertificateIT;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -69,21 +74,36 @@ import org.junit.runners.Suite;
  */
 @RunWith ( FrameworkSuite.class )
 @Suite.SuiteClasses ( {
+
+        // kerberos
+        KeyDerivationServiceIT.class,
+        PasswordPolicyServiceIT.class,
+
+        // operations.add
         AddingEntriesWithSpecialCharactersInRDNIT.class,
         AddIT.class,
 
+        // operations.bind
         BindIT.class,
         MiscBindIT.class,
         SaslBindIT.class,
         SimpleBindIT.class,
 
+        // operations.compare
         CompareIT.class,
         MatchingRuleCompareIT.class,
-        
+
+        // operations.delete
         DeleteIT.class,
+
+        // operations.extended
         ExtendedIT.class,
         StoredProcedureIT.class,
-        
+
+        // operations.lookup
+        // LookupPerfIT.class,
+
+        // operations.modify
         IllegalModificationIT.class,
         ModifyAddIT.class,
         ModifyMultipleChangesIT.class,
@@ -91,10 +111,12 @@ import org.junit.runners.Suite;
         ModifyRemoveIT.class,
         ModifyReplaceIT.class,
 
+        // operations.modifydn
         ModifyDnReferralIT.class,
         ModifyRdnIT.class,
         MoveIT.class,
 
+        // operations.search
         IndexedNegationSearchIT.class,
         NegationSearchIT.class,
         PagedSearchIT.class,
@@ -103,9 +125,14 @@ import org.junit.runners.Suite;
         SchemaSearchIT.class,
         SearchIT.class,
         SearchLimitsIT.class,
+        // SearchPerfIT.class,
 
+        // ssl
         LdapsIT.class,
-        StartTlsIT.class
+        LdapsUpdateCertificateIT.class,
+        StartTlsConfidentialityIT.class,
+        StartTlsIT.class,
+        StartTlsUpdateCertificateIT.class
         } )
 @CreateDS( 
     name = "SuiteDS",
