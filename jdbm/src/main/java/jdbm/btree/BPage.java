@@ -240,30 +240,19 @@ public final class BPage<K, V> implements Serializer
      * @return TupleBrowser positionned just before the given key, or before
      *                      next greater key if key isn't found.
      */
-    TupleBrowser find( int height, Object key ) throws IOException
+    TupleBrowser<K, V> find( int height, Object key ) throws IOException
     {
-        int index = findChildren( key );
+        int index = this.findChildren( key );
+        BPage<K, V> child = this;
 
-        /*
-        if ( DEBUG ) {
-            System.out.println( "BPage.find() current: " + this
-                                + " height: " + height);
-        }
-        */
-
-        height -= 1;
-
-        if ( height == 0 )
-        {
-            // leaf BPage
-            return new Browser( this, index );
-        }
-        else
+        while ( !child.isLeaf )
         {
             // non-leaf BPage
-            BPage child = childBPage( index );
-            return child.find( height, key );
+            child = child.loadBPage( child.children[index] );
+            index = child.findChildren( key );
         }
+
+        return new Browser( child, index );
     }
 
 
@@ -272,7 +261,7 @@ public final class BPage<K, V> implements Serializer
      *
      * @return TupleBrowser positionned just before the first entry.
      */
-    TupleBrowser findFirst() throws IOException
+    TupleBrowser<K, V> findFirst() throws IOException
     {
         if ( isLeaf )
         {
@@ -280,7 +269,7 @@ public final class BPage<K, V> implements Serializer
         }
         else
         {
-            BPage child = childBPage( first );
+            BPage<K, V> child = childBPage( first );
             
             return child.findFirst();
         }
@@ -397,7 +386,7 @@ public final class BPage<K, V> implements Serializer
 
         // page is full, we must divide the page
         int half = btree.pageSize >> 1;
-        BPage newPage = new BPage( btree, isLeaf );
+        BPage<K, V> newPage = new BPage<K, V>( btree, isLeaf );
         
         if ( index < half )
         {
@@ -468,7 +457,7 @@ public final class BPage<K, V> implements Serializer
             
             if ( previous != 0 )
             {
-                BPage previousBPage = loadBPage( previous );
+                BPage<K, V> previousBPage = loadBPage( previous );
                 previousBPage.next = newPage.recid;
                 btree.recordManager.update( previous, previousBPage, this );
             }
@@ -761,7 +750,7 @@ public final class BPage<K, V> implements Serializer
         // binary search
         while ( left < right )
         {
-            int middle = ( left + right ) / 2;
+            int middle = ( left + right ) >> 1;
             
             if ( compare( keys[middle], key ) < 0 )
             {
@@ -834,25 +823,6 @@ public final class BPage<K, V> implements Serializer
 
 
     /**
-     * Remove child at given position.
-     */
-    /*    
-        private static void removeChild( BPage page, int index )
-        {
-            Object[] keys = page.keys;
-            long[] children = page._children;
-            int start = page.first;
-            int count = index-page.first;
-
-            System.arraycopy( keys, start, keys, start+1, count );
-            keys[ start ] = null;
-            System.arraycopy( children, start, children, start+1, count );
-            children[ start ] = (long) -1;
-            page.first++;
-        }
-    */
-
-    /**
      * Set the entry at the given index.
      */
     private static void setEntry( BPage page, int index, Object key, Object value )
@@ -916,10 +886,16 @@ public final class BPage<K, V> implements Serializer
 
     private final int compare( Object value1, Object value2 )
     {
+        if ( value1 == value2 )
+        {
+            return 0;
+        }
+        
         if ( value1 == null )
         {
             return 1;
         }
+        
         if ( value2 == null )
         {
             return -1;
@@ -1181,7 +1157,6 @@ public final class BPage<K, V> implements Serializer
 
         // note:  It is assumed that BPage instance doing the serialization is the parent
         // of the BPage object being serialized.
-
         bpage = ( BPage<K, V> ) obj;
         baos = new ByteArrayOutputStream();
         oos = new ObjectOutputStream( baos );
@@ -1254,7 +1229,10 @@ public final class BPage<K, V> implements Serializer
     }
 
     /** STATIC INNER CLASS
-     *  Result from insert() method call
+     *  Result from insert() method call. If the insertion has created
+     *  a new page, it will be contained in the overflow field.
+     *  If the inserted element already exist, then we will store
+     *  the existing element.
      */
     static class InsertResult<K, V>
     {
@@ -1268,15 +1246,14 @@ public final class BPage<K, V> implements Serializer
          * Existing value for the insertion key.
          */
         V existing;
-
     }
 
     /** STATIC INNER CLASS
-     *  Result from remove() method call
+     *  Result from remove() method call. If we had to removed a BPage,
+     *  it will be stored into the underflow field.
      */
     static class RemoveResult<V>
     {
-
         /**
          * Set to true if underlying pages underflowed
          */
@@ -1293,11 +1270,8 @@ public final class BPage<K, V> implements Serializer
      */
     class Browser extends TupleBrowser<K, V>
     {
-
-        /**
-         * Current page.
-         */
-        private BPage<K, V> bPage;
+        /** Current page. */
+        private BPage<K, V> page;
 
         /**
          * Current index in the page.  The index positionned on the next
@@ -1314,44 +1288,56 @@ public final class BPage<K, V> implements Serializer
          */
         Browser( BPage<K, V> page, int index )
         {
-            this.bPage = page;
+            this.page = page;
             this.index = index;
         }
 
 
+        /**
+         * Get the next Tuple in the current BTree. We have 3 cases to deal with :
+         * 1) we are at the end of the btree. We will return false, the tuple won't be set.
+         * 2) we are in the middle of a page : grab the values and store them into the tuple
+         * 3) we are at the end of the page : grab the next page, and get the tuple from it.
+         * 
+         * @return true if we have found a tumple, false otherwise.
+         */
         public boolean getNext( Tuple<K, V> tuple ) throws IOException
         {
-            if ( index < bPage.btree.pageSize )
+            // First, check that we are within a page
+            if ( index < page.btree.pageSize )
             {
-                if ( bPage.keys[index] == null )
+                // We are. Now check that we have a Tuple
+                if ( page.keys[index] == null )
                 {
-                    // reached end of the tree.
+                    // no : reached end of the tree.
                     return false;
                 }
             }
-            else if ( bPage.next != 0 )
+            // all the tuple for this page has been read. Move to the 
+            // next page, if we have one.
+            else if ( page.next != 0 )
             {
                 // move to next page
-                bPage = bPage.loadBPage( bPage.next );
-                index = bPage.first;
+                page = page.loadBPage( page.next );
+                index = page.first;
             }
             
-            tuple.setKey( bPage.keys[index] );
-            tuple.setValue( bPage.values[index] );
+            tuple.setKey( page.keys[index] );
+            tuple.setValue( page.values[index] );
             index++;
             
             return true;
         }
 
 
-        public boolean getPrevious( Tuple tuple ) throws IOException
+        public boolean getPrevious( Tuple<K, V> tuple ) throws IOException
         {
-            if ( index == bPage.first )
+            if ( index == page.first )
             {
-                if ( bPage.previous != 0 )
+                if ( page.previous != 0 )
                 {
-                    bPage = bPage.loadBPage( bPage.previous );
-                    index = bPage.btree.pageSize;
+                    page = page.loadBPage( page.previous );
+                    index = page.btree.pageSize;
                 }
                 else
                 {
@@ -1361,8 +1347,8 @@ public final class BPage<K, V> implements Serializer
             }
             
             index--;
-            tuple.setKey( bPage.keys[index] );
-            tuple.setValue( bPage.values[index] );
+            tuple.setKey( page.keys[index] );
+            tuple.setValue( page.values[index] );
             
             return true;
         }

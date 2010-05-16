@@ -118,4 +118,10 @@ public final class Tuple<K, V> {
     {
         this.value = value;
     }
+    
+    
+    public String toString()
+    {
+        return "<" + key + "," + value + ">";
+    }
 }

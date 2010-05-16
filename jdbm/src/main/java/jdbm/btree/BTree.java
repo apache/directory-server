@@ -401,7 +401,7 @@ public class BTree implements Externalizable
         }
 
         Tuple<Object, Object> tuple = new Tuple<Object, Object>( null, null );
-        TupleBrowser browser = rootPage.find( bTreeHeight, key );
+        TupleBrowser<Object, Object> browser = rootPage.find( bTreeHeight, key );
 
         if ( browser.getNext( tuple ) )
         {
@@ -434,7 +434,7 @@ public class BTree implements Externalizable
     public synchronized Tuple<Object, Object> findGreaterOrEqual( Object key ) throws IOException
     {
         Tuple<Object, Object> tuple;
-        TupleBrowser browser;
+        TupleBrowser<Object, Object> browser;
 
         if ( key == null )
         {
@@ -460,7 +460,7 @@ public class BTree implements Externalizable
     /**
      * Get a browser initially positioned at the beginning of the BTree.
      * <p><b>
-     * WARNING: �If you make structural modifications to the BTree during
+     * WARNING: If you make structural modifications to the BTree during
      * browsing, you will get inconsistent browing results.
      * </b>
      *
@@ -484,16 +484,16 @@ public class BTree implements Externalizable
     /**
      * Get a browser initially positioned just before the given key.
      * <p><b>
-     * WARNING: �If you make structural modifications to the BTree during
-     * browsing, you will get inconsistent browing results.
+     * WARNING: If you make structural modifications to the BTree during
+     * browsing, you will get inconsistent browsing results.
      * </b>
      *
      * @param key Key used to position the browser.  If null, the browser
-     *            will be positionned after the last entry of the BTree.
+     *            will be positioned after the last entry of the BTree.
      *            (Null is considered to be an "infinite" key)
-     * @return Browser positionned just before the given key.
+     * @return Browser positioned just before the given key.
      */
-    public synchronized TupleBrowser browse( Object key ) throws IOException
+    public synchronized TupleBrowser<Object, Object> browse( Object key ) throws IOException
     {
         BPage<Object, Object> rootPage = getRoot();
         
@@ -502,7 +502,7 @@ public class BTree implements Externalizable
             return EmptyBrowser.INSTANCE;
         }
         
-        TupleBrowser browser = rootPage.find( bTreeHeight, key );
+        TupleBrowser<Object, Object> browser = rootPage.find( bTreeHeight, key );
         
         return browser;
     }
@@ -549,7 +549,7 @@ public class BTree implements Externalizable
      */
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
-        comparator = ( Comparator ) in.readObject();
+        comparator = ( Comparator<?> ) in.readObject();
         keySerializer = ( Serializer ) in.readObject();
         valueSerializer = ( Serializer ) in.readObject();
         bTreeHeight = in.readInt();
@@ -602,7 +602,7 @@ public class BTree implements Externalizable
     /**
      * @return the comparator
      */
-    public Comparator getComparator()
+    public Comparator<?> getComparator()
     {
         return comparator;
     }
