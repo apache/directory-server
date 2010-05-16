@@ -223,7 +223,7 @@ public class LdapServer extends DirectoryBackedService
 
     private KeyStore keyStore = null;
 
-    private IoFilterChainBuilder chainBuilder;
+    private List<IoFilterChainBuilder> chainBuilders = new ArrayList<IoFilterChainBuilder>();
     
     private ReplicationProvider replicationProvider;
     
@@ -379,16 +379,20 @@ public class LdapServer extends DirectoryBackedService
         }
 
         LOG.info( "reloading SSL context..." );
-        
+
         loadKeyStore();
-        
-        DefaultIoFilterChainBuilder dfcb = ( ( DefaultIoFilterChainBuilder ) chainBuilder );
+
         String sslFilterName = "sslFilter";
-        if( dfcb.contains( sslFilterName ) )
+        for ( IoFilterChainBuilder chainBuilder : chainBuilders )
         {
-            DefaultIoFilterChainBuilder newChain = ( DefaultIoFilterChainBuilder ) LdapsInitializer.init( keyStore, certificatePassword );
-            dfcb.replace( sslFilterName, newChain.get( sslFilterName ) );
-            newChain = null;
+            DefaultIoFilterChainBuilder dfcb = ( ( DefaultIoFilterChainBuilder ) chainBuilder );
+            if ( dfcb.contains( sslFilterName ) )
+            {
+                DefaultIoFilterChainBuilder newChain = ( DefaultIoFilterChainBuilder ) LdapsInitializer.init( keyStore,
+                    certificatePassword );
+                dfcb.replace( sslFilterName, newChain.get( sslFilterName ) );
+                newChain = null;
+            }
         }
 
         StartTlsHandler handler = ( StartTlsHandler ) getExtendedOperationHandler( StartTlsHandler.EXTENSION_OID );
@@ -399,7 +403,7 @@ public class LdapServer extends DirectoryBackedService
             // both in the LdapService as well as StatTlsHandler
             handler.setLdapServer( this );
         }
-        
+
         LOG.info( "reloaded SSL context successfully" );
     }
 
@@ -557,9 +561,9 @@ public class LdapServer extends DirectoryBackedService
             // Set the backlog to the default value when it's below 0
             transport.setBackLog( 50 );
         }
-        
-        this.chainBuilder = chainBuilder;
-        
+
+        chainBuilders.add( chainBuilder );
+
         PartitionNexus nexus = getDirectoryService().getPartitionNexus();
 
         for ( ExtendedOperationHandler h : extendedOperationHandlers )
