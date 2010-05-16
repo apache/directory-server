@@ -410,7 +410,7 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
         req.addAbandonListener( new SearchAbandonListener( ldapServer, cursor ) );
         setTimeLimitsOnCursor( req, session, cursor );
         LOG.debug( "using <{},{}> for size limit", sizeLimit, pagedLimit );
-        long cookieValue = 0;
+        int cookieValue = 0;
         
         int count = pagedContext.getCurrentPosition();
         int pageCount = 0;
@@ -507,7 +507,7 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
         PagedResultsControl pagedResultsControl = null;
         PagedResultsControl pagedSearchControl = 
             ( PagedResultsControl )req.getControls().get( PagedResultsControl.CONTROL_OID );
-        byte [] cookie= pagedSearchControl.getCookie();
+        byte [] cookie = pagedSearchControl.getCookie();
         
         if ( !StringTools.isEmpty( cookie ) )
         {
@@ -554,7 +554,7 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
             return null;
         }
         
-        long cookieValue = cookieInstance.getCookieValue();
+        int cookieValue = cookieInstance.getCookieValue();
         
         return session.removePagedSearchContext( cookieValue );
     }
