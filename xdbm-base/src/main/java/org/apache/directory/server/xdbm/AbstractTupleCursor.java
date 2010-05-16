@@ -22,6 +22,7 @@ package org.apache.directory.server.xdbm;
 
 import java.util.Iterator;
 
+import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.cursor.CursorIterator;
 import org.apache.directory.shared.ldap.cursor.DefaultClosureMonitor;
@@ -75,5 +76,45 @@ public abstract class AbstractTupleCursor<K, V> implements TupleCursor<K, V>
     public Iterator<Tuple<K, V>> iterator()
     {
         return new CursorIterator<Tuple<K, V>>( this );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isAfterLast() throws Exception
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+            .concat( "." ).concat( "isAfterLast()" ) ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isBeforeFirst() throws Exception
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+            .concat( "." ).concat( "isBeforeFirst()" ) ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isFirst() throws Exception
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+            .concat( "." ).concat( "isFirst()" ) ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isLast() throws Exception
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+            .concat( "." ).concat( "isLast()" ) ) );
     }
 }

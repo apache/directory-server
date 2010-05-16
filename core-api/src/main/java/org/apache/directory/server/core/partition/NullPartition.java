@@ -42,6 +42,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
+import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
@@ -240,6 +241,46 @@ public class NullPartition extends AbstractPartition
             public boolean addEntryFilter( EntryFilter filter )
             {
                 return false;
+            }
+
+
+            /**
+             * {@inheritDoc}
+             */
+            public boolean isAfterLast() throws Exception
+            {
+                throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+                    .concat( "." ).concat( "isAfterLast()" ) ) );
+            }
+
+
+            /**
+             * {@inheritDoc}
+             */
+            public boolean isBeforeFirst() throws Exception
+            {
+                throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+                    .concat( "." ).concat( "isBeforeFirst()" ) ) );
+            }
+
+
+            /**
+             * {@inheritDoc}
+             */
+            public boolean isFirst() throws Exception
+            {
+                throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+                    .concat( "." ).concat( "isFirst()" ) ) );
+            }
+
+
+            /**
+             * {@inheritDoc}
+             */
+            public boolean isLast() throws Exception
+            {
+                throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+                    .concat( "." ).concat( "isLast()" ) ) );
             }
         };
     }

@@ -24,6 +24,7 @@ import java.util.NoSuchElementException;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.cursor.Cursor;
@@ -174,5 +175,45 @@ public class MockCursor implements Cursor<Entry>
     public void setSchemaManager( SchemaManager schemaManager )
     {
         this.schemaManager = schemaManager;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isAfterLast() throws Exception
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+            .concat( "." ).concat( "isAfterLast()" ) ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isBeforeFirst() throws Exception
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+            .concat( "." ).concat( "isBeforeFirst()" ) ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isFirst() throws Exception
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+            .concat( "." ).concat( "isFirst()" ) ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isLast() throws Exception
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+            .concat( "." ).concat( "isLast()" ) ) );
     }
 }

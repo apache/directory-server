@@ -28,6 +28,7 @@ import java.util.List;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ClonedServerEntrySearch;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
+import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.CursorIterator;
@@ -639,5 +640,45 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     public Iterator<ClonedServerEntry> iterator()
     {
         return new CursorIterator<ClonedServerEntry>( this );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isAfterLast() throws Exception
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+            .concat( "." ).concat( "isAfterLast()" ) ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isBeforeFirst() throws Exception
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+            .concat( "." ).concat( "isBeforeFirst()" ) ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isFirst() throws Exception
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+            .concat( "." ).concat( "isFirst()" ) ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isLast() throws Exception
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+            .concat( "." ).concat( "isLast()" ) ) );
     }
 }

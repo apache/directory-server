@@ -26,6 +26,7 @@ import java.util.Iterator;
 import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 
@@ -148,4 +149,42 @@ public class EntryToResponseCursor<SearchResponse> implements Cursor<SearchRespo
         wrapped.setClosureMonitor( monitor );
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isAfterLast() throws Exception
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+            .concat( "." ).concat( "isAfterLast()" ) ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isBeforeFirst() throws Exception
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+            .concat( "." ).concat( "isBeforeFirst()" ) ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isFirst() throws Exception
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+            .concat( "." ).concat( "isFirst()" ) ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isLast() throws Exception
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+            .concat( "." ).concat( "isLast()" ) ) );
+    }
 }

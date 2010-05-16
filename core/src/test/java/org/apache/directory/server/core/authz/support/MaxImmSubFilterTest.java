@@ -74,6 +74,7 @@ import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
 import org.apache.directory.server.core.schema.SchemaService;
+import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
@@ -1142,6 +1143,45 @@ public class MaxImmSubFilterTest
 
         public void setClosureMonitor( ClosureMonitor monitor )
         {
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean isAfterLast() throws Exception
+        {
+            throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+                .concat( "." ).concat( "isAfterLast()" ) ) );
+        }
+
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean isBeforeFirst() throws Exception
+        {
+            throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+                .concat( "." ).concat( "isBeforeFirst()" ) ) );
+        }
+
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean isFirst() throws Exception
+        {
+            throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+                .concat( "." ).concat( "isFirst()" ) ) );
+        }
+
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean isLast() throws Exception
+        {
+            throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+                .concat( "." ).concat( "isLast()" ) ) );
         }
     }
 }
