@@ -102,7 +102,7 @@ public class LdapSession
         outstandingRequests = new ConcurrentHashMap<Integer, InternalAbandonableRequest>();
         bindStatus = BindStatus.ANONYMOUS;
         saslProperties = new HashMap<String, Object>();
-        pagedSearchContexts = new HashMap<Integer, PagedSearchContext>();
+        pagedSearchContexts = new ConcurrentHashMap<Integer, PagedSearchContext>();
     }
     
     
@@ -426,24 +426,22 @@ public class LdapSession
      */
     public void addPagedSearchContext( PagedSearchContext context ) throws Exception
     {
-        synchronized ( pagedSearchContexts )
+        PagedSearchContext oldContext = pagedSearchContexts.put( context.getCookieValue(), context );
+        
+        if ( oldContext != null )
         {
-            PagedSearchContext oldContext = pagedSearchContexts.put( context.getCookieValue(), context );
+            // ??? Very unlikely to happen ...
+            EntryFilteringCursor cursor = oldContext.getCursor();
             
-            if ( oldContext != null )
+            if ( cursor != null )
             {
-                EntryFilteringCursor cursor = oldContext.getCursor();
-                
-                if ( cursor != null )
+                try
                 {
-                    try
-                    {
-                        cursor.close();
-                    }
-                    catch ( Exception e )
-                    {
-                        LOG.error( I18n.err( I18n.ERR_172, e.getLocalizedMessage() ) );
-                    }
+                    cursor.close();
+                }
+                catch ( Exception e )
+                {
+                    LOG.error( I18n.err( I18n.ERR_172, e.getLocalizedMessage() ) );
                 }
             }
         }
@@ -456,12 +454,9 @@ public class LdapSession
      * @param contextId The context ID to remove
      * @return The removed context if any found
      */
-    public PagedSearchContext removePagedSearchContext( long contextId )
+    public PagedSearchContext removePagedSearchContext( int contextId )
     {
-        synchronized ( pagedSearchContexts )
-        {
-            return pagedSearchContexts.remove( contextId );
-        }
+        return pagedSearchContexts.remove( contextId );
     }
     
     
@@ -472,11 +467,11 @@ public class LdapSession
      */
     public PagedSearchContext getPagedSearchContext( int contextId )
     {
-        synchronized ( pagedSearchContexts )
-        {
-            return pagedSearchContexts.get( contextId );
-        }
+        PagedSearchContext ctx =  pagedSearchContexts.get( contextId );
+        
+        return ctx;
     }
+    
     
     /**
      * The principal and remote address associated with this session.
