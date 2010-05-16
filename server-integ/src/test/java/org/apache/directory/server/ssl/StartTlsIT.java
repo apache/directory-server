@@ -235,7 +235,7 @@ public class StartTlsIT extends AbstractLdapTestUnit
                 } 
             } );
             LOG.debug( "TLS negotion about to begin" );
-            tls.negotiate();
+            tls.negotiate( ReloadableSSLSocketFactory.getDefault() );
 
             search( ii, ctx );
             
