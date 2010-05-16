@@ -56,7 +56,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith(FrameworkRunner.class)
-public class SearchWithIndicesITest extends AbstractLdapTestUnit
+public class SearchWithIndicesIT extends AbstractLdapTestUnit
 {
 
     @Before

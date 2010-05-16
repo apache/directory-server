@@ -24,6 +24,7 @@ import org.apache.directory.server.core.authn.SimpleAuthenticationIT;
 import org.apache.directory.server.core.authz.AddAuthorizationIT;
 import org.apache.directory.server.core.authz.AdministratorsGroupIT;
 import org.apache.directory.server.core.authz.AuthorizationServiceAsAdminIT;
+import org.apache.directory.server.core.authz.AuthorizationServiceAsNonAdminIT;
 import org.apache.directory.server.core.authz.AuthzAuthnIT;
 import org.apache.directory.server.core.authz.CompareAuthorizationIT;
 import org.apache.directory.server.core.authz.DeleteAuthorizationIT;
@@ -46,20 +47,26 @@ import org.junit.runners.Suite;
 @RunWith ( FrameworkSuite.class )
 @CreateDS( enableAccessControl=true, name="MigratedStockCoreISuite-DS" )
 @Suite.SuiteClasses ( {
-        SimpleAuthenticationIT.class,
-        ExceptionServiceIT.class,
 
-        MoveRenameAuthorizationIT.class,
-        DeleteAuthorizationIT.class,
-        SearchAuthorizationIT.class,
-        CompareAuthorizationIT.class,
-        ModifyAuthorizationIT.class,
+        // authn
+        SimpleAuthenticationIT.class,
+
+        // authz
         AddAuthorizationIT.class,
-        AuthzAuthnIT.class,
+        AdministratorsGroupIT.class,
         AuthorizationServiceAsAdminIT.class,
+        AuthorizationServiceAsNonAdminIT.class,
+        AuthzAuthnIT.class,
+        CompareAuthorizationIT.class,
+        DeleteAuthorizationIT.class,
         GeneralAuthorizationIT.class,
-        
-        AdministratorsGroupIT.class
+        ModifyAuthorizationIT.class,
+        MoveRenameAuthorizationIT.class,
+        SearchAuthorizationIT.class,
+
+        // exception
+        ExceptionServiceIT.class
+
         } )
 public class MigratedStockCoreISuite
 {

@@ -99,7 +99,6 @@
             <configuration>
               <includes>
                 <include>**/*ISuite.java</include>
-                <include>**/*ITest.java</include>
               </includes>
               <excludes>
                 <exclude>**/ReferralIT.java</exclude>

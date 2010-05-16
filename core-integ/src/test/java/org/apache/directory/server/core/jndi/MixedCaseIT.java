@@ -75,7 +75,7 @@ import org.junit.runner.RunWith;
                     @CreateIndex( attribute = "uid" )
                 } )
         } )
-public class MixedCaseITest extends AbstractLdapTestUnit
+public class MixedCaseIT extends AbstractLdapTestUnit
 {
 
     private static final String SUFFIX_DN = "dc=Apache,dc=Org";
