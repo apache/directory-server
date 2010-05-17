@@ -256,11 +256,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         while ( true )
         {
             loop++;
+            NamingEnumeration<SearchResult> list = null;
 
             try
             {
-                NamingEnumeration<SearchResult> list = 
-                    ctx.search( "dc=users,ou=system", "(cn=*)", controls );
+                list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
     
                 while ( list.hasMore() )
                 {
@@ -270,9 +270,16 @@ public class PagedSearchIT extends AbstractLdapTestUnit
             }
             catch ( SizeLimitExceededException e )
             {
-                // e.printStackTrace();
                 hasSizeLimitException = true;
                 break;
+            }
+            finally
+            {
+                // Close the NamingEnumeration
+                if ( list != null )
+                {
+                    list.close();
+                }
             }
 
             // Now read the next ones
@@ -298,6 +305,9 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         assertEquals( expectedException, hasSizeLimitException );
         assertEquals( expectedLoop, loop );
         checkResults( results, expectedNbEntries );
+        
+        // And close the connection
+        closeConnection( ctx );
     }
     
     
@@ -308,6 +318,26 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     public void reinitLdapServiceMaxSizeLimit()
     {
         ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
+    }
+    
+    
+    /**
+     * Close a connection, and wait a bit to be sure it's done
+     */
+    private void closeConnection( DirContext ctx ) throws NamingException
+    {
+        if ( ctx != null )
+        {
+            ctx.close();
+            
+            try
+            {
+                Thread.sleep(10);
+            }
+            catch ( Exception e )
+            {
+            }
+        }
     }
     
     
