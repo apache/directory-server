@@ -33,92 +33,102 @@ import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AvlSingletonOrOrderedSetCursor<K,V> extends AbstractTupleCursor<K,SingletonOrOrderedSet<V>>
+public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractTupleCursor<K, SingletonOrOrderedSet<V>>
 {
+    /** The underlying AVL tree map */
     private AvlTreeMap<K, V> tree;
-    private LinkedAvlMapNode<K,V> node;
-    private boolean onNode = false;
-    private boolean isAfterLast = false;
-    private boolean isBeforeFirst = true;
-    private Tuple<K,SingletonOrOrderedSet<V>> returnedTuple = new Tuple<K, SingletonOrOrderedSet<V>>();
-    
-    
+
+    /** The current node */
+    private LinkedAvlMapNode<K, V> node;
+
+    /** The current position of this cursor, relative to the node */
+    private Position position = Position.BEFORE_FIRST;
+
+    private Tuple<K, SingletonOrOrderedSet<V>> returnedTuple = new Tuple<K, SingletonOrOrderedSet<V>>();
+
+
     public AvlSingletonOrOrderedSetCursor( AvlTreeMap<K, V> tree )
     {
         this.tree = tree;
     }
-    
-    
+
+
     public Comparator<K> getKeyComparator()
     {
         return tree.getKeyComparator();
     }
 
-    
+
     public Comparator<V> getValuComparator()
     {
         return tree.getValueComparator();
     }
-    
-    
-    public void after( Tuple<K,SingletonOrOrderedSet<V>> element ) throws Exception 
+
+
+    public void after( Tuple<K, SingletonOrOrderedSet<V>> element ) throws Exception
     {
         afterKey( element.getKey() );
     }
 
 
-    public void afterLast() throws Exception 
+    public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast" );
-        node = tree.getLast();
-        isBeforeFirst = false;
-        isAfterLast = true;
-        onNode = false;
+        node = null;
+        position = Position.AFTER_LAST;
     }
 
 
     public boolean available()
     {
-        return onNode;
+        return position == Position.ON_NODE;
     }
 
 
-    public void before( Tuple<K,SingletonOrOrderedSet<V>> element ) throws Exception 
+    public void before( Tuple<K, SingletonOrOrderedSet<V>> element ) throws Exception
     {
         beforeKey( element.getKey() );
     }
 
 
-    public void beforeFirst() throws Exception 
+    public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst" );
-        node = tree.getFirst();
-        isBeforeFirst = true;
-        isAfterLast = false;
-        onNode = false;
+        node = null;
+        position = Position.BEFORE_FIRST;
     }
 
 
-    public boolean first() throws Exception 
+    public boolean first() throws Exception
     {
         checkNotClosed( "first" );
+
         node = tree.getFirst();
-        isBeforeFirst = false;
-        isAfterLast = false;
-        return onNode = ( node != null );
+
+        if ( node == null )
+        {
+            position = Position.BEFORE_FIRST;
+            return false;
+        }
+        else
+        {
+            position = Position.ON_NODE;
+            return true;
+        }
     }
 
 
-    public Tuple<K,SingletonOrOrderedSet<V>> get() throws Exception 
+    public Tuple<K, SingletonOrOrderedSet<V>> get() throws Exception
     {
         checkNotClosed( "get" );
-        if ( onNode )
+
+        if ( position == Position.ON_NODE )
         {
             returnedTuple.setKey( node.key );
             returnedTuple.setValue( node.value );
             return returnedTuple;
         }
-        
+
         throw new InvalidCursorPositionException();
     }
 
@@ -129,53 +139,58 @@ public class AvlSingletonOrOrderedSetCursor<K,V> extends AbstractTupleCursor<K,S
     }
 
 
-    public boolean last() throws Exception 
+    public boolean last() throws Exception
     {
         checkNotClosed( "last" );
+
         node = tree.getLast();
-        isBeforeFirst = false;
-        isAfterLast = false;
-        return onNode = ( node != null );
+
+        if ( node == null )
+        {
+            position = Position.AFTER_LAST;
+            return false;
+        }
+        else
+        {
+            position = Position.ON_NODE;
+            return true;
+        }
     }
 
 
-    public boolean next() throws Exception 
+    public boolean next() throws Exception
     {
         checkNotClosed( "next" );
-        
-        if ( isBeforeFirst )
-        {
-            node = tree.getFirst();
-            isBeforeFirst = false;
-            isAfterLast = false;
-            return onNode = node != null;
-        }
 
-        if ( isAfterLast )
+        switch ( position )
         {
-            return false;
-        }
-        else if ( onNode )
-        {
-            if ( node == null )
-            {
-                node = tree.getFirst();
+            case BEFORE_FIRST:
+                return first();
+
+            case BEFORE_NODE:
+                position = Position.ON_NODE;
                 return true;
-            }
-            
-            if ( node.next == null )
-            {
-                onNode = false;
-                isAfterLast = true;
-                isBeforeFirst = false;
-                return false;
-            }
-            
-            node = node.next;
-            return true;
-        }
 
-        return node != null && ( onNode = true );
+            case ON_NODE:
+            case AFTER_NODE:
+                node = node.next;
+                if ( node == null )
+                {
+                    afterLast();
+                    return false;
+                }
+                else
+                {
+                    position = Position.ON_NODE;
+                    return true;
+                }
+
+            case AFTER_LAST:
+                return false;
+
+            default:
+                throw new IllegalStateException( "Unexpected position " + position );
+        }
     }
 
 
@@ -183,39 +198,35 @@ public class AvlSingletonOrOrderedSetCursor<K,V> extends AbstractTupleCursor<K,S
     {
         checkNotClosed( "previous" );
 
-        if ( isBeforeFirst )
+        switch ( position )
         {
-            return false;
-        }
-
-        if ( isAfterLast )
-        {
-            node = tree.getLast();
-            isBeforeFirst = false;
-            isAfterLast = false;
-            return onNode = node != null;
-        }
-
-        if ( onNode )
-        {
-            if ( node == null )
-            {
-                node = tree.getLast();
-                return true;
-            }
-            if ( node.previous == null )
-            {
-                onNode = false;
-                isAfterLast = false;
-                isBeforeFirst = true;
+            case BEFORE_FIRST:
                 return false;
-            }
-            
-            node = node.previous;
-            return true;
+
+            case BEFORE_NODE:
+            case ON_NODE:
+                node = node.previous;
+                if ( node == null )
+                {
+                    beforeFirst();
+                    return false;
+                }
+                else
+                {
+                    position = Position.ON_NODE;
+                    return true;
+                }
+
+            case AFTER_NODE:
+                position = Position.ON_NODE;
+                return true;
+
+            case AFTER_LAST:
+                return last();
+
+            default:
+                throw new IllegalStateException( "Unexpected position " + position );
         }
-        
-        return false;
     }
 
 
@@ -229,22 +240,19 @@ public class AvlSingletonOrOrderedSetCursor<K,V> extends AbstractTupleCursor<K,S
             return;
         }
 
-        LinkedAvlMapNode<K,V> found = tree.findGreater( key );
-        
-        if ( found == null )
+        node = tree.findGreater( key );
+
+        if ( node == null )
         {
-            node = tree.getLast();
-            onNode = false;
-            isAfterLast = true;
-            isBeforeFirst = false;
-            return;
+            position = Position.AFTER_LAST;
         }
-
-        node = found;
-        isAfterLast = false;
-        isBeforeFirst = false;
-        onNode = false;
-
+        else
+        {
+            // the cursor should be positioned after the given element
+            // we just fetched the next greater element so the cursor
+            // is positioned before the fetched element
+            position = Position.BEFORE_NODE;
+        }
     }
 
 
@@ -264,20 +272,19 @@ public class AvlSingletonOrOrderedSetCursor<K,V> extends AbstractTupleCursor<K,S
             return;
         }
 
-        LinkedAvlMapNode<K,V> found = tree.findLess( key );
-        if ( found == null )
+        node = tree.findLess( key );
+
+        if ( node == null )
         {
-            node = tree.getFirst();
-            isAfterLast = false;
-            isBeforeFirst = true;
+            position = Position.BEFORE_FIRST;
         }
         else
         {
-            node = found.next;
-            isAfterLast = false;
-            isBeforeFirst = false;
+            // the cursor should be positioned before the given element
+            // we just fetched the next less element so the cursor
+            // is positioned after the fetched element
+            position = Position.AFTER_NODE;
         }
-        onNode = false;
     }
 
 

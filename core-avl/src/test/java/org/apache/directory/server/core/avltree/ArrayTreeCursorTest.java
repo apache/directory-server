@@ -137,16 +137,48 @@ public class ArrayTreeCursorTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( int ) cursor.get() );
-        
+
+        cursor.before( 3 );
+        assertFalse( cursor.previous() );
+        assertFalse( cursor.available() );
+
         cursor.after( 3 );
         assertFalse( cursor.available() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( int ) cursor.get() );
 
+        cursor.after( 3 );
+        assertFalse( cursor.previous() );
+        assertFalse( cursor.available() );
+
         cursor.before( 7 );
         assertFalse( cursor.available() );
         assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 7, ( int ) cursor.get() );
+
+        cursor.before( 7 );
+        assertFalse( cursor.previous() );
+        assertFalse( cursor.available() );
+
+        cursor.after( 7 );
+        assertFalse( cursor.available() );
+        assertFalse( cursor.next() );
+        assertFalse( cursor.available() );
+
+        cursor.after( 7 );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 7, ( int ) cursor.get() );
+
+        cursor.before( 9 );
+        assertFalse( cursor.available() );
+        assertFalse( cursor.next() );
+        assertFalse( cursor.available() );
+
+        cursor.before( 9 );
+        assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( int ) cursor.get() );
     }
@@ -224,17 +256,131 @@ public class ArrayTreeCursorTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         
+        // position before first object
+        cursor.after( 2 );
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 3, ( int ) cursor.get() );
+
+        cursor.after( 2 );
+        assertFalse( cursor.previous() );
+        assertFalse( cursor.available() );
+
+        // position on first object
+        cursor.after( 3 );
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 7, ( int ) cursor.get() );
+
+        cursor.after( 3 );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 3, ( int ) cursor.get() );
+
+        // position after first object
         cursor.after( 5 );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( int ) cursor.get() );
-        
-        
+
+        cursor.after( 5 );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 3, ( int ) cursor.get() );
+
+        // position before last object
+        cursor.after( 10 );
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 11, ( int ) cursor.get() );
+
+        cursor.after( 10 );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 10, ( int ) cursor.get() );
+
+        // position on last object
+        cursor.after( 11 );
+        assertFalse( cursor.next() );
+        assertFalse( cursor.available() );
+
+        cursor.after( 11 );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 11, ( int ) cursor.get() );
+
+        // position after last object
+        cursor.after( 20 );
+        assertFalse( cursor.next() );
+        assertFalse( cursor.available() );
+
+        cursor.after( 20 );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 11, ( int ) cursor.get() );
+
+        // position after last object
+        cursor.before( 20 );
+        assertFalse( cursor.next() );
+        assertFalse( cursor.available() );
+
+        cursor.before( 20 );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 11, ( int ) cursor.get() );
+
+        // position on last object
         cursor.before( 11 );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 11, ( int ) cursor.get() );
-        
+
+        cursor.before( 11 );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 10, ( int ) cursor.get() );
+
+        // position before last object
+        cursor.before( 10 );
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 10, ( int ) cursor.get() );
+
+        cursor.before( 10 );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 7, ( int ) cursor.get() );
+
+        // position after first object
+        cursor.before( 5 );
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 7, ( int ) cursor.get() );
+
+        cursor.before( 5 );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 3, ( int ) cursor.get() );
+
+        // position on first object
+        cursor.before( 3 );
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 3, ( int ) cursor.get() );
+
+        cursor.before( 3 );
+        assertFalse( cursor.previous() );
+        assertFalse( cursor.available() );
+
+        // position before first object
+        cursor.before( 2 );
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 3, ( int ) cursor.get() );
+
+        cursor.before( 2 );
+        assertFalse( cursor.previous() );
+        assertFalse( cursor.available() );
     }
    
     

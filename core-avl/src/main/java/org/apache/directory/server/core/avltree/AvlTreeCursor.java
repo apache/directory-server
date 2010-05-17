@@ -32,20 +32,23 @@ import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
  */
 public class AvlTreeCursor<K> extends AbstractCursor<K>
 {
+    /** The underlying AVL tree */
     private AvlTree<K> tree;
+
+    /** The current node */
     private LinkedAvlNode<K> node;
-    private boolean onNode = false;
-    private boolean isAfterLast = false;
-    private boolean isBeforeFirst = true;
- 
-    
+
+    /** The current position of this cursor, relative to the node */
+    private Position position = Position.BEFORE_FIRST;
+
+
     public AvlTreeCursor( AvlTree<K> tree )
     {
         this.tree = tree;
     }
 
-    
-    public void after( K element ) throws Exception 
+
+    public void after( K element ) throws Exception
     {
         checkNotClosed( "after" );
 
@@ -55,41 +58,37 @@ public class AvlTreeCursor<K> extends AbstractCursor<K>
             return;
         }
 
-        LinkedAvlNode<K> found = tree.findGreater( element );
-        
-        if ( found == null )
-        {
-            node = tree.getLast();
-            onNode = false;
-            isAfterLast = true;
-            isBeforeFirst = false;
-            return;
-        }
+        node = tree.findGreater( element );
 
-        node = found;
-        isAfterLast = false;
-        isBeforeFirst = false;
-        onNode = false;
+        if ( node == null )
+        {
+            position = Position.AFTER_LAST;
+        }
+        else
+        {
+            // the cursor should be positioned after the given element
+            // we just fetched the next greater element so the cursor
+            // is positioned before the fetched element
+            position = Position.BEFORE_NODE;
+        }
     }
 
 
-    public void afterLast() throws Exception 
+    public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast" );
-        node = tree.getLast();
-        isBeforeFirst = false;
-        isAfterLast = true;
-        onNode = false;
+        node = null;
+        position = Position.AFTER_LAST;
     }
 
 
     public boolean available()
     {
-        return onNode;
+        return position == Position.ON_NODE;
     }
 
 
-    public void before( K element ) throws Exception 
+    public void before( K element ) throws Exception
     {
         checkNotClosed( "before" );
 
@@ -99,51 +98,58 @@ public class AvlTreeCursor<K> extends AbstractCursor<K>
             return;
         }
 
-        LinkedAvlNode<K> found = tree.findLess( element );
-        if ( found == null )
+        node = tree.findLess( element );
+
+        if ( node == null )
         {
-            node = tree.getFirst();
-            isAfterLast = false;
-            isBeforeFirst = true;
+            position = Position.BEFORE_FIRST;
         }
         else
         {
-            node = found.next;
-            isAfterLast = false;
-            isBeforeFirst = false;
+            // the cursor should be positioned before the given element
+            // we just fetched the next less element so the cursor
+            // is positioned after the fetched element
+            position = Position.AFTER_NODE;
         }
-        onNode = false;
     }
 
 
-    public void beforeFirst() throws Exception 
+    public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst" );
-        node = tree.getFirst();
-        isBeforeFirst = true;
-        isAfterLast = false;
-        onNode = false;
+        node = null;
+        position = Position.BEFORE_FIRST;
     }
 
 
-    public boolean first() throws Exception 
+    public boolean first() throws Exception
     {
         checkNotClosed( "first" );
+
         node = tree.getFirst();
-        isBeforeFirst = false;
-        isAfterLast = false;
-        return onNode = node != null;
+
+        if ( node == null )
+        {
+            position = Position.BEFORE_FIRST;
+            return false;
+        }
+        else
+        {
+            position = Position.ON_NODE;
+            return true;
+        }
     }
 
 
-    public K get() throws Exception 
+    public K get() throws Exception
     {
         checkNotClosed( "get" );
-        if ( onNode )
+
+        if ( position == Position.ON_NODE )
         {
             return node.getKey();
         }
-        
+
         throw new InvalidCursorPositionException();
     }
 
@@ -154,53 +160,58 @@ public class AvlTreeCursor<K> extends AbstractCursor<K>
     }
 
 
-    public boolean last() throws Exception 
+    public boolean last() throws Exception
     {
         checkNotClosed( "last" );
+
         node = tree.getLast();
-        isBeforeFirst = false;
-        isAfterLast = false;
-        return onNode = node != null;
+
+        if ( node == null )
+        {
+            position = Position.AFTER_LAST;
+            return false;
+        }
+        else
+        {
+            position = Position.ON_NODE;
+            return true;
+        }
     }
 
 
-    public boolean next() throws Exception 
+    public boolean next() throws Exception
     {
         checkNotClosed( "next" );
-        
-        if ( isBeforeFirst )
-        {
-            node = tree.getFirst();
-            isBeforeFirst = false;
-            isAfterLast = false;
-            return onNode = node != null;
-        }
 
-        if ( isAfterLast )
+        switch ( position )
         {
-            return false;
-        }
-        else if ( onNode )
-        {
-            if ( node == null )
-            {
-                node = tree.getFirst();
+            case BEFORE_FIRST:
+                return first();
+
+            case BEFORE_NODE:
+                position = Position.ON_NODE;
                 return true;
-            }
-            
-            if ( node.next == null )
-            {
-                onNode = false;
-                isAfterLast = true;
-                isBeforeFirst = false;
-                return false;
-            }
-            
-            node = node.next;
-            return true;
-        }
 
-        return node != null && ( onNode = true );
+            case ON_NODE:
+            case AFTER_NODE:
+                node = node.next;
+                if ( node == null )
+                {
+                    afterLast();
+                    return false;
+                }
+                else
+                {
+                    position = Position.ON_NODE;
+                    return true;
+                }
+
+            case AFTER_LAST:
+                return false;
+
+            default:
+                throw new IllegalStateException( "Unexpected position " + position );
+        }
     }
 
 
@@ -208,38 +219,34 @@ public class AvlTreeCursor<K> extends AbstractCursor<K>
     {
         checkNotClosed( "previous" );
 
-        if ( isBeforeFirst )
+        switch ( position )
         {
-            return false;
-        }
-
-        if ( isAfterLast )
-        {
-            node = tree.getLast();
-            isBeforeFirst = false;
-            isAfterLast = false;
-            return onNode = node != null;
-        }
-
-        if ( onNode )
-        {
-            if ( node == null )
-            {
-                node = tree.getLast();
-                return true;
-            }
-            if ( node.previous == null )
-            {
-                onNode = false;
-                isAfterLast = false;
-                isBeforeFirst = true;
+            case BEFORE_FIRST:
                 return false;
-            }
-            
-            node = node.previous;
-            return true;
+
+            case BEFORE_NODE:
+            case ON_NODE:
+                node = node.previous;
+                if ( node == null )
+                {
+                    beforeFirst();
+                    return false;
+                }
+                else
+                {
+                    position = Position.ON_NODE;
+                    return true;
+                }
+
+            case AFTER_NODE:
+                position = Position.ON_NODE;
+                return true;
+
+            case AFTER_LAST:
+                return last();
+
+            default:
+                throw new IllegalStateException( "Unexpected position " + position );
         }
-        
-        return false;
     }
 }

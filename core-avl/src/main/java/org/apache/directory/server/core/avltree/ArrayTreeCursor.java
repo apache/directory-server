@@ -19,10 +19,9 @@
  */
 package org.apache.directory.server.core.avltree;
 
+
 import org.apache.directory.shared.ldap.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
-
-
 
 
 /**
@@ -35,23 +34,14 @@ public class ArrayTreeCursor<K> extends AbstractCursor<K>
 {
     /** The underlying ArrayTree */
     private ArrayTree<K> array;
-    
-    /** The current node */
-    private K node;
-    
-    /** A flag set to true if we are pointing to a node */
-    private boolean onNode = false;
-    
-    /** A flag to tell if we are after the last node */
-    private boolean isAfterLast = false;
 
-    /** A flag to tell if we are before the first node */
-    private boolean isBeforeFirst = true;
-    
-    /** The current position in the array */
+    /** The current position/index in the array */
     private int current;
- 
-    
+
+    /** The current position of this cursor, relative to the node */
+    private Position position;
+
+
     /**
      * Create a cursor on an ArrayTree
      * @param array The array we want a cursor for
@@ -59,14 +49,14 @@ public class ArrayTreeCursor<K> extends AbstractCursor<K>
     public ArrayTreeCursor( ArrayTree<K> array )
     {
         this.array = array;
-        current = -1;
+        position = Position.BEFORE_FIRST;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
-    public void after( K element ) throws Exception 
+    public void after( K element ) throws Exception
     {
         checkNotClosed( "after" );
 
@@ -76,38 +66,32 @@ public class ArrayTreeCursor<K> extends AbstractCursor<K>
             return;
         }
 
-        int found = array.getAfterPosition( element );
-        
-        if ( found == -1 )
-        {
-            // As the element has not been found, we move after the last
-            // position
-            afterLast();
-            return;
-        }
+        current = array.getAfterPosition( element );
 
-        // The element has been found, we have to pick the node,
-        // set the current position, and update the flags.
-        current = found;
-        //node = array.get( current );
-        isAfterLast = false;
-        isBeforeFirst = false;
-        onNode = false;
+        if ( current == -1 )
+        {
+            // As the element has not been found, we move after the last position
+            position = Position.AFTER_LAST;
+        }
+        else
+        {
+            // the cursor should be positioned after the given element
+            // we just fetched the next greater element so the cursor
+            // is positioned before the fetched element
+            position = Position.BEFORE_NODE;
+        }
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws Exception 
+    public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast" );
-        
-        current = array.size() - 1;
-        node = array.getLast();
-        isBeforeFirst = false;
-        isAfterLast = true;
-        onNode = false;
+
+        current = -1;
+        position = Position.AFTER_LAST;
     }
 
 
@@ -116,14 +100,14 @@ public class ArrayTreeCursor<K> extends AbstractCursor<K>
      */
     public boolean available()
     {
-        return onNode;
+        return position == Position.ON_NODE;
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void before( K element ) throws Exception 
+    public void before( K element ) throws Exception
     {
         checkNotClosed( "before" );
 
@@ -133,66 +117,69 @@ public class ArrayTreeCursor<K> extends AbstractCursor<K>
             return;
         }
 
-        int found = array.getBeforePosition( element );
+        current = array.getBeforePosition( element );
 
-        // If the element has not been found, move to the
-        // first position
-        if ( found < 0 )
+        if ( current == -1 )
         {
-            beforeFirst();
-            return;
+            // If the element has not been found, move to thea first position
+            position = Position.BEFORE_FIRST;
         }
-        
-        current = found;
-        isAfterLast = false;
-        isBeforeFirst = false;
-        onNode = true;
-        node = array.get( current );
+        else
+        {
+            // the cursor should be positioned before the given element
+            // we just fetched the next less element so the cursor
+            // is positioned after the fetched element
+            position = Position.AFTER_NODE;
+        }
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void beforeFirst() throws Exception 
+    public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst" );
-        
-        current = 0;
-        node = array.getFirst();
-        isBeforeFirst = true;
-        isAfterLast = false;
-        onNode = false;
+
+        current = -1;
+        position = Position.BEFORE_FIRST;
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws Exception 
+    public boolean first() throws Exception
     {
         checkNotClosed( "first" );
-        
-        current = 0;
-        node = array.getFirst();
-        isBeforeFirst = false;
-        isAfterLast = false;
-        return onNode = node != null;
+
+        if ( array.isEmpty() )
+        {
+            current = -1;
+            position = Position.BEFORE_FIRST;
+            return false;
+        }
+        else
+        {
+            current = 0;
+            position = Position.ON_NODE;
+            return true;
+        }
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public K get() throws Exception 
+    public K get() throws Exception
     {
         checkNotClosed( "get" );
-        
-        if ( onNode )
+
+        if ( position == Position.ON_NODE )
         {
-            return node;
+            return array.get( current );
         }
-        
+
         throw new InvalidCursorPositionException();
     }
 
@@ -209,62 +196,67 @@ public class ArrayTreeCursor<K> extends AbstractCursor<K>
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws Exception 
+    public boolean last() throws Exception
     {
         checkNotClosed( "last" );
 
-        current = array.size() - 1;
-        node = array.getLast();
-        isBeforeFirst = false;
-        isAfterLast = false;
-        return onNode = node != null;
+        if ( array.isEmpty() )
+        {
+            current = -1;
+            position = Position.AFTER_LAST;
+            return false;
+        }
+        else
+        {
+            current = array.size() - 1;
+            position = Position.ON_NODE;
+            return true;
+        }
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws Exception 
+    public boolean next() throws Exception
     {
         checkNotClosed( "next" );
-        
+
         // If the array is empty, return false
         if ( array.size() == 0 )
         {
             return false;
         }
-        
-        // If we are at the beginning
-        if ( isBeforeFirst ) 
-        {
-            current = 0;
-            node = array.getFirst();
-            isBeforeFirst = false;
-            isAfterLast = false;
-            onNode = node != null;
-            return onNode;
-        }
-        
-        if ( isAfterLast )
-        {
-            return false;
-        }
 
-        if ( onNode )
+        switch ( position )
         {
-            current++;
-            
-            if ( current == array.size() )
-            {
-                afterLast();
+            case BEFORE_FIRST:
+                return first();
+
+            case BEFORE_NODE:
+                position = Position.ON_NODE;
+                return true;
+
+            case ON_NODE:
+            case AFTER_NODE:
+                current++;
+                if ( current > array.size() - 1 )
+                {
+                    afterLast();
+                    return false;
+                }
+                else
+                {
+                    position = Position.ON_NODE;
+                    return true;
+                }
+
+            case AFTER_LAST:
                 return false;
-            }
+
+            default:
+                throw new IllegalStateException( "Unexpected position " + position );
         }
-        
-        node = array.get( current );
-        onNode = node != null;
-        
-        return onNode;
     }
 
 
@@ -274,40 +266,40 @@ public class ArrayTreeCursor<K> extends AbstractCursor<K>
     public boolean previous() throws Exception
     {
         checkNotClosed( "previous" );
-        
+
         if ( array.size() == 0 )
         {
             return false;
         }
-        
-        if ( isBeforeFirst )
-        {
-            return false;
-        }
 
-        if ( isAfterLast )
+        switch ( position )
         {
-            current = array.size() - 1;
-            node = array.getLast();
-            isBeforeFirst = false;
-            isAfterLast = false;
-            return onNode = node != null;
-        }
-
-        if ( onNode )
-        {
-            current--;
-    
-            if ( current < 0 )
-            {
-                beforeFirst();
+            case BEFORE_FIRST:
                 return false;
-            }
+
+            case BEFORE_NODE:
+            case ON_NODE:
+                current--;
+                if ( current < 0 )
+                {
+                    beforeFirst();
+                    return false;
+                }
+                else
+                {
+                    position = Position.ON_NODE;
+                    return true;
+                }
+
+            case AFTER_NODE:
+                position = Position.ON_NODE;
+                return true;
+
+            case AFTER_LAST:
+                return last();
+
+            default:
+                throw new IllegalStateException( "Unexpected position " + position );
         }
-        
-        node = array.get( current );
-        onNode = node != null;
-        
-        return onNode;
     }
 }
