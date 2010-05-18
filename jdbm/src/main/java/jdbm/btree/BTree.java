@@ -89,7 +89,7 @@ import jdbm.helper.TupleBrowser;
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @version $Id: BTree.java,v 1.6 2005/06/25 23:12:31 doomdark Exp $
  */
-public class BTree implements Externalizable
+public class BTree<K, V> implements Externalizable
 {
     private static final boolean DEBUG = false;
 
@@ -130,7 +130,7 @@ public class BTree implements Externalizable
     protected int nbEntries;
 
     /** Serializer used for BPages of this tree */
-    private transient BPage<Object, Object> bpageSerializer;
+    private transient BPage<K, V> bpageSerializer;
 
 
     /**
@@ -258,7 +258,7 @@ public class BTree implements Externalizable
      * @param replace Set to true to replace an existing key-value pair.
      * @return Existing value, if any.
      */
-    public synchronized Object insert( Object key, Object value, boolean replace ) throws IOException
+    public synchronized Object insert( K key, V value, boolean replace ) throws IOException
     {
         if ( key == null )
         {
@@ -270,7 +270,7 @@ public class BTree implements Externalizable
             throw new IllegalArgumentException( I18n.err( I18n.ERR_524 ) );
         }
 
-        BPage<Object, Object> rootPage = getRoot();
+        BPage<K, V> rootPage = getRoot();
 
         if ( rootPage == null )
         {
@@ -280,7 +280,7 @@ public class BTree implements Externalizable
                 System.out.println( "BTree.insert() new root BPage" );
             }
             
-            rootPage = new BPage<Object, Object>( this, key, value );
+            rootPage = new BPage<K, V>( this, key, value );
             rootId = rootPage.recid;
             bTreeHeight = 1;
             nbEntries = 1;
@@ -290,7 +290,7 @@ public class BTree implements Externalizable
         }
         else
         {
-            BPage.InsertResult insert = rootPage.insert( bTreeHeight, key, value, replace );
+            BPage.InsertResult<K, V> insert = rootPage.insert( bTreeHeight, key, value, replace );
             boolean dirty = false;
             
             if ( insert.overflow != null )
@@ -301,7 +301,7 @@ public class BTree implements Externalizable
                     System.out.println( "BTree.insert() replace root BPage due to overflow" );
                 }
                 
-                rootPage = new BPage<Object, Object>( this, rootPage, insert.overflow );
+                rootPage = new BPage<K, V>( this, rootPage, insert.overflow );
                 rootId = rootPage.recid;
                 bTreeHeight += 1;
                 dirty = true;
@@ -331,14 +331,14 @@ public class BTree implements Externalizable
      * @return Value associated with the key, or null if no entry with given
      *         key existed in the BTree.
      */
-    public synchronized Object remove( Object key ) throws IOException
+    public synchronized V remove( K key ) throws IOException
     {
         if ( key == null )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_523 ) );
         }
 
-        BPage<Object, Object> rootPage = getRoot();
+        BPage<K, V> rootPage = getRoot();
         
         if ( rootPage == null )
         {
@@ -346,7 +346,7 @@ public class BTree implements Externalizable
         }
         
         boolean dirty = false;
-        BPage.RemoveResult remove = rootPage.remove( bTreeHeight, key );
+        BPage.RemoveResult<V> remove = rootPage.remove( bTreeHeight, key );
         
         if ( remove.underflow && rootPage.isEmpty() )
         {
@@ -386,22 +386,22 @@ public class BTree implements Externalizable
      * @param key Lookup key.
      * @return Value associated with the key, or null if not found.
      */
-    public synchronized Object find( Object key ) throws IOException
+    public synchronized V find( K key ) throws IOException
     {
         if ( key == null )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_523 ) );
         }
         
-        BPage<Object, Object> rootPage = getRoot();
+        BPage<K, V> rootPage = getRoot();
         
         if ( rootPage == null )
         {
             return null;
         }
 
-        Tuple<Object, Object> tuple = new Tuple<Object, Object>( null, null );
-        TupleBrowser<Object, Object> browser = rootPage.find( bTreeHeight, key );
+        Tuple<K, V> tuple = new Tuple<K, V>( null, null );
+        TupleBrowser<K, V> browser = rootPage.find( bTreeHeight, key );
 
         if ( browser.getNext( tuple ) )
         {
@@ -431,10 +431,10 @@ public class BTree implements Externalizable
      * @return Value associated with the key, or a greater entry, or null if no
      *         greater entry was found.
      */
-    public synchronized Tuple<Object, Object> findGreaterOrEqual( Object key ) throws IOException
+    public synchronized Tuple<K, V> findGreaterOrEqual( K key ) throws IOException
     {
-        Tuple<Object, Object> tuple;
-        TupleBrowser<Object, Object> browser;
+        Tuple<K, V> tuple;
+        TupleBrowser<K, V> browser;
 
         if ( key == null )
         {
@@ -443,7 +443,7 @@ public class BTree implements Externalizable
             return null;
         }
 
-        tuple = new Tuple<Object, Object>( null, null );
+        tuple = new Tuple<K, V>( null, null );
         browser = browse( key );
         
         if ( browser.getNext( tuple ) )
@@ -466,16 +466,16 @@ public class BTree implements Externalizable
      *
      * @return Browser positionned at the beginning of the BTree.
      */
-    public synchronized TupleBrowser<Object, Object> browse() throws IOException
+    public synchronized TupleBrowser<K, V> browse() throws IOException
     {
-        BPage<Object, Object> rootPage = getRoot();
+        BPage<K, V> rootPage = getRoot();
         
         if ( rootPage == null )
         {
-            return EmptyBrowser.INSTANCE;
+            return new EmptyBrowser(){};
         }
         
-        TupleBrowser<Object, Object> browser = rootPage.findFirst();
+        TupleBrowser<K, V> browser = rootPage.findFirst();
         
         return browser;
     }
@@ -493,16 +493,16 @@ public class BTree implements Externalizable
      *            (Null is considered to be an "infinite" key)
      * @return Browser positioned just before the given key.
      */
-    public synchronized TupleBrowser<Object, Object> browse( Object key ) throws IOException
+    public synchronized TupleBrowser<K, V> browse( K key ) throws IOException
     {
-        BPage<Object, Object> rootPage = getRoot();
+        BPage<K, V> rootPage = getRoot();
         
         if ( rootPage == null )
         {
-            return EmptyBrowser.INSTANCE;
+            return new EmptyBrowser(){};
         }
         
-        TupleBrowser<Object, Object> browser = rootPage.find( bTreeHeight, key );
+        TupleBrowser<K, V> browser = rootPage.find( bTreeHeight, key );
         
         return browser;
     }
@@ -529,14 +529,14 @@ public class BTree implements Externalizable
     /**
      * Return the root BPage<Object, Object>, or null if it doesn't exist.
      */
-    private BPage<Object, Object> getRoot() throws IOException
+    private BPage<K, V> getRoot() throws IOException
     {
         if ( rootId == 0 )
         {
             return null;
         }
         
-        BPage<Object, Object> root = ( BPage<Object, Object> ) recordManager.fetch( rootId, bpageSerializer );
+        BPage<K, V> root = ( BPage<K, V> ) recordManager.fetch( rootId, bpageSerializer );
         root.recid = rootId;
         root.btree = this;
         
@@ -583,16 +583,14 @@ public class BTree implements Externalizable
     /** PRIVATE INNER CLASS
      *  Browser returning no element.
      */
-    static class EmptyBrowser extends TupleBrowser<Object, Object>
+    class EmptyBrowser extends TupleBrowser<K, V>
     {
-        static EmptyBrowser INSTANCE = new EmptyBrowser();
-        
-        public boolean getNext( Tuple<Object, Object> tuple )
+        public boolean getNext( Tuple<K, V> tuple )
         {
             return false;
         }
 
-        public boolean getPrevious( Tuple<Object, Object> tuple )
+        public boolean getPrevious( Tuple<K, V> tuple )
         {
             return false;
         }
