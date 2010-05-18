@@ -17,7 +17,7 @@
  *   under the License.
  *
  */
-package org.apache.directory.server.core.partition.avl;
+package org.apache.directory.server.xdbm.impl.avl;
 
 
 import java.io.File;
@@ -96,7 +96,7 @@ public class AvlStore<E> extends AbstractStore<E, Long>
         }
         else if ( index instanceof AvlIndex<?, ?> )
         {
-            avlIndex = ( AvlIndex<?, E> ) index;
+            avlIndex = (org.apache.directory.server.xdbm.impl.avl.AvlIndex<?, E> ) index;
         }
         else
         {

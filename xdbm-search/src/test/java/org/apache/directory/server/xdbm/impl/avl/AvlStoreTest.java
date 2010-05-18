@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.partition.avl;
+package org.apache.directory.server.xdbm.impl.avl;
 
 
 import static org.junit.Assert.assertEquals;
@@ -41,6 +41,9 @@ import org.apache.directory.server.xdbm.GenericIndex;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
+import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
+import org.apache.directory.server.xdbm.impl.avl.AvlRdnIndex;
+import org.apache.directory.server.xdbm.impl.avl.AvlStore;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;

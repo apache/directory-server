@@ -17,11 +17,11 @@
  *   under the License.
  *
  */
-package org.apache.directory.server.core.partition.avl;
+package org.apache.directory.server.xdbm.impl.avl;
 
 
-import static org.apache.directory.server.core.partition.avl.TableData.injectDupsData;
-import static org.apache.directory.server.core.partition.avl.TableData.injectNoDupsData;
+import static org.apache.directory.server.xdbm.impl.avl.TableData.injectDupsData;
+import static org.apache.directory.server.xdbm.impl.avl.TableData.injectNoDupsData;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -29,6 +29,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Comparator;
 
+import org.apache.directory.server.xdbm.impl.avl.AvlTable;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.Tuple;
 import org.junit.Before;

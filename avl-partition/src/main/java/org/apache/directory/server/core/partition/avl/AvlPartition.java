@@ -26,6 +26,8 @@ import java.util.Set;
 
 import org.apache.directory.server.xdbm.AbstractXdbmPartition;
 import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
+import org.apache.directory.server.xdbm.impl.avl.AvlStore;
 import org.apache.directory.server.xdbm.search.impl.CursorBuilder;
 import org.apache.directory.server.xdbm.search.impl.DefaultOptimizer;
 import org.apache.directory.server.xdbm.search.impl.DefaultSearchEngine;
@@ -121,7 +123,7 @@ public class AvlPartition extends AbstractXdbmPartition<Long>
      */
     public AvlStore<Entry> getStore()
     {
-        return ( AvlStore<Entry> ) store;
+        return (org.apache.directory.server.xdbm.impl.avl.AvlStore<Entry> ) store;
     }
 
 }

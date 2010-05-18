@@ -17,7 +17,7 @@
  *   under the License.
  *
  */
-package org.apache.directory.server.core.partition.avl;
+package org.apache.directory.server.xdbm.impl.avl;
 
 
 import org.apache.directory.server.xdbm.Table;
