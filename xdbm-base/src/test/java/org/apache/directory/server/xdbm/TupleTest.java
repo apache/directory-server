@@ -29,6 +29,7 @@ import static org.junit.Assert.assertNull;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.directory.shared.ldap.cursor.Tuple;
 import org.junit.Test;
 
 

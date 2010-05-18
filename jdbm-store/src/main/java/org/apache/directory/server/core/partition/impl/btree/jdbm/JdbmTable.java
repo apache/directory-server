@@ -881,7 +881,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     }
 
 
-    public Cursor<org.apache.directory.server.xdbm.Tuple<K,V>> cursor() throws Exception
+    public Cursor<org.apache.directory.shared.ldap.cursor.Tuple<K,V>> cursor() throws Exception
     {
         if ( allowsDuplicates )
         {
@@ -893,23 +893,23 @@ public class JdbmTable<K,V> implements Table<K,V>
 
 
     @SuppressWarnings("unchecked")
-    public Cursor<org.apache.directory.server.xdbm.Tuple<K,V>> cursor( K key ) throws Exception
+    public Cursor<org.apache.directory.shared.ldap.cursor.Tuple<K,V>> cursor( K key ) throws Exception
     {
         if ( key == null )
         {
-            return new EmptyCursor<org.apache.directory.server.xdbm.Tuple<K,V>>();
+            return new EmptyCursor<org.apache.directory.shared.ldap.cursor.Tuple<K,V>>();
         }
 
         Object raw = bt.find( key );
 
         if ( null == raw )
         {
-            return new EmptyCursor<org.apache.directory.server.xdbm.Tuple<K,V>>();
+            return new EmptyCursor<org.apache.directory.shared.ldap.cursor.Tuple<K,V>>();
         }
 
         if ( ! allowsDuplicates )
         {
-            return new SingletonCursor<org.apache.directory.server.xdbm.Tuple<K,V>>( new org.apache.directory.server.xdbm.Tuple<K,V>( key, ( V ) raw ) );
+            return new SingletonCursor<org.apache.directory.shared.ldap.cursor.Tuple<K,V>>( new org.apache.directory.shared.ldap.cursor.Tuple<K,V>( key, ( V ) raw ) );
         }
 
         byte[] serialized = ( byte[] ) raw;

@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.xdbm;
 
+import org.apache.directory.shared.ldap.cursor.Tuple;
+
 
 /**
  * Interface for index entries.

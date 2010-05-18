@@ -29,8 +29,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Comparator;
 
-import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.cursor.Tuple;
 import org.junit.Before;
 import org.junit.Test;
 

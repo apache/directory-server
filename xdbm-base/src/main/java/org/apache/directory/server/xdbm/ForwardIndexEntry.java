@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.xdbm;
 
+import org.apache.directory.shared.ldap.cursor.Tuple;
+
 
 /**
  * An index id value pair based on a Tuple which can optionally reference the

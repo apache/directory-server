@@ -23,6 +23,7 @@ package org.apache.directory.server.xdbm;
 import java.util.Comparator;
 
 import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.cursor.Tuple;
 
 
 /**

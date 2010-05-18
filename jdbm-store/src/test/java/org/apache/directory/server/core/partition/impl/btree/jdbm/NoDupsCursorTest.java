@@ -31,10 +31,10 @@ import jdbm.RecordManager;
 import jdbm.recman.BaseRecordManager;
 
 import org.apache.directory.server.xdbm.Table;
-import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.cursor.Tuple;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;

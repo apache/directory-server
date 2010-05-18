@@ -61,6 +61,12 @@
     </dependency>
 
     <dependency>
+      <artifactId>apacheds-xdbm-base</artifactId>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
       <artifactId>apacheds-xdbm-tools</artifactId>
       <groupId>${project.groupId}</groupId>
       <version>${project.version}</version>

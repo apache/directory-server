@@ -26,12 +26,12 @@ import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ReverseIndexEntry;
-import org.apache.directory.server.xdbm.Tuple;
-import org.apache.directory.server.xdbm.TupleCursor;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.CursorIterator;
+import org.apache.directory.shared.ldap.cursor.Tuple;
+import org.apache.directory.shared.ldap.cursor.TupleCursor;
 
 
 /**

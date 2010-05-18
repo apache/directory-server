@@ -19,12 +19,12 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import org.apache.directory.server.xdbm.Tuple;
-import org.apache.directory.server.xdbm.AbstractTupleCursor;
 import org.apache.directory.server.core.avltree.ArrayTree;
 import org.apache.directory.server.core.avltree.ArrayTreeCursor;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.cursor.AbstractTupleCursor;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.cursor.Tuple;
 
 
 /**

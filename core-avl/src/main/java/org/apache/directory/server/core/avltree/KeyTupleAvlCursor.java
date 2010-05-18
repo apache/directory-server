@@ -20,8 +20,8 @@ package org.apache.directory.server.core.avltree;
 
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.xdbm.AbstractTupleCursor;
-import org.apache.directory.server.xdbm.Tuple;
+import org.apache.directory.shared.ldap.cursor.AbstractTupleCursor;
+import org.apache.directory.shared.ldap.cursor.Tuple;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 
 
