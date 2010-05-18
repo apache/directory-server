@@ -43,7 +43,7 @@
     </dependency>
 
     <dependency>
-      <artifactId>apacheds-xdbm-base</artifactId>
+      <artifactId>apacheds-xdbm-search</artifactId>
       <groupId>${project.groupId}</groupId>
       <version>${project.version}</version>
     </dependency>
