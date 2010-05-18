@@ -243,7 +243,7 @@ public final class BPage<K, V> implements Serializer
      * @return TupleBrowser positionned just before the given key, or before
      *                      next greater key if key isn't found.
      */
-    TupleBrowser<K, V> find( int height, Object key ) throws IOException
+    TupleBrowser<K, V> find( int height, K key ) throws IOException
     {
         int index = this.findChildren( key );
         BPage<K, V> child = this;
@@ -745,7 +745,7 @@ public final class BPage<K, V> implements Serializer
      *
      * @return index of first children with equal or greater key.
      */
-    private int findChildren( Object key )
+    private int findChildren( K key )
     {
         int left = first;
         int right = btree.pageSize - 1;
@@ -772,10 +772,10 @@ public final class BPage<K, V> implements Serializer
     /**
      * Insert entry at given position.
      */
-    private static void insertEntry( BPage page, int index, Object key, Object value )
+    private void insertEntry( BPage<K, V> page, int index, K key, V value )
     {
-        Object[] keys = page.keys;
-        Object[] values = page.values;
+        K[] keys = page.keys;
+        V[] values = page.values;
         int start = page.first;
         int count = index - page.first + 1;
 
@@ -791,9 +791,9 @@ public final class BPage<K, V> implements Serializer
     /**
      * Insert child at given position.
      */
-    private static void insertChild( BPage page, int index, Object key, long child )
+    private void insertChild( BPage<K, V> page, int index, K key, long child )
     {
-        Object[] keys = page.keys;
+        K[] keys = page.keys;
         long[] children = page.children;
         int start = page.first;
         int count = index - page.first + 1;
@@ -810,10 +810,10 @@ public final class BPage<K, V> implements Serializer
     /**
      * Remove entry at given position.
      */
-    private static void removeEntry( BPage page, int index )
+    private void removeEntry( BPage<K, V> page, int index )
     {
-        Object[] keys = page.keys;
-        Object[] values = page.values;
+        K[] keys = page.keys;
+        V[] values = page.values;
         int start = page.first;
         int count = index - page.first;
 
@@ -828,7 +828,7 @@ public final class BPage<K, V> implements Serializer
     /**
      * Set the entry at the given index.
      */
-    private static void setEntry( BPage page, int index, Object key, Object value )
+    private void setEntry( BPage<K, V> page, int index, K key, V value )
     {
         page.keys[index] = key;
         page.values[index] = value;
@@ -838,7 +838,7 @@ public final class BPage<K, V> implements Serializer
     /**
      * Set the child BPage recid at the given index.
      */
-    private static void setChild( BPage page, int index, Object key, long recid )
+    private void setChild( BPage<K, V> page, int index, K key, long recid )
     {
         page.keys[index] = key;
         page.children[index] = recid;
@@ -848,7 +848,7 @@ public final class BPage<K, V> implements Serializer
     /**
      * Copy entries between two BPages
      */
-    private static void copyEntries( BPage source, int indexSource, BPage dest, int indexDest, int count )
+    private void copyEntries( BPage<K, V> source, int indexSource, BPage<K, V> dest, int indexDest, int count )
     {
         System.arraycopy( source.keys, indexSource, dest.keys, indexDest, count );
         System.arraycopy( source.values, indexSource, dest.values, indexDest, count );
@@ -858,7 +858,7 @@ public final class BPage<K, V> implements Serializer
     /**
      * Copy child BPage recids between two BPages
      */
-    private static void copyChildren( BPage source, int indexSource, BPage dest, int indexDest, int count )
+    private void copyChildren( BPage<K, V> source, int indexSource, BPage<K, V> dest, int indexDest, int count )
     {
         System.arraycopy( source.keys, indexSource, dest.keys, indexDest, count );
         System.arraycopy( source.children, indexSource, dest.children, indexDest, count );
@@ -877,6 +877,7 @@ public final class BPage<K, V> implements Serializer
     /**
      * Load the BPage at the given recid.
      */
+    @SuppressWarnings("unchecked") // The fetch method returns an Object
     private BPage<K, V> loadBPage( long recid ) throws IOException
     {
         BPage<K, V> child = ( BPage<K, V> ) btree.recordManager.fetch( recid, this );
@@ -1052,7 +1053,8 @@ public final class BPage<K, V> implements Serializer
      * @return deserialized object
      *
      */
-    public Object deserialize( byte[] serialized ) throws IOException
+    @SuppressWarnings("unchecked") // Cannot create an array of generic objects
+    public BPage<K, V> deserialize( byte[] serialized ) throws IOException
     {
         ByteArrayInputStream bais;
         ObjectInputStream ois;
@@ -1150,6 +1152,7 @@ public final class BPage<K, V> implements Serializer
      * @return a byte array representing the object's state
      *
      */
+    @SuppressWarnings("unchecked") // The serialize signature requires an Object, so we have to cast
     public byte[] serialize( Object obj ) throws IOException
     {
         byte[] serialized;
