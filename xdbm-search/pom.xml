@@ -33,23 +33,15 @@
   
   <dependencies>
     <dependency>
-      <artifactId>apacheds-xdbm-base</artifactId>
+      <artifactId>apacheds-core-avl</artifactId>
       <groupId>${project.groupId}</groupId>
       <version>${project.version}</version>
     </dependency>
-    
+
     <dependency>
-      <artifactId>apacheds-jdbm-store</artifactId>
+      <artifactId>apacheds-core-api</artifactId>
       <groupId>${project.groupId}</groupId>
       <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    
-    <dependency>
-      <artifactId>apacheds-xdbm-tools</artifactId>
-      <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>

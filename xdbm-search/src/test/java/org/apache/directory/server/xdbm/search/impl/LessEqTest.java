@@ -34,15 +34,15 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmStore;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.Tuple;
-import org.apache.directory.server.xdbm.tools.StoreUtils;
+import org.apache.directory.server.xdbm.StoreUtils;
+import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
+import org.apache.directory.server.xdbm.impl.avl.AvlStore;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.cursor.Tuple;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.StringValue;
@@ -129,15 +129,15 @@ public class LessEqTest
         wkdir.mkdirs();
 
         // initialize the store
-        store = new JdbmStore<Entry>();
+        store = new AvlStore<Entry>();
         store.setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionDir( wkdir );
         store.setSyncOnWrite( false );
 
-        store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
-        store.addIndex( new JdbmIndex( SchemaConstants.CN_AT_OID ) );
-        store.addIndex( new JdbmIndex( SchemaConstants.POSTALCODE_AT_OID ) );
+        store.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
+        store.addIndex( new AvlIndex( SchemaConstants.CN_AT_OID ) );
+        store.addIndex( new AvlIndex( SchemaConstants.POSTALCODE_AT_OID ) );
 
         StoreUtils.loadExampleData( store, schemaManager );
         LOG.debug( "Created new store" );

@@ -23,9 +23,9 @@ import java.io.File;
 import java.util.Set;
 
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.avl.AvlIndex;
 import org.apache.directory.server.core.partition.avl.AvlPartition;
 import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.shared.ldap.entry.Entry;
 
 
