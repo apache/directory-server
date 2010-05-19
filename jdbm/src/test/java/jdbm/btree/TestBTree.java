@@ -312,7 +312,7 @@ public class TestBTree
         tree.insert( "test2", "value2", false );
         tree.insert( "one", Integer.valueOf( 1 ), false );
         tree.insert( "two", Long.valueOf( 2 ), false );
-        tree.insert( "myownobject", new TestObject( Integer.valueOf( 234 ) ), false );
+        tree.insert( "myownobject", new ObjectStore( Integer.valueOf( 234 ) ), false );
         
         assertEquals( "value2", tree.find( "test2" ) );
         assertEquals( "value1", tree.find( "test1" ) );
@@ -326,8 +326,8 @@ public class TestBTree
         assertEquals( "value1", tree.insert( "test1", "value11", true ) );
         assertEquals( "value11", tree.find( "test1" ) ); // now the new value!
         
-        TestObject expectedObj = new TestObject( Integer.valueOf( 234 ) );
-        TestObject btreeObj = ( TestObject ) tree.find( "myownobject" );
+        ObjectStore expectedObj = new ObjectStore( Integer.valueOf( 234 ) );
+        ObjectStore btreeObj = ( ObjectStore ) tree.find( "myownobject" );
         
         assertEquals( expectedObj, btreeObj );
         
@@ -655,17 +655,18 @@ public class TestBTree
  * implemented as inner class, as this prevents Serialization if
  * outer class is not Serializable.
  */
-class TestObject implements Serializable
+class ObjectStore implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
+    
     /**
      * 
      */
     Object content;
 
 
-    public TestObject( Object content )
+    public ObjectStore( Object content )
     {
         this.content = content;
     }
@@ -679,12 +680,12 @@ class TestObject implements Serializable
 
     public boolean equals( Object obj )
     {
-        if ( !( obj instanceof TestObject ) )
+        if ( !( obj instanceof ObjectStore ) )
         {
             return false;
         }
 
-        return content.equals( ( ( TestObject ) obj ).getContent() );
+        return content.equals( ( ( ObjectStore ) obj ).getContent() );
     }
 
 
