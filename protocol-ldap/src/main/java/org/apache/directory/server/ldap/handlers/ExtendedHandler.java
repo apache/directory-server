@@ -20,13 +20,13 @@
 package org.apache.directory.server.ldap.handlers;
 
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.internal.InternalExtendedRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalExtendedResponse;
 import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
-import org.apache.directory.shared.ldap.util.ExceptionUtils;
 
 
 /**

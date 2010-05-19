@@ -20,6 +20,7 @@
 package org.apache.directory.server.ldap.handlers.bind;
 
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.ldap.LdapProtocolUtils;
@@ -32,7 +33,6 @@ import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalBindResponse;
 import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

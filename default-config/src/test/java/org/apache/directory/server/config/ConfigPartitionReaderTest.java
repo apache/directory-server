@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchema
 import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
-import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -93,7 +93,7 @@ public class ConfigPartitionReaderTest
 
         if ( errors.size() != 0 )
         {
-            throw new Exception( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+            throw new Exception( "Schema load failed : " + LdapExceptionUtils.printErrors( errors ) );
         }
 
         LdifConfigExtractor.extract( workDir, true );

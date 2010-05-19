@@ -26,6 +26,7 @@ import static org.apache.directory.server.ldap.LdapServer.NO_TIME_LIMIT;
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.ReferralManager;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
@@ -69,7 +70,6 @@ import org.apache.directory.shared.ldap.message.internal.InternalSearchResponseE
 import org.apache.directory.shared.ldap.message.internal.InternalSearchResponseReference;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.util.LdapURL;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;

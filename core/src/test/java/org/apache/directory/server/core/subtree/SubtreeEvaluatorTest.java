@@ -42,7 +42,7 @@ import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationModifier;
-import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -86,7 +86,7 @@ public class SubtreeEvaluatorTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
+            fail( "Schema load failed : " + LdapExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
 
         ncn = new ConcreteNameComponentNormalizer( schemaManager );

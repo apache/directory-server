@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.loader.ldif.JarLdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
-import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -66,7 +66,7 @@ public class NormalizationVisitorTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
+            fail( "Schema load failed : " + LdapExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
 
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
