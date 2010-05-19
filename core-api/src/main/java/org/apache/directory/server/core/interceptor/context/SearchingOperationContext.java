@@ -29,6 +29,7 @@ import java.util.Set;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
@@ -38,7 +39,6 @@ import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
-import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

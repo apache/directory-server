@@ -20,9 +20,9 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
+import org.apache.commons.lang.ArrayUtils;
 import org.junit.Test;
 import org.junit.Before;
-import org.apache.directory.shared.ldap.util.ArrayUtils;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

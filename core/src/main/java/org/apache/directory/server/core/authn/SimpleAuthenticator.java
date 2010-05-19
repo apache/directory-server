@@ -33,6 +33,7 @@ import java.util.Set;
 import javax.naming.Context;
 
 import org.apache.commons.collections.map.LRUMap;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
@@ -55,7 +56,6 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.ldap.util.UnixCrypt;

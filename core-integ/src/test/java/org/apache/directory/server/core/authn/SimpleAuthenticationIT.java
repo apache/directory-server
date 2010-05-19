@@ -27,6 +27,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.message.ModifyRequest;
 import org.apache.directory.ldap.client.api.message.SearchResultEntry;
@@ -37,7 +38,6 @@ import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.After;
 import org.junit.Test;
