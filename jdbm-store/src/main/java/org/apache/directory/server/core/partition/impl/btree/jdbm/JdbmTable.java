@@ -86,7 +86,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     private int numDupLimit = JdbmIndex.DEFAULT_DUPLICATE_LIMIT;
 
     /** a cache of duplicate BTrees */
-    private final Map<Long, BTree> duplicateBtrees;
+    private final Map<Long, BTree<K, V>> duplicateBtrees;
 
     private final Serializer keySerializer;
 
@@ -446,7 +446,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
 
         // last option is to try a btree with BTreeRedirects
-        BTree tree = getBTree( values.getBTreeRedirect() );
+        BTree<K, V> tree = getBTree( values.getBTreeRedirect() );
         
         return tree.size() != 0 && btreeHas( tree, val, true );
     }
@@ -477,7 +477,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
 
         // last option is to try a btree with BTreeRedirects
-        BTree tree = getBTree( values.getBTreeRedirect() );
+        BTree<K, V> tree = getBTree( values.getBTreeRedirect() );
         
         return tree.size() != 0 && btreeHas( tree, val, false );
     }
@@ -902,7 +902,7 @@ public class JdbmTable<K,V> implements Table<K,V>
             return new EmptyCursor<org.apache.directory.server.xdbm.Tuple<K,V>>();
         }
 
-        Object raw = bt.find( key );
+        V raw = bt.find( key );
 
         if ( null == raw )
         {
@@ -935,7 +935,7 @@ public class JdbmTable<K,V> implements Table<K,V>
             return new EmptyCursor<V>();
         }
 
-        Object raw = bt.find( key );
+        V raw = bt.find( key );
 
         if ( null == raw )
         {
