@@ -37,9 +37,9 @@
   </issueManagement>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/clients/ldap/trunk/ldap-client-test</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/clients/ldap/trunk/ldap-client-test</developerConnection>
-    <url>http://svn.apache.org/viewvc/directory/clients/ldap/trunk/ldap-client-test</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/trunk/ldap-client-test</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/trunk/ldap-client-test</developerConnection>
+    <url>http://svn.apache.org/viewvc/directory/apacheds/trunk/ldap-client-test</url>
   </scm>
 
   <description>
