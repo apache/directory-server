@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.HashSet;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.message.DeleteResponse;
 import org.apache.directory.ldap.client.api.message.ModifyDnResponse;
@@ -43,7 +44,6 @@ import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
-import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.After;
 import org.junit.Before;

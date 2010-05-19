@@ -148,9 +148,9 @@ public class BTree<K, V> implements Externalizable
      * @param recman Record manager used for persistence.
      * @param comparator Comparator used to order index entries
      */
-    public static BTree createInstance( RecordManager recman, Comparator<?> comparator ) throws IOException
+    public BTree( RecordManager recman, Comparator<?> comparator ) throws IOException
     {
-        return createInstance( recman, comparator, null, null, DEFAULT_SIZE );
+        createInstance( recman, comparator, null, null, DEFAULT_SIZE );
     }
 
 
@@ -162,10 +162,10 @@ public class BTree<K, V> implements Externalizable
      * @param valueSerializer Serializer used to serialize index values (optional)
      * @param comparator Comparator used to order index entries
      */
-    public static BTree createInstance( RecordManager recman, Comparator<?> comparator, Serializer keySerializer,
+    public BTree( RecordManager recman, Comparator<?> comparator, Serializer keySerializer,
         Serializer valueSerializer ) throws IOException
     {
-        return createInstance( recman, comparator, keySerializer, valueSerializer, DEFAULT_SIZE );
+        createInstance( recman, comparator, keySerializer, valueSerializer, DEFAULT_SIZE );
     }
 
 
@@ -178,11 +178,16 @@ public class BTree<K, V> implements Externalizable
      * @param valueSerializer Serializer used to serialize index values (optional)
      * @param pageSize Number of entries per page (must be even).
      */
-    public static BTree createInstance( RecordManager recman, Comparator<?> comparator, Serializer keySerializer,
+    public BTree( RecordManager recman, Comparator<?> comparator, Serializer keySerializer,
         Serializer valueSerializer, int pageSize ) throws IOException
     {
-        BTree btree;
-
+        createInstance( recman, comparator, keySerializer, valueSerializer, pageSize );
+    }
+    
+    
+    private void createInstance(RecordManager recman, Comparator<?> comparator, Serializer keySerializer,
+        Serializer valueSerializer, int pageSize) throws IOException
+    {
         if ( recman == null )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_517 ) );
@@ -214,17 +219,14 @@ public class BTree<K, V> implements Externalizable
             throw new IllegalArgumentException( I18n.err( I18n.ERR_522 ) );
         }
 
-        btree = new BTree();
-        btree.recordManager = recman;
-        btree.comparator = comparator;
-        btree.keySerializer = keySerializer;
-        btree.valueSerializer = valueSerializer;
-        btree.pageSize = pageSize;
-        btree.bpageSerializer = new BPage<Object, Object>();
-        btree.bpageSerializer.btree = btree;
-        btree.recordId = recman.insert( btree );
-        
-        return btree;
+        this.recordManager = recman;
+        this.comparator = comparator;
+        this.keySerializer = keySerializer;
+        this.valueSerializer = valueSerializer;
+        this.pageSize = pageSize;
+        this.bpageSerializer = new BPage<K, V>();
+        this.bpageSerializer.btree = this;
+        this.recordId = recman.insert( this );
     }
 
 
@@ -234,12 +236,12 @@ public class BTree<K, V> implements Externalizable
      * @param recman RecordManager used to store the persistent btree
      * @param recid Record id of the BTree
      */
-    public static BTree load( RecordManager recman, long recid ) throws IOException
+    public BTree<K, V> load( RecordManager recman, long recid ) throws IOException
     {
-        BTree btree = ( BTree ) recman.fetch( recid );
+        BTree<K, V> btree = (BTree<K, V>) recman.fetch( recid );
         btree.recordId = recid;
         btree.recordManager = recman;
-        btree.bpageSerializer = new BPage<Object, Object>();
+        btree.bpageSerializer = new BPage<K, V>();
         btree.bpageSerializer.btree = btree;
         
         return btree;

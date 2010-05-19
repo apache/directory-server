@@ -78,7 +78,7 @@ public class KeyCursorTest
         dbFile = File.createTempFile( KeyCursorTest.class.getName(), "db", tmpDir );
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
         comparator = new StringComparator();
-        bt = BTree.createInstance( recman, comparator );
+        bt = new BTree<String, byte[]>( recman, comparator );
 
         // add some data to it
         bt.insert( "0", EMPTY_BYTES, true );

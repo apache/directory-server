@@ -27,6 +27,7 @@ import java.util.Map;
 import jdbm.RecordManager;
 import jdbm.btree.BTree;
 import jdbm.helper.Serializer;
+import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
 
 import org.apache.directory.server.core.avltree.ArrayMarshaller;
@@ -79,13 +80,13 @@ public class JdbmTable<K,V> implements Table<K,V>
     private int count;
     
     /** the wrappedCursor JDBM btree used in this Table */
-    private BTree bt;
+    private BTree<K, V> bt;
 
     /** the limit at which we start using btree redirection for duplicates */
     private int numDupLimit = JdbmIndex.DEFAULT_DUPLICATE_LIMIT;
 
     /** a cache of duplicate BTrees */
-    private final Map<Long, BTree> duplicateBtrees;
+    private final Map<Long, BTree<K, V>> duplicateBtrees;
 
     private final Serializer keySerializer;
 
@@ -174,7 +175,7 @@ public class JdbmTable<K,V> implements Table<K,V>
             // explicitly managed by this code.  Value serialization is delegated to these
             // marshallers.
 
-            bt = BTree.createInstance( recMan, keyComparator, keySerializer, null );
+            bt = new BTree<K, V>( recMan, keyComparator, keySerializer, null );
             recId = bt.getRecid();
             recMan.setNamedObject( name, recId );
             recId = recMan.insert( 0 );
@@ -182,7 +183,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
         else // Load existing BTree
         {
-            bt = BTree.load( recMan, recId );
+            bt= new BTree<K, V>().load( recMan, recId );
             ((SerializableComparator<K>)bt.getComparator()).setSchemaManager( schemaManager );
             recId = recMan.getNamedObject( name + SZSUFFIX );
             count = ( Integer ) recMan.fetch( recId );
@@ -234,7 +235,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         if ( recId != 0 )
         {
-            bt = BTree.load( recMan, recId );
+            bt = new BTree<K, V>().load( recMan, recId );
             ((SerializableComparator<K>)bt.getComparator()).setSchemaManager( schemaManager );
             bt.setValueSerializer( valueSerializer );
             recId = recMan.getNamedObject( name + SZSUFFIX );
@@ -242,7 +243,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
         else
         {
-            bt = BTree.createInstance( recMan, keyComparator, keySerializer, valueSerializer );
+            bt = new BTree<K, V>( recMan, keyComparator, keySerializer, valueSerializer );
             recId = bt.getRecid();
             recMan.setNamedObject( name, recId );
             recId = recMan.insert( 0 );
@@ -445,7 +446,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
 
         // last option is to try a btree with BTreeRedirects
-        BTree tree = getBTree( values.getBTreeRedirect() );
+        BTree<K, V> tree = getBTree( values.getBTreeRedirect() );
         
         return tree.size() != 0 && btreeHas( tree, val, true );
     }
@@ -476,7 +477,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
 
         // last option is to try a btree with BTreeRedirects
-        BTree tree = getBTree( values.getBTreeRedirect() );
+        BTree<K, V> tree = getBTree( values.getBTreeRedirect() );
         
         return tree.size() != 0 && btreeHas( tree, val, false );
     }
@@ -518,7 +519,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     {
         // Can only find greater than or equal to with JDBM so we find that
         // and work backwards to see if we can find one less than the key
-        jdbm.helper.Tuple tuple = bt.findGreaterOrEqual( key );
+        Tuple<K, V> tuple = bt.findGreaterOrEqual( key );
 
         // Test for equality first since it satisfies equal to condition
         if ( null != tuple && keyComparator.compare( ( K ) tuple.getKey(), key ) == 0 )
@@ -546,6 +547,7 @@ public class JdbmTable<K,V> implements Table<K,V>
              * be the previous tuple if it exists.
              */
             TupleBrowser browser = bt.browse( tuple.getKey() );
+            
             if ( browser.getPrevious( tuple ) )
             {
                 return true;
@@ -647,7 +649,7 @@ public class JdbmTable<K,V> implements Table<K,V>
                 {
                     BTree tree = convertToBTree( set );
                     BTreeRedirect redirect = new BTreeRedirect( tree.getRecid() );
-                    bt.insert( key, BTreeRedirectMarshaller.INSTANCE.serialize( redirect ), true );
+                    bt.insert( key, (V)BTreeRedirectMarshaller.INSTANCE.serialize( redirect ), true );
                     
                     if ( LOG.isDebugEnabled() )
                     {
@@ -656,7 +658,7 @@ public class JdbmTable<K,V> implements Table<K,V>
                 }
                 else
                 {
-                    bt.insert( key, marshaller.serialize( set ), true );
+                    bt.insert( key, (V)marshaller.serialize( set ), true );
                     
                     if ( LOG.isDebugEnabled() )
                     {
@@ -748,7 +750,7 @@ public class JdbmTable<K,V> implements Table<K,V>
                     }
                     else
                     {
-                        bt.insert( key, marshaller.serialize( set ), true );
+                        bt.insert( key, (V)marshaller.serialize( set ), true );
                     }
                     count--;
 
@@ -777,7 +779,7 @@ public class JdbmTable<K,V> implements Table<K,V>
                     if ( tree.size() <= numDupLimit )
                     {
                         ArrayTree<V> avlTree = convertToArrayTree( tree );
-                        bt.insert( key, marshaller.serialize( avlTree ), true );
+                        bt.insert( key, (V)marshaller.serialize( avlTree ), true );
                         recMan.delete( tree.getRecid() );
                     }
                     
@@ -900,7 +902,7 @@ public class JdbmTable<K,V> implements Table<K,V>
             return new EmptyCursor<org.apache.directory.shared.ldap.cursor.Tuple<K,V>>();
         }
 
-        Object raw = bt.find( key );
+        V raw = bt.find( key );
 
         if ( null == raw )
         {
@@ -933,7 +935,7 @@ public class JdbmTable<K,V> implements Table<K,V>
             return new EmptyCursor<V>();
         }
 
-        Object raw = bt.find( key );
+        V raw = bt.find( key );
 
         if ( null == raw )
         {
@@ -1053,7 +1055,7 @@ public class JdbmTable<K,V> implements Table<K,V>
             return duplicateBtrees.get( redirect.getRecId() );
         }
         
-        BTree tree = BTree.load( recMan, redirect.getRecId() );
+        BTree<K, V> tree = new BTree<K, V>().load( recMan, redirect.getRecId() );
         ((SerializableComparator<K>)tree.getComparator()).setSchemaManager( schemaManager );
         duplicateBtrees.put( redirect.getRecId(), tree );
         return tree;
@@ -1119,11 +1121,11 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         if ( valueSerializer != null )
         {
-            bTree = BTree.createInstance( recMan, valueComparator, valueSerializer, null );
+            bTree = new BTree<K, V>( recMan, valueComparator, valueSerializer, null );
         }
         else
         {
-            bTree = BTree.createInstance( recMan, valueComparator );
+            bTree = new BTree<K, V>( recMan, valueComparator );
         }
 
         Cursor<V> keys = new ArrayTreeCursor<V>( arrayTree );

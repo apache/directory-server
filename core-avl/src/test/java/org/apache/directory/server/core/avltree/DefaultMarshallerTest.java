@@ -20,8 +20,8 @@
 package org.apache.directory.server.core.avltree;
 
 
+import org.apache.commons.lang.ArrayUtils;
 import org.junit.Test;
-import org.apache.directory.shared.ldap.util.ArrayUtils;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;

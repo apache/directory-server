@@ -58,7 +58,7 @@ import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchema
 import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.util.Base64;
-import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
 
 
 /**
@@ -107,7 +107,7 @@ public class DumpCommand extends ToolCommand
         
         if ( errors.size() != 0 )
         {
-            throw new Exception( I18n.err( I18n.ERR_317, ExceptionUtils.printErrors( errors ) ) );
+            throw new Exception( I18n.err( I18n.ERR_317, LdapExceptionUtils.printErrors( errors ) ) );
         }
 
         

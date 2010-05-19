@@ -76,7 +76,7 @@ public class JdbmBrowserBugTest
 
         dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
-        bt = BTree.createInstance( recman, new IntegerComparator(), new IntegerSerializer(), new IntegerSerializer() );
+        bt = new BTree<Integer, Integer>( recman, new IntegerComparator(), new IntegerSerializer(), new IntegerSerializer() );
         LOG.debug( "created new BTree" );
     }
 
