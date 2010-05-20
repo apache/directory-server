@@ -53,6 +53,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.Serializable;
 import java.util.Comparator;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.server.i18n.I18n;
 
@@ -127,7 +128,7 @@ public class BTree<K, V> implements Externalizable
     protected int pageSize;
 
     /** Total number of entries in the BTree */
-    protected int nbEntries;
+    protected AtomicInteger nbEntries;
 
     /** Serializer used for BPages of this tree */
     private transient BPage<K, V> bpageSerializer;
@@ -185,6 +186,9 @@ public class BTree<K, V> implements Externalizable
     }
     
     
+    /**
+     * The real BTree constructor.
+     */
     private void createInstance(RecordManager recman, Comparator<?> comparator, Serializer keySerializer,
         Serializer valueSerializer, int pageSize) throws IOException
     {
@@ -226,6 +230,8 @@ public class BTree<K, V> implements Externalizable
         this.pageSize = pageSize;
         this.bpageSerializer = new BPage<K, V>();
         this.bpageSerializer.btree = this;
+        this.nbEntries = new AtomicInteger( 0 );
+
         this.recordId = recman.insert( this );
     }
 
@@ -285,7 +291,7 @@ public class BTree<K, V> implements Externalizable
             rootPage = new BPage<K, V>( this, key, value );
             rootId = rootPage.recid;
             bTreeHeight = 1;
-            nbEntries = 1;
+            nbEntries.set( 1 );
             recordManager.update( recordId, this );
             
             return null;
@@ -311,7 +317,7 @@ public class BTree<K, V> implements Externalizable
             
             if ( insert.existing == null )
             {
-                nbEntries++;
+                nbEntries.getAndIncrement();
                 dirty = true;
             }
             
@@ -369,7 +375,7 @@ public class BTree<K, V> implements Externalizable
         
         if ( remove.value != null )
         {
-            nbEntries--;
+            nbEntries.getAndDecrement();
             dirty = true;
         }
         
@@ -513,9 +519,9 @@ public class BTree<K, V> implements Externalizable
     /**
      * Return the number of entries (size) of the BTree.
      */
-    public synchronized int size()
+    public int size()
     {
-        return nbEntries;
+        return nbEntries.get();
     }
 
 
@@ -557,7 +563,7 @@ public class BTree<K, V> implements Externalizable
         bTreeHeight = in.readInt();
         rootId = in.readLong();
         pageSize = in.readInt();
-        nbEntries = in.readInt();
+        nbEntries.set( in.readInt() );
     }
 
 
@@ -572,7 +578,7 @@ public class BTree<K, V> implements Externalizable
         out.writeInt( bTreeHeight );
         out.writeLong( rootId );
         out.writeInt( pageSize );
-        out.writeInt( nbEntries );
+        out.writeInt( nbEntries.get() );
     }
 
 
