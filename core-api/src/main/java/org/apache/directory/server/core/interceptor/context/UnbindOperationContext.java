@@ -39,13 +39,13 @@ public class UnbindOperationContext extends AbstractOperationContext
      */
     public UnbindOperationContext( CoreSession session )
     {
-        super( session, session.getEffectivePrincipal().getClonedName() );
+        super( session, session.getEffectivePrincipal().getDN() );
     }
     
 
     public UnbindOperationContext( CoreSession session, InternalUnbindRequest unbindRequest )
     {
-        super( session, session.getEffectivePrincipal().getClonedName() );
+        super( session, session.getEffectivePrincipal().getDN() );
         this.setRequestControls( unbindRequest.getControls() );
     }
 

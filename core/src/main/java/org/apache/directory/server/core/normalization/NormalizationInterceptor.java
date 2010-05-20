@@ -125,7 +125,13 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     public void delete( NextInterceptor nextInterceptor, DeleteOperationContext opContext ) throws Exception
     {
-        opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
+        DN dn = opContext.getDn();
+        
+        if ( !dn.isNormalized() )
+        {
+            dn.normalize( schemaManager.getNormalizerMapping() );
+        }
+        
         nextInterceptor.delete( opContext );
     }
 
@@ -404,5 +410,4 @@ public class NormalizationInterceptor extends BaseInterceptor
             }
         }
     }
-
 }

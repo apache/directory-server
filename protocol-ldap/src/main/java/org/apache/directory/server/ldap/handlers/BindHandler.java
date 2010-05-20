@@ -305,7 +305,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
                 {
                     DirectoryService ds = ldapSession.getLdapServer().getDirectoryService();
                     String saslMechanism = bindRequest.getSaslMechanism();
-                    CoreSession userSession = ds.getSession( ldapPrincipal.getClonedName(), ldapPrincipal
+                    CoreSession userSession = ds.getSession( ldapPrincipal.getDN(), ldapPrincipal
                         .getUserPassword(), saslMechanism, null );
 
                     // Set the user session into the ldap session 

@@ -44,7 +44,7 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
     private static final long serialVersionUID = 3906650782395676720L;
 
     /** the normalized distinguished name of the principal */
-    private DN name;
+    private DN dn;
 
     /** the no name anonymous user whose DN is the empty String */
     public static final LdapPrincipal ANONYMOUS = new LdapPrincipal();
@@ -64,14 +64,14 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
      * this package friendly so only code in the package can create a
      * trusted principal.
      *
-     * @param name the normalized distinguished name of the principal
+     * @param dn the normalized distinguished name of the principal
      * @param authenticationLevel the authentication level for this principal
      */
-    public LdapPrincipal( DN name, AuthenticationLevel authenticationLevel )
+    public LdapPrincipal( DN dn, AuthenticationLevel authenticationLevel )
     {
-        this.name = name;
+        this.dn = dn;
         
-        if ( ! name.isNormalized() )
+        if ( ! dn.isNormalized() )
         {
             throw new IllegalStateException( I18n.err( I18n.ERR_436 ) );
         }
@@ -85,13 +85,13 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
      * this package friendly so only code in the package can create a
      * trusted principal.
      *
-     * @param name the normalized distinguished name of the principal
+     * @param dn the normalized distinguished name of the principal
      * @param authenticationLevel the authentication level for this principal
      * @param userPassword The user password
      */
-    public LdapPrincipal( DN name, AuthenticationLevel authenticationLevel, byte[] userPassword )
+    public LdapPrincipal( DN dn, AuthenticationLevel authenticationLevel, byte[] userPassword )
     {
-        this.name = name;
+        this.dn = dn;
         this.authenticationLevel = authenticationLevel;
         this.userPassword = new byte[ userPassword.length ];
         System.arraycopy( userPassword, 0, this.userPassword, 0, userPassword.length );
@@ -104,9 +104,21 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
      */
     public LdapPrincipal()
     {
-        name = new DN();
+        dn = new DN();
         authenticationLevel = AuthenticationLevel.NONE;
         userPassword = null;
+    }
+
+
+    /**
+     * Gets a reference to the distinguished name of this
+     * principal as a {@link DN}.
+     *
+     * @return the distinguished name of the principal as a {@link DN}
+     */
+    public DN getDNRef()
+    {
+        return dn;
     }
 
 
@@ -116,9 +128,9 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
      *
      * @return the cloned distinguished name of the principal as a {@link DN}
      */
-    public DN getClonedName()
+    public DN getDN()
     {
-        return ( DN ) name.clone();
+        return ( DN ) dn.clone();
     }
 
 
@@ -127,7 +139,7 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
      */
     public String getName()
     {
-        return name.getNormName();
+        return dn.getNormName();
     }
 
 
@@ -148,7 +160,7 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
      */
     public String toString()
     {
-        return "['" + name.getName() + "', '" + StringTools.utf8ToString( userPassword ) +"']'";
+        return "['" + dn.getName() + "', '" + StringTools.utf8ToString( userPassword ) +"']'";
     }
 
 
@@ -192,7 +204,7 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
     public void readExternal( ObjectInput in ) throws IOException , ClassNotFoundException
     {
         // Read the name
-        name = (DN)in.readObject();
+        dn = (DN)in.readObject();
         
         // read the authentication level
         int level = in.readInt();
@@ -212,13 +224,13 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
     public void writeExternal( ObjectOutput out ) throws IOException
     {
         // Write the name
-        if ( name == null )
+        if ( dn == null )
         {
             out.writeObject( DN.EMPTY_DN );
         }
         else
         {
-            out.writeObject( name );
+            out.writeObject( dn );
         }
         
         // write the authentication level
@@ -230,8 +242,5 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
         {
             out.writeInt( authenticationLevel.getLevel() );
         }
-        
-        // and flush the result
-        //out.flush();
     }
 }

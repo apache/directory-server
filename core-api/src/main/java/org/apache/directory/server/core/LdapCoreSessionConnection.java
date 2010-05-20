@@ -395,6 +395,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     {
         DeleteResponse resp = new DeleteResponse();
         resp.setLdapResult( getDefaultResult() );
+        
         try
         {
             session.delete( dn );

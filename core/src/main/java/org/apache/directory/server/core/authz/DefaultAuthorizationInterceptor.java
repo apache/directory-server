@@ -78,19 +78,13 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     /** the logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultAuthorizationInterceptor.class );
 
-    /**
-     * the base distinguished {@link Name} for all users
-     */
-    private static DN USER_BASE_DN;
+    /** the base distinguished {@link Name} for the admin system */
+    private static DN ADMIN_SYSTEM_DN;
 
-    /**
-     * the base distinguished {@link Name} for all groups
-     */
+    /** the base distinguished {@link Name} for all groups */
     private static DN GROUP_BASE_DN;
 
-    /**
-     * the distinguished {@link Name} for the administrator group
-     */
+    /** the distinguished {@link Name} for the administrator group */
     private static DN ADMIN_GROUP_DN;
 
     private Set<String> administrators = new HashSet<String>(2);
@@ -115,8 +109,8 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         nexus = directoryService.getPartitionNexus();
         SchemaManager schemaManager = directoryService.getSchemaManager();
 
-        USER_BASE_DN = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
-        USER_BASE_DN.normalize( schemaManager.getNormalizerMapping() );
+        ADMIN_SYSTEM_DN = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
+        ADMIN_SYSTEM_DN.normalize( schemaManager.getNormalizerMapping() );
         
         GROUP_BASE_DN = new DN( ServerDNConstants.GROUPS_SYSTEM_DN );
         GROUP_BASE_DN.normalize( schemaManager.getNormalizerMapping() );
@@ -165,51 +159,51 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
     public void delete( NextInterceptor nextInterceptor, DeleteOperationContext opContext ) throws Exception
     {
-        DN name = opContext.getDn();
-        
         if ( opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             nextInterceptor.delete( opContext );
             return;
         }
 
-        DN principalDn = getPrincipal().getClonedName();
+        DN dn = opContext.getDn();
 
-        if ( name.isEmpty() )
+        if ( dn.isEmpty() )
         {
             String msg = I18n.err( I18n.ERR_12 );
             LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( name.getNormName().equals( ADMIN_GROUP_DN.getNormName() ) )
+        if ( dn.equals( ADMIN_GROUP_DN ) )
         {
             String msg = I18n.err( I18n.ERR_13 );
             LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
+        
+        DN principalDN = getPrincipal().getDNRef();
 
-        if ( isTheAdministrator( name ) )
+        if ( dn.equals( ADMIN_SYSTEM_DN ) )
         {
-            String msg = I18n.err( I18n.ERR_14, principalDn.getName() );
+            String msg = I18n.err( I18n.ERR_14, principalDN.getName() );
             LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( name.size() > 2 )
+        if ( dn.size() > 2 )
         {
-            if ( !isAnAdministrator( principalDn ) )
+            if ( !isAnAdministrator( principalDN ) )
             {
-                if ( name.isChildOf( USER_BASE_DN ) )
+                if ( dn.isChildOf( ADMIN_SYSTEM_DN ) )
                 {
-                    String msg = I18n.err( I18n.ERR_15, principalDn.getName(), name.getName() );
+                    String msg = I18n.err( I18n.ERR_15, principalDN.getName(), dn.getName() );
                     LOG.error( msg );
                     throw new LdapNoPermissionException( msg );
                 }
         
-                if ( name.isChildOf( GROUP_BASE_DN ) )
+                if ( dn.isChildOf( GROUP_BASE_DN ) )
                 {
-                    String msg = I18n.err( I18n.ERR_16, principalDn.getName(), name.getName() );
+                    String msg = I18n.err( I18n.ERR_16, principalDN.getName(), dn.getName() );
                     LOG.error( msg );
                     throw new LdapNoPermissionException( msg );
                 }
@@ -222,14 +216,13 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     
     private boolean isTheAdministrator( DN normalizedDn )
     {
-        return normalizedDn.getNormName().equals( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+        return normalizedDn.equals( ADMIN_SYSTEM_DN );
     }
     
     
-    private boolean isAnAdministrator( DN normalizedDn )
+    private boolean isAnAdministrator( DN dn )
     {
-        return isTheAdministrator( normalizedDn ) || administrators.contains( normalizedDn.getNormName() );
-
+        return isTheAdministrator( dn ) || administrators.contains( dn.getNormName() );
     }
     
 
@@ -268,7 +261,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
     private void protectModifyAlterations( DN dn ) throws Exception
     {
-        DN principalDn = getPrincipal().getClonedName();
+        DN principalDn = getPrincipal().getDN();
 
         if ( dn.isEmpty() )
         {
@@ -294,7 +287,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
             if ( dn.size() > 2 ) 
                 {
-                if ( dn.isChildOf( USER_BASE_DN ) )
+                if ( dn.isChildOf( ADMIN_SYSTEM_DN ) )
                 {
                     String msg = I18n.err( I18n.ERR_19, principalDn.getName(),  dn.getName() );
                     LOG.error( msg );
@@ -357,7 +350,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
     private void protectDnAlterations( DN dn ) throws Exception
     {
-        DN principalDn = getPrincipal().getClonedName();
+        DN principalDn = getPrincipal().getDN();
 
         if ( dn.isEmpty() )
         {
@@ -380,7 +373,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( dn.size() > 2 && dn.isChildOf( USER_BASE_DN ) && !isAnAdministrator( principalDn ) )
+        if ( dn.size() > 2 && dn.isChildOf( ADMIN_SYSTEM_DN ) && !isAnAdministrator( principalDn ) )
         {
             String msg = I18n.err( I18n.ERR_23, principalDn.getName(), dn.getName() );
             LOG.error( msg );
@@ -406,7 +399,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             return entry;
         }
 
-        protectLookUp( session.getEffectivePrincipal().getClonedName(), opContext.getDn() );
+        protectLookUp( session.getEffectivePrincipal().getDN(), opContext.getDn() );
         
         return entry;
     }
@@ -418,7 +411,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         {
             if ( normalizedDn.size() > 2 )
             {
-                if( normalizedDn.isChildOf( USER_BASE_DN ) )
+                if( normalizedDn.isChildOf( ADMIN_SYSTEM_DN ) )
                 {
                     // allow for self reads
                     if ( normalizedDn.getNormName().equals( principalDn.getNormName() ) )
@@ -502,7 +495,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
     private boolean isSearchable( OperationContext opContext, ClonedServerEntry result ) throws Exception
     {
-        DN principalDn = opContext.getSession().getEffectivePrincipal().getClonedName();
+        DN principalDn = opContext.getSession().getEffectivePrincipal().getDN();
         DN dn = result.getDn();
         
         if ( !dn.isNormalized() )
@@ -530,7 +523,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             // stuff this if in here instead of up in outer if to prevent 
             // constant needless reexecution for all entries in other depths
             
-            if ( dn.getNormName().endsWith( USER_BASE_DN.getNormName() ) 
+            if ( dn.getNormName().endsWith( ADMIN_SYSTEM_DN.getNormName() ) 
                 || dn.getNormName().endsWith( GROUP_BASE_DN.getNormName() ) )
             {
                 return false;

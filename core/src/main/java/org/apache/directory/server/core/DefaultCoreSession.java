@@ -768,7 +768,7 @@ public class DefaultCoreSession implements CoreSession
 
     public boolean isAnonymous()
     {
-        return getEffectivePrincipal().getClonedName().isEmpty();
+        return getEffectivePrincipal().getDNRef().isEmpty();
     }
 
 
