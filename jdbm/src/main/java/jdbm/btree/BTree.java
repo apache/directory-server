@@ -563,7 +563,7 @@ public class BTree<K, V> implements Externalizable
         bTreeHeight = in.readInt();
         rootId = in.readLong();
         pageSize = in.readInt();
-        nbEntries.set( in.readInt() );
+        nbEntries = new AtomicInteger( in.readInt() );
     }
 
 
