@@ -588,13 +588,14 @@ public class SubentryInterceptor extends BaseInterceptor
     public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
     {
         DN name = opContext.getDn();
-        Entry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
+        Entry entry = opContext.getEntry();
         EntryAttribute objectClasses = entry.get( objectClassType );
 
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
         {
-            SubtreeSpecification ss = subentryCache.removeSubentry( name.getNormName() ).getSubtreeSpecification();
             next.delete( opContext );
+
+            SubtreeSpecification ss = subentryCache.removeSubentry( name.getNormName() ).getSubtreeSpecification();
 
             /* ----------------------------------------------------------------
              * Find the baseDn for the subentry and use that to search the tree

@@ -302,7 +302,7 @@ public class TriggerInterceptor extends BaseInterceptor
         }
         
         // Gather supplementary data.
-        Entry deletedEntry = deleteContext.lookup( name , ByPassConstants.LOOKUP_BYPASS );
+        Entry deletedEntry = deleteContext.getEntry();
         
         StoredProcedureParameterInjector injector = new DeleteStoredProcedureParameterInjector( deleteContext, name );
 
@@ -315,6 +315,7 @@ public class TriggerInterceptor extends BaseInterceptor
             getActionTimeMappedTriggerSpecsForOperation( triggerSpecs, LdapOperation.DELETE );
         
         next.delete( deleteContext );
+        
         triggerSpecCache.subentryDeleted( name, deletedEntry );
         
         // Fire AFTER Triggers.
