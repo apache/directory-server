@@ -270,11 +270,11 @@ public class ReferralInterceptor extends BaseInterceptor
      */
     public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
     {
-        Entry entry = opContext.getEntry();
-
         // First delete the entry into the server
         next.delete( opContext );
         
+        Entry entry = opContext.getEntry();
+
         // Check if the entry exists and is a referral itself
         // If so, we have to update the referralManager
         if ( ( entry != null ) && isReferral( entry ) )

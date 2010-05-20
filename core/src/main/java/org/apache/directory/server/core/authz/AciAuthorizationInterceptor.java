@@ -495,42 +495,47 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
     public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws Exception
     {
+        CoreSession session = deleteContext.getSession();
+        
         // bypass authz code if we are disabled
-        if ( ! deleteContext.getSession().getDirectoryService().isAccessControlEnabled() )
+        if ( ! session.getDirectoryService().isAccessControlEnabled() )
         {
             next.delete( deleteContext );
             return;
         }
 
-        DN name = deleteContext.getDn();
-        LdapPrincipal principal = deleteContext.getSession().getEffectivePrincipal();
+        DN dn = deleteContext.getDn();
+        LdapPrincipal principal = session.getEffectivePrincipal();
         DN principalDn = principal.getDN();
 
-        Entry entry = deleteContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
+        Entry entry = deleteContext.getEntry();
 
-        protectCriticalEntries( name );
+        protectCriticalEntries( dn );
 
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
             next.delete( deleteContext );
-            tupleCache.subentryDeleted( name, entry );
-            groupCache.groupDeleted( name, entry );
+            
+            tupleCache.subentryDeleted( dn, entry );
+            groupCache.groupDeleted( dn, entry );
+            
             return;
         }
 
         Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( deleteContext, tuples, name, ((ClonedServerEntry)entry).getOriginalEntry() );
+        addPerscriptiveAciTuples( deleteContext, tuples, dn, ((ClonedServerEntry)entry).getOriginalEntry() );
         addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( deleteContext, tuples, name, entry );
+        addSubentryAciTuples( deleteContext, tuples, dn, entry );
 
         engine.checkPermission( schemaManager, deleteContext, userGroups, principalDn, 
-            principal.getAuthenticationLevel(), name, null, null, REMOVE_PERMS, tuples, entry, null );
+            principal.getAuthenticationLevel(), dn, null, null, REMOVE_PERMS, tuples, entry, null );
 
         next.delete( deleteContext );
-        tupleCache.subentryDeleted( name, entry );
-        groupCache.groupDeleted( name, entry );
+        
+        tupleCache.subentryDeleted( dn, entry );
+        groupCache.groupDeleted( dn, entry );
     }
 
 

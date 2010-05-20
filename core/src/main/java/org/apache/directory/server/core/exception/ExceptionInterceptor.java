@@ -54,7 +54,6 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAliasException;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
-import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapEntryAlreadyExistsException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
@@ -216,45 +215,24 @@ public class ExceptionInterceptor extends BaseInterceptor
      */
     public void delete( NextInterceptor nextInterceptor, DeleteOperationContext opContext ) throws Exception
     {
-        DN name = opContext.getDn();
+        DN dn = opContext.getDn();
         
-        if ( name.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
+        if ( dn.equals( subschemSubentryDn ) )
         {
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
                 I18n.err( I18n.ERR_253, subschemSubentryDn ) );
         }
         
-        // check if entry to delete exists
-        String msg = "Attempt to delete non-existant entry: ";
-        assertHasEntry( opContext, msg, name );
+        nextInterceptor.delete( opContext );
 
-        // check if entry to delete has children (only leaves can be deleted)
-        boolean hasChildren = false;
-        EntryFilteringCursor list = nextInterceptor.list( new ListOperationContext( opContext.getSession(), name ) );
-        
-        if ( list.next() )
-        {
-            hasChildren = true;
-        }
-
-        list.close();
-        
-        if ( hasChildren )
-        {
-            LdapContextNotEmptyException e = new LdapContextNotEmptyException();
-            //e.setResolvedName( new DN( name.getName() ) );
-            throw e;
-        }
-
+        // Update the alias cache
         synchronized( notAliasCache )
         {
-            if ( notAliasCache.containsKey( name.getNormName() ) )
+            if ( notAliasCache.containsKey( dn.getNormName() ) )
             {
-                notAliasCache.remove( name.getNormName() );
+                notAliasCache.remove( dn.getNormName() );
             }
         }
-        
-        nextInterceptor.delete( opContext );
     }
 
 

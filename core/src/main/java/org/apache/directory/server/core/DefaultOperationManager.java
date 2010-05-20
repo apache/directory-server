@@ -396,7 +396,7 @@ public class DefaultOperationManager implements OperationManager
             if ( parentEntry != null )
             {
                 // We have found a parent referral for the current DN 
-                DN childDn = (DN)dn.getSuffix( parentEntry.getDn().size() );
+                DN childDn = dn.getSuffix( parentEntry.getDn().size() );
     
                 if ( directoryService.getReferralManager().isReferral( dn ) )
                 {
