@@ -122,7 +122,7 @@ public class MaxImmSubFilter implements ACITupleFilter
                 {
                     if ( immSubCount < 0 )
                     {
-                        immSubCount = getImmSubCount( schemaManager, opContext, entryName );
+                        immSubCount = getImmSubCount( opContext, entryName );
                     }
 
                     ProtectedItem.MaxImmSub mis = ( ProtectedItem.MaxImmSub ) item;
@@ -154,7 +154,7 @@ public class MaxImmSubFilter implements ACITupleFilter
     }
 
 
-    private int getImmSubCount( SchemaManager schemaManager, OperationContext opContext, DN entryName ) throws Exception
+    private int getImmSubCount( OperationContext opContext, DN entryName ) throws Exception
     {
         int cnt = 0;
         EntryFilteringCursor results = null;

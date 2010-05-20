@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.commons.lang.ArrayUtils;

@@ -128,7 +128,7 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
             {
                 if( allowDuplicates )
                 {
-                    return insertDupKey( key, value, temp ); // key already exists add another value
+                    return insertDupKey( value, temp ); // key already exists add another value
                 }
                 else
                 {
@@ -168,7 +168,7 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     }
     
     
-    private V insertDupKey( K key, V value, LinkedAvlMapNode<K,V> existingNode )
+    private V insertDupKey( V value, LinkedAvlMapNode<K,V> existingNode )
     {
         AvlTree<V> dupsTree = null;
         

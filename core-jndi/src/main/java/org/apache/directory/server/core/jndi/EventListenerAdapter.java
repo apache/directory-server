@@ -36,10 +36,8 @@ import org.apache.directory.server.core.interceptor.context.DeleteOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.i18n.I18n;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,7 +89,7 @@ public class EventListenerAdapter implements DirectoryListener
     }
     
     
-    private void deliverNamingExceptionEvent( Exception e, OperationContext opContext )
+    private void deliverNamingExceptionEvent( Exception e )
     {
         LOG.error( I18n.err( I18n.ERR_118 ), e );
         NamingExceptionEvent evt = null;
@@ -130,7 +128,7 @@ public class EventListenerAdapter implements DirectoryListener
         }
         catch ( Exception e )
         {
-            deliverNamingExceptionEvent( e, opContext );
+            deliverNamingExceptionEvent( e );
         }
     }
 
@@ -153,7 +151,7 @@ public class EventListenerAdapter implements DirectoryListener
         }
         catch ( Exception e )
         {
-            deliverNamingExceptionEvent( e, opContext );
+            deliverNamingExceptionEvent( e );
         }
     }
 
@@ -179,7 +177,7 @@ public class EventListenerAdapter implements DirectoryListener
         }
         catch ( Exception e )
         {
-            deliverNamingExceptionEvent( e, opContext );
+            deliverNamingExceptionEvent( e );
         }
     }
 
@@ -204,7 +202,7 @@ public class EventListenerAdapter implements DirectoryListener
         }
         catch ( Exception e )
         {
-            deliverNamingExceptionEvent( e, opContext );
+            deliverNamingExceptionEvent( e );
         }
     }
 
@@ -229,7 +227,7 @@ public class EventListenerAdapter implements DirectoryListener
         }
         catch ( Exception e )
         {
-            deliverNamingExceptionEvent( e, opContext );
+            deliverNamingExceptionEvent( e );
         }
     }
 
@@ -254,7 +252,7 @@ public class EventListenerAdapter implements DirectoryListener
         }
         catch ( Exception e )
         {
-            deliverNamingExceptionEvent( e, opContext );
+            deliverNamingExceptionEvent( e );
         }
     }
 }

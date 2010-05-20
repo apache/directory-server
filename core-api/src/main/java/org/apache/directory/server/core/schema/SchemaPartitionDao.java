@@ -4,8 +4,6 @@ package org.apache.directory.server.core.schema;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;

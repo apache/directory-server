@@ -22,8 +22,6 @@ package org.apache.directory.server.core.authz.support;
 
 import java.util.Collection;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;

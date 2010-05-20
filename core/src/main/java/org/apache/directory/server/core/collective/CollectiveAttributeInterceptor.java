@@ -23,8 +23,6 @@ package org.apache.directory.server.core.collective;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilter;

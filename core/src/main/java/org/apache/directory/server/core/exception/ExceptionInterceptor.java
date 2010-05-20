@@ -226,7 +226,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         
         // check if entry to delete exists
         String msg = "Attempt to delete non-existant entry: ";
-        assertHasEntry( nextInterceptor, opContext, msg, name );
+        assertHasEntry( opContext, msg, name );
 
         // check if entry to delete has children (only leaves can be deleted)
         boolean hasChildren = false;
@@ -271,7 +271,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         
         // check if entry to search exists
         String msg = "Attempt to search under non-existant entry: ";
-        assertHasEntry( nextInterceptor, opContext, msg, opContext.getDn() );
+        assertHasEntry( opContext, msg, opContext.getDn() );
 
         return nextInterceptor.list( opContext );
     }
@@ -319,7 +319,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             return;
         }
         
-        assertHasEntry( nextInterceptor, opContext, msg, opContext.getDn() );
+        assertHasEntry( opContext, msg, opContext.getDn() );
 
         Entry entry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
         List<Modification> items = opContext.getModItems();
@@ -427,11 +427,11 @@ public class ExceptionInterceptor extends BaseInterceptor
         
         // check if child to move exists
         String msg = "Attempt to move to non-existant parent: ";
-        assertHasEntry( nextInterceptor, opContext, msg, oriChildName );
+        assertHasEntry( opContext, msg, oriChildName );
 
         // check if parent to move to exists
         msg = "Attempt to move to non-existant parent: ";
-        assertHasEntry( nextInterceptor, opContext, msg, newParentName );
+        assertHasEntry( opContext, msg, newParentName );
 
         // check to see if target entry exists
         String rdn = oriChildName.get( oriChildName.size() - 1 );
@@ -481,11 +481,11 @@ public class ExceptionInterceptor extends BaseInterceptor
         
         // check if child to move exists
         String msg = "Attempt to move to non-existant parent: ";
-        assertHasEntry( nextInterceptor, opContext, msg, oriChildName );
+        assertHasEntry( opContext, msg, oriChildName );
 
         // check if parent to move to exists
         msg = "Attempt to move to non-existant parent: ";
-        assertHasEntry( nextInterceptor, opContext, msg, parent );
+        assertHasEntry( opContext, msg, parent );
 
         // check to see if target entry exists
         DN target = ( DN ) parent.clone();
@@ -532,7 +532,7 @@ public class ExceptionInterceptor extends BaseInterceptor
                 if ( !base.isEmpty() && !( subschemSubentryDn.getNormName() ).equalsIgnoreCase( base.getNormName() ) )
                 {
                     // We just check that the entry exists only if we didn't found any entry
-                    assertHasEntry( nextInterceptor, opContext, "Attempt to search under non-existant entry:" , base );
+                    assertHasEntry( opContext, "Attempt to search under non-existant entry:" , base );
                 }
             }
 
@@ -541,7 +541,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         catch ( Exception ne )
         {
             String msg = I18n.err( I18n.ERR_259 );
-            assertHasEntry( nextInterceptor, opContext, msg, base );
+            assertHasEntry( opContext, msg, base );
             throw ne;
         }
     }
@@ -556,7 +556,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      * @throws Exception if the entry does not exist
      * @param nextInterceptor the next interceptor in the chain
      */
-    private void assertHasEntry( NextInterceptor nextInterceptor, OperationContext opContext, 
+    private void assertHasEntry( OperationContext opContext, 
         String msg, DN dn ) throws Exception
     {
         if ( subschemSubentryDn.equals( dn ) )

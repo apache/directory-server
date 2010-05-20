@@ -64,7 +64,6 @@ public class CoreContextFactory implements InitialContextFactory
         }
         
         byte[] credential = getCredential( env );
-        String authentication = getAuthentication( env );
         String providerUrl = getProviderUrl( env );
 
         DirectoryService service = ( DirectoryService ) env.get( DirectoryService.JNDI_KEY );

@@ -31,7 +31,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchResult;
 

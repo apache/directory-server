@@ -170,7 +170,7 @@ public class SchemaSubentryManager
                     break;
                     
                 case REMOVE_ATTRIBUTE :
-                    modifyRemoveOperation( opContext, opAttrOid, serverAttribute, doCascadeModify );
+                    modifyRemoveOperation( opContext, opAttrOid, serverAttribute );
                     break; 
                     
                 case REPLACE_ATTRIBUTE :
@@ -207,7 +207,7 @@ public class SchemaSubentryManager
                 for ( AttributeType attributeType:attributeTypes )
                 {
                     modifyRemoveOperation( opContext, attributeType.getOid(), 
-                        mods.get( attributeType ), doCascadeModify );
+                        mods.get( attributeType ) );
                 }
             
                 break;
@@ -227,13 +227,12 @@ public class SchemaSubentryManager
      * 
      * @param opAttrOid the numeric id of the operational attribute modified
      * @param mods the attribute with the modifications
-     * @param doCascadeModify determines if a cascading operation should be performed
      * to effect all dependents on the changed entity
      * @throws Exception if there are problems updating the registries and the
      * schema partition
      */
     private void modifyRemoveOperation( ModifyOperationContext opContext, String opAttrOid, 
-        EntryAttribute mods, boolean doCascadeModify ) throws Exception
+        EntryAttribute mods ) throws Exception
     {
         int index = opAttr2handlerIndex.get( opAttrOid );
         

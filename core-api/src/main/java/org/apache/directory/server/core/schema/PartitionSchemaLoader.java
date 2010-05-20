@@ -31,7 +31,6 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
@@ -42,13 +41,9 @@ import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
-import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
-import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.registries.AbstractSchemaLoader;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
-import org.apache.directory.shared.ldap.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,12 +65,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /** The attributeType registry */
     private SchemaManager schemaManager;
 
-    private final AttributeType mOidAT;
-    private final AttributeType mNameAT;
     private final AttributeType cnAT;
-    private final AttributeType byteCodeAT;
-    private final AttributeType descAT;
-    private final AttributeType fqcnAT;
 
     private static Map<String, DN> staticAttributeTypeDNs = new HashMap<String, DN>();
     private static Map<String, DN> staticMatchingRulesDNs = new HashMap<String, DN>();
@@ -92,12 +82,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         this.schemaManager = schemaManager;
 
         dao = new SchemaPartitionDaoImpl( this.partition, schemaManager );
-        mOidAT = schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_OID_AT );
-        mNameAT = schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_NAME_AT );
         cnAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CN_AT );
-        byteCodeAT = schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_BYTECODE_AT );
-        descAT = schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_DESCRIPTION_AT );
-        fqcnAT = schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_FQCN_AT );
 
         initStaticDNs( "system" );
         initStaticDNs( "core" );
@@ -599,107 +584,6 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         }
 
         return syntaxCheckerList;
-    }
-
-
-    private String getOid( Entry entry ) throws Exception
-    {
-        EntryAttribute oid = entry.get( mOidAT );
-
-        if ( oid == null )
-        {
-            return null;
-        }
-
-        return oid.getString();
-    }
-
-
-    private NormalizerDescription getNormalizerDescription( String schemaName, Entry entry ) throws Exception
-    {
-        NormalizerDescription description = new NormalizerDescription( getOid( entry ) );
-        List<String> values = new ArrayList<String>();
-        values.add( schemaName );
-        description.addExtension( MetaSchemaConstants.X_SCHEMA, values );
-        description.setFqcn( entry.get( fqcnAT ).getString() );
-
-        EntryAttribute desc = entry.get( descAT );
-        if ( desc != null && desc.size() > 0 )
-        {
-            description.setDescription( desc.getString() );
-        }
-
-        EntryAttribute bytecode = entry.get( byteCodeAT );
-
-        if ( bytecode != null && bytecode.size() > 0 )
-        {
-            byte[] bytes = bytecode.getBytes();
-            description.setBytecode( new String( Base64.encode( bytes ) ) );
-        }
-
-        return description;
-    }
-
-
-    private ClonedServerEntry lookupPartition( DN dn ) throws Exception
-    {
-        return partition.lookup( new LookupOperationContext( null, dn ) );
-    }
-
-
-    private LdapComparatorDescription getLdapComparatorDescription( String schemaName, Entry entry )
-        throws Exception
-    {
-        LdapComparatorDescription description = new LdapComparatorDescription( getOid( entry ) );
-        List<String> values = new ArrayList<String>();
-        values.add( schemaName );
-        description.addExtension( MetaSchemaConstants.X_SCHEMA, values );
-        description.setFqcn( entry.get( fqcnAT ).getString() );
-
-        EntryAttribute desc = entry.get( descAT );
-
-        if ( desc != null && desc.size() > 0 )
-        {
-            description.setDescription( desc.getString() );
-        }
-
-        EntryAttribute bytecode = entry.get( byteCodeAT );
-
-        if ( bytecode != null && bytecode.size() > 0 )
-        {
-            byte[] bytes = bytecode.getBytes();
-            description.setBytecode( new String( Base64.encode( bytes ) ) );
-        }
-
-        return description;
-    }
-
-
-    private SyntaxCheckerDescription getSyntaxCheckerDescription( String schemaName, Entry entry )
-        throws Exception
-    {
-        SyntaxCheckerDescription description = new SyntaxCheckerDescription( getOid( entry ) );
-        List<String> values = new ArrayList<String>();
-        values.add( schemaName );
-        description.addExtension( MetaSchemaConstants.X_SCHEMA, values );
-        description.setFqcn( entry.get( fqcnAT ).getString() );
-
-        EntryAttribute desc = entry.get( descAT );
-
-        if ( desc != null && desc.size() > 0 )
-        {
-            description.setDescription( desc.getString() );
-        }
-
-        EntryAttribute bytecode = entry.get( byteCodeAT );
-
-        if ( bytecode != null && bytecode.size() > 0 )
-        {
-            byte[] bytes = bytecode.getBytes();
-            description.setBytecode( new String( Base64.encode( bytes ) ) );
-        }
-
-        return description;
     }
 
 

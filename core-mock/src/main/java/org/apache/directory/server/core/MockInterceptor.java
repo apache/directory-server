@@ -20,7 +20,6 @@
 package org.apache.directory.server.core;
 
 
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.Interceptor;

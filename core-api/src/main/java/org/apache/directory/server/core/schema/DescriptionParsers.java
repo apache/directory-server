@@ -306,8 +306,6 @@ public class DescriptionParsers
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_416 ) );
             }
 
-            List<Throwable> errors = new ArrayList<Throwable>();
-
             attributeType.setRegistries( schemaManager.getRegistries() );
 
             /*
@@ -412,7 +410,6 @@ public class DescriptionParsers
                 }
             }
 
-            List<Throwable> errors = new ArrayList<Throwable>();
             objectClass.setRegistries( schemaManager.getRegistries() );
 
             objectClasses[pos++] = objectClass;

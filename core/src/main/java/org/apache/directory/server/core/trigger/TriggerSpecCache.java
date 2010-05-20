@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;

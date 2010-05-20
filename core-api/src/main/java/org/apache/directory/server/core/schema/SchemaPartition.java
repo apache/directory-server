@@ -23,8 +23,6 @@ package org.apache.directory.server.core.schema;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
@@ -228,7 +226,6 @@ public final class SchemaPartition extends AbstractPartition
         {
             wrapped.initialize();
 
-            PartitionSchemaLoader partitionLoader = new PartitionSchemaLoader( wrapped, schemaManager );
             synchronizer = new RegistrySynchronizerAdaptor( schemaManager );
 
             if ( wrapped instanceof NullPartition )

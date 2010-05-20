@@ -29,8 +29,6 @@ import java.util.Comparator;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.util.StringTools;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -42,9 +40,6 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("unchecked")
 public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
 {
-    /** static logger */
-    private static final Logger LOG = LoggerFactory.getLogger( ArrayMarshaller.class );
-
     /** used for serialized form of an empty AvlTree */
     private static final byte[] EMPTY_TREE = new byte[1];
 

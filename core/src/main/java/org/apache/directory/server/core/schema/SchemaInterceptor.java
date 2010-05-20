@@ -55,13 +55,12 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
-import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.entry.StringValue;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -93,7 +92,6 @@ import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
@@ -115,12 +113,6 @@ public class SchemaInterceptor extends BaseInterceptor
 {
     /** The LoggerFactory used by this Interceptor */
     private static Logger LOG = LoggerFactory.getLogger( SchemaInterceptor.class );
-
-    private static final String[] SCHEMA_SUBENTRY_RETURN_ATTRIBUTES = new String[]
-        { 
-            SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, 
-            SchemaConstants.ALL_USER_ATTRIBUTES 
-        };
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
@@ -813,133 +805,6 @@ public class SchemaInterceptor extends BaseInterceptor
 
             // Recurse on the parent
             getSuperiors( parent, ocSeen, result );
-        }
-    }
-
-
-    /**
-     * Checks to see if an attribute is required by as determined from an entry's
-     * set of objectClass attribute values.
-     *
-     * @param attrId the attribute to test if required by a set of objectClass values
-     * @param objectClass the objectClass values
-     * @return true if the objectClass values require the attribute, false otherwise
-     * @throws Exception if the attribute is not recognized
-     */
-    private boolean isRequired( String attrId, EntryAttribute objectClasses ) throws Exception
-    {
-        OidRegistry oidRegistry = schemaManager.getGlobalOidRegistry();
-
-        if ( !oidRegistry.contains( attrId ) )
-        {
-            return false;
-        }
-
-        String attrOid = schemaManager.getAttributeTypeRegistry().getOidByName( attrId );
-
-        for ( Value<?> objectClass : objectClasses )
-        {
-            ObjectClass ocSpec = schemaManager.getObjectClassRegistry().lookup( objectClass.getString() );
-
-            for ( AttributeType must : ocSpec.getMustAttributeTypes() )
-            {
-                if ( must.getOid().equals( attrOid ) )
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-
-    /**
-     * Checks to see if removing a set of attributes from an entry completely removes
-     * that attribute's values.  If change has zero size then all attributes are
-     * presumed to be removed.
-     *
-     * @param change
-     * @param entry
-     * @return
-     * @throws Exception
-     */
-    private boolean isCompleteRemoval( EntryAttribute change, Entry entry ) throws Exception
-    {
-        // if change size is 0 then all values are deleted then we're in trouble
-        if ( change.size() == 0 )
-        {
-            return true;
-        }
-
-        // can't do math to figure our if all values are removed since some
-        // values in the modify request may not be in the entry.  we need to
-        // remove the values from a cloned version of the attribute and see
-        // if nothing is left.
-        EntryAttribute changedEntryAttr = entry.get( change.getUpId() ).clone();
-
-        for ( Value<?> value : change )
-        {
-            changedEntryAttr.remove( value );
-        }
-
-        return changedEntryAttr.size() == 0;
-    }
-
-
-    /**
-     * 
-     * @param modOp
-     * @param changes
-     * @param existing
-     * @return
-     * @throws Exception
-     */
-    private EntryAttribute getResultantObjectClasses( ModificationOperation modOp, EntryAttribute changes,
-        EntryAttribute existing ) throws Exception
-    {
-        if ( ( changes == null ) && ( existing == null ) )
-        {
-            return new DefaultEntryAttribute( SchemaConstants.OBJECT_CLASS_AT, OBJECT_CLASS );
-        }
-
-        if ( changes == null )
-        {
-            return existing;
-        }
-
-        if ( ( existing == null ) && ( modOp == ModificationOperation.ADD_ATTRIBUTE ) )
-        {
-            return changes;
-        }
-        else if ( existing == null )
-        {
-            return new DefaultEntryAttribute( SchemaConstants.OBJECT_CLASS_AT, OBJECT_CLASS );
-        }
-
-        switch ( modOp )
-        {
-            case ADD_ATTRIBUTE:
-                for ( Value<?> value : changes )
-                {
-                    existing.add( value );
-                }
-
-                return existing;
-
-            case REPLACE_ATTRIBUTE:
-                return changes.clone();
-
-            case REMOVE_ATTRIBUTE:
-                for ( Value<?> value : changes )
-                {
-                    existing.remove( value );
-                }
-
-                return existing;
-
-            default:
-                throw new InternalError( "" );
         }
     }
 

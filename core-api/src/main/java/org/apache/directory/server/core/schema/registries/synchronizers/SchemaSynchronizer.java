@@ -20,26 +20,22 @@
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.NamingException;
+
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.OperationManager;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.DefaultModification;
-import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
@@ -49,15 +45,9 @@ import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.SchemaObject;
-import org.apache.directory.shared.ldap.schema.SchemaObjectType;
-import org.apache.directory.shared.ldap.schema.SchemaObjectWrapper;
 import org.apache.directory.shared.ldap.schema.loader.ldif.SchemaEntityFactory;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.DefaultSchemaObjectRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
-import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,12 +85,6 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     /** The m-dependencies AttributeType */
     private final AttributeType dependenciesAT;
     
-    /** The modifiersName AttributeType */
-    private final AttributeType modifiersNameAT;
-    
-    /** The modifyTimestamp AttributeType */
-    private final AttributeType modifyTimestampAT;
-    
     /** A static DN referencing ou=schema */
     private final DN ouSchemaDN;
 
@@ -120,8 +104,6 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         cnAT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.CN_AT );
         dependenciesAT = registries.getAttributeTypeRegistry()
             .lookup( MetaSchemaConstants.M_DEPENDENCIES_AT );
-        modifiersNameAT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.MODIFIERS_NAME_AT );
-        modifyTimestampAT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.MODIFY_TIMESTAMP_AT );
         
         ouSchemaDN = new DN( SchemaConstants.OU_SCHEMA );
         ouSchemaDN.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
@@ -501,69 +483,6 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     }
 
     
-    /**
-     * Build the DN to access a schemaObject path for a specific schema 
-     */
-    private DN buildDn( SchemaObjectType schemaObjectType, String schemaName ) throws LdapInvalidDnException
-    {
-        
-        DN path = new DN( 
-            SchemaConstants.OU_SCHEMA,
-            "cn=" + schemaName,
-            schemaObjectType.getRdn()
-            );
-        
-        return path;
-    }
-    
-    
-    /**
-     * Disable a schema and update all of its schemaObject 
-     */
-    private void disable( SchemaObject schemaObject, CoreSession session, Registries registries )
-        throws Exception
-    {
-        Schema schema = registries.getLoadedSchema( schemaObject.getSchemaName() );
-        List<Modification> modifications = new ArrayList<Modification>();
-        
-        // The m-disabled AT
-        EntryAttribute disabledAttr = new DefaultEntryAttribute( disabledAT, "FALSE" );
-        Modification disabledMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, disabledAttr );
-        
-        modifications.add( disabledMod );
-        
-        // The modifiersName AT
-        EntryAttribute modifiersNameAttr = 
-            new DefaultEntryAttribute( modifiersNameAT, session.getEffectivePrincipal().getName() );
-        Modification modifiersNameMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, modifiersNameAttr );
-        
-        modifications.add( modifiersNameMod );
-        
-        // The modifyTimestamp AT
-        EntryAttribute modifyTimestampAttr = 
-            new DefaultEntryAttribute( modifyTimestampAT, DateUtils.getGeneralizedTime() );
-        Modification modifyTimestampMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, modifyTimestampAttr );
-        
-        modifications.add( modifyTimestampMod );
-        
-        // Call the modify operation
-        DN dn = buildDn( schemaObject.getObjectType(), schemaObject.getName() );
-        
-        ModifyOperationContext modifyContext = new ModifyOperationContext( session, dn, modifications );
-        modifyContext.setByPassed( ByPassConstants.BYPASS_ALL_COLLECTION );
-
-        OperationManager operationManager = 
-            session.getDirectoryService().getOperationManager();
-        
-        operationManager.modify( modifyContext );
-        
-        // Now iterate on all the schemaObject under this schema
-        for ( SchemaObjectWrapper schemaObjectWrapper : schema.getContent() )
-        {
-            
-        }
-    }
-
     private boolean disableSchema( CoreSession session, String schemaName ) throws Exception
     {
         Schema schema = registries.getLoadedSchema( schemaName );
@@ -619,29 +538,6 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     }
     
     
-    private void disableAT( CoreSession session, String schemaName )
-    {
-        AttributeTypeRegistry atRegistry = registries.getAttributeTypeRegistry();
-        
-        for ( AttributeType attributeType : atRegistry )
-        {
-            if ( schemaName.equalsIgnoreCase( attributeType.getSchemaName() ) )
-            {
-                if ( attributeType.isDisabled() )
-                {
-                    continue;
-                }
-                
-                EntryAttribute disable = new DefaultEntryAttribute( disabledAT, "TRUE"  );
-                Modification modification = 
-                    new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, disable );
-                
-                //session.modify( dn, mods, ignoreReferral, log )
-            }
-        }
-    }
-
-
     /**
      * Enabling a schema consist on switching all of its schema element to enable.
      * We have to do it on a temporary registries.
@@ -706,28 +602,6 @@ public class SchemaSynchronizer implements RegistrySynchronizer
                     throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, 
                         I18n.err( I18n.ERR_385, dependency ) );
                 }
-            }
-        }
-    }
-
-    
-    /**
-     * Used to iterate through SchemaObjects in a DefaultSchemaObjectRegistry and rename
-     * their schema property to a new schema name.
-     * 
-     * @param registry the registry whose objects are changed
-     * @param originalSchemaName the original schema name
-     * @param newSchemaName the new schema name
-     */
-    private void renameSchema( DefaultSchemaObjectRegistry<? extends SchemaObject> registry, String originalSchemaName, String newSchemaName ) 
-    {
-        Iterator<? extends SchemaObject> list = registry.iterator();
-        while ( list.hasNext() )
-        {
-            SchemaObject obj = list.next();
-            if ( obj.getSchemaName().equalsIgnoreCase( originalSchemaName ) )
-            {
-                obj.setSchemaName( newSchemaName );
             }
         }
     }

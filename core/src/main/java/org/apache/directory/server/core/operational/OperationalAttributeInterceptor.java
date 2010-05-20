@@ -118,7 +118,6 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /** The schemaManager */
     private SchemaManager schemaManager;
     
-    private static AttributeType CREATE_TIMESTAMP_ATTRIBUTE_TYPE;
     private static AttributeType MODIFIERS_NAME_ATTRIBUTE_TYPE;
     private static AttributeType MODIFY_TIMESTAMP_ATTRIBUTE_TYPE;
 
@@ -142,7 +141,6 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         subschemaSubentryDn = new DN( subschemaSubentry.getString() );
         subschemaSubentryDn.normalize( schemaManager.getNormalizerMapping() );
         
-        CREATE_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATE_TIMESTAMP_AT );
         MODIFIERS_NAME_ATTRIBUTE_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.MODIFIERS_NAME_AT );
         MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.MODIFY_TIMESTAMP_AT );
     }

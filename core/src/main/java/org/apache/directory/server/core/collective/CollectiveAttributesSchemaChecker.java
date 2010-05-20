@@ -52,12 +52,10 @@ import org.apache.directory.shared.ldap.schema.SchemaUtils;
  */
 public class CollectiveAttributesSchemaChecker
 {
-    private PartitionNexus nexus = null;
     private SchemaManager schemaManager = null;
     
     public CollectiveAttributesSchemaChecker( PartitionNexus nexus, SchemaManager schemaManager )
     {
-        this.nexus = nexus;
         this.schemaManager = schemaManager;
     }
     

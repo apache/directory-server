@@ -91,8 +91,6 @@ public class AvlPartition extends AbstractXdbmPartition<Long>
         suffixDn.normalize( schemaManager.getNormalizerMapping() );
         store.setSuffixDn( suffixDn );
 
-        Set<Index<?, Entry, Long>> userIndices = new HashSet<Index<?, Entry, Long>>();
-
         for ( AvlIndex<?, Entry> index : indexedAttributes )
         {
             String oid = schemaManager.getAttributeTypeRegistry().getOidByName( index.getAttributeId() );
