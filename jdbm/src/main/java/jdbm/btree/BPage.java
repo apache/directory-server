@@ -80,7 +80,7 @@ import org.apache.directory.server.i18n.I18n;
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @version $Id: BPage.java,v 1.6 2003/09/21 15:46:59 boisvert Exp $
  */
-public final class BPage<K, V> implements Serializer
+public class BPage<K, V> implements Serializer
 {
     private static final boolean DEBUG = false;
 
@@ -91,7 +91,7 @@ public final class BPage<K, V> implements Serializer
     transient BTree<K, V> btree;
 
     /** This BPage's record ID in the PageManager. */
-    protected transient long recid;
+    protected transient long recordId;
 
     /** Flag indicating if this is a leaf BPage. */
     protected boolean isLeaf;
@@ -141,10 +141,10 @@ public final class BPage<K, V> implements Serializer
         keys[btree.pageSize - 1] = root.getLargestKey();
 
         children = new long[btree.pageSize];
-        children[btree.pageSize - 2] = overflow.recid;
-        children[btree.pageSize - 1] = root.recid;
+        children[btree.pageSize - 2] = overflow.recordId;
+        children[btree.pageSize - 1] = root.recordId;
 
-        recid = btree.recordManager.insert( this, this );
+        recordId = btree.recordManager.insert( this, this );
     }
 
 
@@ -168,7 +168,7 @@ public final class BPage<K, V> implements Serializer
         values[btree.pageSize - 2] = value;
         values[btree.pageSize - 1] = null; // I am the root BPage for now
 
-        recid = btree.recordManager.insert( this, this );
+        recordId = btree.recordManager.insert( this, this );
     }
 
 
@@ -196,7 +196,7 @@ public final class BPage<K, V> implements Serializer
             children = new long[btree.pageSize];
         }
 
-        recid = btree.recordManager.insert( this, this );
+        recordId = btree.recordManager.insert( this, this );
     }
 
 
@@ -207,6 +207,26 @@ public final class BPage<K, V> implements Serializer
     K getLargestKey()
     {
         return keys[btree.pageSize - 1];
+    }
+    
+    
+    /**
+     * @return The record ID
+     */
+    public long getRecordId()
+    {
+        return recordId;
+    }
+    
+    
+    /**
+     * Set the recordId
+     *
+     * @param recordId The recordId
+     */
+    public void setRecordId( long recordId )
+    {
+        this.recordId = recordId;
     }
 
 
@@ -328,7 +348,7 @@ public final class BPage<K, V> implements Serializer
                 if ( replace )
                 {
                     values[index] = value;
-                    btree.recordManager.update( recid, this, this );
+                    btree.recordManager.update( recordId, this, this );
                 }
                 
                 // return the existing key
@@ -357,11 +377,11 @@ public final class BPage<K, V> implements Serializer
             // on this BPage
             if ( DEBUG )
             {
-                System.out.println( "BPage.insert() Overflow page: " + result.overflow.recid );
+                System.out.println( "BPage.insert() Overflow page: " + result.overflow.recordId );
             }
             
             key = result.overflow.getLargestKey();
-            overflow = result.overflow.recid;
+            overflow = result.overflow.recordId;
 
             // update child's largest key
             keys[index] = child.getLargestKey();
@@ -383,7 +403,7 @@ public final class BPage<K, V> implements Serializer
                 insertChild( this, index - 1, key, overflow );
             }
             
-            btree.recordManager.update( recid, this, this );
+            btree.recordManager.update( recordId, this, this );
             return result;
         }
 
@@ -456,20 +476,20 @@ public final class BPage<K, V> implements Serializer
         {
             // link newly created BPage
             newPage.previous = previous;
-            newPage.next = recid;
+            newPage.next = recordId;
             
             if ( previous != 0 )
             {
                 BPage<K, V> previousBPage = loadBPage( previous );
-                previousBPage.next = newPage.recid;
+                previousBPage.next = newPage.recordId;
                 btree.recordManager.update( previous, previousBPage, this );
             }
             
-            previous = newPage.recid;
+            previous = newPage.recordId;
         }
 
-        btree.recordManager.update( recid, this, this );
-        btree.recordManager.update( newPage.recid, newPage, this );
+        btree.recordManager.update( recordId, this, this );
+        btree.recordManager.update( newPage.recordId, newPage, this );
 
         result.overflow = newPage;
         return result;
@@ -505,7 +525,7 @@ public final class BPage<K, V> implements Serializer
             removeEntry( this, index );
 
             // update this BPage
-            btree.recordManager.update( recid, this, this );
+            btree.recordManager.update( recordId, this, this );
         }
         else
         {
@@ -515,7 +535,7 @@ public final class BPage<K, V> implements Serializer
 
             // update children
             keys[index] = child.getLargestKey();
-            btree.recordManager.update( recid, this, this );
+            btree.recordManager.update( recordId, this, this );
 
             if ( result.underflow )
             {
@@ -567,9 +587,9 @@ public final class BPage<K, V> implements Serializer
                         // no change in previous/next BPage
 
                         // update BPages
-                        btree.recordManager.update( recid, this, this );
-                        btree.recordManager.update( brother.recid, brother, this );
-                        btree.recordManager.update( child.recid, child, this );
+                        btree.recordManager.update( recordId, this, this );
+                        btree.recordManager.update( brother.recordId, brother, this );
+                        btree.recordManager.update( child.recordId, child, this );
 
                     }
                     else
@@ -591,7 +611,7 @@ public final class BPage<K, V> implements Serializer
                             copyChildren( child, half + 1, brother, 1, half - 1 );
                         }
                         
-                        btree.recordManager.update( brother.recid, brother, this );
+                        btree.recordManager.update( brother.recordId, brother, this );
 
                         // remove "child" from current BPage
                         if ( isLeaf )
@@ -606,25 +626,25 @@ public final class BPage<K, V> implements Serializer
                         }
                         
                         first += 1;
-                        btree.recordManager.update( recid, this, this );
+                        btree.recordManager.update( recordId, this, this );
 
                         // re-link previous and next BPages
                         if ( child.previous != 0 )
                         {
                             BPage<K, V> prev = loadBPage( child.previous );
                             prev.next = child.next;
-                            btree.recordManager.update( prev.recid, prev, this );
+                            btree.recordManager.update( prev.recordId, prev, this );
                         }
                         
                         if ( child.next != 0 )
                         {
                             BPage<K, V> next = loadBPage( child.next );
                             next.previous = child.previous;
-                            btree.recordManager.update( next.recid, next, this );
+                            btree.recordManager.update( next.recordId, next, this );
                         }
 
                         // delete "child" BPage
-                        btree.recordManager.delete( child.recid );
+                        btree.recordManager.delete( child.recordId );
                     }
                 }
                 else
@@ -669,9 +689,9 @@ public final class BPage<K, V> implements Serializer
                         // no change in previous/next BPage
 
                         // update BPages
-                        btree.recordManager.update( recid, this, this );
-                        btree.recordManager.update( brother.recid, brother, this );
-                        btree.recordManager.update( child.recid, child, this );
+                        btree.recordManager.update( recordId, this, this );
+                        btree.recordManager.update( brother.recordId, brother, this );
+                        btree.recordManager.update( child.recordId, child, this );
 
                     }
                     else
@@ -693,7 +713,7 @@ public final class BPage<K, V> implements Serializer
                             copyChildren( brother, half, child, 1, half );
                         }
                         
-                        btree.recordManager.update( child.recid, child, this );
+                        btree.recordManager.update( child.recordId, child, this );
 
                         // remove "brother" from current BPage
                         if ( isLeaf )
@@ -708,25 +728,25 @@ public final class BPage<K, V> implements Serializer
                         }
                         
                         first += 1;
-                        btree.recordManager.update( recid, this, this );
+                        btree.recordManager.update( recordId, this, this );
 
                         // re-link previous and next BPages
                         if ( brother.previous != 0 )
                         {
                             BPage<K, V> prev = loadBPage( brother.previous );
                             prev.next = brother.next;
-                            btree.recordManager.update( prev.recid, prev, this );
+                            btree.recordManager.update( prev.recordId, prev, this );
                         }
                         
                         if ( brother.next != 0 )
                         {
                             BPage<K, V> next = loadBPage( brother.next );
                             next.previous = brother.previous;
-                            btree.recordManager.update( next.recid, next, this );
+                            btree.recordManager.update( next.recordId, next, this );
                         }
 
                         // delete "brother" BPage
-                        btree.recordManager.delete( brother.recid );
+                        btree.recordManager.delete( brother.recordId );
                     }
                 }
             }
@@ -836,7 +856,7 @@ public final class BPage<K, V> implements Serializer
 
 
     /**
-     * Set the child BPage recid at the given index.
+     * Set the child BPage recordId at the given index.
      */
     private void setChild( BPage<K, V> page, int index, K key, long recid )
     {
@@ -875,13 +895,13 @@ public final class BPage<K, V> implements Serializer
 
 
     /**
-     * Load the BPage at the given recid.
+     * Load the BPage at the given recordId.
      */
     @SuppressWarnings("unchecked") // The fetch method returns an Object
     private BPage<K, V> loadBPage( long recid ) throws IOException
     {
         BPage<K, V> child = ( BPage<K, V> ) btree.recordManager.fetch( recid, this );
-        child.recid = recid;
+        child.recordId = recid;
         child.btree = btree;
         
         return child;
@@ -952,7 +972,7 @@ public final class BPage<K, V> implements Serializer
             prefix += "    ";
         }
         
-        System.out.println( prefix + "-------------------------------------- BPage recid=" + recid );
+        System.out.println( prefix + "-------------------------------------- BPage recordId=" + recordId );
         System.out.println( prefix + "first=" + first );
         
         for ( int i = 0; i < btree.pageSize; i++ )

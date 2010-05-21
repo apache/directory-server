@@ -289,7 +289,7 @@ public class BTree<K, V> implements Externalizable
             }
             
             rootPage = new BPage<K, V>( this, key, value );
-            rootId = rootPage.recid;
+            rootId = rootPage.getRecordId();
             bTreeHeight = 1;
             nbEntries.set( 1 );
             recordManager.update( recordId, this );
@@ -310,7 +310,7 @@ public class BTree<K, V> implements Externalizable
                 }
                 
                 rootPage = new BPage<K, V>( this, rootPage, insert.overflow );
-                rootId = rootPage.recid;
+                rootId = rootPage.getRecordId();
                 bTreeHeight += 1;
                 dirty = true;
             }
@@ -369,7 +369,7 @@ public class BTree<K, V> implements Externalizable
             }
             else
             {
-                rootId = rootPage.childBPage( pageSize - 1 ).recid;
+                rootId = rootPage.childBPage( pageSize - 1 ).getRecordId();
             }
         }
         
@@ -545,7 +545,7 @@ public class BTree<K, V> implements Externalizable
         }
         
         BPage<K, V> root = ( BPage<K, V> ) recordManager.fetch( rootId, bpageSerializer );
-        root.recid = rootId;
+        root.setRecordId( rootId );
         root.btree = this;
         
         return root;
