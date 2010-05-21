@@ -176,7 +176,7 @@ public class JdbmTable<K,V> implements Table<K,V>
             // marshallers.
 
             bt = new BTree<K, V>( recMan, keyComparator, keySerializer, null );
-            recId = bt.getRecid();
+            recId = bt.getRecordId();
             recMan.setNamedObject( name, recId );
             recId = recMan.insert( 0 );
             recMan.setNamedObject( name + SZSUFFIX, recId );
@@ -244,7 +244,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         else
         {
             bt = new BTree<K, V>( recMan, keyComparator, keySerializer, valueSerializer );
-            recId = bt.getRecid();
+            recId = bt.getRecordId();
             recMan.setNamedObject( name, recId );
             recId = recMan.insert( 0 );
             recMan.setNamedObject( name + SZSUFFIX, recId );
@@ -648,7 +648,7 @@ public class JdbmTable<K,V> implements Table<K,V>
                 if ( set.size() > numDupLimit )
                 {
                     BTree tree = convertToBTree( set );
-                    BTreeRedirect redirect = new BTreeRedirect( tree.getRecid() );
+                    BTreeRedirect redirect = new BTreeRedirect( tree.getRecordId() );
                     bt.insert( key, (V)BTreeRedirectMarshaller.INSTANCE.serialize( redirect ), true );
                     
                     if ( LOG.isDebugEnabled() )
@@ -780,7 +780,7 @@ public class JdbmTable<K,V> implements Table<K,V>
                     {
                         ArrayTree<V> avlTree = convertToArrayTree( tree );
                         bt.insert( key, (V)marshaller.serialize( avlTree ), true );
-                        recMan.delete( tree.getRecid() );
+                        recMan.delete( tree.getRecordId() );
                     }
                     
                     count--;
@@ -854,8 +854,8 @@ public class JdbmTable<K,V> implements Table<K,V>
                     LOG.debug( "<--- Remove BTree {} = {}", name, key );
                 }
 
-                recMan.delete( tree.getRecid() );
-                duplicateBtrees.remove( tree.getRecid() );
+                recMan.delete( tree.getRecordId() );
+                duplicateBtrees.remove( tree.getRecordId() );
                 return;
             }
             else
@@ -1115,17 +1115,17 @@ public class JdbmTable<K,V> implements Table<K,V>
     }
     
 
-    private BTree convertToBTree( ArrayTree<V> arrayTree ) throws Exception
+    private BTree<V, K> convertToBTree( ArrayTree<V> arrayTree ) throws Exception
     {
-        BTree bTree;
+        BTree<V, K> bTree;
 
         if ( valueSerializer != null )
         {
-            bTree = new BTree<K, V>( recMan, valueComparator, valueSerializer, null );
+            bTree = new BTree<V, K>( recMan, valueComparator, valueSerializer, null );
         }
         else
         {
-            bTree = new BTree<K, V>( recMan, valueComparator );
+            bTree = new BTree<V, K>( recMan, valueComparator );
         }
 
         Cursor<V> keys = new ArrayTreeCursor<V>( arrayTree );
@@ -1133,7 +1133,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         
         while ( keys.next() )
         {
-            bTree.insert( keys.get(), StringTools.EMPTY_BYTES, true );
+            bTree.insert( keys.get(), (K)StringTools.EMPTY_BYTES, true );
         }
         
         return bTree;

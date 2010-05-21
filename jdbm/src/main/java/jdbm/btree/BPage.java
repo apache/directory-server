@@ -88,7 +88,7 @@ public final class BPage<K, V> implements Serializer
     final static long serialVersionUID = 1L;
 
     /** Parent B+Tree. */
-    transient BTree btree;
+    transient BTree<K, V> btree;
 
     /** This BPage's record ID in the PageManager. */
     protected transient long recid;
@@ -888,7 +888,7 @@ public final class BPage<K, V> implements Serializer
     }
 
 
-    private final int compare( Object value1, Object value2 )
+    private final int compare( K value1, K value2 )
     {
         if ( value1 == value2 )
         {
@@ -905,7 +905,7 @@ public final class BPage<K, V> implements Serializer
             return -1;
         }
         
-        return btree.comparator.compare( value1, value2 );
+        return btree.getComparator().compare( value1, value2 );
     }
 
 
@@ -998,14 +998,14 @@ public final class BPage<K, V> implements Serializer
 
 
     /**
-     * Assert the ordering of the keys on the BPage.  This is used for testing
+     * Assert the ordering of the keys on the BPage. This is used for testing
      * purposes only.
      */
     private void assertConsistency()
     {
         for ( int i = first; i < btree.pageSize - 1; i++ )
         {
-            if ( compare( ( byte[] ) keys[i], ( byte[] ) keys[i + 1] ) >= 0 )
+            if ( compare( keys[i], keys[i + 1] ) >= 0 )
             {
                 dump( 0 );
                 throw new Error( I18n.err( I18n.ERR_515 ) );
@@ -1033,7 +1033,7 @@ public final class BPage<K, V> implements Serializer
                 
                 BPage<K, V> child = childBPage( i );
                 
-                if ( compare( ( byte[] ) keys[i], child.getLargestKey() ) != 0 )
+                if ( compare( keys[i], child.getLargestKey() ) != 0 )
                 {
                     dump( 0 );
                     child.dump( 0 );

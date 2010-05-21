@@ -107,7 +107,7 @@ public class BTree<K, V> implements Externalizable
     private transient long recordId;
 
     /** Comparator used to index entries. */
-    protected Comparator comparator;
+    private Comparator<K> comparator;
 
     /** Serializer used to serialize index keys (optional) */
     protected Serializer keySerializer;
@@ -149,7 +149,7 @@ public class BTree<K, V> implements Externalizable
      * @param recman Record manager used for persistence.
      * @param comparator Comparator used to order index entries
      */
-    public BTree( RecordManager recman, Comparator<?> comparator ) throws IOException
+    public BTree( RecordManager recman, Comparator<K> comparator ) throws IOException
     {
         createInstance( recman, comparator, null, null, DEFAULT_SIZE );
     }
@@ -163,7 +163,7 @@ public class BTree<K, V> implements Externalizable
      * @param valueSerializer Serializer used to serialize index values (optional)
      * @param comparator Comparator used to order index entries
      */
-    public BTree( RecordManager recman, Comparator<?> comparator, Serializer keySerializer,
+    public BTree( RecordManager recman, Comparator<K> comparator, Serializer keySerializer,
         Serializer valueSerializer ) throws IOException
     {
         createInstance( recman, comparator, keySerializer, valueSerializer, DEFAULT_SIZE );
@@ -179,7 +179,7 @@ public class BTree<K, V> implements Externalizable
      * @param valueSerializer Serializer used to serialize index values (optional)
      * @param pageSize Number of entries per page (must be even).
      */
-    public BTree( RecordManager recman, Comparator<?> comparator, Serializer keySerializer,
+    public BTree( RecordManager recman, Comparator<K> comparator, Serializer keySerializer,
         Serializer valueSerializer, int pageSize ) throws IOException
     {
         createInstance( recman, comparator, keySerializer, valueSerializer, pageSize );
@@ -189,7 +189,7 @@ public class BTree<K, V> implements Externalizable
     /**
      * The real BTree constructor.
      */
-    private void createInstance(RecordManager recman, Comparator<?> comparator, Serializer keySerializer,
+    private void createInstance(RecordManager recman, Comparator<K> comparator, Serializer keySerializer,
         Serializer valueSerializer, int pageSize) throws IOException
     {
         if ( recman == null )
@@ -528,7 +528,7 @@ public class BTree<K, V> implements Externalizable
     /**
      * Return the persistent record identifier of the BTree.
      */
-    public long getRecid()
+    public long getRecordId()
     {
         return recordId;
     }
@@ -557,7 +557,7 @@ public class BTree<K, V> implements Externalizable
      */
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
-        comparator = ( Comparator<?> ) in.readObject();
+        comparator = ( Comparator<K> ) in.readObject();
         keySerializer = ( Serializer ) in.readObject();
         valueSerializer = ( Serializer ) in.readObject();
         bTreeHeight = in.readInt();
@@ -608,7 +608,7 @@ public class BTree<K, V> implements Externalizable
     /**
      * @return the comparator
      */
-    public Comparator<?> getComparator()
+    public Comparator<K> getComparator()
     {
         return comparator;
     }
