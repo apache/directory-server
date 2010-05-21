@@ -68,7 +68,7 @@ public class MaxValueCountFilterTest
 
     static
     {
-        Collection<MaxValueCountItem> mvcItems = new ArrayList<MaxValueCountItem>();
+        Set<MaxValueCountItem> mvcItems = new HashSet<MaxValueCountItem>();
         mvcItems.add( new MaxValueCountItem( "cn", 2 ) );
         PROTECTED_ITEMS.add( new ProtectedItem.MaxValueCount( mvcItems ) );
     }

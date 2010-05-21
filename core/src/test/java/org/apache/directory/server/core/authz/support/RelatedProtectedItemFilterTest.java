@@ -118,7 +118,7 @@ public class RelatedProtectedItemFilterTest
     }
 
     
-    private Collection<Attribute> convert( Collection<EntryAttribute> attributes )
+    private Set<Attribute> convert( Collection<EntryAttribute> attributes )
     {
         Set<Attribute> jndiAttributes = new HashSet<Attribute>();
         
@@ -183,7 +183,7 @@ public class RelatedProtectedItemFilterTest
     @Test 
     public void testAllAttributeValues() throws Exception
     {
-        Collection<String> attrTypes = new ArrayList<String>();
+        Set<String> attrTypes = new HashSet<String>();
         attrTypes.add( "cn" );
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.AllAttributeValues( attrTypes ) );
 
@@ -204,7 +204,7 @@ public class RelatedProtectedItemFilterTest
     @Test 
     public void testAttributeType() throws Exception
     {
-        Collection<String> attrTypes = new ArrayList<String>();
+        Set<String> attrTypes = new HashSet<String>();
         attrTypes.add( "cn" );
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.AttributeType( attrTypes ) );
 
@@ -225,7 +225,7 @@ public class RelatedProtectedItemFilterTest
     @Test 
     public void testAttributeValue() throws Exception
     {
-        Collection<EntryAttribute> attributes = new ArrayList<EntryAttribute>();
+        Set<EntryAttribute> attributes = new HashSet<EntryAttribute>();
         attributes.add( new DefaultEntryAttribute( "cn", CN_AT, "valueA" ) );
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.AttributeValue( convert( attributes ) ) );
 
@@ -271,7 +271,7 @@ public class RelatedProtectedItemFilterTest
     @Test 
     public void testMaxValueCount() throws Exception
     {
-        Collection<MaxValueCountItem> mvcItems = new ArrayList<MaxValueCountItem>();
+        Set<MaxValueCountItem> mvcItems = new HashSet<MaxValueCountItem>();
         mvcItems.add( new MaxValueCountItem( "cn", 3 ) );
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.MaxValueCount( mvcItems ) );
 
@@ -315,7 +315,7 @@ public class RelatedProtectedItemFilterTest
     @Test 
     public void testRestrictedBy() throws Exception
     {
-        Collection<RestrictedByItem> rbItems = new ArrayList<RestrictedByItem>();
+        Set<RestrictedByItem> rbItems = new HashSet<RestrictedByItem>();
         rbItems.add( new RestrictedByItem( "cn", "sn" ) );
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.RestrictedBy( rbItems ) );
 
@@ -339,7 +339,7 @@ public class RelatedProtectedItemFilterTest
     @Test 
     public void testSelfValue() throws Exception
     {
-        Collection<String> attrTypes = new ArrayList<String>();
+        Set<String> attrTypes = new HashSet<String>();
         attrTypes.add( "cn" );
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.SelfValue( attrTypes ) );
 

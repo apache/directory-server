@@ -51,22 +51,22 @@ import org.junit.Test;
  */
 public class MostSpecificProtectedItemFilterTest
 {
-    private static final Collection<String> EMPTY_STRING_COLLECTION = Collections.unmodifiableCollection( new ArrayList<String>() );
-    
-    private static final Collection<Attribute> EMPTY_ATTRIBUTE_COLLECTION =
-        Collections.unmodifiableCollection( new ArrayList<Attribute>() );
-    
-    private static final Collection<UserClass> EMPTY_USER_CLASS_COLLECTION =
-        Collections.unmodifiableCollection( new ArrayList<UserClass>() );
-    
-    private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION =
-        Collections.unmodifiableCollection( new ArrayList<ACITuple>() );
-    
-    private static final Collection<ProtectedItem> EMPTY_PROTECTED_ITEM_COLLECTION =
-        Collections.unmodifiableCollection( new ArrayList<ProtectedItem>() );
-    
-    private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET =
-         Collections.unmodifiableSet( new HashSet<MicroOperation>() );
+    private static final Set<String> EMPTY_STRING_COLLECTION = Collections.unmodifiableSet( new HashSet<String>() );
+
+    private static final Set<Attribute> EMPTY_ATTRIBUTE_COLLECTION = Collections
+        .unmodifiableSet( new HashSet<Attribute>() );
+
+    private static final Collection<UserClass> EMPTY_USER_CLASS_COLLECTION = Collections
+        .unmodifiableCollection( new ArrayList<UserClass>() );
+
+    private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION = Collections
+        .unmodifiableCollection( new ArrayList<ACITuple>() );
+
+    private static final Collection<ProtectedItem> EMPTY_PROTECTED_ITEM_COLLECTION = Collections
+        .unmodifiableCollection( new ArrayList<ProtectedItem>() );
+
+    private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections
+        .unmodifiableSet( new HashSet<MicroOperation>() );
     
     private static final List<ACITuple> TUPLES_A = new ArrayList<ACITuple>();
     private static final List<ACITuple> TUPLES_B = new ArrayList<ACITuple>();

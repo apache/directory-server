@@ -65,7 +65,7 @@ public class RestrictedByFilterTest
 
     static
     {
-        Collection<RestrictedByItem> mvcItems = new ArrayList<RestrictedByItem>();
+        Set<RestrictedByItem> mvcItems = new HashSet<RestrictedByItem>();
         mvcItems.add( new RestrictedByItem( "sn", "cn" ) );
         PROTECTED_ITEMS.add( new ProtectedItem.RestrictedBy( mvcItems ) );
     }
