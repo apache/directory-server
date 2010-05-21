@@ -1967,5 +1967,4 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             }
         }
     }
-
 }
