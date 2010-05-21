@@ -476,8 +476,14 @@ public class ClonedServerEntry implements Entry
         {
             return false;
         }
-
-        return clonedEntry.equals( other );
+        if ( clonedEntry == null)
+        {
+            return other == null;
+        }
+        else
+        {
+            return clonedEntry.equals( other );
+        }
     }
     
     
