@@ -110,7 +110,7 @@ public class IndexValueSerializer implements Serializer
 
     
     /**
-     * Serialize an AvlTree value
+     * Serialize a BTree value
      */
     private byte[] serialize( BTree bTree ) throws IOException
     {
@@ -118,9 +118,9 @@ public class IndexValueSerializer implements Serializer
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
         // First, write the type
-        out.write( AVL_TREE_VALUE );
+        out.write( BTREE_VALUE );
         
-        // Marshal the AvlTree here. 
+        // Marshal the BTree here. 
         // TODO : add the code
 
         out.flush();
@@ -128,7 +128,7 @@ public class IndexValueSerializer implements Serializer
         if ( LOG.isDebugEnabled() )
         {
             LOG.debug( ">------------------------------------------------" );
-            LOG.debug( "Serializes an AVL tree" );
+            LOG.debug( "Serializes an BTree" );
         }
 
         return baos.toByteArray();
@@ -144,8 +144,11 @@ public class IndexValueSerializer implements Serializer
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
         // First, write the type
-        out.write( BTREE_VALUE );
+        out.write( AVL_TREE_VALUE );
         
+        // Marshal the AvlTree here. 
+        // TODO : add the code
+
         out.flush();
 
         if ( LOG.isDebugEnabled() )
