@@ -17,36 +17,35 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.entry;
+package jdbm.recman;
 
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import org.apache.directory.shared.ldap.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
 
 /**
- * Unit tests class ClonedServerEntry.
+ * Unit tests class LocationEntry.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ClonedServerEntryTest
+public class LocationTest
 {
-    ClonedServerEntry clonedServerEntryA;
-    ClonedServerEntry clonedServerEntryACopy;
-    ClonedServerEntry clonedServerEntryB;
-    ClonedServerEntry clonedServerEntryC;
-    ClonedServerEntry clonedServerEntryA1;
-    ClonedServerEntry clonedServerEntryACopy1;
-    ClonedServerEntry clonedServerEntryB1;
-    ClonedServerEntry clonedServerEntryC1;
+    Location clonedServerEntryA;
+    Location clonedServerEntryACopy;
+    Location clonedServerEntryB;
+    Location clonedServerEntryC;
+    Location clonedServerEntryA1;
+    Location clonedServerEntryACopy1;
+    Location clonedServerEntryB1;
+    Location clonedServerEntryC1;
+    Location clonedServerEntryD1;
+
 
     /**
      * Initialize name instances
@@ -54,18 +53,15 @@ public class ClonedServerEntryTest
     @Before
     public void initNames() throws Exception
     {
-        Entry eA = new DefaultEntry(new DN( "dc=example,dc=com" ));
-        Entry eB = new DefaultEntry(new DN( "dc=example,dc=com" ));
-        Entry eC = new DefaultEntry(new DN( "dc=test,dc=org" ));
-
-        clonedServerEntryA = new ClonedServerEntry();
-        clonedServerEntryACopy = new ClonedServerEntry();
-        clonedServerEntryB = new ClonedServerEntry();
-        clonedServerEntryC = new ClonedServerEntry();
-        clonedServerEntryA1 = new ClonedServerEntry( eA );
-        clonedServerEntryACopy1 = new ClonedServerEntry( eA );
-        clonedServerEntryB1 = new ClonedServerEntry( eB );
-        clonedServerEntryC1 = new ClonedServerEntry( eC );
+        clonedServerEntryA = new Location( 1L );
+        clonedServerEntryACopy = new Location( 1L );
+        clonedServerEntryB = new Location( 1L );
+        clonedServerEntryC = new Location( 2L );
+        clonedServerEntryA1 = new Location( 1L, ( short ) 1 );
+        clonedServerEntryACopy1 = new Location( 1L, ( short ) 1 );
+        clonedServerEntryB1 = new Location( 1L, ( short ) 1 );
+        clonedServerEntryC1 = new Location( 1L, ( short ) 2 );
+        clonedServerEntryD1 = new Location( 2L, ( short ) 1 );
     }
 
 
@@ -104,6 +100,7 @@ public class ClonedServerEntryTest
 
 
     @Test
+    @Ignore
     public void testHashCodeSymmetric() throws Exception
     {
         assertEquals( clonedServerEntryA.hashCode(), clonedServerEntryACopy.hashCode() );
@@ -126,6 +123,7 @@ public class ClonedServerEntryTest
 
 
     @Test
+    @Ignore
     public void testHashCodeTransitive() throws Exception
     {
         assertEquals( clonedServerEntryA.hashCode(), clonedServerEntryACopy.hashCode() );
@@ -142,5 +140,7 @@ public class ClonedServerEntryTest
     {
         assertFalse( clonedServerEntryA1.equals( clonedServerEntryC1 ) );
         assertFalse( clonedServerEntryC1.equals( clonedServerEntryA1 ) );
+        assertFalse( clonedServerEntryA1.equals( clonedServerEntryD1 ) );
+        assertFalse( clonedServerEntryD1.equals( clonedServerEntryA1 ) );
     }
 }

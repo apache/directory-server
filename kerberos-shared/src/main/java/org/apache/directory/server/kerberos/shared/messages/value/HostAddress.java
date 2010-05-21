@@ -24,6 +24,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.messages.value.types.HostAddrType;
@@ -111,11 +112,29 @@ public class HostAddress extends AbstractAsn1Object
 
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode()
+    {
+        int hash = 37;
+        hash = hash * 17 + addrType.hashCode();
+        if ( address != null )
+        {
+            hash = hash * 17 + Arrays.hashCode( address );
+        }
+        
+        return hash;
+    }
+
+
+    /**
      * Returns whether one {@link HostAddress} is equal to another.
      *
      * @param that The {@link HostAddress} to compare with
      * @return true if the {@link HostAddress}'s are equal.
      */
+    @Override
     public boolean equals( Object that )
     {
         if ( this == that )

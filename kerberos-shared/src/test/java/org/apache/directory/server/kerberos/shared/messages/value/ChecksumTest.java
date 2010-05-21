@@ -20,12 +20,17 @@
 package org.apache.directory.server.kerberos.shared.messages.value;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
-import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -36,6 +41,33 @@ import static org.junit.Assert.assertTrue;
  */
 public class ChecksumTest
 {
+    Checksum checksumA;
+    Checksum checksumACopy;
+    Checksum checksumB;
+    Checksum checksumC;
+    Checksum checksumD;
+
+    byte[] checksumValueA = { ( byte ) 0x30, ( byte ) 0x1A, ( byte ) 0xA0, ( byte ) 0x11, ( byte ) 0x18, ( byte ) 0x0F, ( byte ) 0x32,
+        ( byte ) 0x30 };
+    byte[] checksumValueB = { ( byte ) 0x30, ( byte ) 0x1A, ( byte ) 0xA0, ( byte ) 0x11, ( byte ) 0x18, ( byte ) 0x0F, ( byte ) 0x32,
+        ( byte ) 0x30 };
+    byte[] checksumValueC = { ( byte ) 0x30, ( byte ) 0x1B, ( byte ) 0xA0, ( byte ) 0x11, ( byte ) 0x18, ( byte ) 0x0F, ( byte ) 0x32,
+        ( byte ) 0x30 };
+    
+    /**
+     * Initialize name instances
+     */
+    @Before
+    public void initNames() throws Exception
+    {
+        checksumA = new Checksum ( ChecksumType.RSA_MD5, checksumValueA );
+        checksumACopy = new Checksum ( ChecksumType.RSA_MD5, checksumValueA );
+        checksumB = new Checksum ( ChecksumType.RSA_MD5, checksumValueB );
+        checksumC = new Checksum ( ChecksumType.RSA_MD5, checksumValueC );
+        checksumD = new Checksum ( ChecksumType.RSA_MD4, checksumValueA );
+
+    }
+    
     @Test
     public void testEncodingChecksum() throws Exception
     {
@@ -82,19 +114,69 @@ public class ChecksumTest
     }
 
 
-    /**
-     * Tests that two Checksums are equal if both their type and value are equal.
-     */
     @Test
-    public void testEquality()
+    public void testEqualsNull() throws Exception
     {
-        byte[] checksumValue =
-            { ( byte ) 0x30, ( byte ) 0x1A, ( byte ) 0xA0, ( byte ) 0x11, ( byte ) 0x18, ( byte ) 0x0F, ( byte ) 0x32,
-                ( byte ) 0x30 };
+        assertFalse( checksumA.equals( null ) );
+    }
 
-        Checksum expected = new Checksum( ChecksumType.RSA_MD5, checksumValue );
-        Checksum provided = new Checksum( ChecksumType.RSA_MD5, checksumValue );
 
-        assertTrue( "Checksum equality", expected.equals( provided ) );
+    @Test
+    public void testEqualsReflexive() throws Exception
+    {
+        assertEquals( checksumA, checksumA );
+    }
+
+
+    @Test
+    public void testHashCodeReflexive() throws Exception
+    {
+        assertEquals( checksumA.hashCode(), checksumA.hashCode() );
+    }
+
+
+    @Test
+    public void testEqualsSymmetric() throws Exception
+    {
+        assertEquals( checksumA, checksumACopy );
+        assertEquals( checksumACopy, checksumA );
+    }
+
+
+    @Test
+    @Ignore
+    public void testHashCodeSymmetric() throws Exception
+    {
+        assertEquals( checksumA.hashCode(), checksumACopy.hashCode() );
+        assertEquals( checksumACopy.hashCode(), checksumA.hashCode() );
+    }
+
+
+    @Test
+    public void testEqualsTransitive() throws Exception
+    {
+        assertEquals( checksumA, checksumACopy );
+        assertEquals( checksumACopy, checksumB );
+        assertEquals( checksumA, checksumB );
+    }
+
+
+    @Test
+    @Ignore
+    public void testHashCodeTransitive() throws Exception
+    {
+        assertEquals( checksumA.hashCode(), checksumACopy.hashCode() );
+        assertEquals( checksumACopy.hashCode(), checksumB.hashCode() );
+        assertEquals( checksumA.hashCode(), checksumB.hashCode() );
+    }
+
+
+    @Test
+    public void testNotEqualDiffValue() throws Exception
+    {
+        assertFalse( checksumA.equals( checksumC ) );
+        assertFalse( checksumC.equals( checksumA ) );
+        assertFalse( checksumA.equals( checksumD ) );
+        assertFalse( checksumD.equals( checksumA ) );
     }
 }

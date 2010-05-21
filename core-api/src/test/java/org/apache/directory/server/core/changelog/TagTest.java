@@ -93,7 +93,6 @@ public class TagTest
 
 
     @Test
-    @Ignore
     public void testHashCodeSymmetric() throws Exception
     {
         assertEquals( tagA.hashCode(), tagACopy.hashCode() );
@@ -111,7 +110,6 @@ public class TagTest
 
 
     @Test
-    @Ignore
     public void testHashCodeTransitive() throws Exception
     {
         assertEquals( tagA.hashCode(), tagACopy.hashCode() );

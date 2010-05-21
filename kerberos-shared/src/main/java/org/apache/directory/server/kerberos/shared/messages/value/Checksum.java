@@ -90,8 +90,23 @@ public class Checksum extends AbstractAsn1Object
 
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode()
+    {
+        int hash = 37;
+        hash = hash * 17 + cksumtype.hashCode();
+        hash = hash * 17 + Arrays.hashCode( checksum );
+        
+        return hash;
+    }
+
+
+    /**
      * @see Object#equals(Object)
      */
+    @Override
     public boolean equals( Object o )
     {
         if ( this == o )

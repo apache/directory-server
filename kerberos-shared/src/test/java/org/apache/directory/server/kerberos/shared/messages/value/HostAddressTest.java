@@ -20,12 +20,17 @@
 package org.apache.directory.server.kerberos.shared.messages.value;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import org.apache.directory.server.kerberos.shared.messages.value.types.HostAddrType;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Test the HostAddress encoding and decoding
@@ -35,15 +40,39 @@ import static org.junit.Assert.assertTrue;
  */
 public class HostAddressTest
 {
+    HostAddress hostAddressA;
+    HostAddress hostAddressACopy;
+    HostAddress hostAddressB;
+    HostAddress hostAddressC;
+    HostAddress hostAddressD;
+
+    
+    /**
+     * Initialize name instances
+     */
+    @Before
+    public void initNames() throws Exception
+    {
+        hostAddressA = new HostAddress( HostAddrType.ADDRTYPE_INET, new byte[]
+                                                                            { 0x01, 0x02, 0x03, 0x04 } );
+        hostAddressACopy = new HostAddress( HostAddrType.ADDRTYPE_INET, new byte[]
+                                                                                { 0x01, 0x02, 0x03, 0x04 } );
+        hostAddressB = new HostAddress( HostAddrType.ADDRTYPE_INET, new byte[]
+                                                                            { 0x01, 0x02, 0x03, 0x04 } );
+        hostAddressC = new HostAddress( HostAddrType.ADDRTYPE_INET, new byte[]
+                                                                            { 0x01, 0x02, 0x03, 0x05 } );
+        hostAddressD = new HostAddress( HostAddrType.ADDRTYPE_CHAOS, new byte[]
+                                                                            { 0x01, 0x02, 0x03, 0x04 } );
+
+    }
+
+    
     @Test
     public void testEncodingHostAddressIP() throws Exception
     {
-        HostAddress ha = new HostAddress( HostAddrType.ADDRTYPE_INET, new byte[]
-            { 0x01, 0x02, 0x03, 0x04 } );
+        ByteBuffer encoded = ByteBuffer.allocate( hostAddressA.computeLength() );
 
-        ByteBuffer encoded = ByteBuffer.allocate( ha.computeLength() );
-
-        ha.encode( encoded );
+        hostAddressA.encode( encoded );
 
         byte[] expectedResult = new byte[]
             { 
@@ -78,5 +107,72 @@ public class HostAddressTest
             };
 
         assertTrue( Arrays.equals( expectedResult, encoded.array() ) );
+    }
+
+
+    @Test
+    public void testEqualsNull() throws Exception
+    {
+        assertFalse( hostAddressA.equals( null ) );
+    }
+
+
+    @Test
+    public void testEqualsReflexive() throws Exception
+    {
+        assertEquals( hostAddressA, hostAddressA );
+    }
+
+
+    @Test
+    public void testHashCodeReflexive() throws Exception
+    {
+        assertEquals( hostAddressA.hashCode(), hostAddressA.hashCode() );
+    }
+
+
+    @Test
+    public void testEqualsSymmetric() throws Exception
+    {
+        assertEquals( hostAddressA, hostAddressACopy );
+        assertEquals( hostAddressACopy, hostAddressA );
+    }
+
+
+    @Test
+    @Ignore
+    public void testHashCodeSymmetric() throws Exception
+    {
+        assertEquals( hostAddressA.hashCode(), hostAddressACopy.hashCode() );
+        assertEquals( hostAddressACopy.hashCode(), hostAddressA.hashCode() );
+    }
+
+
+    @Test
+    public void testEqualsTransitive() throws Exception
+    {
+        assertEquals( hostAddressA, hostAddressACopy );
+        assertEquals( hostAddressACopy, hostAddressB );
+        assertEquals( hostAddressA, hostAddressB );
+    }
+
+
+    @Test
+    @Ignore
+    public void testHashCodeTransitive() throws Exception
+    {
+        assertEquals( hostAddressA.hashCode(), hostAddressACopy.hashCode() );
+        assertEquals( hostAddressACopy.hashCode(), hostAddressB.hashCode() );
+        assertEquals( hostAddressA.hashCode(), hostAddressB.hashCode() );
+    }
+
+
+    @Test
+    public void testNotEqualDiffValue() throws Exception
+    {
+        assertFalse( hostAddressA.equals( hostAddressC ) );
+        assertFalse( hostAddressC.equals( hostAddressA ) );
+        assertFalse( hostAddressA.equals( hostAddressD ) );
+        assertFalse( hostAddressD.equals( hostAddressA ) );
     }
 }

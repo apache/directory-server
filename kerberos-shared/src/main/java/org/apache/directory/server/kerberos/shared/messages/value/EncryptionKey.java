@@ -184,8 +184,23 @@ public class EncryptionKey extends AbstractAsn1Object
 
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode()
+    {
+        int hash = 37;
+        hash = hash * 17 + keyType.hashCode();
+        hash = hash * 17 + Arrays.hashCode( keyValue );
+        
+        return hash;
+    }
+
+
+    /**
      * @see Object#equals(Object)
      */
+    @Override
     public boolean equals( Object o )
     {
         if ( this == o )

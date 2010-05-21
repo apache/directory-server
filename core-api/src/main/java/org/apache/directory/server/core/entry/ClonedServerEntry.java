@@ -452,8 +452,18 @@ public class ClonedServerEntry implements Entry
     
     
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode()
+    {
+        return 703;
+    }
+
+    /**
      * @see Object#equals(Object);
      */
+    @Override
     public boolean equals( Object obj )
     {
         // Short circuit

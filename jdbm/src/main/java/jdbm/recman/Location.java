@@ -118,12 +118,20 @@ final class Location
     }
 
     
-    // -----------------------------------------------------------------------
-    // java.lang.Object Overrides
-    // -----------------------------------------------------------------------
- 
-    
-    public boolean equals( Object o ) 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode()
+    {
+        return 663;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+   public boolean equals( Object o ) 
     {
         if ( o == null || ! ( o instanceof Location ) )
         {

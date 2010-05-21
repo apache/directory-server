@@ -103,6 +103,27 @@ public class Tag
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode()
+    {
+        int hash = 37;
+        if ( description != null )
+        {
+            hash = hash * 17 + description.hashCode();
+        }
+        hash = hash * 17 + Long.valueOf( revision ).hashCode();
+        
+        return hash;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean equals( Object other )
     {
         if ( other instanceof Tag )

@@ -137,6 +137,24 @@ public class NtpTimeStamp
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode()
+    {
+        int hash = 37;
+        hash = hash * 17 + Long.valueOf( seconds ).hashCode();
+        hash = hash * 17 + Long.valueOf( fraction ).hashCode();
+        
+        return hash;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean equals( Object o )
     {
         if ( this == o )

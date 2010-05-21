@@ -27,7 +27,12 @@ import java.util.Arrays;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.io.encoder.EncryptionKeyEncoder;
 import org.apache.directory.shared.asn1.codec.EncoderException;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -38,6 +43,32 @@ import static org.junit.Assert.assertTrue;
  */
 public class EncryptionKeyTest
 {
+    EncryptionKey encryptionA;
+    EncryptionKey encryptionACopy;
+    EncryptionKey encryptionB;
+    EncryptionKey encryptionC;
+    EncryptionKey encryptionD;
+
+    byte[] encryptionValueA = { 0x01, 0x02, 0x03 };
+    byte[] encryptionValueB = { 0x01, 0x02, 0x03 };
+    byte[] encryptionValueC = { 0x01, 0x02, 0x04 };
+
+    
+    /**
+     * Initialize name instances
+     */
+    @Before
+    public void initNames() throws Exception
+    {
+        encryptionA = new EncryptionKey ( EncryptionType.AES128_CTS_HMAC_SHA1_96, encryptionValueA );
+        encryptionACopy = new EncryptionKey ( EncryptionType.AES128_CTS_HMAC_SHA1_96, encryptionValueA );
+        encryptionB = new EncryptionKey ( EncryptionType.AES128_CTS_HMAC_SHA1_96, encryptionValueB );
+        encryptionC = new EncryptionKey ( EncryptionType.AES128_CTS_HMAC_SHA1_96, encryptionValueC );
+        encryptionD = new EncryptionKey ( EncryptionType.AES256_CTS_HMAC_SHA1_96, encryptionValueA );
+
+    }
+
+    
     @Test
     public void testEncodingFast() throws Exception
     {
@@ -164,5 +195,72 @@ public class EncryptionKeyTest
         long t1 = System.currentTimeMillis();
 
         System.out.println( "Delta2 = " + ( t1 - t0 ) );
+    }
+
+
+    @Test
+    public void testEqualsNull() throws Exception
+    {
+        assertFalse( encryptionA.equals( null ) );
+    }
+
+
+    @Test
+    public void testEqualsReflexive() throws Exception
+    {
+        assertEquals( encryptionA, encryptionA );
+    }
+
+
+    @Test
+    public void testHashCodeReflexive() throws Exception
+    {
+        assertEquals( encryptionA.hashCode(), encryptionA.hashCode() );
+    }
+
+
+    @Test
+    public void testEqualsSymmetric() throws Exception
+    {
+        assertEquals( encryptionA, encryptionACopy );
+        assertEquals( encryptionACopy, encryptionA );
+    }
+
+
+    @Test
+    @Ignore
+    public void testHashCodeSymmetric() throws Exception
+    {
+        assertEquals( encryptionA.hashCode(), encryptionACopy.hashCode() );
+        assertEquals( encryptionACopy.hashCode(), encryptionA.hashCode() );
+    }
+
+
+    @Test
+    public void testEqualsTransitive() throws Exception
+    {
+        assertEquals( encryptionA, encryptionACopy );
+        assertEquals( encryptionACopy, encryptionB );
+        assertEquals( encryptionA, encryptionB );
+    }
+
+
+    @Test
+    @Ignore
+    public void testHashCodeTransitive() throws Exception
+    {
+        assertEquals( encryptionA.hashCode(), encryptionACopy.hashCode() );
+        assertEquals( encryptionACopy.hashCode(), encryptionB.hashCode() );
+        assertEquals( encryptionA.hashCode(), encryptionB.hashCode() );
+    }
+
+
+    @Test
+    public void testNotEqualDiffValue() throws Exception
+    {
+        assertFalse( encryptionA.equals( encryptionC ) );
+        assertFalse( encryptionC.equals( encryptionA ) );
+        assertFalse( encryptionA.equals( encryptionD ) );
+        assertFalse( encryptionD.equals( encryptionA ) );
     }
 }
