@@ -208,10 +208,12 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     public void setSuffixDn( DN suffixDn )
     {
         protect( "suffixDn" );
+        
         if ( !suffixDn.isNormalized() )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_218, suffixDn.getName() ) );
         }
+        
         this.suffixDn = suffixDn;
     }
 
@@ -243,7 +245,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     //------------------------------------------------------------------------
     // Index handling
     //------------------------------------------------------------------------
-
     /**
      * Sets up the user indices.
      */
@@ -251,11 +252,13 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     {
         // convert and initialize system indices
         Map<String, Index<?, E, ID>> tmp = new HashMap<String, Index<?, E, ID>>();
+        
         for ( String oid : userIndices.keySet() )
         {
             // check that the attributeType has an EQUALITY matchingRule
             AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
             MatchingRule mr = attributeType.getEquality();
+            
             if ( mr != null )
             {
                 Index<?, E, ID> index = userIndices.get( oid );
@@ -267,6 +270,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
                 LOG.error( I18n.err( I18n.ERR_4, attributeType.getName() ) );
             }
         }
+        
         userIndices = tmp;
     }
 
@@ -282,38 +286,47 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         {
             addIndex( new GenericIndex<String, E, ID>( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ) );
         }
+        
         if ( getOneLevelIndex() == null )
         {
             addIndex( new GenericIndex<ID, E, ID>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
         }
+        
         if ( getSubLevelIndex() == null )
         {
             addIndex( new GenericIndex<ID, E, ID>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) );
         }
+        
         if ( getRdnIndex() == null )
         {
             addIndex( new GenericIndex<ParentIdAndRdn<ID>, E, ID>( ApacheSchemaConstants.APACHE_RDN_AT_OID ) );
         }
+        
         if ( getAliasIndex() == null )
         {
             addIndex( new GenericIndex<String, E, ID>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
         }
+        
         if ( getOneAliasIndex() == null )
         {
             addIndex( new GenericIndex<ID, E, ID>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
         }
+        
         if ( getSubAliasIndex() == null )
         {
             addIndex( new GenericIndex<ID, E, ID>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
         }
+        
         if ( getObjectClassIndex() == null )
         {
             addIndex( new GenericIndex<String, E, ID>( SchemaConstants.OBJECT_CLASS_AT_OID ) );
         }
+        
         if ( getEntryUuidIndex() == null )
         {
             addIndex( new GenericIndex<String, E, ID>( SchemaConstants.ENTRY_UUID_AT_OID ) );
         }
+        
         if ( getEntryCsnIndex() == null )
         {
             addIndex( new GenericIndex<String, E, ID>( SchemaConstants.ENTRY_CSN_AT_OID ) );
@@ -445,6 +458,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         {
             return userIndices.get( id );
         }
+        
         if ( systemIndices.containsKey( id ) )
         {
             return systemIndices.get( id );
@@ -511,7 +525,9 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     {
         protect( "addIndex" );
 
+        // Check that the index ID is valid
         String oid = index.getAttributeId();
+        
         if ( !OID.isOID( oid ) )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_309, oid ) );
@@ -707,6 +723,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     public ID getParentId( ID childId ) throws Exception
     {
         ParentIdAndRdn<ID> key = rdnIdx.reverseLookup( childId );
+        
         if ( key == null )
         {
             return null;
@@ -745,6 +762,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     {
         IndexCursor<ID, E, ID> cursor = oneLevelIdx.forwardCursor( id );
         cursor.beforeValue( id, null );
+        
         return cursor;
     }
 
@@ -1118,11 +1136,13 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         if ( deleteOldRdn )
         {
             RDN oldRdn = updn.getRdn();
+            
             for ( AVA oldAtav : oldRdn )
             {
                 // check if the new ATAV is part of the old RDN
                 // if that is the case we do not remove the ATAV
                 boolean mustRemove = true;
+                
                 for ( AVA newAtav : newRdn )
                 {
                     if ( oldAtav.equals( newAtav ) )
@@ -1241,10 +1261,12 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         {
             ParentIdAndRdn<ID> cur = rdnIdx.reverseLookup( parentId );
             RDN[] rdns = cur.getRdns();
+            
             for ( RDN rdn : rdns )
             {
                 dn.addNormalizedInOrder( rdn );
             }
+            
             parentId = cur.getParentId();
         }
         while ( !parentId.equals( getRootId() ) );
@@ -1640,6 +1662,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         // check if alias parent and aliased entry are the same
         DN normalizedAliasTargetParentDn = ( DN ) normalizedAliasTargetDn.clone();
         normalizedAliasTargetParentDn.remove( normalizedAliasTargetDn.size() - 1 );
+        
         if ( !aliasDn.isChildOf( normalizedAliasTargetParentDn ) )
         {
             oneAliasIdx.add( ancestorId, targetId );
@@ -1820,6 +1843,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         //updated the RDN index
         rdnIdx.drop( id );
+        
         if ( !updn.isNormalized() )
         {
             // just normalize the RDN alone
