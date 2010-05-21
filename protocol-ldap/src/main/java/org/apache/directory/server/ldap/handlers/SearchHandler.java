@@ -404,7 +404,7 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
     
     
     private void readPagedResults( LdapSession session, InternalSearchRequest req, InternalLdapResult ldapResult,  
-        EntryFilteringCursor cursor, long sizeLimit, int pagedLimit, boolean isPaged, 
+        EntryFilteringCursor cursor, long sizeLimit, int pagedLimit, 
         PagedSearchContext pagedContext, PagedResultsControl pagedResultsControl ) throws Exception
     {
         req.addAbandonListener( new SearchAbandonListener( ldapServer, cursor ) );
@@ -726,7 +726,7 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
          */
         try
         {
-            readPagedResults( session, req, ldapResult, cursor, sizeLimit, pagedLimit, true, pagedContext, pagedResultsControl );
+            readPagedResults( session, req, ldapResult, cursor, sizeLimit, pagedLimit, pagedContext, pagedResultsControl );
         }
         catch ( Exception e )
         {

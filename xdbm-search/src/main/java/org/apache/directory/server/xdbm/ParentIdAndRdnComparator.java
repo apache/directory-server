@@ -21,7 +21,6 @@
 package org.apache.directory.server.xdbm;
 
 
-import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 
 

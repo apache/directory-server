@@ -81,7 +81,7 @@ public class ChangePasswordService
         }
         
         configureChangePassword( changepwContext );
-        getAuthHeader( session, changepwContext );
+        getAuthHeader( changepwContext );
         verifyServiceTicket( changepwContext );
         getServerEntry( changepwContext );
         verifyServiceTicketAuthHeader( changepwContext );
@@ -157,7 +157,7 @@ public class ChangePasswordService
     }
     
     
-    private static void getAuthHeader( IoSession session, ChangePasswordContext changepwContext ) throws KerberosException
+    private static void getAuthHeader( ChangePasswordContext changepwContext ) throws KerberosException
     {
         ChangePasswordRequest request = ( ChangePasswordRequest ) changepwContext.getRequest();
 

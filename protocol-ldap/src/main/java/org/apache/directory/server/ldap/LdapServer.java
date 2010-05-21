@@ -35,8 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.security.CoreKeyStoreSpi;
@@ -138,9 +136,6 @@ public class LdapServer extends DirectoryBackedService
 
     /** The default service name. */
     private static final String SERVICE_NAME_DEFAULT = "ApacheDS LDAP Service";
-
-    /** The default IP port. */
-    private static final int DEFAULT_IP_PORT = 389;
 
     /** the session manager for this LdapServer */
     private LdapSessionManager ldapSessionManager = new LdapSessionManager();

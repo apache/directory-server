@@ -155,7 +155,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
         }
         else
         {
-            return evaluateWithIndex( entry );
+            return evaluateWithIndex( );
         }
     }
 
@@ -200,7 +200,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
     }
 
 
-    private boolean evaluateWithIndex( Entry entry ) throws Exception
+    private boolean evaluateWithIndex( ) throws Exception
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_721 ) );
     }

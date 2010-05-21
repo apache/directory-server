@@ -24,9 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
-import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.i18n.I18n;
@@ -409,7 +406,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
                 {
                     if ( "TRUE".equalsIgnoreCase( disabledInMods.getString() ) )
                     {
-                        return disableSchema( opContext.getSession(), getSchemaName( name ) );
+                        return disableSchema( getSchemaName( name ) );
                     }
                 }
                 
@@ -464,7 +461,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
                 if ( !isCurrentlyDisabled && isNewStateDisabled )
                 {
-                    return disableSchema( opContext.getSession(), getSchemaName( name ) );
+                    return disableSchema( getSchemaName( name ) );
                 }
                 
                 break;
@@ -483,7 +480,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     }
 
     
-    private boolean disableSchema( CoreSession session, String schemaName ) throws Exception
+    private boolean disableSchema( String schemaName ) throws Exception
     {
         Schema schema = registries.getLoadedSchema( schemaName );
 

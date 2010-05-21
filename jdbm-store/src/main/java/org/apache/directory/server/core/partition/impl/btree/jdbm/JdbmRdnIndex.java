@@ -24,8 +24,6 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 import java.io.File;
 import java.io.IOException;
 
-import javax.naming.NamingException;
-
 import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;

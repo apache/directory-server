@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Map;
 
-import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
 import javax.security.auth.kerberos.KerberosPrincipal;
 

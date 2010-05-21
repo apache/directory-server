@@ -343,11 +343,8 @@ public class CacheRecordManager implements RecordManager
     public synchronized void commit() throws IOException
     {
         checkIfClosed();
-        long t0 = System.nanoTime();
         updateCacheEntries();
-        long t1 = System.nanoTime();
         recMgr.commit();
-        long t2 = System.nanoTime();
     }
 
 

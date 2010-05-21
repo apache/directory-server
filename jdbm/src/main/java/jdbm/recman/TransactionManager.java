@@ -157,8 +157,6 @@ public final class TransactionManager {
 
         TreeSet blockList = new TreeSet( new BlockIoComparator() );
 
-        int numBlocks = 0;
-        int writtenBlocks = 0;
         for (int i = 0; i < _maxTxns; i++) {
             if (txns[i] == null)
                 continue;
@@ -170,10 +168,8 @@ public final class TransactionManager {
                     block.decrementTransactionCount();
                 }
                 else {
-                    writtenBlocks++;
-                    boolean result = blockList.add( block );
+                    blockList.add( block );
                 }
-                numBlocks++;
             }
 
             txns[i] = null;

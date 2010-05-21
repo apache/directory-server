@@ -52,9 +52,6 @@ public class AttributesTableModel extends AbstractTableModel
     /** list of attribute values */
     private final transient ArrayList<Object> valList;
 
-    /** the attributes for the entry */
-    private final Entry entry;
-    
     /** the unique id of the entry  */
     private final Long id;
     
@@ -77,7 +74,6 @@ public class AttributesTableModel extends AbstractTableModel
     {
         this.dn = dn;
         this.id = id;
-        this.entry = entry;
         this.isMutable = isMutable;
 
         int rowCount = 0;
@@ -93,8 +89,6 @@ public class AttributesTableModel extends AbstractTableModel
 
         for ( EntryAttribute attribute:entry )
         {
-            String key = attribute.getId();
-
             for ( Value<?> value:attribute )
             {
                 keyList.add( attribute.getId() );

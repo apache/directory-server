@@ -90,7 +90,7 @@ class KeytabDecoder
 
         byte keyVersion = buffer.get();
 
-        EncryptionKey key = getKeyBlock( buffer, keyVersion );
+        EncryptionKey key = getKeyBlock( buffer );
 
         return new KeytabEntry( principalName, principalType, timeStamp, keyVersion, key );
     }
@@ -132,7 +132,7 @@ class KeytabDecoder
     /**
      * Read off a 16-bit encryption type and symmetric key material.
      */
-    private EncryptionKey getKeyBlock( IoBuffer buffer, int keyVersion )
+    private EncryptionKey getKeyBlock( IoBuffer buffer )
     {
         int type = buffer.getUnsignedShort();
         byte[] keyblock = getCountedBytes( buffer );

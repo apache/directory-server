@@ -40,8 +40,6 @@ import org.apache.directory.shared.ldap.message.extended.CertGenerationRequest;
 import org.apache.directory.shared.ldap.message.extended.CertGenerationResponse;
 import org.apache.directory.shared.ldap.message.internal.InternalExtendedRequest;
 import org.apache.directory.shared.ldap.name.DN;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * An extended handler for digital certificate generation
@@ -55,8 +53,6 @@ public class CertGenerationRequestHandler implements ExtendedOperationHandler
 {
 
     private static final Set<String> EXTENSION_OIDS;
-
-    private static final Logger LOG = LoggerFactory.getLogger( CertGenerationRequestHandler.class );
 
     static
     {

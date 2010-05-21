@@ -21,7 +21,6 @@ package org.apache.directory.server.core.schema;
 
 
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.server.i18n.I18n;

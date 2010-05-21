@@ -22,8 +22,6 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 import org.apache.directory.server.xdbm.IndexEntry;
 
-import javax.naming.NamingException;
-
 
 /**
  * Asserts whether or not a candidate should be returned in searching based on
@@ -44,7 +42,7 @@ public interface IndexAssertion<K, E, ID>
      * 
      * @param entry an index record of the entry
      * @return true if the entry should be returned, false otherwise
-     * @throws NamingException if their are failures while asserting the 
+     * @throws Exception if their are failures while asserting the 
      * condition
      */
     boolean assertCandidate( IndexEntry<K, E, ID> entry ) throws Exception;

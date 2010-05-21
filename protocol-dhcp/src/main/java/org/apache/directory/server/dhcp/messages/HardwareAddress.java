@@ -20,7 +20,6 @@
 package org.apache.directory.server.dhcp.messages;
 
 
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

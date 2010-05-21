@@ -68,13 +68,6 @@ public class EventListenerAdapter implements DirectoryListener
     private final NamingListener listener;
     private final ServerLdapContext source;
     
-    /** 
-     * TODO not utilized but should be to effect returns in bindings, alias 
-     * and referral handling
-     */
-    private final SearchControls controls;
-
-    
     public EventListenerAdapter( ServerLdapContext source, NamingListener listener )
     {
         this( source, listener, new SearchControls() );
@@ -84,7 +77,6 @@ public class EventListenerAdapter implements DirectoryListener
     public EventListenerAdapter( ServerLdapContext source, NamingListener listener, SearchControls controls )
     {
         this.source = source;
-        this.controls = controls;
         this.listener = listener;
     }
     

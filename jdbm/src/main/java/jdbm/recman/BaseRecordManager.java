@@ -272,8 +272,6 @@ public final class BaseRecordManager
         Location logRecid = new Location( recid );
         Location physRecid = logMgr.fetch( logRecid );
 
-        String c = obj.getClass().getName();
-        
         byte[] data = serializer.serialize( obj );
         
         if ( DEBUG ) 
@@ -398,17 +396,16 @@ public final class BaseRecordManager
     {
         checkIfClosed();
 
-        Map<String,Long> nameDirectory = getNameDirectory();
         if ( recid == 0 ) 
         {
             // remove from hashtable
-            nameDirectory.remove( name );
+            getNameDirectory().remove( name );
         } 
         else 
         {
-            nameDirectory.put( name, recid );
+            getNameDirectory().put( name, recid );
         }
-        saveNameDirectory( nameDirectory );
+        saveNameDirectory( );
     }
 
 
@@ -459,7 +456,7 @@ public final class BaseRecordManager
     }
 
 
-    private void saveNameDirectory( Map<String,Long> directory ) throws IOException
+    private void saveNameDirectory( ) throws IOException
     {
         long recid = getRoot( NAME_DIRECTORY_ROOT );
         

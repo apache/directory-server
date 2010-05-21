@@ -44,13 +44,10 @@ public class EncryptionTypeDecoder
     {
         Set<EncryptionType> eTypes = new HashSet<EncryptionType>( sequence.size() );
 
-        int ii = 0;
-        
         for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERInteger object = ( DERInteger ) e.nextElement();
             eTypes.add( EncryptionType.getTypeByOrdinal( object.intValue() ) );
-            ii++;
         }
 
         return eTypes;

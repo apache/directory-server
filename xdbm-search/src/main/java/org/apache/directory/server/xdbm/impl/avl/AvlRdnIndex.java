@@ -41,10 +41,6 @@ import org.slf4j.LoggerFactory;
 public class AvlRdnIndex<E> extends AvlIndex<ParentIdAndRdn<Long>, E>
 {
 
-    /** A logger for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( AvlRdnIndex.class );
-
-
     public AvlRdnIndex()
     {
     }

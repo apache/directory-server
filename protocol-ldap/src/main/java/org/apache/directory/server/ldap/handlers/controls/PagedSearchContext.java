@@ -111,7 +111,7 @@ public class PagedSearchContext
     /**
      * Build a set of OIDs from the list of attributes we have in the search request
      */
-    private Set<String> buildAttributeSet( InternalSearchRequest request, LdapSession session, 
+    private Set<String> buildAttributeSet( InternalSearchRequest request, 
         SchemaManager schemaManager )
     {
         Set<String> requestSet = new HashSet<String>();
@@ -206,8 +206,8 @@ public class PagedSearchContext
                 }
                 
                 // Build the set of attributeType from both requests
-                Set<String> requestSet = buildAttributeSet( request, session, schemaManager );
-                Set<String> previousRequestSet = buildAttributeSet( previousSearchRequest, session, schemaManager );
+                Set<String> requestSet = buildAttributeSet( request, schemaManager );
+                Set<String> previousRequestSet = buildAttributeSet( previousSearchRequest, schemaManager );
                 
                 // Check that both sets have the same size again after having converted
                 // the attributes to OID

@@ -246,7 +246,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
     /**
      * Check if the mechanism exists.
      */
-    private boolean checkMechanism( LdapSession ldapSession, String saslMechanism ) throws Exception
+    private boolean checkMechanism( String saslMechanism ) throws Exception
     {
         // Guard clause:  Reject unsupported SASL mechanisms.
         if ( !ldapServer.getSupportedMechanisms().contains( saslMechanism ) )
@@ -368,8 +368,6 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
 
         // Write back the error
         ldapSession.getIoSession().write( bindRequest.getResultResponse() );
-
-        return;
     }
 
 
@@ -440,7 +438,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
     }
 
 
-    private void handleSaslAuthPending( LdapSession ldapSession, InternalBindRequest bindRequest, DirectoryService ds )
+    private void handleSaslAuthPending( LdapSession ldapSession, InternalBindRequest bindRequest )
         throws Exception
     {
         // First, check that we have the same mechanism
@@ -530,7 +528,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
             if ( !StringTools.isEmpty( saslMechanism ) )
             {
                 // fist check that the mechanism exists
-                if ( !checkMechanism( ldapSession, saslMechanism ) )
+                if ( !checkMechanism( saslMechanism ) )
                 {
                     // get out !
                     sendAuthMethNotSupported( ldapSession, bindRequest );
@@ -564,7 +562,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
         {
             try
             {
-                handleSaslAuthPending( ldapSession, bindRequest, ds );
+                handleSaslAuthPending( ldapSession, bindRequest );
             }
             catch ( SaslException se )
             {

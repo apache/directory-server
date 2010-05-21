@@ -116,7 +116,6 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
         result.setResultCode( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
         result.setErrorMessage( "Confidentiality (TLS secured connection) is required." );
         session.write( resp );
-        return;
     }
 
     /**

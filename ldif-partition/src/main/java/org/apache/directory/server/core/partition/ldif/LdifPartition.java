@@ -104,8 +104,6 @@ public class LdifPartition extends BTreePartition<Long>
     private static final boolean CREATE = Boolean.TRUE;
     private static final boolean DELETE = Boolean.FALSE;
 
-    private int ldifScanInterval;
-
     /** A filter used to pick all the directories */
     private FileFilter dirFilter = new FileFilter()
     {
@@ -966,18 +964,6 @@ public class LdifPartition extends BTreePartition<Long>
     {
         super.setSuffix( suffix );
         wrappedPartition.setSuffix( suffix );
-    }
-
-
-    /**
-     * the interval at which the config directory containing LDIF files
-     * should be scanned, default value is 10 min
-     * 
-     * @param ldifScanInterval the scan interval time in minutes
-     */
-    public void setLdifScanInterval( int ldifScanInterval )
-    {
-        this.ldifScanInterval = ldifScanInterval;
     }
 
 
