@@ -1,0 +1,131 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *  
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License. 
+ *  
+ */
+package org.apache.directory.server.core.changelog;
+
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
+
+/**
+ * Unit tests class Tag.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$
+ */
+public class TagTest
+{
+    Tag tagA;
+    Tag tagACopy;
+    Tag tagANull;
+    Tag tagB;
+    Tag tagC;
+    Tag tagD;
+
+
+    /**
+     * Initialize name instances
+     */
+    @Before
+    public void initNames() throws Exception
+    {
+
+        tagA = new Tag( 1L, "aa", 1L, 1L );
+        tagACopy = new Tag( 1L, "aa", 1L, 1L );
+        tagB = new Tag( 1L, "aa", 2L, 2L );
+        tagC = new Tag( 2L, "aa", 1L, 1L );
+        tagD = new Tag( 1L, "bb", 1L, 1L );
+        tagANull = new Tag( 1L, null, 1L, 1L );
+    }
+
+
+    @Test
+    public void testEqualsNull() throws Exception
+    {
+        assertFalse( tagA.equals( null ) );
+        assertFalse( tagANull.equals( null ) );
+    }
+
+
+    @Test
+    public void testEqualsReflexive() throws Exception
+    {
+        assertEquals( tagA, tagA );
+        assertEquals( tagANull, tagANull );
+    }
+
+
+    @Test
+    public void testHashCodeReflexive() throws Exception
+    {
+        assertEquals( tagA.hashCode(), tagA.hashCode() );
+        assertEquals( tagANull.hashCode(), tagANull.hashCode() );
+    }
+
+
+    @Test
+    public void testEqualsSymmetric() throws Exception
+    {
+        assertEquals( tagA, tagACopy );
+        assertEquals( tagACopy, tagA );
+    }
+
+
+    @Test
+    @Ignore
+    public void testHashCodeSymmetric() throws Exception
+    {
+        assertEquals( tagA.hashCode(), tagACopy.hashCode() );
+        assertEquals( tagACopy.hashCode(), tagA.hashCode() );
+    }
+
+
+    @Test
+    public void testEqualsTransitive() throws Exception
+    {
+        assertEquals( tagA, tagACopy );
+        assertEquals( tagACopy, tagB );
+        assertEquals( tagA, tagB );
+    }
+
+
+    @Test
+    @Ignore
+    public void testHashCodeTransitive() throws Exception
+    {
+        assertEquals( tagA.hashCode(), tagACopy.hashCode() );
+        assertEquals( tagACopy.hashCode(), tagB.hashCode() );
+        assertEquals( tagA.hashCode(), tagB.hashCode() );
+    }
+
+
+    @Test
+    public void testNotEqualDiffValue() throws Exception
+    {
+        assertFalse( tagA.equals( tagC ) );
+        assertFalse( tagC.equals( tagA ) );
+        assertFalse( tagA.equals( tagANull ) );
+        assertFalse( tagANull.equals( tagA ) );
+    }
+}
