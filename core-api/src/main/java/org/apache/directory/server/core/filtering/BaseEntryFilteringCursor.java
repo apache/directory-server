@@ -527,14 +527,11 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
                 return true;
             }
             
-            if ( filters.size() == 1 )
+            if ( filters.size() == 1 &&  filters.get( 0 ).accept( getOperationContext(), tempResult ) )
             {
-                if ( filters.get( 0 ).accept( getOperationContext(), tempResult ) )
-                {
-                    prefetched = tempResult;
-                    filterContents( prefetched );
-                    return true;
-                }
+                prefetched = tempResult;
+                filterContents( prefetched );
+                return true;
             }
             
             /* E N D   O P T I M I Z A T I O N */
@@ -597,14 +594,11 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
                 return true;
             }
             
-            if ( filters.size() == 1 )
+            if ( filters.size() == 1 && filters.get( 0 ).accept( getOperationContext(), tempResult ) )
             {
-                if ( filters.get( 0 ).accept( getOperationContext(), tempResult ) )
-                {
-                    prefetched = tempResult;
-                    filterContents( prefetched );
-                    return true;
-                }
+                prefetched = tempResult;
+                filterContents( prefetched );
+                return true;
             }
             
             /* E N D   O P T I M I Z A T I O N */

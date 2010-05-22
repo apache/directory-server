@@ -138,20 +138,15 @@ public class SubtreeEvaluator
          * entries with a baseRelativeRdn size less than the minimum distance
          * are rejected.
          */
-        if ( subtree.getMaxBaseDistance() != SubtreeSpecification.UNBOUNDED_MAX )
+        if ( subtree.getMaxBaseDistance() != SubtreeSpecification.UNBOUNDED_MAX &&
+            subtree.getMaxBaseDistance() < baseRelativeRdn.size() )
         {
-            if ( subtree.getMaxBaseDistance() < baseRelativeRdn.size() )
-            {
-                return false;
-            }
+            return false;
         }
 
-        if ( subtree.getMinBaseDistance() > 0 )
+        if ( subtree.getMinBaseDistance() > 0 && baseRelativeRdn.size() < subtree.getMinBaseDistance() )
         {
-            if ( baseRelativeRdn.size() < subtree.getMinBaseDistance() )
-            {
-                return false;
-            }
+            return false;
         }
 
         /*

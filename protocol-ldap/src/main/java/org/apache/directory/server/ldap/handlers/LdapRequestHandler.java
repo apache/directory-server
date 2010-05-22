@@ -121,6 +121,8 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
     /**
      *{@inheritDoc} 
      */
+    // False positive, we want to keep the comment
+    @SuppressWarnings("PMD.CollapsibleIfStatements")
     public final void handleMessage( IoSession session, T message ) throws Exception
     {
         LdapSession ldapSession = ldapServer.getLdapSessionManager().getLdapSession( session );

@@ -237,12 +237,9 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             // Now run the class
             super.run( notifier );
 
-            if ( classLdapServer != null )
+            if ( classLdapServer != null && ( ( suite == null ) || ( suite.getLdapServer() != classLdapServer ) ) )
             {
-                if ( ( suite == null ) || ( suite.getLdapServer() != classLdapServer ) )
-                {
-                    classLdapServer.stop();
-                }
+                classLdapServer.stop();
             }
 
             if ( classKdcServer != null )

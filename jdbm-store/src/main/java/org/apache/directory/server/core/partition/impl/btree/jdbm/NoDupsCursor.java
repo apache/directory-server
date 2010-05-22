@@ -186,13 +186,10 @@ class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
         if ( browser.getPrevious( jdbmTuple ) )
         {
-            if( returnedTuple.getKey() != null )
+            if( returnedTuple.getKey() != null && table.getKeyComparator().compare(
+                ( K) jdbmTuple.getKey(), ( K) returnedTuple.getKey() ) == 0 )
             {
-                if( table.getKeyComparator().compare(
-                    ( K) jdbmTuple.getKey(), ( K) returnedTuple.getKey() ) == 0 )
-                {
-                    browser.getPrevious( jdbmTuple );
-                }
+                browser.getPrevious( jdbmTuple );
             }
 
             returnedTuple.setKey( ( K ) jdbmTuple.getKey() );
@@ -218,13 +215,10 @@ class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
         if ( browser.getNext( jdbmTuple ) )
         {
-            if( returnedTuple.getKey() != null )
+            if( returnedTuple.getKey() != null && table.getKeyComparator().compare(
+                ( K) jdbmTuple.getKey(), ( K) returnedTuple.getKey() ) == 0 )
             {
-                if( table.getKeyComparator().compare(
-                    ( K) jdbmTuple.getKey(), ( K) returnedTuple.getKey() ) == 0 )
-                {
-                    browser.getNext( jdbmTuple );
-                }
+                browser.getNext( jdbmTuple );
             }
             
             returnedTuple.setKey( ( K ) jdbmTuple.getKey() );

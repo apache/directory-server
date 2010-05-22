@@ -505,13 +505,11 @@ public class ExceptionInterceptor extends BaseInterceptor
         {
             EntryFilteringCursor cursor =  nextInterceptor.search( opContext );
             
-            if ( ! cursor.next() )
+            if ( ! cursor.next() && !base.isEmpty() && !( subschemSubentryDn.getNormName() ).equalsIgnoreCase( 
+                base.getNormName() ) )
             {
-                if ( !base.isEmpty() && !( subschemSubentryDn.getNormName() ).equalsIgnoreCase( base.getNormName() ) )
-                {
-                    // We just check that the entry exists only if we didn't found any entry
-                    assertHasEntry( opContext, "Attempt to search under non-existant entry:" , base );
-                }
+                // We just check that the entry exists only if we didn't found any entry
+                assertHasEntry( opContext, "Attempt to search under non-existant entry:" , base );
             }
 
             return cursor;

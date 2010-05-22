@@ -694,37 +694,34 @@ public class AuthenticationService
     {
         Object reply = kdcContext.getReply();
 
-        if ( LOG.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() && reply instanceof KdcReply )
         {
-            if ( reply instanceof KdcReply )
+            KdcReply success = ( KdcReply ) reply;
+
+            try
             {
-                KdcReply success = ( KdcReply ) reply;
+                StringBuffer sb = new StringBuffer();
 
-                try
-                {
-                    StringBuffer sb = new StringBuffer();
+                sb.append( "Responding with " + SERVICE_NAME + " reply:" );
+                sb.append( "\n\t" + "messageType:           " + success.getMessageType() );
+                sb.append( "\n\t" + "protocolVersionNumber: " + success.getProtocolVersionNumber() );
+                sb.append( "\n\t" + "nonce:                 " + success.getNonce() );
+                sb.append( "\n\t" + "clientPrincipal:       " + success.getClientPrincipal() );
+                sb.append( "\n\t" + "client realm:          " + success.getClientRealm() );
+                sb.append( "\n\t" + "serverPrincipal:       " + success.getServerPrincipal() );
+                sb.append( "\n\t" + "server realm:          " + success.getServerRealm() );
+                sb.append( "\n\t" + "auth time:             " + success.getAuthTime() );
+                sb.append( "\n\t" + "start time:            " + success.getStartTime() );
+                sb.append( "\n\t" + "end time:              " + success.getEndTime() );
+                sb.append( "\n\t" + "renew-till time:       " + success.getRenewTill() );
+                sb.append( "\n\t" + "hostAddresses:         " + success.getClientAddresses() );
 
-                    sb.append( "Responding with " + SERVICE_NAME + " reply:" );
-                    sb.append( "\n\t" + "messageType:           " + success.getMessageType() );
-                    sb.append( "\n\t" + "protocolVersionNumber: " + success.getProtocolVersionNumber() );
-                    sb.append( "\n\t" + "nonce:                 " + success.getNonce() );
-                    sb.append( "\n\t" + "clientPrincipal:       " + success.getClientPrincipal() );
-                    sb.append( "\n\t" + "client realm:          " + success.getClientRealm() );
-                    sb.append( "\n\t" + "serverPrincipal:       " + success.getServerPrincipal() );
-                    sb.append( "\n\t" + "server realm:          " + success.getServerRealm() );
-                    sb.append( "\n\t" + "auth time:             " + success.getAuthTime() );
-                    sb.append( "\n\t" + "start time:            " + success.getStartTime() );
-                    sb.append( "\n\t" + "end time:              " + success.getEndTime() );
-                    sb.append( "\n\t" + "renew-till time:       " + success.getRenewTill() );
-                    sb.append( "\n\t" + "hostAddresses:         " + success.getClientAddresses() );
-
-                    LOG.debug( sb.toString() );
-                }
-                catch ( Exception e )
-                {
-                    // This is a monitor.  No exceptions should bubble up.
-                    LOG.error( I18n.err( I18n.ERR_155 ), e );
-                }
+                LOG.debug( sb.toString() );
+            }
+            catch ( Exception e )
+            {
+                // This is a monitor.  No exceptions should bubble up.
+                LOG.error( I18n.err( I18n.ERR_155 ), e );
             }
         }
     }

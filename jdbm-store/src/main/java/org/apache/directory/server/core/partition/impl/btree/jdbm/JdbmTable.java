@@ -768,30 +768,27 @@ public class JdbmTable<K,V> implements Table<K,V>
             // if the number of duplicates falls below the numDupLimit value
             BTree tree = getBTree( values.getBTreeRedirect() );
             
-            if ( tree.find( value ) != null )
+            if ( tree.find( value ) != null && tree.remove( value ) != null )
             {
-                if ( tree.remove( value ) != null )
+                /*
+                 * If we drop below the duplicate limit then we revert from using
+                 * a Jdbm BTree to using an in memory AvlTree.
+                 */
+                if ( tree.size() <= numDupLimit )
                 {
-                    /*
-                     * If we drop below the duplicate limit then we revert from using
-                     * a Jdbm BTree to using an in memory AvlTree.
-                     */
-                    if ( tree.size() <= numDupLimit )
-                    {
-                        ArrayTree<V> avlTree = convertToArrayTree( tree );
-                        bt.insert( key, (V)marshaller.serialize( avlTree ), true );
-                        recMan.delete( tree.getRecordId() );
-                    }
-                    
-                    count--;
-                    
-                    if ( LOG.isDebugEnabled() )
-                    {
-                        LOG.debug( "<--- Remove BTREE " + name + " = " + key + ", " + value );
-                    }
-                    
-                    return;
+                    ArrayTree<V> avlTree = convertToArrayTree( tree );
+                    bt.insert( key, (V)marshaller.serialize( avlTree ), true );
+                    recMan.delete( tree.getRecordId() );
                 }
+                    
+                count--;
+                  
+                if ( LOG.isDebugEnabled() )
+                {
+                    LOG.debug( "<--- Remove BTREE " + name + " = " + key + ", " + value );
+                }
+                    
+                return;
             }
         }
         catch ( Exception e )

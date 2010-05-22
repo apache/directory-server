@@ -646,12 +646,9 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
             return;
         }
 
-        if ( lastSavedCookie != null )
+        if ( lastSavedCookie != null && Arrays.equals( syncCookie, lastSavedCookie ) )
         {
-            if ( Arrays.equals( syncCookie, lastSavedCookie ) )
-            {
-                return;
-            }
+            return;
         }
 
         try

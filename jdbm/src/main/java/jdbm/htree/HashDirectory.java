@@ -307,13 +307,11 @@ final class HashDirectory
                 HashDirectory dir = (HashDirectory)node;
                 dir.setPersistenceContext( _recman, child_recid );
                 Object existing = dir.remove(key);
-                if (existing != null) {
-                    if (dir.isEmpty()) {
-                        // delete empty directory
-                        _recman.delete(child_recid);
-                        _children[hash] = 0;
-                        _recman.update(_recid, this);
-                    }
+                if (existing != null && dir.isEmpty()) {
+                    // delete empty directory
+                    _recman.delete(child_recid);
+                    _children[hash] = 0;
+                    _recman.update(_recid, this);
                 }
                 return existing;
             } else {

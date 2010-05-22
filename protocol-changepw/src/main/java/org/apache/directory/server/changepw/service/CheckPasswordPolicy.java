@@ -167,12 +167,9 @@ public class CheckPasswordPolicy implements IoHandlerCommand
 
         for ( int ii = 0; ii < tokens.length; ii++ )
         {
-            if ( tokens[ii].length() >= tokenSize )
+            if ( tokens[ii].length() >= tokenSize && password.matches( "(?i).*" + tokens[ii] + ".*" ) )
             {
-                if ( password.matches( "(?i).*" + tokens[ii] + ".*" ) )
-                {
-                    return false;
-                }
+                return false;
             }
         }
 

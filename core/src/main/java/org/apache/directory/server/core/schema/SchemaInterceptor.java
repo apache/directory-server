@@ -457,13 +457,10 @@ public class SchemaInterceptor extends BaseInterceptor
                     String oid = schemaManager.getAttributeTypeRegistry().getOidByName( attribute );
 
                     // The attribute must be an AttributeType
-                    if ( schemaManager.getAttributeTypeRegistry().contains( oid ) )
+                    if ( schemaManager.getAttributeTypeRegistry().contains( oid ) && !filteredAttrs.containsKey( oid ) )
                     {
-                        if ( !filteredAttrs.containsKey( oid ) )
-                        {
-                            // Ok, we can add the attribute to the list of filtered attributes
-                            filteredAttrs.put( oid, attribute );
-                        }
+                        // Ok, we can add the attribute to the list of filtered attributes
+                        filteredAttrs.put( oid, attribute );
                     }
                 }
 
@@ -1062,15 +1059,12 @@ public class SchemaInterceptor extends BaseInterceptor
             AttributeType attributeType = attribute.getAttributeType();
             
             // We don't allow modification of operational attributes
-            if ( !attributeType.isUserModifiable() )
+            if ( !attributeType.isUserModifiable() && ( !attributeType.equals( MODIFIERS_NAME_ATTRIBUTE_TYPE ) &&
+                     !attributeType.equals( MODIFY_TIMESTAMP_ATTRIBUTE_TYPE ) ) )
             {
-                if ( !attributeType.equals( MODIFIERS_NAME_ATTRIBUTE_TYPE ) &&
-                     !attributeType.equals( MODIFY_TIMESTAMP_ATTRIBUTE_TYPE ) )
-                {
-                    String msg = I18n.err( I18n.ERR_52, attributeType );
-                    LOG.error( msg );
-                    throw new LdapNoPermissionException( msg );
-                }
+                String msg = I18n.err( I18n.ERR_52, attributeType );
+                LOG.error( msg );
+                throw new LdapNoPermissionException( msg );
             }
             
             switch ( mod.getOperation() )
@@ -1614,13 +1608,11 @@ public class SchemaInterceptor extends BaseInterceptor
 
             AttributeType attributeType = attribute.getAttributeType();
 
-            if ( !attributeType.isCollective() && ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS ) )
+            if ( !attributeType.isCollective() && ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS ) &&
+                !allowed.contains( attrOid ) )
             {
-                if ( !allowed.contains( attrOid ) )
-                {
-                    throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, I18n.err( I18n.ERR_277, attribute.getUpId(),
-                            dn.getName() ) );
-                }
+                throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, I18n.err( I18n.ERR_277, attribute.getUpId(),
+                        dn.getName() ) );
             }
         }
     }

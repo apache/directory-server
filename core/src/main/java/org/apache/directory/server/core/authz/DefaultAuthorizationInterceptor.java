@@ -190,23 +190,20 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( dn.size() > 2 )
+        if ( dn.size() > 2 && !isAnAdministrator( principalDN ) )
         {
-            if ( !isAnAdministrator( principalDN ) )
+            if ( dn.isChildOf( ADMIN_SYSTEM_DN ) )
             {
-                if ( dn.isChildOf( ADMIN_SYSTEM_DN ) )
-                {
-                    String msg = I18n.err( I18n.ERR_15, principalDN.getName(), dn.getName() );
-                    LOG.error( msg );
-                    throw new LdapNoPermissionException( msg );
-                }
+                String msg = I18n.err( I18n.ERR_15, principalDN.getName(), dn.getName() );
+                LOG.error( msg );
+                throw new LdapNoPermissionException( msg );
+            }
         
-                if ( dn.isChildOf( GROUP_BASE_DN ) )
-                {
-                    String msg = I18n.err( I18n.ERR_16, principalDN.getName(), dn.getName() );
-                    LOG.error( msg );
-                    throw new LdapNoPermissionException( msg );
-                }
+            if ( dn.isChildOf( GROUP_BASE_DN ) )
+            {
+                String msg = I18n.err( I18n.ERR_16, principalDN.getName(), dn.getName() );
+                LOG.error( msg );
+                throw new LdapNoPermissionException( msg );
             }
         }
 
@@ -493,6 +490,8 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
+    // False positive, we want to keep the comment
+    @SuppressWarnings("PMD.CollapsibleIfStatements")
     private boolean isSearchable( OperationContext opContext, ClonedServerEntry result ) throws Exception
     {
         DN principalDn = opContext.getSession().getEffectivePrincipal().getDN();

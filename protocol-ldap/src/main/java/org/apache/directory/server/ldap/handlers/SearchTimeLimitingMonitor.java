@@ -73,6 +73,8 @@ public class SearchTimeLimitingMonitor implements ClosureMonitor
      * (non-Javadoc)
      * @see org.apache.directory.server.core.cursor.ClosureMonitor#checkNotClosed()
      */
+    // False positive, we want to keep the comment
+    @SuppressWarnings("PMD.CollapsibleIfStatements")
     public void checkNotClosed() throws Exception
     {
         if ( System.currentTimeMillis() > startTime + millisToLive )

@@ -104,13 +104,10 @@ public class ServerEntryUtils
             EntryAttribute attr = entry.get( attributeType );
             
             // Deal with a special case : an entry without any ObjectClass
-            if ( attributeType.getOid().equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
+            if ( attributeType.getOid().equals( SchemaConstants.OBJECT_CLASS_AT_OID ) && attr.size() == 0 )
             {
-                if ( attr.size() == 0 )
-                {
-                    // We don't have any objectClass, just dismiss this element
-                    continue;
-                }
+                // We don't have any objectClass, just dismiss this element
+                continue;
             }
             
             attributes.put( toBasicAttribute( attr ) );

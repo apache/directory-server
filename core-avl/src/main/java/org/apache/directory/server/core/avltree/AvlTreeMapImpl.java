@@ -492,12 +492,9 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
         {
             int balFactor = getBalance( node );
 
-            if( node != root )
+            if( node != root && treePath.indexOf( node ) < ( size - 1 ) )
             {
-                if( treePath.indexOf( node ) < ( size - 1 ) )
-                {
-                    parentNode = treePath.get( treePath.indexOf( node ) + 1 );
-                }
+                parentNode = treePath.get( treePath.indexOf( node ) + 1 );
             }
 
             if( balFactor > 1 )
@@ -720,12 +717,9 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
          when the 'parentNode' param is null then the node under rotation is a child of ROOT.
          Most likely this condition executes when the root node is deleted and balancing is required.
          */
-        else if( root != null )
+        else if( root != null && root.left == node )
         {
-            if( root.left == node )
-            {
-                root.left = temp;
-            }
+            root.left = temp;
             // no need to check for right node
         }
     }

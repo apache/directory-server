@@ -539,6 +539,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
+    // False positive, we want to keep the comment
+    @SuppressWarnings("PMD.CollapsibleIfStatements")
     public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
         DN name = opContext.getDn();

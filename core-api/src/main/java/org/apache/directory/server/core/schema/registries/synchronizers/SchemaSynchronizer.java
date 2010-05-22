@@ -402,12 +402,9 @@ public class SchemaSynchronizer implements RegistrySynchronizer
              * we check that the value is "TRUE" and disable that schema if so.
              */
             case ADD_ATTRIBUTE :
-                if ( disabledInEntry == null )
+                if ( disabledInEntry == null && "TRUE".equalsIgnoreCase( disabledInMods.getString() ) )
                 {
-                    if ( "TRUE".equalsIgnoreCase( disabledInMods.getString() ) )
-                    {
-                        return disableSchema( getSchemaName( name ) );
-                    }
+                    return disableSchema( getSchemaName( name ) );
                 }
                 
                 break;

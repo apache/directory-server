@@ -144,13 +144,11 @@ public class Subnet extends DhcpConfigElement
         for ( int i = 0; i < masked.length; i++ )
             masked[i] &= client[i];
 
-        if ( null != rangeMin )
-            if ( arrayComp( masked, rangeMin.getAddress() ) < 0 )
-                return false;
+        if ( null != rangeMin && arrayComp( masked, rangeMin.getAddress() ) < 0 )
+            return false;
 
-        if ( null != rangeMin )
-            if ( arrayComp( masked, rangeMax.getAddress() ) > 0 )
-                return false;
+        if ( null != rangeMin && arrayComp( masked, rangeMax.getAddress() ) > 0 )
+            return false;
 
         return true;
     }
