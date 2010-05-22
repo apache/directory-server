@@ -266,6 +266,12 @@ public class BPage<K, V> implements Serializer
     TupleBrowser<K, V> find( int height, K key ) throws IOException
     {
         int index = this.findChildren( key );
+        
+        if ( index < 0 )
+        {
+            index = -( index + 1 );
+        }
+
         BPage<K, V> child = this;
 
         while ( !child.isLeaf )
@@ -273,6 +279,11 @@ public class BPage<K, V> implements Serializer
             // non-leaf BPage
             child = child.loadBPage( child.children[index] );
             index = child.findChildren( key );
+            
+            if ( index < 0 )
+            {
+                index = -( index + 1 );
+            }
         }
 
         return new Browser( child, index );
@@ -318,12 +329,17 @@ public class BPage<K, V> implements Serializer
         long overflow;
 
         int index = findChildren( key );
+        boolean keyExists = index < 0;
+        
+        if ( index < 0 )
+        {
+            index = -( index + 1 );
+        }
 
         height -= 1;
         
         if ( height == 0 )
         {
-
             result = new InsertResult<K, V>();
 
             // inserting on a leaf BPage
@@ -334,8 +350,11 @@ public class BPage<K, V> implements Serializer
                 System.out.println( "Bpage.insert() Insert on leaf Bpage key=" + key + " value=" + value + " index="
                     + index );
             }
-            
-            if ( compare( key, keys[index] ) == 0 )
+
+            // This is to deal with the special case where the key already exists.
+            // In this case, the index will contain the key's position, but as a 
+            // negative number
+            if ( keyExists )
             {
                 // key already exists
                 if ( DEBUG )
@@ -509,13 +528,19 @@ public class BPage<K, V> implements Serializer
 
         int half = btree.pageSize / 2;
         int index = findChildren( key );
+        boolean keyExists = index < 0;
+        
+        if ( index < 0 )
+        {
+            index = -( index + 1 );
+        }
 
         height -= 1;
         
         if ( height == 0 )
         {
             // remove leaf entry
-            if ( compare( keys[index], key ) != 0 )
+            if ( !keyExists )
             {
                 throw new IllegalArgumentException( I18n.err( I18n.ERR_514, key ) );
             }
@@ -763,7 +788,8 @@ public class BPage<K, V> implements Serializer
      * Find the first children node with a key equal or greater than the given
      * key.
      *
-     * @return index of first children with equal or greater key.
+     * @return index of first children with equal or greater key. If the 
+     * key already exists, the index value will be negative
      */
     private int findChildren( K key )
     {
@@ -775,13 +801,30 @@ public class BPage<K, V> implements Serializer
         {
             int middle = ( left + right ) >> 1;
             
-            if ( compare( keys[middle], key ) < 0 )
+            int comp = compare( keys[middle], key );
+            
+            if ( comp < 0 )
             {
                 left = middle + 1;
             }
-            else
+            else if ( comp > 0 )
             {
                 right = middle;
+            }
+            else
+            {
+                // Special case : the key already exists,
+                // we can return immediately
+                return -middle - 1;
+            }
+        }
+        
+        if ( left == right )
+        {
+            // Special case : we don't know if the key is present
+            if ( compare( keys[left], key ) ==0 )
+            {
+                return -right - 1;
             }
         }
         
@@ -1380,5 +1423,75 @@ public class BPage<K, V> implements Serializer
             
             return true;
         }
+    }
+    
+    
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        if ( isLeaf )
+        {
+            sb.append( "Leaf(" );
+        }
+        else
+        {
+            sb.append( "Node(" );
+        }
+        
+        sb.append( keys.length );
+        sb.append( ") : [" );
+        
+        if ( isLeaf )
+        {
+            boolean isFirst = true;
+            int index = 0;
+            
+            for ( K key : keys )
+            {
+                if ( isFirst )
+                {
+                    isFirst = false;
+                }
+                else
+                {
+                    sb.append( ", " );
+                }
+
+                sb.append( "<" );
+                sb.append( String.valueOf( key ) );
+                sb.append( "/" );
+                sb.append( values[index] );
+                sb.append( ">" );
+                
+                index++;
+            }
+        }
+        else
+        {
+            boolean isFirst = true;
+            //int index = 0;
+            
+            for ( K key : keys )
+            {
+                if ( isFirst )
+                {
+                    isFirst = false;
+                }
+                else
+                {
+                    sb.append( ", " );
+                }
+
+                sb.append( "<" );
+                sb.append( key );
+                //sb.append( "/" );
+                //sb.append( values[index] );
+                sb.append( ">" );
+            }
+        }
+
+        sb.append( "]\n" );
+        return sb.toString();
     }
 }

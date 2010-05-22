@@ -234,6 +234,19 @@ public class BTree<K, V> implements Externalizable
 
         this.recordId = recman.insert( this );
     }
+    
+    
+    public void setPageSize( int pageSize )
+    {
+        if ( ( pageSize & 0x0001 ) != 0 )
+        {
+            this.pageSize = DEFAULT_SIZE;
+        }
+        else
+        {
+            this.pageSize = pageSize;
+        }
+    }
 
 
     /**
