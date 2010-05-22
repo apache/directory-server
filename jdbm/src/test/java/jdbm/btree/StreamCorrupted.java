@@ -142,7 +142,7 @@ public class StreamCorrupted
 
         // create a new B+Tree data structure
         btree = new BTree<String, Integer>( recman, new StringComparator() );
-        recman.setNamedObject( "testbtree", btree.getRecid() );
+        recman.setNamedObject( "testbtree", btree.getRecordId() );
 
         // action:
         // insert data
