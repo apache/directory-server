@@ -54,7 +54,6 @@ import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.ldap.handlers.ssl.LdapsInitializer;
 import org.apache.directory.server.ldap.replication.ReplicationProvider;
-import org.apache.directory.server.ldap.replication.ReplicationSystem;
 import org.apache.directory.server.ldap.replication.SyncReplConsumer;
 import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
@@ -214,8 +213,6 @@ public class LdapServer extends DirectoryBackedService
     private boolean confidentialityRequired;
 
     
-    private ReplicationSystem replicationSystem;
-
     private KeyStore keyStore = null;
 
     private List<IoFilterChainBuilder> chainBuilders = new ArrayList<IoFilterChainBuilder>();
@@ -405,7 +402,7 @@ public class LdapServer extends DirectoryBackedService
     
     /**
      * @throws IOException if we cannot bind to the specified port
-     * @throws NamingException if the LDAP server cannot be started
+     * @throws Exception if the LDAP server cannot be started
      */
     public void start() throws Exception
     {
@@ -702,7 +699,7 @@ public class LdapServer extends DirectoryBackedService
      * protocol provider to provide a specific LDAP extended operation.
      *
      * @param eoh an extended operation handler
-     * @throws NamingException on failure to add the handler
+     * @throws Exception on failure to add the handler
      */
     public void addExtendedOperationHandler( ExtendedOperationHandler eoh ) throws Exception
     {
@@ -1343,24 +1340,6 @@ public class LdapServer extends DirectoryBackedService
     }
 
 
-    /**
-     * @param replicationSystem the replicationSystem to set
-     */
-    public void setReplicationSystem( ReplicationSystem replicationSystem )
-    {
-        this.replicationSystem = replicationSystem;
-    }
-
-
-    /**
-     * @return the replicationSystem
-     */
-    public ReplicationSystem getReplicationSystem()
-    {
-        return replicationSystem;
-    }
-
-    
     public void setReplicationProvider( ReplicationProvider replicationProvider )
     {
         this.replicationProvider = replicationProvider;
