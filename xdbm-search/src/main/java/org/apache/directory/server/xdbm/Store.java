@@ -117,7 +117,7 @@ public interface Store<E, ID extends Comparable<ID>>
     public static final Set<String> SYS_INDEX_OIDS = Collections.unmodifiableSet( new HashSet<String>( Arrays
         .asList( SYS_INDEX_OID_ARRAY ) ) );
 
-    
+
     /**
      * Sets the partition directory (working directory) for the store.
      * 
@@ -396,9 +396,10 @@ public interface Store<E, ID extends Comparable<ID>>
 
 
     /**
-     * Gets the normalized DN of the entry identified by the given id.
-     * @param id the entry's id
-     * @return the normalized entry DN
+     * Gets the entry's id. Returns <code>null</code> if the DN doesn't exist in this store.
+     * Note that the DN must be normalized!
+     * @param dn the normalized entry DN
+     * @return the entry's id, or <code>null</code> if the DN doesn't exists
      */
     DN getEntryDn( ID id ) throws Exception;
 
@@ -460,7 +461,7 @@ public interface Store<E, ID extends Comparable<ID>>
      */
     IndexCursor<ID, E, ID> list( ID id ) throws Exception;
 
-    
+
     /**
      * Gets the count of immediate children of the given entry ID.
      *
