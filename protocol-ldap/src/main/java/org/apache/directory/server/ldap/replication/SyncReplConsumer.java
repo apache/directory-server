@@ -367,8 +367,7 @@ public class SyncReplConsumer implements ConnectionClosedEventListener
                         LOG.debug( remoteEntry.toString() );
                         session.add( new DefaultEntry( schemaManager, remoteEntry ) );
                     }
-                    // in refreshOnly mode the modified entry will be sent with state ADD
-                    else if ( !config.isRefreshNPersist() )
+                    else
                     {
                         LOG.debug( "updating entry in refreshOnly mode {}", remoteEntry.getDn().getName() );
                         modify( remoteEntry );
