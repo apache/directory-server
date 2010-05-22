@@ -116,6 +116,24 @@ public class HostAddresses extends AbstractAsn1Object
 
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode()
+    {
+        int hash = 37;
+        
+        if ( addresses != null )
+        {
+            hash = hash * 17 + addresses.size();
+            hash = 17 + addresses.hashCode();
+        }
+        
+        return hash;
+    }
+
+
+    /**
      * Returns true if two {@link HostAddresses} are equal.
      *
      * @param that
@@ -123,6 +141,10 @@ public class HostAddresses extends AbstractAsn1Object
      */
     public boolean equals( HostAddresses that )
     {
+        if( that == null ) {
+            return false;
+        }
+        
         if ( ( addresses == null && that.addresses != null )
             || ( addresses != null && that.addresses == null ) )
         {
@@ -136,12 +158,9 @@ public class HostAddresses extends AbstractAsn1Object
                 return false;
             }
 
-            HostAddress[] thisHostAddresses = ( HostAddress[] ) addresses.toArray();
-            HostAddress[] thatHostAddresses = ( HostAddress[] ) that.addresses.toArray();
-
-            for ( int i = 0; i < thisHostAddresses.length; i++ )
+            for ( int i = 0; i < addresses.size(); i++ )
             {
-                if ( !thisHostAddresses[i].equals( thatHostAddresses[i] ) )
+                if ( !addresses.get( i ).equals( that.addresses.get( i ) ) )
                 {
                     return false;
                 }
@@ -159,7 +178,7 @@ public class HostAddresses extends AbstractAsn1Object
      */
     public HostAddress[] getAddresses()
     {
-        return ( HostAddress[] ) addresses.toArray();
+        return addresses.toArray(new HostAddress[0]);
     }
 
 

@@ -20,12 +20,17 @@
 package org.apache.directory.server.kerberos.shared.messages.value;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import org.apache.directory.server.kerberos.shared.messages.value.types.HostAddrType;
+import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Test the HostAddresses encoding and decoding
@@ -35,6 +40,47 @@ import static org.junit.Assert.assertTrue;
  */
 public class HostAddressesTest
 {
+    HostAddresses hostAddressesA;
+    HostAddresses hostAddressesACopy;
+    HostAddresses hostAddressesB;
+    HostAddresses hostAddressesC;
+    HostAddresses hostAddressesD;
+
+    
+    /**
+     * Initialize name instances
+     */
+    @Before
+    public void initNames() throws Exception
+    {
+        hostAddressesA = new HostAddresses ( new HostAddress[]
+            { new HostAddress( HostAddrType.ADDRTYPE_INET, new byte[]
+                { 0x01, 0x02, 0x03, 0x04 } ), new HostAddress( HostAddrType.ADDRTYPE_INET, new byte[]
+                { 0x05, 0x06, 0x07, 0x08 } ), new HostAddress( HostAddrType.ADDRTYPE_INET, new byte[]
+                { 0x09, 0x0A, 0x0B, 0x0C } ) } );
+        hostAddressesACopy = new HostAddresses ( new HostAddress[]
+            { new HostAddress( HostAddrType.ADDRTYPE_INET, new byte[]
+                { 0x01, 0x02, 0x03, 0x04 } ), new HostAddress( HostAddrType.ADDRTYPE_INET, new byte[]
+                { 0x05, 0x06, 0x07, 0x08 } ), new HostAddress( HostAddrType.ADDRTYPE_INET, new byte[]
+                { 0x09, 0x0A, 0x0B, 0x0C } ) } );
+        hostAddressesB = new HostAddresses ( new HostAddress[]
+            { new HostAddress( HostAddrType.ADDRTYPE_INET, new byte[]
+                { 0x01, 0x02, 0x03, 0x04 } ), new HostAddress( HostAddrType.ADDRTYPE_INET, new byte[]
+                { 0x05, 0x06, 0x07, 0x08 } ), new HostAddress( HostAddrType.ADDRTYPE_INET, new byte[]
+                { 0x09, 0x0A, 0x0B, 0x0C } ) } );
+        hostAddressesC = new HostAddresses ( new HostAddress[]
+            { new HostAddress( HostAddrType.ADDRTYPE_INET, new byte[]
+                { 0x01, 0x02, 0x03, 0x05 } ), new HostAddress( HostAddrType.ADDRTYPE_INET, new byte[]
+                { 0x05, 0x06, 0x07, 0x08 } ), new HostAddress( HostAddrType.ADDRTYPE_INET, new byte[]
+                { 0x09, 0x0A, 0x0B, 0x0C } ) } );
+        hostAddressesD = new HostAddresses ( new HostAddress[]
+            { new HostAddress( HostAddrType.ADDRTYPE_INET, new byte[]
+                { 0x01, 0x02, 0x03, 0x04 } ), new HostAddress( HostAddrType.ADDRTYPE_INET, new byte[]
+                { 0x05, 0x06, 0x07, 0x08 } ), new HostAddress( HostAddrType.ADDRTYPE_INET6, new byte[]
+                { 0x09, 0x0A, 0x0B, 0x0C } ) } );
+    }
+
+    
     @Test
     public void testEncodingHostAddressesIPOneAddresses() throws Exception
     {
@@ -118,5 +164,70 @@ public class HostAddressesTest
             { 0x30, 0x00 };
 
         assertTrue( Arrays.equals( expectedResult, encoded.array() ) );
+    }
+
+
+    @Test
+    public void testEqualsNull() throws Exception
+    {
+        assertFalse( hostAddressesA.equals( null ) );
+    }
+
+
+    @Test
+    public void testEqualsReflexive() throws Exception
+    {
+        assertTrue( hostAddressesA.equals( hostAddressesA ) );
+    }
+
+
+    @Test
+    public void testHashCodeReflexive() throws Exception
+    {
+        assertEquals( hostAddressesA.hashCode(), hostAddressesA.hashCode() );
+    }
+
+
+    @Test
+    public void testEqualsSymmetric() throws Exception
+    {
+        assertTrue( hostAddressesA.equals( hostAddressesACopy ) );
+        assertTrue( hostAddressesACopy.equals( hostAddressesA ) );
+    }
+
+
+    @Test
+    public void testHashCodeSymmetric() throws Exception
+    {
+        assertEquals( hostAddressesA.hashCode(), hostAddressesACopy.hashCode() );
+        assertEquals( hostAddressesACopy.hashCode(), hostAddressesA.hashCode() );
+    }
+
+
+    @Test
+    public void testEqualsTransitive() throws Exception
+    {
+        assertTrue( hostAddressesA.equals( hostAddressesACopy ) );
+        assertTrue( hostAddressesACopy.equals( hostAddressesB ) );
+        assertTrue( hostAddressesA.equals( hostAddressesB ) );
+    }
+
+
+    @Test
+    public void testHashCodeTransitive() throws Exception
+    {
+        assertEquals( hostAddressesA.hashCode(), hostAddressesACopy.hashCode() );
+        assertEquals( hostAddressesACopy.hashCode(), hostAddressesB.hashCode() );
+        assertEquals( hostAddressesA.hashCode(), hostAddressesB.hashCode() );
+    }
+
+
+    @Test
+    public void testNotEqualDiffValue() throws Exception
+    {
+        assertFalse( hostAddressesA.equals( hostAddressesC ) );
+        assertFalse( hostAddressesC.equals( hostAddressesA ) );
+        assertFalse( hostAddressesA.equals( hostAddressesD ) );
+        assertFalse( hostAddressesD.equals( hostAddressesA ) );
     }
 }
