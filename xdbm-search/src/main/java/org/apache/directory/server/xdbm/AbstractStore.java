@@ -1002,7 +1002,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     public synchronized void delete( ID id ) throws Exception
     {
         Entry entry = master.get( id );
-        ID parentId = getParentId( id );
 
         EntryAttribute objectClass = entry.get( OBJECT_CLASS_AT );
 
@@ -1018,20 +1017,9 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         rdnIdx.drop( id );
         oneLevelIdx.drop( id );
+        subLevelIdx.drop( id );
         entryCsnIdx.drop( id );
         entryUuidIdx.drop( id );
-
-        if ( !id.equals( getSuffixId() ) )
-        {
-            subLevelIdx.drop( id );
-        }
-
-        // Remove parent's reference to entry only if entry is not the suffix
-        if ( !parentId.equals( getRootId() ) )
-        {
-            // TODO: is this duplicate to oneLevelIdx.drop( id ) ???
-            oneLevelIdx.drop( parentId, id );
-        }
 
         for ( EntryAttribute attribute : entry )
         {
@@ -1198,23 +1186,11 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     }
 
 
-    /*
-     * The move operation severs a child from a parent creating a new parent
-     * child relationship.  As a consequence the relationships between the 
-     * old ancestors of the child and its descendants change.  A descendant is
-     *   
-     */
-
     public void move( DN oldChildDn, DN newParentDn, RDN newRdn, boolean deleteOldRdn ) throws Exception
     {
         ID childId = getEntryId( oldChildDn );
         rename( oldChildDn, newRdn, deleteOldRdn );
-        DN newUpdn = move( oldChildDn, childId, newParentDn );
-
-        // Update the current entry
-        Entry entry = master.get( childId );
-        entry.setDn( newUpdn );
-        master.put( childId, entry );
+        move( oldChildDn, childId, newParentDn, newRdn );
 
         if ( isSyncOnWrite )
         {
@@ -1226,12 +1202,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     public void move( DN oldChildDn, DN newParentDn ) throws Exception
     {
         ID childId = getEntryId( oldChildDn );
-        DN newUpdn = move( oldChildDn, childId, newParentDn );
-
-        // Update the current entry
-        Entry entry = master.get( childId );
-        entry.setDn( newUpdn );
-        master.put( childId, entry );
+        move( oldChildDn, childId, newParentDn, oldChildDn.getRdn() );
 
         if ( isSyncOnWrite )
         {
@@ -1272,39 +1243,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         while ( !parentId.equals( getRootId() ) );
 
         return dn;
-    }
-
-
-    /**
-     * 
-     * contructs a normalized DN using the RDN index. This is useful
-     * to identify in cases like finding the parent entry's id
-     * (cause that will be stored in the RDN of the entry identified by the given DN in string form)
-     *
-     * @param dn the DN of the entry in string form
-     * @return DN object build after fetching all the RDNs from RDN index
-     * @throws Exception
-     */
-    protected DN buildEntryDn( String dn ) throws Exception
-    {
-        // TODO: what is this for???
-        DN normDN = new DN( dn );
-        normDN.normalize( schemaManager.getNormalizerMapping() );
-
-        int dnSize = normDN.size();
-        int i = suffixDn.size();
-
-        ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( getRootId(), suffixDn.getRdns() );
-
-        ID curEntryId = rdnIdx.forwardLookup( key );
-
-        for ( ; i < dnSize; i++ )
-        {
-            key = new ParentIdAndRdn<ID>( curEntryId, normDN.getRdn( i ) );
-            curEntryId = rdnIdx.forwardLookup( key );
-        }
-
-        return normDN;
     }
 
 
@@ -1704,6 +1642,14 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     {
         String targetDn = aliasIdx.reverseLookup( aliasId );
         ID targetId = getEntryId( new DN( targetDn ).normalize( schemaManager.getNormalizerMapping() ) );
+
+        if ( targetId == null )
+        {
+            // the entry doesn't exist, probably it has been deleted or renamed
+            // TODO: this is just a workaround for now, the alias indices should be updated when target entry is deleted or removed
+            return;
+        }
+
         DN aliasDN = getEntryDn( aliasId );
 
         DN ancestorDn = ( DN ) aliasDN.clone();
@@ -1747,33 +1693,12 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      */
     protected void dropMovedAliasIndices( final DN movedBase ) throws Exception
     {
-        //        // Find all the aliases from movedBase down
-        //        IndexAssertion<Object,E> isBaseDescendant = new IndexAssertion<Object,E>()
-        //        {
-        //            public boolean assertCandidate( IndexEntry<Object,E> rec ) throws Exception
-        //            {
-        //                String dn = getEntryDn( rec.getId() );
-        //                return dn.endsWith( movedBase.toString() );
-        //            }
-        //        };
-
         ID movedBaseId = getEntryId( movedBase );
 
         if ( aliasIdx.reverseLookup( movedBaseId ) != null )
         {
             dropAliasIndices( movedBaseId, movedBase );
         }
-
-        //        throw new NotImplementedException( "Fix the code below this line" );
-
-        //        NamingEnumeration<ForwardIndexEntry> aliases =
-        //                new IndexAssertionEnumeration( aliasIdx.listIndices( movedBase.toString(), true ), isBaseDescendant );
-        //
-        //        while ( aliases.hasMore() )
-        //        {
-        //            ForwardIndexEntry entry = aliases.next();
-        //            dropAliasIndices( (Long)entry.getId(), movedBase );
-        //        }
     }
 
 
@@ -1828,55 +1753,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
 
     /**
-     * Recursively modifies the distinguished name of an entry and the names of
-     * its descendants calling itself in the recursion.
-     *
-     * @param id the primary key of the entry
-     * @param updn User provided distinguished name to set as the new DN
-     * @param isMove whether or not the name change is due to a move operation
-     * which affects alias userIndices.
-     * @throws Exception if something goes wrong
-     */
-    protected void modifyDn( ID id, DN updn, boolean isMove ) throws Exception
-    {
-        String aliasTarget;
-
-        //updated the RDN index
-        rdnIdx.drop( id );
-
-        if ( !updn.isNormalized() )
-        {
-            // just normalize the RDN alone
-            updn.getRdn().normalize( schemaManager.getNormalizerMapping() );
-        }
-
-        ID parentId = getEntryId( updn.getParent() );
-        ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( parentId, updn.getRdn() );
-        rdnIdx.add( key, id );
-
-        /* 
-         * Read Alias Index Tuples
-         * 
-         * If this is a name change due to a move operation then the one and
-         * subtree userIndices for aliases were purged before the aliases were
-         * moved.  Now we must add them for each alias entry we have moved.  
-         * 
-         * aliasTarget is used as a marker to tell us if we're moving an 
-         * alias.  If it is null then the moved entry is not an alias.
-         */
-        if ( isMove )
-        {
-            aliasTarget = aliasIdx.reverseLookup( id );
-
-            if ( null != aliasTarget )
-            {
-                addAliasIndices( id, buildEntryDn( id ), aliasTarget );
-            }
-        }
-    }
-
-
-    /**
      * Moves an entry under a new parent.  The operation causes a shift in the
      * parent child relationships between the old parent, new parent and the 
      * child moved.  All other descendant entries under the child never change
@@ -1890,7 +1766,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * @param newParentDn the normalized dn of the new parent for the child
      * @throws Exception if something goes wrong
      */
-    protected DN move( DN oldChildDn, ID childId, DN newParentDn ) throws Exception
+    protected void move( DN oldChildDn, ID childId, DN newParentDn, RDN newRdn ) throws Exception
     {
         // Get the child and the new parent to be entries and Ids
         ID newParentId = getEntryId( newParentDn );
@@ -1916,19 +1792,28 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         updateSubLevelIndex( childId, oldParentId, newParentId );
 
         /*
-         * Build the new user provided DN (updn) for the child using the child's
-         * user provided RDN & the new parent's UPDN.  Basically add the child's
-         * UpRdn String to the tail of the new parent's Updn Name.
+         * Update the RDN index
          */
-        DN childUpdn = buildEntryDn( childId );
-        RDN childRdn = childUpdn.getRdn( childUpdn.size() - 1 );
-        DN newUpdn = buildEntryDn( newParentId );
-        newUpdn.add( childRdn );
+        rdnIdx.drop( childId );
+        ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( newParentId, newRdn );
+        rdnIdx.add( key, childId );
 
-        // Call the modifyDn operation with the new updn
-        modifyDn( childId, newUpdn, true );
+        /* 
+         * Read Alias Index Tuples
+         * 
+         * If this is a name change due to a move operation then the one and
+         * subtree userIndices for aliases were purged before the aliases were
+         * moved.  Now we must add them for each alias entry we have moved.  
+         * 
+         * aliasTarget is used as a marker to tell us if we're moving an 
+         * alias.  If it is null then the moved entry is not an alias.
+         */
+        String aliasTarget = aliasIdx.reverseLookup( childId );
 
-        return newUpdn;
+        if ( null != aliasTarget )
+        {
+            addAliasIndices( childId, buildEntryDn( childId ), aliasTarget );
+        }
     }
 
 
