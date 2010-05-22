@@ -388,18 +388,18 @@ public interface Store<E, ID extends Comparable<ID>>
 
 
     /**
-     * Gets the entry's id. Note that the DN must be normalized!
+     * Gets the entry's id. Returns <code>null</code> if the DN doesn't exist in this store.
+     * Note that the DN must be normalized!
      * @param dn the normalized entry DN
-     * @return the entry's id
+     * @return the entry's id, or <code>null</code> if the DN doesn't exists
      */
     ID getEntryId( DN dn ) throws Exception;
 
 
     /**
-     * Gets the entry's id. Returns <code>null</code> if the DN doesn't exist in this store.
-     * Note that the DN must be normalized!
-     * @param dn the normalized entry DN
-     * @return the entry's id, or <code>null</code> if the DN doesn't exists
+     * Gets the normalized DN of the entry identified by the given id.
+     * @param id the entry's id
+     * @return the normalized entry DN
      */
     DN getEntryDn( ID id ) throws Exception;
 
