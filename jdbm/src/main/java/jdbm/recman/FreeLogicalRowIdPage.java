@@ -127,7 +127,7 @@ class FreeLogicalRowIdPage extends PageHeader
     /** Returns the value of the indicated slot */
     PhysicalRowId get(int slot) {
         if (slots[slot] == null)
-            slots[slot] = new PhysicalRowId(block, slotToOffset(slot));;
+            slots[slot] = new PhysicalRowId(block, slotToOffset(slot));
         return slots[slot];
     }
 

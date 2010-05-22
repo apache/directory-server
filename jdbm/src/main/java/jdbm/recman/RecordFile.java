@@ -345,7 +345,7 @@ public final class RecordFile
         {
             showList( inTxn.values().iterator() );
             throw new Error( I18n.err( I18n.ERR_558, inTxn.size() ) );
-        };
+        }
     }
 
     
