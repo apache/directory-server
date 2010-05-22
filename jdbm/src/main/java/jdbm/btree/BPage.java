@@ -888,6 +888,8 @@ public class BPage<K, V> implements Serializer
     /**
      * Return the child BPage at given index.
      */
+    // False positive
+    @SuppressWarnings("PMD.UnnecessaryFinalModifier")
     BPage<K, V> childBPage( int index ) throws IOException
     {
         return loadBPage( children[index] );

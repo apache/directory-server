@@ -154,7 +154,7 @@ public final class SchemaPartition extends AbstractPartition
     /**
      * Get's the ID which is fixed: 'schema'.
      */
-    public final String getId()
+    public String getId()
     {
         return ID;
     }
@@ -164,7 +164,7 @@ public final class SchemaPartition extends AbstractPartition
      * Has no affect: the id is fixed at {@link SchemaPartition#ID}: 'schema'.
      * A warning is logged.
      */
-    public final void setId( String id )
+    public void setId( String id )
     {
         LOG.warn( "This partition's ID is fixed: {}", ID );
     }
@@ -173,7 +173,7 @@ public final class SchemaPartition extends AbstractPartition
     /**
      * Always returns {@link ServerDNConstants#OU_SCHEMA_DN_NORMALIZED}: '2.5.4.11=schema'.
      */
-    public final DN getSuffixDn()
+    public DN getSuffixDn()
     {
         return wrapped.getSuffixDn();
     }
@@ -182,7 +182,7 @@ public final class SchemaPartition extends AbstractPartition
     /**
      * Always returns {@link ServerDNConstants#OU_SCHEMA_DN}: 'ou=schema'.
      */
-    public final String getSuffix()
+    public String getSuffix()
     {
         return SchemaConstants.OU_SCHEMA;
     }
@@ -191,7 +191,7 @@ public final class SchemaPartition extends AbstractPartition
     /**
      * Has no affect: just logs a warning.
      */
-    public final void setSuffix( String suffix )
+    public void setSuffix( String suffix )
     {
         LOG.warn( "This partition's suffix is fixed: {}", SchemaConstants.OU_SCHEMA );
     }
