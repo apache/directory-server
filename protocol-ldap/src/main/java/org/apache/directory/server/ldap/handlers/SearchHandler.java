@@ -176,14 +176,14 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
     {
         LOG.debug( "Handling single reply request: {}", req );
         
-        // check firt for the syncrepl search request control
+        // check first for the syncrepl search request control
         if ( req.getControls().containsKey( SyncRequestValueControl.CONTROL_OID ) )
         {
             handleSyncreplSearch( session, req );
         }
-        // First, if we have the ManageDSAIt control, go directly
+        // if we have the ManageDSAIt control, go directly
         // to the handling without pre-processing the request
-        if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
+        else if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
         {
             // If the ManageDsaIT control is present, we will
             // consider that the user wants to get entry which
