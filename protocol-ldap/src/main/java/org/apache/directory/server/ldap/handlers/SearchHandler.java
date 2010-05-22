@@ -165,7 +165,6 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
         criteria.setEventMask( EventType.getEventTypes( psearchControl.getChangeTypes() ) );
         getLdapServer().getDirectoryService().getEventService().addListener( handler, criteria );
         req.addAbandonListener( new SearchAbandonListener( ldapServer, handler ) );
-        return;
     }
     
     
