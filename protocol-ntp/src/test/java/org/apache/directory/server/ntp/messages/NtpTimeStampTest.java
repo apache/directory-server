@@ -54,8 +54,6 @@ public class NtpTimeStampTest
     public void initNames() throws Exception
     {
         ntpTimeStampA = new NtpTimeStamp();
-        ntpTimeStampACopy = new NtpTimeStamp();
-        ntpTimeStampB = new NtpTimeStamp();
         Date date = new Date( 1L );
         ntpTimeStampA1 = new NtpTimeStamp( date );
         ntpTimeStampACopy1 = new NtpTimeStamp( date );
@@ -91,8 +89,6 @@ public class NtpTimeStampTest
     @Test
     public void testEqualsSymmetric() throws Exception
     {
-        assertEquals( ntpTimeStampA, ntpTimeStampACopy );
-        assertEquals( ntpTimeStampACopy, ntpTimeStampA );
         assertEquals( ntpTimeStampA1, ntpTimeStampACopy1 );
         assertEquals( ntpTimeStampACopy1, ntpTimeStampA1 );
     }
@@ -102,8 +98,6 @@ public class NtpTimeStampTest
     @Ignore
     public void testHashCodeSymmetric() throws Exception
     {
-        assertEquals( ntpTimeStampA.hashCode(), ntpTimeStampACopy.hashCode() );
-        assertEquals( ntpTimeStampACopy.hashCode(), ntpTimeStampA.hashCode() );
         assertEquals( ntpTimeStampA1.hashCode(), ntpTimeStampACopy1.hashCode() );
         assertEquals( ntpTimeStampACopy1.hashCode(), ntpTimeStampA1.hashCode() );
     }
@@ -112,9 +106,6 @@ public class NtpTimeStampTest
     @Test
     public void testEqualsTransitive() throws Exception
     {
-        assertEquals( ntpTimeStampA, ntpTimeStampACopy );
-        assertEquals( ntpTimeStampACopy, ntpTimeStampB );
-        assertEquals( ntpTimeStampA, ntpTimeStampB );
         assertEquals( ntpTimeStampA1, ntpTimeStampACopy1 );
         assertEquals( ntpTimeStampACopy1, ntpTimeStampB1 );
         assertEquals( ntpTimeStampA1, ntpTimeStampB1 );
@@ -125,9 +116,6 @@ public class NtpTimeStampTest
     @Ignore
     public void testHashCodeTransitive() throws Exception
     {
-        assertEquals( ntpTimeStampA.hashCode(), ntpTimeStampACopy.hashCode() );
-        assertEquals( ntpTimeStampACopy.hashCode(), ntpTimeStampB.hashCode() );
-        assertEquals( ntpTimeStampA.hashCode(), ntpTimeStampB.hashCode() );
         assertEquals( ntpTimeStampA1.hashCode(), ntpTimeStampACopy1.hashCode() );
         assertEquals( ntpTimeStampACopy1.hashCode(), ntpTimeStampB1.hashCode() );
         assertEquals( ntpTimeStampA1.hashCode(), ntpTimeStampB1.hashCode() );
