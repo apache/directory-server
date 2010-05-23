@@ -1271,7 +1271,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         {
             for ( Value<?> value : mods )
             {
-                objectClassIdx.drop( value.getString(), id );
+                objectClassIdx.add( value.getString(), id );
             }
         }
         else if ( hasUserIndexOn( modsOid ) )
