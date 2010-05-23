@@ -1422,18 +1422,42 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         // Special case for the ObjectClass index
         if ( modsOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
         {
-            for ( Value<?> value : mods )
+            /*
+             * If there are no attribute values in the modifications then this 
+             * implies the complete removal of the attribute from the index. Else
+             * we remove individual tuples from the index.
+             */
+            if ( mods.size() == 0 )
             {
-                objectClassIdx.drop( value.getString(), id );
+                objectClassIdx.drop( id );
+            }
+            else
+            {
+                for ( Value<?> value : mods )
+                {
+                    objectClassIdx.drop( value.getString(), id );
+                }
             }
         }
         else if ( hasUserIndexOn( modsOid ) )
         {
             Index<?, E, ID> index = getUserIndex( modsOid );
 
-            for ( Value<?> value : mods )
+            /*
+             * If there are no attribute values in the modifications then this 
+             * implies the complete removal of the attribute from the index. Else
+             * we remove individual tuples from the index.
+             */
+            if ( mods.size() == 0 )
             {
-                ( ( Index ) index ).drop( value.get(), id );
+                ( ( Index ) index ).drop( id );
+            }
+            else
+            {
+                for ( Value<?> value : mods )
+                {
+                    ( ( Index ) index ).drop( value.get(), id );
+                }
             }
 
             /* 

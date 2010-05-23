@@ -22,6 +22,7 @@ package org.apache.directory.server.xdbm;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -151,6 +152,9 @@ public class AbstractStoreTest
     }
 
 
+    /**
+     * Adding an objectClass value should also add it to the objectClass index.
+     */
     @Test
     public void testModifyAddObjectClass() throws Exception
     {
@@ -172,13 +176,151 @@ public class AbstractStoreTest
 
         // before modification: no "uidObject" tuple in objectClass index
         assertFalse( store.getObjectClassIndex().forward( "uidObject", entryId ) );
-        assertFalse( lookedup.get( "objectClass" ).contains( attribVal ) );
+        assertFalse( lookedup.get( "objectClass" ).contains( "uidObject" ) );
 
         store.modify( dn, mods );
 
         // after modification: expect "uidObject" tuple in objectClass index
         assertTrue( store.getObjectClassIndex().forward( "uidObject", entryId ) );
-        assertTrue( lookedup.get( "objectClass" ).contains( attribVal ) );
+        assertTrue( lookedup.get( "objectClass" ).contains( "uidObject" ) );
+    }
+
+
+    /**
+     * Removing a value of an indexed attribute should also remove it from the index.
+     */
+    @Test
+    public void testModifyRemoveIndexedAttribute() throws Exception
+    {
+        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
+        dn.normalize( schemaManager.getNormalizerMapping() );
+
+        List<Modification> mods = new ArrayList<Modification>();
+        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, schemaManager
+            .lookupAttributeTypeRegistry( SchemaConstants.OU_AT ) );
+
+        String attribVal = "sales";
+        attrib.add( attribVal );
+
+        Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
+        mods.add( add );
+
+        Long entryId = store.getEntryId( dn );
+        Entry lookedup = store.lookup( entryId );
+
+        // before modification: expect "sales" tuple in ou index
+        Index<String, Entry, Long> ouIndex = ( Index<String, Entry, Long> ) store.getUserIndex( SchemaConstants.OU_AT );
+        assertTrue( ouIndex.forward( "sales", entryId ) );
+        assertTrue( lookedup.get( "ou" ).contains( "sales" ) );
+
+        store.modify( dn, mods );
+
+        // after modification: no "sales" tuple in ou index
+        assertFalse( ouIndex.forward( "sales", entryId ) );
+        assertNull( lookedup.get( "ou" ) );
+    }
+
+
+    /**
+     * Removing all values of an indexed attribute should not leave any tuples in the index,
+     * nor in the presence index.
+     */
+    @Test
+    public void testModifyRemoveAllIndexedAttribute() throws Exception
+    {
+        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
+        dn.normalize( schemaManager.getNormalizerMapping() );
+
+        List<Modification> mods = new ArrayList<Modification>();
+        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OU_AT, schemaManager
+            .lookupAttributeTypeRegistry( SchemaConstants.OU_AT ) );
+
+        Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
+        mods.add( add );
+
+        Long entryId = store.getEntryId( dn );
+        Entry lookedup = store.lookup( entryId );
+
+        // before modification: expect "sales" tuple in ou index
+        Index<String, Entry, Long> ouIndex = ( Index<String, Entry, Long> ) store.getUserIndex( SchemaConstants.OU_AT );
+        assertTrue( store.getPresenceIndex().forward( SchemaConstants.OU_AT_OID, entryId ) );
+        assertTrue( ouIndex.forward( "sales", entryId ) );
+        assertTrue( lookedup.get( "ou" ).contains( "sales" ) );
+
+        store.modify( dn, mods );
+
+        // after modification: no "sales" tuple in ou index
+        assertFalse( store.getPresenceIndex().forward( SchemaConstants.OU_AT_OID, entryId ) );
+        assertFalse( ouIndex.reverse( entryId ) );
+        assertFalse( ouIndex.forward( "sales", entryId ) );
+        assertNull( lookedup.get( "ou" ) );
+    }
+
+
+    /**
+     * Removing an objectClass value should also remove it from the objectClass index.
+     */
+    @Test
+    public void testModifyRemoveObjectClass() throws Exception
+    {
+        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
+        dn.normalize( schemaManager.getNormalizerMapping() );
+
+        List<Modification> mods = new ArrayList<Modification>();
+        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OBJECT_CLASS_AT, schemaManager
+            .lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT ) );
+
+        String attribVal = "person";
+        attrib.add( attribVal );
+
+        Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
+        mods.add( add );
+
+        Long entryId = store.getEntryId( dn );
+        Entry lookedup = store.lookup( entryId );
+
+        // before modification: expect "person" tuple in objectClass index
+        assertTrue( store.getObjectClassIndex().forward( "person", entryId ) );
+        assertTrue( lookedup.get( "objectClass" ).contains( "person" ) );
+
+        store.modify( dn, mods );
+
+        // after modification: no "person" tuple in objectClass index
+        assertFalse( store.getObjectClassIndex().forward( "person", entryId ) );
+        assertFalse( lookedup.get( "objectClass" ).contains( "person" ) );
+    }
+
+
+    /**
+     * Removing all values of the objectClass attribute should not leave any tuples in index.
+     */
+    @Test
+    public void testModifyRemoveAllObjectClass() throws Exception
+    {
+        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
+        dn.normalize( schemaManager.getNormalizerMapping() );
+
+        List<Modification> mods = new ArrayList<Modification>();
+        EntryAttribute attrib = new DefaultEntryAttribute( SchemaConstants.OBJECT_CLASS_AT, schemaManager
+            .lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT ) );
+
+        Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
+        mods.add( add );
+
+        Long entryId = store.getEntryId( dn );
+        Entry lookedup = store.lookup( entryId );
+
+        // before modification: expect "person" tuple in objectClass index
+        assertTrue( store.getObjectClassIndex().reverse( entryId ) );
+        assertTrue( store.getObjectClassIndex().forward( "person", entryId ) );
+        assertTrue( lookedup.get( "objectClass" ).contains( "person" ) );
+
+        store.modify( dn, mods );
+
+        // after modification: no tuple in objectClass index
+        assertFalse( store.getObjectClassIndex().reverse( entryId ) );
+        assertFalse( store.getObjectClassIndex().forward( "person", entryId ) );
+        assertNull( lookedup.get( "objectClass" ) );
     }
 
 }
