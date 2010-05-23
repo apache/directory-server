@@ -26,7 +26,6 @@ import static org.junit.Assert.assertFalse;
 import java.util.Date;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -39,8 +38,6 @@ import org.junit.Test;
 public class NtpTimeStampTest
 {
     NtpTimeStamp ntpTimeStampA;
-    NtpTimeStamp ntpTimeStampACopy;
-    NtpTimeStamp ntpTimeStampB;
     NtpTimeStamp ntpTimeStampA1;
     NtpTimeStamp ntpTimeStampACopy1;
     NtpTimeStamp ntpTimeStampB1;
@@ -95,7 +92,6 @@ public class NtpTimeStampTest
 
 
     @Test
-    @Ignore
     public void testHashCodeSymmetric() throws Exception
     {
         assertEquals( ntpTimeStampA1.hashCode(), ntpTimeStampACopy1.hashCode() );
@@ -113,7 +109,6 @@ public class NtpTimeStampTest
 
 
     @Test
-    @Ignore
     public void testHashCodeTransitive() throws Exception
     {
         assertEquals( ntpTimeStampA1.hashCode(), ntpTimeStampACopy1.hashCode() );
