@@ -912,7 +912,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public void modify( DN dn, ModificationOperation modOp, Entry mods ) throws Exception
+    public synchronized void modify( DN dn, ModificationOperation modOp, Entry mods ) throws Exception
     {
         if ( mods instanceof ClonedServerEntry )
         {
@@ -958,7 +958,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public void modify( DN dn, List<Modification> mods ) throws Exception
+    public synchronized void modify( DN dn, List<Modification> mods ) throws Exception
     {
         ID id = getEntryId( dn );
         Entry entry = master.get( id );
@@ -1066,7 +1066,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * @throws Exception if there are any errors propagating the name changes
      */
     @SuppressWarnings("unchecked")
-    public void rename( DN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception
+    public synchronized void rename( DN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception
     {
         ID id = getEntryId( dn );
         Entry entry = lookup( id );
@@ -1186,7 +1186,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     }
 
 
-    public void move( DN oldChildDn, DN newParentDn, RDN newRdn, boolean deleteOldRdn ) throws Exception
+    public synchronized void move( DN oldChildDn, DN newParentDn, RDN newRdn, boolean deleteOldRdn ) throws Exception
     {
         ID childId = getEntryId( oldChildDn );
         rename( oldChildDn, newRdn, deleteOldRdn );
@@ -1199,7 +1199,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     }
 
 
-    public void move( DN oldChildDn, DN newParentDn ) throws Exception
+    public synchronized void move( DN oldChildDn, DN newParentDn ) throws Exception
     {
         ID childId = getEntryId( oldChildDn );
         move( oldChildDn, childId, newParentDn, oldChildDn.getRdn() );
