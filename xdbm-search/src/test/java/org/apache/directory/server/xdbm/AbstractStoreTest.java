@@ -22,6 +22,7 @@ package org.apache.directory.server.xdbm;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -34,6 +35,8 @@ import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.impl.avl.AvlStore;
 import org.apache.directory.server.xdbm.impl.avl.AvlStoreTest;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.csn.CsnFactory;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -41,6 +44,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
@@ -323,4 +327,47 @@ public class AbstractStoreTest
         assertNull( lookedup.get( "objectClass" ) );
     }
 
+    
+    @Test
+    public void testCheckCsnIndexUpdate() throws Exception
+    {
+        DN dn = new DN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
+        dn.normalize( schemaManager.getNormalizerMapping() );
+
+        List<Modification> mods = new ArrayList<Modification>();
+        AttributeType csnAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT );
+        EntryAttribute attrib = new DefaultEntryAttribute( csnAt );
+        
+        CsnFactory csnF = new CsnFactory( 0 );
+        String csn = csnF.newInstance().toString();
+        attrib.add( csn );
+
+        Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
+        mods.add( add );
+
+        Long entryId = store.getEntryId( dn );
+        Entry lookedup = store.lookup( entryId );
+        
+        assertNotSame( csn, lookedup.get( csnAt ).getString() );
+        assertNotSame( csn, store.getEntryCsnIndex().reverseLookup( entryId ) );
+
+        store.modify( dn, mods );
+        
+        String updateCsn = lookedup.get( csnAt ).getString();
+        assertEquals( csn, updateCsn );
+        assertEquals( csn, store.getEntryCsnIndex().reverseLookup( entryId ) );
+        
+        csn = csnF.newInstance().toString();
+        
+        Entry modEntry = new DefaultEntry( schemaManager );
+        modEntry.add( csnAt, csn );
+        
+        assertNotSame( csn, updateCsn );
+        assertNotSame( csn, store.getEntryCsnIndex().reverseLookup( entryId ) );
+        
+        store.modify( dn, ModificationOperation.REPLACE_ATTRIBUTE, modEntry );
+        
+        assertEquals( csn, lookedup.get( csnAt ).getString() );
+        assertEquals( csn, store.getEntryCsnIndex().reverseLookup( entryId ) );
+    }
 }
