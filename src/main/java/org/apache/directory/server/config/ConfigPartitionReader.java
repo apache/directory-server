@@ -60,6 +60,8 @@ import org.apache.directory.server.integration.http.WebApp;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.replication.ReplicationProvider;
 import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.server.ntp.NtpServer;
@@ -217,6 +219,23 @@ public class ConfigPartitionReader
         {
             server.setSearchBaseDn( searchBaseAttr.getString() );
         }
+        
+        filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
+            ConfigSchemaConstants.ADS_LDAP_SERVER_SASL_MECH_HANDLER_OC ) );
+        cursor = se.cursor( ldapServerEntry.getDn(), AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
+        
+        while( cursor.next() )
+        {
+            ForwardIndexEntry<Long, Entry, Long> forwardSaslMechEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor.get();
+            Entry saslMechHandlerEntry = configPartition.lookup( forwardSaslMechEntry.getId() );
+            if( isEnabled( saslMechHandlerEntry ) )
+            {
+                String mechanism = getString( ConfigSchemaConstants.ADS_LDAP_SERVER_SASL_MECH_NAME, saslMechHandlerEntry );
+                server.addSaslMechanismHandler( mechanism, getSaslMechHandler( saslMechHandlerEntry ) );
+            }
+        }
+        
+        cursor.close();
         
         return server;
     }
@@ -1334,6 +1353,36 @@ public class ConfigPartitionReader
         return webApps;
     }
 
+    
+    /**
+     * Loads and instantiates a MechanismHandler from the configuration entry
+     *
+     * @param saslMechHandlerEntry the entry of OC type {@link ConfigSchemaConstants#ADS_LDAP_SERVER_SASL_MECH_HANDLER_OC}
+     * @return an instance of the MechanismHandler type
+     * @throws Exception
+     */
+    private MechanismHandler getSaslMechHandler( Entry saslMechHandlerEntry ) throws Exception
+    {
+        String mechClassName = saslMechHandlerEntry.get( ConfigSchemaConstants.ADS_LDAP_SERVER_SASL_MECH_CLASS_NAME ).getString();
+        
+        Class<?> mechClass = Class.forName( mechClassName );
+        
+        MechanismHandler handler = ( MechanismHandler ) mechClass.newInstance();
+        
+        if( mechClass == NtlmMechanismHandler.class )
+        {
+            EntryAttribute ntlmHandlerAttr = saslMechHandlerEntry.get( ConfigSchemaConstants.ADS_LDAP_SERVER_NTLM_MECH_PROVIDER );
+            if( ntlmHandlerAttr != null )
+            {
+                NtlmMechanismHandler ntlmHandler = ( NtlmMechanismHandler ) handler;
+                ntlmHandler.setNtlmProviderFqcn( ntlmHandlerAttr.getString() );
+            }
+        }
+        
+        return handler;
+    }
+    
+    
     /**
      * internal class used for holding the Interceptor classname and order configuration
      */

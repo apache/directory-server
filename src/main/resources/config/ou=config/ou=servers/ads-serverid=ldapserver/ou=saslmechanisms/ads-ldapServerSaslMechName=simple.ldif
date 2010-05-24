@@ -1,0 +1,6 @@
+version: 1
+dn: ads-ldapServerSaslMechName=simple,ou=saslmechanisms,ads-serverId=ldapServer,ou=servers,ou=config
+objectClass: ads-ldapServerSaslMechanismHandler
+objectClass: top
+ads-ldapserversaslmechclassname: org.apache.directory.server.ldap.handlers.bind.SimpleMechanismHandler
+ads-ldapServerSaslMechName: simple
