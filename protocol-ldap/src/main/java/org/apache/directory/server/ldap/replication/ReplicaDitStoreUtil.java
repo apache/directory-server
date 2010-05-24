@@ -112,7 +112,7 @@ public class ReplicaDitStoreUtil
         entry.add( "ads-dsReplicaId", String.valueOf( replica.getId() ) );
         entry.add( "ads-replAliasDerefMode", String
             .valueOf( replica.getSearchCriteria().getAliasDerefMode().getValue() ) );
-        entry.add( "ads-replBase", replica.getSearchCriteria().getBase().getName() );
+        entry.add( "ads-searchBaseDN", replica.getSearchCriteria().getBase().getName() );
         entry.add( "ads-replLastSentCsn", replica.getLastSentCsn() );
         entry.add( "ads-replSearchScope", String.valueOf( replica.getSearchCriteria().getScope().getScope() ) );
         entry.add( "ads-replSearchFilter", replica.getSearchFilter() );
@@ -177,7 +177,7 @@ public class ReplicaDitStoreUtil
         String aliasMode = entry.get( "ads-replAliasDerefMode" ).getString();
         searchCriteria.setAliasDerefMode( AliasDerefMode.getDerefMode( Integer.parseInt( aliasMode ) ) );
         
-        String baseDn = entry.get( "ads-replBase" ).getString();
+        String baseDn = entry.get( "ads-searchBaseDN" ).getString();
         searchCriteria.setBase( baseDn );
         
         String lastSentCsn = entry.get( "ads-replLastSentCsn" ).getString();

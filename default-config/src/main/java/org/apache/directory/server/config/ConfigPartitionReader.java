@@ -822,7 +822,7 @@ public class ConfigPartitionReader
             // mandatory attribues
             config.setReplicaId( getInt( ConfigSchemaConstants.ADS_DS_REPLICA_ID, entry ) );
             config.setProviderHost( entry.get( ConfigSchemaConstants.ADS_REPL_PROV_HOST_NAME ).getString() );
-            config.setBaseDn( entry.get( ConfigSchemaConstants.ADS_REPL_BASE ).getString() );
+            config.setBaseDn( entry.get( ConfigSchemaConstants.ADS_SEARCH_BASE ).getString() );
             
             // optional attributes
             
