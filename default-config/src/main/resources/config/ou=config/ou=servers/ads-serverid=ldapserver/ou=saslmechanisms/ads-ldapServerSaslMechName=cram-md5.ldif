@@ -1,0 +1,6 @@
+version: 1
+dn: ads-ldapServerSaslMechName=cram-md5,ou=saslmechanisms,ads-serverId=ldapServer,ou=servers,ou=config
+objectClass: ads-ldapServerSaslMechanismHandler
+objectClass: top
+ads-ldapServerSaslMechClassName: org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler
+ads-ldapServerSaslMechName: cram-md5

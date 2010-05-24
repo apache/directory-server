@@ -210,4 +210,12 @@ public interface ConfigSchemaConstants
     String ADS_REPL_PROVIDER_OC = "ads-replProvider";
     
     String ADS_REPL_PROVIDER_IMPL = "ads-replProviderImpl";
+    
+    String ADS_LDAP_SERVER_SASL_MECH_HANDLER_OC = "ads-ldapServerSaslMechanismHandler";
+    
+    String ADS_LDAP_SERVER_SASL_MECH_NAME = "ads-ldapServerSaslMechName";
+    
+    String ADS_LDAP_SERVER_SASL_MECH_CLASS_NAME = "ads-ldapServerSaslMechClassName";
+    
+    String ADS_LDAP_SERVER_NTLM_MECH_PROVIDER = "ads-ldapServerNtlmMechProvider";
 }
