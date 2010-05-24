@@ -83,12 +83,16 @@ import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
-import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
@@ -147,7 +151,12 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
     /** the closed state of this partition */
     private boolean initialized;
     
-   
+    private static AttributeType ENTRY_CSN_ATTRIBUTE_TYPE;
+    
+    final List<Modification> mods = new ArrayList<Modification>( 2 );
+    
+    private String lastSyncedCtxCsn = "";
+    
     /**
      * Creates the root nexus singleton of the entire system.  The root DSE has
      * several attributes that are injected into it besides those that may
@@ -221,6 +230,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
     
         //this.directoryService = directoryService;
         schemaManager = directoryService.getSchemaManager();
+        ENTRY_CSN_ATTRIBUTE_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT );
         
         // Initialize and normalize the localy used DNs
         DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
@@ -245,6 +255,8 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
                 addContextPartition( opCtx );
                 initializedPartitions.add( opCtx.getPartition() );
             }
+            
+            createContextCsnModList();
             
             initialized = true;
         }
@@ -475,6 +487,38 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
     {
         MultiException error = null;
 
+        // store the contextCSN value in the entry ou=system
+        // note that this modification shouldn't change the entryCSN value of ou=system entry
+        try
+        {
+            // update only if the CSN changes
+            if( ! lastSyncedCtxCsn.equals( directoryService.getContextCsn() ) )
+            {
+                lastSyncedCtxCsn = directoryService.getContextCsn();
+
+                EntryAttribute contextCsnAt = mods.get( 0 ).getAttribute();
+                contextCsnAt.clear();
+                contextCsnAt.add( lastSyncedCtxCsn );
+                
+                EntryAttribute timeStampAt = mods.get( 1 ).getAttribute();
+                timeStampAt.clear();
+                timeStampAt.add( DateUtils.getGeneralizedTime() );
+                
+                ModifyOperationContext csnModContext = new ModifyOperationContext( directoryService.getAdminSession(), system.getSuffixDn(), mods );
+                system.modify( csnModContext );
+            }
+        }
+        catch( Exception e )
+        {
+            LOG.warn( "Failed to save the contextCSN attribute value in ou=system entry.", e );
+            if ( error == null )
+            {
+                error = new MultiException( I18n.err( I18n.ERR_265 ) );
+            }
+
+            error.addThrowable( e );
+        }
+
         for ( Partition partition : this.partitions.values() )
         {
             try
@@ -511,6 +555,9 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
     {
         Partition backend = getPartition( addContext.getDn() );
         backend.add( addContext );
+
+        EntryAttribute at = addContext.getEntry().get( SchemaConstants.ENTRY_CSN_AT );
+        directoryService.setContextCsn( at.getString() );
     }
     
     
@@ -681,7 +728,14 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
         }
         
         Partition backend = getPartition( modifyContext.getDn() );
+
+        String csn = directoryService.getCSN().toString();
+        EntryAttribute attribute = new DefaultEntryAttribute( ENTRY_CSN_ATTRIBUTE_TYPE, csn );
+        Modification updatedCsn = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
+        modifyContext.getModItems().add( updatedCsn );
+        
         backend.modify( modifyContext );
+        directoryService.setContextCsn( csn );
     }
 
 
@@ -1143,5 +1197,23 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
     public void setDirectoryService( DirectoryService directoryService )
     {
         this.directoryService = directoryService;
+    }
+    
+    
+    private void createContextCsnModList() throws LdapException
+    {
+        Modification contextCsnMod = new DefaultModification();
+        contextCsnMod.setOperation( ModificationOperation.REPLACE_ATTRIBUTE );
+        DefaultEntryAttribute contextCsnAt = new DefaultEntryAttribute( schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CONTEXT_CSN_AT ) );
+        contextCsnMod.setAttribute( contextCsnAt );
+        
+        mods.add( contextCsnMod );
+
+        Modification timeStampMod = new DefaultModification();
+        timeStampMod.setOperation( ModificationOperation.REPLACE_ATTRIBUTE );
+        DefaultEntryAttribute timeStampAt = new DefaultEntryAttribute( schemaManager.lookupAttributeTypeRegistry( SchemaConstants.MODIFY_TIMESTAMP_AT ) );
+        timeStampMod.setAttribute( timeStampAt );
+
+        mods.add( timeStampMod );
     }
 }
