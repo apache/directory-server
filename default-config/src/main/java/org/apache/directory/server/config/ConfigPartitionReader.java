@@ -212,6 +212,12 @@ public class ConfigPartitionReader
         
         server.setReplProviderConfigs( getReplProviderConfigs() );
         
+        EntryAttribute searchBaseAttr = ldapServerEntry.get( ConfigSchemaConstants.ADS_SEARCH_BASE );
+        if( searchBaseAttr != null )
+        {
+            server.setSearchBaseDn( searchBaseAttr.getString() );
+        }
+        
         return server;
     }
 
@@ -355,6 +361,12 @@ public class ConfigPartitionReader
             kdcServer.setBodyChecksumVerified( Boolean.parseBoolean( bdyCkhsmVerifyAttr.getString() ) );
         }
 
+        EntryAttribute searchBaseAttr = kdcEntry.get( ConfigSchemaConstants.ADS_SEARCH_BASE );
+        if( searchBaseAttr != null )
+        {
+            kdcServer.setSearchBaseDn( searchBaseAttr.getString() );
+        }
+        
         return kdcServer;
     }
 
