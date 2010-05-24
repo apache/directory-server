@@ -3,5 +3,5 @@ dn: ads-ldapServerSaslMechName=gss-spnego,ou=saslmechanisms,ads-serverId=ldapSer
 objectClass: ads-ldapServerSaslMechanismHandler
 objectClass: top
 ads-ldapserversaslmechclassname: org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler
-ads-ldapServerSaslMechName: gss-spnego
+ads-ldapServerSaslMechName: GSS-SPNEGO
 ads-ldapServerNtlmMechProvider: com.foo.Bar

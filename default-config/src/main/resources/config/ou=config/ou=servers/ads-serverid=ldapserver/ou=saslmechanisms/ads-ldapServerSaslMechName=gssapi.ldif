@@ -3,4 +3,4 @@ dn: ads-ldapServerSaslMechName=gssapi,ou=saslmechanisms,ads-serverId=ldapServer,
 objectClass: ads-ldapServerSaslMechanismHandler
 objectClass: top
 ads-ldapserversaslmechclassname: org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler
-ads-ldapServerSaslMechName: gssapi
+ads-ldapServerSaslMechName: GSSAPI
