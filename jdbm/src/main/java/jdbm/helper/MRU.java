@@ -47,9 +47,13 @@
 
 package jdbm.helper;
 
+
+import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.directory.server.i18n.I18n;
 
@@ -62,67 +66,77 @@ import org.apache.directory.server.i18n.I18n;
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @version $Id: MRU.java,v 1.8 2005/06/25 23:12:31 doomdark Exp $
  */
-public class MRU implements CachePolicy 
+public class MRU implements CachePolicy
 {
-
-    /** Cached object hashtable */
-    Hashtable _hash = new Hashtable();
+    /** Cached object Map */
+    Map<Object, CacheEntry> map = new HashMap<Object, CacheEntry>();
 
     /**
      * Maximum number of objects in the cache.
      */
-    int _max;
+    int max;
 
     /**
      * Beginning of linked-list of cache elements.  First entry is element
      * which has been used least recently.
      */
-    CacheEntry _first;
+    CacheEntry first;
 
     /**
      * End of linked-list of cache elements.  Last entry is element
      * which has been used most recently.
      */
-    CacheEntry _last;
-
+    CacheEntry last;
 
     /**
      * Cache eviction listeners
      */
-    Vector listeners = new Vector();
+    List<CachePolicyListener> listeners = new ArrayList<CachePolicyListener>();
 
 
     /**
      * Construct an MRU with a given maximum number of objects.
      */
-    public MRU(int max) {
-        if (max <= 0) {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_528 ));
+    public MRU( int max )
+    {
+        if ( max <= 0 )
+        {
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_528 ) );
         }
-        _max = max;
+        
+        this.max = max;
     }
 
 
     /**
      * Place an object in the cache.
      */
-    public void put(Object key, Object value) throws CacheEvictionException {
-        CacheEntry entry = (CacheEntry)_hash.get(key);
-        if (entry != null) {
-            entry.setValue(value);
-            touchEntry(entry);
-        } else {
+    public void put( Object key, Object value ) throws CacheEvictionException
+    {
+        CacheEntry entry = ( CacheEntry ) map.get( key );
+        
+        if ( entry != null )
+        {
+            entry.setValue( value );
+            touchEntry( entry );
+        }
+        else
+        {
 
-            if (_hash.size() == _max) {
+            if ( map.size() == max )
+            {
                 // purge and recycle entry
                 entry = purgeEntry();
-                entry.setKey(key);
-                entry.setValue(value);
-            } else {
-                entry = new CacheEntry(key, value);
+                entry.setKey( key );
+                entry.setValue( value );
             }
-            addEntry(entry);
-            _hash.put(entry.getKey(), entry);
+            else
+            {
+                entry = new CacheEntry( key, value );
+            }
+            
+            addEntry( entry );
+            map.put( entry.getKey(), entry );
         }
     }
 
@@ -130,12 +144,17 @@ public class MRU implements CachePolicy
     /**
      * Obtain an object in the cache
      */
-    public Object get(Object key) {
-        CacheEntry entry = (CacheEntry)_hash.get(key);
-        if (entry != null) {
-            touchEntry(entry);
+    public Object get( Object key )
+    {
+        CacheEntry entry = ( CacheEntry ) map.get( key );
+        
+        if ( entry != null )
+        {
+            touchEntry( entry );
             return entry.getValue();
-        } else {
+        }
+        else
+        {
             return null;
         }
     }
@@ -144,11 +163,14 @@ public class MRU implements CachePolicy
     /**
      * Remove an object from the cache
      */
-    public void remove(Object key) {
-        CacheEntry entry = (CacheEntry)_hash.get(key);
-        if (entry != null) {
-            removeEntry(entry);
-            _hash.remove(entry.getKey());
+    public void remove( Object key )
+    {
+        CacheEntry entry = ( CacheEntry ) map.get( key );
+        
+        if ( entry != null )
+        {
+            removeEntry( entry );
+            map.remove( entry.getKey() );
         }
     }
 
@@ -156,54 +178,68 @@ public class MRU implements CachePolicy
     /**
      * Remove all objects from the cache
      */
-    public void removeAll() {
-        _hash = new Hashtable();
-        _first = null;
-        _last = null;
+    public void removeAll()
+    {
+        map = new HashMap<Object, CacheEntry>();
+        first = null;
+        last = null;
     }
 
 
     /**
      * Enumerate elements' values in the cache
      */
-    public Enumeration elements() {
-        return new MRUEnumeration(_hash.elements());
+    public Enumeration<Object> elements()
+    {
+        return new MRUEnumeration<Object>( map.values().iterator() );
     }
+
 
     /**
      * Add a listener to this cache policy
      *
      * @param listener Listener to add to this policy
      */
-    public void addListener(CachePolicyListener listener) {
-        if (listener == null) {
+    public void addListener( CachePolicyListener listener )
+    {
+        if ( listener == null )
+        {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_539_BAD_BLOCK_ID ) );
         }
-        if ( ! listeners.contains(listener)) {
-            listeners.addElement(listener);
+        
+        if ( !listeners.contains( listener ) )
+        {
+            listeners.add( listener );
         }
     }
+
 
     /**
      * Remove a listener from this cache policy
      *
      * @param listener Listener to remove from this policy
      */
-    public void removeListener(CachePolicyListener listener) {
-        listeners.removeElement(listener);
+    public void removeListener( CachePolicyListener listener )
+    {
+        listeners.remove( listener );
     }
+
 
     /**
      * Add a CacheEntry.  Entry goes at the end of the list.
      */
-    protected void addEntry(CacheEntry entry) {
-        if (_first == null) {
-            _first = entry;
-            _last = entry;
-        } else {
-            _last.setNext(entry);
-            entry.setPrevious(_last);
-            _last = entry;
+    protected void addEntry( CacheEntry entry )
+    {
+        if ( first == null )
+        {
+            first = entry;
+            last = entry;
+        }
+        else
+        {
+            last.setNext( entry );
+            entry.setPrevious( last );
+            last = entry;
         }
     }
 
@@ -211,57 +247,75 @@ public class MRU implements CachePolicy
     /**
      * Remove a CacheEntry from linked list
      */
-    protected void removeEntry(CacheEntry entry) {
-        if (entry == _first) {
-            _first = entry.getNext();
+    protected void removeEntry( CacheEntry entry )
+    {
+        if ( entry == first )
+        {
+            first = entry.getNext();
         }
-        if (_last == entry) {
-            _last = entry.getPrevious();
+        
+        if ( last == entry )
+        {
+            last = entry.getPrevious();
         }
+        
         CacheEntry previous = entry.getPrevious();
         CacheEntry next = entry.getNext();
-        if (previous != null) {
-            previous.setNext(next);
+        
+        if ( previous != null )
+        {
+            previous.setNext( next );
         }
-        if (next != null) {
-            next.setPrevious(previous);
+        
+        if ( next != null )
+        {
+            next.setPrevious( previous );
         }
-        entry.setPrevious(null);
-        entry.setNext(null);
+        
+        entry.setPrevious( null );
+        entry.setNext( null );
     }
+
 
     /**
      * Place entry at the end of linked list -- Most Recently Used
      */
-    protected void touchEntry(CacheEntry entry) {
-        if (_last == entry) {
+    protected void touchEntry( CacheEntry entry )
+    {
+        if ( last == entry )
+        {
             return;
         }
-        removeEntry(entry);
-        addEntry(entry);
+        
+        removeEntry( entry );
+        addEntry( entry );
     }
+
 
     /**
      * Purge least recently used object from the cache
      *
      * @return recyclable CacheEntry
      */
-    protected CacheEntry purgeEntry() throws CacheEvictionException {
-        CacheEntry entry = _first;
+    protected CacheEntry purgeEntry() throws CacheEvictionException
+    {
+        CacheEntry entry = first;
 
         // Notify policy listeners first. if any of them throw an
         // eviction exception, then the internal data structure
         // remains untouched.
         CachePolicyListener listener;
-        for (int i=0; i<listeners.size(); i++) {
-            listener = (CachePolicyListener)listeners.elementAt(i);
-            listener.cacheObjectEvicted(entry.getValue());
+        
+        for ( int i = 0; i < listeners.size(); i++ )
+        {
+            listener = listeners.get( i );
+            listener.cacheObjectEvicted( entry.getValue() );
         }
 
-        removeEntry(entry);
-        _hash.remove(entry.getKey());
-
-        entry.setValue(null);
+        removeEntry( entry );
+        map.remove( entry.getKey() );
+        entry.setValue( null );
+        
         return entry;
     }
 
@@ -270,68 +324,96 @@ public class MRU implements CachePolicy
 /**
  * State information for cache entries.
  */
-class CacheEntry {
-    private Object _key;
-    private Object _value;
+class CacheEntry
+{
+    private Object key;
+    private Object value;
 
-    private CacheEntry _previous;
-    private CacheEntry _next;
+    private CacheEntry previous;
+    private CacheEntry next;
 
-    CacheEntry(Object key, Object value) {
-        _key = key;
-        _value = value;
+
+    CacheEntry( Object key, Object value )
+    {
+        this.key = key;
+        this.value = value;
     }
 
-    Object getKey() {
-        return _key;
+
+    Object getKey()
+    {
+        return key;
     }
 
-    void setKey(Object obj) {
-        _key = obj;
+
+    void setKey( Object obj )
+    {
+        key = obj;
     }
 
-    Object getValue() {
-        return _value;
+
+    Object getValue()
+    {
+        return value;
     }
 
-    void setValue(Object obj) {
-        _value = obj;
+
+    void setValue( Object obj )
+    {
+        value = obj;
     }
 
-    CacheEntry getPrevious() {
-        return _previous;
+
+    CacheEntry getPrevious()
+    {
+        return previous;
     }
 
-    void setPrevious(CacheEntry entry) {
-        _previous = entry;
+
+    void setPrevious( CacheEntry entry )
+    {
+        previous = entry;
     }
 
-    CacheEntry getNext() {
-        return _next;
+
+    CacheEntry getNext()
+    {
+        return next;
     }
 
-    void setNext(CacheEntry entry) {
-        _next = entry;
+
+    void setNext( CacheEntry entry )
+    {
+        next = entry;
     }
 }
+
 
 /**
  * Enumeration wrapper to return actual user objects instead of
  * CacheEntries.
  */
-class MRUEnumeration implements Enumeration {
-    Enumeration _enum;
+class MRUEnumeration<K> implements Enumeration<K>
+{
+    Iterator<CacheEntry> elements;
 
-    MRUEnumeration(Enumeration enume) {
-        _enum = enume;
+
+    MRUEnumeration( Iterator<CacheEntry> elements )
+    {
+        this.elements = elements;
     }
 
-    public boolean hasMoreElements() {
-        return _enum.hasMoreElements();
+
+    public boolean hasMoreElements()
+    {
+        return elements.hasNext();
     }
 
-    public Object nextElement() {
-        CacheEntry entry = (CacheEntry)_enum.nextElement();
-        return entry.getValue();
+
+    public K nextElement()
+    {
+        CacheEntry entry = elements.next();
+        
+        return (K)entry.getValue();
     }
 }

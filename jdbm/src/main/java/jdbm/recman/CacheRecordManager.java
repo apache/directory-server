@@ -154,6 +154,7 @@ public class CacheRecordManager implements RecordManager
         checkIfClosed();
 
         long recid = recMgr.insert( obj, serializer );
+        
         try 
         {
             cache.put( recid, new CacheEntry( recid, obj, serializer, false ) );
@@ -256,10 +257,12 @@ public class CacheRecordManager implements RecordManager
         checkIfClosed();
 
         CacheEntry entry = cache.get( recid );
+        
         if ( entry == null ) 
         {
             entry = new CacheEntry( recid, null, serializer, false );
             entry.obj = recMgr.fetch( recid, serializer );
+            
             try 
             {
                 cache.put( recid, entry );
