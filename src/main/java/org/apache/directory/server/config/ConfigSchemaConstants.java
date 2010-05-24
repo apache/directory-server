@@ -181,7 +181,7 @@ public interface ConfigSchemaConstants
     
     String ADS_REPL_ALIAS_DEREF_MODE = "ads-replAliasDerefMode";
     
-    String ADS_REPL_BASE = "ads-replBase";
+    String ADS_SEARCH_BASE = "ads-searchBaseDN";
     
     String ADS_REPL_SEARCH_SCOPE = "ads-replSearchScope";
     
