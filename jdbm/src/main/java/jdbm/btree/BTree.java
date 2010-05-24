@@ -189,10 +189,10 @@ public class BTree<K, V> implements Externalizable
     /**
      * The real BTree constructor.
      */
-    private void createInstance(RecordManager recman, Comparator<K> comparator, Serializer keySerializer,
+    private void createInstance(RecordManager recordManager, Comparator<K> comparator, Serializer keySerializer,
         Serializer valueSerializer, int pageSize) throws IOException
     {
-        if ( recman == null )
+        if ( recordManager == null )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_517 ) );
         }
@@ -223,7 +223,7 @@ public class BTree<K, V> implements Externalizable
             throw new IllegalArgumentException( I18n.err( I18n.ERR_522 ) );
         }
 
-        this.recordManager = recman;
+        this.recordManager = recordManager;
         this.comparator = comparator;
         this.keySerializer = keySerializer;
         this.valueSerializer = valueSerializer;
@@ -232,7 +232,7 @@ public class BTree<K, V> implements Externalizable
         this.bpageSerializer.btree = this;
         this.nbEntries = new AtomicInteger( 0 );
 
-        this.recordId = recman.insert( this );
+        this.recordId = recordManager.insert( this );
     }
     
     
@@ -624,5 +624,53 @@ public class BTree<K, V> implements Externalizable
     public Comparator<K> getComparator()
     {
         return comparator;
+    }
+    
+    
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "BTree" );
+        sb.append( "(height:" ).append(bTreeHeight );
+        sb.append( ", pageSize:" ).append( pageSize );
+        sb.append( ", nbEntries:" ).append( nbEntries );
+        sb.append( ", rootId:" ).append( rootId );
+        sb.append( ", comparator:" );
+        
+        if ( comparator == null )
+        {
+            sb.append( "null" );
+        }
+        else
+        {
+            sb.append( comparator.getClass().getSimpleName() );
+        }
+
+        sb.append( ", keySerializer:" );
+        
+        if ( keySerializer == null )
+        {
+            sb.append( "null" );
+        }
+        else
+        {
+            sb.append( keySerializer.getClass().getSimpleName() );
+        }
+
+        sb.append( ", valueSerializer:" );
+
+        if ( valueSerializer == null )
+        {
+            sb.append( "null" );
+        }
+        else
+        {
+            sb.append( valueSerializer.getClass().getSimpleName() );
+        }
+        
+        sb.append( ")\n" );
+
+        return sb.toString();
     }
 }
