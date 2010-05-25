@@ -59,6 +59,7 @@ import org.apache.directory.server.integration.http.HttpServer;
 import org.apache.directory.server.integration.http.WebApp;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
@@ -220,6 +221,7 @@ public class ConfigPartitionReader
             server.setSearchBaseDn( searchBaseAttr.getString() );
         }
         
+        // read the SASL mechanism handlers' configuration
         filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
             ConfigSchemaConstants.ADS_LDAP_SERVER_SASL_MECH_HANDLER_OC ) );
         cursor = se.cursor( ldapServerEntry.getDn(), AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
@@ -233,6 +235,28 @@ public class ConfigPartitionReader
                 String mechanism = getString( ConfigSchemaConstants.ADS_LDAP_SERVER_SASL_MECH_NAME, saslMechHandlerEntry );
                 server.addSaslMechanismHandler( mechanism, getSaslMechHandler( saslMechHandlerEntry ) );
             }
+        }
+        
+        cursor.close();
+        
+        // read the extnded operation handlers' config
+        filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
+            ConfigSchemaConstants.ADS_LDAP_SERVER_EXT_OP_HANDLER_OC ) );
+        cursor = se.cursor( ldapServerEntry.getDn(), AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
+        
+        while( cursor.next() )
+        {
+            ForwardIndexEntry<Long, Entry, Long> forwardExtOpEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor.get();
+            Entry extOpHandlerEntry = configPartition.lookup( forwardExtOpEntry.getId() );
+            
+            if( !isEnabled( extOpHandlerEntry ) )
+            {
+                continue;
+            }
+            
+            Class<?> extendedOpClass = Class.forName( extOpHandlerEntry.get( ConfigSchemaConstants.ADS_LDAP_SERVER_EXT_OP_HANDLER_FQCN ).getString() );
+            ExtendedOperationHandler extOpHandler = ( ExtendedOperationHandler ) extendedOpClass.newInstance();
+            server.addExtendedOperationHandler( extOpHandler );
         }
         
         cursor.close();
@@ -969,6 +993,11 @@ public class ConfigPartitionReader
             ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
                 .get();
             Entry interceptorEntry = configPartition.lookup( forwardEntry.getId() );
+            
+            if( ! isEnabled( interceptorEntry ) )
+            {
+                continue;
+            }
 
             String id = getString( ConfigSchemaConstants.ADS_INTERCEPTOR_ID, interceptorEntry );
             String fqcn = getString( ConfigSchemaConstants.ADS_INTERCEPTOR_CLASSNAME, interceptorEntry );
