@@ -1,0 +1,8 @@
+version: 1
+dn: ads-Id=gracefulShutdownHandler,ou=extendedoperatiohandlers,ads-serverId=ldap
+ Server,ou=servers,ou=config
+ads-id: gracefulShutdownHandler
+ads-ldapserverextendedophandlerclass: org.apache.directory.server.ldap.handlers.
+ extended.GracefulShutdownHandler
+objectclass: ads-ldapServerExtendedOpHandler
+objectclass: top

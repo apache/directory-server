@@ -1,0 +1,10 @@
+version: 1
+dn: ads-interceptorId=keyderivationinterceptor,ou=interceptors,ads-directoryServ
+ iceId=default,ou=directoryService,ou=config
+ads-enabled: false
+ads-interceptororder: 9
+ads-interceptorclassname: org.apache.directory.server.core.kerberos.KeyDerivatio
+ nInterceptor
+ads-interceptorid: keyderivationinterceptor
+objectclass: ads-interceptor
+objectclass: top

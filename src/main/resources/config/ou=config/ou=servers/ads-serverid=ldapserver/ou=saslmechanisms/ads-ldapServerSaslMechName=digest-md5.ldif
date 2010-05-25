@@ -1,6 +1,8 @@
 version: 1
-dn: ads-ldapServerSaslMechName=digest-md5,ou=saslmechanisms,ads-serverId=ldapServer,ou=servers,ou=config
-objectClass: ads-ldapServerSaslMechanismHandler
-objectClass: top
-ads-ldapserversaslmechclassname: org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler
-ads-ldapServerSaslMechName: DIGEST-MD5
+dn: ads-ldapServerSaslMechName=digest-md5,ou=saslmechanisms,ads-serverId=ldapSer
+ ver,ou=servers,ou=config
+ads-ldapserversaslmechclassname: org.apache.directory.server.ldap.handlers.bind.
+ digestMD5.DigestMd5MechanismHandler
+objectclass: ads-ldapServerSaslMechanismHandler
+objectclass: top
+ads-ldapserversaslmechname: DIGEST-MD5

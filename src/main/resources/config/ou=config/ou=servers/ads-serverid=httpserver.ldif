@@ -1,0 +1,7 @@
+version: 1
+dn: ads-serverId=httpserver,ou=servers,ou=config
+ads-systemport: 7009
+ads-serverid: httpserver
+ads-enabled: false
+objectclass: ads-httpServer
+objectclass: top

@@ -1,0 +1,7 @@
+version: 1
+dn: ads-Id=testapp,ou=webapps,ads-serverId=httpserver,ou=servers,ou=config
+ads-httpwarfile: /path/to/foo/war
+ads-httpappctxpath: /foo
+ads-id: testapp
+objectclass: ads-httpWebApp
+objectclass: top
