@@ -56,27 +56,29 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 public class SimpleBindIT extends AbstractLdapTestUnit
 {
 
     /**
      * A method to do a search
      */
-    private NamingEnumeration<SearchResult> search( DirContext ctx, String baseDn, String filter, int scope ) throws NamingException
+    private NamingEnumeration<SearchResult> search( DirContext ctx, String baseDn, String filter, int scope )
+        throws NamingException
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( scope );
         controls.setDerefLinkFlag( false );
-        controls.setReturningAttributes( new String[]{ "*", "+"} );
-        ctx.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
+        controls.setReturningAttributes( new String[]
+            { "*", "+" } );
+        ctx.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
+            .getJndiValue() );
 
         NamingEnumeration<SearchResult> list = ctx.search( baseDn, filter, controls );
         return list;
     }
-    
-    
+
+
     /**
      * try to connect using a known user/password and read an entry.
      * 
@@ -93,22 +95,22 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         env.put( Context.PROVIDER_URL, "ou=system" );
 
         // Authenticate as admin and password "secret"
-        env.put(Context.SECURITY_AUTHENTICATION, "simple");
-        env.put(Context.SECURITY_PRINCIPAL, "uid=admin,ou=system");
-        env.put(Context.SECURITY_CREDENTIALS, "secret");
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
 
         DirContext ctx = null;
-        
+
         // Create the initial context
         try
         {
-            ctx = new InitialDirContext(env);
+            ctx = new InitialDirContext( env );
         }
         catch ( NamingException ne )
         {
             fail();
         }
-        
+
         try
         {
             ctx.close();
@@ -118,8 +120,8 @@ public class SimpleBindIT extends AbstractLdapTestUnit
             fail();
         }
     }
-    
-    
+
+
     /**
      * try to connect using a known user but with a bad password: we should get a invalidCredentials error.
      * 
@@ -136,14 +138,14 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         env.put( Context.PROVIDER_URL, "ou=system" );
 
         // Authenticate as admin and password "badsecret"
-        env.put(Context.SECURITY_AUTHENTICATION, "simple");
-        env.put(Context.SECURITY_PRINCIPAL, "uid=admin,ou=system");
-        env.put(Context.SECURITY_CREDENTIALS, "badsecret");
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "badsecret" );
 
         // Create the initial context
         try
         {
-            new InitialDirContext(env);
+            new InitialDirContext( env );
 
             // We should not be connected
             fail();
@@ -157,8 +159,8 @@ public class SimpleBindIT extends AbstractLdapTestUnit
             fail();
         }
     }
-    
-    
+
+
     /**
      * try to connect using a user with an invalid DN: we should get a invalidDNSyntax error.
      * 
@@ -175,28 +177,28 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         env.put( Context.PROVIDER_URL, "ou=system" );
 
         // Authenticate as admin and password "secret"
-        env.put(Context.SECURITY_AUTHENTICATION, "simple");
-        env.put(Context.SECURITY_PRINCIPAL, "admin");
-        env.put(Context.SECURITY_CREDENTIALS, "secret");
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.SECURITY_PRINCIPAL, "admin" );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
 
         // Create the initial context
         try
         {
-            new InitialDirContext(env);
+            new InitialDirContext( env );
 
             // We should not be connected
             fail();
         }
         catch ( InvalidNameException ine )
         {
-        	assertTrue(true);
+            assertTrue( true );
         }
         catch ( NamingException ne )
         {
             fail();
         }
     }
-    
+
 
     /**
      * try to connect using a unknown user: we should get a invalidCredentials error.
@@ -214,14 +216,14 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         env.put( Context.PROVIDER_URL, "ou=system" );
 
         // Authenticate as uid=unknown and password "secret"
-        env.put(Context.SECURITY_AUTHENTICATION, "simple");
-        env.put(Context.SECURITY_PRINCIPAL, "uid=unknown,ou=system");
-        env.put(Context.SECURITY_CREDENTIALS, "secret");
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=unknown,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
 
         // Create the initial context
         try
         {
-            new InitialDirContext(env);
+            new InitialDirContext( env );
 
             // We should not be connected
             fail();
@@ -229,16 +231,16 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         catch ( AuthenticationException ae )
         {
             // lae.printStackTrace();
-        	assertTrue(org.apache.directory.server.i18n.I18n.err(org.apache.directory.server.i18n.I18n.ERR_229), 
-        			ae.getMessage().startsWith(org.apache.directory.server.i18n.I18n.ERR_229));
+            assertTrue( org.apache.directory.server.i18n.I18n.err( org.apache.directory.server.i18n.I18n.ERR_229 ), ae
+                .getMessage().startsWith( org.apache.directory.server.i18n.I18n.ERR_229.getErrorCode() ) );
         }
         catch ( NamingException ne )
         {
             fail();
         }
     }
-    
-    
+
+
     /**
      * covers the anonymous authentication : we should be able to read the rootDSE, but that's it
      * 
@@ -252,35 +254,35 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
-        
+
         // Bind on the rootDSE
         env.put( Context.PROVIDER_URL, "" );
 
         // Authenticate as admin and password "secret"
-        env.put(Context.SECURITY_AUTHENTICATION, "simple");
-        env.put(Context.SECURITY_PRINCIPAL, "");
-        env.put(Context.SECURITY_CREDENTIALS, "");
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.SECURITY_PRINCIPAL, "" );
+        env.put( Context.SECURITY_CREDENTIALS, "" );
 
         DirContext ctx = null;
-        
+
         // Create the initial context
         try
         {
-            ctx = new InitialDirContext(env);
+            ctx = new InitialDirContext( env );
         }
         catch ( NamingException ne )
         {
             fail();
         }
-        
+
         // We should be anonymous here. 
         // Check that we can read the rootDSE
         try
         {
             NamingEnumeration<SearchResult> list = search( ctx, "", "(ObjectClass=*)", SearchControls.OBJECT_SCOPE );
-            
+
             assertNotNull( list );
-            
+
             while ( list.hasMore() )
             {
                 SearchResult result = list.next();
@@ -295,8 +297,9 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         // Check that we cannot read another entry being anonymous
         try
         {
-            NamingEnumeration<SearchResult> list = search( ctx, "uid=admin, ou=system", "(ObjectClass=*)", SearchControls.OBJECT_SCOPE );
-            
+            NamingEnumeration<SearchResult> list = search( ctx, "uid=admin, ou=system", "(ObjectClass=*)",
+                SearchControls.OBJECT_SCOPE );
+
             assertNotNull( list );
             assertFalse( list.hasMore() );
         }
@@ -314,8 +317,8 @@ public class SimpleBindIT extends AbstractLdapTestUnit
             fail();
         }
     }
-    
-    
+
+
     /**
      * covers the Unauthenticated case : we should get a UnwillingToPerform error.
      * 
@@ -329,19 +332,19 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
-        
+
         // Bind on the rootDSE
         env.put( Context.PROVIDER_URL, "" );
 
         // Authenticate as admin and password "secret"
-        env.put(Context.SECURITY_AUTHENTICATION, "simple");
-        env.put(Context.SECURITY_PRINCIPAL, "uid=admin,ou=system");
-        env.put(Context.SECURITY_CREDENTIALS, "");
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "" );
 
         // Create the initial context
         try
         {
-            new InitialDirContext(env);
+            new InitialDirContext( env );
         }
         catch ( OperationNotSupportedException onse )
         {
@@ -352,8 +355,8 @@ public class SimpleBindIT extends AbstractLdapTestUnit
             fail();
         }
     }
-    
-    
+
+
     /**
      * not allowed by the server. We should get a invalidCredentials error.
      * 
@@ -367,19 +370,19 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
-        
+
         // Bind on the rootDSE
         env.put( Context.PROVIDER_URL, "" );
 
         // Authenticate as admin and password "secret"
-        env.put(Context.SECURITY_AUTHENTICATION, "simple");
-        env.put(Context.SECURITY_PRINCIPAL, "");
-        env.put(Context.SECURITY_CREDENTIALS, "secret");
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.SECURITY_PRINCIPAL, "" );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
 
         // Create the initial context
         try
         {
-            new InitialDirContext(env);
+            new InitialDirContext( env );
         }
         catch ( NameNotFoundException nnfe )
         {
