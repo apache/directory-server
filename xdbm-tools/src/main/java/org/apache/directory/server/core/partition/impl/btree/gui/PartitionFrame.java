@@ -535,11 +535,7 @@ public class PartitionFrame extends JFrame
             }
             else if ( mode.equals( FilterDialog.ANNOTATE_MODE ) )
             {
-                if ( doAnnotate( dialog.getFilter() ) )
-                {
-                    // continue
-                }
-                else
+                if ( !doAnnotate( dialog.getFilter() ) )
                 {
                     // We failed don't loose users filter buf
                     // allow user to make edits.
@@ -584,11 +580,7 @@ public class PartitionFrame extends JFrame
                 {
                     doRunDebugAnnotate( dialog, mode );
                 }
-                else if ( cmd.equals( FilterDialog.CANCEL_CMD ) )
-                {
-                    // Do nothing! Just exit dialog.
-                }
-                else
+                else if ( !cmd.equals( FilterDialog.CANCEL_CMD ) )
                 {
                     throw new RuntimeException( I18n.err( I18n.ERR_731, cmd ) );
                 }

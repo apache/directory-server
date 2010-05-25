@@ -20,14 +20,10 @@
 package org.apache.directory.server.factory;
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.server.protocol.shared.transport.Transport;
 
 /**
- * 
- * TODO DefaultLdapServerFactory.
+ * The default LdapServer factory
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -36,19 +32,8 @@ public class DefaultLdapServerFactory
 {
     private LdapServer ldapServer;
     
-    /* The DirectoryService instance */
+    /** The DirectoryService instance */
     private DirectoryService directoryService = null;
-    
-    private Partition wrappedPartition = null;
-    
-    /** The Schema partition */
-    private SchemaPartition schemaPartition = null;
-    
-    /** The LDAP transport */
-    private Transport ldapTransport;
-    
-    /** The LDAPS transport */
-    private Transport ldapsTransport;
     
     
     public DefaultLdapServerFactory() throws Exception
@@ -70,6 +55,14 @@ public class DefaultLdapServerFactory
     }
     
     
+    /**
+     * @return the directoryService
+     */
+    public DirectoryService getDirectoryService()
+    {
+        return directoryService;
+    }
+
     public void setDirectoryService( DirectoryService directoryService )
     {
         this.directoryService = directoryService;

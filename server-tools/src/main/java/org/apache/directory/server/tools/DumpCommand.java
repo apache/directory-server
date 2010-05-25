@@ -138,15 +138,6 @@ public class DumpCommand extends ToolCommand
             throw new LdapConfigurationException( I18n.err( I18n.ERR_697, schemaDirectory ) );
         }
 
-        DirectoryService directoryService = new DefaultDirectoryService();
-        //schemaPartition.init( directoryService );
-
-        // --------------------------------------------------------------------
-        // Initialize schema subsystem and reset registries
-        // --------------------------------------------------------------------
-//        PartitionSchemaLoader schemaLoader = new PartitionSchemaLoader( schemaPartition, registries );
-//        schemaLoader.loadEnabled( globalRegistries );
-//        SerializableComparator.setRegistry( globalRegistries.getComparatorRegistry() );
         return schemaManager;
     }
 
