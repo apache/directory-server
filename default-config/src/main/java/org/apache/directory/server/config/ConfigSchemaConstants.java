@@ -218,4 +218,8 @@ public interface ConfigSchemaConstants
     String ADS_LDAP_SERVER_SASL_MECH_CLASS_NAME = "ads-ldapServerSaslMechClassName";
     
     String ADS_LDAP_SERVER_NTLM_MECH_PROVIDER = "ads-ldapServerNtlmMechProvider";
+    
+    String ADS_LDAP_SERVER_EXT_OP_HANDLER_OC = "ads-ldapServerExtendedOpHandler";
+    
+    String ADS_LDAP_SERVER_EXT_OP_HANDLER_FQCN = "ads-ldapServerExtendedOpHandlerClass";
 }
