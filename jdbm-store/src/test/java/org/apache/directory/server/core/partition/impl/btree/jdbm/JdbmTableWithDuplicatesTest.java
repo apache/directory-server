@@ -373,7 +373,7 @@ public class JdbmTableWithDuplicatesTest
         }
 
         Cursor<Tuple<String, String>> cursor = table.cursor();
-        //System.out.println( "remaining ..." );
+
         cursor.beforeFirst();
         
         while ( cursor.next() )
