@@ -71,7 +71,6 @@ import static org.junit.Assert.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotSame;
 
 
 /**
@@ -332,6 +331,33 @@ public class TestBTree
         assertEquals( expectedObj, btreeObj );
         
         recman.close();
+    }
+
+
+    /**
+     *  Test to insert many objects into one btree
+     */
+    @Test
+    public void testInsertMany() throws IOException
+    {
+        BTree<String, String> tree;
+
+        RecordManager recordManager = RecordManagerFactory.createRecordManager( "test" );
+        tree = new BTree<String, String>( recordManager, new StringComparator() );
+        tree.setPageSize( 4 );
+
+        // insert different objects and retrieve them
+        tree.insert( "test1", "value1", false );
+        tree.insert( "test2", "value2", false );
+        tree.insert( "test3", "value3", false );
+        tree.insert( "test4", "value4", false );
+        tree.insert( "test5", "value5", false );
+        tree.insert( "test6", "value6", false );
+        
+        assertEquals( "value2", tree.find( "test2" ) );
+        assertEquals( "value1", tree.find( "test1" ) );
+
+        recordManager.close();
     }
 
 

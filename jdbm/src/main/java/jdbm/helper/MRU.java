@@ -66,7 +66,7 @@ import org.apache.directory.server.i18n.I18n;
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @version $Id: MRU.java,v 1.8 2005/06/25 23:12:31 doomdark Exp $
  */
-public class MRU implements CachePolicy
+public class MRU<K, V> implements CachePolicy<K, V>
 {
     /** Cached object Map */
     Map<Object, CacheEntry> map = new HashMap<Object, CacheEntry>();
@@ -111,9 +111,9 @@ public class MRU implements CachePolicy
     /**
      * Place an object in the cache.
      */
-    public void put( Object key, Object value ) throws CacheEvictionException
+    public void put( K key, V value ) throws CacheEvictionException
     {
-        CacheEntry entry = ( CacheEntry ) map.get( key );
+        CacheEntry entry = map.get( key );
         
         if ( entry != null )
         {
@@ -144,14 +144,14 @@ public class MRU implements CachePolicy
     /**
      * Obtain an object in the cache
      */
-    public Object get( Object key )
+    public V get( K key )
     {
-        CacheEntry entry = ( CacheEntry ) map.get( key );
+        CacheEntry entry = map.get( key );
         
         if ( entry != null )
         {
             touchEntry( entry );
-            return entry.getValue();
+            return (V)entry.getValue();
         }
         else
         {
@@ -163,9 +163,9 @@ public class MRU implements CachePolicy
     /**
      * Remove an object from the cache
      */
-    public void remove( Object key )
+    public void remove( K key )
     {
-        CacheEntry entry = ( CacheEntry ) map.get( key );
+        CacheEntry entry = map.get( key );
         
         if ( entry != null )
         {
@@ -189,9 +189,9 @@ public class MRU implements CachePolicy
     /**
      * Enumerate elements' values in the cache
      */
-    public Enumeration<Object> elements()
+    public Enumeration<V> elements()
     {
-        return new MRUEnumeration<Object>( map.values().iterator() );
+        return new MRUEnumeration<V>( map.values().iterator() );
     }
 
 
@@ -245,35 +245,34 @@ public class MRU implements CachePolicy
 
 
     /**
-     * Remove a CacheEntry from linked list
+     * Remove a CacheEntry from linked list, and relink the 
+     * remaining element sin the list.
      */
     protected void removeEntry( CacheEntry entry )
     {
         if ( entry == first )
         {
             first = entry.getNext();
+            
+            if ( first != null )
+            {
+                first.setPrevious( null );
+            }
         }
-        
-        if ( last == entry )
+        else if ( last == entry )
         {
             last = entry.getPrevious();
+            
+            if ( last != null )
+            {
+                last.setNext( null );
+            }
         }
-        
-        CacheEntry previous = entry.getPrevious();
-        CacheEntry next = entry.getNext();
-        
-        if ( previous != null )
+        else
         {
-            previous.setNext( next );
+            entry.getPrevious().setNext( entry.getNext() );
+            entry.getNext().setPrevious( entry.getPrevious() );
         }
-        
-        if ( next != null )
-        {
-            next.setPrevious( previous );
-        }
-        
-        entry.setPrevious( null );
-        entry.setNext( null );
     }
 
 
@@ -393,7 +392,7 @@ class CacheEntry
  * Enumeration wrapper to return actual user objects instead of
  * CacheEntries.
  */
-class MRUEnumeration<K> implements Enumeration<K>
+class MRUEnumeration<V> implements Enumeration<V>
 {
     Iterator<CacheEntry> elements;
 
@@ -410,10 +409,10 @@ class MRUEnumeration<K> implements Enumeration<K>
     }
 
 
-    public K nextElement()
+    public V nextElement()
     {
         CacheEntry entry = elements.next();
         
-        return (K)entry.getValue();
+        return (V)entry.getValue();
     }
 }

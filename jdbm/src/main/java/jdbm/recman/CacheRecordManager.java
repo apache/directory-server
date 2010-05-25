@@ -72,22 +72,22 @@ import org.apache.directory.server.i18n.I18n;
 public class CacheRecordManager implements RecordManager
 {
     /** Wrapped RecordManager */
-    protected RecordManager recMgr;
+    protected RecordManager recordManager;
 
     /** Cache for underlying RecordManager */
-    protected CachePolicy<Long,CacheEntry> cache;
+    protected CachePolicy<Long, CacheEntry> cache;
 
 
     /**
      * Construct a CacheRecordManager wrapping another RecordManager and
      * using a given cache policy.
      *
-     * @param recMgr Wrapped RecordManager
+     * @param recordManager Wrapped RecordManager
      * @param cache Cache policy
      */
-    public CacheRecordManager( RecordManager recMgr, CachePolicy<Long,CacheEntry> cache )
+    public CacheRecordManager( RecordManager recordManager, CachePolicy<Long,CacheEntry> cache )
     {
-        if ( recMgr == null ) 
+        if ( recordManager == null ) 
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_517 ) );
         }
@@ -97,9 +97,8 @@ public class CacheRecordManager implements RecordManager
             throw new IllegalArgumentException( I18n.err( I18n.ERR_542 ) );
         }
 
-        this.recMgr = recMgr;
+        this.recordManager = recordManager;
         this.cache = cache;
-        
         this.cache.addListener( new CacheListener() );
     }
 
@@ -112,7 +111,7 @@ public class CacheRecordManager implements RecordManager
      */
     public RecordManager getRecordManager()
     {
-        return recMgr;
+        return recordManager;
     }
 
     
@@ -153,7 +152,7 @@ public class CacheRecordManager implements RecordManager
     {
         checkIfClosed();
 
-        long recid = recMgr.insert( obj, serializer );
+        long recid = recordManager.insert( obj, serializer );
         
         try 
         {
@@ -163,6 +162,7 @@ public class CacheRecordManager implements RecordManager
         {
             throw new WrappedRuntimeException( except );
         }
+        
         return recid;
     }
 
@@ -177,7 +177,10 @@ public class CacheRecordManager implements RecordManager
     {
         checkIfClosed();
 
-        recMgr.delete( recid );
+        // Remove the entry from the underlying storage
+        recordManager.delete( recid );
+        
+        // And now update the cache
         cache.remove( recid );
     }
 
@@ -205,12 +208,10 @@ public class CacheRecordManager implements RecordManager
      */
     public synchronized void update( long recid, Object obj, Serializer serializer ) throws IOException
     {
-        CacheEntry  entry;
-        
         checkIfClosed();
 
         try {
-            entry = cache.get( recid );
+            CacheEntry entry = cache.get( recid );
             
             if ( entry != null ) 
             {
@@ -261,7 +262,7 @@ public class CacheRecordManager implements RecordManager
         if ( entry == null ) 
         {
             entry = new CacheEntry( recid, null, serializer, false );
-            entry.obj = recMgr.fetch( recid, serializer );
+            entry.obj = recordManager.fetch( recid, serializer );
             
             try 
             {
@@ -294,8 +295,8 @@ public class CacheRecordManager implements RecordManager
         checkIfClosed();
 
         updateCacheEntries();
-        recMgr.close();
-        recMgr = null;
+        recordManager.close();
+        recordManager = null;
         cache = null;
     }
 
@@ -310,7 +311,7 @@ public class CacheRecordManager implements RecordManager
     {
         checkIfClosed();
 
-        return recMgr.getRootCount();
+        return recordManager.getRootCount();
     }
 
 
@@ -323,7 +324,7 @@ public class CacheRecordManager implements RecordManager
     {
         checkIfClosed();
 
-        return recMgr.getRoot( id );
+        return recordManager.getRoot( id );
     }
 
 
@@ -336,7 +337,7 @@ public class CacheRecordManager implements RecordManager
     {
         checkIfClosed();
 
-        recMgr.setRoot( id, rowid );
+        recordManager.setRoot( id, rowid );
     }
 
 
@@ -347,7 +348,7 @@ public class CacheRecordManager implements RecordManager
     {
         checkIfClosed();
         updateCacheEntries();
-        recMgr.commit();
+        recordManager.commit();
     }
 
 
@@ -358,7 +359,7 @@ public class CacheRecordManager implements RecordManager
     {
         checkIfClosed();
 
-        recMgr.rollback();
+        recordManager.rollback();
 
         // discard all cache entries since we don't know which entries
         // where part of the transaction
@@ -374,7 +375,7 @@ public class CacheRecordManager implements RecordManager
     {
         checkIfClosed();
 
-        return recMgr.getNamedObject( name );
+        return recordManager.getNamedObject( name );
     }
 
 
@@ -385,7 +386,7 @@ public class CacheRecordManager implements RecordManager
     {
         checkIfClosed();
 
-        recMgr.setNamedObject( name, recid );
+        recordManager.setNamedObject( name, recid );
     }
 
 
@@ -394,7 +395,7 @@ public class CacheRecordManager implements RecordManager
      */
     private void checkIfClosed() throws IllegalStateException
     {
-        if ( recMgr == null ) 
+        if ( recordManager == null ) 
         {
             throw new IllegalStateException( I18n.err( I18n.ERR_538 ) );
         }
@@ -414,13 +415,12 @@ public class CacheRecordManager implements RecordManager
             
             if ( entry.isDirty ) 
             {
-                recMgr.update( entry.recid, entry.obj, entry.serializer );
+                recordManager.update( entry.recid, entry.obj, entry.serializer );
                 entry.isDirty = false;
             }
         }
     }
 
-    
     /**
      * A class to store a cached entry. 
      */
@@ -457,7 +457,7 @@ public class CacheRecordManager implements RecordManager
             {
                 try 
                 {
-                    recMgr.update( entry.recid, entry.obj, entry.serializer );
+                    recordManager.update( entry.recid, entry.obj, entry.serializer );
                 } 
                 catch ( IOException except ) 
                 {

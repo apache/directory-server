@@ -46,6 +46,7 @@
  */
 package jdbm.helper;
 
+
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.lang.ref.Reference;
@@ -54,6 +55,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 import org.apache.directory.server.i18n.I18n;
+
 
 /**
  * Wraps a deterministic cache policy with a <q>Level-2</q> cache based on
@@ -81,13 +83,15 @@ import org.apache.directory.server.i18n.I18n;
  * @author <a href="mailto:dranatunga@users.sourceforge.net">Dilum Ranatunga</a>
  * @version $Id: SoftCache.java,v 1.1 2003/11/01 13:29:27 dranatunga Exp $
  */
-public class SoftCache implements CachePolicy {
+public class SoftCache implements CachePolicy
+{
     private static final int INITIAL_CAPACITY = 128;
     private static final float DEFAULT_LOAD_FACTOR = 1.5f;
 
-    private final ReferenceQueue _clearQueue = new ReferenceQueue();
-    private final CachePolicy _internal;
-    private final Map _cacheMap;
+    private final ReferenceQueue clearQueue = new ReferenceQueue();
+    private final CachePolicy internal;
+    private final Map map;
+
 
     /**
      * Creates a soft-reference based L2 cache with a {@link MRU} cache as
@@ -97,9 +101,11 @@ public class SoftCache implements CachePolicy {
      * {@link #get(Object) get( )s} first try the L1 cache anyway. The
      * internal MRU is given a capacity of 128 elements.
      */
-    public SoftCache() {
-        this(new MRU(INITIAL_CAPACITY));
+    public SoftCache()
+    {
+        this( new MRU( INITIAL_CAPACITY ) );
     }
+
 
     /**
      * Creates a soft-reference based L2 cache wrapping the specified
@@ -108,9 +114,11 @@ public class SoftCache implements CachePolicy {
      * @param internal non null internal cache.
      * @throws NullPointerException if the internal cache is null.
      */
-    public SoftCache(CachePolicy internal) throws NullPointerException {
-        this(DEFAULT_LOAD_FACTOR, internal);
+    public SoftCache( CachePolicy internal ) throws NullPointerException
+    {
+        this( DEFAULT_LOAD_FACTOR, internal );
     }
+
 
     /**
      * Creates a soft-reference based L2 cache wrapping the specified
@@ -124,13 +132,17 @@ public class SoftCache implements CachePolicy {
      * @throws IllegalArgumentException if the load factor is nonpositive.
      * @throws NullPointerException if the internal cache is null.
      */
-    public SoftCache(float loadFactor, CachePolicy internal) throws IllegalArgumentException, NullPointerException {
-        if (internal == null) {
+    public SoftCache( float loadFactor, CachePolicy internal ) throws IllegalArgumentException, NullPointerException
+    {
+        if ( internal == null )
+        {
             throw new NullPointerException( I18n.err( I18n.ERR_531 ) );
         }
-        _internal = internal;
-        _cacheMap = new HashMap(INITIAL_CAPACITY, loadFactor);
+        
+        this.internal = internal;
+        map = new HashMap( INITIAL_CAPACITY, loadFactor );
     }
+
 
     /**
      * Adds the specified value to the cache under the specified key. Note
@@ -141,16 +153,22 @@ public class SoftCache implements CachePolicy {
      *         would have experienced while evicting an object it currently
      *         cached.
      */
-    public void put(Object key, Object value) throws CacheEvictionException {
-        if (key == null) {
+    public void put( Object key, Object value ) throws CacheEvictionException
+    {
+        if ( key == null )
+        {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_532 ) );
-        } else if (value == null) {
+        }
+        else if ( value == null )
+        {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_533 ) );
         }
-        _internal.put(key, value);
+        
+        internal.put( key, value );
         removeClearedEntries();
-        _cacheMap.put(key, new Entry(key, value, _clearQueue));
+        map.put( key, new Entry( key, value, clearQueue ) );
     }
+
 
     /**
      * Gets the object cached under the specified key.
@@ -172,32 +190,47 @@ public class SoftCache implements CachePolicy {
      * @return the object stored under the key specified; null if the
      *         object is not (nolonger) accessible via this cache.
      */
-    public Object get(Object key) {
+    public Object get( Object key )
+    {
         // first try the internal cache.
-        Object value = _internal.get(key);
-        if (value != null) {
+        Object value = internal.get( key );
+        
+        if ( value != null )
+        {
             return value;
         }
+        
         // poll and remove cleared references.
         removeClearedEntries();
-        Entry entry = (Entry)_cacheMap.get(key);
-        if (entry == null) { // object is not in cache.
+        Entry entry = ( Entry ) map.get( key );
+        
+        if ( entry == null )
+        { // object is not in cache.
             return null;
         }
+        
         value = entry.getValue();
-        if (value == null) { // object was in cache, but it was cleared.
+        
+        if ( value == null )
+        { // object was in cache, but it was cleared.
             return null;
         }
+        
         // we have the object. so we try to re-insert it into internal cache
-        try {
-            _internal.put(key, value);
-        } catch (CacheEvictionException e) {
+        try
+        {
+            internal.put( key, value );
+        }
+        catch ( CacheEvictionException e )
+        {
             // if the internal cache causes a fuss, we kick the object out.
-            _cacheMap.remove(key);
+            map.remove( key );
             return null;
         }
+        
         return value;
     }
+
 
     /**
      * Removes any object stored under the key specified. Note that the
@@ -205,26 +238,32 @@ public class SoftCache implements CachePolicy {
      * cache.
      * @param key the key whose object should be removed
      */
-    public void remove(Object key) {
-        _cacheMap.remove(key);
-        _internal.remove(key);
+    public void remove( Object key )
+    {
+        map.remove( key );
+        internal.remove( key );
     }
+
 
     /**
      * Removes all objects in this (L2) and its internal (L1) cache.
      */
-    public void removeAll() {
-        _cacheMap.clear();
-        _internal.removeAll();
+    public void removeAll()
+    {
+        map.clear();
+        internal.removeAll();
     }
+
 
     /**
      * Gets all the objects stored by the internal (L1) cache.
      * @return an enumeration of objects in internal cache.
      */
-    public Enumeration elements() {
-        return _internal.elements();
+    public Enumeration elements()
+    {
+        return internal.elements();
     }
+
 
     /**
      * Adds the specified listener to this cache. Note that the events
@@ -232,18 +271,21 @@ public class SoftCache implements CachePolicy {
      * @param listener the (non-null) listener to add to this policy
      * @throws IllegalArgumentException if listener is null.
      */
-    public void addListener(CachePolicyListener listener)
-            throws IllegalArgumentException {
-        _internal.addListener(listener);
+    public void addListener( CachePolicyListener listener ) throws IllegalArgumentException
+    {
+        internal.addListener( listener );
     }
+
 
     /**
      * Removes a listener that was added earlier.
      * @param listener the listener to remove.
      */
-    public void removeListener(CachePolicyListener listener) {
-        _internal.removeListener(listener);
+    public void removeListener( CachePolicyListener listener )
+    {
+        internal.removeListener( listener );
     }
+
 
     /**
      * Cleans the mapping structure of any obsolete entries. This is usually
@@ -251,10 +293,12 @@ public class SoftCache implements CachePolicy {
      * runtime of this is usually very small, but it can be as expensive as
      * n * log(n) if a large number of soft references were recently cleared.
      */
-    private final void removeClearedEntries() {
-        for (Reference r = _clearQueue.poll(); r != null; r = _clearQueue.poll()) {
-            Object key = ((Entry)r).getKey();
-            _cacheMap.remove(key);
+    private final void removeClearedEntries()
+    {
+        for ( Reference r = clearQueue.poll(); r != null; r = clearQueue.poll() )
+        {
+            Object key = ( ( Entry ) r ).getKey();
+            map.remove( key );
         }
     }
 
@@ -265,31 +309,38 @@ public class SoftCache implements CachePolicy {
      * keys drastically improves the performance of removing the pair
      * from the map (see {@link SoftCache#removeClearedEntries()}.)
      */
-    private static class Entry extends SoftReference {
-        private final Object _key;
+    private static class Entry extends SoftReference
+    {
+        private final Object key;
+
 
         /**
          * Constructor that uses <code>value</code> as the soft
          * reference's referent.
          */
-        public Entry(Object key, Object value, ReferenceQueue queue) {
-            super(value, queue);
-            _key = key;
+        public Entry( Object key, Object value, ReferenceQueue queue )
+        {
+            super( value, queue );
+            this.key = key;
         }
+
 
         /**
          * Gets the key
          * @return the key associated with this value.
          */
-        final Object getKey() {
-            return _key;
+        final Object getKey()
+        {
+            return key;
         }
+
 
         /**
          * Gets the value
          * @return the value; null if it is no longer accessible
          */
-        final Object getValue() {
+        final Object getValue()
+        {
             return this.get();
         }
     }
