@@ -1,0 +1,10 @@
+version: 1
+dn: ads-transportId=udp,ou=transports,ads-serverId=changepasswordserver,ou=serve
+ rs,ou=config
+ads-systemport: 60464
+ads-transportbacklog: 50
+ads-transportnbthreads: 2
+ads-transportid: udp
+objectclass: ads-transport
+objectclass: top
+objectclass: ads-udpTransport

@@ -1,7 +1,9 @@
 version: 1
-dn: ads-ldapServerSaslMechName=ntlm,ou=saslmechanisms,ads-serverId=ldapServer,ou=servers,ou=config
-objectClass: ads-ldapServerSaslMechanismHandler
-objectClass: top
-ads-ldapserversaslmechclassname: org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler
-ads-ldapServerSaslMechName: NTLM
-ads-ldapServerNtlmMechProvider: com.foo.Bar
+dn: ads-ldapServerSaslMechName=ntlm,ou=saslmechanisms,ads-serverId=ldapServer,ou
+ =servers,ou=config
+ads-ldapserversaslmechclassname: org.apache.directory.server.ldap.handlers.bind.
+ ntlm.NtlmMechanismHandler
+objectclass: ads-ldapServerSaslMechanismHandler
+objectclass: top
+ads-ldapserversaslmechname: NTLM
+ads-ldapserverntlmmechprovider: com.foo.Bar

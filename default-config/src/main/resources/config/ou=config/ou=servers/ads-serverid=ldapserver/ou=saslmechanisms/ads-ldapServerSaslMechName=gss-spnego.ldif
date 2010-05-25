@@ -1,7 +1,9 @@
 version: 1
-dn: ads-ldapServerSaslMechName=gss-spnego,ou=saslmechanisms,ads-serverId=ldapServer,ou=servers,ou=config
-objectClass: ads-ldapServerSaslMechanismHandler
-objectClass: top
-ads-ldapserversaslmechclassname: org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler
-ads-ldapServerSaslMechName: GSS-SPNEGO
-ads-ldapServerNtlmMechProvider: com.foo.Bar
+dn: ads-ldapServerSaslMechName=gss-spnego,ou=saslmechanisms,ads-serverId=ldapSer
+ ver,ou=servers,ou=config
+ads-ldapserversaslmechclassname: org.apache.directory.server.ldap.handlers.bind.
+ ntlm.NtlmMechanismHandler
+objectclass: ads-ldapServerSaslMechanismHandler
+objectclass: top
+ads-ldapserversaslmechname: GSS-SPNEGO
+ads-ldapserverntlmmechprovider: com.foo.Bar

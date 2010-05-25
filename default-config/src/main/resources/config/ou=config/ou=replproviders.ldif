@@ -1,5 +1,5 @@
+version: 1
 dn: ou=replProviders,ou=config
 ou: replProviders
-objectClass: organizationalUnit
-objectClass: top
-entryCSN: 20100513141503.959000Z#000000#000#000000
+objectclass: organizationalUnit
+objectclass: top

@@ -1,0 +1,5 @@
+version: 1
+dn: ou=webapps,ads-serverId=httpserver,ou=servers,ou=config
+ou: webapps
+objectclass: organizationalUnit
+objectclass: top

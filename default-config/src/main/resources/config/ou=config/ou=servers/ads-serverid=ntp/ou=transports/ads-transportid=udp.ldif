@@ -1,0 +1,8 @@
+version: 1
+dn: ads-transportId=udp,ou=transports,ads-serverId=ntp,ou=servers,ou=config
+ads-systemport: 60123
+ads-transportnbthreads: 1
+ads-transportid: udp
+objectclass: ads-transport
+objectclass: ads-udpTransport
+objectclass: top

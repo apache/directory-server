@@ -1,0 +1,8 @@
+version: 1
+dn: ads-Id=starttlshandler,ou=extendedoperatiohandlers,ads-serverId=ldapServer,o
+ u=servers,ou=config
+ads-id: starttlshandler
+ads-ldapserverextendedophandlerclass: org.apache.directory.server.ldap.handlers.
+ extended.StartTlsHandler
+objectclass: ads-ldapServerExtendedOpHandler
+objectclass: top
