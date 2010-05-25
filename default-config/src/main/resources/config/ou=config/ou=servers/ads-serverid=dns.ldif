@@ -3,7 +3,6 @@ dn: ads-serverId=dns,ou=servers,ou=config
 ads-serverds: ads-directoryServiceId=default,ou=directoryService,ou=config
 ads-serverid: dns
 ads-enabled: false
-ads-transports: ou=transports,ads-serverId=dns,ou=servers,ou=config
 objectclass: ads-server
 objectclass: ads-dnsServer
 objectclass: ads-catalogBasedServer

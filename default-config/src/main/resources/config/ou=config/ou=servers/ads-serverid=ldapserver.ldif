@@ -7,7 +7,6 @@ ads-ldapserversaslrealms: example.com
 ads-ldapserversaslrealms: apache.org
 ads-ldapserversaslhost: ldap.example.com
 ads-ldapserversaslprincipal: ldap/ldap.example.com@EXAMPLE.COM
-ads-transports: ou=transports,ads-serverId=ldapServer,ou=servers,ou=config
 ads-searchbasedn: ou=users,ou=system
 ads-ldapservermaxtimelimit: 15000
 ads-ldapservermaxsizelimit: 1000
