@@ -1,7 +1,5 @@
 version: 1
 dn: ads-directoryServiceId=default,ou=directoryService,ou=config
-ads-dspartitions: ou=partitions,ads-directoryServiceId=default,ou=directoryServi
- ce,ou=config
 ads-dsreplicaid: 1
 ads-dssyncperiodmillis: 15000
 ads-dsmaxpdusize: 2000000
@@ -11,5 +9,3 @@ ads-dsdenormalizeopattrsenabled: false
 objectclass: ads-directoryService
 objectclass: top
 ads-directoryserviceid: default
-ads-dsinterceptors: ou=interceptors,ads-directoryServiceId=default,ou=directoryS
- ervice,ou=config

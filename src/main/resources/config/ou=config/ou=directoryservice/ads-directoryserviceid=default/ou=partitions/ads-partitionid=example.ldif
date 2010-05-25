@@ -2,8 +2,6 @@ version: 1
 dn: ads-partitionId=example,ou=partitions,ads-directoryServiceId=default,ou=dire
  ctoryService,ou=config
 ads-partitionsuffix: dc=example,dc=com
-ads-partitionindexedattributes: ou=indexes,ads-partitionId=example,ou=partitions
- ,ads-directoryServiceId=default,ou=directoryService,ou=config
 ads-jdbmpartitionoptimizerenabled: true
 ads-partitioncachesize: 100
 ads-partitionsynconwrite: true

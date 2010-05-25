@@ -191,9 +191,7 @@ public class ConfigPartitionReader
         LdapServer server = new LdapServer();
         server.setServiceId( getString( ConfigSchemaConstants.ADS_SERVER_ID, ldapServerEntry ) );
 
-        DN transportsDN = new DN( getString( ConfigSchemaConstants.ADS_TRANSPORTS, ldapServerEntry ) );
-        transportsDN.normalize( schemaManager.getNormalizerMapping() );
-        Transport[] transports = getTransports( transportsDN );
+        Transport[] transports = getTransports( ldapServerEntry.getDn() );
         server.setTransports( transports );
 
         EntryAttribute replProvImplAttr = ldapServerEntry.get( ConfigSchemaConstants.ADS_REPL_PROVIDER_IMPL );
@@ -297,9 +295,7 @@ public class ConfigPartitionReader
 
         kdcServer.setServiceId( getString( ConfigSchemaConstants.ADS_SERVER_ID, kdcEntry ) );
 
-        DN transportsDN = new DN( getString( ConfigSchemaConstants.ADS_TRANSPORTS, kdcEntry ) );
-        transportsDN.normalize( schemaManager.getNormalizerMapping() );
-        Transport[] transports = getTransports( transportsDN );
+        Transport[] transports = getTransports( kdcEntry.getDn() );
         kdcServer.setTransports( transports );
 
         // MAY attributes
@@ -446,9 +442,7 @@ public class ConfigPartitionReader
 
         dnsServer.setServiceId( getString( ConfigSchemaConstants.ADS_SERVER_ID, dnsEntry ) );
 
-        DN transportsDN = new DN( getString( ConfigSchemaConstants.ADS_TRANSPORTS, dnsEntry ) );
-        transportsDN.normalize( schemaManager.getNormalizerMapping() );
-        Transport[] transports = getTransports( transportsDN );
+        Transport[] transports = getTransports( dnsEntry.getDn() );
         dnsServer.setTransports( transports );
 
         return dnsServer;
@@ -523,9 +517,7 @@ public class ConfigPartitionReader
 
         ntpServer.setServiceId( getString( ConfigSchemaConstants.ADS_SERVER_ID, ntpEntry ) );
 
-        DN transportsDN = new DN( getString( ConfigSchemaConstants.ADS_TRANSPORTS, ntpEntry ) );
-        transportsDN.normalize( schemaManager.getNormalizerMapping() );
-        Transport[] transports = getTransports( transportsDN );
+        Transport[] transports = getTransports( ntpEntry.getDn() );
         ntpServer.setTransports( transports );
 
         return ntpServer;
@@ -563,9 +555,7 @@ public class ConfigPartitionReader
 
         chgPwdServer.setServiceId( getString( ConfigSchemaConstants.ADS_SERVER_ID, chgPwdEntry ) );
 
-        DN transportsDN = new DN( getString( ConfigSchemaConstants.ADS_TRANSPORTS, chgPwdEntry ) );
-        transportsDN.normalize( schemaManager.getNormalizerMapping() );
-        Transport[] transports = getTransports( transportsDN );
+        Transport[] transports = getTransports( chgPwdEntry.getDn() );
         chgPwdServer.setTransports( transports );
 
         // MAY attributes
@@ -733,15 +723,10 @@ public class ConfigPartitionReader
         dirService.setInstanceId( getString( ConfigSchemaConstants.ADS_DIRECTORYSERVICE_ID, dsEntry ) );
         dirService.setReplicaId( getInt( ConfigSchemaConstants.ADS_DS_REPLICA_ID, dsEntry ) );
 
-        DN interceptorsDN = new DN( dsEntry.get( ConfigSchemaConstants.ADS_DSINTERCEPTORS ).getString() );
-        interceptorsDN.normalize( configPartition.getSchemaManager().getNormalizerMapping() );
-        List<Interceptor> interceptors = getInterceptors( interceptorsDN );
+        List<Interceptor> interceptors = getInterceptors( dsEntry.getDn() );
         dirService.setInterceptors( interceptors );
 
-        DN partitionsDN = new DN( dsEntry.get( ConfigSchemaConstants.ADS_DSPARTITIONS ).getString() );
-        partitionsDN.normalize( configPartition.getSchemaManager().getNormalizerMapping() );
-
-        Map<String, Partition> partitions = getPartitions( partitionsDN );
+        Map<String, Partition> partitions = getPartitions( dsEntry.getDn() );
 
         Partition systemPartition = partitions.remove( "system" );
 
@@ -974,16 +959,16 @@ public class ConfigPartitionReader
     /**
      * reads the Interceptor configuration and instantiates them in the order specified
      *
-     * @param interceptorsDN the DN under which interceptors are configured
+     * @param dirServiceDN the DN under which interceptors are configured
      * @return a list of instantiated Interceptor objects
      * @throws Exception
      */
-    private List<Interceptor> getInterceptors( DN interceptorsDN ) throws Exception
+    private List<Interceptor> getInterceptors( DN dirServiceDN ) throws Exception
     {
         PresenceNode filter = new PresenceNode( ConfigSchemaConstants.ADS_INTERCEPTOR_ID );
         SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        IndexCursor<Long, Entry, Long> cursor = se.cursor( interceptorsDN, AliasDerefMode.NEVER_DEREF_ALIASES,
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( dirServiceDN, AliasDerefMode.NEVER_DEREF_ALIASES,
             filter, controls );
 
         Set<InterceptorConfig> set = new TreeSet<InterceptorConfig>();
@@ -1029,12 +1014,12 @@ public class ConfigPartitionReader
     }
 
 
-    private Map<String, Partition> getPartitions( DN partitionsDN ) throws Exception
+    private Map<String, Partition> getPartitions( DN dirServiceDN ) throws Exception
     {
         PresenceNode filter = new PresenceNode( ConfigSchemaConstants.ADS_PARTITION_ID );
         SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        IndexCursor<Long, Entry, Long> cursor = se.cursor( partitionsDN, AliasDerefMode.NEVER_DEREF_ALIASES,
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( dirServiceDN, AliasDerefMode.NEVER_DEREF_ALIASES,
             filter, controls );
 
         Map<String, Partition> partitions = new HashMap<String, Partition>();
@@ -1099,21 +1084,19 @@ public class ConfigPartitionReader
             partition.setSyncOnWrite( Boolean.parseBoolean( syncAttr.getString() ) );
         }
 
-        String indexesDN = partitionEntry.get( ConfigSchemaConstants.ADS_PARTITION_INDEXED_ATTRIBUTES ).getString();
-
-        Set<Index<?, Entry, Long>> indexedAttributes = getIndexes( new DN( indexesDN ) );
+        Set<Index<?, Entry, Long>> indexedAttributes = getIndexes( partitionEntry.getDn() );
         partition.setIndexedAttributes( indexedAttributes );
 
         return partition;
     }
 
 
-    private Set<Index<?, Entry, Long>> getIndexes( DN indexesDN ) throws Exception
+    private Set<Index<?, Entry, Long>> getIndexes( DN partitionDN ) throws Exception
     {
         PresenceNode filter = new PresenceNode( ConfigSchemaConstants.ADS_INDEX_ATTRIBUTE_ID );
         SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        IndexCursor<Long, Entry, Long> cursor = se.cursor( indexesDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter,
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( partitionDN, AliasDerefMode.NEVER_DEREF_ALIASES, filter,
             controls );
 
         Set<Index<?, Entry, Long>> indexes = new HashSet<Index<?, Entry, Long>>();
@@ -1167,12 +1150,12 @@ public class ConfigPartitionReader
     }
 
 
-    private Transport[] getTransports( DN transportsDN ) throws Exception
+    private Transport[] getTransports( DN adsServerDN ) throws Exception
     {
         PresenceNode filter = new PresenceNode( ConfigSchemaConstants.ADS_TRANSPORT_ID );
         SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        IndexCursor<Long, Entry, Long> cursor = se.cursor( transportsDN, AliasDerefMode.NEVER_DEREF_ALIASES,
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( adsServerDN, AliasDerefMode.NEVER_DEREF_ALIASES,
             filter, controls );
 
         List<Transport> transports = new ArrayList<Transport>();

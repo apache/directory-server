@@ -3,7 +3,6 @@ dn: ads-serverId=kerberos,ou=servers,ou=config
 ads-serverds: ads-directoryServiceId=default,ou=directoryService,ou=config
 ads-serverid: kerberos
 ads-enabled: false
-ads-transports: ou=transports,ads-serverId=kerberos,ou=servers,ou=config
 objectclass: ads-server
 objectclass: ads-kerberosServer
 objectclass: ads-catalogBasedServer
