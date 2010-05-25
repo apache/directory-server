@@ -58,7 +58,7 @@
     <daemon.bootstrappers.version>1.1.9-SNAPSHOT</daemon.bootstrappers.version>
     <derby.version>10.4.2.0</derby.version>
     <dnsjava.version>2.0.1</dnsjava.version>
-    <jcl.over.slf4j.version>1.5.10</jcl.over.slf4j.version>
+    <jcl.over.slf4j.version>1.5.11</jcl.over.slf4j.version>
     <jetty.version>6.1.14</jetty.version>
     <jug.asl.version>2.0.0.RC1</jug.asl.version>
     <junit.version>4.8.1</junit.version>
@@ -71,8 +71,8 @@
     <mina.core.version>2.0.0-RC1</mina.core.version>
     <plexus.utils.version>1.0.3</plexus.utils.version>
     <quartz.version>1.6.0</quartz.version>
-    <slf4j.api.version>1.5.10</slf4j.api.version>
-    <slf4j.log4j12.version>1.5.10</slf4j.log4j12.version>
+    <slf4j.api.version>1.5.11</slf4j.api.version>
+    <slf4j.log4j12.version>1.5.11</slf4j.log4j12.version>
     <spring.beans.version>2.5.6.SEC01</spring.beans.version>
     <spring.context.version>2.5.6.SEC01</spring.context.version>
     <spring.core.version>2.5.6.SEC01</spring.core.version>
