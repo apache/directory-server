@@ -93,7 +93,7 @@ public class SchemaServiceTest
             nameAttrs.add( type.getName() );
         }
         
-        // We should only have 17 AT
+        // We should only have 18 AT
         String[] expectedNames = new String[]
         {
             "sn", 
@@ -116,7 +116,8 @@ public class SchemaServiceTest
             "ads-serverId", 
             "ads-indexAttributeId", 
             "ads-transportId", 
-            "ads-directoryServiceId"
+            "ads-directoryServiceId",
+            "ads-Id"
         };
         
         for ( String name : expectedNames )
