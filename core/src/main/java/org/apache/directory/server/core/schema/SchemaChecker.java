@@ -27,9 +27,9 @@ import java.util.Set;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
@@ -88,7 +88,7 @@ public class SchemaChecker
         // all the objectClass values in which case we must throw an exception
         if ( attribute.size() == 0 )
         {
-            String msg = I18n.err( I18n.ERR_272, name );
+            String msg = I18n.err( I18n.ERR_272_MODIFY_LEAVES_NO_STRUCTURAL_OBJECT_CLASS, name );
             
             if ( log.isInfoEnabled() )
             {
@@ -111,7 +111,7 @@ public class SchemaChecker
 
         // no structural object classes exist for the entry in the replacement
         // set for the objectClass attribute so we need to complain about that
-        String msg = I18n.err( I18n.ERR_272, name );
+        String msg = I18n.err( I18n.ERR_272_MODIFY_LEAVES_NO_STRUCTURAL_OBJECT_CLASS, name );
         if ( log.isInfoEnabled() )
         {
             log.info( msg + ".  Raising LdapSchemaViolationException." );
@@ -152,7 +152,7 @@ public class SchemaChecker
         // all the objectClass values in which case we must throw an exception
         if ( objectClass.size() == 0 )
         {
-            String msg = I18n.err( I18n.ERR_272, name );
+            String msg = I18n.err( I18n.ERR_272_MODIFY_LEAVES_NO_STRUCTURAL_OBJECT_CLASS, name );
             if ( log.isInfoEnabled() )
             {
                 log.info( msg + ".  Raising LdapSchemaViolationException." );
@@ -173,7 +173,7 @@ public class SchemaChecker
 
         // no structural object classes exist for the entry in the replacement
         // set for the objectClass attribute so we need to complain about that
-        String msg =  I18n.err( I18n.ERR_272, name );
+        String msg =  I18n.err( I18n.ERR_272_MODIFY_LEAVES_NO_STRUCTURAL_OBJECT_CLASS, name );
         if ( log.isInfoEnabled() )
         {
             log.info( msg + ".  Raising LdapSchemaViolationException." );
@@ -232,7 +232,7 @@ public class SchemaChecker
         // all the objectClass values in which case we must throw an exception
         if ( attribute.size() == 0 )
         {
-            String msg =  I18n.err( I18n.ERR_272, name );
+            String msg =  I18n.err( I18n.ERR_272_MODIFY_LEAVES_NO_STRUCTURAL_OBJECT_CLASS, name );
             
             if ( log.isInfoEnabled() )
             {
@@ -266,7 +266,7 @@ public class SchemaChecker
 
         // no structural object classes exist for the entry after the modifications
         // to the objectClass attribute so we need to complain about that
-        String msg =  I18n.err( I18n.ERR_272, name );
+        String msg =  I18n.err( I18n.ERR_272_MODIFY_LEAVES_NO_STRUCTURAL_OBJECT_CLASS, name );
 
         if ( log.isInfoEnabled() )
         {
