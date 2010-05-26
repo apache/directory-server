@@ -212,12 +212,9 @@ performance tests run maven with the -Dperformance switch.
           <plugin>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-              <systemProperties>
-                <property>
-                  <name>outputDirectory</name>
-                  <value>${basedir}/target</value>
-                </property>
-              </systemProperties>
+              <systemPropertyVariables>
+                <outputDirectory>${basedir}/target</outputDirectory>
+              </systemPropertyVariables>
               <excludes>
                 <exclude>**/*ITest.java</exclude>
               </excludes>
