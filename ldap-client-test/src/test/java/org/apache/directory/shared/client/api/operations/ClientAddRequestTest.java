@@ -26,6 +26,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -34,12 +35,16 @@ import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.AddFuture;
 import org.apache.directory.ldap.client.api.message.AddRequest;
 import org.apache.directory.ldap.client.api.message.AddResponse;
+import org.apache.directory.ldap.client.api.message.BindResponse;
+import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -71,6 +76,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
     public void setup() throws Exception
     {
         connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        connection.setTimeOut( 0 );
         DN bindDn = new DN( "uid=admin,ou=system" );
         connection.bind( bindDn.getName(), "secret" );
         
@@ -144,4 +150,50 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
             fail();
         }
     }
+    
+    
+    @ApplyLdifs(
+        {
+            "dn: cn=kayyagari,ou=system",
+            "objectClass: person",
+            "objectClass: top",
+            "cn: kayyagari",
+            "description: dbugger",
+            "sn: dbugger",
+            "userPassword: secret"
+        })
+    @Test
+    public void testAddEntryUUIDAndEntryCsn() throws Exception
+    {
+        //test as admin first
+        DN dn = new DN( "cn=x,ou=system" );
+        String uuid = UUID.randomUUID().toString();
+        String csn = new CsnFactory( 0 ).newInstance().toString();
+        
+        Entry entry = new DefaultEntry( dn );
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );
+        entry.add( SchemaConstants.CN_AT, "x" );
+        entry.add( SchemaConstants.SN_AT, "x" );
+        entry.add( SchemaConstants.ENTRY_UUID_AT, uuid );
+        entry.add( SchemaConstants.ENTRY_CSN_AT, csn );
+        
+        connection.add( entry );
+        
+        Entry loadedEntry = ( ( SearchResultEntry ) connection.lookup( dn.getName(), "+" ) ).getEntry();
+        
+        // successful for admin
+        assertEquals( uuid, loadedEntry.get( SchemaConstants.ENTRY_UUID_AT ).getString() );
+        assertEquals( csn, loadedEntry.get( SchemaConstants.ENTRY_CSN_AT ).getString() );
+        
+        connection.delete( dn );
+        connection.unBind();
+        
+        // connect as non admin user and try to add entry with uuid and csn
+        BindResponse bindResp = connection.bind( "cn=kayyagari,ou=system", "secret" );
+        assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
+        
+        AddResponse resp = connection.add( entry );
+        assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, resp.getLdapResult().getResultCode() );
+    }
+    
 }

@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -33,15 +34,19 @@ import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.ModifyFuture;
 import org.apache.directory.ldap.client.api.message.ModifyRequest;
 import org.apache.directory.ldap.client.api.message.ModifyResponse;
+import org.apache.directory.ldap.client.api.message.SearchResultEntry;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.After;
 import org.junit.Before;
@@ -72,6 +77,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
     public void setup() throws Exception
     {
         connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        connection.setTimeOut( 0 );
 
         DN bindDn = new DN( "uid=admin,ou=system" );
         connection.bind( bindDn.getName(), "secret" );
@@ -177,5 +183,24 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
         {
             fail();
         }
+    }
+    
+    
+    @Test
+    public void testModifyEntryUUIDAndEntryCSN() throws Exception
+    {
+        DN dn = new DN( "uid=admin,ou=system" );
+        
+        ModifyRequest modReq = new ModifyRequest( dn );
+        modReq.replace( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+        
+        ModifyResponse modResp = connection.modify( modReq );
+        assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, modResp.getLdapResult().getResultCode() );
+        
+        modReq = new ModifyRequest( dn );
+        modReq.replace( SchemaConstants.ENTRY_CSN_AT, new CsnFactory( 0 ).newInstance().toString() );
+        
+        modResp = connection.modify( modReq );
+        assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, modResp.getLdapResult().getResultCode() );
     }
 }
