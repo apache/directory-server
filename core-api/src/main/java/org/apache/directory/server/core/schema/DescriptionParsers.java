@@ -275,6 +275,7 @@ public class DescriptionParsers
                     I18n.err( I18n.ERR_413, attributeType.getSubstringOid() ) );
             }
 
+            // TODO: DIRSHARED-60: this check is wrong and must be removed
             // if the equality matching rule is null and no super type is specified then there is
             // definitely no equality matchingRule that can be resolved.  We cannot use an attribute
             // without a matchingRule for search or for building indices not to mention lookups.
@@ -296,6 +297,7 @@ public class DescriptionParsers
                 }
             }
 
+            // TODO: this check is already by done by the schema parser and can be removed
             // a syntax is mandatory for an attributeType and if not provided by the description 
             // must be provided from some ancestor in the attributeType hierarchy; without either
             // of these the description definitely cannot resolve a syntax and cannot be allowed.

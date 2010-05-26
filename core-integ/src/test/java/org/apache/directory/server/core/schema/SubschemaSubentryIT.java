@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.schema;
 
 
+import static org.apache.directory.server.core.integ.IntegrationUtils.getAdminConnection;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
@@ -56,12 +57,16 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.message.ModifyRequest;
+import org.apache.directory.ldap.client.api.message.ModifyResponse;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
@@ -119,7 +124,26 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
     private ObjectClassDescriptionSchemaParser objectClassDescriptionSchemaParser =
         new ObjectClassDescriptionSchemaParser();
 
-    
+
+    /**
+     * Test for DIRSHARED-60.
+     * It is allowed to add an attribute type description without any matching rule.
+     * Adding it via ou=schema partition worked. Adding it via the subschema subentry failed.
+     */
+    @Ignore
+    @Test
+    public void testAddAttributeTypeWithoutMatchingRule() throws Exception
+    {
+        LdapConnection conn = getAdminConnection( service );
+
+        ModifyRequest modRequest = new ModifyRequest( new DN( GLOBAL_SUBSCHEMA_DN ) );
+        modRequest.add( "attributeTypes", "( 2.5.4.58 NAME 'attributeCertificateAttribute' "
+            + " DESC 'attribute certificate use ;binary' SYNTAX 1.3.6.1.4.1.1466.115.121.1.8 )" );
+        ModifyResponse response = conn.modify( modRequest );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+    }
+
+
     /**
      * Make sure the global subschemaSubentry is where it is expected to be.
      *

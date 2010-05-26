@@ -71,6 +71,41 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandler
     // ----------------------------------------------------------------------
     // Test Add operation
     // ----------------------------------------------------------------------
+    /**
+     * Test for DIRSHARED-60.
+     * It is allowed to add an attribute type description without any matching rule.
+     * Adding it via ou=schema partition worked. Adding it via the subschema subentry failed.
+     */
+    @Test
+    public void testAddAttributeTypeWithoutMatchingRule() throws Exception
+    {
+        Attributes attrs = LdifUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaAttributeType",
+            "m-oid: 2.5.4.58",
+            "m-name: attributeCertificateAttribute",
+            "m-syntax: 1.3.6.1.4.1.1466.115.121.1.8",
+            "m-description: attribute certificate use ;binary"
+         );
+        
+        DN dn = getAttributeTypeContainer( "apachemeta" );
+        dn.add( "m-oid=2.5.4.58" );
+        
+        // Pre-checks
+        assertFalse( isOnDisk( dn ) );
+        assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( "2.5.4.58" ) );
+        
+        // Addition
+        getSchemaContext( service ).createSubcontext( DN.toName( dn ), attrs );
+        
+        // Post-checks
+        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( "2.5.4.58" ) );
+        assertEquals( service.getSchemaManager().getAttributeTypeRegistry().getSchemaName( "2.5.4.58" ), "apachemeta" );
+        assertTrue( isOnDisk( dn ) );
+    }
+
+
     @Test
     public void testAddAttributeTypeToEnabledSchema() throws Exception
     {
