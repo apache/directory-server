@@ -21,6 +21,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -128,6 +129,8 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         setupSystemIndices();
         setupUserIndices();
 
+        deleteUnusedIndexFiles();
+        
         // We are done !
         initialized = true;
     }
@@ -274,4 +277,57 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         return jdbmIndex;
     }
 
+    
+    /**
+     * removes any unused/removed attribute index files present under the partition's
+     * working directory
+     */
+    private void deleteUnusedIndexFiles()
+    {
+        final String jdbmDbFileExtn = ".db";
+        
+        FilenameFilter filter = new FilenameFilter()
+        {
+            
+            public boolean accept( File dir, String name )
+            {
+                // really important to filter master.db and master.lg files
+                return ( name.endsWith( jdbmDbFileExtn ) && !name.startsWith( "master." ) );
+            }
+        };
+        
+        File[] dbFiles = getPartitionDir().listFiles( filter );
+        
+        List<String> allIndices = new ArrayList<String>();
+        for( Index i : systemIndices.values() )
+        {
+            allIndices.addAll( i.getAttribute().getNames() );
+        }
+        
+        for( Index i : userIndices.values() )
+        {
+            allIndices.addAll( i.getAttribute().getNames() );
+        }
+        
+        for( File file : dbFiles )
+        {
+            String name = file.getName();
+            // take the part after removing .db from the  
+            name = name.substring( 0, name.lastIndexOf( jdbmDbFileExtn ) );
+            
+            // remove the file if not found in the list of names of indices
+            if( !allIndices.contains( name ) )
+            {
+                boolean deleted = file.delete();
+                if( deleted )
+                {
+                    LOG.info( "Deleted unused index file {}", file.getAbsolutePath() );
+                }
+                else
+                {
+                    LOG.warn( "Failed to delete unused index file {}", file.getAbsolutePath() );
+                }
+            }
+        }
+    }
 }

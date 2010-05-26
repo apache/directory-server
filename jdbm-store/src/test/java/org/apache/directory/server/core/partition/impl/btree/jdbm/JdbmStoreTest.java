@@ -889,4 +889,42 @@ public class JdbmStoreTest
         store.modify( dn, mods );
         assertEquals( attribVal, lookedup.get( "ou" ).get().getString() );
     }
+    
+    
+    @Test
+    public void testDeleteUnusedIndexFiles() throws Exception
+    {
+        File ouIndexDbFile = new File( wkdir, "ou.db" );
+        File uuidIndexDbFile = new File( wkdir, "entryUUID.db" );
+        
+        assertTrue( ouIndexDbFile.exists() );
+        assertTrue( uuidIndexDbFile.exists() );
+        
+        // destroy the store to manually start the init phase
+        // by keeping the same work dir
+        store.destroy();
+        
+        // just assert again that ou and entryUUID files exist even after destroying the store
+        assertTrue( ouIndexDbFile.exists() );
+        assertTrue( uuidIndexDbFile.exists() );
+        
+        store = new JdbmStore<Entry>();
+        store.setId( "example" );
+        store.setCacheSize( 10 );
+        store.setPartitionDir( wkdir );
+        store.setSyncOnWrite( false );
+        // do not add ou index this time
+        store.addIndex( new JdbmIndex( SchemaConstants.UID_AT_OID ) );
+
+        
+        DN suffixDn = new DN( "o=Good Times Co." );
+        suffixDn.normalize( schemaManager.getNormalizerMapping() );
+        store.setSuffixDn( suffixDn );
+        // init the store to call deleteUnusedIndexFiles() method
+        store.init( schemaManager );
+
+        assertFalse( ouIndexDbFile.exists() );
+        assertTrue( uuidIndexDbFile.exists() );
+    }
+    
 }
