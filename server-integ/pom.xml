@@ -102,6 +102,7 @@
           <plugin>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
+              <forkedProcessTimeoutInSeconds>900</forkedProcessTimeoutInSeconds>
               <includes>
                 <include>**/*ISuite.java</include>
               </includes>
