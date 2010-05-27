@@ -523,7 +523,17 @@ public class LdifPartition extends BTreePartition<Long>
         }
 
         String rdnFileName = getFileName( entryDn.getRdn() ) + CONF_FILE_EXTN;
-        String parentDir = filePath.toString();
+        
+        String parentDir = null;
+        
+        if( entryDn.equals( suffixDn ) )
+        {
+            parentDir = suffixDirectory.getParent() + File.separator;
+        }
+        else
+        {
+            parentDir = filePath.toString();
+        }
 
         File dir = new File( parentDir );
 
