@@ -34,8 +34,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
 
-import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
@@ -62,11 +62,11 @@ public class SchemaAwareModificationTest
     private static LdifSchemaLoader loader;
     private static SchemaManager schemaManager;
     private static AttributeType atCN;
-    
+
     // A SINGLE-VALUE attribute
-    private static AttributeType atC;   
-    
-    
+    private static AttributeType atC;
+
+
     /**
      * Serialize a DefaultModification
      */
@@ -100,15 +100,16 @@ public class SchemaAwareModificationTest
                 throw ioe;
             }
         }
-        
+
         return out;
     }
-    
-    
+
+
     /**
      * Deserialize a DefaultModification
      */
-    private DefaultModification deserializeValue( ByteArrayOutputStream out ) throws IOException, ClassNotFoundException, LdapException
+    private DefaultModification deserializeValue( ByteArrayOutputStream out ) throws IOException,
+        ClassNotFoundException, LdapException
     {
         ObjectInputStream oIn = null;
         ByteArrayInputStream in = new ByteArrayInputStream( out.toByteArray() );
@@ -141,33 +142,33 @@ public class SchemaAwareModificationTest
             }
         }
     }
-    
-    
+
+
     /**
      * Initialize the registries once for the whole test suite
      */
     @BeforeClass
     public static void setup() throws Exception
     {
-    	String workingDirectory = System.getProperty( "workingDirectory" );
-    	
+        String workingDirectory = System.getProperty( "workingDirectory" );
+
         if ( workingDirectory == null )
         {
             String path = SchemaAwareModificationTest.class.getResource( "" ).getPath();
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }
-    	
-    	File schemaRepository = new File( workingDirectory, "schema" );
+
+        File schemaRepository = new File( workingDirectory, "schema" );
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy( true );
         loader = new LdifSchemaLoader( schemaRepository );
-        
+
         schemaManager = new DefaultSchemaManager( loader );
         schemaManager.loadAllEnabled();
-        
+
         List<Throwable> errors = schemaManager.getErrors();
-        
+
         if ( errors.size() != 0 )
         {
             fail( "Schema load failed : " + LdapExceptionUtils.printErrors( errors ) );
@@ -178,18 +179,19 @@ public class SchemaAwareModificationTest
     }
 
 
-    @Test public void testCreateClientModification()
+    @Test
+    public void testCreateClientModification()
     {
         EntryAttribute attribute = new DefaultEntryAttribute( atCN );
         attribute.add( "test1", "test2" );
-        
+
         Modification mod = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
         Modification clone = mod.clone();
-        
+
         attribute.remove( "test2" );
-        
+
         EntryAttribute clonedAttribute = clone.getAttribute();
-        
+
         assertEquals( 1, mod.getAttribute().size() );
         assertTrue( mod.getAttribute().contains( "test1" ) );
 
@@ -197,8 +199,8 @@ public class SchemaAwareModificationTest
         assertTrue( clone.getAttribute().contains( "test1" ) );
         assertTrue( clone.getAttribute().contains( "test2" ) );
     }
-    
-    
+
+
     /**
      * Test the copy constructor with a DefaultModification
      *
@@ -209,21 +211,21 @@ public class SchemaAwareModificationTest
         EntryAttribute attribute = new DefaultEntryAttribute( atC );
         attribute.add( "test1", "test2" );
         Modification serverModification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
-        
+
         Modification copy = new DefaultModification( schemaManager, serverModification );
-        
+
         assertTrue( copy instanceof DefaultModification );
         assertEquals( copy, serverModification );
-        
+
         serverModification.setOperation( ModificationOperation.REMOVE_ATTRIBUTE );
         assertEquals( ModificationOperation.ADD_ATTRIBUTE, copy.getOperation() );
-        
+
         EntryAttribute attribute2 = new DefaultEntryAttribute( atCN, "t" );
         serverModification.setAttribute( attribute2 );
         assertNotSame( attribute2, copy.getAttribute() );
     }
-    
-    
+
+
     /**
      * Test the copy constructor with a DefaultModification
      *
@@ -234,78 +236,78 @@ public class SchemaAwareModificationTest
         EntryAttribute attribute = new DefaultEntryAttribute( atC.getName() );
         attribute.add( "test1", "test2" );
         Modification clientModification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
-        
+
         Modification copy = new DefaultModification( schemaManager, clientModification );
-        
+
         assertTrue( copy instanceof DefaultModification );
         assertTrue( copy instanceof DefaultModification );
-        assertFalse( copy.equals(  clientModification ) );
+        assertFalse( copy.equals( clientModification ) );
         assertTrue( copy.getAttribute() instanceof EntryAttribute );
         assertEquals( atC, copy.getAttribute().getAttributeType() );
         assertEquals( ModificationOperation.ADD_ATTRIBUTE, copy.getOperation() );
         assertTrue( copy.getAttribute().contains( "test1", "test2" ) );
-        
+
         clientModification.setOperation( ModificationOperation.REMOVE_ATTRIBUTE );
         assertEquals( ModificationOperation.ADD_ATTRIBUTE, copy.getOperation() );
-        
+
         EntryAttribute attribute2 = new DefaultEntryAttribute( "cn", "t" );
         clientModification.setAttribute( attribute2 );
         assertNotSame( attribute2, copy.getAttribute() );
     }
-    
-    
+
+
     @Test
     public void testSerializationModificationADD() throws ClassNotFoundException, IOException, LdapException
     {
         EntryAttribute attribute = new DefaultEntryAttribute( atCN );
         attribute.add( "test1", "test2" );
-        
+
         DefaultModification mod = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
-        
+
         Modification modSer = deserializeValue( serializeValue( mod ) );
-        
+
         assertEquals( mod, modSer );
     }
-    
-    
+
+
     @Test
     public void testSerializationModificationREPLACE() throws ClassNotFoundException, IOException, LdapException
     {
         EntryAttribute attribute = new DefaultEntryAttribute( atCN );
         attribute.add( "test1", "test2" );
-        
+
         DefaultModification mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
-        
+
         Modification modSer = deserializeValue( serializeValue( mod ) );
-        
+
         assertEquals( mod, modSer );
     }
-    
-    
+
+
     @Test
     public void testSerializationModificationREMOVE() throws ClassNotFoundException, IOException, LdapException
     {
         EntryAttribute attribute = new DefaultEntryAttribute( atCN );
         attribute.add( "test1", "test2" );
-        
+
         DefaultModification mod = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attribute );
-        
+
         Modification modSer = deserializeValue( serializeValue( mod ) );
-        
+
         assertEquals( mod, modSer );
     }
-    
-    
+
+
     @Test
     public void testSerializationModificationNoAttribute() throws ClassNotFoundException, IOException, LdapException
     {
         Modification mod = new DefaultModification();
-        
+
         mod.setOperation( ModificationOperation.ADD_ATTRIBUTE );
-        
+
         try
         {
-            deserializeValue( serializeValue( (DefaultModification)mod ) );
+            deserializeValue( serializeValue( ( DefaultModification ) mod ) );
             fail();
         }
         catch ( IOException ioe )

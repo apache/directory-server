@@ -50,7 +50,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 
-
 /**
  * Unit test cases for the SubtreeEvaluator.
  *
@@ -64,10 +63,11 @@ public class SubtreeEvaluatorTest
     FilterNormalizingVisitor visitor;
     static ConcreteNameComponentNormalizer ncn;
 
+
     @BeforeClass
     public static void init() throws Exception
     {
-    	String workingDirectory = System.getProperty( "workingDirectory" );
+        String workingDirectory = System.getProperty( "workingDirectory" );
 
         if ( workingDirectory == null )
         {
@@ -92,7 +92,7 @@ public class SubtreeEvaluatorTest
         ncn = new ConcreteNameComponentNormalizer( schemaManager );
     }
 
-    
+
     @Before
     public void initTest()
     {
@@ -108,7 +108,7 @@ public class SubtreeEvaluatorTest
         evaluator = null;
     }
 
-    
+
     @AfterClass
     public static void tearDown() throws Exception
     {
@@ -293,7 +293,6 @@ public class SubtreeEvaluatorTest
         // now change the refinement so the entry is rejected
         entry = new DefaultEntry( schemaManager, entryDn );
         entry.put( "objectClass", "organizationalUnit" );
-        
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
@@ -313,8 +312,8 @@ public class SubtreeEvaluatorTest
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
     }
-    
-    
+
+
     @Test
     public void testWithFilter() throws Exception
     {

@@ -50,111 +50,92 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 679049 $
  */
-@RunWith ( FrameworkRunner.class ) 
-@CreateLdapServer ( 
-    transports = 
+@RunWith(FrameworkRunner.class)
+@CreateLdapServer(transports =
+    { @CreateTransport(protocol = "LDAP") })
+@ApplyLdifs(
     {
-        @CreateTransport( protocol = "LDAP" )
-    })
-@ApplyLdifs( {
-    // Entry # 1
-    "dn: uid=akarasulu,ou=users,ou=system",
-    "objectClass: uidObject",
-    "objectClass: person",
-    "objectClass: top",
-    "uid: akarasulu",
-    "cn: Alex Karasulu",
-    "sn: karasulu", 
-    // Entry # 2
-    "dn: ou=NewSuperior,ou=system",
-    "objectClass: organizationalUnit",
-    "objectClass: top",
-    "ou: NewSuperior",
-    
-    "dn: ou=parent,ou=system",
-    "changetype: add",
-    "objectClass: organizationalUnit",
-    "objectClass: top",
-    "ou: parent",
-    
-    "dn: ou=child,ou=parent,ou=system",
-    "changetype: add",
-    "objectClass: organizationalUnit",
-    "objectClass: top",
-    "ou: child"
-    }
-)
-public class MoveIT extends AbstractLdapTestUnit 
+        // Entry # 1
+        "dn: uid=akarasulu,ou=users,ou=system", "objectClass: uidObject", "objectClass: person", "objectClass: top",
+        "uid: akarasulu", "cn: Alex Karasulu",
+        "sn: karasulu",
+        // Entry # 2
+        "dn: ou=NewSuperior,ou=system", "objectClass: organizationalUnit", "objectClass: top", "ou: NewSuperior",
+
+        "dn: ou=parent,ou=system", "changetype: add", "objectClass: organizationalUnit", "objectClass: top",
+        "ou: parent",
+
+        "dn: ou=child,ou=parent,ou=system", "changetype: add", "objectClass: organizationalUnit", "objectClass: top",
+        "ou: child" })
+public class MoveIT extends AbstractLdapTestUnit
 {
     private static final String DN = "uid=akarasulu,ou=users,ou=system";
     private static final String NEW_DN = "uid=akarasulu,ou=NewSuperior,ou=system";
     private static final String NEW_DN2 = "uid=elecharny,ou=NewSuperior,ou=system";
-    
+
 
     @Test
     public void testMoveNoRdnChange() throws Exception
     {
         LdapContext ctx = getWiredContext( ldapServer );
         ctx.rename( DN, NEW_DN );
-        
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        
-        NamingEnumeration<SearchResult> results = 
-            ctx.search( NEW_DN, "(objectClass=*)", controls );
+
+        NamingEnumeration<SearchResult> results = ctx.search( NEW_DN, "(objectClass=*)", controls );
         assertNotNull( results );
         assertTrue( "Could not find entry after move.", results.hasMore() );
         SearchResult result = results.next();
         assertNotNull( result );
         assertEquals( NEW_DN, result.getNameInNamespace() );
-        
+
         results.close();
         ctx.close();
     }
-    
+
 
     @Test
     public void testMoveAndRdnChange() throws Exception
     {
         LdapContext ctx = getWiredContext( ldapServer );
         ctx.rename( DN, NEW_DN2 );
-        
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        
-        NamingEnumeration<SearchResult> results = 
-            ctx.search( NEW_DN2, "(objectClass=*)", controls );
+
+        NamingEnumeration<SearchResult> results = ctx.search( NEW_DN2, "(objectClass=*)", controls );
         assertNotNull( results );
         assertTrue( "Could not find entry after move.", results.hasMore() );
         SearchResult result = results.next();
         assertNotNull( result );
         assertEquals( NEW_DN2, result.getNameInNamespace() );
-        
+
         results.close();
         ctx.close();
     }
-    
-    
+
+
     @Test
     public void testIllegalMove() throws Exception
     {
 
-    	LdapConnection con = getClientApiConnection( ldapServer );
-    
-    	//now do something bad: make the parent a child of its own child 
-    	ModifyDnResponse resp = con.move( "ou=parent,ou=system", "ou=child,ou=parent,ou=system" );
-    	assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, resp.getLdapResult().getResultCode() );
+        LdapConnection con = getClientApiConnection( ldapServer );
+
+        //now do something bad: make the parent a child of its own child 
+        ModifyDnResponse resp = con.move( "ou=parent,ou=system", "ou=child,ou=parent,ou=system" );
+        assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, resp.getLdapResult().getResultCode() );
     }
-    
-    
+
+
     @Test
     public void testIllegalMoveToSameDN() throws Exception
     {
 
-    	LdapConnection con = getClientApiConnection( ldapServer );
-    
-    	//now do something bad: try to move the entry to the same DN
-    	ModifyDnResponse resp = con.move( "ou=parent,ou=system", "ou=parent,ou=system" );
+        LdapConnection con = getClientApiConnection( ldapServer );
+
+        //now do something bad: try to move the entry to the same DN
+        ModifyDnResponse resp = con.move( "ou=parent,ou=system", "ou=parent,ou=system" );
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, resp.getLdapResult().getResultCode() );
-    }    
+    }
 }

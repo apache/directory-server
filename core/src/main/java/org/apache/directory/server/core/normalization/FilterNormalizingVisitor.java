@@ -70,32 +70,31 @@ public class FilterNormalizingVisitor implements FilterVisitor
 
     /** the global registries used to resolve OIDs for attributeType ids */
     private final SchemaManager schemaManager;
-    
 
     /**
      * Chars which need to be escaped in a filter
      * '\0' | '(' | ')' | '*' | '\'
      */
     private static final boolean[] FILTER_CHAR =
-        { 
-            true,  false, false, false, false, false, false, false, // 00 -> 07 NULL
+        { true, false, false, false, false, false, false, false, // 00 -> 07 NULL
             false, false, false, false, false, false, false, false, // 08 -> 0F
             false, false, false, false, false, false, false, false, // 10 -> 17
             false, false, false, false, false, false, false, false, // 18 -> 1F
             false, false, false, false, false, false, false, false, // 20 -> 27
-            true,  true,  true,  false, false, false, false, false, // 28 -> 2F '(', ')', '*'
+            true, true, true, false, false, false, false, false, // 28 -> 2F '(', ')', '*'
             false, false, false, false, false, false, false, false, // 30 -> 37
             false, false, false, false, false, false, false, false, // 38 -> 3F 
             false, false, false, false, false, false, false, false, // 40 -> 47
             false, false, false, false, false, false, false, false, // 48 -> 4F
             false, false, false, false, false, false, false, false, // 50 -> 57
-            false, false, false, false, true,  false, false, false, // 58 -> 5F '\'
+            false, false, false, false, true, false, false, false, // 58 -> 5F '\'
             false, false, false, false, false, false, false, false, // 60 -> 67
             false, false, false, false, false, false, false, false, // 68 -> 6F
             false, false, false, false, false, false, false, false, // 70 -> 77
-            false, false, false, false, false, false, false, false  // 78 -> 7F
+            false, false, false, false, false, false, false, false // 78 -> 7F
         };
-    
+
+
     /**
      * Check if the given char is a filter escaped char
      * &lt;filterEscapedChars&gt; ::= '\0' | '(' | ')' | '*' | '\'
@@ -143,12 +142,11 @@ public class FilterNormalizingVisitor implements FilterVisitor
 
             if ( attributeType.getSyntax().isHumanReadable() )
             {
-                normalized = new StringValue( 
-                    (String) ncn.normalizeByName( attribute, value.getString() ) );
+                normalized = new StringValue( ( String ) ncn.normalizeByName( attribute, value.getString() ) );
             }
             else
             {
-                normalized = (Value<?>)ncn.normalizeByName( attribute, value.getBytes() );
+                normalized = ( Value<?> ) ncn.normalizeByName( attribute, value.getBytes() );
             }
 
             return normalized;
@@ -204,7 +202,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
 
         node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
         node.setValue( normalized );
-        
+
         return node;
     }
 
@@ -427,54 +425,54 @@ public class FilterNormalizingVisitor implements FilterVisitor
      * @param node the node to visit
      * @return the visited node
      */
-    public Object visit( ExprNode node ) 
+    public Object visit( ExprNode node )
     {
-    	try
-    	{
-	        // -------------------------------------------------------------------
-	        // Handle PresenceNodes
-	        // -------------------------------------------------------------------
-	
-	        if ( node instanceof PresenceNode )
-	        {
-	            return visitPresenceNode( ( PresenceNode ) node );
-	        }
-	
-	        // -------------------------------------------------------------------
-	        // Handle BranchNodes (AndNode, NotNode and OrNode)
-	        // -------------------------------------------------------------------
-	
-	        else if ( node instanceof BranchNode )
-	        {
-	            return visitBranchNode( ( BranchNode ) node );
-	        }
-	
-	        // -------------------------------------------------------------------
-	        // Handle SimpleNodes (ApproximateNode, EqualityNode, GreaterEqNode,
-	        // and LesserEqNode) 
-	        // -------------------------------------------------------------------
-	
-	        else if ( node instanceof SimpleNode )
-	        {
-	            return visitSimpleNode( ( SimpleNode ) node );
-	        }
-	        else if ( node instanceof ExtensibleNode )
-	        {
-	            return visitExtensibleNode( ( ExtensibleNode ) node );
-	        }
-	        else if ( node instanceof SubstringNode )
-	        {
-	            return visitSubstringNode( ( SubstringNode ) node );
-	        }
-	        else
-	        {
-	            return null;
-	        }
-    	}
-    	catch( LdapException e )
-    	{
-    		throw new RuntimeException( e );
-    	}
+        try
+        {
+            // -------------------------------------------------------------------
+            // Handle PresenceNodes
+            // -------------------------------------------------------------------
+
+            if ( node instanceof PresenceNode )
+            {
+                return visitPresenceNode( ( PresenceNode ) node );
+            }
+
+            // -------------------------------------------------------------------
+            // Handle BranchNodes (AndNode, NotNode and OrNode)
+            // -------------------------------------------------------------------
+
+            else if ( node instanceof BranchNode )
+            {
+                return visitBranchNode( ( BranchNode ) node );
+            }
+
+            // -------------------------------------------------------------------
+            // Handle SimpleNodes (ApproximateNode, EqualityNode, GreaterEqNode,
+            // and LesserEqNode) 
+            // -------------------------------------------------------------------
+
+            else if ( node instanceof SimpleNode )
+            {
+                return visitSimpleNode( ( SimpleNode ) node );
+            }
+            else if ( node instanceof ExtensibleNode )
+            {
+                return visitExtensibleNode( ( ExtensibleNode ) node );
+            }
+            else if ( node instanceof SubstringNode )
+            {
+                return visitSubstringNode( ( SubstringNode ) node );
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch ( LdapException e )
+        {
+            throw new RuntimeException( e );
+        }
     }
 
 

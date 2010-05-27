@@ -45,12 +45,12 @@ import org.junit.Test;
 public class SchemaServiceTest
 {
     private static SchemaManager schemaManager;
-    
-    
+
+
     @BeforeClass
     public static void setUp() throws Exception
     {
-    	String workingDirectory = System.getProperty( "workingDirectory" );
+        String workingDirectory = System.getProperty( "workingDirectory" );
 
         if ( workingDirectory == null )
         {
@@ -73,134 +73,113 @@ public class SchemaServiceTest
         }
 
         loaded = schemaManager.loadWithDeps( "nis" );
-        
+
         if ( !loaded )
         {
             fail( "Schema load failed : " + LdapExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
     }
 
-    
+
     @Test
     public void testDescendants() throws Exception
     {
         Iterator<AttributeType> list = schemaManager.getAttributeTypeRegistry().descendants( "name" );
         Set<String> nameAttrs = new HashSet<String>();
-        
+
         while ( list.hasNext() )
         {
             AttributeType type = list.next();
             nameAttrs.add( type.getName() );
         }
-        
+
         // We should only have 18 AT
         String[] expectedNames = new String[]
-        {
-            "sn", 
-            "generationQualifier", 
-            "ou", 
-            "c", 
-            "o", 
-            "l", 
-            "c-st", 
-            "givenName", 
-            "title", 
-            "cn", 
-            "initials", 
-            "dmdName", 
-            "c-ou", 
-            "c-o", 
-            "apacheExistence", 
-            "st", 
-            "c-l",
-            "ads-serverId", 
-            "ads-indexAttributeId", 
-            "ads-transportId", 
-            "ads-directoryServiceId",
-            "ads-Id"
-        };
-        
+            { "sn", "generationQualifier", "ou", "c", "o", "l", "c-st", "givenName", "title", "cn", "initials",
+                "dmdName", "c-ou", "c-o", "apacheExistence", "st", "c-l", "ads-serverId", "ads-indexAttributeId",
+                "ads-transportId", "ads-directoryServiceId", "ads-Id" };
+
         for ( String name : expectedNames )
         {
-            if ( nameAttrs.contains( name) )
+            if ( nameAttrs.contains( name ) )
             {
                 nameAttrs.remove( name );
             }
         }
-        
+
         assertEquals( 0, nameAttrs.size() );
     }
-/*
-    public void testAlterObjectClassesBogusAttr() throws NamingException
-    {
-        Attribute attr = new AttributeImpl( "blah", "blah" );
-
-        try
+    /*
+        public void testAlterObjectClassesBogusAttr() throws NamingException
         {
+            Attribute attr = new AttributeImpl( "blah", "blah" );
+
+            try
+            {
+                SchemaInterceptor.alterObjectClasses( attr, registries.getObjectClassRegistry() );
+                fail( "should not get here" );
+            }
+            catch ( LdapNamingException e )
+            {
+                assertEquals( ResultCodeEnum.OPERATIONS_ERROR, e.getResultCode() );
+            }
+
+            attr = new AttributeImpl( "objectClass" );
+            SchemaInterceptor.alterObjectClasses( attr );
+            assertEquals( 0, attr.size() );
+        }
+
+
+        public void testAlterObjectClassesNoAttrValue() throws NamingException
+        {
+            Attribute attr = new AttributeImpl( "objectClass" );
+            SchemaInterceptor.alterObjectClasses( attr );
+            assertEquals( 0, attr.size() );
+        }
+
+
+        public void testAlterObjectClassesTopAttrValue() throws NamingException
+        {
+            Attribute attr = new AttributeImpl( "objectClass", "top" );
             SchemaInterceptor.alterObjectClasses( attr, registries.getObjectClassRegistry() );
-            fail( "should not get here" );
+            assertEquals( 0, attr.size() );
         }
-        catch ( LdapNamingException e )
+
+
+        public void testAlterObjectClassesInetOrgPersonAttrValue() throws NamingException
         {
-            assertEquals( ResultCodeEnum.OPERATIONS_ERROR, e.getResultCode() );
+            Attribute attr = new AttributeImpl( "objectClass", "organizationalPerson" );
+            SchemaInterceptor.alterObjectClasses( attr, registries.getObjectClassRegistry() );
+            assertEquals( 2, attr.size() );
+            assertTrue( attr.contains( "person" ) );
+            assertTrue( attr.contains( "organizationalPerson" ) );
         }
 
-        attr = new AttributeImpl( "objectClass" );
-        SchemaInterceptor.alterObjectClasses( attr );
-        assertEquals( 0, attr.size() );
-    }
+
+        public void testAlterObjectClassesOverlapping() throws NamingException
+        {
+            Attribute attr = new AttributeImpl( "objectClass", "organizationalPerson" );
+            attr.add( "residentialPerson" );
+            SchemaInterceptor.alterObjectClasses( attr, registries.getObjectClassRegistry() );
+            assertEquals( 3, attr.size() );
+            assertTrue( attr.contains( "person" ) );
+            assertTrue( attr.contains( "organizationalPerson" ) );
+            assertTrue( attr.contains( "residentialPerson" ) );
+        }
 
 
-    public void testAlterObjectClassesNoAttrValue() throws NamingException
-    {
-        Attribute attr = new AttributeImpl( "objectClass" );
-        SchemaInterceptor.alterObjectClasses( attr );
-        assertEquals( 0, attr.size() );
-    }
-
-
-    public void testAlterObjectClassesTopAttrValue() throws NamingException
-    {
-        Attribute attr = new AttributeImpl( "objectClass", "top" );
-        SchemaInterceptor.alterObjectClasses( attr, registries.getObjectClassRegistry() );
-        assertEquals( 0, attr.size() );
-    }
-
-
-    public void testAlterObjectClassesInetOrgPersonAttrValue() throws NamingException
-    {
-        Attribute attr = new AttributeImpl( "objectClass", "organizationalPerson" );
-        SchemaInterceptor.alterObjectClasses( attr, registries.getObjectClassRegistry() );
-        assertEquals( 2, attr.size() );
-        assertTrue( attr.contains( "person" ) );
-        assertTrue( attr.contains( "organizationalPerson" ) );
-    }
-
-
-    public void testAlterObjectClassesOverlapping() throws NamingException
-    {
-        Attribute attr = new AttributeImpl( "objectClass", "organizationalPerson" );
-        attr.add( "residentialPerson" );
-        SchemaInterceptor.alterObjectClasses( attr, registries.getObjectClassRegistry() );
-        assertEquals( 3, attr.size() );
-        assertTrue( attr.contains( "person" ) );
-        assertTrue( attr.contains( "organizationalPerson" ) );
-        assertTrue( attr.contains( "residentialPerson" ) );
-    }
-
-
-    public void testAlterObjectClassesOverlappingAndDsa() throws NamingException
-    {
-        Attribute attr = new AttributeImpl( "objectClass", "organizationalPerson" );
-        attr.add( "residentialPerson" );
-        attr.add( "dSA" );
-        SchemaInterceptor.alterObjectClasses( attr, registries.getObjectClassRegistry() );
-        assertEquals( 5, attr.size() );
-        assertTrue( attr.contains( "person" ) );
-        assertTrue( attr.contains( "organizationalPerson" ) );
-        assertTrue( attr.contains( "residentialPerson" ) );
-        assertTrue( attr.contains( "dSA" ) );
-        assertTrue( attr.contains( "applicationEntity" ) );
-    }
-    */
+        public void testAlterObjectClassesOverlappingAndDsa() throws NamingException
+        {
+            Attribute attr = new AttributeImpl( "objectClass", "organizationalPerson" );
+            attr.add( "residentialPerson" );
+            attr.add( "dSA" );
+            SchemaInterceptor.alterObjectClasses( attr, registries.getObjectClassRegistry() );
+            assertEquals( 5, attr.size() );
+            assertTrue( attr.contains( "person" ) );
+            assertTrue( attr.contains( "organizationalPerson" ) );
+            assertTrue( attr.contains( "residentialPerson" ) );
+            assertTrue( attr.contains( "dSA" ) );
+            assertTrue( attr.contains( "applicationEntity" ) );
+        }
+        */
 }

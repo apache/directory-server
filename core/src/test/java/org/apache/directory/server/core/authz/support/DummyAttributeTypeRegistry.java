@@ -46,12 +46,12 @@ import org.apache.directory.shared.ldap.schema.registries.SchemaObjectRegistry;
  * @version $Rev$, $Date$
  *
  */
-public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<AttributeType> 
+public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<AttributeType>
 {
     private final boolean returnOperational;
 
 
-    public DummyAttributeTypeRegistry(boolean returnOperational)
+    public DummyAttributeTypeRegistry( boolean returnOperational )
     {
         super( SchemaObjectType.ATTRIBUTE_TYPE, new OidRegistry() );
         this.returnOperational = returnOperational;
@@ -64,7 +64,7 @@ public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<Attr
 
         MatchingRule equality = new MatchingRule( "1.1.1" );
         equality.setNormalizer( normalizer );
-        
+
         AttributeType attributeType = new AttributeType( id );
         attributeType.setEquality( equality );
         attributeType.setSingleValued( false );
@@ -83,7 +83,7 @@ public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<Attr
             attributeType.setSyntax( syntax );
             attributeType.setUserModifiable( true );
         }
-        
+
         return attributeType;
     }
 
@@ -106,7 +106,7 @@ public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<Attr
     }
 
 
-    public Map<String,OidNormalizer> getNormalizerMapping()
+    public Map<String, OidNormalizer> getNormalizerMapping()
     {
         return null;
     }
@@ -132,7 +132,7 @@ public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<Attr
 
     public AttributeType unregister( String numericOid ) throws LdapException
     {
-    	return null;
+        return null;
     }
 
 
@@ -146,19 +146,17 @@ public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<Attr
         return null;
     }
 
-    
-    public void unregisterDescendants( AttributeType attributeType, AttributeType ancestor ) 
-    throws LdapException
+
+    public void unregisterDescendants( AttributeType attributeType, AttributeType ancestor ) throws LdapException
     {
     }
 
-    
-    public void registerDescendants( AttributeType attributeType, AttributeType ancestor ) 
-    throws LdapException
+
+    public void registerDescendants( AttributeType attributeType, AttributeType ancestor ) throws LdapException
     {
     }
-    
-    
+
+
     public void addMappingFor( AttributeType attributeType ) throws LdapException
     {
     }

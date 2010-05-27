@@ -39,8 +39,6 @@ import jdbm.recman.CacheRecordManager;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmMasterTable;
 import org.apache.directory.server.i18n.I18n;
@@ -87,7 +85,7 @@ public class DumpCommand extends ToolCommand
         // --------------------------------------------------------------------
 
         // setup temporary loader and temp registry 
-    	String workingDirectory = System.getProperty( "workingDirectory" );
+        String workingDirectory = System.getProperty( "workingDirectory" );
 
         if ( workingDirectory == null )
         {
@@ -102,19 +100,18 @@ public class DumpCommand extends ToolCommand
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
         schemaManager = new DefaultSchemaManager( loader );
         schemaManager.loadAllEnabled();
-        
+
         List<Throwable> errors = schemaManager.getErrors();
-        
+
         if ( errors.size() != 0 )
         {
             throw new Exception( I18n.err( I18n.ERR_317, LdapExceptionUtils.printErrors( errors ) ) );
         }
 
-        
         schemaManager.loadWithDeps( "collective" );
-        
+
         errors = schemaManager.getErrors();
-        
+
         if ( !errors.isEmpty() )
         {
             MultiException e = new MultiException();
@@ -122,7 +119,7 @@ public class DumpCommand extends ToolCommand
             {
                 e.addThrowable( t );
             }
-            
+
             throw e;
         }
 
@@ -153,10 +150,10 @@ public class DumpCommand extends ToolCommand
         PrintWriter out = null;
 
         String[] excludedAttributes = cmdline.getOptionValues( 'e' );
-        
+
         if ( excludedAttributes != null )
         {
-            for ( String attributeType:excludedAttributes)
+            for ( String attributeType : excludedAttributes )
             {
                 AttributeType type = schemaManager.lookupAttributeTypeRegistry( attributeType );
                 exclusions.add( type.getName() );
@@ -172,7 +169,7 @@ public class DumpCommand extends ToolCommand
             out = new PrintWriter( new FileWriter( outputFile ) );
         }
 
-        for ( String partition:partitions )
+        for ( String partition : partitions )
         {
             File partitionDirectory = new File( getInstanceLayout().getPartitionsDir(), partition );
             out.println( "\n\n" );
@@ -209,12 +206,12 @@ public class DumpCommand extends ToolCommand
         idIndex.init( schemaManager, attributeType, partitionDirectory );
 
         out.println( "#---------------------" );
-        Cursor<Tuple<Long,Entry>> list = master.cursor();
+        Cursor<Tuple<Long, Entry>> list = master.cursor();
         StringBuffer buf = new StringBuffer();
-        
+
         while ( list.next() )
         {
-            Tuple<Long,Entry> tuple = list.get();
+            Tuple<Long, Entry> tuple = list.get();
             Long id = tuple.getKey();
             String dn = ( String ) idIndex.reverseLookup( id );
             Attributes entry = ( Attributes ) tuple.getValue();
@@ -222,7 +219,7 @@ public class DumpCommand extends ToolCommand
             filterAttributes( dn, entry );
 
             buf.append( "# Entry: " ).append( id ).append( "\n#---------------------\n\n" );
-        
+
             if ( !LdifUtils.isLDIFSafe( dn ) )
             {
                 // If the DN isn't LdifSafe, it needs to be Base64 encoded.
@@ -233,14 +230,14 @@ public class DumpCommand extends ToolCommand
             {
                 buf.append( "dn: " ).append( dn );
             }
-            
+
             buf.append( "\n" ).append( LdifUtils.convertToLdif( entry ) );
 
             if ( list.next() )
             {
                 buf.append( "\n\n#---------------------\n" );
             }
-            
+
             out.print( buf.toString() );
             out.flush();
             buf.setLength( 0 );
@@ -252,11 +249,11 @@ public class DumpCommand extends ToolCommand
     {
         List<String> toRemove = new ArrayList<String>();
         NamingEnumeration<? extends Attribute> attrs = entry.getAll();
-        
+
         while ( attrs.hasMore() )
         {
             Attribute attr = attrs.next();
-            
+
             if ( !schemaManager.getAttributeTypeRegistry().contains( attr.getID() ) )
             {
                 if ( !isQuietEnabled() )
@@ -269,17 +266,17 @@ public class DumpCommand extends ToolCommand
 
             AttributeType type = schemaManager.lookupAttributeTypeRegistry( attr.getID() );
             boolean isOperational = type.getUsage() != UsageEnum.USER_APPLICATIONS;
-            
+
             if ( exclusions.contains( attr.getID() ) || ( isOperational && ( !includeOperational ) ) )
             {
                 toRemove.add( attr.getID() );
             }
         }
-        
-        for ( String id:toRemove )
+
+        for ( String id : toRemove )
         {
             entry.remove( id );
-            
+
             if ( isDebugEnabled() )
             {
                 System.out.println( "# Excluding attribute " + id + " in " + dn );

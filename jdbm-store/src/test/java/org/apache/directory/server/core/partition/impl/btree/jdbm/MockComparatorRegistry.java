@@ -43,18 +43,18 @@ class MockComparatorRegistry extends DefaultComparatorRegistry
         super();
     }
 
-
     private LdapComparator<Integer> comparator = new LdapComparator<Integer>( "1.1.1" )
     {
-		private static final long serialVersionUID = -4049615866911565018L;
+        private static final long serialVersionUID = -4049615866911565018L;
 
-		public int compare( Integer i1, Integer i2 )
+
+        public int compare( Integer i1, Integer i2 )
         {
             return i1.compareTo( i2 );
         }
     };
 
-    
+
     public String getSchemaName( String oid ) throws LdapException
     {
         return null;
@@ -72,7 +72,7 @@ class MockComparatorRegistry extends DefaultComparatorRegistry
     }
 
 
-    public void register(LdapComparator<?> comparator ) throws LdapException
+    public void register( LdapComparator<?> comparator ) throws LdapException
     {
     }
 
@@ -88,13 +88,13 @@ class MockComparatorRegistry extends DefaultComparatorRegistry
         return null;
     }
 
-    
+
     public Iterator<String> oidsIterator()
     {
         return null;
     }
 
-    
+
     public Iterator<LdapComparatorDescription> ldapComparatorDescriptionIterator()
     {
         return null;
@@ -103,7 +103,7 @@ class MockComparatorRegistry extends DefaultComparatorRegistry
 
     public LdapComparator<Integer> unregister( String oid ) throws LdapException
     {
-		return this.comparator;
+        return this.comparator;
     }
 
 

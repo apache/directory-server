@@ -61,7 +61,7 @@ public class JdbmMasterTableTest
 
     public JdbmMasterTableTest() throws Exception
     {
-    	String workingDirectory = System.getProperty( "workingDirectory" );
+        String workingDirectory = System.getProperty( "workingDirectory" );
 
         if ( workingDirectory == null )
         {

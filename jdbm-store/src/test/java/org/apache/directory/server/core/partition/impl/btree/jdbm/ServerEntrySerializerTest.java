@@ -28,12 +28,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.directory.server.core.partition.impl.btree.jdbm.ServerEntrySerializer;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
@@ -61,54 +60,55 @@ public class ServerEntrySerializerTest
     private static Map<String, OidNormalizer> oids;
     private static Map<String, OidNormalizer> oidOids;
 
+
     /**
      * Initialize the registries once for the whole test suite
      */
     @BeforeClass
     public static void setup() throws Exception
     {
-    	String workingDirectory = System.getProperty( "workingDirectory" );
-        
-    	if ( workingDirectory == null )
+        String workingDirectory = System.getProperty( "workingDirectory" );
+
+        if ( workingDirectory == null )
         {
             String path = ServerEntrySerializerTest.class.getResource( "" ).getPath();
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }
-    	
-    	File schemaRepository = new File( workingDirectory, "schema" );
+
+        File schemaRepository = new File( workingDirectory, "schema" );
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy( true );
         loader = new LdifSchemaLoader( schemaRepository );
-        
+
         schemaManager = new DefaultSchemaManager( loader );
         schemaManager.loadAllEnabled();
-        
+
         List<Throwable> errors = schemaManager.getErrors();
-        
+
         if ( errors.size() != 0 )
         {
             fail( "Schema load failed : " + LdapExceptionUtils.printErrors( errors ) );
         }
-        
+
         oids = new HashMap<String, OidNormalizer>();
 
         // DC normalizer
-        OidNormalizer dcOidNormalizer = new OidNormalizer( "dc",
-            new DeepTrimToLowerNormalizer( SchemaConstants.DOMAIN_COMPONENT_AT_OID ) );
-        
+        OidNormalizer dcOidNormalizer = new OidNormalizer( "dc", new DeepTrimToLowerNormalizer(
+            SchemaConstants.DOMAIN_COMPONENT_AT_OID ) );
+
         oids.put( "dc", dcOidNormalizer );
         oids.put( "domaincomponent", dcOidNormalizer );
         oids.put( "0.9.2342.19200300.100.1.25", dcOidNormalizer );
 
         // OU normalizer
-        OidNormalizer ouOidNormalizer = new OidNormalizer( "ou",
-            new DeepTrimToLowerNormalizer( SchemaConstants.OU_AT_OID ) );
-        
+        OidNormalizer ouOidNormalizer = new OidNormalizer( "ou", new DeepTrimToLowerNormalizer(
+            SchemaConstants.OU_AT_OID ) );
+
         oids.put( "ou", ouOidNormalizer );
-        oids.put( "organizationalUnitName",ouOidNormalizer );
+        oids.put( "organizationalUnitName", ouOidNormalizer );
         oids.put( "2.5.4.11", ouOidNormalizer );
-    
+
         // Another map where we store OIDs instead of names.
         oidOids = new HashMap<String, OidNormalizer>();
 
@@ -117,183 +117,193 @@ public class ServerEntrySerializerTest
         oidOids.put( "0.9.2342.19200300.100.1.25", dcOidNormalizer );
 
         oidOids.put( "ou", ouOidNormalizer );
-        oidOids.put( "organizationalUnitName",ouOidNormalizer );
+        oidOids.put( "organizationalUnitName", ouOidNormalizer );
         oidOids.put( "2.5.4.11", ouOidNormalizer );
     }
 
-    
-    @Test public void testSerializeEmtpyServerEntry() throws Exception
+
+    @Test
+    public void testSerializeEmtpyServerEntry() throws Exception
     {
         DN dn = DN.EMPTY_DN;
         Entry entry = new DefaultEntry( schemaManager, dn );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
-        
+
         byte[] data = ses.serialize( entry );
-        
-        Entry result = (Entry)ses.deserialize( data );
-        
+
+        Entry result = ( Entry ) ses.deserialize( data );
+
         assertEquals( entry, result );
     }
 
 
-    @Test public void testSerializeDNServerEntry() throws Exception
+    @Test
+    public void testSerializeDNServerEntry() throws Exception
     {
         DN dn = new DN( "cn=text, dc=example, dc=com" );
         dn.normalize( oids );
-        
+
         Entry entry = new DefaultEntry( schemaManager, dn );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
-        
+
         byte[] data = ses.serialize( entry );
-        
-        Entry result = (Entry)ses.deserialize( data );
-        
+
+        Entry result = ( Entry ) ses.deserialize( data );
+
         DN newDn = new DN();
         newDn.add( dn.getRdn() );
         entry.setDn( newDn );
-        
+
         assertEquals( entry, result );
     }
 
 
-    @Test public void testSerializeServerEntryOC() throws Exception
+    @Test
+    public void testSerializeServerEntryOC() throws Exception
     {
         DN dn = new DN( "cn=text, dc=example, dc=com" );
         dn.normalize( oids );
-        
-        Entry entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
 
-        ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
-
-        byte[] data = ses.serialize( entry );
-        
-        Entry result = (Entry)ses.deserialize( data );
-        
-        DN newDn = new DN();
-        newDn.add( dn.getRdn() );
-        entry.setDn( newDn );
-        
-        assertEquals( entry, result );
-    }
-
-
-    @Test public void testSerializeServerEntry() throws Exception
-    {
-        DN dn = new DN( "cn=text, dc=example, dc=com" );
-        dn.normalize( oids );
-        
         Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
-        entry.add( "cn", "text", "test" );
-        entry.add( "SN", (String)null );
-        entry.add( "userPassword", StringTools.getBytesUtf8( "password" ) );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
-        
+
         byte[] data = ses.serialize( entry );
-        
-        Entry result = (Entry)ses.deserialize( data );
-        
+
+        Entry result = ( Entry ) ses.deserialize( data );
+
         DN newDn = new DN();
         newDn.add( dn.getRdn() );
         entry.setDn( newDn );
-        
+
         assertEquals( entry, result );
     }
 
 
-    @Test public void testSerializeServerEntryWithEmptyDN() throws Exception
+    @Test
+    public void testSerializeServerEntry() throws Exception
     {
-        DN dn = new DN( "" );
+        DN dn = new DN( "cn=text, dc=example, dc=com" );
         dn.normalize( oids );
-        
+
         Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
         entry.add( "cn", "text", "test" );
-        entry.add( "SN", (String)null );
+        entry.add( "SN", ( String ) null );
         entry.add( "userPassword", StringTools.getBytesUtf8( "password" ) );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
-        
+
         byte[] data = ses.serialize( entry );
-        
-        Entry result = (Entry)ses.deserialize( data );
-        
+
+        Entry result = ( Entry ) ses.deserialize( data );
+
+        DN newDn = new DN();
+        newDn.add( dn.getRdn() );
+        entry.setDn( newDn );
+
         assertEquals( entry, result );
     }
 
-    
-    @Test public void testSerializeServerEntryWithNoAttributes() throws Exception
+
+    @Test
+    public void testSerializeServerEntryWithEmptyDN() throws Exception
     {
         DN dn = new DN( "" );
         dn.normalize( oids );
-        
+
         Entry entry = new DefaultEntry( schemaManager, dn );
+        entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
+        entry.add( "cn", "text", "test" );
+        entry.add( "SN", ( String ) null );
+        entry.add( "userPassword", StringTools.getBytesUtf8( "password" ) );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
-        
+
         byte[] data = ses.serialize( entry );
-        
-        Entry result = (Entry)ses.deserialize( data );
-        
+
+        Entry result = ( Entry ) ses.deserialize( data );
+
         assertEquals( entry, result );
     }
-    
-    
-    @Test public void testSerializeServerEntryWithAttributeNoValue() throws Exception
+
+
+    @Test
+    public void testSerializeServerEntryWithNoAttributes() throws Exception
     {
         DN dn = new DN( "" );
         dn.normalize( oids );
-        
+
         Entry entry = new DefaultEntry( schemaManager, dn );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
-        EntryAttribute oc = new DefaultEntryAttribute( "ObjectClass", schemaManager.lookupAttributeTypeRegistry( "objectclass" ) );
+
+        byte[] data = ses.serialize( entry );
+
+        Entry result = ( Entry ) ses.deserialize( data );
+
+        assertEquals( entry, result );
+    }
+
+
+    @Test
+    public void testSerializeServerEntryWithAttributeNoValue() throws Exception
+    {
+        DN dn = new DN( "" );
+        dn.normalize( oids );
+
+        Entry entry = new DefaultEntry( schemaManager, dn );
+
+        ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
+        EntryAttribute oc = new DefaultEntryAttribute( "ObjectClass", schemaManager
+            .lookupAttributeTypeRegistry( "objectclass" ) );
         entry.add( oc );
-        
+
         byte[] data = ses.serialize( entry );
-        
-        Entry result = (Entry)ses.deserialize( data );
-        
+
+        Entry result = ( Entry ) ses.deserialize( data );
+
         assertEquals( entry, result );
     }
 
 
-    @Test public void testSerializeServerEntryWithAttributeStringValue() throws Exception
+    @Test
+    public void testSerializeServerEntryWithAttributeStringValue() throws Exception
     {
         DN dn = new DN( "" );
         dn.normalize( oids );
-        
+
         Entry entry = new DefaultEntry( schemaManager, dn );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
         entry.add( "ObjectClass", "top", "person" );
-        
+
         byte[] data = ses.serialize( entry );
-        
-        Entry result = (Entry)ses.deserialize( data );
-        
+
+        Entry result = ( Entry ) ses.deserialize( data );
+
         assertEquals( entry, result );
     }
 
 
-    @Test public void testSerializeServerEntryWithAttributeBinaryValue() throws Exception
+    @Test
+    public void testSerializeServerEntryWithAttributeBinaryValue() throws Exception
     {
         DN dn = new DN( "" );
         dn.normalize( oids );
-        
+
         Entry entry = new DefaultEntry( schemaManager, dn );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
         entry.add( "userPassword", StringTools.getBytesUtf8( "secret" ) );
-        
+
         byte[] data = ses.serialize( entry );
-        
-        Entry result = (Entry)ses.deserialize( data );
-        
+
+        Entry result = ( Entry ) ses.deserialize( data );
+
         assertEquals( entry, result );
     }
 }

@@ -55,7 +55,7 @@ public class TlsKeyGeneratorTest
     private static final Logger LOG = LoggerFactory.getLogger( TlsKeyGeneratorTest.class );
     private static LdifSchemaLoader loader;
     private static SchemaManager schemaManager;
-    
+
 
     /**
      * Initialize the registries once for the whole test suite
@@ -63,7 +63,7 @@ public class TlsKeyGeneratorTest
     @BeforeClass
     public static void setup() throws Exception
     {
-    	String workingDirectory = System.getProperty( "workingDirectory" );
+        String workingDirectory = System.getProperty( "workingDirectory" );
 
         if ( workingDirectory == null )
         {
@@ -85,8 +85,8 @@ public class TlsKeyGeneratorTest
             fail( "Schema load failed : " + LdapExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
     }
-    
-    
+
+
     /**
      * Test method for all methods in one.
      */
@@ -97,10 +97,10 @@ public class TlsKeyGeneratorTest
         TlsKeyGenerator.addKeyPair( entry );
         LOG.debug( "Entry: {}", entry );
         assertTrue( entry.contains( SchemaConstants.OBJECT_CLASS_AT, TlsKeyGenerator.TLS_KEY_INFO_OC ) );
-        
+
         KeyPair keyPair = TlsKeyGenerator.getKeyPair( entry );
         assertNotNull( keyPair );
-        
+
         X509Certificate cert = TlsKeyGenerator.getCertificate( entry );
         assertNotNull( cert );
     }
