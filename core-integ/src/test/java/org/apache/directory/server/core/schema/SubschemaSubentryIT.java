@@ -130,7 +130,6 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
      * It is allowed to add an attribute type description without any matching rule.
      * Adding it via ou=schema partition worked. Adding it via the subschema subentry failed.
      */
-    @Ignore
     @Test
     public void testAddAttributeTypeWithoutMatchingRule() throws Exception
     {

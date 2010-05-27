@@ -215,7 +215,7 @@ public class DescriptionParsers
      */
     public AttributeType[] parseAttributeTypes( EntryAttribute attr ) throws LdapException
     {
-        if ( attr == null || attr.size() == 0 )
+        if ( ( attr == null ) || ( attr.size() == 0 ) )
         {
             return EMPTY_ATTRIBUTE_TYPES;
         }
@@ -248,82 +248,34 @@ public class DescriptionParsers
             }
 
             // if the syntax is provided by the description make sure it exists in some schema
-            if ( attributeType.getSyntaxOid() != null && !schemaManager.getLdapSyntaxRegistry().contains( attributeType.getSyntaxOid() ) )
+            if ( ( attributeType.getSyntaxOid() != null ) && !schemaManager.getLdapSyntaxRegistry().contains( attributeType.getSyntaxOid() ) )
             {
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
                     I18n.err( I18n.ERR_410, attributeType.getSyntaxOid() ) );
             }
 
             // if the matchingRule is provided make sure it exists in some schema
-            if ( attributeType.getEqualityOid() != null && !schemaManager.getMatchingRuleRegistry().contains( attributeType.getEqualityOid() ) )
+            if ( ( attributeType.getEqualityOid() != null ) && !schemaManager.getMatchingRuleRegistry().contains( attributeType.getEqualityOid() ) )
             {
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
                     I18n.err( I18n.ERR_411, attributeType.getEqualityOid() ) );
             }
 
             // if the matchingRule is provided make sure it exists in some schema
-            if ( attributeType.getOrderingOid() != null && !schemaManager.getMatchingRuleRegistry().contains( attributeType.getOrderingOid() ) )
+            if ( ( attributeType.getOrderingOid() != null ) && !schemaManager.getMatchingRuleRegistry().contains( attributeType.getOrderingOid() ) )
             {
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
                     I18n.err( I18n.ERR_412, attributeType.getOrderingOid() ) );
             }
 
             // if the matchingRule is provided make sure it exists in some schema
-            if ( attributeType.getSubstringOid() != null && !schemaManager.getMatchingRuleRegistry().contains( attributeType.getSubstringOid() ) )
+            if ( ( attributeType.getSubstringOid() != null ) && !schemaManager.getMatchingRuleRegistry().contains( attributeType.getSubstringOid() ) )
             {
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
                     I18n.err( I18n.ERR_413, attributeType.getSubstringOid() ) );
             }
 
-            // TODO: DIRSHARED-60: this check is wrong and must be removed
-            // if the equality matching rule is null and no super type is specified then there is
-            // definitely no equality matchingRule that can be resolved.  We cannot use an attribute
-            // without a matchingRule for search or for building indices not to mention lookups.
-            if ( attributeType.getEqualityOid() == null )
-            {
-                if ( attributeType.getSuperiorOid() == null )
-                {
-                    throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_414 ) );
-                }
-                else
-                {
-                    AttributeType superType = schemaManager
-                        .lookupAttributeTypeRegistry( attributeType.getSuperiorOid() );
-
-                    if ( superType == null )
-                    {
-                        throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_415 ) );
-                    }
-                }
-            }
-
-            // TODO: this check is already by done by the schema parser and can be removed
-            // a syntax is mandatory for an attributeType and if not provided by the description 
-            // must be provided from some ancestor in the attributeType hierarchy; without either
-            // of these the description definitely cannot resolve a syntax and cannot be allowed.
-            // if a supertype exists then it must resolve a proper syntax somewhere in the hierarchy.
-            if ( attributeType.getSyntaxOid() == null && attributeType.getSuperiorOid() == null )
-            {
-                throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_416 ) );
-            }
-
             attributeType.setRegistries( schemaManager.getRegistries() );
-
-            /*
-            // Inject the schema
-            
-            if ( ( attributeType.getExtensions() == null )
-                || ( attributeType.getExtensions().get( MetaSchemaConstants.X_SCHEMA ) == null ) )
-            {
-                throw new LdapUnwillingToPerformException(
-                    "Cannot permit the addition of an attributeType not associated with a schema ",
-                    ResultCodeEnum.UNWILLING_TO_PERFORM );
-            }
-
-            String schemaName = attributeType.getExtensions().get( MetaSchemaConstants.X_SCHEMA ).get( 0 );
-            attributeType.setSchemaName( schemaName );
-            */
-
             attributeTypes[pos++] = attributeType;
         }
 
