@@ -1902,8 +1902,8 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             }
         }
     }
-    
-    
+
+
     /**
      * updates the CSN index
      *
@@ -1911,7 +1911,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * @param id ID of the entry
      * @throws Exception
      */
-    private synchronized void updateCsnIndex( Entry entry, ID id ) throws Exception
+    private void updateCsnIndex( Entry entry, ID id ) throws Exception
     {
         entryCsnIdx.drop( id );
         entryCsnIdx.add( entry.get( SchemaConstants.ENTRY_CSN_AT ).getString(), id );
