@@ -213,6 +213,14 @@
       <groupId>${project.groupId}</groupId>
       <version>${project.version}</version>
     </dependency>
+    
+    <!-- the parent pom defines commons-io with test scope,
+     so including here explicitly to include the classes from commons-io -->
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+    
   </dependencies>
 
   <build>
