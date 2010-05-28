@@ -48,6 +48,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.util.DateUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -186,6 +187,9 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
     }
     
     
+    /**
+     * ApacheDS doesn't allow modifying entryUUID and entryCSN AT
+     */
     @Test
     public void testModifyEntryUUIDAndEntryCSN() throws Exception
     {
@@ -203,4 +207,30 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
         modResp = connection.modify( modReq );
         assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, modResp.getLdapResult().getResultCode() );
     }
+    
+    
+    /**
+     * ApacheDS allows modifying the modifiersName and modifyTimestamp operational AT
+     */
+    @Test
+    public void testModifyModifierNameAndModifyTimestamp() throws Exception
+    {
+        DN dn = new DN( "uid=admin,ou=system" );
+        
+        String modifierName = "uid=x,ou=system";
+        String modifiedTime = DateUtils.getGeneralizedTime();
+
+        ModifyRequest modReq = new ModifyRequest( dn );
+        modReq.replace( SchemaConstants.MODIFIERS_NAME_AT, modifierName );
+        modReq.replace( SchemaConstants.MODIFY_TIMESTAMP_AT, modifiedTime );
+        
+        ModifyResponse modResp = connection.modify( modReq );
+        assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
+        
+        Entry loadedEntry = ( ( SearchResultEntry ) connection.lookup( dn.getName(), "+" ) ).getEntry();
+        
+        assertEquals( modifierName, loadedEntry.get( SchemaConstants.MODIFIERS_NAME_AT ).getString() );
+        assertEquals( modifiedTime, loadedEntry.get( SchemaConstants.MODIFY_TIMESTAMP_AT ).getString() );
+    }
+
 }

@@ -168,38 +168,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         
         Entry entry = opContext.getEntry();
 
-        /*
-         * @TODO : This code was probably created while working on Mitosis. Most probably dead code. Commented. 
-         * Check JIRA DIRSERVER-1416
-        if ( opContext.getEntry().containsAttribute( CREATE_TIMESTAMP_ATTRIBUTE_TYPE ) )
-        {
-            // As we already have a CreateTimeStamp value in the context, use it, but only if
-            // the principal is admin
-            if ( opContext.getSession().getAuthenticatedPrincipal().getName().equals( 
-                ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED ))
-            {
-                entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-            }
-            else
-            {
-                String message = "The CreateTimeStamp attribute cannot be created by a user";
-                LOG.error( message );
-                throw new LdapSchemaViolationException( message, ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
-            }
-        }
-        else
-        {
-            entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-        }
-        */
-        
-        // Add the UUID and the entryCSN. The UUID is stored as a byte[] representation of 
-        // its String value
-        // @TODO : If we are using replication, those four OAs may be already present.
-        // We have to deal with this as soon as we have the replication working again
-        
-        // Check that we don't have an entryUUID AT in the incoming entry, as it's a NO-USER-MODIFICATION AT
-        // Of course, we will allow if for replication (see above @TODO)
+        // If we are using replication, the below four OAs may already be present and we retain
+        // those values if the user is admin.
         boolean isAdmin = opContext.getSession().getAuthenticatedPrincipal().getName().equals( 
             ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
         
@@ -232,9 +202,36 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         {
             entry.put( SchemaConstants.ENTRY_CSN_AT, service.getCSN().toString() );
         }
-        
-        entry.put( SchemaConstants.CREATORS_NAME_AT, principal );
-        entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+
+        if ( entry.containsAttribute( SchemaConstants.CREATORS_NAME_AT ) )
+        {
+            if ( !isAdmin )
+            {
+                // Wrong !
+                String message =  I18n.err( I18n.ERR_30, SchemaConstants.CREATORS_NAME_AT );
+                LOG.error( message );
+                throw new LdapNoPermissionException( message );
+            }
+        }
+        else
+        {
+            entry.put( SchemaConstants.CREATORS_NAME_AT, principal );
+        }
+
+        if ( entry.containsAttribute( SchemaConstants.CREATE_TIMESTAMP_AT ) )
+        {
+            if ( !isAdmin )
+            {
+                // Wrong !
+                String message =  I18n.err( I18n.ERR_30, SchemaConstants.CREATE_TIMESTAMP_AT );
+                LOG.error( message );
+                throw new LdapNoPermissionException( message );
+            }
+        }
+        else
+        {
+            entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        }
         
         nextInterceptor.add( opContext );
     }
@@ -245,10 +242,16 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     {
         // We must check that the user hasn't injected either the modifiersName
         // or the modifyTimestamp operational attributes : they are not supposed to be
-        // added at this point.
+        // added at this point EXCEPT in cases of replication by a admin user.
         // If so, remove them, and if there are no more attributes, simply return.
         // otherwise, inject those values into the list of modifications
         List<Modification> mods = opContext.getModItems();
+        
+        boolean isAdmin = opContext.getSession().getAuthenticatedPrincipal().getName().equals( 
+            ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+        
+        boolean modifierAtPresent = false;
+        boolean modifiedTimeAtPresent = false;
         
         for ( Modification modification: mods )
         {
@@ -256,37 +259,57 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             
             if ( attributeType.equals( MODIFIERS_NAME_ATTRIBUTE_TYPE ) )
             {
-                String message = I18n.err( I18n.ERR_31 );
-                LOG.error( message );
-                throw new LdapSchemaViolationException( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, message );
+                if( ! isAdmin )
+                {
+                    String message = I18n.err( I18n.ERR_31 );
+                    LOG.error( message );
+                    throw new LdapSchemaViolationException( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, message );
+                }
+                else
+                {
+                    modifierAtPresent = true;
+                }
             }
 
             if ( attributeType.equals( MODIFY_TIMESTAMP_ATTRIBUTE_TYPE ) )
             {
-                String message = I18n.err( I18n.ERR_32 );
-                LOG.error( message );
-                throw new LdapSchemaViolationException( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, message );
+                if( ! isAdmin )
+                {
+                    String message = I18n.err( I18n.ERR_32 );
+                    LOG.error( message );
+                    throw new LdapSchemaViolationException( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, message );
+                }
+                else
+                {
+                    modifiedTimeAtPresent = true;
+                }
             }
         }
-        
-        // Inject the ModifiersName AT if it's not present
-        EntryAttribute attribute = new DefaultEntryAttribute( 
-            MODIFIERS_NAME_ATTRIBUTE_TYPE, 
-            getPrincipal().getName());
 
-        Modification modifiersName = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
+        if ( ! modifierAtPresent )
+        {
+            // Inject the ModifiersName AT if it's not present
+            EntryAttribute attribute = new DefaultEntryAttribute( 
+                MODIFIERS_NAME_ATTRIBUTE_TYPE, 
+                getPrincipal().getName());
 
-        mods.add( modifiersName );
-        
-        // Inject the ModifyTimestamp AT if it's not present
-        attribute = new DefaultEntryAttribute( 
-            MODIFY_TIMESTAMP_ATTRIBUTE_TYPE,
-            DateUtils.getGeneralizedTime() );
-        
-        Modification timestamp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
+            Modification modifiersName = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
 
-        mods.add( timestamp );
-        
+            mods.add( modifiersName );
+        }
+
+        if ( ! modifiedTimeAtPresent )
+        {
+            // Inject the ModifyTimestamp AT if it's not present
+            EntryAttribute attribute = new DefaultEntryAttribute( 
+                MODIFY_TIMESTAMP_ATTRIBUTE_TYPE,
+                DateUtils.getGeneralizedTime() );
+            
+            Modification timestamp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
+
+            mods.add( timestamp );
+        }
+
         // Go down in the chain
         nextInterceptor.modify( opContext );
         

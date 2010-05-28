@@ -49,6 +49,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.util.DateUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -163,12 +164,17 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
             "userPassword: secret"
         })
     @Test
-    public void testAddEntryUUIDAndEntryCsn() throws Exception
+    /**
+     * tests adding entryUUID, entryCSN, creatorsName and createTimestamp attributes
+     */
+    public void testAddSystemOperationalAttributes() throws Exception
     {
         //test as admin first
         DN dn = new DN( "cn=x,ou=system" );
         String uuid = UUID.randomUUID().toString();
         String csn = new CsnFactory( 0 ).newInstance().toString();
+        String creator = dn.getName();
+        String createdTime = DateUtils.getGeneralizedTime();
         
         Entry entry = new DefaultEntry( dn );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );
@@ -176,6 +182,8 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         entry.add( SchemaConstants.SN_AT, "x" );
         entry.add( SchemaConstants.ENTRY_UUID_AT, uuid );
         entry.add( SchemaConstants.ENTRY_CSN_AT, csn );
+        entry.add( SchemaConstants.CREATORS_NAME_AT, creator );
+        entry.add( SchemaConstants.CREATE_TIMESTAMP_AT, createdTime );
         
         connection.add( entry );
         
@@ -184,6 +192,8 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         // successful for admin
         assertEquals( uuid, loadedEntry.get( SchemaConstants.ENTRY_UUID_AT ).getString() );
         assertEquals( csn, loadedEntry.get( SchemaConstants.ENTRY_CSN_AT ).getString() );
+        assertEquals( creator, loadedEntry.get( SchemaConstants.CREATORS_NAME_AT ).getString() );
+        assertEquals( createdTime, loadedEntry.get( SchemaConstants.CREATE_TIMESTAMP_AT ).getString() );
         
         connection.delete( dn );
         connection.unBind();
