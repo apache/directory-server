@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.referral;
 
+
 import javax.naming.Context;
 import javax.naming.NamingException;
 
@@ -38,9 +39,9 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.StringValue;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.name.DN;
@@ -74,9 +75,9 @@ public class ReferralInterceptor extends BaseInterceptor
     private ReferralManager referralManager;
 
     /** A normalized form for the SubschemaSubentry DN */
-    private String subschemaSubentryDnNorm;
+    private DN subschemaSubentryDn;
 
-    
+
     static private void checkRefAttributeValue( Value<?> value ) throws NamingException, LdapURLEncodingException
     {
         StringValue ref = ( StringValue ) value;
@@ -140,7 +141,7 @@ public class ReferralInterceptor extends BaseInterceptor
         }
     }
 
-    
+
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
     static private boolean isReferral( Entry entry ) throws NamingException
@@ -152,7 +153,7 @@ public class ReferralInterceptor extends BaseInterceptor
         {
             return false;
         }
-        
+
         EntryAttribute oc = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
         if ( oc == null )
@@ -209,9 +210,8 @@ public class ReferralInterceptor extends BaseInterceptor
         directoryService.setReferralManager( referralManager );
 
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        DN subschemaSubentryDn = new DN( subschemaSubentry.getString() );
+        subschemaSubentryDn = new DN( subschemaSubentry.getString() );
         subschemaSubentryDn.normalize( schemaManager.getNormalizerMapping() );
-        subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
     }
 
 
@@ -235,13 +235,13 @@ public class ReferralInterceptor extends BaseInterceptor
     public void add( NextInterceptor next, AddOperationContext opContext ) throws Exception
     {
         Entry entry = opContext.getEntry();
-        
+
         // Check if the entry is a referral itself
         boolean isReferral = isReferral( entry );
 
         // We add the entry into the server
         next.add( opContext );
-        
+
         // If the addition is successful, we update the referralManager 
         if ( isReferral )
         {
@@ -272,7 +272,7 @@ public class ReferralInterceptor extends BaseInterceptor
     {
         // First delete the entry into the server
         next.delete( opContext );
-        
+
         Entry entry = opContext.getEntry();
 
         // Check if the entry exists and is a referral itself
@@ -303,20 +303,19 @@ public class ReferralInterceptor extends BaseInterceptor
         boolean isReferral = isReferral( opContext.getEntry() );
 
         next.move( opContext );
-        
-        
-        if ( isReferral ) 
+
+        if ( isReferral )
         {
             // Update the referralManager
             LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), newName );
-            
+
             Entry newEntry = nexus.lookup( lookupContext );
-            
+
             referralManager.lockWrite();
-            
+
             referralManager.addReferral( newEntry );
             referralManager.removeReferral( opContext.getEntry() );
-            
+
             referralManager.unlock();
         }
     }
@@ -334,19 +333,19 @@ public class ReferralInterceptor extends BaseInterceptor
         boolean isReferral = isReferral( opContext.getEntry() );
 
         next.moveAndRename( opContext );
-        
-        if ( isReferral ) 
+
+        if ( isReferral )
         {
             // Update the referralManager
             LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), newName );
-            
+
             Entry newEntry = nexus.lookup( lookupContext );
-            
+
             referralManager.lockWrite();
-            
+
             referralManager.addReferral( newEntry );
             referralManager.removeReferral( opContext.getEntry() );
-            
+
             referralManager.unlock();
         }
     }
@@ -361,37 +360,38 @@ public class ReferralInterceptor extends BaseInterceptor
         boolean isReferral = isReferral( opContext.getEntry() );
 
         next.rename( opContext );
-        
-        if ( isReferral ) 
+
+        if ( isReferral )
         {
             // Update the referralManager
-            LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), opContext.getNewDn() );
-            
+            LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), opContext
+                .getNewDn() );
+
             Entry newEntry = nexus.lookup( lookupContext );
-            
+
             referralManager.lockWrite();
-            
+
             referralManager.addReferral( newEntry );
             referralManager.removeReferral( opContext.getEntry().getOriginalEntry() );
-            
+
             referralManager.unlock();
         }
     }
-    
+
 
     /**
      * Modify an entry in the server.
      */
     public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
-        DN name = opContext.getDn();
-        
+        DN dn = opContext.getDn();
+
         // handle a normal modify without following referrals
         next.modify( opContext );
 
         // Check if we are trying to modify the schema or the rootDSE,
         // if so, we don't modify the referralManager
-        if ( ( name == DN.EMPTY_DN ) || ( subschemaSubentryDnNorm.equals( name.getNormName() ) ) )
+        if ( dn.isEmpty() || dn.equals( subschemaSubentryDn ) )
         {
             // Do nothing
             return;
@@ -401,8 +401,8 @@ public class ReferralInterceptor extends BaseInterceptor
         // as it has been modified, before updating the ReferralManager
         // TODO: this can be spare, as we build the entry later.
         // But we will have to store the modified entry into the opContext
-        LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), name );
-        
+        LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), dn );
+
         Entry newEntry = nexus.lookup( lookupContext );
 
         // Check that we have the entry, just in case
@@ -416,46 +416,8 @@ public class ReferralInterceptor extends BaseInterceptor
                 referralManager.removeReferral( opContext.getEntry() );
                 referralManager.addReferral( newEntry );
             }
-            
+
             referralManager.unlock();
         }
     }
-
-
-    /**
-     * When adding a new context partition, we have to update the referralManager
-     * by injecting all the new referrals into it. This is done using the init()
-     * method of the referralManager.
-     *
-    public void addContextPartition( NextInterceptor next, AddContextPartitionOperationContext opContext )
-        throws Exception
-    {
-        // First, inject the partition
-        next.addContextPartition( opContext );
-
-        Partition partition = opContext.getPartition();
-        DN suffix = partition.getSuffixDn();
-        
-        // add referrals immediately after adding the new partition
-        referralManager.init( directoryService, new String[]{ suffix.getNormName() } );
-    }
-
-
-    /**
-     * Remove a partion's referrals from the server. We have to first
-     * clear the referrals manager from all of this partition's referrals,
-     * then we can delete the partition.
-     *
-    public void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext )
-        throws Exception
-    {
-        // get the partition suffix
-        DN suffix = opContext.getDn();
-
-        // remove referrals immediately before removing the partition
-        referralManager.remove( directoryService, suffix );
-
-        // And remove the partition from the server
-        next.removeContextPartition( opContext );
-    }*/
 }

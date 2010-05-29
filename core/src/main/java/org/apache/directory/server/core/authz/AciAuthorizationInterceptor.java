@@ -545,11 +545,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     @SuppressWarnings("PMD.CollapsibleIfStatements")
     public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
-        DN name = opContext.getDn();
+        DN dn = opContext.getDn();
 
         // Access the principal requesting the operation, and bypass checks if it is the admin
-        Entry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
-        //         Entry entry = opContext.getEntry();
+        Entry entry = opContext.getEntry();
 
         LdapPrincipal principal = opContext.getSession().getEffectivePrincipal();
         DN principalDn = principal.getDN();
@@ -567,23 +566,24 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
             next.modify( opContext );
+
             /**
              * @TODO: A virtual entry can be created here for not hitting the backend again.
              */
-            Entry modifiedEntry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
-            tupleCache.subentryModified( name, mods, modifiedEntry );
-            groupCache.groupModified( name, mods, entry, schemaManager );
+            Entry modifiedEntry = opContext.lookup( dn, ByPassConstants.LOOKUP_BYPASS );
+            tupleCache.subentryModified( dn, mods, modifiedEntry );
+            groupCache.groupModified( dn, mods, entry, schemaManager );
             return;
         }
 
         Set<DN> userGroups = groupCache.getGroups( principalDn.getName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( opContext, tuples, name, ( ( ClonedServerEntry ) entry ).getOriginalEntry() );
+        addPerscriptiveAciTuples( opContext, tuples, dn, ( ( ClonedServerEntry ) entry ).getOriginalEntry() );
         addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( opContext, tuples, name, entry );
+        addSubentryAciTuples( opContext, tuples, dn, entry );
 
         engine.checkPermission( schemaManager, opContext, userGroups, principalDn, principal.getAuthenticationLevel(),
-            name, null, null, Collections.singleton( MicroOperation.MODIFY ), tuples, entry, null );
+            dn, null, null, Collections.singleton( MicroOperation.MODIFY ), tuples, entry, null );
 
         Collection<MicroOperation> perms = null;
         Entry entryView = ( Entry ) entry.clone();
@@ -602,7 +602,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                     {
                         // ... we also need to check if adding the attribute is permitted
                         engine.checkPermission( schemaManager, opContext, userGroups, principalDn, principal
-                            .getAuthenticationLevel(), name, attr.getId(), null, perms, tuples, entry, null );
+                            .getAuthenticationLevel(), dn, attr.getId(), null, perms, tuples, entry, null );
                     }
 
                     break;
@@ -618,7 +618,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                         {
                             // ... we also need to check if removing the attribute at all is permitted
                             engine.checkPermission( schemaManager, opContext, userGroups, principalDn, principal
-                                .getAuthenticationLevel(), name, attr.getId(), null, perms, tuples, entry, null );
+                                .getAuthenticationLevel(), dn, attr.getId(), null, perms, tuples, entry, null );
                         }
                     }
 
@@ -647,7 +647,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             for ( Value<?> value : attr )
             {
                 engine.checkPermission( schemaManager, opContext, userGroups, principalDn, principal
-                    .getAuthenticationLevel(), name, attr.getId(), value, perms, tuples, entry, entryView );
+                    .getAuthenticationLevel(), dn, attr.getId(), value, perms, tuples, entry, entryView );
             }
         }
 
@@ -655,9 +655,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         /**
          * @TODO: A virtual entry can be created here for not hitting the backend again.
          */
-        Entry modifiedEntry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
-        tupleCache.subentryModified( name, mods, modifiedEntry );
-        groupCache.groupModified( name, mods, entry, schemaManager );
+        Entry modifiedEntry = opContext.lookup( dn, ByPassConstants.LOOKUP_BYPASS );
+        tupleCache.subentryModified( dn, mods, modifiedEntry );
+        groupCache.groupModified( dn, mods, entry, schemaManager );
     }
 
 

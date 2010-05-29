@@ -187,8 +187,7 @@ public class EventInterceptor extends BaseInterceptor
 
     public void modify( NextInterceptor next, final ModifyOperationContext opContext ) throws Exception
     {
-        Entry oriEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
-        //        Entry oriEntry = opContext.getEntry();
+        Entry oriEntry = opContext.getEntry();
 
         List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), oriEntry );
 

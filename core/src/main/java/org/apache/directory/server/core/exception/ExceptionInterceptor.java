@@ -300,8 +300,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         assertHasEntry( opContext, msg );
 
-        Entry entry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
-        //         Entry entry = opContext.getEntry();
+        Entry entry = opContext.getEntry();
 
         List<Modification> items = opContext.getModItems();
 
