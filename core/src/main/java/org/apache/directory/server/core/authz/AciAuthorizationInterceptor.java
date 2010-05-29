@@ -66,9 +66,9 @@ import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
@@ -150,22 +150,22 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
     /** a tupleCache that responds to add, delete, and modify attempts */
     private TupleCache tupleCache;
-    
+
     /** a groupCache that responds to add, delete, and modify attempts */
     private GroupCache groupCache;
-    
+
     /** a normalizing ACIItem parser */
     private ACIItemParser aciParser;
-    
+
     /** use and instance of the ACDF engine */
     private ACDFEngine engine;
-    
+
     /** interceptor chain */
     private InterceptorChain chain;
-    
+
     /** Global registries */
     private SchemaManager schemaManager;
-    
+
     /** the system wide subschemaSubentryDn */
     private String subschemaSubentryDn;
 
@@ -179,8 +179,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
     /** the subentry ACI attribute type */
     private AttributeType subentryAciType;
-    
+
     public static final SearchControls DEFAULT_SEARCH_CONTROLS = new SearchControls();
+
 
     /**
      * Initializes this interceptor based service by getting a handle on the nexus, setting up
@@ -195,31 +196,31 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
         adminDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
-        CoreSession adminSession = new DefaultCoreSession( 
-            new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
+        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+            directoryService );
 
         tupleCache = new TupleCache( adminSession );
         groupCache = new GroupCache( adminSession );
         schemaManager = directoryService.getSchemaManager();
         //ocRegistry = registries.getObjectClassRegistry();
-        
+
         // look up some constant information
         String objectClassOid = schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.OBJECT_CLASS_AT );
         subentryOid = schemaManager.getObjectClassRegistry().getOidByName( SchemaConstants.SUBENTRY_OC );
         String acSubentryOid = schemaManager.getAttributeTypeRegistry().getOidByName( AC_SUBENTRY_ATTR );
         objectClassType = schemaManager.lookupAttributeTypeRegistry( objectClassOid );
         acSubentryType = schemaManager.lookupAttributeTypeRegistry( acSubentryOid );
-        entryAciType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_ACI_AT_OID ); 
+        entryAciType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_ACI_AT_OID );
         subentryAciType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.SUBENTRY_ACI_AT_OID );
-        
-        aciParser = new ACIItemParser( new ConcreteNameComponentNormalizer( schemaManager ), schemaManager.getNormalizerMapping() );
+
+        aciParser = new ACIItemParser( new ConcreteNameComponentNormalizer( schemaManager ), schemaManager
+            .getNormalizerMapping() );
         engine = new ACDFEngine( schemaManager.getGlobalOidRegistry(), schemaManager );
         chain = directoryService.getInterceptorChain();
 
         // stuff for dealing with subentries (garbage for now)
-        Value<?> subschemaSubentry = 
-            directoryService.getPartitionNexus().getRootDSE( null ).
-                get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
+        Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDSE( null ).get(
+            SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         DN subschemaSubentryDnName = new DN( subschemaSubentry.getString() );
         subschemaSubentryDnName.normalize( schemaManager.getNormalizerMapping() );
         subschemaSubentryDn = subschemaSubentryDnName.getNormName();
@@ -260,20 +261,20 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * @throws Exception if there are problems accessing attribute values
      * @param proxy the partition nexus proxy object
      */
-    private void addPerscriptiveAciTuples( OperationContext opContext, Collection<ACITuple> tuples, DN dn,
-        Entry entry ) throws Exception
+    private void addPerscriptiveAciTuples( OperationContext opContext, Collection<ACITuple> tuples, DN dn, Entry entry )
+        throws Exception
     {
         EntryAttribute oc = null;
-        
+
         if ( entry instanceof ClonedServerEntry )
         {
-            oc = ((ClonedServerEntry)entry).getOriginalEntry().get( objectClassType );
+            oc = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get( objectClassType );
         }
         else
         {
             oc = entry.get( objectClassType );
         }
-        
+
         /*
          * If the protected entry is a subentry, then the entry being evaluated
          * for perscriptiveACIs is in fact the administrative entry.  By
@@ -291,13 +292,13 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         }
 
         EntryAttribute subentries = entry.get( acSubentryType );
-        
+
         if ( subentries == null )
         {
             return;
         }
-        
-        for ( Value<?> value:subentries )
+
+        for ( Value<?> value : subentries )
         {
             String subentryDn = value.getString();
             tuples.addAll( tupleCache.getACITuples( subentryDn ) );
@@ -316,13 +317,13 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     private void addEntryAciTuples( Collection<ACITuple> tuples, Entry entry ) throws Exception
     {
         EntryAttribute entryAci = entry.get( entryAciType );
-        
+
         if ( entryAci == null )
         {
             return;
         }
 
-        for ( Value<?> value:entryAci )
+        for ( Value<?> value : entryAci )
         {
             String aciString = value.getString();
             ACIItem item;
@@ -366,8 +367,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // will contain the subentryACI attributes that effect subentries
         DN parentDn = ( DN ) dn.clone();
         parentDn.remove( dn.size() - 1 );
-        Entry administrativeEntry = ((ClonedServerEntry)opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS )).getOriginalEntry();
-        
+        Entry administrativeEntry = ( ( ClonedServerEntry ) opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS ) )
+            .getOriginalEntry();
+
         EntryAttribute subentryAci = administrativeEntry.get( subentryAciType );
 
         if ( subentryAci == null )
@@ -375,7 +377,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return;
         }
 
-        for ( Value<?> value:subentryAci )
+        for ( Value<?> value : subentryAci )
         {
             String aciString = value.getString();
             ACIItem item;
@@ -422,8 +424,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // Access the principal requesting the operation, and bypass checks if it is the admin
         LdapPrincipal principal = addContext.getSession().getEffectivePrincipal();
         DN principalDn = principal.getDN();
-        
-        Entry serverEntry = addContext.getEntry(); 
+
+        Entry serverEntry = addContext.getEntry();
         //Attributes entry = ServerEntryUtils.toAttributesImpl( serverEntry );
 
         DN name = addContext.getDn();
@@ -445,10 +447,11 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         }
 
         // perform checks below here for all non-admin users
-        SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class.getName() );
+        SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class
+            .getName() );
         Entry subentryAttrs = subentryInterceptor.getSubentryAttributes( name, serverEntry );
-        
-        for ( EntryAttribute attribute:serverEntry )
+
+        for ( EntryAttribute attribute : serverEntry )
         {
             subentryAttrs.put( attribute );
         }
@@ -463,17 +466,16 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         addSubentryAciTuples( addContext, tuples, name, subentryAttrs );
 
         // check if entry scope permission is granted
-        engine.checkPermission( schemaManager, addContext, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
-            ADD_PERMS, tuples, subentryAttrs, null );
+        engine.checkPermission( schemaManager, addContext, userGroups, principalDn, principal.getAuthenticationLevel(),
+            name, null, null, ADD_PERMS, tuples, subentryAttrs, null );
 
         // now we must check if attribute type and value scope permission is granted
-        for ( EntryAttribute attribute:serverEntry )
+        for ( EntryAttribute attribute : serverEntry )
         {
-            for ( Value<?> value:attribute )
+            for ( Value<?> value : attribute )
             {
-                engine.checkPermission( schemaManager, addContext, userGroups, principalDn, 
-                    principal.getAuthenticationLevel(), name, attribute.getUpId(), value, 
-                    ADD_PERMS, tuples, serverEntry, null );
+                engine.checkPermission( schemaManager, addContext, userGroups, principalDn, principal
+                    .getAuthenticationLevel(), name, attribute.getUpId(), value, ADD_PERMS, tuples, serverEntry, null );
             }
         }
 
@@ -496,9 +498,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws Exception
     {
         CoreSession session = deleteContext.getSession();
-        
+
         // bypass authz code if we are disabled
-        if ( ! session.getDirectoryService().isAccessControlEnabled() )
+        if ( !session.getDirectoryService().isAccessControlEnabled() )
         {
             next.delete( deleteContext );
             return;
@@ -516,24 +518,24 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
             next.delete( deleteContext );
-            
+
             tupleCache.subentryDeleted( dn, entry );
             groupCache.groupDeleted( dn, entry );
-            
+
             return;
         }
 
         Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( deleteContext, tuples, dn, ((ClonedServerEntry)entry).getOriginalEntry() );
+        addPerscriptiveAciTuples( deleteContext, tuples, dn, ( ( ClonedServerEntry ) entry ).getOriginalEntry() );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( deleteContext, tuples, dn, entry );
 
-        engine.checkPermission( schemaManager, deleteContext, userGroups, principalDn, 
-            principal.getAuthenticationLevel(), dn, null, null, REMOVE_PERMS, tuples, entry, null );
+        engine.checkPermission( schemaManager, deleteContext, userGroups, principalDn, principal
+            .getAuthenticationLevel(), dn, null, null, REMOVE_PERMS, tuples, entry, null );
 
         next.delete( deleteContext );
-        
+
         tupleCache.subentryDeleted( dn, entry );
         groupCache.groupDeleted( dn, entry );
     }
@@ -547,7 +549,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Entry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
-        
+        //         Entry entry = opContext.getEntry();
+
         LdapPrincipal principal = opContext.getSession().getEffectivePrincipal();
         DN principalDn = principal.getDN();
 
@@ -575,37 +578,36 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Set<DN> userGroups = groupCache.getGroups( principalDn.getName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( opContext, tuples, name, ((ClonedServerEntry)entry).getOriginalEntry() );
+        addPerscriptiveAciTuples( opContext, tuples, name, ( ( ClonedServerEntry ) entry ).getOriginalEntry() );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( opContext, tuples, name, entry );
 
-        engine.checkPermission( schemaManager, opContext, userGroups, principalDn, 
-            principal.getAuthenticationLevel(), name, null, null, 
-            Collections.singleton( MicroOperation.MODIFY ), tuples, entry, null );
+        engine.checkPermission( schemaManager, opContext, userGroups, principalDn, principal.getAuthenticationLevel(),
+            name, null, null, Collections.singleton( MicroOperation.MODIFY ), tuples, entry, null );
 
         Collection<MicroOperation> perms = null;
         Entry entryView = ( Entry ) entry.clone();
-        
+
         for ( Modification mod : mods )
         {
             EntryAttribute attr = mod.getAttribute();
 
             switch ( mod.getOperation() )
             {
-                case ADD_ATTRIBUTE :
+                case ADD_ATTRIBUTE:
                     perms = ADD_PERMS;
-                
+
                     // If the attribute is being created with an initial value ...
                     if ( entry.get( attr.getId() ) == null )
                     {
                         // ... we also need to check if adding the attribute is permitted
-                        engine.checkPermission( schemaManager, opContext, userGroups, principalDn, principal.getAuthenticationLevel(), name,
-                                attr.getId(), null, perms, tuples, entry, null );
+                        engine.checkPermission( schemaManager, opContext, userGroups, principalDn, principal
+                            .getAuthenticationLevel(), name, attr.getId(), null, perms, tuples, entry, null );
                     }
-                    
+
                     break;
 
-                case REMOVE_ATTRIBUTE :
+                case REMOVE_ATTRIBUTE:
                     perms = REMOVE_PERMS;
                     EntryAttribute entryAttr = entry.get( attr.getId() );
 
@@ -615,15 +617,14 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                         if ( entryAttr.size() == 1 )
                         {
                             // ... we also need to check if removing the attribute at all is permitted
-                            engine.checkPermission( schemaManager, opContext, userGroups, principalDn, 
-                                principal.getAuthenticationLevel(), name, attr.getId(), 
-                                null, perms, tuples, entry, null );
+                            engine.checkPermission( schemaManager, opContext, userGroups, principalDn, principal
+                                .getAuthenticationLevel(), name, attr.getId(), null, perms, tuples, entry, null );
                         }
                     }
-                    
+
                     break;
 
-                case REPLACE_ATTRIBUTE :
+                case REPLACE_ATTRIBUTE:
                     perms = REPLACE_PERMS;
                     break;
             }
@@ -642,16 +643,13 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
              * attribute is being checked for relevant permissions below. 
              */
             entryView = ServerEntryUtils.getTargetEntry( mod, entryView, schemaManager );
-            
-            for ( Value<?> value:attr )
-            {                
-                engine.checkPermission( schemaManager, opContext, userGroups, principalDn, 
-                    principal.getAuthenticationLevel(), name, attr.getId(), value, 
-                    perms, tuples, entry, entryView );
+
+            for ( Value<?> value : attr )
+            {
+                engine.checkPermission( schemaManager, opContext, userGroups, principalDn, principal
+                    .getAuthenticationLevel(), name, attr.getId(), value, perms, tuples, entry, entryView );
             }
         }
-
-        
 
         next.modify( opContext );
         /**
@@ -662,16 +660,16 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         groupCache.groupModified( name, mods, entry, schemaManager );
     }
 
-    
+
     public boolean hasEntry( NextInterceptor next, EntryOperationContext entryContext ) throws Exception
     {
         DN name = entryContext.getDn();
-        
-        if ( ! entryContext.getSession().getDirectoryService().isAccessControlEnabled() )
+
+        if ( !entryContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             return name.size() == 0 || next.hasEntry( entryContext );
         }
-        
+
         boolean answer = next.hasEntry( entryContext );
 
         // no checks on the RootDSE
@@ -681,7 +679,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             // It's the rootDSE, and it exists ! 
             return answer;
         }
-        
+
         // TODO - eventually replace this with a check on session.isAnAdministrator()
         LdapPrincipal principal = entryContext.getSession().getEffectivePrincipal();
         DN principalDn = principal.getDN();
@@ -693,14 +691,14 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         Entry entry = entryContext.lookup( name, ByPassConstants.HAS_ENTRY_BYPASS );
         Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( entryContext, tuples, name, ((ClonedServerEntry)entry).getOriginalEntry() );
-        addEntryAciTuples( tuples, ((ClonedServerEntry)entry).getOriginalEntry() );
-        addSubentryAciTuples( entryContext, tuples, name, ((ClonedServerEntry)entry).getOriginalEntry() );
+        addPerscriptiveAciTuples( entryContext, tuples, name, ( ( ClonedServerEntry ) entry ).getOriginalEntry() );
+        addEntryAciTuples( tuples, ( ( ClonedServerEntry ) entry ).getOriginalEntry() );
+        addSubentryAciTuples( entryContext, tuples, name, ( ( ClonedServerEntry ) entry ).getOriginalEntry() );
 
         // check that we have browse access to the entry
-        engine.checkPermission( schemaManager, entryContext, userGroups, principalDn, 
-            principal.getAuthenticationLevel(), name, null, null,
-            BROWSE_PERMS, tuples, ((ClonedServerEntry)entry).getOriginalEntry(), null );
+        engine.checkPermission( schemaManager, entryContext, userGroups, principalDn, principal
+            .getAuthenticationLevel(), name, null, null, BROWSE_PERMS, tuples, ( ( ClonedServerEntry ) entry )
+            .getOriginalEntry(), null );
 
         return next.hasEntry( entryContext );
     }
@@ -738,29 +736,18 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         addSubentryAciTuples( lookupContext, tuples, lookupContext.getDn(), entry );
 
         // check that we have read access to the entry
-        engine.checkPermission( schemaManager, lookupContext, userGroups, userName, principal.getAuthenticationLevel(), 
-            lookupContext.getDn(), null, null,
-            LOOKUP_PERMS, tuples, entry, null );
+        engine.checkPermission( schemaManager, lookupContext, userGroups, userName, principal.getAuthenticationLevel(),
+            lookupContext.getDn(), null, null, LOOKUP_PERMS, tuples, entry, null );
 
         // check that we have read access to every attribute type and value
-        for ( EntryAttribute attribute:entry )
+        for ( EntryAttribute attribute : entry )
         {
-            
-            for ( Value<?> value:attribute )
+
+            for ( Value<?> value : attribute )
             {
-                engine.checkPermission( 
-                    schemaManager, 
-                    lookupContext, 
-                    userGroups, 
-                    userName, 
-                    principal.getAuthenticationLevel(), 
-                    lookupContext.getDn(), 
-                    attribute.getUpId(), 
-                    value, 
-                    READ_PERMS, 
-                    tuples, 
-                    entry, 
-                    null );
+                engine.checkPermission( schemaManager, lookupContext, userGroups, userName, principal
+                    .getAuthenticationLevel(), lookupContext.getDn(), attribute.getUpId(), value, READ_PERMS, tuples,
+                    entry, null );
             }
         }
     }
@@ -770,15 +757,15 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     {
         CoreSession session = lookupContext.getSession();
         DirectoryService directoryService = session.getDirectoryService();
-        
+
         LdapPrincipal principal = session.getEffectivePrincipal();
         DN principalDn = principal.getDN();
-        
+
         if ( !principalDn.isNormalized() )
         {
             principalDn.normalize( schemaManager.getNormalizerMapping() );
         }
-        
+
         if ( isPrincipalAnAdministrator( principalDn ) || !directoryService.isAccessControlEnabled() )
         {
             return next.lookup( lookupContext );
@@ -788,21 +775,21 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         Entry entry = directoryService.getOperationManager().lookup( lookupContext );
 
         checkLookupAccess( lookupContext, entry );
-        
+
         return next.lookup( lookupContext );
     }
 
-    
+
     public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws Exception
     {
         DN oldName = renameContext.getDn();
         Entry originalEntry = null;
-        
+
         if ( renameContext.getEntry() != null )
         {
             originalEntry = renameContext.getEntry().getOriginalEntry();
         }
-        
+
         LdapPrincipal principal = renameContext.getSession().getEffectivePrincipal();
         DN principalDn = principal.getDN();
         DN newName = renameContext.getNewDn();
@@ -821,7 +808,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         {
             next.rename( renameContext );
             tupleCache.subentryRenamed( oldName, newName );
-            
+
             // TODO : this method returns a boolean : what should we do with the result ?
             groupCache.groupRenamed( oldName, newName );
 
@@ -834,9 +821,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         addEntryAciTuples( tuples, originalEntry );
         addSubentryAciTuples( renameContext, tuples, oldName, originalEntry );
 
-        engine.checkPermission( schemaManager, renameContext, userGroups, principalDn, 
-            principal.getAuthenticationLevel(), oldName, null, null,
-            RENAME_PERMS, tuples, originalEntry, null );
+        engine.checkPermission( schemaManager, renameContext, userGroups, principalDn, principal
+            .getAuthenticationLevel(), oldName, null, null, RENAME_PERMS, tuples, originalEntry, null );
 
         next.rename( renameContext );
         tupleCache.subentryRenamed( oldName, newName );
@@ -851,7 +837,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         DN newParentName = moveAndRenameContext.getParent();
 
         Entry entry = moveAndRenameContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
-        
+
         LdapPrincipal principal = moveAndRenameContext.getSession().getEffectivePrincipal();
         DN principalDn = principal.getDN();
         DN newName = ( DN ) newParentName.clone();
@@ -877,45 +863,44 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( moveAndRenameContext, tuples, oriChildName, ((ClonedServerEntry)entry).getOriginalEntry() );
+        addPerscriptiveAciTuples( moveAndRenameContext, tuples, oriChildName, ( ( ClonedServerEntry ) entry )
+            .getOriginalEntry() );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( moveAndRenameContext, tuples, oriChildName, entry );
 
-        engine.checkPermission( schemaManager, moveAndRenameContext, userGroups, 
-            principalDn, principal.getAuthenticationLevel(), oriChildName, null,
-            null, MOVERENAME_PERMS, tuples, entry, null );
+        engine.checkPermission( schemaManager, moveAndRenameContext, userGroups, principalDn, principal
+            .getAuthenticationLevel(), oriChildName, null, null, MOVERENAME_PERMS, tuples, entry, null );
 
         // Get the entry again without operational attributes
         // because access control subentry operational attributes
         // will not be valid at the new location.
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
-        
-        Entry importedEntry = moveAndRenameContext.lookup( oriChildName, 
+
+        Entry importedEntry = moveAndRenameContext.lookup( oriChildName,
             ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
-        
+
         // As the target entry does not exist yet and so
         // its subentry operational attributes are not there,
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
-        SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class.getName() );
+        SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class
+            .getName() );
         Entry subentryAttrs = subentryInterceptor.getSubentryAttributes( newName, importedEntry );
-        
-        for ( EntryAttribute attribute:importedEntry )
+
+        for ( EntryAttribute attribute : importedEntry )
         {
             subentryAttrs.put( attribute );
         }
-        
+
         Collection<ACITuple> destTuples = new HashSet<ACITuple>();
         // Import permission is only valid for prescriptive ACIs
         addPerscriptiveAciTuples( moveAndRenameContext, destTuples, newName, subentryAttrs );
         // Evaluate the target context to see whether it
         // allows an entry named newName to be imported as a subordinate.
-        engine.checkPermission( schemaManager, moveAndRenameContext, userGroups, principalDn, 
-            principal.getAuthenticationLevel(), newName, null,
-            null, IMPORT_PERMS, destTuples, subentryAttrs, null );
-
+        engine.checkPermission( schemaManager, moveAndRenameContext, userGroups, principalDn, principal
+            .getAuthenticationLevel(), newName, null, null, IMPORT_PERMS, destTuples, subentryAttrs, null );
 
         next.moveAndRename( moveAndRenameContext );
         tupleCache.subentryRenamed( oriChildName, newName );
@@ -927,10 +912,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     {
         DN oriChildName = moveContext.getDn();
         DN newParentName = moveContext.getParent();
-        
+
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Entry entry = moveContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
-       
+
         DN newName = ( DN ) newParentName.clone();
         newName.add( oriChildName.get( oriChildName.size() - 1 ) );
         LdapPrincipal principal = moveContext.getSession().getEffectivePrincipal();
@@ -943,7 +928,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return;
         }
 
-        protectCriticalEntries( oriChildName);
+        protectCriticalEntries( oriChildName );
 
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
@@ -956,61 +941,59 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( moveContext, tuples, oriChildName, ((ClonedServerEntry)entry).getOriginalEntry() );
+        addPerscriptiveAciTuples( moveContext, tuples, oriChildName, ( ( ClonedServerEntry ) entry ).getOriginalEntry() );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( moveContext, tuples, oriChildName, entry );
 
-        engine.checkPermission( schemaManager, moveContext, userGroups, principalDn, 
-            principal.getAuthenticationLevel(), oriChildName, null,
-            null, EXPORT_PERMS, tuples, entry, null );
-        
+        engine.checkPermission( schemaManager, moveContext, userGroups, principalDn,
+            principal.getAuthenticationLevel(), oriChildName, null, null, EXPORT_PERMS, tuples, entry, null );
+
         // Get the entry again without operational attributes
         // because access control subentry operational attributes
         // will not be valid at the new location.
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
-        Entry importedEntry = moveContext.lookup( oriChildName, 
-            ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
-            
+        Entry importedEntry = moveContext.lookup( oriChildName, ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+
         // As the target entry does not exist yet and so
         // its subentry operational attributes are not there,
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
-        SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) 
-            chain.get( SubentryInterceptor.class.getName() );
+        SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class
+            .getName() );
         Entry subentryAttrs = subentryInterceptor.getSubentryAttributes( newName, importedEntry );
-        
-        for ( EntryAttribute attribute:importedEntry )
+
+        for ( EntryAttribute attribute : importedEntry )
         {
             subentryAttrs.put( attribute );
         }
-        
+
         Collection<ACITuple> destTuples = new HashSet<ACITuple>();
         // Import permission is only valid for prescriptive ACIs
         addPerscriptiveAciTuples( moveContext, destTuples, newName, subentryAttrs );
         // Evaluate the target context to see whether it
         // allows an entry named newName to be imported as a subordinate.
-        engine.checkPermission( schemaManager, moveContext, userGroups, principalDn, 
-            principal.getAuthenticationLevel(), newName, null,
-            null, IMPORT_PERMS, destTuples, subentryAttrs, null );
+        engine.checkPermission( schemaManager, moveContext, userGroups, principalDn,
+            principal.getAuthenticationLevel(), newName, null, null, IMPORT_PERMS, destTuples, subentryAttrs, null );
 
         next.move( moveContext );
         tupleCache.subentryRenamed( oriChildName, newName );
         groupCache.groupRenamed( oriChildName, newName );
     }
 
-    
+
     public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws Exception
     {
         LdapPrincipal user = opContext.getSession().getEffectivePrincipal();
         EntryFilteringCursor cursor = next.list( opContext );
-        
-        if ( isPrincipalAnAdministrator( user.getDNRef() ) || !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
+
+        if ( isPrincipalAnAdministrator( user.getDNRef() )
+            || !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             return cursor;
         }
-        
+
         AuthorizationFilter authzFilter = new AuthorizationFilter();
         cursor.addEntryFilter( authzFilter );
         return cursor;
@@ -1025,23 +1008,26 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         boolean isSubschemaSubentryLookup = subschemaSubentryDn.equals( opContext.getDn().getNormName() );
         SearchControls searchCtls = opContext.getSearchControls();
-        boolean isRootDSELookup = opContext.getDn().size() == 0 && searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
+        boolean isRootDSELookup = opContext.getDn().size() == 0
+            && searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
 
-        if ( isPrincipalAnAdministrator( principalDn ) || !opContext.getSession().getDirectoryService().isAccessControlEnabled() || isRootDSELookup || isSubschemaSubentryLookup )
+        if ( isPrincipalAnAdministrator( principalDn )
+            || !opContext.getSession().getDirectoryService().isAccessControlEnabled() || isRootDSELookup
+            || isSubschemaSubentryLookup )
         {
             return cursor;
         }
-        
+
         cursor.addEntryFilter( new AuthorizationFilter() );
         return cursor;
     }
 
-    
+
     public final boolean isPrincipalAnAdministrator( DN principalDn )
     {
         return groupCache.isPrincipalAnAdministrator( principalDn );
     }
-    
+
 
     public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws Exception
     {
@@ -1054,35 +1040,35 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapPrincipal principal = opContext.getSession().getEffectivePrincipal();
         DN principalDn = principal.getDN();
 
-        if ( isPrincipalAnAdministrator( principalDn ) || !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
+        if ( isPrincipalAnAdministrator( principalDn )
+            || !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             return next.compare( opContext );
         }
 
         Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( opContext, tuples, name, ((ClonedServerEntry)entry).getOriginalEntry() );
+        addPerscriptiveAciTuples( opContext, tuples, name, ( ( ClonedServerEntry ) entry ).getOriginalEntry() );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( opContext, tuples, name, entry );
 
-        engine.checkPermission( schemaManager, opContext, userGroups, principalDn, 
-            principal.getAuthenticationLevel(), name, null, null,
-            READ_PERMS, tuples, entry, null );
-        engine.checkPermission( schemaManager, opContext, userGroups, principalDn, 
-            principal.getAuthenticationLevel(), name, oid, value,
-            COMPARE_PERMS, tuples, entry, null );
+        engine.checkPermission( schemaManager, opContext, userGroups, principalDn, principal.getAuthenticationLevel(),
+            name, null, null, READ_PERMS, tuples, entry, null );
+        engine.checkPermission( schemaManager, opContext, userGroups, principalDn, principal.getAuthenticationLevel(),
+            name, oid, value, COMPARE_PERMS, tuples, entry, null );
 
         return next.compare( opContext );
     }
 
 
-    public DN getMatchedName ( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception
+    public DN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         LdapPrincipal principal = opContext.getSession().getEffectivePrincipal();
         DN principalDn = principal.getDN();
-        
-        if ( isPrincipalAnAdministrator( principalDn ) || !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
+
+        if ( isPrincipalAnAdministrator( principalDn )
+            || !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
             return next.getMatchedName( opContext );
         }
@@ -1097,16 +1083,15 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         while ( matched.size() > 0 )
         {
             entry = opContext.lookup( matched, ByPassConstants.GETMATCHEDDN_BYPASS );
-            
+
             Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
             Collection<ACITuple> tuples = new HashSet<ACITuple>();
-            addPerscriptiveAciTuples( opContext, tuples, matched, ((ClonedServerEntry)entry).getOriginalEntry() );
+            addPerscriptiveAciTuples( opContext, tuples, matched, ( ( ClonedServerEntry ) entry ).getOriginalEntry() );
             addEntryAciTuples( tuples, entry );
             addSubentryAciTuples( opContext, tuples, matched, entry );
 
-            if ( engine.hasPermission( schemaManager, opContext, userGroups, principalDn, 
-                principal.getAuthenticationLevel(), matched, null,
-                null, MATCHEDNAME_PERMS, tuples, entry, null ) )
+            if ( engine.hasPermission( schemaManager, opContext, userGroups, principalDn, principal
+                .getAuthenticationLevel(), matched, null, null, MATCHEDNAME_PERMS, tuples, entry, null ) )
             {
                 return matched;
             }
@@ -1124,15 +1109,14 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private boolean filter( OperationContext opContext, DN normName, ClonedServerEntry clonedEntry ) 
-        throws Exception
+    private boolean filter( OperationContext opContext, DN normName, ClonedServerEntry clonedEntry ) throws Exception
     {
         /*
          * First call hasPermission() for entry level "Browse" and "ReturnDN" perm
          * tests.  If we hasPermission() returns false we immediately short the
          * process and return false.
          */
-        
+
         LdapPrincipal principal = opContext.getSession().getEffectivePrincipal();
         DN userDn = principal.getDN();
         Set<DN> userGroups = groupCache.getGroups( userDn.getNormName() );
@@ -1141,19 +1125,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         addEntryAciTuples( tuples, clonedEntry.getOriginalEntry() );
         addSubentryAciTuples( opContext, tuples, normName, clonedEntry.getOriginalEntry() );
 
-        if ( !engine.hasPermission( 
-                        schemaManager, 
-                        opContext, 
-                        userGroups, 
-                        userDn, 
-                        principal.getAuthenticationLevel(), 
-                        normName, 
-                        null, 
-                        null, 
-                        SEARCH_ENTRY_PERMS, 
-                        tuples, 
-                        clonedEntry.getOriginalEntry(), 
-                        null ) )
+        if ( !engine.hasPermission( schemaManager, opContext, userGroups, userDn, principal.getAuthenticationLevel(),
+            normName, null, null, SEARCH_ENTRY_PERMS, tuples, clonedEntry.getOriginalEntry(), null ) )
         {
             return false;
         }
@@ -1166,67 +1139,46 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
          * values remaining then the entire attribute is removed.
          */
         List<AttributeType> attributeToRemove = new ArrayList<AttributeType>();
-        
-        for ( AttributeType attributeType:clonedEntry.getAttributeTypes() )
+
+        for ( AttributeType attributeType : clonedEntry.getAttributeTypes() )
         {
             // if attribute type scope access is not allowed then remove the attribute and continue
             String id = attributeType.getName();
             EntryAttribute attr = clonedEntry.get( attributeType );
-        
-            if ( !engine.hasPermission( 
-                        schemaManager, 
-                        opContext, 
-                        userGroups, 
-                        userDn,
-                        principal.getAuthenticationLevel(), 
-                        normName, 
-                        id, 
-                        null, 
-                        SEARCH_ATTRVAL_PERMS, 
-                        tuples, 
-                        clonedEntry, 
-                        null ) )
+
+            if ( !engine.hasPermission( schemaManager, opContext, userGroups, userDn, principal
+                .getAuthenticationLevel(), normName, id, null, SEARCH_ATTRVAL_PERMS, tuples, clonedEntry, null ) )
             {
                 attributeToRemove.add( attributeType );
-                
+
                 continue;
             }
 
             List<Value<?>> valueToRemove = new ArrayList<Value<?>>();
-            
+
             // attribute type scope is ok now let's determine value level scope
-            for ( Value<?> value:attr )
+            for ( Value<?> value : attr )
             {
-                if ( !engine.hasPermission( 
-                        schemaManager, 
-                        opContext, 
-                        userGroups, 
-                        userDn, 
-                        principal.getAuthenticationLevel(), 
-                        normName, 
-                        attr.getUpId(), 
-                        value, 
-                        SEARCH_ATTRVAL_PERMS, 
-                        tuples,
-                        clonedEntry, 
-                        null ) )
+                if ( !engine.hasPermission( schemaManager, opContext, userGroups, userDn, principal
+                    .getAuthenticationLevel(), normName, attr.getUpId(), value, SEARCH_ATTRVAL_PERMS, tuples,
+                    clonedEntry, null ) )
                 {
                     valueToRemove.add( value );
                 }
             }
-            
-            for ( Value<?> value:valueToRemove )
+
+            for ( Value<?> value : valueToRemove )
             {
                 attr.remove( value );
             }
-            
+
             if ( attr.size() == 0 )
             {
                 attributeToRemove.add( attributeType );
             }
         }
-        
-        for ( AttributeType attributeType:attributeToRemove )
+
+        for ( AttributeType attributeType : attributeToRemove )
         {
             clonedEntry.removeAttributes( attributeType );
         }
@@ -1234,14 +1186,12 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         return true;
     }
 
-
     /**
      * WARNING: create one of these filters fresh every time for each new search.
      */
     class AuthorizationFilter implements EntryFilter
     {
-        public boolean accept( SearchingOperationContext operationContext, ClonedServerEntry entry ) 
-            throws Exception
+        public boolean accept( SearchingOperationContext operationContext, ClonedServerEntry entry ) throws Exception
         {
             DN normName = entry.getDn().normalize( schemaManager.getNormalizerMapping() );
             return filter( operationContext, normName, entry );

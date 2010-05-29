@@ -45,8 +45,8 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
-import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.AVA;
@@ -86,17 +86,19 @@ public class NormalizationInterceptor extends BaseInterceptor
     /** The attributeType registry */
     private SchemaManager schemaManager;
 
+
     /**
      * Initialize the registries, normalizers. 
      */
     public void init( DirectoryService directoryService ) throws Exception
     {
         LOG.debug( "Initialiazing the NormalizationInterceptor" );
-        
+
         schemaManager = directoryService.getSchemaManager();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
         normVisitor = new FilterNormalizingVisitor( ncn, schemaManager );
     }
+
 
     /**
      * The destroy method does nothing
@@ -104,6 +106,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     public void destroy()
     {
     }
+
 
     // ------------------------------------------------------------------------
     // Normalize all Name based arguments for ContextPartition interface operations
@@ -126,12 +129,12 @@ public class NormalizationInterceptor extends BaseInterceptor
     public void delete( NextInterceptor nextInterceptor, DeleteOperationContext opContext ) throws Exception
     {
         DN dn = opContext.getDn();
-        
+
         if ( !dn.isNormalized() )
         {
             dn.normalize( schemaManager.getNormalizerMapping() );
         }
-        
+
         nextInterceptor.delete( opContext );
     }
 
@@ -141,7 +144,11 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     public void modify( NextInterceptor nextInterceptor, ModifyOperationContext opContext ) throws Exception
     {
-        opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
+        if ( !opContext.getDn().isNormalized() )
+        {
+            opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
+        }
+
         nextInterceptor.modify( opContext );
     }
 
@@ -167,7 +174,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     public void move( NextInterceptor nextInterceptor, MoveOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
-        opContext.getParent().normalize( schemaManager.getNormalizerMapping());
+        opContext.getParent().normalize( schemaManager.getNormalizerMapping() );
         nextInterceptor.move( opContext );
     }
 
@@ -192,29 +199,31 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext )
+        throws Exception
     {
         DN dn = opContext.getDn();
-        
+
         if ( !dn.isNormalized() )
         {
             dn.normalize( schemaManager.getNormalizerMapping() );
         }
 
         ExprNode filter = opContext.getFilter();
-        
+
         // Normalize the filter
         ExprNode result = ( ExprNode ) filter.accept( normVisitor );
 
         if ( result == null )
         {
-            LOG.warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
+            LOG
+                .warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
             return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), opContext );
         }
         else
         {
             opContext.setFilter( result );
-            
+
             // TODO Normalize the returned Attributes, storing the UP attributes to format the returned values.
             return nextInterceptor.search( opContext );
         }
@@ -234,13 +243,14 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext )
+        throws Exception
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
         return nextInterceptor.list( opContext );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -250,35 +260,35 @@ public class NormalizationInterceptor extends BaseInterceptor
         {
             return attrIds;
         }
-        
+
         String[] normalizedAttrIds = new String[attrIds.length];
         int pos = 0;
-        
-        for ( String id:attrIds )
+
+        for ( String id : attrIds )
         {
             String oid = schemaManager.lookupAttributeTypeRegistry( id ).getOid();
             normalizedAttrIds[pos++] = oid;
         }
-        
+
         return normalizedAttrIds;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
     public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
-        
+
         List<String> attrIds = opContext.getAttrsId();
-        
+
         if ( ( attrIds != null ) && ( attrIds.size() > 0 ) )
         {
             // We have to normalize the requested IDs
             opContext.setAttrsId( normalizeAttrsId( opContext.getAttrsIdArray() ) );
         }
-        
+
         return nextInterceptor.lookup( opContext );
     }
 
@@ -289,7 +299,8 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public DN getMatchedName ( NextInterceptor nextInterceptor, GetMatchedNameOperationContext opContext ) throws Exception
+    public DN getMatchedName( NextInterceptor nextInterceptor, GetMatchedNameOperationContext opContext )
+        throws Exception
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
         return nextInterceptor.getMatchedName( opContext );
@@ -299,7 +310,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public DN getSuffix ( NextInterceptor nextInterceptor, GetSuffixOperationContext opContext ) throws Exception
+    public DN getSuffix( NextInterceptor nextInterceptor, GetSuffixOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
         return nextInterceptor.getSuffix( opContext );
@@ -312,23 +323,24 @@ public class NormalizationInterceptor extends BaseInterceptor
     public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
-        
-        AttributeType at = opContext.getSession().getDirectoryService().getSchemaManager().lookupAttributeTypeRegistry( opContext.getOid() );
-        
+
+        AttributeType at = opContext.getSession().getDirectoryService().getSchemaManager().lookupAttributeTypeRegistry(
+            opContext.getOid() );
+
         if ( at.getSyntax().isHumanReadable() && ( opContext.getValue().isBinary() ) )
         {
             String value = opContext.getValue().getString();
             opContext.setValue( new StringValue( value ) );
         }
-        
+
         return next.compare( opContext );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public void bind( NextInterceptor next, BindOperationContext opContext )  throws Exception
+    public void bind( NextInterceptor next, BindOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
         next.bind( opContext );
@@ -338,7 +350,8 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void addContextPartition( NextInterceptor next, AddContextPartitionOperationContext opContext ) throws Exception
+    public void addContextPartition( NextInterceptor next, AddContextPartitionOperationContext opContext )
+        throws Exception
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
         next.addContextPartition( opContext );
@@ -348,7 +361,8 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext ) throws Exception
+    public void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext )
+        throws Exception
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
         next.removeContextPartition( opContext );
