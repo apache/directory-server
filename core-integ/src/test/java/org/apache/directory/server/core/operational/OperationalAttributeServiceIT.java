@@ -363,10 +363,9 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 
     /**
      * Try to add modifiersName attribute to an entry
-     *
-     * @throws NamingException on error
+     * this will succeed look at DIRSERVER-1416
      */
-    @Test( expected=NamingException.class )
+    @Test
     public void testModifyOperationalAttributeAdd() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -378,7 +377,6 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 
         sysRoot.modifyAttributes( RDN_KATE_BUSH, new ModificationItem[]
             { modifyOp } );
-        fail( "modification of entry should fail" );
     }
 
 
