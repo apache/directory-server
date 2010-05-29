@@ -20,6 +20,7 @@ package org.apache.directory.server.core.factory;
 
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -209,7 +210,15 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         // remaining data from a previous run
         String workingDirectoryPath = directoryService.getWorkingDirectory().getPath();
         File workingDirectory = new File( workingDirectoryPath );
-        FileUtils.deleteDirectory( workingDirectory );
+
+        try
+        {
+            FileUtils.deleteDirectory( workingDirectory );
+        }
+        catch ( IOException ioe )
+        {
+            // Ok, not a big deal.
+        }
 
         // Init the service now
         initSchema();
