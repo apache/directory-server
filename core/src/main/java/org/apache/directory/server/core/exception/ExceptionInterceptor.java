@@ -292,18 +292,21 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         // handle operations against the schema subentry in the schema service
         // and never try to look it up in the nexus below
-        if ( opContext.getDn().getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
+        if ( opContext.getDn().equals( subschemSubentryDn ) )
         {
             nextInterceptor.modify( opContext );
             return;
         }
 
+        // Check that the entry we read at the beginning exists. If
+        // not, we will throw an exception here
         assertHasEntry( opContext, msg );
 
         Entry entry = opContext.getEntry();
 
         List<Modification> items = opContext.getModItems();
 
+        // Check that we aren't adding a value that already exists in the current entry
         for ( Modification item : items )
         {
             if ( item.getOperation() == ModificationOperation.ADD_ATTRIBUTE )
@@ -317,7 +320,8 @@ public class ExceptionInterceptor extends BaseInterceptor
                     {
                         if ( entryAttr.contains( value ) )
                         {
-                            throw new LdapAttributeInUseException( I18n.err( I18n.ERR_254, value, modAttr.getId() ) );
+                            throw new LdapAttributeInUseException( I18n.err( I18n.ERR_254_ADD_EXISTING_VALUE, value,
+                                modAttr.getId() ) );
                         }
                     }
                 }
