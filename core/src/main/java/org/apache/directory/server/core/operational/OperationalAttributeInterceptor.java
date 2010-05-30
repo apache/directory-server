@@ -66,7 +66,7 @@ import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
- 
+
 
 /**
  * An {@link Interceptor} that adds or modifies the default attributes
@@ -86,14 +86,13 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
     private final EntryFilter DENORMALIZING_SEARCH_FILTER = new EntryFilter()
     {
-        public boolean accept( SearchingOperationContext operation, ClonedServerEntry serverEntry ) 
-            throws Exception
+        public boolean accept( SearchingOperationContext operation, ClonedServerEntry serverEntry ) throws Exception
         {
             if ( operation.getSearchControls().getReturningAttributes() == null )
             {
                 return true;
             }
-            
+
             return filterDenormalized( serverEntry );
         }
     };
@@ -103,22 +102,24 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      */
     private final EntryFilter SEARCH_FILTER = new EntryFilter()
     {
-        public boolean accept( SearchingOperationContext operation, ClonedServerEntry entry )
-            throws Exception
+        public boolean accept( SearchingOperationContext operation, ClonedServerEntry entry ) throws Exception
         {
-            return operation.getSearchControls().getReturningAttributes() != null 
+            return operation.getSearchControls().getReturningAttributes() != null
                 || filterOperationalAttributes( entry );
         }
     };
 
-
     private DirectoryService service;
 
+    /** The subschemasubentry DN */
     private DN subschemaSubentryDn;
-    
+
+    /** The admin DN */
+    private DN adminDn;
+
     /** The schemaManager */
     private SchemaManager schemaManager;
-    
+
     private static AttributeType MODIFIERS_NAME_ATTRIBUTE_TYPE;
     private static AttributeType MODIFY_TIMESTAMP_ATTRIBUTE_TYPE;
 
@@ -137,13 +138,18 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         schemaManager = directoryService.getSchemaManager();
 
         // stuff for dealing with subentries (garbage for now)
-        Value<?> subschemaSubentry = service.getPartitionNexus()
-                .getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
+        Value<?> subschemaSubentry = service.getPartitionNexus().getRootDSE( null ).get(
+            SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemaSubentryDn = new DN( subschemaSubentry.getString() );
         subschemaSubentryDn.normalize( schemaManager.getNormalizerMapping() );
-        
+
+        // Create the Admin DN 
+        adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
+        adminDn.normalize( schemaManager.getNormalizerMapping() );
+
         MODIFIERS_NAME_ATTRIBUTE_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.MODIFIERS_NAME_AT );
-        MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.MODIFY_TIMESTAMP_AT );
+        MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager
+            .lookupAttributeTypeRegistry( SchemaConstants.MODIFY_TIMESTAMP_AT );
     }
 
 
@@ -161,18 +167,17 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      * - entryCSN
      * - entryUUID 
      */
-    public void add( NextInterceptor nextInterceptor, AddOperationContext opContext )
-        throws Exception
+    public void add( NextInterceptor nextInterceptor, AddOperationContext opContext ) throws Exception
     {
         String principal = getPrincipal().getName();
-        
+
         Entry entry = opContext.getEntry();
 
         // If we are using replication, the below four OAs may already be present and we retain
         // those values if the user is admin.
-        boolean isAdmin = opContext.getSession().getAuthenticatedPrincipal().getName().equals( 
+        boolean isAdmin = opContext.getSession().getAuthenticatedPrincipal().getName().equals(
             ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-        
+
         if ( entry.containsAttribute( SchemaConstants.ENTRY_UUID_AT ) )
         {
             if ( !isAdmin )
@@ -187,13 +192,13 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         {
             entry.put( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
         }
-            
+
         if ( entry.containsAttribute( SchemaConstants.ENTRY_CSN_AT ) )
         {
             if ( !isAdmin )
             {
                 // Wrong !
-                String message =  I18n.err( I18n.ERR_30, SchemaConstants.ENTRY_CSN_AT );
+                String message = I18n.err( I18n.ERR_30, SchemaConstants.ENTRY_CSN_AT );
                 LOG.error( message );
                 throw new LdapNoPermissionException( message );
             }
@@ -208,7 +213,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             if ( !isAdmin )
             {
                 // Wrong !
-                String message =  I18n.err( I18n.ERR_30, SchemaConstants.CREATORS_NAME_AT );
+                String message = I18n.err( I18n.ERR_30, SchemaConstants.CREATORS_NAME_AT );
                 LOG.error( message );
                 throw new LdapNoPermissionException( message );
             }
@@ -223,7 +228,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             if ( !isAdmin )
             {
                 // Wrong !
-                String message =  I18n.err( I18n.ERR_30, SchemaConstants.CREATE_TIMESTAMP_AT );
+                String message = I18n.err( I18n.ERR_30, SchemaConstants.CREATE_TIMESTAMP_AT );
                 LOG.error( message );
                 throw new LdapNoPermissionException( message );
             }
@@ -232,13 +237,15 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         {
             entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         }
-        
+
         nextInterceptor.add( opContext );
     }
 
 
-    public void modify( NextInterceptor nextInterceptor, ModifyOperationContext opContext )
-        throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void modify( NextInterceptor nextInterceptor, ModifyOperationContext opContext ) throws Exception
     {
         // We must check that the user hasn't injected either the modifiersName
         // or the modifyTimestamp operational attributes : they are not supposed to be
@@ -246,20 +253,19 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // If so, remove them, and if there are no more attributes, simply return.
         // otherwise, inject those values into the list of modifications
         List<Modification> mods = opContext.getModItems();
-        
-        boolean isAdmin = opContext.getSession().getAuthenticatedPrincipal().getName().equals( 
-            ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-        
+
+        boolean isAdmin = opContext.getSession().getAuthenticatedPrincipal().getDN().equals( adminDn );
+
         boolean modifierAtPresent = false;
         boolean modifiedTimeAtPresent = false;
-        
-        for ( Modification modification: mods )
+
+        for ( Modification modification : mods )
         {
             AttributeType attributeType = modification.getAttribute().getAttributeType();
-            
+
             if ( attributeType.equals( MODIFIERS_NAME_ATTRIBUTE_TYPE ) )
             {
-                if( ! isAdmin )
+                if ( !isAdmin )
                 {
                     String message = I18n.err( I18n.ERR_31 );
                     LOG.error( message );
@@ -273,7 +279,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             if ( attributeType.equals( MODIFY_TIMESTAMP_ATTRIBUTE_TYPE ) )
             {
-                if( ! isAdmin )
+                if ( !isAdmin )
                 {
                     String message = I18n.err( I18n.ERR_32 );
                     LOG.error( message );
@@ -286,25 +292,23 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             }
         }
 
-        if ( ! modifierAtPresent )
+        if ( !modifierAtPresent )
         {
             // Inject the ModifiersName AT if it's not present
-            EntryAttribute attribute = new DefaultEntryAttribute( 
-                MODIFIERS_NAME_ATTRIBUTE_TYPE, 
-                getPrincipal().getName());
+            EntryAttribute attribute = new DefaultEntryAttribute( MODIFIERS_NAME_ATTRIBUTE_TYPE, getPrincipal()
+                .getName() );
 
             Modification modifiersName = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
 
             mods.add( modifiersName );
         }
 
-        if ( ! modifiedTimeAtPresent )
+        if ( !modifiedTimeAtPresent )
         {
             // Inject the ModifyTimestamp AT if it's not present
-            EntryAttribute attribute = new DefaultEntryAttribute( 
-                MODIFY_TIMESTAMP_ATTRIBUTE_TYPE,
-                DateUtils.getGeneralizedTime() );
-            
+            EntryAttribute attribute = new DefaultEntryAttribute( MODIFY_TIMESTAMP_ATTRIBUTE_TYPE, DateUtils
+                .getGeneralizedTime() );
+
             Modification timestamp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
 
             mods.add( timestamp );
@@ -312,64 +316,26 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
         // Go down in the chain
         nextInterceptor.modify( opContext );
-        
-        if ( opContext.getDn().getNormName().equals( subschemaSubentryDn.getNormName() ) ) 
-        {
-            return;
-        }
-
-        // -------------------------------------------------------------------
-        // Add the operational attributes for the modifier first
-        // -------------------------------------------------------------------
-        // TODO : Why can't we add those elements on teh original modifications ???
-        // Or into the context ?
-        /*
-        List<Modification> modItemList = new ArrayList<Modification>(2);
-        
-        AttributeType modifiersNameAt = atRegistry.lookup( SchemaConstants.MODIFIERS_NAME_AT );
-        ServerAttribute attribute = new DefaultServerAttribute( 
-            modifiersNameAt, 
-            getPrincipal().getName());
-
-        Modification modifiers = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
-        modItemList.add( modifiers );
-        
-        AttributeType modifyTimeStampAt = atRegistry.lookup( SchemaConstants.MODIFY_TIMESTAMP_AT );
-        attribute = new DefaultServerAttribute( 
-            modifyTimeStampAt,
-            DateUtils.getGeneralizedTime() );
-        
-        Modification timestamp = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
-        modItemList.add( timestamp );
-
-        // -------------------------------------------------------------------
-        // Make the modify() call happen
-        // -------------------------------------------------------------------
-        ModifyOperationContext newModify = new ModifyOperationContext( opContext.getSession(), 
-            opContext.getDn(), modItemList );
-        newModify.setEntry( opContext.getAlteredEntry() );
-        service.getPartitionNexus().modify( newModify );
-        */
     }
 
 
-    public void rename( NextInterceptor nextInterceptor, RenameOperationContext opContext )
-        throws Exception
+    public void rename( NextInterceptor nextInterceptor, RenameOperationContext opContext ) throws Exception
     {
         nextInterceptor.rename( opContext );
 
         DN newDn = opContext.getNewDn();
-        
+
         // add operational attributes after call in case the operation fails
         Entry serverEntry = new DefaultEntry( schemaManager, newDn );
         serverEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
         serverEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-        List<Modification> items = ModifyOperationContext.createModItems( serverEntry, ModificationOperation.REPLACE_ATTRIBUTE );
+        List<Modification> items = ModifyOperationContext.createModItems( serverEntry,
+            ModificationOperation.REPLACE_ATTRIBUTE );
 
         ModifyOperationContext newModify = new ModifyOperationContext( opContext.getSession(), newDn, items );
         newModify.setEntry( opContext.getAlteredEntry() );
-        
+
         service.getPartitionNexus().modify( newModify );
     }
 
@@ -383,12 +349,12 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         serverEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
         serverEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-        List<Modification> items = ModifyOperationContext.createModItems( serverEntry, ModificationOperation.REPLACE_ATTRIBUTE );
+        List<Modification> items = ModifyOperationContext.createModItems( serverEntry,
+            ModificationOperation.REPLACE_ATTRIBUTE );
 
+        ModifyOperationContext newModify = new ModifyOperationContext( opContext.getSession(), opContext.getParent(),
+            items );
 
-        ModifyOperationContext newModify = 
-            new ModifyOperationContext( opContext.getSession(), opContext.getParent(), items );
-        
         service.getPartitionNexus().modify( newModify );
     }
 
@@ -403,11 +369,12 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         serverEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
         serverEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-        List<Modification> items = ModifyOperationContext.createModItems( serverEntry, ModificationOperation.REPLACE_ATTRIBUTE );
+        List<Modification> items = ModifyOperationContext.createModItems( serverEntry,
+            ModificationOperation.REPLACE_ATTRIBUTE );
 
-        ModifyOperationContext newModify = 
-            new ModifyOperationContext( opContext.getSession(), opContext.getParent(), items );
-        
+        ModifyOperationContext newModify = new ModifyOperationContext( opContext.getSession(), opContext.getParent(),
+            items );
+
         service.getPartitionNexus().modify( newModify );
     }
 
@@ -415,7 +382,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
     {
         Entry result = nextInterceptor.lookup( opContext );
-        
+
         if ( result == null )
         {
             return null;
@@ -429,13 +396,14 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         {
             filter( opContext, result );
         }
-        
+
         denormalizeEntryOpAttrs( result );
         return result;
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext )
+        throws Exception
     {
         EntryFilteringCursor cursor = nextInterceptor.list( opContext );
         cursor.addEntryFilter( SEARCH_FILTER );
@@ -443,18 +411,19 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext )
+        throws Exception
     {
         EntryFilteringCursor cursor = nextInterceptor.search( opContext );
-        
-        if ( opContext.isAllOperationalAttributes() || 
-             ( opContext.getReturningAttributes() != null && ! opContext.getReturningAttributes().isEmpty() ) )
+
+        if ( opContext.isAllOperationalAttributes()
+            || ( opContext.getReturningAttributes() != null && !opContext.getReturningAttributes().isEmpty() ) )
         {
             if ( service.isDenormalizeOpAttrsEnabled() )
             {
                 cursor.addEntryFilter( DENORMALIZING_SEARCH_FILTER );
             }
-                
+
             return cursor;
         }
 
@@ -476,20 +445,20 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         Set<AttributeType> removedAttributes = new HashSet<AttributeType>();
 
         // Build a list of attributeType to remove
-        for ( AttributeType attributeType:attributes.getAttributeTypes() )
+        for ( AttributeType attributeType : attributes.getAttributeTypes() )
         {
             if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS )
             {
                 removedAttributes.add( attributeType );
             }
         }
-        
+
         // Now remove the attributes which are not USERs
-        for ( AttributeType attributeType:removedAttributes )
+        for ( AttributeType attributeType : removedAttributes )
         {
             attributes.removeAttributes( attributeType );
         }
-        
+
         return true;
     }
 
@@ -498,7 +467,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     {
         DN dn = lookupContext.getDn();
         List<String> ids = lookupContext.getAttrsId();
-        
+
         // still need to protect against returning op attrs when ids is null
         if ( ids == null || ids.isEmpty() )
         {
@@ -510,7 +479,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
         if ( dn.size() == 0 )
         {
-            for ( AttributeType attributeType:attributeTypes )
+            for ( AttributeType attributeType : attributeTypes )
             {
                 if ( !ids.contains( attributeType.getOid() ) )
                 {
@@ -520,13 +489,13 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         }
 
         denormalizeEntryOpAttrs( entry );
-        
+
         // do nothing past here since this explicity specifies which
         // attributes to include - backends will automatically populate
         // with right set of attributes using ids array
     }
 
-    
+
     public void denormalizeEntryOpAttrs( Entry entry ) throws Exception
     {
         if ( service.isDenormalizeOpAttrsEnabled() )
@@ -536,13 +505,13 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             if ( attr != null )
             {
                 DN creatorsName = new DN( attr.getString() );
-                
+
                 attr.clear();
                 attr.add( denormalizeTypes( creatorsName ).getName() );
             }
-            
+
             attr = entry.get( SchemaConstants.MODIFIERS_NAME_AT );
-            
+
             if ( attr != null )
             {
                 DN modifiersName = new DN( attr.getString() );
@@ -552,7 +521,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             }
 
             attr = entry.get( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT );
-            
+
             if ( attr != null )
             {
                 DN modifiersName = new DN( attr.getString() );
@@ -563,7 +532,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         }
     }
 
-    
+
     /**
      * Does not create a new DN but alters existing DN by using the first
      * short name for an attributeType definition.
@@ -575,7 +544,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     public DN denormalizeTypes( DN dn ) throws Exception
     {
         DN newDn = new DN();
-        
+
         for ( int ii = 0; ii < dn.size(); ii++ )
         {
             RDN rdn = dn.getRdn( ii );
@@ -587,29 +556,29 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             else if ( rdn.size() == 1 )
             {
                 String name = schemaManager.lookupAttributeTypeRegistry( rdn.getNormType() ).getName();
-                String value = rdn.getAtav().getNormValue().getString(); 
+                String value = rdn.getAtav().getNormValue().getString();
                 newDn.add( new RDN( name, name, value, value ) );
                 continue;
             }
 
             // below we only process multi-valued rdns
             StringBuffer buf = new StringBuffer();
-        
-            for ( Iterator<AVA> atavs = rdn.iterator(); atavs.hasNext(); /**/ )
+
+            for ( Iterator<AVA> atavs = rdn.iterator(); atavs.hasNext(); /**/)
             {
                 AVA atav = atavs.next();
                 String type = schemaManager.lookupAttributeTypeRegistry( rdn.getNormType() ).getName();
                 buf.append( type ).append( '=' ).append( atav.getNormValue() );
-                
+
                 if ( atavs.hasNext() )
                 {
                     buf.append( '+' );
                 }
             }
-            
-            newDn.add( new RDN(buf.toString()) );
+
+            newDn.add( new RDN( buf.toString() ) );
         }
-        
+
         return newDn;
     }
 

@@ -25,8 +25,7 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.interceptor.context.OperationContext;
-import org.apache.directory.server.core.partition.ByPassConstants;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -53,19 +52,21 @@ import org.apache.directory.shared.ldap.schema.SchemaUtils;
 public class CollectiveAttributesSchemaChecker
 {
     private SchemaManager schemaManager = null;
-    
+
+
     public CollectiveAttributesSchemaChecker( PartitionNexus nexus, SchemaManager schemaManager )
     {
         this.schemaManager = schemaManager;
     }
-    
-    /* package scope*/ void checkAdd( DN normName, Entry entry ) throws Exception
+
+
+    /* package scope*/void checkAdd( DN normName, Entry entry ) throws Exception
     {
         if ( entry.hasObjectClass( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
         {
             return;
         }
-        
+
         if ( containsAnyCollectiveAttributes( entry ) )
         {
             /*
@@ -74,39 +75,41 @@ public class CollectiveAttributesSchemaChecker
             throw new LdapSchemaViolationException( ResultCodeEnum.OTHER, I18n.err( I18n.ERR_241 ) );
         }
     }
-    
-    
-    public void checkModify( OperationContext opContext, DN normName, List<Modification> mods ) throws Exception
+
+
+    public void checkModify( ModifyOperationContext opContext ) throws Exception
     {
-        Entry originalEntry = opContext.lookup( normName, ByPassConstants.LOOKUP_BYPASS );
-        Entry targetEntry = (Entry)SchemaUtils.getTargetEntry( mods, originalEntry );
-        
+        List<Modification> mods = opContext.getModItems();
+        Entry originalEntry = opContext.getEntry();
+        Entry targetEntry = ( Entry ) SchemaUtils.getTargetEntry( mods, originalEntry );
+
         EntryAttribute targetObjectClasses = targetEntry.get( SchemaConstants.OBJECT_CLASS_AT );
-        
+
         if ( targetObjectClasses == null )
         {
             // This is not allowed 
-            throw new LdapSchemaViolationException( ResultCodeEnum.OTHER, I18n.err( I18n.ERR_272_MODIFY_LEAVES_NO_STRUCTURAL_OBJECT_CLASS, originalEntry.getDn() ));
+            throw new LdapSchemaViolationException( ResultCodeEnum.OTHER, I18n.err(
+                I18n.ERR_272_MODIFY_LEAVES_NO_STRUCTURAL_OBJECT_CLASS, originalEntry.getDn() ) );
         }
-        
+
         if ( targetObjectClasses.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
         {
             return;
         }
-        
+
         if ( addsAnyCollectiveAttributes( mods ) )
         {
             /*
              * TODO: Replace the Exception and the ResultCodeEnum with the correct ones.
              */
-            throw new LdapSchemaViolationException( ResultCodeEnum.OTHER, I18n.err( I18n.ERR_242 ));
+            throw new LdapSchemaViolationException( ResultCodeEnum.OTHER, I18n.err( I18n.ERR_242 ) );
         }
     }
-    
-    
+
+
     private boolean addsAnyCollectiveAttributes( List<Modification> mods ) throws LdapException
     {
-        for ( Modification mod:mods )
+        for ( Modification mod : mods )
         {
             // TODO: handle http://issues.apache.org/jira/browse/DIRSERVER-1198
             EntryAttribute attr = mod.getAttribute();
@@ -114,42 +117,41 @@ public class CollectiveAttributesSchemaChecker
 
             if ( attrType == null )
             {
-                if ( !schemaManager.getAttributeTypeRegistry().contains( attr.getUpId() ) )
-                {
-                    throw new LdapInvalidAttributeTypeException();
-                }
-                else
+                try
                 {
                     attrType = schemaManager.lookupAttributeTypeRegistry( attr.getUpId() );
                 }
+                catch ( LdapException le )
+                {
+                    throw new LdapInvalidAttributeTypeException();
+                }
             }
-            
-            
+
             ModificationOperation modOp = mod.getOperation();
-            
-            if ( ( ( modOp == ModificationOperation.ADD_ATTRIBUTE ) || ( modOp == ModificationOperation.REPLACE_ATTRIBUTE ) ) &&
-                attrType.isCollective() )
+
+            if ( ( ( modOp == ModificationOperation.ADD_ATTRIBUTE ) || ( modOp == ModificationOperation.REPLACE_ATTRIBUTE ) )
+                && attrType.isCollective() )
             {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
-    
+
+
     private boolean containsAnyCollectiveAttributes( Entry entry ) throws NamingException
     {
         Set<AttributeType> attributeTypes = entry.getAttributeTypes();
-        
-        for ( AttributeType attributeType:attributeTypes )
+
+        for ( AttributeType attributeType : attributeTypes )
         {
             if ( attributeType.isCollective() )
             {
                 return true;
             }
         }
-        
+
         return false;
     }
 }

@@ -1029,31 +1029,34 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
-        DN name = opContext.getDn();
+        DN dn = opContext.getDn();
         List<Modification> mods = opContext.getModItems();
 
-        Entry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
-        //        Entry entry = opContext.getEntry();
+        Entry entry = opContext.getEntry();
 
-        Entry oldEntry = ( Entry ) entry.clone();
         EntryAttribute objectClasses = entry.get( objectClassType );
         boolean isSubtreeSpecificationModification = false;
         Modification subtreeMod = null;
 
+        // Find the subtreeSpecification
         for ( Modification mod : mods )
         {
             if ( SchemaConstants.SUBTREE_SPECIFICATION_AT.equalsIgnoreCase( mod.getAttribute().getId() ) )
             {
                 isSubtreeSpecificationModification = true;
                 subtreeMod = mod;
+                break;
             }
         }
 
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) && isSubtreeSpecificationModification )
         {
-            SubtreeSpecification ssOld = subentryCache.removeSubentry( name.getNormName() ).getSubtreeSpecification();
+            SubtreeSpecification ssOld = subentryCache.removeSubentry( dn.getNormName() ).getSubtreeSpecification();
             SubtreeSpecification ssNew;
 
             try
@@ -1067,11 +1070,11 @@ public class SubentryInterceptor extends BaseInterceptor
                 throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, msg );
             }
 
-            subentryCache.setSubentry( name.getNormName(), ssNew, getSubentryTypes( entry, mods ) );
+            subentryCache.setSubentry( dn.getNormName(), ssNew, getSubentryTypes( entry, mods ) );
             next.modify( opContext );
 
             // search for all entries selected by the old SS and remove references to subentry
-            DN apName = ( DN ) name.clone();
+            DN apName = ( DN ) dn.clone();
             apName.remove( apName.size() - 1 );
             DN oldBaseDn = ( DN ) apName.clone();
             oldBaseDn.addAll( ssOld.getBase() );
@@ -1091,19 +1094,19 @@ public class SubentryInterceptor extends BaseInterceptor
             while ( subentries.next() )
             {
                 Entry candidate = subentries.get();
-                DN dn = candidate.getDn();
-                dn.normalize( schemaManager.getNormalizerMapping() );
+                DN candidateDn = candidate.getDn();
+                candidateDn.normalize( schemaManager.getNormalizerMapping() );
 
-                if ( evaluator.evaluate( ssOld, apName, dn, candidate ) )
+                if ( evaluator.evaluate( ssOld, apName, candidateDn, candidate ) )
                 {
-                    nexus.modify( new ModifyOperationContext( opContext.getSession(), dn, getOperationalModsForRemove(
-                        name, candidate ) ) );
+                    nexus.modify( new ModifyOperationContext( opContext.getSession(), candidateDn,
+                        getOperationalModsForRemove( dn, candidate ) ) );
                 }
             }
 
             // search for all selected entries by the new SS and add references to subentry
-            Subentry subentry = subentryCache.getSubentry( name.getNormName() );
-            Entry operational = getSubentryOperatationalAttributes( name, subentry );
+            Subentry subentry = subentryCache.getSubentry( dn.getNormName() );
+            Entry operational = getSubentryOperatationalAttributes( dn, subentry );
             DN newBaseDn = ( DN ) apName.clone();
             newBaseDn.addAll( ssNew.getBase() );
 
@@ -1115,13 +1118,13 @@ public class SubentryInterceptor extends BaseInterceptor
             while ( subentries.next() )
             {
                 Entry candidate = subentries.get();
-                DN dn = candidate.getDn();
-                dn.normalize( schemaManager.getNormalizerMapping() );
+                DN candidateDn = candidate.getDn();
+                candidateDn.normalize( schemaManager.getNormalizerMapping() );
 
-                if ( evaluator.evaluate( ssNew, apName, dn, candidate ) )
+                if ( evaluator.evaluate( ssNew, apName, candidateDn, candidate ) )
                 {
-                    nexus.modify( new ModifyOperationContext( opContext.getSession(), dn, getOperationalModsForAdd(
-                        candidate, operational ) ) );
+                    nexus.modify( new ModifyOperationContext( opContext.getSession(), candidateDn,
+                        getOperationalModsForAdd( candidate, operational ) ) );
                 }
             }
         }
@@ -1131,13 +1134,13 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( !objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
             {
-                Entry newEntry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
+                Entry newEntry = opContext.lookup( dn, ByPassConstants.LOOKUP_BYPASS );
 
-                List<Modification> subentriesOpAttrMods = getModsOnEntryModification( name, oldEntry, newEntry );
+                List<Modification> subentriesOpAttrMods = getModsOnEntryModification( dn, entry, newEntry );
 
                 if ( subentriesOpAttrMods.size() > 0 )
                 {
-                    nexus.modify( new ModifyOperationContext( opContext.getSession(), name, subentriesOpAttrMods ) );
+                    nexus.modify( new ModifyOperationContext( opContext.getSession(), dn, subentriesOpAttrMods ) );
                 }
             }
         }

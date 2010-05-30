@@ -23,6 +23,8 @@ package org.apache.directory.server.core.collective;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.naming.NamingException;
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilter;
@@ -40,8 +42,8 @@ import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -64,32 +66,31 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
 {
     /** The SchemaManager */
     private SchemaManager schemaManager;
-    
-    private PartitionNexus nexus;
-    
-    private CollectiveAttributesSchemaChecker collectiveAttributesSchemaChecker;
 
+    private PartitionNexus nexus;
+
+    private CollectiveAttributesSchemaChecker collectiveAttributesSchemaChecker;
 
     /**
      * the search result filter to use for collective attribute injection
      */
     private final EntryFilter SEARCH_FILTER = new EntryFilter()
     {
-        public boolean accept( SearchingOperationContext operation, ClonedServerEntry result )
-            throws Exception
+        public boolean accept( SearchingOperationContext operation, ClonedServerEntry result ) throws Exception
         {
             DN name = result.getDn();
-            
+
             if ( name.isNormalized() == false )
             {
                 name = DN.normalize( name, schemaManager.getNormalizerMapping() );
             }
-            
+
             String[] retAttrs = operation.getSearchControls().getReturningAttributes();
             addCollectiveAttributes( operation, result, retAttrs );
             return true;
         }
     };
+
 
     public void init( DirectoryService directoryService ) throws Exception
     {
@@ -112,12 +113,11 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
      * @param retAttrs array or attribute type to be specifically included in the result entry(s)
      * @throws NamingException if there are problems accessing subentries
      */
-    private void addCollectiveAttributes( OperationContext opContext, Entry entry, 
-        String[] retAttrs ) throws Exception
+    private void addCollectiveAttributes( OperationContext opContext, Entry entry, String[] retAttrs ) throws Exception
     {
-        EntryAttribute collectiveAttributeSubentries = 
-            ((ClonedServerEntry)entry).getOriginalEntry().get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
-        
+        EntryAttribute collectiveAttributeSubentries = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get(
+            SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+
         /*
          * If there are no collective attribute subentries referenced then we 
          * have no collective attributes to inject to this entry.
@@ -126,22 +126,21 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         {
             return;
         }
-    
+
         /*
          * Before we proceed we need to lookup the exclusions within the entry 
          * and build a set of exclusions for rapid lookup.  We use OID values 
          * in the exclusions set instead of regular names that may have case 
          * variance.
          */
-        EntryAttribute collectiveExclusions = 
-            ((ClonedServerEntry)entry).getOriginalEntry().get( SchemaConstants.COLLECTIVE_EXCLUSIONS_AT );
+        EntryAttribute collectiveExclusions = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get(
+            SchemaConstants.COLLECTIVE_EXCLUSIONS_AT );
         Set<String> exclusions = new HashSet<String>();
-        
+
         if ( collectiveExclusions != null )
         {
             if ( collectiveExclusions.contains( SchemaConstants.EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_AT_OID )
-                 || 
-                 collectiveExclusions.contains( SchemaConstants.EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_AT  ) )
+                || collectiveExclusions.contains( SchemaConstants.EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_AT ) )
             {
                 /*
                  * This entry does not allow any collective attributes
@@ -151,14 +150,14 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
             }
 
             exclusions = new HashSet<String>();
-            
-            for ( Value<?> value:collectiveExclusions )
+
+            for ( Value<?> value : collectiveExclusions )
             {
                 AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( value.getString() );
                 exclusions.add( attrType.getOid() );
             }
         }
-        
+
         /*
          * If no attributes are requested specifically
          * then it means all user attributes are requested.
@@ -168,16 +167,16 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         {
             retAttrs = SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY;
         }
-        
+
         /*
          * Construct a set of requested attributes for easier tracking.
-         */ 
+         */
         Set<String> retIdsSet = new HashSet<String>( retAttrs.length );
-        
-        for ( String retAttr:retAttrs )
+
+        for ( String retAttr : retAttrs )
         {
-            if ( retAttr.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) ||
-                retAttr.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
+            if ( retAttr.equals( SchemaConstants.ALL_USER_ATTRIBUTES )
+                || retAttr.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
             {
                 retIdsSet.add( retAttr );
             }
@@ -192,29 +191,29 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
          * attributes of the subentry and copy collective attributes from the
          * subentry into the entry.
          */
-        for ( Value<?> value:collectiveAttributeSubentries )
+        for ( Value<?> value : collectiveAttributeSubentries )
         {
             String subentryDnStr = value.getString();
             DN subentryDn = new DN( subentryDnStr );
-            
+
             /*
              * TODO - Instead of hitting disk here can't we leverage the 
              * SubentryService to get us cached sub-entries so we're not
              * wasting time with a lookup here? It is ridiculous to waste
              * time looking up this sub-entry. 
              */
-            
+
             Entry subentry = opContext.lookup( subentryDn, ByPassConstants.LOOKUP_COLLECTIVE_BYPASS );
-            
-            for ( AttributeType attributeType:subentry.getAttributeTypes() )
+
+            for ( AttributeType attributeType : subentry.getAttributeTypes() )
             {
                 String attrId = attributeType.getName();
-                
+
                 if ( !attributeType.isCollective() )
                 {
                     continue;
                 }
-                
+
                 /*
                  * Skip the addition of this collective attribute if it is excluded
                  * in the 'collectiveAttributes' attribute.
@@ -223,12 +222,13 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                 {
                     continue;
                 }
-                
+
                 Set<AttributeType> allSuperTypes = getAllSuperTypes( attributeType );
 
                 for ( String retId : retIdsSet )
                 {
-                    if ( retId.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) || retId.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
+                    if ( retId.equals( SchemaConstants.ALL_USER_ATTRIBUTES )
+                        || retId.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
                     {
                         continue;
                     }
@@ -246,12 +246,12 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                  * If not all attributes or this collective attribute requested specifically
                  * then bypass the inclusion process.
                  */
-                if ( !( retIdsSet.contains( SchemaConstants.ALL_USER_ATTRIBUTES ) || 
-                    retIdsSet.contains( schemaManager.lookupAttributeTypeRegistry( attrId ).getOid() ) ) )
+                if ( !( retIdsSet.contains( SchemaConstants.ALL_USER_ATTRIBUTES ) || retIdsSet.contains( schemaManager
+                    .lookupAttributeTypeRegistry( attrId ).getOid() ) ) )
                 {
                     continue;
                 }
-                
+
                 EntryAttribute subentryColAttr = subentry.get( attrId );
                 EntryAttribute entryColAttr = entry.get( attrId );
 
@@ -260,7 +260,8 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                  */
                 if ( entryColAttr == null )
                 {
-                    entryColAttr = new DefaultEntryAttribute( attrId, schemaManager.lookupAttributeTypeRegistry( attrId ) );
+                    entryColAttr = new DefaultEntryAttribute( attrId, schemaManager
+                        .lookupAttributeTypeRegistry( attrId ) );
                     entry.put( entryColAttr );
                 }
 
@@ -268,30 +269,30 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                  *  Add all the collective attribute values in the subentry
                  *  to the currently processed collective attribute in the entry.
                  */
-                for ( Value<?> subentryColVal:subentryColAttr )
+                for ( Value<?> subentryColVal : subentryColAttr )
                 {
                     entryColAttr.add( subentryColVal.getString() );
                 }
             }
         }
     }
-    
-    
+
+
     private Set<AttributeType> getAllSuperTypes( AttributeType id ) throws Exception
     {
         Set<AttributeType> allSuperTypes = new HashSet<AttributeType>();
         AttributeType superType = id;
-        
+
         while ( superType != null )
         {
             superType = superType.getSuperior();
-            
+
             if ( superType != null )
             {
                 allSuperTypes.add( superType );
             }
         }
-        
+
         return allSuperTypes;
     }
 
@@ -300,18 +301,16 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     // Interceptor Method Overrides
     // ------------------------------------------------------------------------
 
-    
-    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) 
-        throws Exception
+    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
     {
         Entry result = nextInterceptor.lookup( opContext );
-        
+
         if ( result == null )
         {
             return null;
         }
-        
-        if ( ( opContext.getAttrsId() == null ) || ( opContext.getAttrsId().size() == 0 ) ) 
+
+        if ( ( opContext.getAttrsId() == null ) || ( opContext.getAttrsId().size() == 0 ) )
         {
             addCollectiveAttributes( opContext, result, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
         }
@@ -324,7 +323,8 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext )
+        throws Exception
     {
         EntryFilteringCursor cursor = nextInterceptor.list( opContext );
         cursor.addEntryFilter( SEARCH_FILTER );
@@ -332,30 +332,30 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext )
+        throws Exception
     {
         EntryFilteringCursor cursor = nextInterceptor.search( opContext );
         cursor.addEntryFilter( SEARCH_FILTER );
         return cursor;
     }
 
-    
+
     // ------------------------------------------------------------------------
     // Partial Schema Checking
     // ------------------------------------------------------------------------
-    
-    
+
     public void add( NextInterceptor next, AddOperationContext opContext ) throws Exception
     {
         collectiveAttributesSchemaChecker.checkAdd( opContext.getDn(), opContext.getEntry() );
-        
+
         next.add( opContext );
     }
 
 
     public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
-        collectiveAttributesSchemaChecker.checkModify( opContext,opContext.getDn(), opContext.getModItems() );
+        collectiveAttributesSchemaChecker.checkModify( opContext );
 
         next.modify( opContext );
     }
