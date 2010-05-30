@@ -119,7 +119,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DefaultPartitionNexus  extends AbstractPartition implements PartitionNexus
+public class DefaultPartitionNexus extends AbstractPartition implements PartitionNexus
 {
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultPartitionNexus.class );
@@ -135,28 +135,29 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
 
     /** The DirectoryService instance */
     private DirectoryService directoryService;
-    
+
     /** The global schemaManager */
     private SchemaManager schemaManager;
-    
+
     /** the partitions keyed by normalized suffix strings */
     private Map<String, Partition> partitions = new HashMap<String, Partition>();
-    
+
     /** A structure to hold all the partitions */
     private DnBranchNode<Partition> partitionLookupTree = new DnBranchNode<Partition>();
-    
+
     /** the system partition */
     private Partition system;
 
     /** the closed state of this partition */
     private boolean initialized;
-    
+
     private static AttributeType ENTRY_CSN_ATTRIBUTE_TYPE;
-    
+
     final List<Modification> mods = new ArrayList<Modification>( 2 );
-    
+
     private String lastSyncedCtxCsn = "";
-    
+
+
     /**
      * Creates the root nexus singleton of the entire system.  The root DSE has
      * several attributes that are injected into it besides those that may
@@ -171,7 +172,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
     {
         // setup that root DSE
         this.rootDSE = rootDSE;
-        
+
         // Add the basic informations
         rootDSE.put( SchemaConstants.SUBSCHEMA_SUBENTRY_AT, ServerDNConstants.CN_SCHEMA_DN );
         rootDSE.put( SchemaConstants.SUPPORTED_LDAP_VERSION_AT, "3" );
@@ -179,31 +180,21 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
         rootDSE.put( SchemaConstants.SUPPORTED_EXTENSION_AT, NoticeOfDisconnect.EXTENSION_OID );
 
         // Add the supported controls
-        rootDSE.put( 
-            SchemaConstants.SUPPORTED_CONTROL_AT, 
-            PersistentSearchControl.CONTROL_OID,
-            EntryChangeControl.CONTROL_OID,
-            SubentriesControl.CONTROL_OID,
-            ManageDsaITControl.CONTROL_OID,
-            CascadeControl.CONTROL_OID,
-            PagedResultsControl.CONTROL_OID,
+        rootDSE.put( SchemaConstants.SUPPORTED_CONTROL_AT, PersistentSearchControl.CONTROL_OID,
+            EntryChangeControl.CONTROL_OID, SubentriesControl.CONTROL_OID, ManageDsaITControl.CONTROL_OID,
+            CascadeControl.CONTROL_OID, PagedResultsControl.CONTROL_OID,
             // Replication controls
-            SyncDoneValueControl.CONTROL_OID,
-            SyncInfoValueControl.CONTROL_OID,
-            SyncRequestValueControl.CONTROL_OID,
-            SyncStateValueControl.CONTROL_OID 
-        );
+            SyncDoneValueControl.CONTROL_OID, SyncInfoValueControl.CONTROL_OID, SyncRequestValueControl.CONTROL_OID,
+            SyncStateValueControl.CONTROL_OID );
 
         // Add the objectClasses
-        rootDSE.put( SchemaConstants.OBJECT_CLASS_AT,
-            SchemaConstants.TOP_OC,
-            SchemaConstants.EXTENSIBLE_OBJECT_OC );
+        rootDSE.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
 
         // Add the 'vendor' name and version infos
         rootDSE.put( SchemaConstants.VENDOR_NAME_AT, ASF );
 
         Properties props = new Properties();
-        
+
         try
         {
             props.load( getClass().getResourceAsStream( "version.properties" ) );
@@ -216,48 +207,47 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
         rootDSE.put( SchemaConstants.VENDOR_VERSION_AT, props.getProperty( "apacheds.version", "UNKNOWN" ) );
     }
 
-    
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#initialize()
      */
-    protected void doInit( ) throws Exception
+    protected void doInit() throws Exception
     {
         // NOTE: We ignore ContextPartitionConfiguration parameter here.
         if ( initialized )
         {
             return;
         }
-    
+
         //this.directoryService = directoryService;
         schemaManager = directoryService.getSchemaManager();
         ENTRY_CSN_ATTRIBUTE_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT );
-        
+
         // Initialize and normalize the localy used DNs
         DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN );
         adminDn.normalize( schemaManager.getNormalizerMapping() );
-            
+
         initializeSystemPartition( directoryService );
-        
+
         List<Partition> initializedPartitions = new ArrayList<Partition>();
         initializedPartitions.add( 0, this.system );
 
-    
         try
         {
             for ( Partition partition : directoryService.getPartitions() )
             {
                 partition.setSchemaManager( schemaManager );
-                CoreSession adminSession = new DefaultCoreSession( 
-                    new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
-    
-                AddContextPartitionOperationContext opCtx = 
-                    new AddContextPartitionOperationContext( adminSession, partition );
+                CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn,
+                    AuthenticationLevel.STRONG ), directoryService );
+
+                AddContextPartitionOperationContext opCtx = new AddContextPartitionOperationContext( adminSession,
+                    partition );
                 addContextPartition( opCtx );
                 initializedPartitions.add( opCtx.getPartition() );
             }
-            
+
             createContextCsnModList();
-            
+
             initialized = true;
         }
         finally
@@ -291,19 +281,18 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
     {
         // initialize system partition first
         Partition override = directoryService.getSystemPartition();
-        
+
         if ( override != null )
         {
-            
+
             // ---------------------------------------------------------------
             // check a few things to make sure users configured it properly
             // ---------------------------------------------------------------
 
-            if ( ! override.getId().equals( "system" ) )
+            if ( !override.getId().equals( "system" ) )
             {
                 throw new ConfigurationException( I18n.err( I18n.ERR_262, override.getId() ) );
             }
-            
 
             system = override;
         }
@@ -312,57 +301,52 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
             // TODO : we have to deal with this case !
         }
 
-        system.initialize( );
-        
-        
+        system.initialize();
+
         // Add root context entry for system partition
         DN systemSuffixDn = new DN( ServerDNConstants.SYSTEM_DN );
         systemSuffixDn.normalize( schemaManager.getNormalizerMapping() );
         Entry systemEntry = new DefaultEntry( schemaManager, systemSuffixDn );
 
         // Add the ObjectClasses
-        systemEntry.put( SchemaConstants.OBJECT_CLASS_AT,
-            SchemaConstants.TOP_OC,
-            SchemaConstants.ORGANIZATIONAL_UNIT_OC,
-            SchemaConstants.EXTENSIBLE_OBJECT_OC
-            );
-        
+        systemEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC,
+            SchemaConstants.ORGANIZATIONAL_UNIT_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
+
         // Add some operational attributes
         systemEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
         systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         systemEntry.add( SchemaConstants.ENTRY_CSN_AT, directoryService.getCSN().toString() );
         systemEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
-        systemEntry.put( NamespaceTools.getRdnAttribute( ServerDNConstants.SYSTEM_DN ),
-            NamespaceTools.getRdnValue( ServerDNConstants.SYSTEM_DN ) );
+        systemEntry.put( NamespaceTools.getRdnAttribute( ServerDNConstants.SYSTEM_DN ), NamespaceTools
+            .getRdnValue( ServerDNConstants.SYSTEM_DN ) );
         DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
         adminDn.normalize( schemaManager.getNormalizerMapping() );
-        CoreSession adminSession = new DefaultCoreSession( 
-            new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
+        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ),
+            directoryService );
         AddOperationContext addOperationContext = new AddOperationContext( adminSession, systemEntry );
-        
+
         if ( !system.hasEntry( new EntryOperationContext( adminSession, systemEntry.getDn() ) ) )
         {
             system.add( addOperationContext );
         }
-        
+
         String key = system.getSuffixDn().getName();
-        
+
         if ( partitions.containsKey( key ) )
         {
             throw new ConfigurationException( I18n.err( I18n.ERR_263, key ) );
         }
-        
+
         synchronized ( partitionLookupTree )
         {
             partitions.put( key, system );
             partitionLookupTree.add( system.getSuffixDn(), system );
             EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
-            
+
             if ( namingContexts == null )
             {
-                namingContexts = new DefaultEntryAttribute( 
-                    schemaManager.lookupAttributeTypeRegistry( SchemaConstants.NAMING_CONTEXTS_AT ), 
-                    system.getSuffixDn().getName() );
+                namingContexts = new DefaultEntryAttribute( schemaManager
+                    .lookupAttributeTypeRegistry( SchemaConstants.NAMING_CONTEXTS_AT ), system.getSuffixDn().getName() );
                 rootDSE.put( namingContexts );
             }
             else
@@ -373,8 +357,8 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
 
         return system;
     }
-    
-    
+
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#destroy()
      */
@@ -393,10 +377,9 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
             {
                 DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
                 adminDn.normalize( schemaManager.getNormalizerMapping() );
-                CoreSession adminSession = new DefaultCoreSession( 
-                    new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
-                removeContextPartition( new RemoveContextPartitionOperationContext( 
-                    adminSession, new DN( suffix ) ) );
+                CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn,
+                    AuthenticationLevel.STRONG ), directoryService );
+                removeContextPartition( new RemoveContextPartitionOperationContext( adminSession, new DN( suffix ) ) );
             }
             catch ( Exception e )
             {
@@ -433,7 +416,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
     {
         return schemaManager;
     }
-    
+
 
     /**
      * {@inheritDoc}
@@ -442,8 +425,8 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
     {
         this.schemaManager = schemaManager;
     }
-    
-    
+
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#getSuffixDn()
      */
@@ -452,7 +435,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
         return DN.EMPTY_DN;
     }
 
-    
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#getSuffix()
      */
@@ -460,8 +443,8 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
     {
         return StringTools.EMPTY;
     }
-    
-    
+
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#setSuffix(java.lang.String)
      */
@@ -492,23 +475,24 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
         try
         {
             // update only if the CSN changes
-            if( ! lastSyncedCtxCsn.equals( directoryService.getContextCsn() ) )
+            if ( !lastSyncedCtxCsn.equals( directoryService.getContextCsn() ) )
             {
                 lastSyncedCtxCsn = directoryService.getContextCsn();
 
                 EntryAttribute contextCsnAt = mods.get( 0 ).getAttribute();
                 contextCsnAt.clear();
                 contextCsnAt.add( lastSyncedCtxCsn );
-                
+
                 EntryAttribute timeStampAt = mods.get( 1 ).getAttribute();
                 timeStampAt.clear();
                 timeStampAt.add( DateUtils.getGeneralizedTime() );
-                
-                ModifyOperationContext csnModContext = new ModifyOperationContext( directoryService.getAdminSession(), system.getSuffixDn(), mods );
+
+                ModifyOperationContext csnModContext = new ModifyOperationContext( directoryService.getAdminSession(),
+                    system.getSuffixDn(), mods );
                 system.modify( csnModContext );
             }
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             LOG.warn( "Failed to save the contextCSN attribute value in ou=system entry.", e );
             if ( error == null )
@@ -544,7 +528,8 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
             throw error;
         }
     }
-    
+
+
     // ------------------------------------------------------------------------
     // DirectoryPartition Interface Method Implementations
     // ------------------------------------------------------------------------
@@ -559,8 +544,8 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
         EntryAttribute at = addContext.getEntry().get( SchemaConstants.ENTRY_CSN_AT );
         directoryService.setContextCsn( at.getString() );
     }
-    
-    
+
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#bind(org.apache.directory.server.core.interceptor.context.BindOperationContext)
      */
@@ -570,7 +555,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
         partition.bind( bindContext );
     }
 
-    
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#compare(org.apache.directory.server.core.interceptor.context.CompareOperationContext)
      */
@@ -578,7 +563,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
     {
         Partition partition = getPartition( compareContext.getDn() );
         //AttributeTypeRegistry registry = schemaManager.getAttributeTypeRegistry();
-        
+
         // complain if we do not recognize the attribute being compared
         if ( !schemaManager.getAttributeTypeRegistry().contains( compareContext.getOid() ) )
         {
@@ -586,9 +571,9 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
         }
 
         AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( compareContext.getOid() );
-        
-        EntryAttribute attr = partition.lookup( compareContext.newLookupContext( 
-            compareContext.getDn() ) ).get( attrType.getName() );
+
+        EntryAttribute attr = partition.lookup( compareContext.newLookupContext( compareContext.getDn() ) ).get(
+            attrType.getName() );
 
         // complain if the attribute being compared does not exist in the entry
         if ( attr == null )
@@ -597,7 +582,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
         }
 
         // see first if simple match without normalization succeeds
-        if ( attr.contains( (Value<?>)compareContext.getValue()  ) )
+        if ( attr.contains( ( Value<?> ) compareContext.getValue() ) )
         {
             return true;
         }
@@ -612,10 +597,10 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
         Normalizer normalizer = attrType.getEquality().getNormalizer();
         Value<?> reqVal = normalizer.normalize( compareContext.getValue() );
 
-        for ( Value<?> value:attr )
+        for ( Value<?> value : attr )
         {
             Value<?> attrValObj = normalizer.normalize( value );
-            
+
             if ( attrValObj.equals( reqVal ) )
             {
                 return true;
@@ -642,7 +627,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
     public boolean hasEntry( EntryOperationContext opContext ) throws Exception
     {
         DN dn = opContext.getDn();
-        
+
         if ( IS_DEBUG )
         {
             LOG.debug( "Check if DN '" + dn + "' exists." );
@@ -674,20 +659,20 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
     public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
     {
         DN dn = opContext.getDn();
-        
+
         // This is for the case we do a lookup on the rootDSE
         if ( dn.size() == 0 )
         {
             ClonedServerEntry retval = new ClonedServerEntry( rootDSE );
             Set<AttributeType> attributeTypes = rootDSE.getAttributeTypes();
-     
-            if ( opContext.getAttrsId() != null && ! opContext.getAttrsId().isEmpty() )
+
+            if ( opContext.getAttrsId() != null && !opContext.getAttrsId().isEmpty() )
             {
-                for ( AttributeType attributeType:attributeTypes )
+                for ( AttributeType attributeType : attributeTypes )
                 {
                     String oid = attributeType.getOid();
-                    
-                    if ( ! opContext.getAttrsId().contains( oid ) )
+
+                    if ( !opContext.getAttrsId().contains( oid ) )
                     {
                         retval.removeAttributes( attributeType );
                     }
@@ -715,7 +700,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
         throw new NotImplementedException();
     }
 
-    
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#modify(org.apache.directory.server.core.interceptor.context.ModifyOperationContext)
      */
@@ -726,14 +711,14 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
         {
             return;
         }
-        
+
         Partition backend = getPartition( modifyContext.getDn() );
 
         String csn = directoryService.getCSN().toString();
         EntryAttribute attribute = new DefaultEntryAttribute( ENTRY_CSN_ATTRIBUTE_TYPE, csn );
         Modification updatedCsn = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
         modifyContext.getModItems().add( updatedCsn );
-        
+
         backend.modify( modifyContext );
         directoryService.setContextCsn( csn );
     }
@@ -768,11 +753,11 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
         backend.rename( opContext );
     }
 
-    
+
     private EntryFilteringCursor searchRootDSE( SearchOperationContext searchOperationContext ) throws Exception
     {
         SearchControls searchControls = searchOperationContext.getSearchControls();
-        
+
         String[] ids = searchControls.getReturningAttributes();
 
         // -----------------------------------------------------------
@@ -781,10 +766,10 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
         // -----------------------------------------------------------
         if ( ( ids == null ) || ( ids.length == 0 ) )
         {
-            Entry rootDSE = (Entry)getRootDSE( null ).clone();
+            Entry rootDSE = ( Entry ) getRootDSE( null ).clone();
             return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDSE ), searchOperationContext );
         }
-        
+
         // -----------------------------------------------------------
         // Collect all the real attributes besides 1.1, +, and * and
         // note if we've seen these special attributes as well.
@@ -795,10 +780,10 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
         boolean allOperationalAttributes = searchOperationContext.isAllOperationalAttributes();
         boolean noAttribute = searchOperationContext.isNoAttributes();
 
-        for ( String id:ids )
+        for ( String id : ids )
         {
             String idTrimmed = id.trim();
-            
+
             try
             {
                 realIds.add( schemaManager.getAttributeTypeRegistry().getOidByName( idTrimmed ) );
@@ -815,22 +800,22 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
             Entry serverEntry = new DefaultEntry( schemaManager, DN.EMPTY_DN );
             return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchOperationContext );
         }
-        
+
         // return everything
         if ( allUserAttributes && allOperationalAttributes )
         {
-            Entry rootDSE = (Entry)getRootDSE( null ).clone();
+            Entry rootDSE = ( Entry ) getRootDSE( null ).clone();
             return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDSE ), searchOperationContext );
         }
-        
+
         Entry serverEntry = new DefaultEntry( schemaManager, DN.EMPTY_DN );
-        
+
         Entry rootDSE = getRootDSE( new GetRootDSEOperationContext( searchOperationContext.getSession() ) );
-        
-        for ( EntryAttribute attribute:rootDSE )
+
+        for ( EntryAttribute attribute : rootDSE )
         {
             AttributeType type = schemaManager.lookupAttributeTypeRegistry( attribute.getUpId() );
-            
+
             if ( realIds.contains( type.getOid() ) )
             {
                 serverEntry.put( attribute );
@@ -847,7 +832,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
 
         return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchOperationContext );
     }
-    
+
 
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#search(org.apache.directory.server.core.interceptor.context.SearchOperationContext)
@@ -857,7 +842,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
         DN base = opContext.getDn();
         SearchControls searchCtls = opContext.getSearchControls();
         ExprNode filter = opContext.getFilter();
-        
+
         // TODO since we're handling the *, and + in the EntryFilteringCursor
         // we may not need this code: we need see if this is actually the 
         // case and remove this code.
@@ -867,33 +852,33 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
             // 1) The scope is OBJECT : we have to return the rootDSE entry, filtered
             // 2) The scope is ONELEVEL : we have to return all the Namin
             boolean isObjectScope = searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
-            
+
             boolean isOnelevelScope = searchCtls.getSearchScope() == SearchControls.ONELEVEL_SCOPE;
-            
+
             boolean isSublevelScope = searchCtls.getSearchScope() == SearchControls.SUBTREE_SCOPE;
-            
+
             // test for (objectClass=*)
             boolean isSearchAll = false;
-            
+
             // We have to be careful, as we may have a filter which is not a PresenceFilter
             if ( filter instanceof PresenceNode )
             {
                 isSearchAll = ( ( PresenceNode ) filter ).getAttribute().equals( SchemaConstants.OBJECT_CLASS_AT_OID );
             }
-    
+
             /*
              * if basedn is "", filter is "(objectclass=*)" and scope is object
              * then we have a request for the rootDSE
              */
-            if ( ( filter instanceof PresenceNode)  && isObjectScope && isSearchAll )
+            if ( ( filter instanceof PresenceNode ) && isObjectScope && isSearchAll )
             {
                 return searchRootDSE( opContext );
             }
-            else if ( isObjectScope && ( ! isSearchAll ) )
+            else if ( isObjectScope && ( !isSearchAll ) )
             {
                 return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), opContext );
             }
-            else if( isOnelevelScope )
+            else if ( isOnelevelScope )
             {
                 List<EntryFilteringCursor> cursors = new ArrayList<EntryFilteringCursor>();
                 for ( Partition p : partitions.values() )
@@ -902,7 +887,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
                     opContext.setScope( SearchScope.OBJECT );
                     cursors.add( p.search( opContext ) );
                 }
-                
+
                 return new CursorList( cursors, opContext );
             }
             else if ( isSublevelScope )
@@ -910,28 +895,29 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
                 List<EntryFilteringCursor> cursors = new ArrayList<EntryFilteringCursor>();
                 for ( Partition p : partitions.values() )
                 {
-                    ClonedServerEntry entry = p.lookup( new LookupOperationContext( directoryService.getAdminSession(), p.getSuffixDn() ) );
-                    if( entry != null )
+                    ClonedServerEntry entry = p.lookup( new LookupOperationContext( directoryService.getAdminSession(),
+                        p.getSuffixDn() ) );
+                    if ( entry != null )
                     {
                         Partition backend = getPartition( entry.getDn() );
                         opContext.setDn( entry.getDn() );
                         cursors.add( backend.search( opContext ) );
                     }
                 }
-                
+
                 // don't feed the above Cursors' list to a BaseEntryFilteringCursor it is skipping the naming context entry of each partition 
                 return new CursorList( cursors, opContext );
             }
-    
+
             // TODO : handle searches based on the RootDSE
             throw new LdapNoSuchObjectException();
         }
-    
+
         if ( !base.isNormalized() )
         {
             base.normalize( schemaManager.getNormalizerMapping() );
         }
-        
+
         Partition backend = getPartition( base );
         return backend.search( opContext );
     }
@@ -965,26 +951,26 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
 
         // Turn on default indices
         String key = partition.getSuffixDn().getNormName();
-        
+
         if ( partitions.containsKey( key ) )
         {
             throw new ConfigurationException( I18n.err( I18n.ERR_263, key ) );
         }
 
-        if ( ! partition.isInitialized() )
+        if ( !partition.isInitialized() )
         {
-            partition.initialize( );
+            partition.initialize();
         }
-        
+
         synchronized ( partitionLookupTree )
         {
             DN partitionSuffix = partition.getSuffixDn();
-            
+
             if ( partitionSuffix == null )
             {
                 throw new ConfigurationException( I18n.err( I18n.ERR_267, partition.getId() ) );
             }
-            
+
             partitions.put( partitionSuffix.getNormName(), partition );
             partitionLookupTree.add( partition.getSuffixDn(), partition );
 
@@ -992,8 +978,8 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
 
             if ( namingContexts == null )
             {
-                namingContexts = new DefaultEntryAttribute( 
-                    schemaManager.lookupAttributeTypeRegistry( SchemaConstants.NAMING_CONTEXTS_AT ), partitionSuffix.getName() );
+                namingContexts = new DefaultEntryAttribute( schemaManager
+                    .lookupAttributeTypeRegistry( SchemaConstants.NAMING_CONTEXTS_AT ), partitionSuffix.getName() );
                 rootDSE.put( namingContexts );
             }
             else
@@ -1007,27 +993,28 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#removeContextPartition(org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext)
      */
-    public synchronized void removeContextPartition( RemoveContextPartitionOperationContext removeContextPartition ) throws Exception
+    public synchronized void removeContextPartition( RemoveContextPartitionOperationContext removeContextPartition )
+        throws Exception
     {
         // Get the Partition name. It's a DN.
         String key = removeContextPartition.getDn().getNormName();
-        
+
         // Retrieve this partition from the aprtition's table
         Partition partition = partitions.get( key );
-        
+
         if ( partition == null )
         {
             String msg = I18n.err( I18n.ERR_34, key );
             LOG.error( msg );
             throw new NameNotFoundException( msg );
         }
-        
+
         String partitionSuffix = partition.getSuffixDn().getName();
 
         // Retrieve the namingContexts from the RootDSE : the partition
         // suffix must be present in those namingContexts
         EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
-        
+
         if ( namingContexts != null )
         {
             if ( namingContexts.contains( partitionSuffix ) )
@@ -1064,7 +1051,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
     public Partition getPartition( DN dn ) throws Exception
     {
         Partition parent = partitionLookupTree.getParentElement( dn );
-        
+
         if ( parent == null )
         {
             throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_268, dn ) );
@@ -1082,7 +1069,7 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
     public DN getMatchedName( GetMatchedNameOperationContext matchedNameContext ) throws Exception
     {
         DN dn = ( DN ) matchedNameContext.getDn().clone();
-        
+
         while ( dn.size() > 0 )
         {
             if ( hasEntry( new EntryOperationContext( matchedNameContext.getSession(), dn ) ) )
@@ -1172,12 +1159,12 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
     private void unregister( Partition partition ) throws Exception
     {
         EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
-        
+
         if ( namingContexts != null )
         {
             namingContexts.remove( partition.getSuffixDn().getName() );
         }
-        
+
         partitions.remove( partition.getSuffixDn().getName() );
     }
 
@@ -1198,20 +1185,22 @@ public class DefaultPartitionNexus  extends AbstractPartition implements Partiti
     {
         this.directoryService = directoryService;
     }
-    
-    
+
+
     private void createContextCsnModList() throws LdapException
     {
         Modification contextCsnMod = new DefaultModification();
         contextCsnMod.setOperation( ModificationOperation.REPLACE_ATTRIBUTE );
-        DefaultEntryAttribute contextCsnAt = new DefaultEntryAttribute( schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CONTEXT_CSN_AT ) );
+        DefaultEntryAttribute contextCsnAt = new DefaultEntryAttribute( schemaManager
+            .lookupAttributeTypeRegistry( SchemaConstants.CONTEXT_CSN_AT ) );
         contextCsnMod.setAttribute( contextCsnAt );
-        
+
         mods.add( contextCsnMod );
 
         Modification timeStampMod = new DefaultModification();
         timeStampMod.setOperation( ModificationOperation.REPLACE_ATTRIBUTE );
-        DefaultEntryAttribute timeStampAt = new DefaultEntryAttribute( schemaManager.lookupAttributeTypeRegistry( SchemaConstants.MODIFY_TIMESTAMP_AT ) );
+        DefaultEntryAttribute timeStampAt = new DefaultEntryAttribute( schemaManager
+            .lookupAttributeTypeRegistry( SchemaConstants.MODIFY_TIMESTAMP_AT ) );
         timeStampMod.setAttribute( timeStampAt );
 
         mods.add( timeStampMod );

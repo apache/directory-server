@@ -255,7 +255,8 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
 
     public final void modify( ModifyOperationContext modifyContext ) throws Exception
     {
-        store.modify( modifyContext.getDn(), modifyContext.getModItems() );
+        Entry modifiedEntry = store.modify( modifyContext.getDn(), modifyContext.getModItems() );
+        modifyContext.setAlteredEntry( modifiedEntry );
     }
 
 

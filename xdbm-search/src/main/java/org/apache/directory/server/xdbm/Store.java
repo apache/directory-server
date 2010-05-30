@@ -481,7 +481,7 @@ public interface Store<E, ID extends Comparable<ID>>
     void modify( DN dn, ModificationOperation modOp, Entry mods ) throws Exception;
 
 
-    void modify( DN dn, List<Modification> mods ) throws Exception;
+    Entry modify( DN dn, List<Modification> mods ) throws Exception;
 
 
     /**

@@ -959,7 +959,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public synchronized void modify( DN dn, List<Modification> mods ) throws Exception
+    public synchronized Entry modify( DN dn, List<Modification> mods ) throws Exception
     {
         ID id = getEntryId( dn );
         Entry entry = master.get( id );
@@ -994,6 +994,8 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         {
             sync();
         }
+
+        return entry;
     }
 
 
