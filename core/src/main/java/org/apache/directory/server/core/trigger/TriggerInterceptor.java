@@ -339,20 +339,21 @@ public class TriggerInterceptor extends BaseInterceptor
         DN normName = opContext.getDn();
 
         // Gather supplementary data.
-        Entry modifiedEntry = opContext.lookup( normName, ByPassConstants.LOOKUP_BYPASS );
+        Entry originalEntry = opContext.getEntry();
 
         StoredProcedureParameterInjector injector = new ModifyStoredProcedureParameterInjector( opContext );
 
         // Gather Trigger Specifications which apply to the entry being modified.
         List<TriggerSpecification> triggerSpecs = new ArrayList<TriggerSpecification>();
-        addPrescriptiveTriggerSpecs( opContext, triggerSpecs, normName, modifiedEntry );
-        addEntryTriggerSpecs( triggerSpecs, modifiedEntry );
+        addPrescriptiveTriggerSpecs( opContext, triggerSpecs, normName, originalEntry );
+        addEntryTriggerSpecs( triggerSpecs, originalEntry );
 
         Map<ActionTime, List<TriggerSpecification>> triggerMap = getActionTimeMappedTriggerSpecsForOperation(
             triggerSpecs, LdapOperation.MODIFY );
 
         next.modify( opContext );
-        triggerSpecCache.subentryModified( opContext, modifiedEntry );
+
+        triggerSpecCache.subentryModified( opContext, originalEntry );
 
         // Fire AFTER Triggers.
         List<TriggerSpecification> afterTriggerSpecs = triggerMap.get( ActionTime.AFTER );

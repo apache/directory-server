@@ -93,7 +93,7 @@ public class AvlPartition extends AbstractXdbmPartition<Long>
         for ( AvlIndex<?, Entry> index : indexedAttributes )
         {
             String oid = schemaManager.getAttributeTypeRegistry().getOidByName( index.getAttributeId() );
-            if(!index.getAttributeId().equals( oid ))
+            if ( !index.getAttributeId().equals( oid ) )
             {
                 index.setAttributeId( oid );
             }
@@ -120,7 +120,7 @@ public class AvlPartition extends AbstractXdbmPartition<Long>
      */
     public AvlStore<Entry> getStore()
     {
-        return (org.apache.directory.server.xdbm.impl.avl.AvlStore<Entry> ) store;
+        return ( org.apache.directory.server.xdbm.impl.avl.AvlStore<Entry> ) store;
     }
 
 }
