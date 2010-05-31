@@ -1134,7 +1134,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( !objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
             {
-                Entry newEntry = opContext.lookup( dn, ByPassConstants.LOOKUP_BYPASS );
+                Entry newEntry = opContext.getAlteredEntry(); 
 
                 List<Modification> subentriesOpAttrMods = getModsOnEntryModification( dn, entry, newEntry );
 
