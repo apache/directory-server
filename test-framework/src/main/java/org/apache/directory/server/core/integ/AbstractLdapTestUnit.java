@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.integ;
 
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.ldap.LdapServer;
@@ -40,7 +41,55 @@ public abstract class AbstractLdapTestUnit
 
     /** The used KdcServer instance */
     public static KdcServer kdcServer;
-    
+
     /** A flag set if the test is run in a suite */
     public static boolean isRunInSuite;
+
+
+    public static DirectoryService getService()
+    {
+        return service;
+    }
+
+
+    public static void setService( DirectoryService service )
+    {
+        AbstractLdapTestUnit.service = service;
+    }
+
+
+    public static LdapServer getLdapServer()
+    {
+        return ldapServer;
+    }
+
+
+    public static void setLdapServer( LdapServer ldapServer )
+    {
+        AbstractLdapTestUnit.ldapServer = ldapServer;
+    }
+
+
+    public static KdcServer getKdcServer()
+    {
+        return kdcServer;
+    }
+
+
+    public static void setKdcServer( KdcServer kdcServer )
+    {
+        AbstractLdapTestUnit.kdcServer = kdcServer;
+    }
+
+
+    public static boolean isRunInSuite()
+    {
+        return isRunInSuite;
+    }
+
+
+    public static void setRunInSuite( boolean isRunInSuite )
+    {
+        AbstractLdapTestUnit.isRunInSuite = isRunInSuite;
+    }
 }
