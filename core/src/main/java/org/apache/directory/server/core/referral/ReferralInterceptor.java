@@ -399,12 +399,14 @@ public class ReferralInterceptor extends BaseInterceptor
 
         // Update the referralManager. We have to read the entry again
         // as it has been modified, before updating the ReferralManager
-        // TODO: this can be spare, as we build the entry later.
-        // But we will have to store the modified entry into the opContext
+        // TODO: this can be spare, as we already have the altered entry
+        // into the opContext, but for an unknow reason, this will fail
+        // on eferral tests...
         LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), dn );
 
         Entry newEntry = nexus.lookup( lookupContext );
 
+        // Update the referralManager.
         // Check that we have the entry, just in case
         // TODO : entries should be locked until the operation is done on it.
         if ( newEntry != null )
