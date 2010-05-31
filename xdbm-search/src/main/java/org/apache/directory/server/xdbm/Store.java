@@ -481,6 +481,14 @@ public interface Store<E, ID extends Comparable<ID>>
     void modify( DN dn, ModificationOperation modOp, Entry mods ) throws Exception;
 
 
+    /**
+     * Modify an entry applying the given list of modifications.
+     *
+     * @param dn The Entry's DN
+     * @param mods The list of modifications
+     * @return The modified entry
+     * @throws Exception If the modification failed
+     */
     Entry modify( DN dn, List<Modification> mods ) throws Exception;
 
 
