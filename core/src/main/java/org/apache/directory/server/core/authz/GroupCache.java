@@ -125,16 +125,19 @@ public class GroupCache
         // search all naming contexts for static groups and generate
         // normalized sets of members to cache within the map
 
-        BranchNode filter = new OrNode();
-        filter.addNode( new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
-            SchemaConstants.GROUP_OF_NAMES_OC ) ) );
-        filter.addNode( new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
-            SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC ) ) );
-
         Set<String> suffixes = nexus.listSuffixes( null );
 
         for ( String suffix:suffixes )
         {
+            // moving the filter creation to inside loop to fix DIRSERVER-1121
+            // didn't use clone() cause it is creating List objects, which IMO is not worth calling
+            // in this initialization phase
+            BranchNode filter = new OrNode();
+            filter.addNode( new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
+                SchemaConstants.GROUP_OF_NAMES_OC ) ) );
+            filter.addNode( new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
+                SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC ) ) );
+
             DN baseDn = new DN( suffix ).normalize( normalizerMap );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
