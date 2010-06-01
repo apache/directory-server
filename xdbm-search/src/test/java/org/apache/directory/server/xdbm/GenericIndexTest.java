@@ -46,7 +46,8 @@ public class GenericIndexTest
     @Before
     public void setUp()
     {
-        index = new GenericIndex<String, Long, Long>( "cn", 42, new File( "/tmp" ) );
+        String tmpDir = System.getProperty( "java.io.tmpdir" );
+        index = new GenericIndex<String, Long, Long>( "cn", 42, new File( tmpDir ) );
     }
 
 
@@ -73,11 +74,13 @@ public class GenericIndexTest
     @Test
     public void testConstructor3()
     {
-        index = new GenericIndex<String, Long, Long>( "cn", 42, new File( "/tmp" ) );
+        String tmpDir = System.getProperty( "java.io.tmpdir" );
+
+        index = new GenericIndex<String, Long, Long>( "cn", 42, new File( tmpDir ) );
         assertEquals( "cn", index.getAttributeId() );
         assertEquals( 42, index.getCacheSize() );
         assertNotNull( index.getWkDirPath() );
-        assertEquals( "/tmp", index.getWkDirPath().getPath() );
+        assertEquals( tmpDir, index.getWkDirPath().getPath() );
     }
 
 
