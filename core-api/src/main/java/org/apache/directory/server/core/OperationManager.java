@@ -42,6 +42,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 
 
@@ -147,7 +148,7 @@ public interface OperationManager
     /**
      * TODO document after determining if this method should be here.
      */
-    void bind( BindOperationContext opContext ) throws Exception;
+    void bind( BindOperationContext opContext ) throws LdapException;
 
     
     /**

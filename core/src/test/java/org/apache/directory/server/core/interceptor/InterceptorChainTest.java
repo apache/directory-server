@@ -52,6 +52,7 @@ import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.csn.Csn;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -602,7 +603,7 @@ public class InterceptorChainTest
         }
 
 
-        public CoreSession getSession( DN principalDn, byte[] credentials ) throws Exception
+        public CoreSession getSession( DN principalDn, byte[] credentials ) throws LdapException
         {
             return null;
         }

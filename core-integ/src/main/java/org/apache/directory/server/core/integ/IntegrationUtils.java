@@ -54,6 +54,7 @@ import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -377,8 +378,10 @@ public class IntegrationUtils
     public static LdapConnection getConnectionAs( DirectoryService dirService, DN dn, String password ) throws Exception
     {
         Object connectionObj = LdapConnectionFactory.getCoreSessionConnection();
-        ( ( LdapCoreSessionConnection ) connectionObj ).setSession( dirService.getSession( dn, password.getBytes() ) );
         
+        byte[] passwdBytes = password == null ? StringTools.EMPTY_BYTES : StringTools.getBytesUtf8( password );
+        ( ( LdapCoreSessionConnection ) connectionObj ).setSession( dirService.getSession( dn, passwdBytes ) );
+
         return ( LdapConnection )connectionObj;
     }
 

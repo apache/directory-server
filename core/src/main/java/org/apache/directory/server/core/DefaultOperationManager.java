@@ -53,6 +53,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAffectMultipleDsaException;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapPartialResultException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
@@ -271,7 +272,7 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public void bind( BindOperationContext opContext ) throws Exception
+    public void bind( BindOperationContext opContext ) throws LdapException
     {
         LOG.debug( ">> BindOperation : {}", opContext );
 

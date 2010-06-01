@@ -58,6 +58,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -770,7 +771,7 @@ public class InterceptorChain
     }
 
 
-    public void bind( BindOperationContext opContext ) throws Exception
+    public void bind( BindOperationContext opContext ) throws LdapException
     {
         Element node = getStartingEntry();
         Interceptor head = node.interceptor;
@@ -781,9 +782,9 @@ public class InterceptorChain
         {
             head.bind( next, opContext );
         }
-        catch ( Exception ne )
+        catch ( LdapException le )
         {
-            throw ne;
+            throw le;
         }
         catch ( Throwable e )
         {

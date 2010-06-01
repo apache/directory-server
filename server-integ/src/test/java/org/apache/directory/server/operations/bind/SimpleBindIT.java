@@ -192,7 +192,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      * try to connect using a user with an invalid DN: we should get a invalidDNSyntax error.
      */
     @Test
-    public void testSimpleBindBadUserPassword()
+    public void testSimpleBindBadPrincipalAPassword()
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
@@ -222,7 +222,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      * try to connect using a unknown user: we should get a invalidCredentials error.
      */
     @Test
-    public void testSimpleBindUnknowUserPassword()
+    public void testSimpleBindUnknowPrincipalAPassword()
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
@@ -250,7 +250,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      * covers the anonymous authentication : we should be able to read the rootDSE, but that's it
      */
     @Test
-    public void testSimpleBindNoUserNoPassword()
+    public void testSimpleBindNoPrincipalNoPassword()
     {
         boolean oldValue = ldapServer.getDirectoryService().isAllowAnonymousAccess();
         ldapServer.getDirectoryService().setAllowAnonymousAccess( false );
@@ -336,7 +336,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      * covers the Unauthenticated case : we should get a UnwillingToPerform error.
      */
     @Test
-    public void testSimpleBindUserNoPassword()
+    public void testSimpleBindPrincipalNoPassword()
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
@@ -366,7 +366,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      * not allowed by the server. We should get a invalidCredentials error.
      */
     @Test
-    public void testSimpleBindNoUserPassword() throws Exception
+    public void testSimpleBindNoUserAPassword() throws Exception
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );

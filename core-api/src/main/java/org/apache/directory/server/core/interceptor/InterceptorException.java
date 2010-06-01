@@ -22,6 +22,8 @@ package org.apache.directory.server.core.interceptor;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.exception.LdapException;
+
 
 /**
  * A {@link NamingException} that wraps uncaught runtime exceptions thrown
@@ -30,7 +32,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class InterceptorException extends NamingException
+public class InterceptorException extends LdapException
 {
     private static final long serialVersionUID = 3258690996517746233L;
 
@@ -45,8 +47,9 @@ public class InterceptorException extends NamingException
      *
      * @param interceptor the Interceptor causing the failure
      */
-    public InterceptorException(Interceptor interceptor)
+    public InterceptorException( Interceptor interceptor )
     {
+        super();
         this.interceptor = interceptor;
     }
 
@@ -57,7 +60,7 @@ public class InterceptorException extends NamingException
      * @param interceptor the Interceptor causing the failure
      * @param explanation String explanation of why the Interceptor failed
      */
-    public InterceptorException(Interceptor interceptor, String explanation)
+    public InterceptorException( Interceptor interceptor, String explanation )
     {
         super( explanation );
         this.interceptor = interceptor;
@@ -70,10 +73,10 @@ public class InterceptorException extends NamingException
      * @param interceptor the Interceptor causing the failure
      * @param rootCause   the root cause of this exception
      */
-    public InterceptorException(Interceptor interceptor, Throwable rootCause)
+    public InterceptorException( Interceptor interceptor, Throwable rootCause )
     {
-        this( interceptor );
-        super.setRootCause( rootCause );
+        super( rootCause );
+        this.interceptor = interceptor;
     }
 
 
@@ -84,10 +87,10 @@ public class InterceptorException extends NamingException
      * @param explanation String explanation of why the Interceptor failed
      * @param rootCause   the root cause of this exception
      */
-    public InterceptorException(Interceptor interceptor, String explanation, Throwable rootCause)
+    public InterceptorException( Interceptor interceptor, String explanation, Throwable rootCause )
     {
-        this( interceptor, explanation );
-        super.setRootCause( rootCause );
+        super( explanation, rootCause );
+        this.interceptor = interceptor;
     }
 
 

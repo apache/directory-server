@@ -78,6 +78,7 @@ import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -939,11 +940,14 @@ public class LdapCoreSessionConnection implements LdapConnection
     {
         try
         {
-            setSession( directoryService.getSession( name, credentials.getBytes() ) );
+            byte[] credBytes = ( credentials == null ? StringTools.EMPTY_BYTES : StringTools.getBytesUtf8( credentials ) );
+
+            setSession( directoryService.getSession( name, credBytes ) );
         }
-        catch( Exception e )
+        catch ( LdapException e )
         {
             LOG.warn( e.getMessage(), e );
+            throw e;
         }
         
         return null;

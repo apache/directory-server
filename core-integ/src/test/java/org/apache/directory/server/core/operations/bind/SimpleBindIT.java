@@ -40,11 +40,14 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
+import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -85,7 +88,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      * @throws Exception on error
      */
     @Test
-    public void testSimpleBindUserPassword()
+    public void testSimpleBindAPrincipalAPassword()
     {
         // We will bind using JNDI
         // Set up the environment for creating the initial context
@@ -128,7 +131,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      * @throws Exception on error
      */
     @Test
-    public void testSimpleBindUserBadPassword()
+    public void testSimpleBindAPrincipalBadPassword()
     {
         // We will bind using JNDI
         // Set up the environment for creating the initial context
@@ -167,7 +170,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      * @throws Exception on error
      */
     @Test
-    public void testSimpleBindBadUserPassword()
+    public void testSimpleBindBadPrincipalAPassword()
     {
         // We will bind using JNDI
         // Set up the environment for creating the initial context
@@ -206,7 +209,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      * @throws Exception on error
      */
     @Test
-    public void testSimpleBindUnknowUserPassword()
+    public void testSimpleBindUnknowPrincipalAPassword()
     {
         // We will bind using JNDI
         // Set up the environment for creating the initial context
@@ -247,7 +250,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      * @throws Exception on error
      */
     @Test
-    public void testSimpleBindNoUserNoPassword()
+    public void testSimpleBindNoPrincipalNoPassword()
     {
         // We will bind using JNDI
         // Set up the environment for creating the initial context
@@ -258,7 +261,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         // Bind on the rootDSE
         env.put( Context.PROVIDER_URL, "" );
 
-        // Authenticate as admin and password "secret"
+        // Authenticate with no principal and no password : this is an anonymous bind
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "" );
         env.put( Context.SECURITY_CREDENTIALS, "" );
@@ -325,7 +328,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      * @throws Exception on error
      */
     @Test
-    public void testSimpleBindUserNoPassword()
+    public void testSimpleBindAPrincipalNoPassword()
     {
         // We will bind using JNDI
         // Set up the environment for creating the initial context
@@ -358,12 +361,46 @@ public class SimpleBindIT extends AbstractLdapTestUnit
 
 
     /**
+     * covers the Unauthenticated case : we should get a UnwillingToPerform error.
+     * 
+     * @throws Exception on error
+     */
+    @Test
+    public void testSimpleBindAPrincipalNullPassword() throws Exception
+    {
+        try
+        {
+            LdapConnection connection = IntegrationUtils.getConnectionAs( service, "uid=admin,ou=system", null );
+            
+            // We should have failed wilh an LdapUnwillingToPerformException
+            fail();
+        }
+        catch ( LdapUnwillingToPerformException lutpe )
+        {
+            // expected
+        }
+
+        LdapConnection connection = IntegrationUtils.getConnectionAs( service, "uid=admin,ou=system", "secret" );
+
+        try
+        {
+            connection.bind( "uid=admin,ou=system", null );
+            fail();
+        }
+        catch ( LdapUnwillingToPerformException lutpe )
+        {
+            // expected
+        }
+    }
+
+
+    /**
      * not allowed by the server. We should get a invalidCredentials error.
      * 
      * @throws Exception on error
      */
     @Test
-    public void testSimpleBindNoUserPassword() throws Exception
+    public void testSimpleBindNoPrincipalAPassword() throws Exception
     {
         // We will bind using JNDI
         // Set up the environment for creating the initial context

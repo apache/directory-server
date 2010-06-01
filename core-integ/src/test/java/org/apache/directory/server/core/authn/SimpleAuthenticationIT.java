@@ -23,9 +23,9 @@ package org.apache.directory.server.core.authn;
 import static org.apache.directory.server.core.integ.IntegrationUtils.apply;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getConnectionAs;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -37,6 +37,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.After;
@@ -208,11 +209,17 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // close and try with old password (should fail)
         connection.close();
 
-        connection.bind( userDn, "test" );
-        assertFalse( connection.isAuthenticated() );
+        try
+        {
+            connection.bind( userDn, "test" );
+            fail();
+        }
+        catch ( LdapException le )
+        {
+            connection.close();
+        }
 
-        // close and try again now with new password (should fail)
-        connection.close();
+        // close and try again now with new password (should succeed)
         connection.bind( userDn, "newpwd" );
 
         entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
@@ -259,11 +266,17 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // close and try with old password (should fail)
         connection.close();
 
-        connection.bind( userDn, "test" );
-        assertFalse( connection.isAuthenticated() );
-        connection.close();
+        try
+        {
+            connection.bind( userDn, "test" );
+            fail();
+        }
+        catch ( LdapException le )
+        {
+            connection.close();
+        }
 
-        // try again now with new password (should be successfull)
+        // try again now with new password (should be successful)
         connection.bind( userDn, "secret" );
         assertTrue( connection.isAuthenticated() );
         entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
@@ -301,11 +314,17 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // close and try with old password (should fail)
         connection.close();
 
-        connection.bind( userDn, "test" );
-        assertFalse( connection.isAuthenticated() );
-        connection.close();
+        try
+        {
+            connection.bind( userDn, "test" );
+            fail();
+        }
+        catch ( LdapException le )
+        {
+            connection.close();
+        }
 
-        // try again now with new password (should be successfull)
+        // try again now with new password (should be successful)
         connection.bind( userDn, "secret" );
         entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
         assertNotNull( entry );
@@ -341,9 +360,15 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // close and try with old password (should fail)
         connection.close();
 
-        connection.bind( userDn, "test" );
-        assertFalse( connection.isAuthenticated() );
-        connection.close();
+        try
+        {
+            connection.bind( userDn, "test" );
+            fail();
+        }
+        catch ( LdapException le )
+        {
+            connection.close();
+        }
 
         // try again now with new password (should be successful)
         connection.bind( userDn, "test123" );
@@ -381,11 +406,17 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // close and try with old password (should fail)
         connection.close();
 
-        connection.bind( userDn, "test" );
-        assertFalse( connection.isAuthenticated() );
-        connection.close();
+        try
+        {
+            connection.bind( userDn, "test" );
+            fail();
+        }
+        catch ( LdapException le )
+        {
+            connection.close();
+        }
 
-        // try again now with new password (should be successfull)
+        // try again now with new password (should be successful)
         connection.bind( userDn, "secret" );
         entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
         assertNotNull( entry );
@@ -422,9 +453,15 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // close and try with old password (should fail)
         connection.close();
 
-        connection.bind( userDn, "test" );
-        assertFalse( connection.isAuthenticated() );
-        connection.close();
+        try
+        {
+            connection.bind( userDn, "test" );
+            fail();
+        }
+        catch ( LdapException le )
+        {
+            connection.close();
+        }
 
         // try again now with new password (should be successful)
         connection.bind( userDn, "secret" );
@@ -462,11 +499,17 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // close and try with old password (should fail)
         connection.close();
 
-        connection.bind( userDn, "test" );
-        assertFalse( connection.isAuthenticated() );
-        connection.close();
+        try
+        {
+            connection.bind( userDn, "test" );
+            fail();
+        }
+        catch ( LdapException le )
+        {
+            connection.close();
+        }
 
-        // try again now with new password (should be successfull)
+        // try again now with new password (should be successful)
         connection.bind( userDn, "secret" );
         entry = ( ( SearchResultEntry ) connection.lookup( userDn ) ).getEntry();
         assertNotNull( entry );
@@ -501,8 +544,14 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         connection.modify( modReq );
         connection.close();
 
-        connection.bind( userDn, "test" );
-        assertFalse( connection.isAuthenticated() );
-        connection.close();
+        try
+        {
+            connection.bind( userDn, "test" );
+            fail();
+        }
+        catch ( LdapException le )
+        {
+            connection.close();
+        }
     }
 }

@@ -41,6 +41,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 
 public class MockOperationManager implements OperationManager
@@ -57,7 +58,7 @@ public class MockOperationManager implements OperationManager
     }
 
     
-    public void bind( BindOperationContext opContext ) throws Exception
+    public void bind( BindOperationContext opContext ) throws LdapException
     {
     }
 

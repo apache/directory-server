@@ -86,8 +86,9 @@ import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.CursorIterator;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.DN;
@@ -796,7 +797,7 @@ public class MaxImmSubFilterTest
         }
 
 
-        public CoreSession getSession( DN principalDn, byte[] credentials ) throws Exception
+        public CoreSession getSession( DN principalDn, byte[] credentials ) throws LdapException
         {
             return null;
         }
@@ -930,7 +931,7 @@ public class MaxImmSubFilterTest
         }
 
         
-        public void bind( BindOperationContext opContext ) throws Exception
+        public void bind( BindOperationContext opContext ) throws LdapException
         {
         }
 

@@ -660,8 +660,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
     
     
-    public CoreSession getSession( DN principalDn, byte[] credentials ) 
-        throws Exception
+    public CoreSession getSession( DN principalDn, byte[] credentials ) throws LdapException
     {
         if ( ! started )
         {
