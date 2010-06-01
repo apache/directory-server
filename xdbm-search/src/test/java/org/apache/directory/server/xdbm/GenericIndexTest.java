@@ -109,9 +109,12 @@ public class GenericIndexTest
     @Test
     public void testSetGetWkDirPath()
     {
-        index.setWkDirPath( new File( "/zzz" ) );
+        String tmpDir = System.getProperty( "java.io.tmpdir" );
+        String zzzDir = tmpDir + File.separator + "zzz";
+
+        index.setWkDirPath( new File( zzzDir ) );
         assertNotNull( index.getWkDirPath() );
-        assertEquals( "/zzz", index.getWkDirPath().getPath() );
+        assertEquals( zzzDir, index.getWkDirPath().getPath() );
         index.setWkDirPath( null );
         assertNull( index.getWkDirPath() );
     }
