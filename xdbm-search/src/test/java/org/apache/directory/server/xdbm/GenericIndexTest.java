@@ -74,13 +74,13 @@ public class GenericIndexTest
     @Test
     public void testConstructor3()
     {
-        String tmpDir = System.getProperty( "java.io.tmpdir" );
+        File tmpDir = new File(System.getProperty( "java.io.tmpdir" ));
 
-        index = new GenericIndex<String, Long, Long>( "cn", 42, new File( tmpDir ) );
+        index = new GenericIndex<String, Long, Long>( "cn", 42, tmpDir );
         assertEquals( "cn", index.getAttributeId() );
         assertEquals( 42, index.getCacheSize() );
         assertNotNull( index.getWkDirPath() );
-        assertEquals( tmpDir, index.getWkDirPath().getPath() );
+        assertEquals( tmpDir.getPath(), index.getWkDirPath().getPath() );
     }
 
 
@@ -109,12 +109,12 @@ public class GenericIndexTest
     @Test
     public void testSetGetWkDirPath()
     {
-        String tmpDir = System.getProperty( "java.io.tmpdir" );
-        String zzzDir = tmpDir + File.separator + "zzz";
+        File tmpDir = new File( System.getProperty( "java.io.tmpdir" ));
+        File zzzDir = new File( tmpDir, "zzz"  );
 
-        index.setWkDirPath( new File( zzzDir ) );
+        index.setWkDirPath( zzzDir );
         assertNotNull( index.getWkDirPath() );
-        assertEquals( zzzDir, index.getWkDirPath().getPath() );
+        assertEquals( zzzDir.getPath(), index.getWkDirPath().getPath() );
         index.setWkDirPath( null );
         assertNull( index.getWkDirPath() );
     }
