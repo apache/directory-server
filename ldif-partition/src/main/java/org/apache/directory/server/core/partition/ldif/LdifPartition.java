@@ -321,7 +321,7 @@ public class LdifPartition extends BTreePartition<Long>
 
         // And write it back on disk
         FileWriter fw = new FileWriter( getFile( dn, DELETE ) );
-        fw.write( LdifUtils.convertEntryToLdif( modifiedEntry ) );
+        fw.write( LdifUtils.convertEntryToLdif( modifiedEntry, true ) );
         fw.close();
     }
 
