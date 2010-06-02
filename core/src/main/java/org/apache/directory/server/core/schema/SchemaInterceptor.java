@@ -578,18 +578,10 @@ public class SchemaInterceptor extends BaseInterceptor
                     node.setValue( newValue );
                 }
             }
-            else if ( filter instanceof SubstringNode )
-            {
-                SubstringNode node = ( ( SubstringNode ) filter );
-
-                if ( !schemaManager.lookupAttributeTypeRegistry( node.getAttribute() ).getSyntax().isHumanReadable() )
-                {
-                    String message = I18n.err( I18n.ERR_50 );
-                    LOG.error( message );
-                    throw new LdapException( message );
-                }
-            }
-            else if ( filter instanceof PresenceNode )
+            else if ( ( filter instanceof SubstringNode ) || 
+                      ( filter instanceof PresenceNode ) || 
+                      ( filter instanceof AssertionNode ) || 
+                      ( filter instanceof ScopeNode ) )
             {
                 // Nothing to do
             }
@@ -640,16 +632,6 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     node.setValue( newValue );
                 }
-            }
-            else if ( filter instanceof AssertionNode )
-            {
-                // Nothing to do
-                return;
-            }
-            else if ( filter instanceof ScopeNode )
-            {
-                // Nothing to do
-                return;
             }
         }
         else

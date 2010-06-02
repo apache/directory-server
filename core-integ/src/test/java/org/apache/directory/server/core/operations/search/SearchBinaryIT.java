@@ -34,6 +34,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -70,6 +71,26 @@ import org.junit.runner.RunWith;
         enableChangeLog = false )
 @ApplyLdifs(
     {
+        "dn: m-oid=2.2.0, ou=attributeTypes, cn=apachemeta, ou=schema",
+        "objectclass: metaAttributeType",
+        "objectclass: metaTop",
+        "objectclass: top",
+        "m-oid: 2.2.0",
+        "m-name: binaryAttribute",
+        "m-description: an attribute storing binary values",
+        "m-equality: octetStringMatch",
+        "m-ordering: octetStringOrderingMatch",
+        "m-substr: octetStringSubstringsMatch",
+        "m-syntax: 1.3.6.1.4.1.1466.115.121.1.40",
+        "m-length: 0",
+        "",
+        "dn: ou=testingBin,ou=system",
+        "objectClass: top",
+        "objectClass: organizationalUnit",
+        "objectClass: extensibleObject",
+        "ou: testingBin",
+        "binaryAttribute:: AQIDBA==",
+        "",
         "dn: cn=testing00,ou=system",
         "objectClass: top",
         "objectClass: person", 
@@ -109,7 +130,7 @@ import org.junit.runner.RunWith;
 public class SearchBinaryIT extends AbstractLdapTestUnit
 {
     /**
-     * Test an add operation performance
+     * Test search on a binary attribute
      */
     @Test
     public void testSearchWithIndexBinaryAttribute() throws Exception
@@ -179,6 +200,32 @@ public class SearchBinaryIT extends AbstractLdapTestUnit
         responses.close();
 
         assertEquals( 0, i );
+        connection.close();
+    }
+
+    /**
+     * Test search on a binary attribute
+     */
+    @Test
+    @Ignore // This test fails atm. Cf DIRSERVER-1389
+    public void testSearchSubstrOnBinaryAttribute() throws Exception
+    {
+        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+
+        // Check that searching for an entry using a valid SUBSTR filter works
+        Cursor<SearchResponse> responses = connection.search( "ou=system", "(binaryAttribute=\\01\\02*)", SearchScope.SUBTREE, "*" );
+
+        int i = 0;
+
+        while ( responses.next() )
+        {
+            responses.get();
+            ++i;
+        }
+
+        responses.close();
+
+        assertEquals( 1, i );
         connection.close();
     }
 }

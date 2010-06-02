@@ -29,8 +29,8 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.cursor.Cursor;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -103,7 +103,15 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
         }
 
         // compile the regular expression to search for a matching attribute
-        regex = node.getRegex( normalizer );
+        // if the attributeType is humanReadable
+        if ( type.getSyntax().isHumanReadable() )
+        {
+            regex = node.getRegex( normalizer );
+        }
+        else
+        {
+            regex = null;
+        }
 
         if ( db.hasIndexOn( node.getAttribute() ) )
         {
@@ -350,17 +358,41 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
              * The test uses the comparator obtained from the appropriate
              * substring matching rule.
              */
-            for ( Value<?> value : attr )
+            if ( attr.isHR() )
             {
-                value.normalize( normalizer );
-                String strValue = ( String ) value.getNormalizedValue();
-
-                // Once match is found cleanup and return true
-                if ( regex.matcher( strValue ).matches() )
+                for ( Value<?> value : attr )
                 {
-                    // before returning we set the normalized value
-                    indexEntry.setValue( strValue );
-                    return true;
+                    value.normalize( normalizer );
+                    String strValue = ( String ) value.getNormalizedValue();
+    
+                    // Once match is found cleanup and return true
+                    if ( regex.matcher( strValue ).matches() )
+                    {
+                        // before returning we set the normalized value
+                        indexEntry.setValue( strValue );
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                // Slightly more complex. We won't be able to use a regex to check
+                // the value.
+                for ( Value<?> value : attr )
+                {
+                    value.normalize( normalizer );
+                    byte[] byteValue = (byte[])value.getNormalizedValue();
+    
+                    // Once match is found cleanup and return true
+                    // @TODO : implement this check.
+                    /*
+                    if ( check( byteValue ) )
+                    {
+                        // before returning we set the normalized value
+                        indexEntry.setValue( byteValue );
+                        return true;
+                    }
+                    */
                 }
             }
 
