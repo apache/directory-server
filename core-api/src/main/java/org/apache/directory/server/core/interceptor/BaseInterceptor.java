@@ -50,6 +50,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 
 
@@ -231,7 +232,7 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void bind( NextInterceptor next, BindOperationContext opContext ) throws Exception
+    public void bind( NextInterceptor next, BindOperationContext opContext ) throws LdapException
     {
         next.bind( opContext );
     }

@@ -48,6 +48,7 @@ import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.DN;
@@ -340,7 +341,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void bind( NextInterceptor next, BindOperationContext opContext ) throws Exception
+    public void bind( NextInterceptor next, BindOperationContext opContext ) throws LdapException
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
         next.bind( opContext );

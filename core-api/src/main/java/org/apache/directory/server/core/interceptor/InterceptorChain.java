@@ -205,7 +205,7 @@ public class InterceptorChain
         }
 
 
-        public void bind( NextInterceptor next, BindOperationContext opContext ) throws Exception
+        public void bind( NextInterceptor next, BindOperationContext opContext ) throws LdapException
         {
             nexus.bind( opContext );
         }
@@ -776,7 +776,6 @@ public class InterceptorChain
         Element node = getStartingEntry();
         Interceptor head = node.interceptor;
         NextInterceptor next = node.nextInterceptor;
-        eagerlyPopulateFields( opContext );
 
         try
         {
@@ -1373,7 +1372,7 @@ public class InterceptorChain
                 }
 
 
-                public void bind( BindOperationContext opContext ) throws Exception
+                public void bind( BindOperationContext opContext ) throws LdapException
                 {
                     Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1382,9 +1381,9 @@ public class InterceptorChain
                     {
                         interceptor.bind( next.nextInterceptor, opContext );
                     }
-                    catch ( Exception ne )
+                    catch ( LdapException le )
                     {
-                        throw ne;
+                        throw le;
                     }
                     catch ( Throwable e )
                     {

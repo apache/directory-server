@@ -43,6 +43,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.junit.After;
 import org.junit.Before;
@@ -344,10 +345,17 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
                 /**
                  * Wait 1 second before going any further
                  */
-                public void bind( NextInterceptor next, BindOperationContext opContext ) throws Exception
+                public void bind( NextInterceptor next, BindOperationContext opContext ) throws LdapException
                 {
                     // Wait 1 second
-                    Thread.sleep( 1000 );
+                    try
+                    {
+                        Thread.sleep( 1000 );
+                    }
+                    catch ( InterruptedException ie )
+                    {
+                        // Ok, get out
+                    }
                     
                     next.bind( opContext );
                 }

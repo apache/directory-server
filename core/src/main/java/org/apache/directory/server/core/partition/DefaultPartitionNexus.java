@@ -549,7 +549,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#bind(org.apache.directory.server.core.interceptor.context.BindOperationContext)
      */
-    public void bind( BindOperationContext bindContext ) throws Exception
+    public void bind( BindOperationContext bindContext ) throws LdapException
     {
         Partition partition = getPartition( bindContext.getDn() );
         partition.bind( bindContext );
@@ -1048,7 +1048,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#getPartition(org.apache.directory.shared.ldap.name.DN)
      */
-    public Partition getPartition( DN dn ) throws Exception
+    public Partition getPartition( DN dn ) throws LdapException
     {
         Partition parent = partitionLookupTree.getParentElement( dn );
 

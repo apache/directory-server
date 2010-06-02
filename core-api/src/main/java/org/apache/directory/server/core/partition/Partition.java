@@ -35,6 +35,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -278,9 +279,9 @@ public interface Partition
      * interested in implementing virtual directories with ApacheDS.
      * 
      * @param opContext the bind context, containing all the needed informations to bind
-     * @throws Exception if something goes wrong
+     * @throws LdapException if something goes wrong
      */
-    void bind( BindOperationContext opContext ) throws Exception;
+    void bind( BindOperationContext opContext ) throws LdapException;
 
 
     /**

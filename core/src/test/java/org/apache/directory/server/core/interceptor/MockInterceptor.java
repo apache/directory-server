@@ -20,6 +20,10 @@
 package org.apache.directory.server.core.interceptor;
 
 
+import java.util.Set;
+
+import javax.naming.NamingException;
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -43,10 +47,8 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
-
-import javax.naming.NamingException;
-import java.util.Set;
 
 
 public class MockInterceptor implements Interceptor
@@ -208,7 +210,7 @@ public class MockInterceptor implements Interceptor
 
 
     public void bind( NextInterceptor next, BindOperationContext opContext )
-    throws Exception
+    throws LdapException
     {
         test.interceptors.add( this );
         next.bind( opContext );

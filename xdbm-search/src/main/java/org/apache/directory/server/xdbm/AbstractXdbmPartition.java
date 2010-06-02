@@ -35,6 +35,7 @@ import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -325,7 +326,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
 
 
     public final void bind( DN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId )
-        throws Exception
+        throws LdapException
     {
         if ( bindDn == null || credentials == null || mechanisms == null || saslAuthId == null )
         {
@@ -338,7 +339,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     }
 
 
-    public final void bind( BindOperationContext bindContext ) throws Exception
+    public final void bind( BindOperationContext bindContext ) throws LdapException
     {
         // does nothing
         throw new LdapAuthenticationNotSupportedException( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED, I18n

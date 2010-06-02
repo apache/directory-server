@@ -263,7 +263,7 @@ public class LdifPartition extends BTreePartition<Long>
     /**
      * {@inheritDoc}
      */
-    public void bind( BindOperationContext bindContext ) throws Exception
+    public void bind( BindOperationContext bindContext ) throws LdapException
     {
         wrappedPartition.bind( bindContext );
     }

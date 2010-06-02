@@ -57,6 +57,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -423,7 +424,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public void bind( NextInterceptor next, BindOperationContext opContext ) throws Exception
+    public void bind( NextInterceptor next, BindOperationContext opContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
