@@ -217,7 +217,7 @@ public class MockInterceptor implements Interceptor
     }
 
 
-    public void unbind( NextInterceptor next, UnbindOperationContext opContext ) throws Exception
+    public void unbind( NextInterceptor next, UnbindOperationContext opContext ) throws LdapException
     {
         test.interceptors.add( this );
         next.unbind( opContext );

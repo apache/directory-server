@@ -292,5 +292,5 @@ public interface Partition
      * @param opContext the context used to unbind
      * @throws Exception if something goes wrong
      */
-    void unbind( UnbindOperationContext opContext ) throws Exception;
+    void unbind( UnbindOperationContext opContext ) throws LdapException;
 }

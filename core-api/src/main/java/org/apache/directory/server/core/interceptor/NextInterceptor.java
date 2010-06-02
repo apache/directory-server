@@ -167,5 +167,5 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#unbind( NextInterceptor, UnbindOperationContext )}
      */
-    void unbind( UnbindOperationContext opContext ) throws Exception;
+    void unbind( UnbindOperationContext opContext ) throws LdapException;
 }

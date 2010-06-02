@@ -1092,7 +1092,7 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public void unbind( UnbindOperationContext opContext ) throws Exception
+    public void unbind( UnbindOperationContext opContext ) throws LdapException
     {
         LOG.debug( ">> UnbindOperation : {}", opContext );
 

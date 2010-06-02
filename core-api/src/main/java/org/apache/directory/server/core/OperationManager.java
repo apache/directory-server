@@ -154,5 +154,5 @@ public interface OperationManager
     /**
      * TODO document after determining if this method should be here.
      */
-    void unbind( UnbindOperationContext opContext ) throws Exception;
+    void unbind( UnbindOperationContext opContext ) throws LdapException;
 }

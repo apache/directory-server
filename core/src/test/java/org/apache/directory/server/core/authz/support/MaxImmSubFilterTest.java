@@ -1003,7 +1003,7 @@ public class MaxImmSubFilterTest
         }
 
 
-        public void unbind( UnbindOperationContext opContext ) throws Exception
+        public void unbind( UnbindOperationContext opContext ) throws LdapException
         {
         }
     }

@@ -247,5 +247,5 @@ public interface Interceptor
     /**
      * Filters {@link Partition#unbind( UnbindOperationContext )} call.
      */
-    void unbind( NextInterceptor next, UnbindOperationContext opContext ) throws Exception;
+    void unbind( NextInterceptor next, UnbindOperationContext opContext ) throws LdapException;
 }

@@ -238,7 +238,7 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void unbind( NextInterceptor next, UnbindOperationContext opContext ) throws Exception
+    public void unbind( NextInterceptor next, UnbindOperationContext opContext ) throws LdapException
     {
         next.unbind( opContext );
     }

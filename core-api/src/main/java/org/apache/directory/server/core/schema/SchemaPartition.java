@@ -433,7 +433,7 @@ public final class SchemaPartition extends AbstractPartition
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#unbind(org.apache.directory.server.core.interceptor.context.UnbindOperationContext)
      */
-    public void unbind( UnbindOperationContext opContext ) throws Exception
+    public void unbind( UnbindOperationContext opContext ) throws LdapException
     {
         wrapped.unbind( opContext );
     }

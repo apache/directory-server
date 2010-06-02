@@ -926,7 +926,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#unbind(org.apache.directory.server.core.interceptor.context.UnbindOperationContext)
      */
-    public void unbind( UnbindOperationContext unbindContext ) throws Exception
+    public void unbind( UnbindOperationContext unbindContext ) throws LdapException
     {
         Partition partition = getPartition( unbindContext.getDn() );
         partition.unbind( unbindContext );

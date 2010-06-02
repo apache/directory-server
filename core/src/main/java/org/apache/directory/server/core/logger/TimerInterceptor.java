@@ -605,7 +605,7 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public void unbind( NextInterceptor next, UnbindOperationContext opContext ) throws Exception
+    public void unbind( NextInterceptor next, UnbindOperationContext opContext ) throws LdapException
     {
         long t0 = System.nanoTime();
         next.unbind( opContext );

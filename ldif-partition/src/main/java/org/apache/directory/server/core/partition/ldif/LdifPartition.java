@@ -947,7 +947,7 @@ public class LdifPartition extends BTreePartition<Long>
     }
 
 
-    public void unbind( UnbindOperationContext unbindContext ) throws Exception
+    public void unbind( UnbindOperationContext unbindContext ) throws LdapException
     {
         wrappedPartition.unbind( unbindContext );
     }

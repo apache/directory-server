@@ -211,7 +211,7 @@ public class InterceptorChain
         }
 
 
-        public void unbind( NextInterceptor next, UnbindOperationContext opContext ) throws Exception
+        public void unbind( NextInterceptor next, UnbindOperationContext opContext ) throws LdapException
         {
             nexus.unbind( opContext );
         }
@@ -792,7 +792,7 @@ public class InterceptorChain
     }
 
 
-    public void unbind( UnbindOperationContext opContext ) throws Exception
+    public void unbind( UnbindOperationContext opContext ) throws LdapException
     {
         Element node = getStartingEntry();
         Interceptor head = node.interceptor;
@@ -802,9 +802,9 @@ public class InterceptorChain
         {
             head.unbind( next, opContext );
         }
-        catch ( Exception ne )
+        catch ( LdapException le )
         {
-            throw ne;
+            throw le;
         }
         catch ( Throwable e )
         {
@@ -1392,7 +1392,7 @@ public class InterceptorChain
                 }
 
 
-                public void unbind( UnbindOperationContext opContext ) throws Exception
+                public void unbind( UnbindOperationContext opContext ) throws LdapException
                 {
                     Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1401,9 +1401,9 @@ public class InterceptorChain
                     {
                         interceptor.unbind( next.nextInterceptor, opContext );
                     }
-                    catch ( Exception ne )
+                    catch ( LdapException le )
                     {
-                        throw ne;
+                        throw le;
                     }
                     catch ( Throwable e )
                     {
