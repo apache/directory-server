@@ -51,16 +51,14 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.ldap.util.UnixCrypt;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -75,8 +73,6 @@ import org.slf4j.LoggerFactory;
  */
 public class SimpleAuthenticator extends AbstractAuthenticator
 {
-    private static final Logger LOG = LoggerFactory.getLogger( SimpleAuthenticator.class );
-
     /** A speedup for logger in debug mode */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
@@ -137,7 +133,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      */
     public SimpleAuthenticator()
     {
-        super( AuthenticationLevel.SIMPLE.toString() );
+        super( AuthenticationLevel.SIMPLE );
         credentialCache = new LRUMap( DEFAULT_CACHE_SIZE );
     }
 
@@ -148,7 +144,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      */
     public SimpleAuthenticator( int cacheSize )
     {
-        super( AuthenticationLevel.SIMPLE.toString() );
+        super( AuthenticationLevel.SIMPLE );
 
         credentialCache = new LRUMap( cacheSize > 0 ? cacheSize : DEFAULT_CACHE_SIZE );
     }
@@ -191,7 +187,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * @return A byte array which can be empty if the password was not found
      * @throws Exception If we have a problem during the lookup operation
      */
-    private LdapPrincipal getStoredPassword( BindOperationContext opContext ) throws Exception
+    private LdapPrincipal getStoredPassword( BindOperationContext opContext ) throws LdapAuthenticationException
     {
         LdapPrincipal principal = null;
 
@@ -272,7 +268,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      *  The stored password is always using the unsalted form, and is stored as a bytes array.
      *  </p>
      */
-    public LdapPrincipal authenticate( BindOperationContext opContext ) throws Exception
+    public LdapPrincipal authenticate( BindOperationContext opContext ) throws LdapAuthenticationException
     {
         if ( IS_DEBUG )
         {
@@ -588,7 +584,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * @return the credentials from the backend
      * @throws Exception if there are problems accessing backend
      */
-    private byte[] lookupUserPassword( BindOperationContext opContext ) throws Exception
+    private byte[] lookupUserPassword( BindOperationContext opContext ) throws LdapAuthenticationException
     {
         // ---- lookup the principal entry's userPassword attribute
         Entry userEntry;

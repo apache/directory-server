@@ -40,7 +40,7 @@ public class AnonymousAuthenticator extends AbstractAuthenticator
      */
     public AnonymousAuthenticator()
     {
-        super( AuthenticationLevel.NONE.toString() );
+        super( AuthenticationLevel.NONE );
     }
 
 
@@ -57,6 +57,7 @@ public class AnonymousAuthenticator extends AbstractAuthenticator
         }
         else
         {
+            LOG.info( "Cannot authenticate as anonymous, the server does not allow it" );
             throw new LdapNoPermissionException( I18n.err( I18n.ERR_228 ) );
         }
     }

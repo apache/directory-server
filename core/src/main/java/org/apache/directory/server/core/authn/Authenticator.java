@@ -26,6 +26,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.DN;
 
 
@@ -51,7 +52,7 @@ public interface Authenticator
      * Returns the type of this authenticator (e.g. <tt>'simple'</tt>,
      * <tt>'none'</tt>,...).
      */
-    String getAuthenticatorType();
+    AuthenticationLevel getAuthenticatorType();
 
 
     /**

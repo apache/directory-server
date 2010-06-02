@@ -20,11 +20,10 @@
 package org.apache.directory.server.core.authn;
 
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 
 
 /**
@@ -43,15 +42,15 @@ public class StrongAuthenticator extends AbstractAuthenticator
      */
     public StrongAuthenticator()
     {
-        super( AuthenticationLevel.STRONG.toString() );
+        super( AuthenticationLevel.STRONG );
     }
 
 
     /**
-     * User has already been authenticated during SASL negotiation.  Set the authentication level
+     * User has already been authenticated during SASL negotiation. Set the authentication level
      * to strong and return an {@link LdapPrincipal}.
      */
-    public LdapPrincipal authenticate( BindOperationContext opContext ) throws NamingException
+    public LdapPrincipal authenticate( BindOperationContext opContext ) throws LdapAuthenticationException
     {
         // Possibly check if user account is disabled, other account checks.
         return new LdapPrincipal( opContext.getDn(), AuthenticationLevel.STRONG );

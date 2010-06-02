@@ -423,11 +423,11 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         }
         catch ( NameNotFoundException nnfe )
         {
-            assertTrue( true );
-        }
-        catch ( NamingException ne )
-        {
             fail();
+        }
+        catch ( AuthenticationException ne )
+        {
+            assertTrue( true );
         }
     }
 }

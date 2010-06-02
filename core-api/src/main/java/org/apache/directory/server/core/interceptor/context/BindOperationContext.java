@@ -34,11 +34,14 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -50,6 +53,9 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class BindOperationContext implements OperationContext
 {
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( BindOperationContext.class );
+
     /** The password */
     private byte[] credentials;
 
@@ -106,10 +112,13 @@ public class BindOperationContext implements OperationContext
      * <li>UNAUTHENT</li>
      * <li>INVALID</li>
      */
-    public AuthenticationLevel getAuthenticationLevel()
+    public AuthenticationLevel getAuthenticationLevel() throws LdapAuthenticationException
     {
+        // First check if the SASL mechanism has been set
         if ( ( saslMechanism == null ) )
         {
+            // No, it's either a SIMPLE, ANONYMOUS, UNAUTHENT or an error
+            // 
             if ( dn.isEmpty() )
             {
                 if ( StringTools.isEmpty( credentials ) )
@@ -120,7 +129,8 @@ public class BindOperationContext implements OperationContext
                 else
                 {
                     // If we have a password but no DN, this is invalid 
-                    return AuthenticationLevel.INVALID;
+                    LOG.info( "Bad authentication for {}", dn );
+                    throw new LdapAuthenticationException( "Invalid authentication" );
                 }
             }
             else if ( StringTools.isEmpty( credentials ) )

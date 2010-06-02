@@ -20,8 +20,13 @@
 package org.apache.directory.server.core.authn;
 
 
+import javax.naming.NamingException;
+
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.DN;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -32,10 +37,14 @@ import org.apache.directory.shared.ldap.name.DN;
  */
 public abstract class AbstractAuthenticator implements Authenticator
 {
+    /** A logger for the extending classes */
+    protected static final Logger LOG = LoggerFactory.getLogger( AbstractAuthenticator.class );
+
+    /** The associated DirectoryService */
     private DirectoryService directoryService;
     
     /** authenticator type */
-    private final String authenticatorType;
+    private final AuthenticationLevel authenticatorType;
 
 
     /**
@@ -43,7 +52,7 @@ public abstract class AbstractAuthenticator implements Authenticator
      *
      * @param type the type of this authenticator (e.g. <tt>'simple'</tt>, <tt>'none'</tt>...)
      */
-    protected AbstractAuthenticator( String type )
+    protected AbstractAuthenticator( AuthenticationLevel type )
     {
         this.authenticatorType = type;
     }
@@ -59,7 +68,10 @@ public abstract class AbstractAuthenticator implements Authenticator
     }
     
 
-    public String getAuthenticatorType()
+    /**
+     * {@inheritDoc}
+     */
+    public AuthenticationLevel getAuthenticatorType()
     {
         return authenticatorType;
     }

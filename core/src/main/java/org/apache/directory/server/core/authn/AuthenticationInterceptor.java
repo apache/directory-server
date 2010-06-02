@@ -83,8 +83,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     private Set<Authenticator> authenticators;
-    private final Map<String, Collection<Authenticator>> authenticatorsMapByType = 
-        new HashMap<String, Collection<Authenticator>>();
+    private final Map<AuthenticationLevel, Collection<Authenticator>> authenticatorsMapByType = new HashMap<AuthenticationLevel, Collection<Authenticator>>();
 
     private DirectoryService directoryService;
     
@@ -188,7 +187,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
      * @param type type of Authenticator sought
      * @return A list of Authenticators of the requested type or <tt>null</tt> if no authenticator is found.
      */
-    private Collection<Authenticator> getAuthenticators( String type )
+    private Collection<Authenticator> getAuthenticators( AuthenticationLevel type )
     {
         Collection<Authenticator> result = authenticatorsMapByType.get( type );
 
@@ -314,7 +313,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     
     private void invalidateAuthenticatorCaches( DN principalDn )
     {
-        for ( String authMech : authenticatorsMapByType.keySet() )
+        for ( AuthenticationLevel authMech : authenticatorsMapByType.keySet() )
         {
             Collection<Authenticator> authenticators = getAuthenticators( authMech );
 
@@ -448,7 +447,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, "Cannot Bind for DN " + opContext.getDn().getName() );
         }
 
-        Collection<Authenticator> authenticators = getAuthenticators( level.getName() );
+        Collection<Authenticator> authenticators = getAuthenticators( level );
 
         if ( authenticators == null )
         {
