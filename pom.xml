@@ -59,7 +59,6 @@
     <daemon.bootstrappers.version>1.1.9-SNAPSHOT</daemon.bootstrappers.version>
     <derby.version>10.4.2.0</derby.version>
     <dnsjava.version>2.0.1</dnsjava.version>
-    <jcl.over.slf4j.version>1.5.11</jcl.over.slf4j.version>
     <jetty.version>6.1.14</jetty.version>
     <jug.asl.version>2.0.0.RC1</jug.asl.version>
     <junit.version>4.8.1</junit.version>
@@ -229,12 +228,6 @@
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>${slf4j.api.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>jcl-over-slf4j</artifactId>
-        <version>${jcl.over.slf4j.version}</version>
       </dependency>
 
       <dependency>
@@ -454,13 +447,6 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-    </dependency>
-
-    <!-- not sure what this is used for -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
-      <scope>test</scope>
     </dependency>
 
     <!-- standard logging implementation for tests -->
