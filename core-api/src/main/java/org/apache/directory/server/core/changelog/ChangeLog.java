@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 
 
@@ -84,7 +85,7 @@ public interface ChangeLog
      * @return the new revision reached after having applied the forward LDIF
      * @throws Exception if there are problems logging the change
      */
-    ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws Exception;
+    ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws LdapException;
 
 
     /**
@@ -97,7 +98,7 @@ public interface ChangeLog
      * @return the new revision reached after having applied the forward LDIF
      * @throws Exception if there are problems logging the change
      */
-    ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, List<LdifEntry> reverses ) throws Exception;
+    ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, List<LdifEntry> reverses ) throws LdapException;
 
 
     /**

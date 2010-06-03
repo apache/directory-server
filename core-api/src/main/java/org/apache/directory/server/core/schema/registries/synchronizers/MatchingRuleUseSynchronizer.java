@@ -24,6 +24,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
@@ -56,7 +57,7 @@ public class MatchingRuleUseSynchronizer extends AbstractRegistrySynchronizer
      */
     @Override
     public boolean modify( ModifyOperationContext opContext, Entry targetEntry, 
-        boolean cascade ) throws NamingException
+        boolean cascade ) throws LdapException
     {
         // TODO Auto-generated method stub
         return SCHEMA_UNCHANGED;
@@ -66,7 +67,7 @@ public class MatchingRuleUseSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void add( Entry entry ) throws NamingException
+    public void add( Entry entry ) throws LdapException
     {
         // TODO Auto-generated method stub
     }
@@ -75,21 +76,21 @@ public class MatchingRuleUseSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void delete( Entry entry, boolean cascade ) throws NamingException
+    public void delete( Entry entry, boolean cascade ) throws LdapException
     {
         // TODO Auto-generated method stub
     }
 
 
     public void moveAndRename( DN oriChildName, DN newParentName, RDN newRn, boolean deleteOldRn,
-        Entry entry, boolean cascade ) throws NamingException
+        Entry entry, boolean cascade ) throws LdapException
     {
         // TODO Auto-generated method stub
     }
 
 
     public void move( DN oriChildName, DN newParentName,
-        Entry entry, boolean cascade ) throws NamingException
+        Entry entry, boolean cascade ) throws LdapException
     {
         // TODO Auto-generated method stub
     }
@@ -98,7 +99,7 @@ public class MatchingRuleUseSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void rename( Entry entry, RDN newRdn, boolean cascade ) throws NamingException
+    public void rename( Entry entry, RDN newRdn, boolean cascade ) throws LdapException
     {
         // TODO Auto-generated method stub
     }

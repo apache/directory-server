@@ -31,8 +31,8 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapOtherException;
@@ -150,11 +150,11 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      * @return The schema name
      * @throws NamingException If we got an error
      */
-    protected String getSchemaName( DN dn ) throws NamingException
+    protected String getSchemaName( DN dn ) throws LdapException
     {
         if ( dn.size() < 2 )
         {
-            throw new NamingException( I18n.err( I18n.ERR_276 ) );
+            throw new LdapInvalidDnException( I18n.err( I18n.ERR_276 ) );
         }
         
         RDN rdn = dn.getRdn( 1 );
@@ -162,7 +162,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     }
 
 
-    protected void checkOidIsUnique( Entry entry ) throws Exception
+    protected void checkOidIsUnique( Entry entry ) throws LdapException
     {
         String oid = getOid( entry );
 
@@ -177,7 +177,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      * Check that a SchemaObject exists in the global OidRegsitry, and if so,
      * return it.
      */
-    protected SchemaObject checkOidExists( Entry entry ) throws Exception
+    protected SchemaObject checkOidExists( Entry entry ) throws LdapException
     {
         String oid = getOid( entry );
 
@@ -230,7 +230,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     }
 
 
-    protected void checkOidIsUnique( String oid ) throws Exception
+    protected void checkOidIsUnique( String oid ) throws LdapException
     {
         if ( schemaManager.getGlobalOidRegistry().contains( oid ) )
         {
@@ -244,7 +244,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      * Add a new SchemaObject to the schema content, assuming that
      * it has an associated schema and that this schema is loaded
      */
-    protected void addToSchema( SchemaObject schemaObject, String schemaName ) throws Exception
+    protected void addToSchema( SchemaObject schemaObject, String schemaName ) throws LdapException
     {
         if ( isSchemaLoaded( schemaName ) )
         {
@@ -286,7 +286,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      * Delete a SchemaObject from the schema registry, assuming that
      * it has an associated schema and that this schema is loaded
      */
-    protected void deleteFromSchema( SchemaObject schemaObject, String schemaName ) throws Exception
+    protected void deleteFromSchema( SchemaObject schemaObject, String schemaName ) throws LdapException
     {
         if ( isSchemaLoaded( schemaName ) )
         {
@@ -319,22 +319,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      * {@inheritDoc}
      */
     public abstract boolean modify( ModifyOperationContext opContext, Entry targetEntry, boolean cascade ) 
-        throws Exception;
-    
-    
-    /*public final boolean modify( DN name, ModificationOperation modOp, Entry mods, Entry entry, Entry targetEntry, 
-        boolean cascade ) throws Exception
-    {
-        return modify( name, entry, targetEntry, cascade );
-    }
-
-
-    public final boolean modify( DN name, List<Modification> mods, Entry entry,
-        Entry targetEntry, boolean cascade ) throws Exception
-    {
-        return modify( name, entry, targetEntry, cascade );
-    }
-    */
+        throws LdapException;
     
     
     protected Set<String> getOids( Set<Entry> results ) throws Exception
@@ -352,7 +337,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     }
     
     
-    protected String getOid( Entry entry ) throws Exception
+    protected String getOid( Entry entry ) throws LdapException
     {
         EntryAttribute oid = entry.get( m_oidAT );
         
@@ -371,7 +356,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      * @param obj The SchemaObject to unregister
      * @throws Exception If the unregistering failed
      */
-    protected void unregisterOids( SchemaObject obj ) throws Exception
+    protected void unregisterOids( SchemaObject obj ) throws LdapException
     {
         schemaManager.getGlobalOidRegistry().unregister( obj.getOid() );
     }
@@ -383,7 +368,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      * @param obj The SchemaObject to register
      * @throws Exception If the registering failed
      */
-    protected void registerOids( SchemaObject obj ) throws Exception
+    protected void registerOids( SchemaObject obj ) throws LdapException
     {
         schemaManager.getGlobalOidRegistry().register( obj );
     }

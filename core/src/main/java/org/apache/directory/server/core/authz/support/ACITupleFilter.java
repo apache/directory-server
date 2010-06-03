@@ -22,12 +22,15 @@ package org.apache.directory.server.core.authz.support;
 
 import java.util.Collection;
 
+import javax.naming.NamingException;
+
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
@@ -77,5 +80,5 @@ public interface ACITupleFilter
             Entry entry, 
             Collection<MicroOperation> microOperations,
             Entry entryView )
-        throws Exception;
+        throws LdapException;
 }

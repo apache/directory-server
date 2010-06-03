@@ -21,9 +21,10 @@ package org.apache.directory.server.core.trigger;
 
 
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.shared.ldap.exception.LdapException;
 
 
 public interface TriggerExecutionAuthorizer
 {
-    boolean hasPermission( OperationContext opContext ) throws Exception;
+    boolean hasPermission( OperationContext opContext ) throws LdapException;
 }

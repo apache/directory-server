@@ -50,6 +50,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
+import org.apache.directory.shared.ldap.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.ldif.LdapLdifException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
@@ -253,7 +254,7 @@ public class LdifPartition extends BTreePartition<Long>
      * {@inheritDoc}
      */
     @Override
-    public void add( AddOperationContext addContext ) throws Exception
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         wrappedPartition.add( addContext );
         add( addContext.getEntry() );
@@ -273,7 +274,7 @@ public class LdifPartition extends BTreePartition<Long>
      * {@inheritDoc}
      */
     @Override
-    public void delete( Long id ) throws Exception
+    public void delete( Long id ) throws LdapException
     {
         Entry entry = lookup( id );
 
@@ -306,7 +307,7 @@ public class LdifPartition extends BTreePartition<Long>
      * {@inheritDoc}
      */
     @Override
-    public void modify( ModifyOperationContext modifyContext ) throws Exception
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         Long id = getEntryId( modifyContext.getDn() );
 
@@ -320,9 +321,16 @@ public class LdifPartition extends BTreePartition<Long>
         DN dn = modifyContext.getDn();
 
         // And write it back on disk
-        FileWriter fw = new FileWriter( getFile( dn, DELETE ) );
-        fw.write( LdifUtils.convertEntryToLdif( modifiedEntry, true ) );
-        fw.close();
+        try
+        {
+            FileWriter fw = new FileWriter( getFile( dn, DELETE ) );
+            fw.write( LdifUtils.convertEntryToLdif( modifiedEntry, true ) );
+            fw.close();
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOperationException( ioe.getMessage() );
+        }
     }
 
 
@@ -330,7 +338,7 @@ public class LdifPartition extends BTreePartition<Long>
      * {@inheritDoc}
      */
     @Override
-    public void move( MoveOperationContext moveContext ) throws Exception
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
         DN oldDn = moveContext.getDn();
         Long id = getEntryId( oldDn );
@@ -348,7 +356,7 @@ public class LdifPartition extends BTreePartition<Long>
      * {@inheritDoc}
      */
     @Override
-    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws Exception
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         DN oldDn = moveAndRenameContext.getDn();
         Long id = getEntryId( oldDn );
@@ -367,7 +375,7 @@ public class LdifPartition extends BTreePartition<Long>
      * {@inheritDoc}
      */
     @Override
-    public void rename( RenameOperationContext renameContext ) throws Exception
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         DN oldDn = renameContext.getDn();
         Long id = getEntryId( oldDn );
@@ -395,26 +403,34 @@ public class LdifPartition extends BTreePartition<Long>
      * @param deleteOldEntry a flag to tell whether to delete the old entry files
      * @throws Exception
      */
-    private void entryMoved( DN oldEntryDn, Entry modifiedEntry, Long entryIdOld ) throws Exception
+    private void entryMoved( DN oldEntryDn, Entry modifiedEntry, Long entryIdOld ) throws LdapException
     {
         // First, add the new entry
         add( modifiedEntry );
 
         // Then, if there are some children, move then to the new place
-        IndexCursor<Long, Entry, Long> cursor = getSubLevelIndex().forwardCursor( entryIdOld );
-
-        while ( cursor.next() )
+        try
         {
-            IndexEntry<Long, Entry, Long> entry = cursor.get();
-
-            // except the parent entry add the rest of entries
-            if ( entry.getId() != entryIdOld )
+            IndexCursor<Long, Entry, Long> cursor = getSubLevelIndex().forwardCursor( entryIdOld );
+    
+            while ( cursor.next() )
             {
-                add( wrappedPartition.lookup( entry.getId() ) );
+                IndexEntry<Long, Entry, Long> entry = cursor.get();
+    
+                // except the parent entry add the rest of entries
+                if ( entry.getId() != entryIdOld )
+                {
+                    add( wrappedPartition.lookup( entry.getId() ) );
+                }
             }
+
+            cursor.close();
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationException( e.getMessage() );
         }
 
-        cursor.close();
 
         // And delete the old entry's LDIF file
         File file = getFile( oldEntryDn, DELETE );
@@ -736,11 +752,18 @@ public class LdifPartition extends BTreePartition<Long>
      * Write the new entry on disk. It does not exist, as this ha sbeen checked
      * by the ExceptionInterceptor.
      */
-    private void add( Entry entry ) throws Exception
+    private void add( Entry entry ) throws LdapException
     {
-        FileWriter fw = new FileWriter( getFile( entry.getDn(), CREATE ) );
-        fw.write( LdifUtils.convertEntryToLdif( entry ) );
-        fw.close();
+        try
+        {
+            FileWriter fw = new FileWriter( getFile( entry.getDn(), CREATE ) );
+            fw.write( LdifUtils.convertEntryToLdif( entry ) );
+            fw.close();
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOperationException( ioe.getMessage() );
+        }
     }
 
 
@@ -800,7 +823,7 @@ public class LdifPartition extends BTreePartition<Long>
 
 
     @Override
-    public int getChildCount( Long id ) throws Exception
+    public int getChildCount( Long id ) throws LdapException
     {
         return wrappedPartition.getChildCount( id );
     }
@@ -814,7 +837,7 @@ public class LdifPartition extends BTreePartition<Long>
 
 
     @Override
-    public Long getEntryId( DN dn ) throws Exception
+    public Long getEntryId( DN dn ) throws LdapException
     {
         return wrappedPartition.getEntryId( dn );
     }
@@ -912,14 +935,14 @@ public class LdifPartition extends BTreePartition<Long>
 
 
     @Override
-    public IndexCursor<Long, Entry, Long> list( Long id ) throws Exception
+    public IndexCursor<Long, Entry, Long> list( Long id ) throws LdapException
     {
         return wrappedPartition.list( id );
     }
 
 
     @Override
-    public ClonedServerEntry lookup( Long id ) throws Exception
+    public ClonedServerEntry lookup( Long id ) throws LdapException
     {
         return wrappedPartition.lookup( id );
     }

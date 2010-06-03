@@ -31,8 +31,9 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -68,7 +69,7 @@ public class JournalInterceptor extends BaseInterceptor
      * The init method will initialize the local variables and load the 
      * entryDeleted AttributeType.
      */
-    public void init( DirectoryService directoryService ) throws Exception
+    public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );
         
@@ -86,7 +87,7 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * Log the operation, manage the logs rotations.
      */
-    private void log( long revision, LdifEntry ldif ) throws Exception
+    private void log( long revision, LdifEntry ldif ) throws LdapException
     {
         journal.log( getPrincipal(), revision, ldif );
     }
@@ -98,7 +99,7 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws Exception
+    public void add( NextInterceptor next, AddOperationContext opContext ) throws LdapException
     {
         long opRevision = 0;
         
@@ -133,14 +134,15 @@ public class JournalInterceptor extends BaseInterceptor
                 journal.ack( opRevision );
             }
         }
-        catch( Exception e )
+        catch( LdapException le )
         {
             if ( journalEnabled )
             {
                 // log the NACK
                 journal.nack( opRevision );
             }
-            throw e;
+            
+            throw le;
         }
     }
 
@@ -148,7 +150,7 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
+    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws LdapException
     {
         long opRevision = 0;
         
@@ -174,13 +176,14 @@ public class JournalInterceptor extends BaseInterceptor
                 journal.ack( opRevision );
             }
         }
-        catch( Exception e )
+        catch( LdapException e )
         {
             if ( journalEnabled )
             {
                 // log the NACK
                 journal.nack( opRevision );
             }
+            
             throw e;
         }
     }
@@ -189,7 +192,7 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws LdapException
     {
         long opRevision = 0;
         
@@ -221,7 +224,7 @@ public class JournalInterceptor extends BaseInterceptor
                 journal.ack( opRevision );
             }
         }
-        catch( Exception e )
+        catch( LdapException e )
         {
             if ( journalEnabled )
             {
@@ -236,7 +239,7 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void rename ( NextInterceptor next, RenameOperationContext opContext ) throws Exception
+    public void rename ( NextInterceptor next, RenameOperationContext opContext ) throws LdapException
     {
         long opRevision = 0;
         
@@ -264,13 +267,14 @@ public class JournalInterceptor extends BaseInterceptor
                 journal.ack( opRevision );
             }
         }
-        catch( Exception e )
+        catch( LdapException e )
         {
             if ( journalEnabled )
             {
                 // log the NACK
                 journal.nack( opRevision );
             }
+            
             throw e;
         }
     }
@@ -280,7 +284,7 @@ public class JournalInterceptor extends BaseInterceptor
      * {@inheritDoc}
      */
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         long opRevision = 0;
         
@@ -309,13 +313,14 @@ public class JournalInterceptor extends BaseInterceptor
                 journal.ack( opRevision );
             }
         }
-        catch( Exception e )
+        catch( LdapException e )
         {
             if ( journalEnabled )
             {
                 // log the NACK
                 journal.nack( opRevision );
             }
+            
             throw e;
         }
     }
@@ -324,7 +329,7 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
+    public void move( NextInterceptor next, MoveOperationContext opContext ) throws LdapException
     {
         long opRevision = 0;
         
@@ -351,13 +356,14 @@ public class JournalInterceptor extends BaseInterceptor
                 journal.ack( opRevision );
             }
         }
-        catch( Exception e )
+        catch( LdapException e )
         {
             if ( journalEnabled )
             {
                 // log the NACK
                 journal.nack( opRevision );
             }
+            
             throw e;
         }
    }

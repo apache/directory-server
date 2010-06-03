@@ -23,8 +23,6 @@ package org.apache.directory.server.core.interceptor.context;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
@@ -34,6 +32,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
 import org.apache.directory.shared.ldap.name.DN;
 
@@ -119,7 +118,7 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
 
 
     public static List<Modification> createModItems( Entry serverEntry, ModificationOperation modOp )
-        throws NamingException
+        throws LdapException
     {
         List<Modification> items = new ArrayList<Modification>( serverEntry.size() );
 

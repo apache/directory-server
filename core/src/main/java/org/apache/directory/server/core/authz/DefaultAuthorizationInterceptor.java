@@ -54,6 +54,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -104,7 +105,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public void init( DirectoryService directoryService ) throws Exception
+    public void init( DirectoryService directoryService ) throws LdapException
     {
         nexus = directoryService.getPartitionNexus();
         SchemaManager schemaManager = directoryService.getSchemaManager();
@@ -124,7 +125,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private void loadAdministrators( DirectoryService directoryService ) throws Exception
+    private void loadAdministrators( DirectoryService directoryService ) throws LdapException
     {
         // read in the administrators and cache their normalized names
         Set<String> newAdministrators = new HashSet<String>( 2 );
@@ -157,7 +158,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     //    Lookup, search and list operations need to be handled using a filter
     // and so we need access to the filter service.
 
-    public void delete( NextInterceptor nextInterceptor, DeleteOperationContext opContext ) throws Exception
+    public void delete( NextInterceptor nextInterceptor, DeleteOperationContext opContext ) throws LdapException
     {
         if ( opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
@@ -233,7 +234,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
      * users to self access these resources.  As far as we're concerned no one but
      * the admin needs access.
      */
-    public void modify( NextInterceptor nextInterceptor, ModifyOperationContext opContext ) throws Exception
+    public void modify( NextInterceptor nextInterceptor, ModifyOperationContext opContext ) throws LdapException
     {
         if ( !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
@@ -255,7 +256,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private void protectModifyAlterations( DN dn ) throws Exception
+    private void protectModifyAlterations( DN dn ) throws LdapException
     {
         DN principalDn = getPrincipal().getDN();
 
@@ -310,7 +311,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     //  o The administrator entry cannot be moved or renamed by anyone
     // ------------------------------------------------------------------------
 
-    public void rename( NextInterceptor nextInterceptor, RenameOperationContext opContext ) throws Exception
+    public void rename( NextInterceptor nextInterceptor, RenameOperationContext opContext ) throws LdapException
     {
         if ( !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
@@ -321,7 +322,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor nextInterceptor, MoveOperationContext opContext ) throws Exception
+    public void move( NextInterceptor nextInterceptor, MoveOperationContext opContext ) throws LdapException
     {
         if ( !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
@@ -333,7 +334,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
 
     public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         if ( !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
@@ -344,7 +345,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private void protectDnAlterations( DN dn ) throws Exception
+    private void protectDnAlterations( DN dn ) throws LdapException
     {
         DN principalDn = getPrincipal().getDN();
 
@@ -385,7 +386,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
+    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws LdapException
     {
         CoreSession session = opContext.getSession();
         Entry entry = nextInterceptor.lookup( opContext );
@@ -401,7 +402,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private void protectLookUp( DN principalDn, DN normalizedDn ) throws Exception
+    private void protectLookUp( DN principalDn, DN normalizedDn ) throws LdapException
     {
         if ( !isAnAdministrator( principalDn ) )
         {
@@ -451,7 +452,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
 
     public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         EntryFilteringCursor cursor = nextInterceptor.search( opContext );
 
@@ -472,7 +473,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
 
     public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         EntryFilteringCursor cursor = nextInterceptor.list( opContext );
 

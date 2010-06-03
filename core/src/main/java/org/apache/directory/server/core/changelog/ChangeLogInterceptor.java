@@ -41,6 +41,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifRevertor;
@@ -84,7 +85,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
      * The init method will initialize the local variables and load the 
      * entryDeleted AttributeType.
      */
-    public void init( DirectoryService directoryService ) throws Exception
+    public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );
 
@@ -100,7 +101,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     // -----------------------------------------------------------------------
     
 
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws Exception
+    public void add( NextInterceptor next, AddOperationContext opContext ) throws LdapException
     {
         next.add( opContext );
 
@@ -137,7 +138,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
      * The delete operation has to be stored with a way to restore the deleted element.
      * There is no way to do that but reading the entry and dump it into the LOG.
      */
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
+    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws LdapException
     {
         // @todo make sure we're not putting in operational attributes that cannot be user modified
         // must save the entry if change log is enabled
@@ -189,7 +190,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
      * @return the entry's attributes (may be immutable if the schema subentry)
      * @throws Exception on error accessing the entry's attributes
      */
-    private Entry getAttributes( OperationContext opContext ) throws Exception
+    private Entry getAttributes( OperationContext opContext ) throws LdapException
     {
         DN dn = opContext.getDn();
         Entry serverEntry;
@@ -211,7 +212,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     /**
      * 
      */
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws LdapException
     {
         Entry serverEntry = null;
         Modification modification = ServerEntryUtils.getModificationItem( opContext.getModItems(), entryDeleted );
@@ -290,7 +291,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     // -----------------------------------------------------------------------
 
 
-    public void rename ( NextInterceptor next, RenameOperationContext renameContext ) throws Exception
+    public void rename ( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
     {
         Entry serverEntry = null;
         
@@ -323,7 +324,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
 
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opCtx )
-        throws Exception
+        throws LdapException
     {
         Entry serverEntry = null;
         
@@ -353,7 +354,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     }
 
 
-    public void move ( NextInterceptor next, MoveOperationContext opCtx ) throws Exception
+    public void move ( NextInterceptor next, MoveOperationContext opCtx ) throws LdapException
     {
         next.move( opCtx );
 

@@ -381,7 +381,7 @@ public class MockDirectoryService implements DirectoryService
         return null;
     }
 
-    public CoreSession getAdminSession() throws Exception
+    public CoreSession getAdminSession()
     {
         return null;
     }

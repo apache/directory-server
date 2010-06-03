@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.CoreSession;
@@ -39,12 +40,13 @@ import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.StringValue;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -91,7 +93,7 @@ public class TupleCache
      * @param directoryService the context factory configuration for the server
      * @throws NamingException if initialization fails
      */
-    public TupleCache( CoreSession session ) throws Exception
+    public TupleCache( CoreSession session ) throws LdapException
     {
         SchemaManager schemaManager = session.getDirectoryService().getSchemaManager();
         this.nexus = session.getDirectoryService().getPartitionNexus();
@@ -110,7 +112,7 @@ public class TupleCache
     }
 
 
-    private void initialize( CoreSession session ) throws Exception
+    private void initialize( CoreSession session ) throws LdapException
     {
         // search all naming contexts for access control subentenries
         // generate ACITuple Arrays for each subentry
@@ -131,24 +133,31 @@ public class TupleCache
 
             EntryFilteringCursor results = nexus.search( searchOperationContext );
 
-            while ( results.next() )
+            try
             {
-                Entry result = results.get();
-                DN subentryDn = result.getDn().normalize( session.getDirectoryService().getSchemaManager().
-                        getNormalizerMapping() );
-                EntryAttribute aci = result.get( prescriptiveAciAT );
-
-                if ( aci == null )
+                while ( results.next() )
                 {
-                    LOG.warn( "Found accessControlSubentry '" + subentryDn + "' without any "
-                        + SchemaConstants.PRESCRIPTIVE_ACI_AT );
-                    continue;
+                    Entry result = results.get();
+                    DN subentryDn = result.getDn().normalize( session.getDirectoryService().getSchemaManager().
+                            getNormalizerMapping() );
+                    EntryAttribute aci = result.get( prescriptiveAciAT );
+    
+                    if ( aci == null )
+                    {
+                        LOG.warn( "Found accessControlSubentry '" + subentryDn + "' without any "
+                            + SchemaConstants.PRESCRIPTIVE_ACI_AT );
+                        continue;
+                    }
+    
+                    subentryAdded( subentryDn, result );
                 }
-
-                subentryAdded( subentryDn, result );
+    
+                results.close();
             }
-
-            results.close();
+            catch ( Exception e )
+            {
+                throw new LdapOperationErrorException( e.getMessage() );
+            }
         }
     }
 

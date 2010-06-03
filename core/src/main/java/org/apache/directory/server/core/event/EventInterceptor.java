@@ -43,6 +43,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.normalization.FilterNormalizingVisitor;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
@@ -74,7 +75,7 @@ public class EventInterceptor extends BaseInterceptor
 
 
     @Override
-    public void init( DirectoryService ds ) throws Exception
+    public void init( DirectoryService ds ) throws LdapException
     {
         LOG.info( "Initializing ..." );
         super.init( ds );
@@ -145,7 +146,7 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor next, final AddOperationContext opContext ) throws Exception
+    public void add( NextInterceptor next, final AddOperationContext opContext ) throws LdapException
     {
         next.add( opContext );
         List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), opContext.getEntry() );
@@ -165,7 +166,7 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
-    public void delete( NextInterceptor next, final DeleteOperationContext opContext ) throws Exception
+    public void delete( NextInterceptor next, final DeleteOperationContext opContext ) throws LdapException
     {
         List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), opContext.getEntry() );
         next.delete( opContext );
@@ -185,7 +186,7 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, final ModifyOperationContext opContext ) throws Exception
+    public void modify( NextInterceptor next, final ModifyOperationContext opContext ) throws LdapException
     {
         Entry oriEntry = opContext.getEntry();
 
@@ -212,7 +213,7 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
+    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws LdapException
     {
         Entry oriEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
         List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), oriEntry );
@@ -238,7 +239,7 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, final MoveAndRenameOperationContext opContext ) throws Exception
+    public void moveAndRename( NextInterceptor next, final MoveAndRenameOperationContext opContext ) throws LdapException
     {
         Entry oriEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
         List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), oriEntry );
@@ -268,7 +269,7 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
+    public void move( NextInterceptor next, MoveOperationContext opContext ) throws LdapException
     {
         Entry oriEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
         List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), oriEntry );
@@ -290,7 +291,7 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
-    List<RegistrationEntry> getSelectingRegistrations( DN name, Entry entry ) throws Exception
+    List<RegistrationEntry> getSelectingRegistrations( DN name, Entry entry ) throws LdapException
     {
         if ( registrations.isEmpty() )
         {

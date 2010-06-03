@@ -29,9 +29,10 @@ import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
@@ -64,7 +65,7 @@ public class ReferralManagerImpl implements ReferralManager
      * @param directoryService The directory service
      * @throws Exception If we can't initialize the manager
      */
-    public ReferralManagerImpl( DirectoryService directoryService ) throws Exception
+    public ReferralManagerImpl( DirectoryService directoryService ) throws LdapException
     {
         lockWrite();
         
@@ -140,7 +141,7 @@ public class ReferralManagerImpl implements ReferralManager
     /**
      * {@inheritDoc}
      */
-    public void init( DirectoryService directoryService, String... suffixes ) throws Exception
+    public void init( DirectoryService directoryService, String... suffixes ) throws LdapException
     {
         ExprNode referralFilter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, 
             new StringValue( SchemaConstants.REFERRAL_OC ) );
@@ -163,21 +164,30 @@ public class ReferralManagerImpl implements ReferralManager
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
             EntryFilteringCursor cursor = nexus.search( searchOperationContext );
             
-            // Move to the first entry in the cursor
-            cursor.beforeFirst();
-            
-            while ( cursor.next() ) 
+            try
             {
-                Entry entry = cursor.get();
-
-                // Lock the referralManager
-                lockWrite();
+                // Move to the first entry in the cursor
+                cursor.beforeFirst();
                 
-                // Add it at the right place
-                addReferral( entry );
+                while ( cursor.next() ) 
+                {
+                    Entry entry = cursor.get();
+    
+                    // Lock the referralManager
+                    lockWrite();
+                    
+                    // Add it at the right place
+                    addReferral( entry );
+                    
+                    // Unlock the referralManager
+                    unlock();
+                }
                 
-                // Unlock the referralManager
-                unlock();
+                cursor.close();
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOperationException( e.getMessage() );
             }
         }
     }

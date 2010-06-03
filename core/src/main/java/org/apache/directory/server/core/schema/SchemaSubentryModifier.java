@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -137,7 +138,7 @@ public class SchemaSubentryModifier
     }
     
 
-    public void add( OperationContext opContext, LdapComparatorDescription comparatorDescription ) throws Exception
+    public void add( OperationContext opContext, LdapComparatorDescription comparatorDescription ) throws LdapException
     {
         String schemaName = getSchema( comparatorDescription );   
         DN dn = new DN( 
@@ -152,7 +153,7 @@ public class SchemaSubentryModifier
     }
     
     
-    public void add( OperationContext opContext, NormalizerDescription normalizerDescription ) throws Exception
+    public void add( OperationContext opContext, NormalizerDescription normalizerDescription ) throws LdapException
     {
         String schemaName = getSchema( normalizerDescription );
         DN dn = new DN( 
@@ -167,7 +168,7 @@ public class SchemaSubentryModifier
     }
     
     
-    public void add( OperationContext opContext, SyntaxCheckerDescription syntaxCheckerDescription ) throws Exception
+    public void add( OperationContext opContext, SyntaxCheckerDescription syntaxCheckerDescription ) throws LdapException
     {
         String schemaName = getSchema( syntaxCheckerDescription );
         DN dn = new DN( 
@@ -181,7 +182,7 @@ public class SchemaSubentryModifier
     }
     
     
-    public void addSchemaObject( OperationContext opContext, SchemaObject obj ) throws Exception
+    public void addSchemaObject( OperationContext opContext, SchemaObject obj ) throws LdapException
     {
         Schema schema = schemaManager.getLoadedSchema( obj.getSchemaName() );
         DN dn = getDn( obj );
@@ -192,14 +193,14 @@ public class SchemaSubentryModifier
     }
 
 
-    public void deleteSchemaObject( OperationContext opContext, SchemaObject obj ) throws Exception
+    public void deleteSchemaObject( OperationContext opContext, SchemaObject obj ) throws LdapException
     {
         DN dn = getDn( obj );
         opContext.delete( dn, BYPASS );
     }
 
     
-    public void delete( OperationContext opContext, NormalizerDescription normalizerDescription ) throws Exception
+    public void delete( OperationContext opContext, NormalizerDescription normalizerDescription ) throws LdapException
     {
         String schemaName = getSchema( normalizerDescription );
         DN dn = new DN( 
@@ -212,7 +213,7 @@ public class SchemaSubentryModifier
     }
 
 
-    public void delete( OperationContext opContext, SyntaxCheckerDescription syntaxCheckerDescription ) throws Exception
+    public void delete( OperationContext opContext, SyntaxCheckerDescription syntaxCheckerDescription ) throws LdapException
     {
         String schemaName = getSchema( syntaxCheckerDescription );
         DN dn = new DN( 
@@ -224,7 +225,7 @@ public class SchemaSubentryModifier
     }
 
 
-    public void delete( OperationContext opContext, LdapComparatorDescription comparatorDescription ) throws Exception
+    public void delete( OperationContext opContext, LdapComparatorDescription comparatorDescription ) throws LdapException
     {
         String schemaName = getSchema( comparatorDescription );
         DN dn = new DN( 

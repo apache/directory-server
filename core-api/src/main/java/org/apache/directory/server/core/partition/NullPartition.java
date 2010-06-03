@@ -74,7 +74,7 @@ public class NullPartition extends AbstractPartition
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#add(org.apache.directory.server.core.interceptor.context.AddOperationContext)
      */
-    public void add( AddOperationContext opContext ) throws Exception
+    public void add( AddOperationContext opContext ) throws LdapException
     {
     }
 
@@ -90,7 +90,7 @@ public class NullPartition extends AbstractPartition
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#delete(org.apache.directory.server.core.interceptor.context.DeleteOperationContext)
      */
-    public void delete( DeleteOperationContext opContext ) throws Exception
+    public void delete( DeleteOperationContext opContext ) throws LdapException
     {
     }
 
@@ -116,7 +116,7 @@ public class NullPartition extends AbstractPartition
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#list(org.apache.directory.server.core.interceptor.context.ListOperationContext)
      */
-    public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( ListOperationContext opContext ) throws LdapException
     {
         return new EntryFilteringCursor()
         {
@@ -299,7 +299,7 @@ public class NullPartition extends AbstractPartition
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#modify(org.apache.directory.server.core.interceptor.context.ModifyOperationContext)
      */
-    public void modify( ModifyOperationContext opContext ) throws Exception
+    public void modify( ModifyOperationContext opContext ) throws LdapException
     {
     }
 
@@ -307,7 +307,7 @@ public class NullPartition extends AbstractPartition
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#move(org.apache.directory.server.core.interceptor.context.MoveOperationContext)
      */
-    public void move( MoveOperationContext opContext ) throws Exception
+    public void move( MoveOperationContext opContext ) throws LdapException
     {
     }
 
@@ -315,7 +315,7 @@ public class NullPartition extends AbstractPartition
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#moveAndRename(org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext)
      */
-    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception
+    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException
     {
     }
 
@@ -323,7 +323,7 @@ public class NullPartition extends AbstractPartition
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#rename(org.apache.directory.server.core.interceptor.context.RenameOperationContext)
      */
-    public void rename( RenameOperationContext opContext ) throws Exception
+    public void rename( RenameOperationContext opContext ) throws LdapException
     {
     }
 
@@ -331,7 +331,7 @@ public class NullPartition extends AbstractPartition
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#search(org.apache.directory.server.core.interceptor.context.SearchOperationContext)
      */
-    public EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( SearchOperationContext opContext ) throws LdapException
     {
         return null;
     }
@@ -393,7 +393,7 @@ public class NullPartition extends AbstractPartition
 
 
     @Override
-    public ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws Exception
+    public ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         return null;
     }

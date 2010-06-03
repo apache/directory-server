@@ -23,6 +23,7 @@ package org.apache.directory.server.core.interceptor.context;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
@@ -115,7 +116,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
      * @return the normalized new name after move and rename
      * @throws Exception if the name cannot be normalized
      */
-    public DN getNewDn() throws Exception
+    public DN getNewDn() throws LdapException
     {
         if ( newDn == null )
         {

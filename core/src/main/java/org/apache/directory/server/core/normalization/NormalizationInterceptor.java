@@ -91,7 +91,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * Initialize the registries, normalizers. 
      */
-    public void init( DirectoryService directoryService ) throws Exception
+    public void init( DirectoryService directoryService ) throws LdapException
     {
         LOG.debug( "Initialiazing the NormalizationInterceptor" );
 
@@ -115,7 +115,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void add( NextInterceptor nextInterceptor, AddOperationContext opContext ) throws Exception
+    public void add( NextInterceptor nextInterceptor, AddOperationContext opContext ) throws LdapException
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
         opContext.getEntry().getDn().normalize( schemaManager.getNormalizerMapping() );
@@ -127,7 +127,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void delete( NextInterceptor nextInterceptor, DeleteOperationContext opContext ) throws Exception
+    public void delete( NextInterceptor nextInterceptor, DeleteOperationContext opContext ) throws LdapException
     {
         DN dn = opContext.getDn();
 
@@ -143,7 +143,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor nextInterceptor, ModifyOperationContext opContext ) throws Exception
+    public void modify( NextInterceptor nextInterceptor, ModifyOperationContext opContext ) throws LdapException
     {
         if ( !opContext.getDn().isNormalized() )
         {
@@ -157,7 +157,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void rename( NextInterceptor nextInterceptor, RenameOperationContext opContext ) throws Exception
+    public void rename( NextInterceptor nextInterceptor, RenameOperationContext opContext ) throws LdapException
     {
         // Normalize the new RDN and the DN
         opContext.getNewRdn().normalize( schemaManager.getNormalizerMapping() );
@@ -172,7 +172,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void move( NextInterceptor nextInterceptor, MoveOperationContext opContext ) throws Exception
+    public void move( NextInterceptor nextInterceptor, MoveOperationContext opContext ) throws LdapException
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
         opContext.getParent().normalize( schemaManager.getNormalizerMapping() );
@@ -184,7 +184,7 @@ public class NormalizationInterceptor extends BaseInterceptor
      * {@inheritDoc}
      */
     public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         DN rdn = new DN();
         rdn.add( opContext.getNewRdn() );
@@ -201,7 +201,7 @@ public class NormalizationInterceptor extends BaseInterceptor
      * {@inheritDoc}
      */
     public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         DN dn = opContext.getDn();
 
@@ -234,7 +234,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public boolean hasEntry( NextInterceptor nextInterceptor, EntryOperationContext opContext ) throws Exception
+    public boolean hasEntry( NextInterceptor nextInterceptor, EntryOperationContext opContext ) throws LdapException
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
         return nextInterceptor.hasEntry( opContext );
@@ -245,7 +245,7 @@ public class NormalizationInterceptor extends BaseInterceptor
      * {@inheritDoc}
      */
     public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
         return nextInterceptor.list( opContext );
@@ -255,7 +255,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    private String[] normalizeAttrsId( String[] attrIds ) throws Exception
+    private String[] normalizeAttrsId( String[] attrIds ) throws LdapException
     {
         if ( attrIds == null )
         {
@@ -278,7 +278,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
+    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws LdapException
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
 
@@ -301,7 +301,7 @@ public class NormalizationInterceptor extends BaseInterceptor
      * {@inheritDoc}
      */
     public DN getMatchedName( NextInterceptor nextInterceptor, GetMatchedNameOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
         return nextInterceptor.getMatchedName( opContext );
@@ -311,7 +311,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public DN getSuffix( NextInterceptor nextInterceptor, GetSuffixOperationContext opContext ) throws Exception
+    public DN getSuffix( NextInterceptor nextInterceptor, GetSuffixOperationContext opContext ) throws LdapException
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
         return nextInterceptor.getSuffix( opContext );
@@ -321,7 +321,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws Exception
+    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws LdapException
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
 
@@ -352,7 +352,7 @@ public class NormalizationInterceptor extends BaseInterceptor
      * {@inheritDoc}
      */
     public void addContextPartition( NextInterceptor next, AddContextPartitionOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
         next.addContextPartition( opContext );
@@ -363,7 +363,7 @@ public class NormalizationInterceptor extends BaseInterceptor
      * {@inheritDoc}
      */
     public void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
         next.removeContextPartition( opContext );
@@ -376,7 +376,7 @@ public class NormalizationInterceptor extends BaseInterceptor
      * @param dn the DN
      * @param entry the entry
      */
-    private void addRdnAttributesToEntry( DN dn, Entry entry ) throws Exception
+    private void addRdnAttributesToEntry( DN dn, Entry entry ) throws LdapException
     {
         if ( dn == null || entry == null )
         {

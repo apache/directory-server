@@ -45,6 +45,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -92,7 +93,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     };
 
 
-    public void init( DirectoryService directoryService ) throws Exception
+    public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );
         schemaManager = directoryService.getSchemaManager();
@@ -113,7 +114,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
      * @param retAttrs array or attribute type to be specifically included in the result entry(s)
      * @throws NamingException if there are problems accessing subentries
      */
-    private void addCollectiveAttributes( OperationContext opContext, Entry entry, String[] retAttrs ) throws Exception
+    private void addCollectiveAttributes( OperationContext opContext, Entry entry, String[] retAttrs ) throws LdapException
     {
         EntryAttribute collectiveAttributeSubentries = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get(
             SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
@@ -278,7 +279,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     }
 
 
-    private Set<AttributeType> getAllSuperTypes( AttributeType id ) throws Exception
+    private Set<AttributeType> getAllSuperTypes( AttributeType id ) throws LdapException
     {
         Set<AttributeType> allSuperTypes = new HashSet<AttributeType>();
         AttributeType superType = id;
@@ -301,7 +302,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     // Interceptor Method Overrides
     // ------------------------------------------------------------------------
 
-    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
+    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws LdapException
     {
         Entry result = nextInterceptor.lookup( opContext );
 
@@ -324,7 +325,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
 
 
     public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         EntryFilteringCursor cursor = nextInterceptor.list( opContext );
         cursor.addEntryFilter( SEARCH_FILTER );
@@ -333,7 +334,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
 
 
     public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         EntryFilteringCursor cursor = nextInterceptor.search( opContext );
         cursor.addEntryFilter( SEARCH_FILTER );
@@ -345,7 +346,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     // Partial Schema Checking
     // ------------------------------------------------------------------------
 
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws Exception
+    public void add( NextInterceptor next, AddOperationContext opContext ) throws LdapException
     {
         collectiveAttributesSchemaChecker.checkAdd( opContext.getDn(), opContext.getEntry() );
 
@@ -353,7 +354,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws LdapException
     {
         collectiveAttributesSchemaChecker.checkModify( opContext );
 

@@ -27,8 +27,9 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.Interceptor;
-import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.DN;
 
@@ -297,19 +298,19 @@ public interface OperationContext
     LookupOperationContext newLookupContext( DN dn );
 
     
-    Entry lookup( DN dn, Collection<String> byPass ) throws Exception;
+    Entry lookup( DN dn, Collection<String> byPass ) throws LdapException;
     
     
-    Entry lookup( LookupOperationContext lookupContext ) throws Exception;
+    Entry lookup( LookupOperationContext lookupContext ) throws LdapException;
     
     
-    void modify( DN dn, List<Modification> mods, Collection<String> byPass ) throws Exception;
+    void modify( DN dn, List<Modification> mods, Collection<String> byPass ) throws LdapException;
     
     
-    void add( Entry entry, Collection<String> byPass ) throws Exception;
+    void add( Entry entry, Collection<String> byPass ) throws LdapException;
     
     
-    void delete( DN dn, Collection<String> byPass ) throws Exception;
+    void delete( DN dn, Collection<String> byPass ) throws LdapException;
 
 
     /**
@@ -320,7 +321,7 @@ public interface OperationContext
      * @return true if the entry exists, false if it does not
      * @throws Exception on failure to perform this operation
      */
-    boolean hasEntry( DN dn, Collection<String> byPass ) throws Exception;
+    boolean hasEntry( DN dn, Collection<String> byPass ) throws LdapException;
     
     
     /**

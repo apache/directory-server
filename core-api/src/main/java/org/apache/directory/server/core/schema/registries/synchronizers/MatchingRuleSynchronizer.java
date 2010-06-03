@@ -68,7 +68,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
      * {@inheritDoc}
      */
     public boolean modify( ModifyOperationContext opContext, Entry targetEntry, boolean cascade )
-        throws Exception
+        throws LdapException
     {
         DN name = opContext.getDn();
         Entry entry = opContext.getEntry();
@@ -95,7 +95,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void add( Entry entry ) throws Exception
+    public void add( Entry entry ) throws LdapException
     {
         DN dn = entry.getDn();
         DN parentDn = ( DN ) dn.clone();
@@ -143,7 +143,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void delete( Entry entry, boolean cascade ) throws Exception
+    public void delete( Entry entry, boolean cascade ) throws LdapException
     {
         DN dn = entry.getDn();
         DN parentDn = ( DN ) dn.clone();
@@ -196,7 +196,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void rename( Entry entry, RDN newRdn, boolean cascade ) throws Exception
+    public void rename( Entry entry, RDN newRdn, boolean cascade ) throws LdapException
     {
         String schemaName = getSchemaName( entry.getDn() );
         MatchingRule oldMr = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(), schemaName );
@@ -222,7 +222,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
 
 
     public void moveAndRename( DN oriChildName, DN newParentName, RDN newRdn, boolean deleteOldRn,
-        Entry entry, boolean cascade ) throws Exception
+        Entry entry, boolean cascade ) throws LdapException
     {
         checkNewParent( newParentName );
         String oldSchemaName = getSchemaName( oriChildName );
@@ -257,7 +257,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void move( DN oriChildName, DN newParentName, Entry entry, boolean cascade ) throws Exception
+    public void move( DN oriChildName, DN newParentName, Entry entry, boolean cascade ) throws LdapException
     {
         checkNewParent( newParentName );
         String oldSchemaName = getSchemaName( oriChildName );

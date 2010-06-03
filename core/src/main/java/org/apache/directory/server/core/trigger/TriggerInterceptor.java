@@ -50,6 +50,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.exception.LdapOtherException;
 import org.apache.directory.shared.ldap.name.DN;
@@ -116,7 +117,7 @@ public class TriggerInterceptor extends BaseInterceptor
      * @param proxy the partition nexus proxy 
      */
     private void addPrescriptiveTriggerSpecs( OperationContext opContext, List<TriggerSpecification> triggerSpecs,
-        DN dn, Entry entry ) throws Exception
+        DN dn, Entry entry ) throws LdapException
     {
 
         /*
@@ -160,7 +161,7 @@ public class TriggerInterceptor extends BaseInterceptor
      * @param entry the target entry that is considered as the trigger source
      * @throws Exception if there are problems accessing attribute values
      */
-    private void addEntryTriggerSpecs( List<TriggerSpecification> triggerSpecs, Entry entry ) throws Exception
+    private void addEntryTriggerSpecs( List<TriggerSpecification> triggerSpecs, Entry entry ) throws LdapException
     {
         EntryAttribute entryTrigger = entry.get( ENTRY_TRIGGER_ATTR );
 
@@ -230,7 +231,7 @@ public class TriggerInterceptor extends BaseInterceptor
     // Interceptor Overrides
     ////////////////////////////////////////////////////////////////////////////
 
-    public void init( DirectoryService directoryService ) throws Exception
+    public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );
 
@@ -258,7 +259,7 @@ public class TriggerInterceptor extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws Exception
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
         DN name = addContext.getDn();
         Entry entry = addContext.getEntry();
@@ -293,7 +294,7 @@ public class TriggerInterceptor extends BaseInterceptor
     }
 
 
-    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws Exception
+    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
     {
         DN name = deleteContext.getDn();
 
@@ -327,7 +328,7 @@ public class TriggerInterceptor extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws LdapException
     {
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
@@ -361,7 +362,7 @@ public class TriggerInterceptor extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws Exception
+    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
     {
         DN name = renameContext.getDn();
         RDN newRdn = renameContext.getNewRdn();
@@ -406,7 +407,7 @@ public class TriggerInterceptor extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws Exception
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws LdapException
     {
         DN oriChildName = opContext.getDn();
         DN parent = opContext.getParent();
@@ -482,7 +483,7 @@ public class TriggerInterceptor extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
+    public void move( NextInterceptor next, MoveOperationContext opContext ) throws LdapException
     {
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
@@ -562,7 +563,7 @@ public class TriggerInterceptor extends BaseInterceptor
     ////////////////////////////////////////////////////////////////////////////
 
     private Object executeTriggers( OperationContext opContext, List<TriggerSpecification> triggerSpecs,
-        StoredProcedureParameterInjector injector ) throws Exception
+        StoredProcedureParameterInjector injector ) throws LdapException
     {
         Object result = null;
 
@@ -588,7 +589,7 @@ public class TriggerInterceptor extends BaseInterceptor
 
 
     private Object executeTrigger( OperationContext opContext, TriggerSpecification tsec,
-        StoredProcedureParameterInjector injector ) throws Exception
+        StoredProcedureParameterInjector injector ) throws LdapException
     {
         List<Object> returnValues = new ArrayList<Object>();
         List<SPSpec> spSpecs = tsec.getSPSpecs();
@@ -605,7 +606,7 @@ public class TriggerInterceptor extends BaseInterceptor
     }
 
 
-    private Object executeProcedure( OperationContext opContext, String procedure, Object[] values ) throws Exception
+    private Object executeProcedure( OperationContext opContext, String procedure, Object[] values ) throws LdapException
     {
 
         try

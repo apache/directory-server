@@ -20,10 +20,9 @@
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
@@ -57,7 +56,7 @@ public class DitContentRuleSynchronizer extends AbstractRegistrySynchronizer
      */
     @Override
     public boolean modify( ModifyOperationContext opContext, Entry targetEntry, boolean cascade ) 
-        throws NamingException
+        throws LdapException
     {
         // TODO Auto-generated method stub
         return SCHEMA_UNCHANGED;
@@ -67,7 +66,7 @@ public class DitContentRuleSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void add( Entry entry ) throws NamingException
+    public void add( Entry entry ) throws LdapException
     {
         // TODO Auto-generated method stub
     }
@@ -76,7 +75,7 @@ public class DitContentRuleSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void delete( Entry entry, boolean cascade ) throws NamingException
+    public void delete( Entry entry, boolean cascade ) throws LdapException
     {
         // TODO Auto-generated method stub
     }
@@ -86,7 +85,7 @@ public class DitContentRuleSynchronizer extends AbstractRegistrySynchronizer
      * @see org.apache.directory.server.core.schema.SchemaChangeHandler#move(org.apache.directory.shared.ldap.name.DN, org.apache.directory.shared.ldap.name.DN, java.lang.String, boolean, javax.naming.directory.Attributes)
      */
     public void moveAndRename( DN oriChildName, DN newParentName, RDN newRn, boolean deleteOldRn,
-        Entry entry, boolean cascade ) throws NamingException
+        Entry entry, boolean cascade ) throws LdapException
     {
         // TODO Auto-generated method stub
     }
@@ -96,7 +95,7 @@ public class DitContentRuleSynchronizer extends AbstractRegistrySynchronizer
      * @see org.apache.directory.server.core.schema.SchemaChangeHandler#move(org.apache.directory.shared.ldap.name.DN, org.apache.directory.shared.ldap.name.DN, javax.naming.directory.Attributes)
      */
     public void move( DN oriChildName, DN newParentName, Entry entry, 
-        boolean cascade ) throws NamingException
+        boolean cascade ) throws LdapException
     {
         // TODO Auto-generated method stub
     }
@@ -105,7 +104,7 @@ public class DitContentRuleSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void rename( Entry entry, RDN newRdn, boolean cascade ) throws NamingException
+    public void rename( Entry entry, RDN newRdn, boolean cascade ) throws LdapException
     {
         // TODO Auto-generated method stub
     }

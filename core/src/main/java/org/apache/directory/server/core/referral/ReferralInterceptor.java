@@ -21,7 +21,6 @@ package org.apache.directory.server.core.referral;
 
 
 import javax.naming.Context;
-import javax.naming.NamingException;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.ReferralManager;
@@ -43,6 +42,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -78,7 +78,7 @@ public class ReferralInterceptor extends BaseInterceptor
     private DN subschemaSubentryDn;
 
 
-    static private void checkRefAttributeValue( Value<?> value ) throws NamingException, LdapURLEncodingException
+    static private void checkRefAttributeValue( Value<?> value ) throws LdapException, LdapURLEncodingException
     {
         StringValue ref = ( StringValue ) value;
 
@@ -100,35 +100,35 @@ public class ReferralInterceptor extends BaseInterceptor
             // else in the LdapURL
             String message = I18n.err( I18n.ERR_36 );
             LOG.error( message );
-            throw new NamingException( message );
+            throw new LdapException( message );
         }
 
         if ( !StringTools.isEmpty( ldapUrl.getFilter() ) )
         {
             String message = I18n.err( I18n.ERR_37 );
             LOG.error( message );
-            throw new NamingException( message );
+            throw new LdapException( message );
         }
 
         if ( ( ldapUrl.getAttributes() != null ) && ( ldapUrl.getAttributes().size() != 0 ) )
         {
             String message = I18n.err( I18n.ERR_38 );
             LOG.error( message );
-            throw new NamingException( message );
+            throw new LdapException( message );
         }
 
         if ( ( ldapUrl.getExtensions() != null ) && ( ldapUrl.getExtensions().size() != 0 ) )
         {
             String message = I18n.err( I18n.ERR_39 );
             LOG.error( message );
-            throw new NamingException( message );
+            throw new LdapException( message );
         }
 
         if ( ( ldapUrl.getExtensions() != null ) && ( ldapUrl.getExtensions().size() != 0 ) )
         {
             String message = I18n.err( I18n.ERR_40 );
             LOG.error( message );
-            throw new NamingException( message );
+            throw new LdapException( message );
         }
 
         DN dn = ldapUrl.getDn();
@@ -137,14 +137,14 @@ public class ReferralInterceptor extends BaseInterceptor
         {
             String message = I18n.err( I18n.ERR_41 );
             LOG.error( message );
-            throw new NamingException( message );
+            throw new LdapException( message );
         }
     }
 
 
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
-    static private boolean isReferral( Entry entry ) throws NamingException
+    static private boolean isReferral( Entry entry ) throws LdapException
     {
         // Check that the entry is not null, otherwise return FALSE.
         // This is typically to cover the case where the entry has not 
@@ -179,7 +179,7 @@ public class ReferralInterceptor extends BaseInterceptor
                 // very unlikely, as we have already checked the entry in SchemaInterceptor
                 String message = I18n.err( I18n.ERR_42 );
                 LOG.error( message );
-                throw new NamingException( message );
+                throw new LdapException( message );
             }
 
             for ( Value<?> value : refAttr )
@@ -200,7 +200,7 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    public void init( DirectoryService directoryService ) throws Exception
+    public void init( DirectoryService directoryService ) throws LdapException
     {
         nexus = directoryService.getPartitionNexus();
         schemaManager = directoryService.getSchemaManager();
@@ -232,7 +232,7 @@ public class ReferralInterceptor extends BaseInterceptor
      * entryAlreadyExists error.
      *  
      */
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws Exception
+    public void add( NextInterceptor next, AddOperationContext opContext ) throws LdapException
     {
         Entry entry = opContext.getEntry();
 
@@ -268,7 +268,7 @@ public class ReferralInterceptor extends BaseInterceptor
      * 
      * If the entry does not exist in the server, we will get a NoSuchObject error
      */
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
+    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws LdapException
     {
         // First delete the entry into the server
         next.delete( opContext );
@@ -292,7 +292,7 @@ public class ReferralInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      **/
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
+    public void move( NextInterceptor next, MoveOperationContext opContext ) throws LdapException
     {
         DN oldName = opContext.getDn();
 
@@ -324,7 +324,7 @@ public class ReferralInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      **/
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws Exception
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws LdapException
     {
         DN newName = ( DN ) opContext.getParent().clone();
         newName.add( opContext.getNewRdn() );
@@ -354,7 +354,7 @@ public class ReferralInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      **/
-    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
+    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws LdapException
     {
         // Check if the entry is a referral itself
         boolean isReferral = isReferral( opContext.getEntry() );
@@ -382,7 +382,7 @@ public class ReferralInterceptor extends BaseInterceptor
     /**
      * Modify an entry in the server.
      */
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws LdapException
     {
         DN dn = opContext.getDn();
 

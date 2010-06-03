@@ -23,17 +23,16 @@ package org.apache.directory.server.core.authz.support;
 import java.util.Collection;
 import java.util.Iterator;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
@@ -62,7 +61,7 @@ public class MaxValueCountFilter implements ACITupleFilter
             Entry entry, 
             Collection<MicroOperation> microOperations,
             Entry entryView )
-        throws NamingException
+        throws LdapException
     {
         if ( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
         {
@@ -104,7 +103,7 @@ public class MaxValueCountFilter implements ACITupleFilter
     }
 
 
-    private boolean isRemovable( ProtectedItem.MaxValueCount mvc, String attrId, Entry entryView ) throws NamingException
+    private boolean isRemovable( ProtectedItem.MaxValueCount mvc, String attrId, Entry entryView ) throws LdapException
     {
         for ( Iterator<ProtectedItem.MaxValueCountItem> k = mvc.iterator(); k.hasNext(); )
         {

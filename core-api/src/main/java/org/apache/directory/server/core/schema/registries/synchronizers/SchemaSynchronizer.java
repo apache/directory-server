@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.NamingException;
+
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.i18n.I18n;
@@ -114,7 +116,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * Depending in the existence of this attribute in the previous entry, we will
      * have to update the entry or not.
      */
-    public boolean modify( ModifyOperationContext opContext, Entry targetEntry, boolean cascade ) throws Exception
+    public boolean modify( ModifyOperationContext opContext, Entry targetEntry, boolean cascade ) throws LdapException
     {
         Entry entry = opContext.getEntry();
         List<Modification> mods = opContext.getModItems(); 
@@ -157,7 +159,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * @param name the dn of the new metaSchema object
      * @param entry the attributes of the new metaSchema object
      */
-    public void add( Entry entry ) throws Exception
+    public void add( Entry entry ) throws LdapException
     {
         DN dn = entry.getDn();
         DN parentDn = ( DN ) dn.clone();
@@ -227,7 +229,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * @param name the dn of the metaSchema object being deleted
      * @param entry the attributes of the metaSchema object 
      */
-    public void delete( Entry entry, boolean cascade ) throws Exception
+    public void delete( Entry entry, boolean cascade ) throws LdapException
     {
         EntryAttribute cn = entry.get( cnAT );
         String schemaName = cn.getString();
@@ -261,7 +263,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * @param entry the entry of the metaSchema object before the rename
      * @param newRdn the new commonName of the metaSchema object
      */
-    public void rename( Entry entry, RDN newRdn, boolean cascade ) throws Exception
+    public void rename( Entry entry, RDN newRdn, boolean cascade ) throws LdapException
     {
         String rdnAttribute = newRdn.getUpType();
         String rdnAttributeOid = registries.getAttributeTypeRegistry().getOidByName( rdnAttribute );
@@ -391,7 +393,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * </pre>
      */
     private boolean modifyDisable( ModifyOperationContext opContext, ModificationOperation modOp, 
-        EntryAttribute disabledInMods, EntryAttribute disabledInEntry ) throws Exception
+        EntryAttribute disabledInMods, EntryAttribute disabledInEntry ) throws LdapException
     {
         DN name = opContext.getDn();
         
@@ -477,7 +479,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     }
 
     
-    private boolean disableSchema( String schemaName ) throws Exception
+    private boolean disableSchema( String schemaName ) throws LdapException
     {
         Schema schema = registries.getLoadedSchema( schemaName );
 
@@ -536,7 +538,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * Enabling a schema consist on switching all of its schema element to enable.
      * We have to do it on a temporary registries.
      */
-    private boolean enableSchema( String schemaName ) throws Exception
+    private boolean enableSchema( String schemaName ) throws LdapException
     {
         Schema schema = registries.getLoadedSchema( schemaName );
 
@@ -559,7 +561,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * @throws NamingException if the dependencies do not resolve or are not
      * loaded (enabled)
      */
-    private void checkForDependencies( boolean isEnabled, Entry entry ) throws Exception
+    private void checkForDependencies( boolean isEnabled, Entry entry ) throws LdapException
     {
         EntryAttribute dependencies = entry.get( this.dependenciesAT );
 

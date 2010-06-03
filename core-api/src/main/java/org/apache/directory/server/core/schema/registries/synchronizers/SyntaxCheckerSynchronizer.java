@@ -70,7 +70,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
      * {@inheritDoc}
      */
     public boolean modify( ModifyOperationContext opContext, Entry targetEntry, boolean cascade )
-        throws Exception
+        throws LdapException
     {
         DN name = opContext.getDn();
         Entry entry = opContext.getEntry();
@@ -96,7 +96,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void add( Entry entry ) throws Exception
+    public void add( Entry entry ) throws LdapException
     {
         DN dn = entry.getDn();
         DN parentDn = ( DN ) dn.clone();
@@ -143,7 +143,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void delete( Entry entry, boolean cascade ) throws Exception
+    public void delete( Entry entry, boolean cascade ) throws LdapException
     {
         DN dn = entry.getDn();
         DN parentDn = ( DN ) dn.clone();
@@ -219,7 +219,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public void rename( Entry entry, RDN newRdn, boolean cascade ) throws Exception
+    public void rename( Entry entry, RDN newRdn, boolean cascade ) throws LdapException
     {
         String oldOid = getOid( entry );
         String schemaName = getSchemaName( entry.getDn() );
@@ -252,7 +252,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
 
     public void moveAndRename( DN oriChildName, DN newParentName, RDN newRdn, boolean deleteOldRn,
-        Entry entry, boolean cascade ) throws Exception
+        Entry entry, boolean cascade ) throws LdapException
     {
         checkNewParent( newParentName );
         String oldOid = getOid( entry );
@@ -291,7 +291,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void move( DN oriChildName, DN newParentName, Entry entry, boolean cascade ) throws Exception
+    public void move( DN oriChildName, DN newParentName, Entry entry, boolean cascade ) throws LdapException
     {
         checkNewParent( newParentName );
         String oid = getOid( entry );
@@ -319,7 +319,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    private void checkOidIsUniqueForSyntaxChecker( Entry entry ) throws Exception
+    private void checkOidIsUniqueForSyntaxChecker( Entry entry ) throws LdapException
     {
         String oid = getOid( entry );
 
@@ -335,7 +335,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
      * Check that a SyntaxChecker exists in the SyntaxCheckerRegistry, and if so,
      * return it.
      */
-    protected SyntaxChecker checkSyntaxCheckerOidExists( Entry entry ) throws Exception
+    protected SyntaxChecker checkSyntaxCheckerOidExists( Entry entry ) throws LdapException
     {
         String oid = getOid( entry );
 

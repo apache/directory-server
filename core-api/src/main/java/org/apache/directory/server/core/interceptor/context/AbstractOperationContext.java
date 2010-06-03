@@ -30,8 +30,9 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.DN;
 
@@ -283,7 +284,7 @@ public abstract class AbstractOperationContext implements OperationContext
     }
     
     
-    public boolean hasEntry( DN dn, Collection<String> byPassed ) throws Exception
+    public boolean hasEntry( DN dn, Collection<String> byPassed ) throws LdapException
     {
         EntryOperationContext opContext = new EntryOperationContext( session, dn );
         setup( opContext );
@@ -292,7 +293,7 @@ public abstract class AbstractOperationContext implements OperationContext
     }
     
     
-    public void add( Entry entry, Collection<String> byPassed ) throws Exception
+    public void add( Entry entry, Collection<String> byPassed ) throws LdapException
     {
         AddOperationContext opContext = new AddOperationContext( session, entry );
         setup( opContext );
@@ -301,7 +302,7 @@ public abstract class AbstractOperationContext implements OperationContext
     }
     
     
-    public void delete( DN dn, Collection<String> byPassed ) throws Exception
+    public void delete( DN dn, Collection<String> byPassed ) throws LdapException
     {
         DeleteOperationContext opContext = new DeleteOperationContext( session, dn );
         setup( opContext );
@@ -310,7 +311,7 @@ public abstract class AbstractOperationContext implements OperationContext
     }
     
     
-    public void modify( DN dn, List<Modification> mods, Collection<String> byPassed ) throws Exception
+    public void modify( DN dn, List<Modification> mods, Collection<String> byPassed ) throws LdapException
     {
         ModifyOperationContext opContext = new ModifyOperationContext( session, dn, mods );
         setup( opContext );
@@ -328,7 +329,7 @@ public abstract class AbstractOperationContext implements OperationContext
     }
 
 
-    public Entry lookup( LookupOperationContext opContext ) throws Exception
+    public Entry lookup( LookupOperationContext opContext ) throws LdapException
     {
         if ( opContext != next )
         {
@@ -339,7 +340,7 @@ public abstract class AbstractOperationContext implements OperationContext
     }
 
 
-    public Entry lookup( DN dn, Collection<String> byPassed ) throws Exception
+    public Entry lookup( DN dn, Collection<String> byPassed ) throws LdapException
     {
         LookupOperationContext opContext = newLookupContext( dn );
         opContext.setByPassed( byPassed );

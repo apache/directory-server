@@ -23,8 +23,6 @@ package org.apache.directory.server.core.collective;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
@@ -60,7 +58,7 @@ public class CollectiveAttributesSchemaChecker
     }
 
 
-    /* package scope*/void checkAdd( DN normName, Entry entry ) throws Exception
+    /* package scope*/void checkAdd( DN normName, Entry entry ) throws LdapException
     {
         if ( entry.hasObjectClass( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
         {
@@ -77,7 +75,7 @@ public class CollectiveAttributesSchemaChecker
     }
 
 
-    public void checkModify( ModifyOperationContext opContext ) throws Exception
+    public void checkModify( ModifyOperationContext opContext ) throws LdapException
     {
         List<Modification> mods = opContext.getModItems();
         Entry originalEntry = opContext.getEntry();
@@ -140,7 +138,7 @@ public class CollectiveAttributesSchemaChecker
     }
 
 
-    private boolean containsAnyCollectiveAttributes( Entry entry ) throws NamingException
+    private boolean containsAnyCollectiveAttributes( Entry entry ) throws LdapException
     {
         Set<AttributeType> attributeTypes = entry.getAttributeTypes();
 

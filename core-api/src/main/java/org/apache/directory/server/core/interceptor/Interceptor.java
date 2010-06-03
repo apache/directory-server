@@ -126,7 +126,7 @@ public interface Interceptor
      * when this intercepter is loaded into interceptor chain.
      * @throws Exception 
      */
-    void init( DirectoryService directoryService ) throws Exception;
+    void init( DirectoryService directoryService ) throws LdapException;
 
 
     /**
@@ -139,104 +139,104 @@ public interface Interceptor
     /**
      * Filters {@link DefaultPartitionNexus#getRootDSE( GetRootDSEOperationContext )} call.
      */
-    ClonedServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext  opContext ) throws Exception;
+    ClonedServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext  opContext ) throws LdapException;
 
 
     /**
      * Filters {@link DefaultPartitionNexus#getMatchedName( GetMatchedNameOperationContext )} call.
      */
-    DN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception;
+    DN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws LdapException;
 
 
     /**
      * Filters {@link DefaultPartitionNexus#getSuffix( GetSuffixOperationContext )} call.
      */
-    DN getSuffix ( NextInterceptor next, GetSuffixOperationContext opContext ) throws Exception;
+    DN getSuffix ( NextInterceptor next, GetSuffixOperationContext opContext ) throws LdapException;
 
 
     /**
      * Filters {@link DefaultPartitionNexus#listSuffixes( ListSuffixOperationContext )} call.
      */
-    Set<String> listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws Exception;
+    Set<String> listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws LdapException;
 
 
     /**
      * Filters {@link DefaultPartitionNexus#addContextPartition( AddContextPartitionOperationContext )} call.
      */
-    void addContextPartition( NextInterceptor next, AddContextPartitionOperationContext opContext ) throws Exception;
+    void addContextPartition( NextInterceptor next, AddContextPartitionOperationContext opContext ) throws LdapException;
 
 
     /**
      * Filters {@link DefaultPartitionNexus#removeContextPartition( RemoveContextPartitionOperationContext )} call.
      */
-    void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext ) throws Exception;
+    void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext ) throws LdapException;
 
 
     /**
      * Filters {@link DefaultPartitionNexus#compare( CompareOperationContext )} call.
      */
-    boolean compare( NextInterceptor next, CompareOperationContext opContext) throws Exception;
+    boolean compare( NextInterceptor next, CompareOperationContext opContext) throws LdapException;
 
 
     /**
      * Filters {@link Partition#delete( DeleteOperationContext )} call.
      */
-    void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception;
+    void delete( NextInterceptor next, DeleteOperationContext opContext ) throws LdapException;
 
 
     /**
      * Filters {@link Partition#add( AddOperationContext )} call.
      */
-    void add( NextInterceptor next, AddOperationContext opContext ) throws Exception;
+    void add( NextInterceptor next, AddOperationContext opContext ) throws LdapException;
 
 
     /**
      * Filters {@link Partition#modify( ModifyOperationContext )} call.
      */
-    void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception;
+    void modify( NextInterceptor next, ModifyOperationContext opContext ) throws LdapException;
 
 
     /**
      * Filters {@link Partition#list( ListOperationContext )} call.
      */
-    EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws Exception;
+    EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws LdapException;
 
 
     /**
      * Filters {@link Partition#search( SearchOperationContext )} call.
      */
-    EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception;
+    EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws LdapException;
 
 
     /**
      * Filters {@link Partition#lookup( LookupOperationContext )} call.
      */
-    Entry lookup( NextInterceptor next, LookupOperationContext opContext ) throws Exception;
+    Entry lookup( NextInterceptor next, LookupOperationContext opContext ) throws LdapException;
 
 
     /**
      * Filters {@link Partition#hasEntry( EntryOperationContext )} call.
      */
-    boolean hasEntry( NextInterceptor next, EntryOperationContext opContext ) throws Exception;
+    boolean hasEntry( NextInterceptor next, EntryOperationContext opContext ) throws LdapException;
 
 
     /**
      * Filters {@link Partition#rename( RenameOperationContext )} call.
      */
-    void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception;
+    void rename( NextInterceptor next, RenameOperationContext opContext ) throws LdapException;
 
 
     /**
      * Filters {@link Partition#move( MoveOperationContext )} call.
      */
-    void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception;
+    void move( NextInterceptor next, MoveOperationContext opContext ) throws LdapException;
 
 
     /**
      * Filters {@link Partition#moveAndRename( MoveAndRenameOperationContext) } call.
      */
     void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext )
-        throws Exception;
+        throws LdapException;
 
     /**
      * Filters {@link Partition#bind( BindOperationContext )} call.

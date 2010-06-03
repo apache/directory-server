@@ -55,6 +55,7 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAffectMultipleDsaException;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
+import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.exception.LdapPartialResultException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.exception.LdapServiceUnavailableException;
@@ -91,28 +92,39 @@ public class DefaultOperationManager implements OperationManager
 
 
     private LdapReferralException buildReferralException( Entry parentEntry, DN childDn )
-        throws LdapInvalidDnException, LdapURLEncodingException
+        throws LdapException //, LdapURLEncodingException
     {
         // Get the Ref attributeType
         EntryAttribute refs = parentEntry.get( SchemaConstants.REF_AT );
 
         List<String> urls = new ArrayList<String>();
 
-        // manage each Referral, building the correct URL for each of them
-        for ( Value<?> url : refs )
+        try
         {
-            // we have to replace the parent by the referral
-            LdapURL ldapUrl = new LdapURL( url.getString() );
-
-            // We have a problem with the DN : we can't use the UpName,
-            // as we may have some spaces around the ',' and '+'.
-            // So we have to take the RDN one by one, and create a 
-            // new DN with the type and value UP form
-
-            DN urlDn = ( DN ) ldapUrl.getDn().addAll( childDn );
-
-            ldapUrl.setDn( urlDn );
-            urls.add( ldapUrl.toString() );
+            // manage each Referral, building the correct URL for each of them
+            for ( Value<?> url : refs )
+            {
+                // we have to replace the parent by the referral
+                LdapURL ldapUrl = new LdapURL( url.getString() );
+    
+                // We have a problem with the DN : we can't use the UpName,
+                // as we may have some spaces around the ',' and '+'.
+                // So we have to take the RDN one by one, and create a 
+                // new DN with the type and value UP form
+    
+                DN urlDn = ( DN ) ldapUrl.getDn().addAll( childDn );
+    
+                ldapUrl.setDn( urlDn );
+                urls.add( ldapUrl.toString() );
+            }
+        } 
+        catch ( LdapInvalidDnException lide )
+        {
+            throw new LdapOperationErrorException( lide.getMessage() );
+        }
+        catch ( LdapURLEncodingException luee )
+        {
+            throw new LdapOperationErrorException( luee.getMessage() );
         }
 
         // Return with an exception
@@ -126,7 +138,7 @@ public class DefaultOperationManager implements OperationManager
 
 
     private LdapReferralException buildReferralExceptionForSearch( Entry parentEntry, DN childDn, SearchScope scope )
-        throws LdapInvalidDnException, LdapURLEncodingException
+        throws LdapException
     {
         // Get the Ref attributeType
         EntryAttribute refs = parentEntry.get( SchemaConstants.REF_AT );
@@ -209,7 +221,7 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public void add( AddOperationContext opContext ) throws Exception
+    public void add( AddOperationContext opContext ) throws LdapException
     {
         LOG.debug( ">> AddOperation : {}", opContext );
         LOG_CHANGES.debug( ">> AddOperation : {}", opContext );
@@ -295,7 +307,7 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public boolean compare( CompareOperationContext opContext ) throws Exception
+    public boolean compare( CompareOperationContext opContext ) throws LdapException
     {
         LOG.debug( ">> CompareOperation : {}", opContext );
 
@@ -374,7 +386,7 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public void delete( DeleteOperationContext opContext ) throws Exception
+    public void delete( DeleteOperationContext opContext ) throws LdapException
     {
         LOG.debug( ">> DeleteOperation : {}", opContext );
         LOG_CHANGES.debug( ">> DeleteOperation : {}", opContext );
@@ -456,7 +468,7 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public DN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception
+    public DN getMatchedName( GetMatchedNameOperationContext opContext ) throws LdapException
     {
         LOG.debug( ">> GetMatchedNameOperation : {}", opContext );
 
@@ -479,7 +491,7 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws Exception
+    public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws LdapException
     {
         LOG.debug( ">> GetRootDSEOperation : {}", opContext );
 
@@ -503,7 +515,7 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public DN getSuffix( GetSuffixOperationContext opContext ) throws Exception
+    public DN getSuffix( GetSuffixOperationContext opContext ) throws LdapException
     {
         LOG.debug( ">> GetSuffixOperation : {}", opContext );
 
@@ -526,7 +538,7 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public boolean hasEntry( EntryOperationContext opContext ) throws Exception
+    public boolean hasEntry( EntryOperationContext opContext ) throws LdapException
     {
         LOG.debug( ">> hasEntryOperation : {}", opContext );
 
@@ -549,7 +561,7 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( ListOperationContext opContext ) throws LdapException
     {
         LOG.debug( ">> ListOperation : {}", opContext );
 
@@ -572,7 +584,7 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception
+    public Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws LdapException
     {
         LOG.debug( ">> ListSuffixesOperation : {}", opContext );
 
@@ -595,7 +607,7 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public Entry lookup( LookupOperationContext opContext ) throws Exception
+    public Entry lookup( LookupOperationContext opContext ) throws LdapException
     {
         LOG.debug( ">> LookupOperation : {}", opContext );
 
@@ -619,7 +631,7 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public void modify( ModifyOperationContext opContext ) throws Exception
+    public void modify( ModifyOperationContext opContext ) throws LdapException
     {
         LOG.debug( ">> ModifyOperation : {}", opContext );
         LOG_CHANGES.debug( ">> ModifyOperation : {}", opContext );
@@ -710,7 +722,7 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public void move( MoveOperationContext opContext ) throws Exception
+    public void move( MoveOperationContext opContext ) throws LdapException
     {
         LOG.debug( ">> MoveOperation : {}", opContext );
         LOG_CHANGES.debug( ">> MoveOperation : {}", opContext );
@@ -812,7 +824,7 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception
+    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException
     {
         LOG.debug( ">> MoveAndRenameOperation : {}", opContext );
         LOG_CHANGES.debug( ">> MoveAndRenameOperation : {}", opContext );
@@ -916,7 +928,7 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc} 
      */
-    public void rename( RenameOperationContext opContext ) throws Exception
+    public void rename( RenameOperationContext opContext ) throws LdapException
     {
         LOG.debug( ">> RenameOperation : {}", opContext );
         LOG_CHANGES.debug( ">> RenameOperation : {}", opContext );
@@ -1009,7 +1021,7 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( SearchOperationContext opContext ) throws LdapException
     {
         LOG.debug( ">> SearchOperation : {}", opContext );
 

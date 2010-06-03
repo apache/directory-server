@@ -53,7 +53,7 @@ public class MockOperationManager implements OperationManager
         this.count = count;
     }
     
-    public void add( AddOperationContext opContext ) throws Exception
+    public void add( AddOperationContext opContext ) throws LdapException
     {
     }
 
@@ -63,68 +63,68 @@ public class MockOperationManager implements OperationManager
     }
 
     
-    public boolean compare( CompareOperationContext opContext ) throws Exception
+    public boolean compare( CompareOperationContext opContext ) throws LdapException
     {
         return false;
     }
 
 
-    public void delete( DeleteOperationContext opContext ) throws Exception
+    public void delete( DeleteOperationContext opContext ) throws LdapException
     {
     }
 
-    public DN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception
-    {
-        return null;
-    }
-
-    public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws Exception
+    public DN getMatchedName( GetMatchedNameOperationContext opContext ) throws LdapException
     {
         return null;
     }
 
-    public DN getSuffix( GetSuffixOperationContext opContext ) throws Exception
+    public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws LdapException
     {
         return null;
     }
 
-    public boolean hasEntry( EntryOperationContext opContext ) throws Exception
+    public DN getSuffix( GetSuffixOperationContext opContext ) throws LdapException
+    {
+        return null;
+    }
+
+    public boolean hasEntry( EntryOperationContext opContext ) throws LdapException
     {
         return false;
     }
 
-    public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( ListOperationContext opContext ) throws LdapException
     {
         return null;
     }
 
-    public Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception
+    public Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws LdapException
     {
         return null;
     }
 
-    public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
+    public ClonedServerEntry lookup( LookupOperationContext opContext ) throws LdapException
     {
         return null;
     }
 
-    public void modify( ModifyOperationContext opContext ) throws Exception
+    public void modify( ModifyOperationContext opContext ) throws LdapException
     {
     }
 
-    public void move( MoveOperationContext opContext ) throws Exception
+    public void move( MoveOperationContext opContext ) throws LdapException
     {
     }
 
-    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception
+    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException
     {
     }
 
-    public void rename( RenameOperationContext opContext ) throws Exception
+    public void rename( RenameOperationContext opContext ) throws LdapException
     {
     }
 
-    public EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( SearchOperationContext opContext ) throws LdapException
     {
         MockCursor cursor = new MockCursor( count );
         cursor.setSchemaManager( opContext.getSession().getDirectoryService().getSchemaManager() );

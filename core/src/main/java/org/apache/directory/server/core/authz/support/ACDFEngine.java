@@ -47,6 +47,7 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -89,7 +90,7 @@ public class ACDFEngine
      * 
      * @throws NamingException if failed to initialize internal components
      */
-    public ACDFEngine( OidRegistry oidRegistry, SchemaManager schemaManager ) throws NamingException
+    public ACDFEngine( OidRegistry oidRegistry, SchemaManager schemaManager ) throws LdapException
     {
         Evaluator entryEvaluator = new ExpressionEvaluator( oidRegistry, schemaManager );
         SubtreeEvaluator subtreeEvaluator = new SubtreeEvaluator( oidRegistry, schemaManager );
@@ -138,7 +139,7 @@ public class ACDFEngine
         Collection<MicroOperation> microOperations, 
         Collection<ACITuple> aciTuples, 
         Entry entry, 
-        Entry entryView ) throws Exception
+        Entry entryView ) throws LdapException
     {
         if ( !hasPermission( schemaManager, opContext, userGroupNames, username, authenticationLevel, entryName, 
             attrId, attrValue, microOperations, aciTuples, entry, entryView ) )
@@ -196,7 +197,7 @@ public class ACDFEngine
         Collection<MicroOperation> microOperations, 
         Collection<ACITuple> aciTuples, 
         Entry entry, 
-        Entry entryView ) throws Exception
+        Entry entryView ) throws LdapException
     {
         if ( entryName == null )
         {

@@ -70,6 +70,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.name.DN;
@@ -190,7 +191,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * @param directoryService the directory service core
      * @throws Exception if there are problems during initialization
      */
-    public void init( DirectoryService directoryService ) throws Exception
+    public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );
 
@@ -227,7 +228,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private void protectCriticalEntries( DN dn ) throws Exception
+    private void protectCriticalEntries( DN dn ) throws LdapException
     {
         DN principalDn = getPrincipal().getDNRef();
 
@@ -262,7 +263,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * @param proxy the partition nexus proxy object
      */
     private void addPerscriptiveAciTuples( OperationContext opContext, Collection<ACITuple> tuples, DN dn, Entry entry )
-        throws Exception
+        throws LdapException
     {
         EntryAttribute oc = null;
 
@@ -314,7 +315,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * @param entry the target entry that access to is being regulated
      * @throws Exception if there are problems accessing attribute values
      */
-    private void addEntryAciTuples( Collection<ACITuple> tuples, Entry entry ) throws Exception
+    private void addEntryAciTuples( Collection<ACITuple> tuples, Entry entry ) throws LdapException
     {
         EntryAttribute entryAci = entry.get( entryAciType );
 
@@ -355,7 +356,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * @param proxy the partition nexus proxy object
      */
     private void addSubentryAciTuples( OperationContext opContext, Collection<ACITuple> tuples, DN dn, Entry entry )
-        throws Exception
+        throws LdapException
     {
         // only perform this for subentries
         if ( !entry.contains( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
@@ -419,7 +420,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * -------------------------------------------------------------------------------
      */
 
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws Exception
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         LdapPrincipal principal = addContext.getSession().getEffectivePrincipal();
@@ -495,7 +496,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws Exception
+    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
     {
         CoreSession session = deleteContext.getSession();
 
@@ -543,7 +544,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
     // False positive, we want to keep the comment
     @SuppressWarnings("PMD.CollapsibleIfStatements")
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws LdapException
     {
         DN dn = opContext.getDn();
 
@@ -661,7 +662,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public boolean hasEntry( NextInterceptor next, EntryOperationContext entryContext ) throws Exception
+    public boolean hasEntry( NextInterceptor next, EntryOperationContext entryContext ) throws LdapException
     {
         DN name = entryContext.getDn();
 
@@ -719,7 +720,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * @param entry the raw entry pulled from the nexus
      * @throws Exception if undlying access to the DIT fails
      */
-    private void checkLookupAccess( LookupOperationContext lookupContext, Entry entry ) throws Exception
+    private void checkLookupAccess( LookupOperationContext lookupContext, Entry entry ) throws LdapException
     {
         // no permissions checks on the RootDSE
         if ( lookupContext.getDn().getNormName().trim().equals( "" ) )
@@ -753,7 +754,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public Entry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws Exception
+    public Entry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws LdapException
     {
         CoreSession session = lookupContext.getSession();
         DirectoryService directoryService = session.getDirectoryService();
@@ -780,7 +781,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws Exception
+    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
     {
         DN oldName = renameContext.getDn();
         Entry originalEntry = null;
@@ -831,7 +832,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
 
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
-        throws Exception
+        throws LdapException
     {
         DN oriChildName = moveAndRenameContext.getDn();
         DN newParentName = moveAndRenameContext.getParent();
@@ -908,7 +909,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws Exception
+    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
     {
         DN oriChildName = moveContext.getDn();
         DN newParentName = moveContext.getParent();
@@ -983,7 +984,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws LdapException
     {
         LdapPrincipal user = opContext.getSession().getEffectivePrincipal();
         EntryFilteringCursor cursor = next.list( opContext );
@@ -1000,7 +1001,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws LdapException
     {
         LdapPrincipal user = opContext.getSession().getEffectivePrincipal();
         DN principalDn = user.getDN();
@@ -1029,7 +1030,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws Exception
+    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws LdapException
     {
         DN name = opContext.getDn();
         String oid = opContext.getOid();
@@ -1061,7 +1062,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public DN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception
+    public DN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws LdapException
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         LdapPrincipal principal = opContext.getSession().getEffectivePrincipal();

@@ -54,6 +54,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -132,7 +133,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public void init( DirectoryService directoryService ) throws Exception
+    public void init( DirectoryService directoryService ) throws LdapException
     {
         service = directoryService;
         schemaManager = directoryService.getSchemaManager();
@@ -167,7 +168,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      * - entryCSN
      * - entryUUID 
      */
-    public void add( NextInterceptor nextInterceptor, AddOperationContext opContext ) throws Exception
+    public void add( NextInterceptor nextInterceptor, AddOperationContext opContext ) throws LdapException
     {
         String principal = getPrincipal().getName();
 
@@ -245,7 +246,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor nextInterceptor, ModifyOperationContext opContext ) throws Exception
+    public void modify( NextInterceptor nextInterceptor, ModifyOperationContext opContext ) throws LdapException
     {
         // We must check that the user hasn't injected either the modifiersName
         // or the modifyTimestamp operational attributes : they are not supposed to be
@@ -319,7 +320,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor nextInterceptor, RenameOperationContext opContext ) throws Exception
+    public void rename( NextInterceptor nextInterceptor, RenameOperationContext opContext ) throws LdapException
     {
         nextInterceptor.rename( opContext );
 
@@ -340,7 +341,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor nextInterceptor, MoveOperationContext opContext ) throws Exception
+    public void move( NextInterceptor nextInterceptor, MoveOperationContext opContext ) throws LdapException
     {
         nextInterceptor.move( opContext );
 
@@ -360,7 +361,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
 
     public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         nextInterceptor.moveAndRename( opContext );
 
@@ -379,7 +380,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
+    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws LdapException
     {
         Entry result = nextInterceptor.lookup( opContext );
 
@@ -403,7 +404,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
 
     public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         EntryFilteringCursor cursor = nextInterceptor.list( opContext );
         cursor.addEntryFilter( SEARCH_FILTER );
@@ -412,7 +413,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
 
     public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         EntryFilteringCursor cursor = nextInterceptor.search( opContext );
 
@@ -440,7 +441,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      * @return true always
      * @throws Exception if there are failures in evaluation
      */
-    private boolean filterOperationalAttributes( Entry attributes ) throws Exception
+    private boolean filterOperationalAttributes( Entry attributes ) throws LdapException
     {
         Set<AttributeType> removedAttributes = new HashSet<AttributeType>();
 
@@ -463,7 +464,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    private void filter( LookupOperationContext lookupContext, Entry entry ) throws Exception
+    private void filter( LookupOperationContext lookupContext, Entry entry ) throws LdapException
     {
         DN dn = lookupContext.getDn();
         List<String> ids = lookupContext.getAttrsId();
@@ -496,7 +497,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public void denormalizeEntryOpAttrs( Entry entry ) throws Exception
+    public void denormalizeEntryOpAttrs( Entry entry ) throws LdapException
     {
         if ( service.isDenormalizeOpAttrsEnabled() )
         {
@@ -541,7 +542,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      * @return the distinuished name denormalized
      * @throws Exception if there are problems denormalizing
      */
-    public DN denormalizeTypes( DN dn ) throws Exception
+    public DN denormalizeTypes( DN dn ) throws LdapException
     {
         DN newDn = new DN();
 

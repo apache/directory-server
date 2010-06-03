@@ -55,7 +55,9 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAliasException;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapEntryAlreadyExistsException;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
+import org.apache.directory.shared.ldap.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -110,7 +112,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     }
 
 
-    public void init( DirectoryService directoryService ) throws Exception
+    public void init( DirectoryService directoryService ) throws LdapException
     {
         this.directoryService = directoryService;
         nexus = directoryService.getPartitionNexus();
@@ -129,7 +131,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      * In the pre-invocation state this interceptor method checks to see if the entry to be added already exists.  If it
      * does an exception is raised.
      */
-    public void add( NextInterceptor nextInterceptor, AddOperationContext opContext ) throws Exception
+    public void add( NextInterceptor nextInterceptor, AddOperationContext opContext ) throws LdapException
     {
         DN name = opContext.getDn();
 
@@ -213,7 +215,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      * Checks to make sure the entry being deleted exists, and has no children, otherwise throws the appropriate
      * LdapException.
      */
-    public void delete( NextInterceptor nextInterceptor, DeleteOperationContext opContext ) throws Exception
+    public void delete( NextInterceptor nextInterceptor, DeleteOperationContext opContext ) throws LdapException
     {
         DN dn = opContext.getDn();
 
@@ -240,7 +242,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      * Checks to see the base being searched exists, otherwise throws the appropriate LdapException.
      */
     public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         if ( opContext.getDn().getNormName().equals( subschemSubentryDn.getNormName() ) )
         {
@@ -259,7 +261,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     /**
      * Checks to see the base being searched exists, otherwise throws the appropriate LdapException.
      */
-    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
+    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws LdapException
     {
         DN dn = opContext.getDn();
 
@@ -285,7 +287,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     /**
      * Checks to see the entry being modified exists, otherwise throws the appropriate LdapException.
      */
-    public void modify( NextInterceptor nextInterceptor, ModifyOperationContext opContext ) throws Exception
+    public void modify( NextInterceptor nextInterceptor, ModifyOperationContext opContext ) throws LdapException
     {
         // check if entry to modify exists
         String msg = "Attempt to modify non-existant entry: ";
@@ -348,7 +350,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     /**
      * Checks to see the entry being renamed exists, otherwise throws the appropriate LdapException.
      */
-    public void rename( NextInterceptor nextInterceptor, RenameOperationContext opContext ) throws Exception
+    public void rename( NextInterceptor nextInterceptor, RenameOperationContext opContext ) throws LdapException
     {
         DN dn = opContext.getDn();
 
@@ -397,7 +399,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      * Checks to see the entry being moved exists, and so does its parent, otherwise throws the appropriate
      * LdapException.
      */
-    public void move( NextInterceptor nextInterceptor, MoveOperationContext opContext ) throws Exception
+    public void move( NextInterceptor nextInterceptor, MoveOperationContext opContext ) throws LdapException
     {
         DN oriChildName = opContext.getDn();
         DN newParentName = opContext.getParent();
@@ -452,7 +454,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      * LdapException.
      */
     public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         DN oriChildName = opContext.getDn();
         DN parent = opContext.getParent();
@@ -504,7 +506,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      * Checks to see the entry being searched exists, otherwise throws the appropriate LdapException.
      */
     public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         DN base = opContext.getDn();
 
@@ -525,7 +527,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         {
             String msg = I18n.err( I18n.ERR_259 );
             assertHasEntry( opContext, msg, opContext.getDn() );
-            throw ne;
+            throw new LdapOperationException( msg );
         }
     }
 
@@ -538,7 +540,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      * @throws Exception if the entry does not exist
      * @param nextInterceptor the next interceptor in the chain
      */
-    private void assertHasEntry( OperationContext opContext, String msg ) throws Exception
+    private void assertHasEntry( OperationContext opContext, String msg ) throws LdapException
     {
         DN dn = opContext.getDn();
 
@@ -574,7 +576,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      * @throws Exception if the entry does not exist
      * @param nextInterceptor the next interceptor in the chain
      */
-    private void assertHasEntry( OperationContext opContext, String msg, DN dn ) throws Exception
+    private void assertHasEntry( OperationContext opContext, String msg, DN dn ) throws LdapException
     {
         if ( subschemSubentryDn.equals( dn ) )
         {

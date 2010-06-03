@@ -25,7 +25,10 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,28 +124,44 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
-    public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws Exception
+    public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws LdapException
     {
         if ( !enabled )
         {
             throw new IllegalStateException( I18n.err( I18n.ERR_236 ) );
         }
 
-        return store.log( principal, forward, reverse );
+        try
+        {
+            ChangeLogEvent event = store.log( principal, forward, reverse );
+            
+            return event;
+        }
+        catch ( Exception e )
+        {
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getMessage() );
+        }
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, List<LdifEntry> reverses ) throws Exception
+    public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, List<LdifEntry> reverses ) throws LdapException
     {
         if ( !enabled )
         {
             throw new IllegalStateException( I18n.err( I18n.ERR_236 ) );
         }
 
-        return store.log( principal, forward, reverses );
+        try
+        {
+            return store.log( principal, forward, reverses );
+        }
+        catch ( Exception e )
+        {
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getMessage() );
+        }
     }
 
 

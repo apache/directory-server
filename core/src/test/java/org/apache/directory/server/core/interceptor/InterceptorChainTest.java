@@ -616,7 +616,7 @@ public class InterceptorChainTest
         }
 
 
-        public CoreSession getAdminSession() throws Exception
+        public CoreSession getAdminSession()
         {
             return null;
         }

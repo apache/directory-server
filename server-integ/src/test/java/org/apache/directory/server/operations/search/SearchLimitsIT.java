@@ -49,6 +49,7 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -135,7 +136,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
         private Long delayMillis;
 
         
-        public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
+        public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws LdapException
         {
             EntryFilteringCursor cursor = next.search( opContext );
             cursor.addEntryFilter( new EntryFilter() {

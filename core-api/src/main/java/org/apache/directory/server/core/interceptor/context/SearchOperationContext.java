@@ -28,6 +28,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
@@ -95,7 +96,7 @@ public class SearchOperationContext extends SearchingOperationContext
      * @param filter the filter AST to use for the search
      * @param searchControls the search controls
      */
-    public SearchOperationContext( CoreSession session, DN dn, ExprNode filter, SearchControls searchControls ) throws Exception
+    public SearchOperationContext( CoreSession session, DN dn, ExprNode filter, SearchControls searchControls ) throws LdapException
     {
         super( session, dn );
         this.filter = filter;

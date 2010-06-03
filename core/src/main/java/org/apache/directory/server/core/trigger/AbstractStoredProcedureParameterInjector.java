@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
@@ -77,7 +78,7 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
     
     
     public final List<Object> getArgumentsToInject( OperationContext opContext, 
-        List<StoredProcedureParameter> parameterList ) throws Exception
+        List<StoredProcedureParameter> parameterList ) throws LdapException
     {
         List<Object> arguments = new ArrayList<Object>();
         
@@ -96,7 +97,7 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
     
     MicroInjector $operationPrincipalInjector = new MicroInjector()
     {
-        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws Exception
+        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
         {
             return getOperationPrincipal();
         }
@@ -105,7 +106,7 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
     
     MicroInjector $ldapContextInjector = new MicroInjector()
     {
-        public Object inject(  OperationContext opContext, StoredProcedureParameter param ) throws Exception
+        public Object inject(  OperationContext opContext, StoredProcedureParameter param ) throws LdapException
         {
             Generic_LDAP_CONTEXT ldapCtxParam = ( Generic_LDAP_CONTEXT ) param;
             DN ldapCtxName = ldapCtxParam.getCtxName();

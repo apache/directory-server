@@ -100,7 +100,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     /**
      * Registers and initializes all {@link Authenticator}s to this service.
      */
-    public void init( DirectoryService directoryService ) throws Exception
+    public void init( DirectoryService directoryService ) throws LdapException
     {
         this.directoryService = directoryService;
         
@@ -166,7 +166,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
      * @param directoryService configuration info to supply to the Authenticator during initialization
      * @throws javax.naming.Exception if initialization fails.
      */
-    private void register( Authenticator authenticator, DirectoryService directoryService ) throws Exception
+    private void register( Authenticator authenticator, DirectoryService directoryService ) throws LdapException
     {
         authenticator.init( directoryService );
 
@@ -203,7 +203,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws Exception
+    public void add( NextInterceptor next, AddOperationContext opContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -215,7 +215,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
+    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -228,7 +228,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public DN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception
+    public DN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -240,7 +240,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public ClonedServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws Exception
+    public ClonedServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -252,7 +252,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public DN getSuffix( NextInterceptor next, GetSuffixOperationContext opContext ) throws Exception
+    public DN getSuffix( NextInterceptor next, GetSuffixOperationContext opContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -264,7 +264,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public boolean hasEntry( NextInterceptor next, EntryOperationContext opContext ) throws Exception
+    public boolean hasEntry( NextInterceptor next, EntryOperationContext opContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -276,7 +276,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -288,7 +288,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public Set<String> listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws Exception
+    public Set<String> listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -300,7 +300,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public Entry lookup( NextInterceptor next, LookupOperationContext opContext ) throws Exception
+    public Entry lookup( NextInterceptor next, LookupOperationContext opContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -327,7 +327,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -340,7 +340,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
+    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -353,7 +353,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws Exception
+    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -368,7 +368,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
 
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext )
-            throws Exception
+            throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -381,7 +381,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
+    public void move( NextInterceptor next, MoveOperationContext opContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -394,7 +394,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -413,7 +413,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
      * @param operation the operation type
      * @throws Exception
      */
-    private void checkAuthenticated( OperationContext operation ) throws Exception
+    private void checkAuthenticated( OperationContext operation ) throws LdapException
     {
         if ( operation.getSession().isAnonymous() && !directoryService.isAllowAnonymousAccess() 
             && !operation.getDn().isEmpty() )

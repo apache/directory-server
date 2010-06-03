@@ -35,9 +35,10 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -152,7 +153,7 @@ public class RegistrySynchronizerAdaptor
      * @param opContext The Add context, containing the entry to be added
      * @throws Exception If the addition failed 
      */
-    public void add( AddOperationContext opContext ) throws Exception
+    public void add( AddOperationContext opContext ) throws LdapException
     {
         EntryAttribute oc = opContext.getEntry().get( objectClassAT );
         
@@ -218,7 +219,7 @@ public class RegistrySynchronizerAdaptor
      * {@inheritDoc}
      */
     public void delete( DeleteOperationContext opContext, boolean doCascadeDelete ) 
-        throws Exception
+        throws LdapException
     {
         Entry entry = opContext.getEntry();
         
@@ -273,7 +274,7 @@ public class RegistrySynchronizerAdaptor
      * @param doCascadeModify Not used
      * @throws Exception If the modification failed
      */
-    public boolean modify( ModifyOperationContext opContext, Entry targetEntry, boolean doCascadeModify ) throws Exception
+    public boolean modify( ModifyOperationContext opContext, Entry targetEntry, boolean doCascadeModify ) throws LdapException
     {
         Entry entry = opContext.getEntry();
         EntryAttribute oc = entry.get( objectClassAT );
@@ -315,7 +316,7 @@ public class RegistrySynchronizerAdaptor
      * @throws Exception If the rename failed
      */
     public void rename( RenameOperationContext opContext, boolean doCascadeModify ) 
-        throws Exception
+        throws LdapException
     {
         Entry originalEntry = opContext.getEntry().getOriginalEntry();
         EntryAttribute oc = originalEntry.get( objectClassAT );
@@ -345,7 +346,7 @@ public class RegistrySynchronizerAdaptor
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaChangeManager#replace(org.apache.directory.server.core.interceptor.context.MoveOperationContext, org.apache.directory.server.core.entry.Entry, boolean)
      */
-    public void move( MoveOperationContext opContext, Entry entry, boolean cascade ) throws Exception
+    public void move( MoveOperationContext opContext, Entry entry, boolean cascade ) throws LdapException
     {
         EntryAttribute oc = entry.get( objectClassAT );
         
@@ -374,7 +375,7 @@ public class RegistrySynchronizerAdaptor
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaChangeManager#move(org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext, org.apache.directory.server.core.entry.Entry, boolean)
      */
-    public void moveAndRename( MoveAndRenameOperationContext opContext, Entry entry, boolean cascade ) throws Exception
+    public void moveAndRename( MoveAndRenameOperationContext opContext, Entry entry, boolean cascade ) throws LdapException
     {
         EntryAttribute oc = entry.get( objectClassAT );
         

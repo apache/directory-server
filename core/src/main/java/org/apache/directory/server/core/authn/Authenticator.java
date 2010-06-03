@@ -27,6 +27,7 @@ import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 
 
@@ -59,7 +60,7 @@ public interface Authenticator
      * Called by {@link AuthenticationInterceptor} to indicate that this
      * authenticator is being placed into service.
      */
-    public void init( DirectoryService directoryService ) throws Exception;
+    public void init( DirectoryService directoryService ) throws LdapException;
 
 
     /**

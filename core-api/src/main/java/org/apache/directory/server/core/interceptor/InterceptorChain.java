@@ -100,106 +100,106 @@ public class InterceptorChain
         }
 
 
-        public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws Exception
+        public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws LdapException
         {
             return nexus.compare( opContext );
         }
 
 
         public ClonedServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext )
-            throws Exception
+            throws LdapException
         {
             return nexus.getRootDSE( opContext );
         }
 
 
-        public DN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception
+        public DN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws LdapException
         {
             return ( DN ) nexus.getMatchedName( opContext ).clone();
         }
 
 
-        public DN getSuffix( NextInterceptor next, GetSuffixOperationContext opContext ) throws Exception
+        public DN getSuffix( NextInterceptor next, GetSuffixOperationContext opContext ) throws LdapException
         {
             return ( DN ) nexus.getSuffix( opContext ).clone();
         }
 
 
-        public Set<String> listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws Exception
+        public Set<String> listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws LdapException
         {
             return nexus.listSuffixes( opContext );
         }
 
 
-        public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
+        public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws LdapException
         {
             nexus.delete( opContext );
         }
 
 
-        public void add( NextInterceptor next, AddOperationContext opContext ) throws Exception
+        public void add( NextInterceptor next, AddOperationContext opContext ) throws LdapException
         {
             nexus.add( opContext );
         }
 
 
-        public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
+        public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws LdapException
         {
             nexus.modify( opContext );
         }
 
 
-        public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws Exception
+        public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws LdapException
         {
             return nexus.list( opContext );
         }
 
 
-        public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
+        public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws LdapException
         {
             return nexus.search( opContext );
         }
 
 
-        public ClonedServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws Exception
+        public ClonedServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws LdapException
         {
             return nexus.lookup( opContext );
         }
 
 
-        public boolean hasEntry( NextInterceptor next, EntryOperationContext opContext ) throws Exception
+        public boolean hasEntry( NextInterceptor next, EntryOperationContext opContext ) throws LdapException
         {
             return nexus.hasEntry( opContext );
         }
 
 
-        public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
+        public void rename( NextInterceptor next, RenameOperationContext opContext ) throws LdapException
         {
             nexus.rename( opContext );
         }
 
 
-        public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
+        public void move( NextInterceptor next, MoveOperationContext opContext ) throws LdapException
         {
             nexus.move( opContext );
         }
 
 
-        public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws Exception
+        public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws LdapException
         {
             nexus.moveAndRename( opContext );
         }
 
 
         public void addContextPartition( NextInterceptor next, AddContextPartitionOperationContext opContext )
-            throws Exception
+            throws LdapException
         {
             nexus.addContextPartition( opContext );
         }
 
 
         public void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext )
-            throws Exception
+            throws LdapException
         {
             nexus.removeContextPartition( opContext );
         }
@@ -242,7 +242,7 @@ public class InterceptorChain
      * @throws javax.naming.Exception if an interceptor cannot be initialized.
      * @param directoryService the directory core
      */
-    public synchronized void init( DirectoryService directoryService ) throws Exception
+    public synchronized void init( DirectoryService directoryService ) throws LdapException
     {
         // Initialize tail first.
         this.directoryService = directoryService;
@@ -266,9 +266,9 @@ public class InterceptorChain
             // destroy if failed to initialize all interceptors.
             destroy();
 
-            if ( t instanceof Exception )
+            if ( t instanceof LdapException )
             {
-                throw ( Exception ) t;
+                throw ( LdapException ) t;
             }
             else
             {
@@ -541,7 +541,7 @@ public class InterceptorChain
     }
 
 
-    public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws Exception
+    public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws LdapException
     {
         Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -551,9 +551,9 @@ public class InterceptorChain
         {
             return head.getRootDSE( next, opContext );
         }
-        catch ( Exception ne )
+        catch ( LdapException le )
         {
-            throw ne;
+            throw le;
         }
         catch ( Throwable e )
         {
@@ -563,7 +563,7 @@ public class InterceptorChain
     }
 
 
-    public DN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception
+    public DN getMatchedName( GetMatchedNameOperationContext opContext ) throws LdapException
     {
         Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -573,9 +573,9 @@ public class InterceptorChain
         {
             return head.getMatchedName( next, opContext );
         }
-        catch ( Exception ne )
+        catch ( LdapException le )
         {
-            throw ne;
+            throw le;
         }
         catch ( Throwable e )
         {
@@ -585,7 +585,7 @@ public class InterceptorChain
     }
 
 
-    public DN getSuffix( GetSuffixOperationContext opContext ) throws Exception
+    public DN getSuffix( GetSuffixOperationContext opContext ) throws LdapException
     {
         Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -595,9 +595,9 @@ public class InterceptorChain
         {
             return head.getSuffix( next, opContext );
         }
-        catch ( Exception ne )
+        catch ( LdapException le )
         {
-            throw ne;
+            throw le;
         }
         catch ( Throwable e )
         {
@@ -607,7 +607,7 @@ public class InterceptorChain
     }
 
 
-    public boolean compare( CompareOperationContext opContext ) throws Exception
+    public boolean compare( CompareOperationContext opContext ) throws LdapException
     {
         Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -617,9 +617,9 @@ public class InterceptorChain
         {
             return head.compare( next, opContext );
         }
-        catch ( Exception ne )
+        catch ( LdapException le )
         {
-            throw ne;
+            throw le;
         }
         catch ( Throwable e )
         {
@@ -629,7 +629,7 @@ public class InterceptorChain
     }
 
 
-    public Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception
+    public Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws LdapException
     {
         Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -639,9 +639,9 @@ public class InterceptorChain
         {
             return head.listSuffixes( next, opContext );
         }
-        catch ( Exception ne )
+        catch ( LdapException le )
         {
-            throw ne;
+            throw le;
         }
         catch ( Throwable e )
         {
@@ -673,7 +673,7 @@ public class InterceptorChain
     }
 
 
-    public void removeContextPartition( RemoveContextPartitionOperationContext opContext ) throws Exception
+    public void removeContextPartition( RemoveContextPartitionOperationContext opContext ) throws LdapException
     {
         Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -683,9 +683,9 @@ public class InterceptorChain
         {
             head.removeContextPartition( next, opContext );
         }
-        catch ( Exception ne )
+        catch ( LdapException le )
         {
-            throw ne;
+            throw le;
         }
         catch ( Throwable e )
         {
@@ -728,7 +728,7 @@ public class InterceptorChain
     }
 
 
-    public void delete( DeleteOperationContext opContext ) throws Exception
+    public void delete( DeleteOperationContext opContext ) throws LdapException
     {
         Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -739,9 +739,9 @@ public class InterceptorChain
         {
             head.delete( next, opContext );
         }
-        catch ( Exception ne )
+        catch ( LdapException le )
         {
-            throw ne;
+            throw le;
         }
         catch ( Throwable e )
         {
@@ -750,7 +750,7 @@ public class InterceptorChain
     }
 
 
-    public void add( AddOperationContext opContext ) throws Exception
+    public void add( AddOperationContext opContext ) throws LdapException
     {
         Element node = getStartingEntry();
         Interceptor head = node.interceptor;
@@ -760,9 +760,9 @@ public class InterceptorChain
         {
             head.add( next, opContext );
         }
-        catch ( Exception ne )
+        catch ( LdapException le )
         {
-            throw ne;
+            throw le;
         }
         catch ( Throwable e )
         {
@@ -813,7 +813,7 @@ public class InterceptorChain
     }
 
 
-    public void modify( ModifyOperationContext opContext ) throws Exception
+    public void modify( ModifyOperationContext opContext ) throws LdapException
     {
         Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -824,9 +824,9 @@ public class InterceptorChain
         {
             head.modify( next, opContext );
         }
-        catch ( Exception ne )
+        catch ( LdapException le )
         {
-            throw ne;
+            throw le;
         }
         catch ( Throwable e )
         {
@@ -835,7 +835,7 @@ public class InterceptorChain
     }
 
 
-    public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( ListOperationContext opContext ) throws LdapException
     {
         Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -846,9 +846,9 @@ public class InterceptorChain
         {
             return head.list( next, opContext );
         }
-        catch ( Exception ne )
+        catch ( LdapException le )
         {
-            throw ne;
+            throw le;
         }
         catch ( Throwable e )
         {
@@ -858,7 +858,7 @@ public class InterceptorChain
     }
 
 
-    public EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( SearchOperationContext opContext ) throws LdapException
     {
         Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -868,9 +868,9 @@ public class InterceptorChain
         {
             return head.search( next, opContext );
         }
-        catch ( Exception ne )
+        catch ( LdapException le )
         {
-            throw ne;
+            throw le;
         }
         catch ( Throwable e )
         {
@@ -880,7 +880,7 @@ public class InterceptorChain
     }
 
 
-    public Entry lookup( LookupOperationContext opContext ) throws Exception
+    public Entry lookup( LookupOperationContext opContext ) throws LdapException
     {
         Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -890,9 +890,9 @@ public class InterceptorChain
         {
             return head.lookup( next, opContext );
         }
-        catch ( Exception ne )
+        catch ( LdapException le )
         {
-            throw ne;
+            throw le;
         }
         catch ( Throwable e )
         {
@@ -902,7 +902,7 @@ public class InterceptorChain
     }
 
 
-    public boolean hasEntry( EntryOperationContext opContext ) throws Exception
+    public boolean hasEntry( EntryOperationContext opContext ) throws LdapException
     {
         Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -912,9 +912,9 @@ public class InterceptorChain
         {
             return head.hasEntry( next, opContext );
         }
-        catch ( Exception ne )
+        catch ( LdapException le )
         {
-            throw ne;
+            throw le;
         }
         catch ( Throwable e )
         {
@@ -924,7 +924,7 @@ public class InterceptorChain
     }
 
 
-    public void rename( RenameOperationContext opContext ) throws Exception
+    public void rename( RenameOperationContext opContext ) throws LdapException
     {
         Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -935,9 +935,9 @@ public class InterceptorChain
         {
             head.rename( next, opContext );
         }
-        catch ( Exception ne )
+        catch ( LdapException le )
         {
-            throw ne;
+            throw le;
         }
         catch ( Throwable e )
         {
@@ -946,7 +946,7 @@ public class InterceptorChain
     }
 
 
-    public void move( MoveOperationContext opContext ) throws Exception
+    public void move( MoveOperationContext opContext ) throws LdapException
     {
         Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -957,9 +957,9 @@ public class InterceptorChain
         {
             head.move( next, opContext );
         }
-        catch ( Exception ne )
+        catch ( LdapException le )
         {
-            throw ne;
+            throw le;
         }
         catch ( Throwable e )
         {
@@ -968,7 +968,7 @@ public class InterceptorChain
     }
 
 
-    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception
+    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException
     {
         Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -979,9 +979,9 @@ public class InterceptorChain
         {
             head.moveAndRename( next, opContext );
         }
-        catch ( Exception ne )
+        catch ( LdapException le )
         {
-            throw ne;
+            throw le;
         }
         catch ( Throwable e )
         {
@@ -1063,7 +1063,7 @@ public class InterceptorChain
                 }
 
 
-                public boolean compare( CompareOperationContext opContext ) throws Exception
+                public boolean compare( CompareOperationContext opContext ) throws LdapException
                 {
                     Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1072,9 +1072,9 @@ public class InterceptorChain
                     {
                         return interceptor.compare( next.nextInterceptor, opContext );
                     }
-                    catch ( Exception ne )
+                    catch ( LdapException le )
                     {
-                        throw ne;
+                        throw le;
                     }
                     catch ( Throwable e )
                     {
@@ -1084,7 +1084,7 @@ public class InterceptorChain
                 }
 
 
-                public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws Exception
+                public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws LdapException
                 {
                     Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1093,9 +1093,9 @@ public class InterceptorChain
                     {
                         return interceptor.getRootDSE( next.nextInterceptor, opContext );
                     }
-                    catch ( Exception ne )
+                    catch ( LdapException le )
                     {
-                        throw ne;
+                        throw le;
                     }
                     catch ( Throwable e )
                     {
@@ -1105,7 +1105,7 @@ public class InterceptorChain
                 }
 
 
-                public DN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception
+                public DN getMatchedName( GetMatchedNameOperationContext opContext ) throws LdapException
                 {
                     Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1114,9 +1114,9 @@ public class InterceptorChain
                     {
                         return interceptor.getMatchedName( next.nextInterceptor, opContext );
                     }
-                    catch ( Exception ne )
+                    catch ( LdapException le )
                     {
-                        throw ne;
+                        throw le;
                     }
                     catch ( Throwable e )
                     {
@@ -1126,7 +1126,7 @@ public class InterceptorChain
                 }
 
 
-                public DN getSuffix( GetSuffixOperationContext opContext ) throws Exception
+                public DN getSuffix( GetSuffixOperationContext opContext ) throws LdapException
                 {
                     Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1135,9 +1135,9 @@ public class InterceptorChain
                     {
                         return interceptor.getSuffix( next.nextInterceptor, opContext );
                     }
-                    catch ( Exception ne )
+                    catch ( LdapException le )
                     {
-                        throw ne;
+                        throw le;
                     }
                     catch ( Throwable e )
                     {
@@ -1147,7 +1147,7 @@ public class InterceptorChain
                 }
 
 
-                public Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception
+                public Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws LdapException
                 {
                     Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1156,9 +1156,9 @@ public class InterceptorChain
                     {
                         return interceptor.listSuffixes( next.nextInterceptor, opContext );
                     }
-                    catch ( Exception ne )
+                    catch ( LdapException le )
                     {
-                        throw ne;
+                        throw le;
                     }
                     catch ( Throwable e )
                     {
@@ -1168,7 +1168,7 @@ public class InterceptorChain
                 }
 
 
-                public void delete( DeleteOperationContext opContext ) throws Exception
+                public void delete( DeleteOperationContext opContext ) throws LdapException
                 {
                     Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1177,9 +1177,9 @@ public class InterceptorChain
                     {
                         interceptor.delete( next.nextInterceptor, opContext );
                     }
-                    catch ( Exception ne )
+                    catch ( LdapException le )
                     {
-                        throw ne;
+                        throw le;
                     }
                     catch ( Throwable e )
                     {
@@ -1188,7 +1188,7 @@ public class InterceptorChain
                 }
 
 
-                public void add( AddOperationContext opContext ) throws Exception
+                public void add( AddOperationContext opContext ) throws LdapException
                 {
                     Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1197,9 +1197,9 @@ public class InterceptorChain
                     {
                         interceptor.add( next.nextInterceptor, opContext );
                     }
-                    catch ( Exception ne )
+                    catch ( LdapException le )
                     {
-                        throw ne;
+                        throw le;
                     }
                     catch ( Throwable e )
                     {
@@ -1208,7 +1208,7 @@ public class InterceptorChain
                 }
 
 
-                public void modify( ModifyOperationContext opContext ) throws Exception
+                public void modify( ModifyOperationContext opContext ) throws LdapException
                 {
                     Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1217,9 +1217,9 @@ public class InterceptorChain
                     {
                         interceptor.modify( next.nextInterceptor, opContext );
                     }
-                    catch ( Exception ne )
+                    catch ( LdapException le )
                     {
-                        throw ne;
+                        throw le;
                     }
                     catch ( Throwable e )
                     {
@@ -1228,7 +1228,7 @@ public class InterceptorChain
                 }
 
 
-                public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
+                public EntryFilteringCursor list( ListOperationContext opContext ) throws LdapException
                 {
                     Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1237,9 +1237,9 @@ public class InterceptorChain
                     {
                         return interceptor.list( next.nextInterceptor, opContext );
                     }
-                    catch ( Exception ne )
+                    catch ( LdapException le )
                     {
-                        throw ne;
+                        throw le;
                     }
                     catch ( Throwable e )
                     {
@@ -1249,7 +1249,7 @@ public class InterceptorChain
                 }
 
 
-                public EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
+                public EntryFilteringCursor search( SearchOperationContext opContext ) throws LdapException
                 {
                     Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1258,9 +1258,9 @@ public class InterceptorChain
                     {
                         return interceptor.search( next.nextInterceptor, opContext );
                     }
-                    catch ( Exception ne )
+                    catch ( LdapException le )
                     {
-                        throw ne;
+                        throw le;
                     }
                     catch ( Throwable e )
                     {
@@ -1270,7 +1270,7 @@ public class InterceptorChain
                 }
 
 
-                public Entry lookup( LookupOperationContext opContext ) throws Exception
+                public Entry lookup( LookupOperationContext opContext ) throws LdapException
                 {
                     Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1279,9 +1279,9 @@ public class InterceptorChain
                     {
                         return interceptor.lookup( next.nextInterceptor, opContext );
                     }
-                    catch ( Exception ne )
+                    catch ( LdapException le )
                     {
-                        throw ne;
+                        throw le;
                     }
                     catch ( Throwable e )
                     {
@@ -1291,7 +1291,7 @@ public class InterceptorChain
                 }
 
 
-                public boolean hasEntry( EntryOperationContext opContext ) throws Exception
+                public boolean hasEntry( EntryOperationContext opContext ) throws LdapException
                 {
                     Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1300,9 +1300,9 @@ public class InterceptorChain
                     {
                         return interceptor.hasEntry( next.nextInterceptor, opContext );
                     }
-                    catch ( Exception ne )
+                    catch ( LdapException le )
                     {
-                        throw ne;
+                        throw le;
                     }
                     catch ( Throwable e )
                     {
@@ -1312,7 +1312,7 @@ public class InterceptorChain
                 }
 
 
-                public void rename( RenameOperationContext opContext ) throws Exception
+                public void rename( RenameOperationContext opContext ) throws LdapException
                 {
                     Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1321,9 +1321,9 @@ public class InterceptorChain
                     {
                         interceptor.rename( next.nextInterceptor, opContext );
                     }
-                    catch ( Exception ne )
+                    catch ( LdapException le )
                     {
-                        throw ne;
+                        throw le;
                     }
                     catch ( Throwable e )
                     {
@@ -1332,7 +1332,7 @@ public class InterceptorChain
                 }
 
 
-                public void move( MoveOperationContext opContext ) throws Exception
+                public void move( MoveOperationContext opContext ) throws LdapException
                 {
                     Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1341,9 +1341,9 @@ public class InterceptorChain
                     {
                         interceptor.move( next.nextInterceptor, opContext );
                     }
-                    catch ( Exception ne )
+                    catch ( LdapException le )
                     {
-                        throw ne;
+                        throw le;
                     }
                     catch ( Throwable e )
                     {
@@ -1352,7 +1352,7 @@ public class InterceptorChain
                 }
 
 
-                public void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception
+                public void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException
                 {
                     Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1361,9 +1361,9 @@ public class InterceptorChain
                     {
                         interceptor.moveAndRename( next.nextInterceptor, opContext );
                     }
-                    catch ( Exception ne )
+                    catch ( LdapException le )
                     {
-                        throw ne;
+                        throw le;
                     }
                     catch ( Throwable e )
                     {
@@ -1412,7 +1412,7 @@ public class InterceptorChain
                 }
 
 
-                public void addContextPartition( AddContextPartitionOperationContext opContext ) throws Exception
+                public void addContextPartition( AddContextPartitionOperationContext opContext ) throws LdapException
                 {
                     Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1421,9 +1421,9 @@ public class InterceptorChain
                     {
                         interceptor.addContextPartition( next.nextInterceptor, opContext );
                     }
-                    catch ( Exception ne )
+                    catch ( LdapException le )
                     {
-                        throw ne;
+                        throw le;
                     }
                     catch ( Throwable e )
                     {
@@ -1433,7 +1433,7 @@ public class InterceptorChain
                 }
 
 
-                public void removeContextPartition( RemoveContextPartitionOperationContext opContext ) throws Exception
+                public void removeContextPartition( RemoveContextPartitionOperationContext opContext ) throws LdapException
                 {
                     Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1442,9 +1442,9 @@ public class InterceptorChain
                     {
                         interceptor.removeContextPartition( next.nextInterceptor, opContext );
                     }
-                    catch ( Exception ne )
+                    catch ( LdapException le )
                     {
-                        throw ne;
+                        throw le;
                     }
                     catch ( Throwable e )
                     {

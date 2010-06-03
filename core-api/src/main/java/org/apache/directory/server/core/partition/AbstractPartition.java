@@ -21,11 +21,12 @@ package org.apache.directory.server.core.partition;
 
 
 import javax.naming.InvalidNameException;
-import javax.naming.NameNotFoundException;
 
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapOtherException;
 
 
 /**
@@ -52,7 +53,7 @@ public abstract class AbstractPartition implements Partition
      * {@link #doInit()} returns without any errors.  {@link #destroy()} is called automatically
      * as a clean-up process if {@link #doInit()} throws an exception.
      */
-    public final void initialize( ) throws Exception
+    public final void initialize( ) throws LdapException
     {
         if ( initialized )
         {
@@ -73,7 +74,14 @@ public abstract class AbstractPartition implements Partition
         {
             if ( !initialized )
             {
-                destroy();
+                try
+                {
+                    destroy();
+                }
+                catch ( Exception e )
+                {
+                    throw new LdapOtherException( e.getMessage() );
+                }
             }
         }
     }
@@ -130,13 +138,13 @@ public abstract class AbstractPartition implements Partition
      * if it returns an entry by default.  Please override this method if
      * there is more effective way for your implementation.
      */
-    public boolean hasEntry( EntryOperationContext entryContext ) throws Exception
+    public boolean hasEntry( EntryOperationContext entryContext ) throws LdapException
     {
         try
         {
             return entryContext.lookup( entryContext.getDn(), ByPassConstants.LOOKUP_BYPASS ) != null; 
         }
-        catch ( NameNotFoundException e )
+        catch ( LdapException e )
         {
             return false;
         }
@@ -148,5 +156,5 @@ public abstract class AbstractPartition implements Partition
      * with null <tt>attributeIds</tt> by default.  Please override
      * this method if there is more effective way for your implementation.
      */
-    public abstract ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws Exception;
+    public abstract ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws LdapException;
 }

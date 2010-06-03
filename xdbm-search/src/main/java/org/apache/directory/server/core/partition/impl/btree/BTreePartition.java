@@ -49,8 +49,10 @@ import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
+import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -232,7 +234,7 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     /**
      * {@inheritDoc}
      */
-    public void delete( DeleteOperationContext opContext ) throws Exception
+    public void delete( DeleteOperationContext opContext ) throws LdapException
     {
         DN dn = opContext.getDn();
 
@@ -255,32 +257,39 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     }
 
 
-    public abstract void add( AddOperationContext opContext ) throws Exception;
+    public abstract void add( AddOperationContext opContext ) throws LdapException;
 
 
-    public abstract void modify( ModifyOperationContext opContext ) throws Exception;
+    public abstract void modify( ModifyOperationContext opContext ) throws LdapException;
 
 
-    public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( ListOperationContext opContext ) throws LdapException
     {
         return new BaseEntryFilteringCursor( new ServerEntryCursorAdaptor<ID>( this, list( getEntryId( opContext
             .getDn() ) ) ), opContext );
     }
 
 
-    public EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( SearchOperationContext opContext ) throws LdapException
     {
-        SearchControls searchCtls = opContext.getSearchControls();
-        IndexCursor<ID, Entry, ID> underlying;
-
-        underlying = searchEngine.cursor( opContext.getDn(), opContext.getAliasDerefMode(), opContext.getFilter(),
-            searchCtls );
-
-        return new BaseEntryFilteringCursor( new ServerEntryCursorAdaptor<ID>( this, underlying ), opContext );
+        try
+        {
+            SearchControls searchCtls = opContext.getSearchControls();
+            IndexCursor<ID, Entry, ID> underlying;
+    
+            underlying = searchEngine.cursor( opContext.getDn(), opContext.getAliasDerefMode(), opContext.getFilter(),
+                searchCtls );
+    
+            return new BaseEntryFilteringCursor( new ServerEntryCursorAdaptor<ID>( this, underlying ), opContext );
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationErrorException( e.getMessage() );
+        }
     }
 
 
-    public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
+    public ClonedServerEntry lookup( LookupOperationContext opContext ) throws LdapException
     {
         ID id = getEntryId( opContext.getDn() );
 
@@ -308,19 +317,19 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     }
 
 
-    public boolean hasEntry( EntryOperationContext opContext ) throws Exception
+    public boolean hasEntry( EntryOperationContext opContext ) throws LdapException
     {
         return null != getEntryId( opContext.getDn() );
     }
 
 
-    public abstract void rename( RenameOperationContext opContext ) throws Exception;
+    public abstract void rename( RenameOperationContext opContext ) throws LdapException;
 
 
-    public abstract void move( MoveOperationContext opContext ) throws Exception;
+    public abstract void move( MoveOperationContext opContext ) throws LdapException;
 
 
-    public abstract void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception;
+    public abstract void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException;
 
 
     public abstract void sync() throws Exception;
@@ -425,22 +434,22 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     public abstract Index<? extends Object, Entry, ID> getSystemIndex( String attribute ) throws Exception;
 
 
-    public abstract ID getEntryId( DN dn ) throws Exception;
+    public abstract ID getEntryId( DN dn ) throws LdapException;
 
 
     public abstract DN getEntryDn( ID id ) throws Exception;
 
 
-    public abstract ClonedServerEntry lookup( ID id ) throws Exception;
+    public abstract ClonedServerEntry lookup( ID id ) throws LdapException;
 
 
-    public abstract void delete( ID id ) throws Exception;
+    public abstract void delete( ID id ) throws LdapException;
 
 
-    public abstract IndexCursor<ID, Entry, ID> list( ID id ) throws Exception;
+    public abstract IndexCursor<ID, Entry, ID> list( ID id ) throws LdapException;
 
 
-    public abstract int getChildCount( ID id ) throws Exception;
+    public abstract int getChildCount( ID id ) throws LdapException;
 
 
     public abstract void setProperty( String key, String value ) throws Exception;

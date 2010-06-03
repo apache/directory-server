@@ -31,8 +31,9 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.DN;
 
@@ -168,13 +169,13 @@ public class MockOperation implements OperationContext
     }
 
 
-    public ClonedServerEntry lookup( DN dn, Collection<String> bypass ) throws Exception
+    public ClonedServerEntry lookup( DN dn, Collection<String> bypass ) throws LdapException
     {
         return null;
     }
 
 
-    public ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws Exception
+    public ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         return null;
     }
@@ -237,22 +238,22 @@ public class MockOperation implements OperationContext
     }
 
 
-    public void add( Entry entry, Collection<String> bypass ) throws Exception
+    public void add( Entry entry, Collection<String> bypass ) throws LdapException
     {
     }
 
 
-    public void delete( DN dn, Collection<String> bypass ) throws Exception
+    public void delete( DN dn, Collection<String> bypass ) throws LdapException
     {
     }
 
 
-    public void modify( DN dn, List<Modification> mods, Collection<String> bypass ) throws Exception
+    public void modify( DN dn, List<Modification> mods, Collection<String> bypass ) throws LdapException
     {
     }
 
 
-    public boolean hasEntry( DN dn, Collection<String> byPass ) throws Exception
+    public boolean hasEntry( DN dn, Collection<String> byPass ) throws LdapException
     {
         return false;
     }

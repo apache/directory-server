@@ -20,6 +20,9 @@
 package org.apache.directory.server.core.kerberos;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -27,18 +30,16 @@ import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
-import org.apache.directory.shared.ldap.entry.StringValue;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -65,7 +66,7 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
      * Check added attributes for a 'userPassword'.  If a 'userPassword' is found, apply any
      * password policy checks.
      */
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws Exception
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
         DN normName = addContext.getDn();
 
@@ -109,7 +110,7 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
      * Check modification items for a 'userPassword'.  If a 'userPassword' is found, apply any
      * password policy checks.
      */
-    public void modify( NextInterceptor next, ModifyOperationContext modContext ) throws Exception
+    public void modify( NextInterceptor next, ModifyOperationContext modContext ) throws LdapException
     {
         DN name = modContext.getDn();
 
@@ -184,7 +185,7 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
     }
 
 
-    void check( String username, String password ) throws Exception
+    void check( String username, String password ) throws LdapException
     {
         int passwordLength = 6;
         int categoryCount = 2;
@@ -195,7 +196,7 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
             String explanation = buildErrorMessage( username, password, passwordLength, categoryCount, tokenSize );
             log.error( explanation );
 
-            throw new Exception( explanation );
+            throw new LdapException( explanation );
         }
     }
 

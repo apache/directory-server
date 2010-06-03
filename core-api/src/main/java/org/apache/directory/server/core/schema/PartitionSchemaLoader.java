@@ -37,7 +37,9 @@ import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
+import org.apache.directory.shared.ldap.exception.LdapOtherException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -289,7 +291,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /**
      * {@inheritDoc}
      */
-    public List<Entry> loadAttributeTypes( Schema... schemas ) throws Exception
+    public List<Entry> loadAttributeTypes( Schema... schemas ) throws LdapException
     {
         List<Entry> attributeTypeList = new ArrayList<Entry>();
 
@@ -308,12 +310,19 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
             EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
 
-            // Loop on all the AttributeTypes and add them to the list
-            while ( list.next() )
+            try
             {
-                Entry result = list.get();
-
-                attributeTypeList.add( result );
+                // Loop on all the AttributeTypes and add them to the list
+                while ( list.next() )
+                {
+                    Entry result = list.get();
+    
+                    attributeTypeList.add( result );
+                }
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOtherException( e.getMessage() );
             }
         }
 
@@ -324,7 +333,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /**
      * {@inheritDoc}
      */
-    public List<Entry> loadComparators( Schema... schemas ) throws Exception
+    public List<Entry> loadComparators( Schema... schemas ) throws LdapException
     {
         List<Entry> comparatorList = new ArrayList<Entry>();
 
@@ -346,11 +355,18 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
             EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
 
-            while ( list.next() )
+            try
             {
-                ClonedServerEntry entry = list.get();
-
-                comparatorList.add( entry );
+                while ( list.next() )
+                {
+                    ClonedServerEntry entry = list.get();
+    
+                    comparatorList.add( entry );
+                }
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOtherException( e.getMessage() );
             }
         }
 
@@ -361,7 +377,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /**
      * {@inheritDoc}
      */
-    public List<Entry> loadDitContentRules( Schema... schemas ) throws Exception
+    public List<Entry> loadDitContentRules( Schema... schemas ) throws LdapException
     {
         LOG.error( I18n.err( I18n.ERR_86 ) );
 
@@ -372,7 +388,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /**
      * {@inheritDoc}
      */
-    public List<Entry> loadDitStructureRules( Schema... schemas ) throws Exception
+    public List<Entry> loadDitStructureRules( Schema... schemas ) throws LdapException
     {
         LOG.error( I18n.err( I18n.ERR_87 ) );
 
@@ -383,7 +399,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /**
      * {@inheritDoc}
      */
-    public List<Entry> loadMatchingRules( Schema... schemas ) throws Exception
+    public List<Entry> loadMatchingRules( Schema... schemas ) throws LdapException
     {
         List<Entry> matchingRuleList = new ArrayList<Entry>();
 
@@ -405,11 +421,18 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
             EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
 
-            while ( list.next() )
+            try
             {
-                Entry entry = list.get();
-
-                matchingRuleList.add( entry );
+                while ( list.next() )
+                {
+                    Entry entry = list.get();
+    
+                    matchingRuleList.add( entry );
+                }
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOtherException( e.getMessage() );
             }
         }
 
@@ -420,7 +443,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /**
      * {@inheritDoc}
      */
-    public List<Entry> loadMatchingRuleUses( Schema... schemas ) throws Exception
+    public List<Entry> loadMatchingRuleUses( Schema... schemas ) throws LdapException
     {
         LOG.error( I18n.err( I18n.ERR_88 ) );
 
@@ -431,7 +454,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /**
      * {@inheritDoc}
      */
-    public List<Entry> loadNameForms( Schema... schemas ) throws Exception
+    public List<Entry> loadNameForms( Schema... schemas ) throws LdapException
     {
         LOG.error( I18n.err( I18n.ERR_89 ) );
 
@@ -442,7 +465,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /**
      * {@inheritDoc}
      */
-    public List<Entry> loadNormalizers( Schema... schemas ) throws Exception
+    public List<Entry> loadNormalizers( Schema... schemas ) throws LdapException
     {
         List<Entry> normalizerList = new ArrayList<Entry>();
 
@@ -464,11 +487,18 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
             EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
 
-            while ( list.next() )
+            try
             {
-                ClonedServerEntry entry = list.get();
-
-                normalizerList.add( entry );
+                while ( list.next() )
+                {
+                    ClonedServerEntry entry = list.get();
+    
+                    normalizerList.add( entry );
+                }
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOtherException( e.getMessage() );
             }
         }
 
@@ -479,7 +509,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /**
      * {@inheritDoc}
      */
-    public List<Entry> loadObjectClasses( Schema... schemas ) throws Exception
+    public List<Entry> loadObjectClasses( Schema... schemas ) throws LdapException
     {
         List<Entry> objectClassList = new ArrayList<Entry>();
 
@@ -501,11 +531,18 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
             EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
 
-            while ( list.next() )
+            try
             {
-                ClonedServerEntry entry = list.get();
-
-                objectClassList.add( entry );
+                while ( list.next() )
+                {
+                    ClonedServerEntry entry = list.get();
+    
+                    objectClassList.add( entry );
+                }
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOtherException( e.getMessage() );
             }
         }
 
@@ -516,7 +553,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /**
      * {@inheritDoc}
      */
-    public List<Entry> loadSyntaxes( Schema... schemas ) throws Exception
+    public List<Entry> loadSyntaxes( Schema... schemas ) throws LdapException
     {
         List<Entry> syntaxList = new ArrayList<Entry>();
 
@@ -538,11 +575,18 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
             EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
 
-            while ( list.next() )
+            try
             {
-                Entry entry = list.get();
-
-                syntaxList.add( entry );
+                while ( list.next() )
+                {
+                    Entry entry = list.get();
+    
+                    syntaxList.add( entry );
+                }
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOtherException( e.getMessage() );
             }
         }
 
@@ -553,7 +597,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /**
      * {@inheritDoc}
      */
-    public List<Entry> loadSyntaxCheckers( Schema... schemas ) throws Exception
+    public List<Entry> loadSyntaxCheckers( Schema... schemas ) throws LdapException
     {
         List<Entry> syntaxCheckerList = new ArrayList<Entry>();
 
@@ -575,11 +619,18 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
             EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
 
-            while ( list.next() )
+            try
+            {            
+                while ( list.next() )
+                {
+                    Entry entry = list.get();
+    
+                    syntaxCheckerList.add( entry );
+                }
+            }
+            catch ( Exception e )
             {
-                Entry entry = list.get();
-
-                syntaxCheckerList.add( entry );
+                throw new LdapOtherException( e.getMessage() );
             }
         }
 

@@ -30,6 +30,7 @@ import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationC
 import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -69,7 +70,7 @@ public interface PartitionNexus extends Partition
      * @param opContext The Add Partition context
      * @throws Exception If the addition can't be done
      */
-    public void addContextPartition( AddContextPartitionOperationContext opContext ) throws Exception;
+    public void addContextPartition( AddContextPartitionOperationContext opContext ) throws LdapException;
 
 
     /**
@@ -79,7 +80,7 @@ public interface PartitionNexus extends Partition
      * @throws Exception If the removal can't be done
      */
     public void removeContextPartition( RemoveContextPartitionOperationContext removeContextPartition )
-        throws Exception;
+        throws LdapException;
 
 
     /**
@@ -98,7 +99,7 @@ public interface PartitionNexus extends Partition
      * @return the partition containing the entry represented by the dn
      * @throws Exception if there is no partition for the dn
      */
-    public Partition getPartition( DN dn ) throws Exception;
+    public Partition getPartition( DN dn ) throws LdapException;
 
 
     /**
@@ -111,7 +112,7 @@ public interface PartitionNexus extends Partition
      * the empty string distinguished name if no match was found.
      * @throws Exception if there are any problems
      */
-    public DN getMatchedName( GetMatchedNameOperationContext matchedNameContext ) throws Exception;
+    public DN getMatchedName( GetMatchedNameOperationContext matchedNameContext ) throws LdapException;
 
 
     /**
@@ -125,7 +126,7 @@ public interface PartitionNexus extends Partition
      * naming context was found for dn.
      * @throws Exception if there are any problems
      */
-    public DN getSuffix( GetSuffixOperationContext getSuffixContext ) throws Exception;
+    public DN getSuffix( GetSuffixOperationContext getSuffixContext ) throws LdapException;
 
 
     /**
@@ -135,7 +136,7 @@ public interface PartitionNexus extends Partition
      * @return Iteration over ContextPartition suffix names as Names.
      * @throws Exception if there are any problems
      */
-    public Set<String> listSuffixes( ListSuffixOperationContext emptyContext ) throws Exception;
+    public Set<String> listSuffixes( ListSuffixOperationContext emptyContext ) throws LdapException;
 
 
     /**
@@ -144,7 +145,7 @@ public interface PartitionNexus extends Partition
      * @param extensionOids a set of OID strings to add to the supportedExtension 
      * attribute in the RootDSE
      */
-    public void registerSupportedExtensions( Set<String> extensionOids ) throws Exception;
+    public void registerSupportedExtensions( Set<String> extensionOids ) throws LdapException;
 
 
     /**
@@ -153,8 +154,8 @@ public interface PartitionNexus extends Partition
      * @param extensionOids a set of OID strings to add to the supportedSaslMechanisms 
      * attribute in the RootDSE
      */
-    public void registerSupportedSaslMechanisms( Set<String> supportedSaslMechanisms ) throws Exception;
+    public void registerSupportedSaslMechanisms( Set<String> supportedSaslMechanisms ) throws LdapException;
 
 
-    public boolean compare( CompareOperationContext opContext ) throws Exception;
+    public boolean compare( CompareOperationContext opContext ) throws LdapException;
 }

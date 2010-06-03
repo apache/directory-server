@@ -36,7 +36,7 @@ public interface SchemaService
      *
      * @throws Exception If the initializaion fails
      */
-    void initialize() throws Exception;
+    void initialize() throws LdapException;
 
 
     /**
@@ -45,7 +45,7 @@ public interface SchemaService
      * @return the schemaSubentry
      * @throws Exception if there is a failure to access schema timestamps
      */
-    Entry getSubschemaEntryImmutable() throws Exception;
+    Entry getSubschemaEntryImmutable() throws LdapException;
 
 
     /**
@@ -54,7 +54,7 @@ public interface SchemaService
      * @return the schemaSubentry
      * @throws Exception if there is a failure to access schema timestamps
      */
-    Entry getSubschemaEntryCloned() throws Exception;
+    Entry getSubschemaEntryCloned() throws LdapException;
 
 
     /**
@@ -65,5 +65,5 @@ public interface SchemaService
      * @return the subschema entry with the ids provided
      * @throws Exception if there are failures during schema info access
      */
-    Entry getSubschemaEntry( String[] ids ) throws Exception;
+    Entry getSubschemaEntry( String[] ids ) throws LdapException;
 }

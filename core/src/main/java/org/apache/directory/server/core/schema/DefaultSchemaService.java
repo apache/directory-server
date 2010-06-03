@@ -28,8 +28,8 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -352,7 +352,7 @@ public class DefaultSchemaService implements SchemaService
     /**
      * {@inheritDoc}
      */
-    public Entry getSubschemaEntryImmutable() throws Exception
+    public Entry getSubschemaEntryImmutable() throws LdapException
     {
         synchronized ( schemaSubentrLock )
         {
@@ -372,7 +372,7 @@ public class DefaultSchemaService implements SchemaService
      *
      * @throws Exception If the initializaion fails
      */
-    public void initialize() throws Exception
+    public void initialize() throws LdapException
     {
         try
         {
@@ -390,7 +390,7 @@ public class DefaultSchemaService implements SchemaService
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaService#getSubschemaEntryCloned()
      */
-    public Entry getSubschemaEntryCloned() throws Exception
+    public Entry getSubschemaEntryCloned() throws LdapException
     {
         if ( schemaSubentry == null )
         {
@@ -405,7 +405,7 @@ public class DefaultSchemaService implements SchemaService
     /**
      * {@inheritDoc}
      */
-    public Entry getSubschemaEntry( String[] ids ) throws Exception
+    public Entry getSubschemaEntry( String[] ids ) throws LdapException
     {
         if ( ids == null )
         {

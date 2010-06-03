@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
@@ -44,11 +45,13 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.StringValue;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
@@ -92,7 +95,7 @@ public class TriggerSpecCache
      * @param directoryService the directory service core
      * @throws NamingException with problems initializing cache
      */
-    public TriggerSpecCache( DirectoryService directoryService ) throws Exception
+    public TriggerSpecCache( DirectoryService directoryService ) throws LdapException
     {
         this.nexus = directoryService.getPartitionNexus();
         final SchemaManager schemaManager = directoryService.getSchemaManager();
@@ -104,11 +107,12 @@ public class TriggerSpecCache
                     return schemaManager.getNormalizerMapping();
                 }
             });
+        
         initialize( directoryService );
     }
 
 
-    private void initialize( DirectoryService directoryService ) throws Exception
+    private void initialize( DirectoryService directoryService ) throws LdapException
     {
         // search all naming contexts for trigger subentenries
         // generate TriggerSpecification arrays for each subentry
@@ -134,29 +138,36 @@ public class TriggerSpecCache
             
             EntryFilteringCursor results = nexus.search( searchOperationContext );
             
-            while ( results.next() )
-            {
-                ClonedServerEntry resultEntry = results.get();
-                DN subentryDn = resultEntry.getDn();
-                EntryAttribute triggerSpec = resultEntry.get( PRESCRIPTIVE_TRIGGER_ATTR );
-                
-                if ( triggerSpec == null )
+            try
+            { 
+                while ( results.next() )
                 {
-                    LOG.warn( "Found triggerExecutionSubentry '" + subentryDn + "' without any " + PRESCRIPTIVE_TRIGGER_ATTR );
-                    continue;
+                    ClonedServerEntry resultEntry = results.get();
+                    DN subentryDn = resultEntry.getDn();
+                    EntryAttribute triggerSpec = resultEntry.get( PRESCRIPTIVE_TRIGGER_ATTR );
+                    
+                    if ( triggerSpec == null )
+                    {
+                        LOG.warn( "Found triggerExecutionSubentry '" + subentryDn + "' without any " + PRESCRIPTIVE_TRIGGER_ATTR );
+                        continue;
+                    }
+    
+                    DN normSubentryName = subentryDn.normalize( directoryService.getSchemaManager()
+                        .getNormalizerMapping() );
+                    subentryAdded( normSubentryName, resultEntry );
                 }
-
-                DN normSubentryName = subentryDn.normalize( directoryService.getSchemaManager()
-                    .getNormalizerMapping() );
-                subentryAdded( normSubentryName, resultEntry );
+                
+                results.close();
             }
-            
-            results.close();
+            catch ( Exception e )
+            {
+                throw new LdapOperationException( e.getMessage() );
+            }
         }
     }
 
 
-    private boolean hasPrescriptiveTrigger( Entry entry ) throws Exception
+    private boolean hasPrescriptiveTrigger( Entry entry ) throws LdapException
     {
         // only do something if the entry contains prescriptiveTrigger
         EntryAttribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
@@ -165,7 +176,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryAdded( DN normName, Entry entry ) throws Exception
+    public void subentryAdded( DN normName, Entry entry ) throws LdapException
     {
         // only do something if the entry contains prescriptiveTrigger
         EntryAttribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
@@ -198,7 +209,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryDeleted( DN normName, Entry entry ) throws Exception
+    public void subentryDeleted( DN normName, Entry entry ) throws LdapException
     {
         if ( !hasPrescriptiveTrigger( entry ) )
         {
@@ -209,7 +220,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryModified( ModifyOperationContext opContext, Entry entry ) throws Exception
+    public void subentryModified( ModifyOperationContext opContext, Entry entry ) throws LdapException
     {
         if ( !hasPrescriptiveTrigger( entry ) )
         {

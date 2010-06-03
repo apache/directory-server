@@ -271,7 +271,7 @@ public final class SchemaPartition extends AbstractPartition
     /**
      * {@inheritDoc}
      */
-    public void add( AddOperationContext opContext ) throws Exception
+    public void add( AddOperationContext opContext ) throws LdapException
     {
         // At this point, the added SchemaObject does not exist in the partition
         // We have to check if it's enabled and then inject it into the registries
@@ -283,7 +283,7 @@ public final class SchemaPartition extends AbstractPartition
         {
             wrapped.add( opContext );
         }
-        catch ( Exception e )
+        catch ( LdapException e )
         {
             // If something went wrong, we have to unregister the schemaObject
             // from the registries
@@ -307,7 +307,7 @@ public final class SchemaPartition extends AbstractPartition
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#delete(org.apache.directory.server.core.interceptor.context.DeleteOperationContext)
      */
-    public void delete( DeleteOperationContext opContext ) throws Exception
+    public void delete( DeleteOperationContext opContext ) throws LdapException
     {
         boolean cascade = opContext.hasRequestControl( CascadeControl.CONTROL_OID );
 
@@ -318,7 +318,7 @@ public final class SchemaPartition extends AbstractPartition
         {
             wrapped.delete( opContext );
         }
-        catch ( Exception e )
+        catch ( LdapException e )
         {
             // TODO : If something went wrong, what should we do here ?
             throw e;
@@ -331,7 +331,7 @@ public final class SchemaPartition extends AbstractPartition
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#list(org.apache.directory.server.core.interceptor.context.ListOperationContext)
      */
-    public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( ListOperationContext opContext ) throws LdapException
     {
         return wrapped.list( opContext );
     }
@@ -340,7 +340,7 @@ public final class SchemaPartition extends AbstractPartition
     /**
      * {@inheritDoc}
      */
-    public boolean hasEntry( EntryOperationContext entryContext ) throws Exception
+    public boolean hasEntry( EntryOperationContext entryContext ) throws LdapException
     {
         return wrapped.hasEntry( entryContext );
     }
@@ -349,7 +349,7 @@ public final class SchemaPartition extends AbstractPartition
     /**
      * {@inheritDoc}
      */
-    public void modify( ModifyOperationContext opContext ) throws Exception
+    public void modify( ModifyOperationContext opContext ) throws LdapException
     {
         Entry entry = opContext.getEntry();
 
@@ -380,7 +380,7 @@ public final class SchemaPartition extends AbstractPartition
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#move(org.apache.directory.server.core.interceptor.context.MoveOperationContext)
      */
-    public void move( MoveOperationContext opContext ) throws Exception
+    public void move( MoveOperationContext opContext ) throws LdapException
     {
         boolean cascade = opContext.hasRequestControl( CascadeControl.CONTROL_OID );
         Entry entry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
@@ -393,7 +393,7 @@ public final class SchemaPartition extends AbstractPartition
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#moveAndRename(org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext)
      */
-    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception
+    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException
     {
         boolean cascade = opContext.hasRequestControl( CascadeControl.CONTROL_OID );
         Entry entry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
@@ -406,7 +406,7 @@ public final class SchemaPartition extends AbstractPartition
     /**
      * {@inheritDoc}
      */
-    public void rename( RenameOperationContext opContext ) throws Exception
+    public void rename( RenameOperationContext opContext ) throws LdapException
     {
         boolean cascade = opContext.hasRequestControl( CascadeControl.CONTROL_OID );
 
@@ -424,7 +424,7 @@ public final class SchemaPartition extends AbstractPartition
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#search(org.apache.directory.server.core.interceptor.context.SearchOperationContext)
      */
-    public EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( SearchOperationContext opContext ) throws LdapException
     {
         return wrapped.search( opContext );
     }
@@ -442,7 +442,7 @@ public final class SchemaPartition extends AbstractPartition
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#lookup(org.apache.directory.server.core.interceptor.context.LookupOperationContext)
      */
-    public ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws Exception
+    public ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         return wrapped.lookup( lookupContext );
     }
@@ -459,7 +459,7 @@ public final class SchemaPartition extends AbstractPartition
      * 
      * @throws NamingException if the update fails
      */
-    private void updateSchemaModificationAttributes( OperationContext opContext ) throws Exception
+    private void updateSchemaModificationAttributes( OperationContext opContext ) throws LdapException
     {
         String modifiersName = opContext.getSession().getEffectivePrincipal().getName();
         String modifyTimestamp = DateUtils.getGeneralizedTime();

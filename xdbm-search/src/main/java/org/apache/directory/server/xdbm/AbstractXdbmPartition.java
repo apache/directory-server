@@ -36,6 +36,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -194,9 +195,16 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     }
 
 
-    public final ID getEntryId( DN dn ) throws Exception
+    public final ID getEntryId( DN dn ) throws LdapException
     {
-        return store.getEntryId( dn );
+        try
+        {
+            return store.getEntryId( dn );
+        }
+        catch ( Exception e )
+        {
+            throw new LdapException( e.getMessage() );
+        }
     }
 
 
@@ -212,33 +220,68 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     }
 
 
-    public final void add( AddOperationContext addContext ) throws Exception
+    public final void add( AddOperationContext addContext ) throws LdapException
     {
-        store.add( ( Entry ) ( ( ClonedServerEntry ) addContext.getEntry() ).getClonedEntry() );
+        try
+        {
+            store.add( ( Entry ) ( ( ClonedServerEntry ) addContext.getEntry() ).getClonedEntry() );
+        }
+        catch ( Exception e )
+        {
+            throw new LdapException( e );
+        }
     }
 
 
-    public final ClonedServerEntry lookup( ID id ) throws Exception
+    public final ClonedServerEntry lookup( ID id ) throws LdapException
     {
-        return new ClonedServerEntry( store.lookup( id ) );
+        try
+        {
+            return new ClonedServerEntry( store.lookup( id ) );
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationErrorException( e.getMessage() );
+        }
     }
 
 
-    public final void delete( ID id ) throws Exception
+    public final void delete( ID id ) throws LdapException
     {
-        store.delete( id );
+        try
+        {
+            store.delete( id );
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationErrorException( e.getMessage() );
+        }
     }
 
 
-    public final IndexCursor<ID, Entry, ID> list( ID id ) throws Exception
+    public final IndexCursor<ID, Entry, ID> list( ID id ) throws LdapException
     {
-        return store.list( id );
+        try
+        {
+            return store.list( id );
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationErrorException( e.getMessage() );
+        }
     }
 
 
-    public final int getChildCount( ID id ) throws Exception
+    public final int getChildCount( ID id ) throws LdapException
     {
-        return store.getChildCount( id );
+        try
+        {
+            return store.getChildCount( id );
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationErrorException( e.getMessage() );
+        }
     }
 
 
@@ -254,31 +297,61 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     }
 
 
-    public final void modify( ModifyOperationContext modifyContext ) throws Exception
+    public final void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
-        Entry modifiedEntry = store.modify( modifyContext.getDn(), modifyContext.getModItems() );
-        modifyContext.setAlteredEntry( modifiedEntry );
+        try
+        {
+            Entry modifiedEntry = store.modify( modifyContext.getDn(), modifyContext.getModItems() );
+            modifyContext.setAlteredEntry( modifiedEntry );
+        }
+        catch ( Exception e )
+        {
+            
+        }
     }
 
 
-    public final void rename( RenameOperationContext renameContext ) throws Exception
+    public final void rename( RenameOperationContext renameContext ) throws LdapException
     {
-        store.rename( renameContext.getDn(), renameContext.getNewRdn(), renameContext.getDelOldDn() );
+        try
+        {
+            store.rename( renameContext.getDn(), renameContext.getNewRdn(), renameContext.getDelOldDn() );
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationErrorException( e.getMessage() );
+        }
     }
 
 
-    public final void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws Exception
+    public final void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         checkIsValidMove( moveAndRenameContext.getDn(), moveAndRenameContext.getParent() );
-        store.move( moveAndRenameContext.getDn(), moveAndRenameContext.getParent(), moveAndRenameContext.getNewRdn(),
-            moveAndRenameContext.getDelOldDn() );
+
+        try
+        {
+            store.move( moveAndRenameContext.getDn(), moveAndRenameContext.getParent(), moveAndRenameContext.getNewRdn(),
+                moveAndRenameContext.getDelOldDn() );
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationErrorException( e.getMessage() );
+        }
     }
 
 
-    public final void move( MoveOperationContext moveContext ) throws Exception
+    public final void move( MoveOperationContext moveContext ) throws LdapException
     {
         checkIsValidMove( moveContext.getDn(), moveContext.getParent() );
-        store.move( moveContext.getDn(), moveContext.getParent() );
+
+        try
+        {
+            store.move( moveContext.getDn(), moveContext.getParent() );
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationErrorException( e.getMessage() );
+        }
     }
 
 
@@ -290,7 +363,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
      * @param newParentDn new parent entry's DN
      * @throws Exception
      */
-    private void checkIsValidMove( DN oldChildDn, DN newParentDn ) throws Exception
+    private void checkIsValidMove( DN oldChildDn, DN newParentDn ) throws LdapException
     {
         boolean invalid = false;
 

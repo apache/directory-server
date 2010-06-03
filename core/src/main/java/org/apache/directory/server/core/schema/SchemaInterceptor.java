@@ -178,7 +178,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * @param directoryService the directory service core
      * @throws Exception if there are problems during initialization
      */
-    public void init( DirectoryService directoryService ) throws Exception
+    public void init( DirectoryService directoryService ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -231,7 +231,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * @param objectClass the object class to gather MUST attributes for
      * @throws Exception if there are problems resolving schema entitites
      */
-    private void computeMustAttributes( ObjectClass objectClass, Set<String> atSeen ) throws Exception
+    private void computeMustAttributes( ObjectClass objectClass, Set<String> atSeen ) throws LdapException
     {
         List<ObjectClass> parents = superiors.get( objectClass.getOid() );
 
@@ -275,7 +275,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * @param objectClass the object class to get all the MAY attributes for
      * @throws Exception with problems accessing registries
      */
-    private void computeMayAttributes( ObjectClass objectClass, Set<String> atSeen ) throws Exception
+    private void computeMayAttributes( ObjectClass objectClass, Set<String> atSeen ) throws LdapException
     {
         List<ObjectClass> parents = superiors.get( objectClass.getOid() );
 
@@ -320,7 +320,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * superiors.
      */
     private void computeOCSuperiors( ObjectClass objectClass, List<ObjectClass> superiors, Set<String> ocSeen )
-        throws Exception
+        throws LdapException
     {
         List<ObjectClass> parents = objectClass.getSuperiors();
 
@@ -354,7 +354,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * Compute the superiors and MUST/MAY attributes for a specific
      * ObjectClass
      */
-    private void computeSuperior( ObjectClass objectClass ) throws Exception
+    private void computeSuperior( ObjectClass objectClass ) throws LdapException
     {
         List<ObjectClass> ocSuperiors = new ArrayList<ObjectClass>();
 
@@ -374,7 +374,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * Compute all ObjectClasses superiors, MAY and MUST attributes.
      * @throws Exception
      */
-    private void computeSuperiors() throws Exception
+    private void computeSuperiors() throws LdapException
     {
         Iterator<ObjectClass> objectClasses = schemaManager.getObjectClassRegistry().iterator();
         superiors = new ConcurrentHashMap<String, List<ObjectClass>>();
@@ -391,7 +391,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
 
     public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         EntryFilteringCursor cursor = nextInterceptor.list( opContext );
         cursor.addEntryFilter( binaryAttributeFilter );
@@ -509,7 +509,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    private Value<?> convert( String id, Object value ) throws Exception
+    private Value<?> convert( String id, Object value ) throws LdapException
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( id );
 
@@ -555,7 +555,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * a HumanReadible filter should have a String value. The substring filter should
      * not be used with binary attributes.
      */
-    private void checkFilter( ExprNode filter ) throws Exception
+    private void checkFilter( ExprNode filter ) throws LdapException
     {
         if ( filter == null )
         {
@@ -646,7 +646,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
 
     public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         DN base = opContext.getDn();
         SearchControls searchCtls = opContext.getSearchControls();
@@ -752,7 +752,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Search for an entry, using its DN. Binary attributes and ObjectClass attribute are removed.
      */
-    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
+    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws LdapException
     {
         Entry result = nextInterceptor.lookup( opContext );
 
@@ -767,7 +767,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    private void getSuperiors( ObjectClass oc, Set<String> ocSeen, List<ObjectClass> result ) throws Exception
+    private void getSuperiors( ObjectClass oc, Set<String> ocSeen, List<ObjectClass> result ) throws LdapException
     {
         for ( ObjectClass parent : oc.getSuperiors() )
         {
@@ -789,7 +789,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    private boolean getObjectClasses( EntryAttribute objectClasses, List<ObjectClass> result ) throws Exception
+    private boolean getObjectClasses( EntryAttribute objectClasses, List<ObjectClass> result ) throws LdapException
     {
         Set<String> ocSeen = new HashSet<String>();
 
@@ -828,7 +828,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    private Set<String> getAllMust( EntryAttribute objectClasses ) throws Exception
+    private Set<String> getAllMust( EntryAttribute objectClasses ) throws LdapException
     {
         Set<String> must = new HashSet<String>();
 
@@ -854,7 +854,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    private Set<String> getAllAllowed( EntryAttribute objectClasses, Set<String> must ) throws Exception
+    private Set<String> getAllAllowed( EntryAttribute objectClasses, Set<String> must ) throws LdapException
     {
         Set<String> allowed = new HashSet<String>( must );
 
@@ -894,7 +894,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * @param objectClassAttr the objectClass attribute to modify
      * @throws Exception if there are problems 
      */
-    private void alterObjectClasses( EntryAttribute objectClassAttr ) throws Exception
+    private void alterObjectClasses( EntryAttribute objectClassAttr ) throws LdapException
     {
         Set<String> objectClasses = new HashSet<String>();
         Set<String> objectClassesUP = new HashSet<String>();
@@ -946,7 +946,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
+    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws LdapException
     {
         DN oldDn = opContext.getDn();
         RDN newRdn = opContext.getNewRdn();
@@ -1026,7 +1026,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Modify an entry, applying the given modifications, and check if it's OK
      */
-    private void checkModifyEntry( DN dn, Entry currentEntry, List<Modification> mods ) throws Exception
+    private void checkModifyEntry( DN dn, Entry currentEntry, List<Modification> mods ) throws LdapException
     {
         // The first step is to check that the modifications are valid :
         // - the ATs are present in the schema
@@ -1201,7 +1201,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws LdapException
     {
         // A modification on a simple entry will be done in three steps :
         // - get the original entry (it should already been in the context)
@@ -1302,7 +1302,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    private void filterBinaryAttributes( Entry entry ) throws Exception
+    private void filterBinaryAttributes( Entry entry ) throws LdapException
     {
         /*
          * start converting values of attributes to byte[]s which are not
@@ -1365,7 +1365,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * 
      * We also check the syntaxes
      */
-    private void check( DN dn, Entry entry ) throws Exception
+    private void check( DN dn, Entry entry ) throws LdapException
     {
         // ---------------------------------------------------------------
         // First, make sure all attributes are valid schema defined attributes
@@ -1428,7 +1428,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    private void checkOcSuperior( Entry entry ) throws Exception
+    private void checkOcSuperior( Entry entry ) throws LdapException
     {
         // handle the m-supObjectClass meta attribute
         EntryAttribute supOC = entry.get( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT );
@@ -1494,7 +1494,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Check that all the attributes exist in the schema for this entry.
      */
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws Exception
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
         DN name = addContext.getDn();
         Entry entry = addContext.getEntry();
@@ -1572,7 +1572,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * @return true if the objectClass values require the attribute, false otherwise
      * @throws Exception if the attribute is not recognized
      */
-    private void assertAllAttributesAllowed( DN dn, Entry entry, Set<String> allowed ) throws Exception
+    private void assertAllAttributesAllowed( DN dn, Entry entry, Set<String> allowed ) throws LdapException
     {
         // Never check the attributes if the extensibleObject objectClass is
         // declared for this entry
@@ -1628,7 +1628,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Checks to see the presence of all required attributes within an entry.
      */
-    private void assertRequiredAttributesPresent( DN dn, Entry entry, Set<String> must ) throws Exception
+    private void assertRequiredAttributesPresent( DN dn, Entry entry, Set<String> must ) throws LdapException
     {
         for ( EntryAttribute attribute : entry )
         {
@@ -1649,7 +1649,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * inheritance tree
      * - we must have at least one STRUCTURAL OC
      */
-    private void assertObjectClasses( DN dn, List<ObjectClass> ocs ) throws Exception
+    private void assertObjectClasses( DN dn, List<ObjectClass> ocs ) throws LdapException
     {
         Set<ObjectClass> structuralObjectClasses = new HashSet<ObjectClass>();
 
@@ -1720,7 +1720,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Check the entry attributes syntax, using the syntaxCheckers
      */
-    private void assertSyntaxes( Entry entry ) throws Exception
+    private void assertSyntaxes( Entry entry ) throws LdapException
     {
         // First, loop on all attributes
         for ( EntryAttribute attribute : entry )
@@ -1760,7 +1760,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    private void assertRdn( DN dn, Entry entry ) throws Exception
+    private void assertRdn( DN dn, Entry entry ) throws LdapException
     {
         for ( AVA atav : dn.getRdn() )
         {
@@ -1781,7 +1781,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * 
      * If this is the case, try to change it to a String value.
      */
-    private boolean checkHumanReadable( EntryAttribute attribute ) throws Exception
+    private boolean checkHumanReadable( EntryAttribute attribute ) throws LdapException
     {
         boolean isModified = false;
 
@@ -1823,7 +1823,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * 
      * If this is the case, try to change it to a binary value.
      */
-    private boolean checkNotHumanReadable( EntryAttribute attribute ) throws Exception
+    private boolean checkNotHumanReadable( EntryAttribute attribute ) throws LdapException
     {
         boolean isModified = false;
 
@@ -1870,7 +1870,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * to valid String if they are stored as byte[], and that non Human Readable attributes
      * stored as String can be transformed to byte[]
      */
-    private void assertHumanReadable( Entry entry ) throws Exception
+    private void assertHumanReadable( Entry entry ) throws LdapException
     {
         boolean isModified = false;
 

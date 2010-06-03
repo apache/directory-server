@@ -58,91 +58,91 @@ public interface OperationManager
     /**
      * TODO document after determining if this method should be here.
      */
-    ClonedServerEntry getRootDSE( GetRootDSEOperationContext  opContext ) throws Exception;
+    ClonedServerEntry getRootDSE( GetRootDSEOperationContext  opContext ) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
      */
-    DN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception;
+    DN getMatchedName( GetMatchedNameOperationContext opContext ) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
      */
-    DN getSuffix ( GetSuffixOperationContext opContext ) throws Exception;
+    DN getSuffix ( GetSuffixOperationContext opContext ) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
      */
-    Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception;
+    Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
      */
-    boolean compare( CompareOperationContext opContext) throws Exception;
+    boolean compare( CompareOperationContext opContext) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
      */
-    void delete( DeleteOperationContext opContext ) throws Exception;
+    void delete( DeleteOperationContext opContext ) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
      */
-    void add( AddOperationContext opContext ) throws Exception;
+    void add( AddOperationContext opContext ) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
      */
-    void modify( ModifyOperationContext opContext ) throws Exception;
+    void modify( ModifyOperationContext opContext ) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
      */
-    EntryFilteringCursor list( ListOperationContext opContext ) throws Exception;
+    EntryFilteringCursor list( ListOperationContext opContext ) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
      */
-    EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception;
+    EntryFilteringCursor search( SearchOperationContext opContext ) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
      */
-    Entry lookup( LookupOperationContext opContext ) throws Exception;
+    Entry lookup( LookupOperationContext opContext ) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
      */
-    boolean hasEntry( EntryOperationContext opContext ) throws Exception;
+    boolean hasEntry( EntryOperationContext opContext ) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
      */
-    void rename( RenameOperationContext opContext ) throws Exception;
+    void rename( RenameOperationContext opContext ) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
      */
-    void move( MoveOperationContext opContext ) throws Exception;
+    void move( MoveOperationContext opContext ) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
      */
-    void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception;
+    void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException;
 
     
     /**

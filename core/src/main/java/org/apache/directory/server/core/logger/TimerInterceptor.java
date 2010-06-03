@@ -172,7 +172,7 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws Exception
+    public void add( NextInterceptor next, AddOperationContext opContext ) throws LdapException
     {
         long t0 = System.nanoTime();
         next.add( opContext );
@@ -201,7 +201,7 @@ public class TimerInterceptor implements Interceptor
      * {@inheritDoc}
      */
     public void addContextPartition( NextInterceptor next, AddContextPartitionOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         long t0 = System.nanoTime();
         next.addContextPartition( opContext );
@@ -259,7 +259,7 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws Exception
+    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws LdapException
     {
         long t0 = System.nanoTime();
         boolean compare = next.compare( opContext );
@@ -289,7 +289,7 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
+    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws LdapException
     {
         long t0 = System.nanoTime();
         next.delete( opContext );
@@ -335,7 +335,7 @@ public class TimerInterceptor implements Interceptor
      * {@inheritDoc}
      */
     public ClonedServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         long t0 = System.nanoTime();
         Entry rootDSE = next.getRootDSE( opContext );
@@ -365,7 +365,7 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public boolean hasEntry( NextInterceptor next, EntryOperationContext opContext ) throws Exception
+    public boolean hasEntry( NextInterceptor next, EntryOperationContext opContext ) throws LdapException
     {
         long t0 = System.nanoTime();
         boolean hasEntry = next.hasEntry( opContext );
@@ -395,7 +395,7 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public void init( DirectoryService directoryService ) throws Exception
+    public void init( DirectoryService directoryService ) throws LdapException
     {
     }
 
@@ -403,7 +403,7 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws LdapException
     {
         long t0 = System.nanoTime();
         EntryFilteringCursor cursor = next.list( opContext );
@@ -433,7 +433,7 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public Entry lookup( NextInterceptor next, LookupOperationContext opContext ) throws Exception
+    public Entry lookup( NextInterceptor next, LookupOperationContext opContext ) throws LdapException
     {
         long t0 = System.nanoTime();
         Entry entry = next.lookup( opContext );
@@ -463,7 +463,7 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws LdapException
     {
         long t0 = System.nanoTime();
         next.modify( opContext );
@@ -491,7 +491,7 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
+    public void move( NextInterceptor next, MoveOperationContext opContext ) throws LdapException
     {
         long t0 = System.nanoTime();
         next.move( opContext );
@@ -519,7 +519,7 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws Exception
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws LdapException
     {
         long t0 = System.nanoTime();
         next.moveAndRename( opContext );
@@ -547,7 +547,7 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
+    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws LdapException
     {
         long t0 = System.nanoTime();
         next.rename( opContext );
@@ -575,7 +575,7 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws LdapException
     {
         long t0 = System.nanoTime();
         EntryFilteringCursor cursor = next.search( opContext );
@@ -633,7 +633,7 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public DN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception
+    public DN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws LdapException
     {
         long t0 = System.nanoTime();
         DN dn = next.getMatchedName( opContext );
@@ -663,7 +663,7 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public DN getSuffix( NextInterceptor next, GetSuffixOperationContext opContext ) throws Exception
+    public DN getSuffix( NextInterceptor next, GetSuffixOperationContext opContext ) throws LdapException
     {
         long t0 = System.nanoTime();
         DN dn = next.getSuffix( opContext );
@@ -693,7 +693,7 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public Set<String> listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws Exception
+    public Set<String> listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws LdapException
     {
         long t0 = System.nanoTime();
         Set<String> suffixes = next.listSuffixes( opContext );
@@ -724,7 +724,7 @@ public class TimerInterceptor implements Interceptor
      * {@inheritDoc}
      */
     public void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         long t0 = System.nanoTime();
         next.removeContextPartition( opContext );

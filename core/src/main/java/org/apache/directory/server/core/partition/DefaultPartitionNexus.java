@@ -33,7 +33,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.naming.ConfigurationException;
-import javax.naming.NameNotFoundException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -93,6 +92,8 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
+import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
+import org.apache.directory.shared.ldap.exception.LdapOtherException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
@@ -536,7 +537,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#add(org.apache.directory.server.core.interceptor.context.AddOperationContext)
      */
-    public void add( AddOperationContext addContext ) throws Exception
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         Partition backend = getPartition( addContext.getDn() );
         backend.add( addContext );
@@ -559,7 +560,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#compare(org.apache.directory.server.core.interceptor.context.CompareOperationContext)
      */
-    public boolean compare( CompareOperationContext compareContext ) throws Exception
+    public boolean compare( CompareOperationContext compareContext ) throws LdapException
     {
         Partition partition = getPartition( compareContext.getDn() );
         //AttributeTypeRegistry registry = schemaManager.getAttributeTypeRegistry();
@@ -614,7 +615,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#delete(org.apache.directory.server.core.interceptor.context.DeleteOperationContext)
      */
-    public void delete( DeleteOperationContext deleteContext ) throws Exception
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         Partition backend = getPartition( deleteContext.getDn() );
         backend.delete( deleteContext );
@@ -624,7 +625,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#hasEntry(org.apache.directory.server.core.interceptor.context.EntryOperationContext)
      */
-    public boolean hasEntry( EntryOperationContext opContext ) throws Exception
+    public boolean hasEntry( EntryOperationContext opContext ) throws LdapException
     {
         DN dn = opContext.getDn();
 
@@ -646,7 +647,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#list(org.apache.directory.server.core.interceptor.context.ListOperationContext)
      */
-    public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( ListOperationContext opContext ) throws LdapException
     {
         Partition backend = getPartition( opContext.getDn() );
         return backend.list( opContext );
@@ -656,7 +657,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#lookup(org.apache.directory.server.core.interceptor.context.LookupOperationContext)
      */
-    public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
+    public ClonedServerEntry lookup( LookupOperationContext opContext ) throws LdapException
     {
         DN dn = opContext.getDn();
 
@@ -693,7 +694,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#lookup(java.lang.Long)
      */
-    public ClonedServerEntry lookup( Long id ) throws Exception
+    public ClonedServerEntry lookup( Long id ) throws LdapException
     {
         // TODO not implemented until we can use id to figure out the partition using
         // the partition ID component of the 64 bit Long identifier
@@ -704,7 +705,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#modify(org.apache.directory.server.core.interceptor.context.ModifyOperationContext)
      */
-    public void modify( ModifyOperationContext modifyContext ) throws Exception
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         // Special case : if we don't have any modification to apply, just return
         if ( modifyContext.getModItems().size() == 0 )
@@ -727,7 +728,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#move(org.apache.directory.server.core.interceptor.context.MoveOperationContext)
      */
-    public void move( MoveOperationContext opContext ) throws Exception
+    public void move( MoveOperationContext opContext ) throws LdapException
     {
         Partition backend = getPartition( opContext.getDn() );
         backend.move( opContext );
@@ -737,7 +738,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#moveAndRename(org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext)
      */
-    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception
+    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException
     {
         Partition backend = getPartition( opContext.getDn() );
         backend.moveAndRename( opContext );
@@ -747,14 +748,14 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#rename(org.apache.directory.server.core.interceptor.context.RenameOperationContext)
      */
-    public void rename( RenameOperationContext opContext ) throws Exception
+    public void rename( RenameOperationContext opContext ) throws LdapException
     {
         Partition backend = getPartition( opContext.getDn() );
         backend.rename( opContext );
     }
 
 
-    private EntryFilteringCursor searchRootDSE( SearchOperationContext searchOperationContext ) throws Exception
+    private EntryFilteringCursor searchRootDSE( SearchOperationContext searchOperationContext ) throws LdapException
     {
         SearchControls searchControls = searchOperationContext.getSearchControls();
 
@@ -837,7 +838,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#search(org.apache.directory.server.core.interceptor.context.SearchOperationContext)
      */
-    public EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( SearchOperationContext opContext ) throws LdapException
     {
         DN base = opContext.getDn();
         SearchControls searchCtls = opContext.getSearchControls();
@@ -945,7 +946,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#addContextPartition(org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext)
      */
-    public synchronized void addContextPartition( AddContextPartitionOperationContext opContext ) throws Exception
+    public synchronized void addContextPartition( AddContextPartitionOperationContext opContext ) throws LdapException
     {
         Partition partition = opContext.getPartition();
 
@@ -954,7 +955,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         if ( partitions.containsKey( key ) )
         {
-            throw new ConfigurationException( I18n.err( I18n.ERR_263, key ) );
+            throw new LdapOtherException( I18n.err( I18n.ERR_263, key ) );
         }
 
         if ( !partition.isInitialized() )
@@ -968,7 +969,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
             if ( partitionSuffix == null )
             {
-                throw new ConfigurationException( I18n.err( I18n.ERR_267, partition.getId() ) );
+                throw new LdapOtherException( I18n.err( I18n.ERR_267, partition.getId() ) );
             }
 
             partitions.put( partitionSuffix.getNormName(), partition );
@@ -994,7 +995,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      * @see org.apache.directory.server.core.partition.PartitionNexus#removeContextPartition(org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext)
      */
     public synchronized void removeContextPartition( RemoveContextPartitionOperationContext removeContextPartition )
-        throws Exception
+        throws LdapException
     {
         // Get the Partition name. It's a DN.
         String key = removeContextPartition.getDn().getNormName();
@@ -1006,7 +1007,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         {
             String msg = I18n.err( I18n.ERR_34, key );
             LOG.error( msg );
-            throw new NameNotFoundException( msg );
+            throw new LdapNoSuchObjectException( msg );
         }
 
         String partitionSuffix = partition.getSuffixDn().getName();
@@ -1025,14 +1026,22 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             {
                 String msg = I18n.err( I18n.ERR_35, key );
                 LOG.error( msg );
-                throw new NameNotFoundException( msg );
+                throw new LdapNoSuchObjectException( msg );
             }
         }
 
         // Update the partition tree
         partitionLookupTree.remove( partition );
         partitions.remove( key );
-        partition.destroy();
+        
+        try
+        {
+            partition.destroy();
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationErrorException( e.getMessage() );
+        }
     }
 
 
@@ -1066,7 +1075,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#getMatchedName(org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext)
      */
-    public DN getMatchedName( GetMatchedNameOperationContext matchedNameContext ) throws Exception
+    public DN getMatchedName( GetMatchedNameOperationContext matchedNameContext ) throws LdapException
     {
         DN dn = ( DN ) matchedNameContext.getDn().clone();
 
@@ -1087,7 +1096,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#getSuffix(org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext)
      */
-    public DN getSuffix( GetSuffixOperationContext getSuffixContext ) throws Exception
+    public DN getSuffix( GetSuffixOperationContext getSuffixContext ) throws LdapException
     {
         Partition backend = getPartition( getSuffixContext.getDn() );
         return backend.getSuffixDn();
@@ -1097,7 +1106,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#listSuffixes(org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext)
      */
-    public Set<String> listSuffixes( ListSuffixOperationContext emptyContext ) throws Exception
+    public Set<String> listSuffixes( ListSuffixOperationContext emptyContext ) throws LdapException
     {
         return Collections.unmodifiableSet( partitions.keySet() );
     }
@@ -1106,7 +1115,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#registerSupportedExtensions(java.util.Set)
      */
-    public void registerSupportedExtensions( Set<String> extensionOids ) throws Exception
+    public void registerSupportedExtensions( Set<String> extensionOids ) throws LdapException
     {
         EntryAttribute supportedExtension = rootDSE.get( SchemaConstants.SUPPORTED_EXTENSION_AT );
 
@@ -1126,7 +1135,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#registerSupportedSaslMechanisms(java.util.Set)
      */
-    public void registerSupportedSaslMechanisms( Set<String> supportedSaslMechanisms ) throws Exception
+    public void registerSupportedSaslMechanisms( Set<String> supportedSaslMechanisms ) throws LdapException
     {
         EntryAttribute supportedSaslMechanismsAttribute = rootDSE.get( SchemaConstants.SUPPORTED_SASL_MECHANISMS_AT );
 

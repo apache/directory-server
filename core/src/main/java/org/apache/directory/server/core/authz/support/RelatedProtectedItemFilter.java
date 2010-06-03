@@ -23,7 +23,6 @@ package org.apache.directory.server.core.authz.support;
 import java.util.Collection;
 import java.util.Iterator;
 
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 
 import org.apache.directory.server.core.event.Evaluator;
@@ -37,8 +36,8 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
@@ -86,7 +85,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
             Entry entry, 
             Collection<MicroOperation> microOperations,
             Entry entryView )
-        throws LdapException, NamingException
+        throws LdapException
     {
         if ( tuples.size() == 0 )
         {
@@ -108,7 +107,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
 
 
     private boolean isRelated( ACITuple tuple, OperationScope scope, DN userName, DN entryName, String attrId,
-                               Value<?> attrValue, Entry entry ) throws LdapException, NamingException, InternalError
+                               Value<?> attrValue, Entry entry ) throws LdapException, InternalError
     {
         String oid = null;
         

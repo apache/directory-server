@@ -22,11 +22,10 @@ package org.apache.directory.server.core.trigger;
 
 import java.util.Map;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 
@@ -38,7 +37,7 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
 
     
     public DeleteStoredProcedureParameterInjector( OperationContext opContext, DN deletedEntryName ) 
-        throws Exception
+        throws LdapException
     {
         super( opContext );
         this.deletedEntryName = deletedEntryName;
@@ -50,7 +49,7 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
     
     MicroInjector $nameInjector = new MicroInjector()
     {
-        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws Exception
+        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
         {
             // Return a safe copy constructed with user provided name.
             return new DN( deletedEntryName.getName() );
@@ -59,14 +58,14 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
     
     MicroInjector $deletedEntryInjector = new MicroInjector()
     {
-        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
+        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
         {
             return deletedEntry;
         }
     };
     
 
-    private Entry getDeletedEntry( OperationContext opContext ) throws Exception
+    private Entry getDeletedEntry( OperationContext opContext ) throws LdapException
     {
         /**
          * Using LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS here to exclude operational attributes

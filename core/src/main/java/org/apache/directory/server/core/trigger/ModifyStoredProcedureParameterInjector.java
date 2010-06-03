@@ -27,8 +27,8 @@ import java.util.Map;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
-import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
@@ -42,7 +42,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
     private Entry oldEntry;
     
     
-    public ModifyStoredProcedureParameterInjector( ModifyOperationContext opContext ) throws Exception
+    public ModifyStoredProcedureParameterInjector( ModifyOperationContext opContext ) throws LdapException
     {
         super( opContext );
         modifiedEntryName = opContext.getDn();
@@ -93,14 +93,14 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
     
     MicroInjector $newEntryInjector = new MicroInjector()
     {
-        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws Exception
+        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
         {
             return getEntry( opContext );
         }
     };
     
     
-    private Entry getEntry( OperationContext opContext ) throws Exception
+    private Entry getEntry( OperationContext opContext ) throws LdapException
     {
         /**
          * Using LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS here to exclude operational attributes

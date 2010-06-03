@@ -111,7 +111,7 @@ public interface Partition
      *
      * @throws Exception if initialization fails in any way
      */
-    void initialize() throws Exception;
+    void initialize() throws LdapException;
 
 
     /**
@@ -154,16 +154,16 @@ public interface Partition
      * delete from this ContextPartition.
      * @throws Exception if there are any problems
      */
-    void delete( DeleteOperationContext opContext ) throws Exception;
+    void delete( DeleteOperationContext opContext ) throws LdapException;
 
 
     /**
      * Adds an entry to this ContextPartition.
      *
      * @param opContext the context used  to add and entry to this ContextPartition
-     * @throws Exception if there are any problems
+     * @throws LdapException if there are any problems
      */
-    void add( AddOperationContext opContext ) throws Exception;
+    void add( AddOperationContext opContext ) throws LdapException;
 
 
     /**
@@ -180,7 +180,7 @@ public interface Partition
      * @see javax.naming.directory.DirContext#REMOVE_ATTRIBUTE
      * @see javax.naming.directory.DirContext#REPLACE_ATTRIBUTE
      */
-    void modify( ModifyOperationContext opContext ) throws Exception;
+    void modify( ModifyOperationContext opContext ) throws LdapException;
 
 
     /**
@@ -193,7 +193,7 @@ public interface Partition
      * @return a NamingEnumeration containing objects of type {@link ServerSearchResult}
      * @throws Exception if there are any problems
      */
-    EntryFilteringCursor list( ListOperationContext opContext ) throws Exception;
+    EntryFilteringCursor list( ListOperationContext opContext ) throws LdapException;
 
 
     /**
@@ -208,7 +208,7 @@ public interface Partition
      * @throws Exception if there are any problems
      * @return a NamingEnumeration containing objects of type 
      */
-    EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception;
+    EntryFilteringCursor search( SearchOperationContext opContext ) throws LdapException;
 
 
     /**
@@ -223,7 +223,7 @@ public interface Partition
      * @return an Attributes object representing the entry
      * @throws Exception if there are any problems
      */
-    ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws Exception;
+    ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws LdapException;
 
 
     /**
@@ -233,7 +233,7 @@ public interface Partition
      * @return true if the entry exists, false if it does not
      * @throws Exception if there are any problems
      */
-    boolean hasEntry( EntryOperationContext opContext ) throws Exception;
+    boolean hasEntry( EntryOperationContext opContext ) throws LdapException;
 
 
     /**
@@ -245,7 +245,7 @@ public interface Partition
      * @param opContext the modify DN context
      * @throws Exception if there are any problems
      */
-    void rename( RenameOperationContext opContext ) throws Exception;
+    void rename( RenameOperationContext opContext ) throws LdapException;
 
 
     /**
@@ -255,7 +255,7 @@ public interface Partition
      * @param opContext The context containing the DNs to move
      * @throws Exception if there are any problems
      */
-    void move( MoveOperationContext opContext ) throws Exception;
+    void move( MoveOperationContext opContext ) throws LdapException;
 
 
     /**
@@ -270,7 +270,7 @@ public interface Partition
      * the modifyDN operation
      * @throws Exception if there are any problems
      */
-    void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception;
+    void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException;
 
 
     /**

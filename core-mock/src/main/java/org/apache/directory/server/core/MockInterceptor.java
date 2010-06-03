@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.Interceptor;
@@ -82,7 +80,7 @@ public class MockInterceptor implements Interceptor
 
 
     public void init( DirectoryService directoryService )
-        throws NamingException
+        throws LdapException
     {
     }
 
@@ -92,28 +90,28 @@ public class MockInterceptor implements Interceptor
     }
 
 
-    public ClonedServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws Exception
+    public ClonedServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws LdapException
     {
         interceptors.add( this );
         return next.getRootDSE( opContext );
     }
 
 
-    public DN getMatchedName ( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception
+    public DN getMatchedName ( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws LdapException
     {
         interceptors.add( this );
         return next.getMatchedName( opContext );
     }
 
 
-    public DN getSuffix ( NextInterceptor next, GetSuffixOperationContext opContext ) throws Exception
+    public DN getSuffix ( NextInterceptor next, GetSuffixOperationContext opContext ) throws LdapException
     {
         interceptors.add( this );
         return next.getSuffix( opContext );
     }
 
 
-    public Set<String> listSuffixes ( NextInterceptor next, ListSuffixOperationContext opContext ) throws Exception
+    public Set<String> listSuffixes ( NextInterceptor next, ListSuffixOperationContext opContext ) throws LdapException
     {
         interceptors.add( this );
         return next.listSuffixes( opContext );
@@ -121,28 +119,28 @@ public class MockInterceptor implements Interceptor
 
 
     public void addContextPartition( NextInterceptor next, AddContextPartitionOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         interceptors.add( this );
         next.addContextPartition( opContext );
     }
 
 
-    public void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext ) throws Exception
+    public void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext ) throws LdapException
     {
         interceptors.add( this );
         next.removeContextPartition( opContext );
     }
 
 
-    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws Exception
+    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws LdapException
     {
         interceptors.add( this );
         return next.compare( opContext );
     }
 
 
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
+    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws LdapException
     {
         interceptors.add( this );
         next.delete( opContext );
@@ -150,42 +148,42 @@ public class MockInterceptor implements Interceptor
 
 
     public void add( NextInterceptor next, AddOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         interceptors.add( this );
         next.add( opContext );
     }
 
 
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws LdapException
     {
         interceptors.add( this );
         next.modify( opContext );
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws LdapException
     {
         interceptors.add( this );
         return next.list( opContext );
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws LdapException
     {
         interceptors.add( this );
         return next.search( opContext );
     }
 
 
-    public Entry lookup( NextInterceptor next, LookupOperationContext opContext ) throws Exception
+    public Entry lookup( NextInterceptor next, LookupOperationContext opContext ) throws LdapException
     {
         interceptors.add( this );
         return next.lookup( opContext );
     }
 
 
-    public boolean hasEntry( NextInterceptor next, EntryOperationContext opContext ) throws Exception
+    public boolean hasEntry( NextInterceptor next, EntryOperationContext opContext ) throws LdapException
     {
         interceptors.add( this );
         return next.hasEntry( opContext );
@@ -193,14 +191,14 @@ public class MockInterceptor implements Interceptor
 
 
     public void rename( NextInterceptor next, RenameOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         interceptors.add( this );
         next.rename( opContext );
     }
 
 
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
+    public void move( NextInterceptor next, MoveOperationContext opContext ) throws LdapException
     {
         interceptors.add( this );
         next.move( opContext );
@@ -208,7 +206,7 @@ public class MockInterceptor implements Interceptor
 
 
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         interceptors.add( this );
         next.moveAndRename( opContext );

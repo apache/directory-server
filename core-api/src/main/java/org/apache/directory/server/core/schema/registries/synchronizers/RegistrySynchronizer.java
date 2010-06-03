@@ -22,6 +22,7 @@ package org.apache.directory.server.core.schema.registries.synchronizers;
 
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 
@@ -48,7 +49,7 @@ public interface RegistrySynchronizer
      * @param entry The SchemObject to add
      * @throws Exception If the addition failed
      */
-    void add( Entry entry ) throws Exception;
+    void add( Entry entry ) throws LdapException;
     
     
     /**
@@ -58,7 +59,7 @@ public interface RegistrySynchronizer
      * @param cascaded unused
      * @throws Exception If the deletion failed
      */
-    void delete( Entry entry, boolean cascaded ) throws Exception;
+    void delete( Entry entry, boolean cascaded ) throws LdapException;
     
     
     /**
@@ -69,7 +70,7 @@ public interface RegistrySynchronizer
      * @param cascaded unused
      * @throws Exception If the rename failed
      */
-    void rename( Entry entry, RDN newRdn, boolean cascaded ) throws Exception;
+    void rename( Entry entry, RDN newRdn, boolean cascaded ) throws LdapException;
     
 
     /**
@@ -82,10 +83,10 @@ public interface RegistrySynchronizer
      * @throws Exception If the modification failed
      */
     boolean modify( ModifyOperationContext opContext, Entry targetEntry, boolean cascaded )
-        throws Exception;
+        throws LdapException;
     
     void moveAndRename( DN oriChildName, DN newParentName, RDN newRn, boolean deleteOldRn, Entry entry,
-        boolean cascaded ) throws Exception;
+        boolean cascaded ) throws LdapException;
     
-    void move( DN oriChildName, DN newParentName, Entry entry, boolean cascaded ) throws Exception;
+    void move( DN oriChildName, DN newParentName, Entry entry, boolean cascaded ) throws LdapException;
 }

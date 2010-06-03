@@ -110,7 +110,7 @@ public abstract class BaseInterceptor implements Interceptor
      * This method does nothing by default.
      * @throws Exception 
      */
-    public void init( DirectoryService directoryService ) throws Exception
+    public void init( DirectoryService directoryService ) throws LdapException
     {
     }
 
@@ -127,106 +127,106 @@ public abstract class BaseInterceptor implements Interceptor
     // Interceptor's Invoke Method
     // ------------------------------------------------------------------------
 
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws Exception
+    public void add( NextInterceptor next, AddOperationContext opContext ) throws LdapException
     {
         next.add( opContext );
     }
 
 
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
+    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws LdapException
     {
         next.delete( opContext );
     }
 
 
-    public DN getMatchedName ( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception
+    public DN getMatchedName ( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws LdapException
     {
         return next.getMatchedName( opContext );
     }
 
 
-    public ClonedServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws Exception
+    public ClonedServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws LdapException
     {
         return next.getRootDSE( opContext );
     }
 
 
-    public DN getSuffix( NextInterceptor next, GetSuffixOperationContext opContext ) throws Exception
+    public DN getSuffix( NextInterceptor next, GetSuffixOperationContext opContext ) throws LdapException
     {
         return next.getSuffix( opContext );
     }
 
 
-    public boolean hasEntry( NextInterceptor next, EntryOperationContext opContext ) throws Exception
+    public boolean hasEntry( NextInterceptor next, EntryOperationContext opContext ) throws LdapException
     {
         return next.hasEntry( opContext );
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws LdapException
     {
         return next.list( opContext );
     }
 
 
     public Set<String> listSuffixes ( NextInterceptor next, ListSuffixOperationContext opContext ) 
-        throws Exception
+        throws LdapException
     {
         return next.listSuffixes( opContext );
     }
 
 
-    public Entry lookup( NextInterceptor next, LookupOperationContext opContext ) throws Exception
+    public Entry lookup( NextInterceptor next, LookupOperationContext opContext ) throws LdapException
     {
         return next.lookup( opContext );
     }
 
     
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws LdapException
     {
         next.modify( opContext );
     }
 
 
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         next.moveAndRename( opContext );
     }
 
 
     public void rename( NextInterceptor next, RenameOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         next.rename( opContext );
     }
 
 
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
+    public void move( NextInterceptor next, MoveOperationContext opContext ) throws LdapException
     {
         next.move( opContext );
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws LdapException
     {
         return next.search( opContext );
     }
 
 
-    public void addContextPartition( NextInterceptor next, AddContextPartitionOperationContext opContext ) throws Exception
+    public void addContextPartition( NextInterceptor next, AddContextPartitionOperationContext opContext ) throws LdapException
     {
         next.addContextPartition( opContext );
     }
 
 
-    public void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext ) throws Exception
+    public void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext ) throws LdapException
     {
         next.removeContextPartition( opContext );
     }
 
 
-    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws Exception
+    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws LdapException
     {
         return next.compare( opContext );
     }

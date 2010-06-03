@@ -20,6 +20,7 @@ package org.apache.directory.server.core.journal;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,7 +105,7 @@ public class DefaultJournal implements Journal
     /**
      * {@inheritDoc}
      */
-    public void log( LdapPrincipal principal, long revision, LdifEntry entry ) throws Exception
+    public void log( LdapPrincipal principal, long revision, LdifEntry entry ) throws LdapException
     {
         store.log( principal, revision, entry );
     }

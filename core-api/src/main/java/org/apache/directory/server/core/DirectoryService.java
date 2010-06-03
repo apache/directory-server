@@ -166,7 +166,10 @@ public interface DirectoryService extends ServerEntryFactory
     boolean isStarted();
 
     
-    CoreSession getAdminSession() throws Exception;
+    /**
+     * @return The Admin session
+     */
+    CoreSession getAdminSession();
     
     
     /**

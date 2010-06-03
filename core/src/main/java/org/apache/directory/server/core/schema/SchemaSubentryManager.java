@@ -30,9 +30,10 @@ import javax.naming.directory.DirContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
@@ -111,7 +112,7 @@ public class SchemaSubentryManager
 
 
     public SchemaSubentryManager( SchemaManager schemaManager, SchemaLoader loader )
-        throws Exception
+        throws LdapException
     {
         this.schemaManager = schemaManager;
         this.subentryModifier = new SchemaSubentryModifier( schemaManager );
@@ -155,7 +156,7 @@ public class SchemaSubentryManager
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaChangeManager#modifySchemaSubentry(org.apache.directory.server.core.interceptor.context.ModifyOperationContext, org.apache.directory.server.core.entry.Entry, org.apache.directory.server.core.entry.Entry, boolean)
      */
-    public void modifySchemaSubentry( ModifyOperationContext opContext, boolean doCascadeModify ) throws Exception 
+    public void modifySchemaSubentry( ModifyOperationContext opContext, boolean doCascadeModify ) throws LdapException 
     {
         for ( Modification mod : opContext.getModItems() )
         {
@@ -232,7 +233,7 @@ public class SchemaSubentryManager
      * schema partition
      */
     private void modifyRemoveOperation( ModifyOperationContext opContext, String opAttrOid, 
-        EntryAttribute mods ) throws Exception
+        EntryAttribute mods ) throws LdapException
     {
         int index = opAttr2handlerIndex.get( opAttrOid );
         
@@ -253,7 +254,9 @@ public class SchemaSubentryManager
                 {
                     subentryModifier.delete( opContext, normalizerDescription );
                 }
+                
                 break;
+                
             case( SYNTAX_CHECKER_INDEX ):
                 SyntaxCheckerDescription[] syntaxCheckerDescriptions = parsers.parseSyntaxCheckers( mods );
                 
@@ -261,7 +264,9 @@ public class SchemaSubentryManager
                 {
                     subentryModifier.delete( opContext, syntaxCheckerDescription );
                 }
+                
                 break;
+                
             case( SYNTAX_INDEX ):
                 LdapSyntax[] syntaxes = parsers.parseLdapSyntaxes( mods );
                 
@@ -269,7 +274,9 @@ public class SchemaSubentryManager
                 {
                     subentryModifier.deleteSchemaObject( opContext, syntax );
                 }
+                
                 break;
+                
             case( MATCHING_RULE_INDEX ):
                 MatchingRule[] mrs = parsers.parseMatchingRules( mods );
                 
@@ -277,7 +284,9 @@ public class SchemaSubentryManager
                 {
                     subentryModifier.deleteSchemaObject( opContext, mr );
                 }
+                
                 break;
+                
             case( ATTRIBUTE_TYPE_INDEX ):
                 AttributeType[] ats = parsers.parseAttributeTypes( mods );
                 
@@ -285,7 +294,9 @@ public class SchemaSubentryManager
                 {
                     subentryModifier.deleteSchemaObject( opContext, at );
                 }
+                
                 break;
+                
             case( OBJECT_CLASS_INDEX ):
                 ObjectClass[] ocs = parsers.parseObjectClasses( mods );
 
@@ -293,7 +304,9 @@ public class SchemaSubentryManager
                 {
                     subentryModifier.deleteSchemaObject( opContext, oc );
                 }
+                
                 break;
+                
             case( MATCHING_RULE_USE_INDEX ):
                 MatchingRuleUse[] mrus = parsers.parseMatchingRuleUses( mods );
                 
@@ -301,7 +314,9 @@ public class SchemaSubentryManager
                 {
                     subentryModifier.deleteSchemaObject( opContext, mru );
                 }
+                
                 break;
+                
             case( DIT_STRUCTURE_RULE_INDEX ):
                 DITStructureRule[] dsrs = parsers.parseDitStructureRules( mods );
                 
@@ -309,7 +324,9 @@ public class SchemaSubentryManager
                 {
                     subentryModifier.deleteSchemaObject( opContext, dsr );
                 }
+                
                 break;
+                
             case( DIT_CONTENT_RULE_INDEX ):
                 DITContentRule[] dcrs = parsers.parseDitContentRules( mods );
                 
@@ -317,7 +334,9 @@ public class SchemaSubentryManager
                 {
                     subentryModifier.deleteSchemaObject( opContext, dcr );
                 }
+                
                 break;
+                
             case( NAME_FORM_INDEX ):
                 NameForm[] nfs = parsers.parseNameForms( mods );
                 
@@ -325,7 +344,9 @@ public class SchemaSubentryManager
                 {
                     subentryModifier.deleteSchemaObject( opContext, nf );
                 }
+                
                 break;
+                
             default:
                 throw new IllegalStateException( I18n.err( I18n.ERR_285, index ) );
         }
@@ -343,7 +364,7 @@ public class SchemaSubentryManager
      * schema partition
      */
     private void modifyAddOperation( ModifyOperationContext opContext, String opAttrOid, 
-        EntryAttribute mods, boolean doCascadeModify ) throws Exception
+        EntryAttribute mods, boolean doCascadeModify ) throws LdapException
     {
         if ( doCascadeModify )
         {

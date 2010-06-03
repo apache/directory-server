@@ -45,6 +45,9 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapOperationException;
+import org.apache.directory.shared.ldap.exception.LdapOtherException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
@@ -89,7 +92,7 @@ public class MaxImmSubFilter implements ACITupleFilter
             Entry entry, 
             Collection<MicroOperation> microOperations,
             Entry entryView )
-        throws Exception
+        throws LdapException
     {
         if ( entryName.size() == 0 )
         {
@@ -154,7 +157,7 @@ public class MaxImmSubFilter implements ACITupleFilter
     }
 
 
-    private int getImmSubCount( OperationContext opContext, DN entryName ) throws Exception
+    private int getImmSubCount( OperationContext opContext, DN entryName ) throws LdapException
     {
         int cnt = 0;
         EntryFilteringCursor results = null;
@@ -168,18 +171,31 @@ public class MaxImmSubFilter implements ACITupleFilter
             
             results = opContext.getSession().getDirectoryService().getOperationManager().search( searchContext );
 
-            while ( results.next() )
+            try
             {
-                results.get();
-                cnt++;
+                while ( results.next() )
+                {
+                    results.get();
+                    cnt++;
+                }
             }
-
+            catch ( Exception e )
+            {
+                throw new LdapOtherException( e.getMessage() );
+            }
         }
         finally
         {
             if ( results != null )
             {
-                results.close();
+                try
+                {
+                    results.close();
+                }
+                catch ( Exception e )
+                {
+                    throw new LdapOperationException( e.getMessage() );
+                }
             }
         }
 

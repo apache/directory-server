@@ -22,6 +22,7 @@ package org.apache.directory.server.core.journal;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 
 
@@ -70,7 +71,7 @@ public interface Journal
      * @param forward LDIF of the change going to the next state
      * @throws Exception if there are problems logging the change
      */
-    void log( LdapPrincipal principal, long revision, LdifEntry entry ) throws Exception;
+    void log( LdapPrincipal principal, long revision, LdifEntry entry ) throws LdapException;
 
     
     /**

@@ -64,8 +64,12 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
+import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
+import org.apache.directory.shared.ldap.exception.LdapOperationException;
+import org.apache.directory.shared.ldap.exception.LdapOtherException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -132,7 +136,7 @@ public class SubentryInterceptor extends BaseInterceptor
     private AttributeType objectClassType;
 
 
-    public void init( DirectoryService directoryService ) throws Exception
+    public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );
         nexus = directoryService.getPartitionNexus();
@@ -178,32 +182,41 @@ public class SubentryInterceptor extends BaseInterceptor
 
             EntryFilteringCursor subentries = nexus.search( searchOperationContext );
 
-            while ( subentries.next() )
+            try
             {
-                Entry subentry = subentries.get();
-                DN dnName = subentry.getDn();
-
-                String subtree = subentry.get( SchemaConstants.SUBTREE_SPECIFICATION_AT ).getString();
-                SubtreeSpecification ss;
-
-                try
+                while ( subentries.next() )
                 {
-                    ss = ssParser.parse( subtree );
+                    Entry subentry = subentries.get();
+                    DN dnName = subentry.getDn();
+    
+                    String subtree = subentry.get( SchemaConstants.SUBTREE_SPECIFICATION_AT ).getString();
+                    SubtreeSpecification ss;
+    
+                    try
+                    {
+                        ss = ssParser.parse( subtree );
+                    }
+                    catch ( Exception e )
+                    {
+                        LOG.warn( "Failed while parsing subtreeSpecification for " + dnName );
+                        continue;
+                    }
+    
+                    dnName.normalize( schemaManager.getNormalizerMapping() );
+                    subentryCache.setSubentry( dnName.getNormName(), ss, getSubentryTypes( subentry ) );
                 }
-                catch ( Exception e )
-                {
-                    LOG.warn( "Failed while parsing subtreeSpecification for " + dnName );
-                    continue;
-                }
-
-                dnName.normalize( schemaManager.getNormalizerMapping() );
-                subentryCache.setSubentry( dnName.getNormName(), ss, getSubentryTypes( subentry ) );
+                
+                subentries.close();
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOperationException( e.getMessage() );
             }
         }
     }
 
 
-    private int getSubentryTypes( Entry subentry ) throws Exception
+    private int getSubentryTypes( Entry subentry ) throws LdapException
     {
         int types = 0;
 
@@ -243,7 +256,7 @@ public class SubentryInterceptor extends BaseInterceptor
     // -----------------------------------------------------------------------
 
     public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         EntryFilteringCursor cursor = nextInterceptor.list( opContext );
 
@@ -257,7 +270,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
 
     public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext )
-        throws Exception
+        throws LdapException
     {
         EntryFilteringCursor cursor = nextInterceptor.search( opContext );
 
@@ -289,7 +302,7 @@ public class SubentryInterceptor extends BaseInterceptor
      * @return true if subentries should be visible, false otherwise
      * @throws Exception if there are problems accessing request controls
      */
-    private boolean isSubentryVisible( OperationContext opContext ) throws Exception
+    private boolean isSubentryVisible( OperationContext opContext ) throws LdapException
     {
         if ( !opContext.hasRequestControls() )
         {
@@ -321,7 +334,7 @@ public class SubentryInterceptor extends BaseInterceptor
      * @return the set of subentry op attrs for an entry
      * @throws Exception if there are problems accessing entry information
      */
-    public Entry getSubentryAttributes( DN dn, Entry entryAttrs ) throws Exception
+    public Entry getSubentryAttributes( DN dn, Entry entryAttrs ) throws LdapException
     {
         Entry subentryAttrs = new DefaultEntry( schemaManager, dn );
         Iterator<String> list = subentryCache.nameIterator();
@@ -399,7 +412,7 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws Exception
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
         DN name = addContext.getDn();
         ClonedServerEntry entry = addContext.getEntry();
@@ -480,17 +493,24 @@ public class SubentryInterceptor extends BaseInterceptor
 
             EntryFilteringCursor subentries = nexus.search( searchOperationContext );
 
-            while ( subentries.next() )
+            try
             {
-                Entry candidate = subentries.get();
-                DN dn = candidate.getDn();
-                dn.normalize( schemaManager.getNormalizerMapping() );
-
-                if ( evaluator.evaluate( ss, apName, dn, candidate ) )
+                while ( subentries.next() )
                 {
-                    nexus.modify( new ModifyOperationContext( addContext.getSession(), dn, getOperationalModsForAdd(
-                        candidate, operational ) ) );
+                    Entry candidate = subentries.get();
+                    DN dn = candidate.getDn();
+                    dn.normalize( schemaManager.getNormalizerMapping() );
+    
+                    if ( evaluator.evaluate( ss, apName, dn, candidate ) )
+                    {
+                        nexus.modify( new ModifyOperationContext( addContext.getSession(), dn, getOperationalModsForAdd(
+                            candidate, operational ) ) );
+                    }
                 }
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOtherException( e.getMessage() );
             }
 
             // TODO why are we doing this here if we got the entry from the 
@@ -585,7 +605,7 @@ public class SubentryInterceptor extends BaseInterceptor
     // Methods dealing subentry deletion
     // -----------------------------------------------------------------------
 
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
+    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws LdapException
     {
         DN name = opContext.getDn();
         Entry entry = opContext.getEntry();
@@ -623,17 +643,26 @@ public class SubentryInterceptor extends BaseInterceptor
 
             EntryFilteringCursor subentries = nexus.search( searchOperationContext );
 
-            while ( subentries.next() )
+            try
             {
-                Entry candidate = subentries.get();
-                DN dn = new DN( candidate.getDn() );
-                dn.normalize( schemaManager.getNormalizerMapping() );
-
-                if ( evaluator.evaluate( ss, apName, dn, candidate ) )
+                while ( subentries.next() )
                 {
-                    nexus.modify( new ModifyOperationContext( opContext.getSession(), dn, getOperationalModsForRemove(
-                        name, candidate ) ) );
+                    Entry candidate = subentries.get();
+                    DN dn = new DN( candidate.getDn() );
+                    dn.normalize( schemaManager.getNormalizerMapping() );
+    
+                    if ( evaluator.evaluate( ss, apName, dn, candidate ) )
+                    {
+                        nexus.modify( new ModifyOperationContext( opContext.getSession(), dn, getOperationalModsForRemove(
+                            name, candidate ) ) );
+                    }
                 }
+                
+                subentries.close();
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOperationException( e.getMessage() );
             }
         }
         else
@@ -656,7 +685,7 @@ public class SubentryInterceptor extends BaseInterceptor
      * are, false otherwise
      * @throws Exception if there are errors while searching the directory
      */
-    private boolean hasAdministrativeDescendant( OperationContext opContext, DN name ) throws Exception
+    private boolean hasAdministrativeDescendant( OperationContext opContext, DN name ) throws LdapException
     {
         ExprNode filter = new PresenceNode( "administrativeRole" );
         SearchControls controls = new SearchControls();
@@ -668,17 +697,25 @@ public class SubentryInterceptor extends BaseInterceptor
 
         EntryFilteringCursor aps = nexus.search( searchOperationContext );
 
-        if ( aps.next() )
-        {
-            aps.close();
-            return true;
+        try
+        { 
+            if ( aps.next() )
+            {
+                aps.close();
+                return true;
+            }
         }
+        catch ( Exception e )
+        {
+            throw new LdapOperationException( e.getMessage() );
+        }
+        
 
         return false;
     }
 
 
-    private List<Modification> getModsOnEntryRdnChange( DN oldName, DN newName, Entry entry ) throws Exception
+    private List<Modification> getModsOnEntryRdnChange( DN oldName, DN newName, Entry entry ) throws LdapException
     {
         List<Modification> modList = new ArrayList<Modification>();
 
@@ -751,7 +788,7 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
+    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws LdapException
     {
         DN name = opContext.getDn();
 
@@ -791,17 +828,26 @@ public class SubentryInterceptor extends BaseInterceptor
 
             EntryFilteringCursor subentries = nexus.search( searchOperationContext );
 
-            while ( subentries.next() )
+            try
             {
-                Entry candidate = subentries.get();
-                DN dn = candidate.getDn();
-                dn.normalize( schemaManager.getNormalizerMapping() );
-
-                if ( evaluator.evaluate( ss, apName, dn, candidate ) )
+                while ( subentries.next() )
                 {
-                    nexus.modify( new ModifyOperationContext( opContext.getSession(), dn, getOperationalModsForReplace(
-                        name, newName, subentry, candidate ) ) );
+                    Entry candidate = subentries.get();
+                    DN dn = candidate.getDn();
+                    dn.normalize( schemaManager.getNormalizerMapping() );
+    
+                    if ( evaluator.evaluate( ss, apName, dn, candidate ) )
+                    {
+                        nexus.modify( new ModifyOperationContext( opContext.getSession(), dn, getOperationalModsForReplace(
+                            name, newName, subentry, candidate ) ) );
+                    }
                 }
+                
+                subentries.close();
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOperationException( e.getMessage() );
             }
         }
         else
@@ -829,7 +875,7 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws Exception
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws LdapException
     {
         DN oriChildName = opContext.getDn();
         DN parent = opContext.getParent();
@@ -870,17 +916,26 @@ public class SubentryInterceptor extends BaseInterceptor
 
             EntryFilteringCursor subentries = nexus.search( searchOperationContext );
 
-            while ( subentries.next() )
+            try
             {
-                Entry candidate = subentries.get();
-                DN dn = candidate.getDn();
-                dn.normalize( schemaManager.getNormalizerMapping() );
-
-                if ( evaluator.evaluate( ss, apName, dn, candidate ) )
+                while ( subentries.next() )
                 {
-                    nexus.modify( new ModifyOperationContext( opContext.getSession(), dn, getOperationalModsForReplace(
-                        oriChildName, newName, subentry, candidate ) ) );
+                    Entry candidate = subentries.get();
+                    DN dn = candidate.getDn();
+                    dn.normalize( schemaManager.getNormalizerMapping() );
+    
+                    if ( evaluator.evaluate( ss, apName, dn, candidate ) )
+                    {
+                        nexus.modify( new ModifyOperationContext( opContext.getSession(), dn, getOperationalModsForReplace(
+                            oriChildName, newName, subentry, candidate ) ) );
+                    }
                 }
+                
+                subentries.close();
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOperationException( e.getMessage() );
             }
         }
         else
@@ -909,7 +964,7 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
+    public void move( NextInterceptor next, MoveOperationContext opContext ) throws LdapException
     {
         DN oriChildName = opContext.getDn();
         DN newParentName = opContext.getParent();
@@ -948,17 +1003,26 @@ public class SubentryInterceptor extends BaseInterceptor
 
             EntryFilteringCursor subentries = nexus.search( searchOperationContext );
 
-            while ( subentries.next() )
+            try
             {
-                Entry candidate = subentries.get();
-                DN dn = candidate.getDn();
-                dn.normalize( schemaManager.getNormalizerMapping() );
-
-                if ( evaluator.evaluate( ss, apName, dn, candidate ) )
+                while ( subentries.next() )
                 {
-                    nexus.modify( new ModifyOperationContext( opContext.getSession(), dn, getOperationalModsForReplace(
-                        oriChildName, newName, subentry, candidate ) ) );
+                    Entry candidate = subentries.get();
+                    DN dn = candidate.getDn();
+                    dn.normalize( schemaManager.getNormalizerMapping() );
+    
+                    if ( evaluator.evaluate( ss, apName, dn, candidate ) )
+                    {
+                        nexus.modify( new ModifyOperationContext( opContext.getSession(), dn, getOperationalModsForReplace(
+                            oriChildName, newName, subentry, candidate ) ) );
+                    }
                 }
+                
+                subentries.close();
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOperationException( e.getMessage() );
             }
         }
         else
@@ -990,7 +1054,7 @@ public class SubentryInterceptor extends BaseInterceptor
     // Methods dealing subentry modification
     // -----------------------------------------------------------------------
 
-    private int getSubentryTypes( Entry entry, List<Modification> mods ) throws Exception
+    private int getSubentryTypes( Entry entry, List<Modification> mods ) throws LdapException
     {
         EntryAttribute ocFinalState = entry.get( SchemaConstants.OBJECT_CLASS_AT ).clone();
 
@@ -1032,7 +1096,7 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws LdapException
     {
         DN dn = opContext.getDn();
         List<Modification> mods = opContext.getModItems();
@@ -1091,17 +1155,24 @@ public class SubentryInterceptor extends BaseInterceptor
 
             EntryFilteringCursor subentries = nexus.search( searchOperationContext );
 
-            while ( subentries.next() )
+            try
             {
-                Entry candidate = subentries.get();
-                DN candidateDn = candidate.getDn();
-                candidateDn.normalize( schemaManager.getNormalizerMapping() );
-
-                if ( evaluator.evaluate( ssOld, apName, candidateDn, candidate ) )
+                while ( subentries.next() )
                 {
-                    nexus.modify( new ModifyOperationContext( opContext.getSession(), candidateDn,
-                        getOperationalModsForRemove( dn, candidate ) ) );
+                    Entry candidate = subentries.get();
+                    DN candidateDn = candidate.getDn();
+                    candidateDn.normalize( schemaManager.getNormalizerMapping() );
+    
+                    if ( evaluator.evaluate( ssOld, apName, candidateDn, candidate ) )
+                    {
+                        nexus.modify( new ModifyOperationContext( opContext.getSession(), candidateDn,
+                            getOperationalModsForRemove( dn, candidate ) ) );
+                    }
                 }
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOperationErrorException( e.getMessage() );
             }
 
             // search for all selected entries by the new SS and add references to subentry
@@ -1115,17 +1186,24 @@ public class SubentryInterceptor extends BaseInterceptor
 
             subentries = nexus.search( searchOperationContext );
 
-            while ( subentries.next() )
+            try
             {
-                Entry candidate = subentries.get();
-                DN candidateDn = candidate.getDn();
-                candidateDn.normalize( schemaManager.getNormalizerMapping() );
-
-                if ( evaluator.evaluate( ssNew, apName, candidateDn, candidate ) )
+                while ( subentries.next() )
                 {
-                    nexus.modify( new ModifyOperationContext( opContext.getSession(), candidateDn,
-                        getOperationalModsForAdd( candidate, operational ) ) );
+                    Entry candidate = subentries.get();
+                    DN candidateDn = candidate.getDn();
+                    candidateDn.normalize( schemaManager.getNormalizerMapping() );
+    
+                    if ( evaluator.evaluate( ssNew, apName, candidateDn, candidate ) )
+                    {
+                        nexus.modify( new ModifyOperationContext( opContext.getSession(), candidateDn,
+                            getOperationalModsForAdd( candidate, operational ) ) );
+                    }
                 }
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOperationErrorException( e.getMessage() );
             }
         }
         else
@@ -1246,7 +1324,7 @@ public class SubentryInterceptor extends BaseInterceptor
      * @param subentry the subentry to get attributes from
      * @return the set of attributes to be added or removed from entries
      */
-    private Entry getSubentryOperatationalAttributes( DN name, Subentry subentry ) throws Exception
+    private Entry getSubentryOperatationalAttributes( DN name, Subentry subentry ) throws LdapException
     {
         Entry operational = new DefaultEntry( schemaManager, name );
 
@@ -1312,7 +1390,7 @@ public class SubentryInterceptor extends BaseInterceptor
      * @return the set of modifications required to remove an entry's reference to
      * a subentry
      */
-    private List<Modification> getOperationalModsForRemove( DN subentryDn, Entry candidate ) throws Exception
+    private List<Modification> getOperationalModsForRemove( DN subentryDn, Entry candidate ) throws LdapException
     {
         List<Modification> modList = new ArrayList<Modification>();
         String dn = subentryDn.getNormName();
@@ -1348,7 +1426,7 @@ public class SubentryInterceptor extends BaseInterceptor
      * @return the set of modifications needed to update the entry
      * @throws Exception if there are probelms accessing modification items
      */
-    public List<Modification> getOperationalModsForAdd( Entry entry, Entry operational ) throws Exception
+    public List<Modification> getOperationalModsForAdd( Entry entry, Entry operational ) throws LdapException
     {
         List<Modification> modList = new ArrayList<Modification>();
 
@@ -1443,7 +1521,7 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    private List<Modification> getModsOnEntryModification( DN name, Entry oldEntry, Entry newEntry ) throws Exception
+    private List<Modification> getModsOnEntryModification( DN name, Entry oldEntry, Entry newEntry ) throws LdapException
     {
         List<Modification> modList = new ArrayList<Modification>();
 

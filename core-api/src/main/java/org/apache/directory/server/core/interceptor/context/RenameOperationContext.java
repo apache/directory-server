@@ -25,6 +25,7 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
@@ -124,7 +125,7 @@ public class RenameOperationContext extends AbstractChangeOperationContext
     /**
      * @return The new DN either computed if null or already computed
      */
-    public DN getNewDn() throws Exception
+    public DN getNewDn() throws LdapException
     {
         return newDn;
     }

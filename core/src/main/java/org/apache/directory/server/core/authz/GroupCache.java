@@ -35,13 +35,14 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.StringValue;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
@@ -97,7 +98,7 @@ public class GroupCache
      * @param directoryService the directory service core
      * @throws LdapException if there are failures on initialization 
      */
-    public GroupCache( CoreSession session ) throws Exception
+    public GroupCache( CoreSession session ) throws LdapException
     {
         SchemaManager schemaManager = session.getDirectoryService().getSchemaManager();
         normalizerMap = schemaManager.getNormalizerMapping();
@@ -120,7 +121,7 @@ public class GroupCache
     }
 
 
-    private void initialize( CoreSession session ) throws Exception
+    private void initialize( CoreSession session ) throws LdapException
     {
         // search all naming contexts for static groups and generate
         // normalized sets of members to cache within the map
@@ -147,25 +148,32 @@ public class GroupCache
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
             EntryFilteringCursor results = nexus.search( searchOperationContext );
 
-            while ( results.next() )
+            try
             {
-                Entry result = results.get();
-                DN groupDn = result.getDn().normalize( normalizerMap );
-                EntryAttribute members = getMemberAttribute( result );
-
-                if ( members != null )
+                while ( results.next() )
                 {
-                    Set<String> memberSet = new HashSet<String>( members.size() );
-                    addMembers( memberSet, members );
-                    groups.put( groupDn.getNormName(), memberSet );
+                    Entry result = results.get();
+                    DN groupDn = result.getDn().normalize( normalizerMap );
+                    EntryAttribute members = getMemberAttribute( result );
+    
+                    if ( members != null )
+                    {
+                        Set<String> memberSet = new HashSet<String>( members.size() );
+                        addMembers( memberSet, members );
+                        groups.put( groupDn.getNormName(), memberSet );
+                    }
+                    else
+                    {
+                        LOG.warn( "Found group '{}' without any member or uniqueMember attributes", groupDn.getName() );
+                    }
                 }
-                else
-                {
-                    LOG.warn( "Found group '{}' without any member or uniqueMember attributes", groupDn.getName() );
-                }
+    
+                results.close();
             }
-
-            results.close();
+            catch ( Exception e )
+            {
+                throw new LdapOperationException( e.getMessage() );
+            }
         }
 
         if ( IS_DEBUG )

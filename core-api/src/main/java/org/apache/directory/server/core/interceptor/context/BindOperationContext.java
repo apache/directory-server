@@ -37,6 +37,7 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.control.Control;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -399,13 +400,13 @@ public class BindOperationContext implements OperationContext
     }
 
 
-    public Entry lookup( LookupOperationContext opContext ) throws Exception
+    public Entry lookup( LookupOperationContext opContext ) throws LdapException
     {
         return session.getDirectoryService().getOperationManager().lookup( opContext );
     }
 
 
-    public Entry lookup( DN dn, Collection<String> byPassed ) throws Exception
+    public Entry lookup( DN dn, Collection<String> byPassed ) throws LdapException
     {
         LookupOperationContext opContext = newLookupContext( dn );
         opContext.setByPassed( byPassed );
@@ -469,19 +470,19 @@ public class BindOperationContext implements OperationContext
     }
 
 
-    public void add( Entry entry, Collection<String> bypass ) throws Exception
+    public void add( Entry entry, Collection<String> bypass ) throws LdapException
     {
         throw new NotImplementedException();
     }
 
 
-    public void delete( DN dn, Collection<String> bypass ) throws Exception
+    public void delete( DN dn, Collection<String> bypass ) throws LdapException
     {
         throw new NotImplementedException();
     }
 
 
-    public void modify( DN dn, List<Modification> mods, Collection<String> bypass ) throws Exception
+    public void modify( DN dn, List<Modification> mods, Collection<String> bypass ) throws LdapException
     {
         throw new NotImplementedException();
     }
@@ -496,7 +497,7 @@ public class BindOperationContext implements OperationContext
     }
     
     
-    public boolean hasEntry( DN dn, Collection<String> byPassed ) throws Exception
+    public boolean hasEntry( DN dn, Collection<String> byPassed ) throws LdapException
     {
         EntryOperationContext opContext = new EntryOperationContext( session, dn );
         setup( opContext );

@@ -26,11 +26,13 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
@@ -127,7 +129,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
     }
     
     
-    protected void setReturningAttributes( String[] attributesIds ) throws Exception
+    protected void setReturningAttributes( String[] attributesIds ) throws LdapException
     {
         if ( attributesIds != null && attributesIds.length != 0 )
         {

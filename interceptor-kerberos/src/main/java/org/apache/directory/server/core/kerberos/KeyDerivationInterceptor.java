@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.NamingException;
+
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
@@ -59,15 +61,16 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
-import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.entry.StringValue;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -123,7 +126,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      * the special keyword 'randomKey', set random keys for the principal.  Set the key version number (kvno)
      * to '0'.
      */
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws Exception
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
         DN normName = addContext.getDn();
 
@@ -178,7 +181,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      * 
      * If the 'userPassword' is the special keyword 'randomKey', set random keys for the principal.
      */
-    public void modify( NextInterceptor next, ModifyOperationContext modContext ) throws Exception
+    public void modify( NextInterceptor next, ModifyOperationContext modContext ) throws LdapException
     {
         ModifySubContext subContext = new ModifySubContext();
 
@@ -207,7 +210,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      * @throws NamingException
      */
     void detectPasswordModification( ModifyOperationContext modContext, ModifySubContext subContext )
-        throws Exception
+        throws LdapException
     {
         List<Modification> mods = modContext.getModItems();
 
@@ -281,7 +284,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      * @throws NamingException
      */
     void lookupPrincipalAttributes( ModifyOperationContext modContext, ModifySubContext subContext )
-        throws Exception
+        throws LdapException
     {
         DN principalDn = modContext.getDn();
 
@@ -346,7 +349,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      * @param modContext
      * @param subContext
      */
-    void deriveKeys( ModifyOperationContext modContext, ModifySubContext subContext ) throws Exception
+    void deriveKeys( ModifyOperationContext modContext, ModifySubContext subContext ) throws LdapException
     {
         List<Modification> mods = modContext.getModItems();
 
@@ -393,7 +396,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
     }
 
 
-    private EntryAttribute getKeyAttribute( SchemaManager schemaManager, Map<EncryptionType, EncryptionKey> keys ) throws Exception
+    private EntryAttribute getKeyAttribute( SchemaManager schemaManager, Map<EncryptionType, EncryptionKey> keys ) throws LdapException
     {
         EntryAttribute keyAttribute = 
             new DefaultEntryAttribute( KerberosAttribute.KRB5_KEY_AT, 
