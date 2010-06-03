@@ -121,11 +121,11 @@ public class JdbmRdnIndexTest
             idx.close();
 
             // created by this test
-            File dbFile = new File( idx.getWkDirPath(), idx.getAttribute().getName() + ".db" );
+            File dbFile = new File( idx.getWkDirPath(), idx.getAttribute().getOid() + ".db" );
             assertTrue( dbFile.delete() );
 
             // created by TransactionManager, if transactions are not disabled
-            File logFile = new File( idx.getWkDirPath(), idx.getAttribute().getName() + ".lg" );
+            File logFile = new File( idx.getWkDirPath(), idx.getAttribute().getOid() + ".lg" );
             if ( logFile.exists() )
             {
                 assertTrue( logFile.delete() );

@@ -21,6 +21,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import jdbm.RecordManager;
@@ -171,7 +172,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
             this.wkDirPath = wkDirPath;
         }
 
-        File file = new File( this.wkDirPath.getPath() + File.separator + attribute.getName() );
+        File file = new File( this.wkDirPath.getPath() + File.separator + attribute.getOid() );
         String path = file.getAbsolutePath();
         BaseRecordManager base = new BaseRecordManager( path );
         base.disableTransactions();
@@ -188,6 +189,12 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
             throw e;
         }
 
+        // finally write a text file in the format <OID>-<attribute-name>.txt
+        FileWriter fw = new FileWriter( new File( this.wkDirPath.getPath() + File.separator + attribute.getOid() + "-" + attribute.getName() + ".txt" ) );
+        // write the AttributeType description
+        fw.write( attribute.toString() );
+        fw.close();
+        
         initialized = true;
     }
 
@@ -220,7 +227,7 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
         LongComparator.INSTANCE.setSchemaManager( schemaManager );
         comp.setSchemaManager( schemaManager );
 
-        forward = new JdbmTable<K, Long>( schemaManager, attribute.getName() + FORWARD_BTREE, numDupLimit, recMan,
+        forward = new JdbmTable<K, Long>( schemaManager, attribute.getOid() + FORWARD_BTREE, numDupLimit, recMan,
             comp, LongComparator.INSTANCE, null, LongSerializer.INSTANCE );
 
         /*
@@ -231,12 +238,12 @@ public class JdbmIndex<K, O> implements Index<K, O, Long>
          */
         if ( attribute.isSingleValued() )
         {
-            reverse = new JdbmTable<Long, K>( schemaManager, attribute.getName() + REVERSE_BTREE, recMan,
+            reverse = new JdbmTable<Long, K>( schemaManager, attribute.getOid() + REVERSE_BTREE, recMan,
                 LongComparator.INSTANCE, LongSerializer.INSTANCE, null );
         }
         else
         {
-            reverse = new JdbmTable<Long, K>( schemaManager, attribute.getName() + REVERSE_BTREE, numDupLimit, recMan,
+            reverse = new JdbmTable<Long, K>( schemaManager, attribute.getOid() + REVERSE_BTREE, numDupLimit, recMan,
                 LongComparator.INSTANCE, comp, LongSerializer.INSTANCE, null );
         }
     }

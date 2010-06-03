@@ -22,6 +22,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import jdbm.helper.MRU;
@@ -82,7 +83,7 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
             this.wkDirPath = wkDirPath;
         }
 
-        File file = new File( this.wkDirPath.getPath() + File.separator + attribute.getName() );
+        File file = new File( this.wkDirPath.getPath() + File.separator + attribute.getOid() );
         String path = file.getAbsolutePath();
         BaseRecordManager base = new BaseRecordManager( path );
         base.disableTransactions();
@@ -99,6 +100,12 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
             throw e;
         }
 
+        // finally write a text file in the format <OID>-<attribute-name>.txt
+        FileWriter fw = new FileWriter( new File( this.wkDirPath.getPath() + File.separator + attribute.getOid() + "-" + attribute.getName() + ".txt" ) );
+        // write the AttributeType description
+        fw.write( attribute.toString() );
+        fw.close();
+        
         initialized = true;
     }
 
@@ -123,9 +130,9 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
 
         LongComparator.INSTANCE.setSchemaManager( schemaManager );
 
-        forward = new JdbmTable<ParentIdAndRdn<Long>, Long>( schemaManager, attribute.getName() + FORWARD_BTREE,
+        forward = new JdbmTable<ParentIdAndRdn<Long>, Long>( schemaManager, attribute.getOid() + FORWARD_BTREE,
             recMan, comp, null, LongSerializer.INSTANCE );
-        reverse = new JdbmTable<Long, ParentIdAndRdn<Long>>( schemaManager, attribute.getName() + REVERSE_BTREE,
+        reverse = new JdbmTable<Long, ParentIdAndRdn<Long>>( schemaManager, attribute.getOid() + REVERSE_BTREE,
             recMan, LongComparator.INSTANCE, LongSerializer.INSTANCE, null );
     }
 

@@ -623,7 +623,12 @@ public class JdbmStoreTest
     @Test
     public void testConvertIndex() throws Exception
     {
-        Index nonJdbmIndex = new GenericIndex( "ou", 10, new File( "." ) );
+        // just create the new directory under working directory
+        // so this gets cleaned up automatically
+        File testSpecificDir = new File( wkdir, "testConvertIndex" );
+        testSpecificDir.mkdirs();
+        
+        Index nonJdbmIndex = new GenericIndex( "ou", 10,  testSpecificDir );
 
         Method convertIndex = store.getClass().getDeclaredMethod( "convertAndInit", Index.class );
         convertIndex.setAccessible( true );
@@ -894,11 +899,15 @@ public class JdbmStoreTest
     @Test
     public void testDeleteUnusedIndexFiles() throws Exception
     {
-        File ouIndexDbFile = new File( wkdir, "ou.db" );
-        File uuidIndexDbFile = new File( wkdir, "entryUUID.db" );
+        File ouIndexDbFile = new File( wkdir, SchemaConstants.OU_AT_OID + ".db" );
+        File ouIndexTxtFile = new File( wkdir, SchemaConstants.OU_AT_OID + "-ou.txt" );
+        File uuidIndexDbFile = new File( wkdir, SchemaConstants.ENTRY_UUID_AT_OID + ".db" );
+        File uuidIndexTxtFile = new File( wkdir, SchemaConstants.ENTRY_UUID_AT_OID + "-entryUUID.txt" );
         
         assertTrue( ouIndexDbFile.exists() );
+        assertTrue( ouIndexTxtFile.exists() );
         assertTrue( uuidIndexDbFile.exists() );
+        assertTrue( uuidIndexTxtFile.exists() );
         
         // destroy the store to manually start the init phase
         // by keeping the same work dir
@@ -906,7 +915,9 @@ public class JdbmStoreTest
         
         // just assert again that ou and entryUUID files exist even after destroying the store
         assertTrue( ouIndexDbFile.exists() );
+        assertTrue( ouIndexTxtFile.exists() );
         assertTrue( uuidIndexDbFile.exists() );
+        assertTrue( uuidIndexTxtFile.exists() );
         
         store = new JdbmStore<Entry>();
         store.setId( "example" );
@@ -924,7 +935,10 @@ public class JdbmStoreTest
         store.init( schemaManager );
 
         assertFalse( ouIndexDbFile.exists() );
+        assertFalse( ouIndexTxtFile.exists() );
+
         assertTrue( uuidIndexDbFile.exists() );
+        assertTrue( uuidIndexTxtFile.exists() );
     }
     
 }

@@ -157,7 +157,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         List<String> allIndices = new ArrayList<String>();
         for( Index i : systemIndices.values() )
         {
-            allIndices.addAll( i.getAttribute().getNames() );
+            allIndices.add( i.getAttribute().getOid() );
         }
 
         // this loop is used for two purposes
@@ -166,10 +166,10 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         // just to avoid another iteration for determining which is the new index
         for( Index i : userIndices.values() )
         {
-            allIndices.addAll( i.getAttribute().getNames() );
+            allIndices.add( i.getAttribute().getOid() );
 
             // take the part after removing .db from the  
-            String name = i.getAttribute().getName() + JDBM_DB_FILE_EXTN;
+            String name = i.getAttribute().getOid() + JDBM_DB_FILE_EXTN;
 
             // if the name doesn't exist in the list of index DB files
             // this is a new index and we need to build it
@@ -347,6 +347,26 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
                 if( deleted )
                 {
                     LOG.info( "Deleted unused index file {}", file.getAbsolutePath() );
+
+                    try
+                    {
+                        String atName = schemaManager.lookupAttributeTypeRegistry( name ).getName();
+                        File txtFile = new File( file.getParent(), name + "-" + atName + ".txt" );
+                        
+                        deleted = txtFile.delete();
+                        
+                        if( !deleted )
+                        {
+                            LOG.info( "couldn't delete the index name helper file {}", txtFile );
+                        }
+                    }
+                    catch( Exception e )
+                    {
+                        LOG.warn( "couldn't find the attribute's name with oid {}", name );
+                        LOG.warn( "", e );
+                    }
+                    
+                    
                 }
                 else
                 {
