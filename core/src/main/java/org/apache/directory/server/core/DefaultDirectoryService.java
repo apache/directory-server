@@ -1208,29 +1208,6 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
 
             partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
-
-            // TODO - confirm if we need this at all since the 
-            // group cache on initialization after this stage will
-            // search the directory for all the groups anyway
-            
-//            Interceptor authzInterceptor = interceptorChain.get( AciAuthorizationInterceptor.class.getName() );
-//            
-//            if ( authzInterceptor == null )
-//            {
-//                LOG.error( "The Authorization service is null : this is not allowed" );
-//                throw new NamingException( "The Authorization service is null" );
-//            }
-//            
-//            if ( !( authzInterceptor instanceof AciAuthorizationInterceptor ) )
-//            {
-//                LOG.error( "The Authorization service is not set correctly : '{}' is an incorect interceptor",
-//                    authzInterceptor.getClass().getName() );
-//                throw new NamingException( "The Authorization service is incorrectly set" );
-//                
-//            }
-//
-//            AciAuthorizationInterceptor authzSrvc = ( AciAuthorizationInterceptor ) authzInterceptor;
-//            authzSrvc.cacheNewGroup( name, serverEntry );
         }
 
         // -------------------------------------------------------------------

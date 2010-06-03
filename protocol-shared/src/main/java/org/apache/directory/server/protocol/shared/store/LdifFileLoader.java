@@ -34,6 +34,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.DN;
@@ -206,7 +207,7 @@ public class LdifFileLoader
                            count++;
                             log.info( "Created {}.", rdn );
                         } 
-                        catch ( NamingException e1 )
+                        catch ( LdapException e1 )
                         {
                             log.info( "Could not create entry " + entry, e1 );
                         }
@@ -221,7 +222,7 @@ public class LdifFileLoader
                         coreSession.modify( dn, items );
                         log.info( "Modified: " + dn + " with modificationItems: " + items );
                     }
-                    catch ( NamingException e )
+                    catch ( LdapException e )
                     {
                         log.info( "Could not modify: " + dn + " with modificationItems: " + items, e );
                     }

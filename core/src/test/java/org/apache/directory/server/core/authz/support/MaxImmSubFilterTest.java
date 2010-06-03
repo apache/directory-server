@@ -222,13 +222,13 @@ public class MaxImmSubFilterTest
 
 
         public EntryFilteringCursor search( SearchOperationContext opContext )
-            throws NamingException
+            throws LdapException
         {
             return new BaseEntryFilteringCursor( new BogusCursor( count ), opContext );
         }
 
 
-        public EntryFilteringCursor search( SearchOperationContext opContext, Collection<String> bypass ) throws NamingException
+        public EntryFilteringCursor search( SearchOperationContext opContext, Collection<String> bypass ) throws LdapException
         {
             return new BaseEntryFilteringCursor( new BogusCursor( count ), opContext );
         }
@@ -768,7 +768,7 @@ public class MaxImmSubFilterTest
         }
 
 
-        public Entry newEntry( DN dn ) throws NamingException
+        public Entry newEntry( DN dn ) throws LdapException
         {
             return null;
         }

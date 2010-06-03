@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.CoreSession;
@@ -91,7 +90,7 @@ public class TupleCache
      * Creates a ACITuple cache.
      *
      * @param directoryService the context factory configuration for the server
-     * @throws NamingException if initialization fails
+     * @throws LdapException if initialization fails
      */
     public TupleCache( CoreSession session ) throws LdapException
     {

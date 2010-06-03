@@ -25,8 +25,6 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -41,6 +39,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.GenericIndex;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.junit.runner.Description;
@@ -241,7 +240,7 @@ public class DSAnnotationProcessor
      * @param service the DirectoryService
      * @throws Exception
      */
-    private static void injectEntry( LdifEntry entry, DirectoryService service ) throws Exception
+    private static void injectEntry( LdifEntry entry, DirectoryService service ) throws LdapException
     {
         if ( entry.isChangeAdd() )
         {
@@ -254,7 +253,7 @@ public class DSAnnotationProcessor
         else
         {
             String message = I18n.err( I18n.ERR_117, entry.getChangeType() );
-            throw new NamingException( message );
+            throw new LdapException( message );
         }
     }
 
@@ -299,7 +298,7 @@ public class DSAnnotationProcessor
      *
      * @param service the directory service to use 
      * @param ldif the ldif containing entries to add to the server.
-     * @throws NamingException if there is a problem adding the entries from the LDIF
+     * @throws Exception if there is a problem adding the entries from the LDIF
      */
     public static void injectEntries( DirectoryService service, String ldif ) throws Exception
     {

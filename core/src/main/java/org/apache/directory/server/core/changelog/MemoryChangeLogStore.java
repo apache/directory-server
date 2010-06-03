@@ -51,7 +51,6 @@ import org.apache.directory.shared.ldap.util.DateUtils;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
- * TODO remove the NamingException
  */
 public class MemoryChangeLogStore implements TaggableChangeLogStore
 {

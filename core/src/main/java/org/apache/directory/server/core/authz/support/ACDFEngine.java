@@ -25,8 +25,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
@@ -88,7 +86,7 @@ public class ACDFEngine
      * @param oidRegistry an OID registry to be used by internal components
      * @param attrTypeRegistry an attribute type registry to be used by internal components 
      * 
-     * @throws NamingException if failed to initialize internal components
+     * @throws LdapException if failed to initialize internal components
      */
     public ACDFEngine( OidRegistry oidRegistry, SchemaManager schemaManager ) throws LdapException
     {
@@ -125,7 +123,7 @@ public class ACDFEngine
      * @param microOperations the {@link org.apache.directory.shared.ldap.aci.MicroOperation}s to perform
      * @param aciTuples {@link org.apache.directory.shared.ldap.aci.ACITuple}s translated from {@link org.apache.directory.shared.ldap.aci.ACIItem}s in the subtree entries
      * @param entryView in case of a Modify operation, view of the entry being modified as if the modification permitted and completed
-     * @throws NamingException if failed to evaluate ACI items
+     * @throws LdapException if failed to evaluate ACI items
      */
     public void checkPermission( 
         SchemaManager schemaManager, 

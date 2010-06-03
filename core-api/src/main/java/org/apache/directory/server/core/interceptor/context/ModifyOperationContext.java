@@ -78,7 +78,7 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     }
 
 
-    public ModifyOperationContext( CoreSession session, InternalModifyRequest modifyRequest ) throws Exception
+    public ModifyOperationContext( CoreSession session, InternalModifyRequest modifyRequest ) throws LdapException
     {
         super( session, modifyRequest.getName() );
 

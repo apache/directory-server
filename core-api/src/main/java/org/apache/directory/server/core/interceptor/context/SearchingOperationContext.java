@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -113,7 +112,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
      *
      * @param dn The DN to get the suffix from
      * @param aliasDerefMode the alias dereferencing mode to use
-     * @throws NamingException 
+     * @throws LdapException 
      */
     public SearchingOperationContext( CoreSession session, DN dn, Set<AttributeTypeOptions> returningAttributes )
     {
@@ -123,7 +122,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
 
 
     protected void setReturningAttributes( Collection<String> attributesIds ) 
-        throws Exception
+        throws LdapException
     {
         setReturningAttributes( attributesIds.toArray( StringTools.EMPTY_STRINGS ) );
     }

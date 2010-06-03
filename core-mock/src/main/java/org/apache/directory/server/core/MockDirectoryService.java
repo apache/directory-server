@@ -340,7 +340,7 @@ public class MockDirectoryService implements DirectoryService
     }
 
 
-    public Entry newEntry( DN dn ) throws NamingException
+    public Entry newEntry( DN dn ) throws LdapException
     {
         return null;
     }

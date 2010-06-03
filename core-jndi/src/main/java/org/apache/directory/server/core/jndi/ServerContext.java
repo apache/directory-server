@@ -76,9 +76,9 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
@@ -713,7 +713,16 @@ public abstract class ServerContext implements EventContext
     public Context createSubcontext( Name name ) throws NamingException
     {
         DN target = buildTarget( DN.fromName( name ) );
-        Entry serverEntry = service.newEntry( target );
+        Entry serverEntry = null;
+        
+        try
+        {
+            serverEntry = service.newEntry( target );
+        }
+        catch ( LdapException le )
+        {
+            throw new NamingException( le.getMessage() );
+        }
         
         try
         {
@@ -897,7 +906,16 @@ public abstract class ServerContext implements EventContext
         else if ( obj instanceof Serializable )
         {
             // Serialize and add outAttrs
-            Entry serverEntry = service.newEntry( target );
+            Entry serverEntry = null;
+            
+            try
+            {
+                serverEntry = service.newEntry( target );
+            }
+            catch ( LdapException le )
+            {
+                throw new NamingException( I18n.err( I18n.ERR_495, obj ) );
+            }
 
             if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
             {

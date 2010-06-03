@@ -258,7 +258,6 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
             {
                 code = ResultCodeEnum.getBestEstimate( e, bindRequest.getType() );
                 result.setResultCode( code );
-                //dn = new DN( ((NamingException)e).getResolvedName() );
             }
 
             String msg = "Bind failed: " + e.getLocalizedMessage();

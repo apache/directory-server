@@ -22,8 +22,6 @@ package org.apache.directory.server.core.authz.support;
 
 import java.util.Collection;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
@@ -63,7 +61,7 @@ public interface ACITupleFilter
      * @param microOperations the set of {@link MicroOperation}s the current user will perform
      * @param entryView in case of a Modify operation, view of the entry being modified as if the modification permitted and completed
      * @return the collection of filtered tuples
-     * @throws NamingException if failed to filter the specific tuples
+     * @throws LdapException if failed to filter the specific tuples
      */
     Collection<ACITuple> filter( 
             SchemaManager schemaManager, 

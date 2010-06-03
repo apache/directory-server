@@ -27,13 +27,12 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.sp.StoredProcEngine;
 import org.apache.directory.server.core.sp.StoredProcUtils;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.util.DirectoryClassUtils;
 
 
@@ -54,7 +53,7 @@ public class JavaStoredProcEngine implements StoredProcEngine
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.sp.StoredProcEngine#invokeProcedure(OperationContext, String, Object[])
      */
-    public Object invokeProcedure( CoreSession session, String fullSPName, Object[] spArgs ) throws Exception
+    public Object invokeProcedure( CoreSession session, String fullSPName, Object[] spArgs ) throws LdapException
     {
         EntryAttribute javaByteCode = spUnit.get( "javaByteCode" );
         String spName = StoredProcUtils.extractStoredProcName( fullSPName );
@@ -69,9 +68,7 @@ public class JavaStoredProcEngine implements StoredProcEngine
         }
         catch ( ClassNotFoundException e )
         {
-            NamingException ne = new NamingException();
-            ne.setRootCause( e );
-            throw ne;
+            throw new LdapException( e );
         }
 
         Class<?>[] types = getTypesFromValues( spArgs );
@@ -83,9 +80,7 @@ public class JavaStoredProcEngine implements StoredProcEngine
         }
         catch ( NoSuchMethodException e )
         {
-            NamingException ne = new NamingException();
-            ne.setRootCause( e );
-            throw ne;
+            throw new LdapException( e );
         }
         try
         {
@@ -93,21 +88,15 @@ public class JavaStoredProcEngine implements StoredProcEngine
         }
         catch ( IllegalArgumentException e )
         {
-            NamingException ne = new NamingException();
-            ne.setRootCause( e );
-            throw ne;
+            throw new LdapException( e );
         }
         catch ( IllegalAccessException e )
         {
-            NamingException ne = new NamingException();
-            ne.setRootCause( e );
-            throw ne;
+            throw new LdapException( e );
         }
         catch ( InvocationTargetException e )
         {
-            NamingException ne = new NamingException();
-            ne.setRootCause( e );
-            throw ne;
+            throw new LdapException( e );
         }
     }
 

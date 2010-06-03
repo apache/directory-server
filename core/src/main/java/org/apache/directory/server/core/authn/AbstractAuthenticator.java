@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.authn;
 
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -82,7 +80,7 @@ public abstract class AbstractAuthenticator implements Authenticator
      * Initializes (<tt>directoryService</tt> and and calls {@link #doInit()} method.
      * Please put your initialization code into {@link #doInit()}.
      * @param directoryService the directory core for this authenticator
-     * @throws NamingException if there is a problem starting up the authenticator
+     * @throws LdapException if there is a problem starting up the authenticator
      */
     public final void init( DirectoryService directoryService ) throws LdapException
     {

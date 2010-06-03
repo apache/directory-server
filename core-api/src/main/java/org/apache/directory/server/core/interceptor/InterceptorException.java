@@ -20,13 +20,11 @@
 package org.apache.directory.server.core.interceptor;
 
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.ldap.exception.LdapException;
 
 
 /**
- * A {@link NamingException} that wraps uncaught runtime exceptions thrown
+ * A {@link LdapException} that wraps uncaught runtime exceptions thrown
  * from {@link Interceptor}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

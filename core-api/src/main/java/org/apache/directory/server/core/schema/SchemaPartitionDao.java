@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -51,7 +52,7 @@ public interface SchemaPartitionDao
      * @param entityName one of the names of the entity or it's numeric id
      * @return the name of the schema that contains that entity or null if no entity with 
      * that alias name exists
-     * @throws NamingException if more than one entity has the name, or if there 
+     * @throws LdapException if more than one entity has the name, or if there 
      * are underlying data access problems
      */
     String findSchema( String entityName ) throws Exception;
@@ -71,7 +72,7 @@ public interface SchemaPartitionDao
      * @param entityName one of the names of the entity or it's numeric id
      * @return the search result for the entity or null if no such entity exists with 
      * that alias or numeric oid
-     * @throws NamingException if more than one entity has the name, or if there 
+     * @throws LdapException if more than one entity has the name, or if there 
      * are underlying data access problems
      */
     Entry find( String entityName ) throws Exception;
@@ -105,7 +106,7 @@ public interface SchemaPartitionDao
      * reaction will occur in a replica.
      * 
      * @param schemaName the name of the schema to enable
-     * @throws NamingException if there is a problem updating the schema entry
+     * @throws LdapException if there is a problem updating the schema entry
      */
     void enableSchema( String schemaName ) throws Exception;
 
@@ -116,7 +117,7 @@ public interface SchemaPartitionDao
      *
      * @param numericOid the numeric identifier for the entity
      * @return the set of matchingRules and attributeTypes depending on a syntax
-     * @throws NamingException if the dao fails to perform search operations
+     * @throws LdapException if the dao fails to perform search operations
      */
     Set<Entry> listSyntaxDependents( String numericOid ) throws Exception;
 
@@ -135,7 +136,7 @@ public interface SchemaPartitionDao
      * 
      * @param schemaName the name of the schema to search for dependees
      * @return a set of SearchResults over the schemas whose m-dependency attribute contains schemaName
-     * @throws NamingException if there is a problem while searching the schema partition
+     * @throws LdapException if there is a problem while searching the schema partition
      */
     Set<Entry> listSchemaDependents( String schemaName ) throws Exception;
 
@@ -145,7 +146,7 @@ public interface SchemaPartitionDao
      * 
      * @param schemaName the name of the schema to search for dependencies
      * @return a set of SearchResults over the schemas whose m-dependency attribute contains schemaName
-     * @throws NamingException if there is a problem while searching the schema partition
+     * @throws LdapException if there is a problem while searching the schema partition
      */
     Set<Entry> listEnabledSchemaDependents( String schemaName ) throws Exception;
 

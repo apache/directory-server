@@ -62,7 +62,7 @@ public class SearchOperationContext extends SearchingOperationContext
      * Creates a new instance of SearchOperationContext.
      * @throws Exception 
      */
-    public SearchOperationContext( CoreSession session, InternalSearchRequest searchRequest ) throws Exception
+    public SearchOperationContext( CoreSession session, InternalSearchRequest searchRequest ) throws LdapException
     {
         super( session );
         

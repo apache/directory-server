@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
@@ -93,7 +92,7 @@ public class TriggerSpecCache
      * Creates a TriggerSpecification cache.
      *
      * @param directoryService the directory service core
-     * @throws NamingException with problems initializing cache
+     * @throws LdapException with problems initializing cache
      */
     public TriggerSpecCache( DirectoryService directoryService ) throws LdapException
     {

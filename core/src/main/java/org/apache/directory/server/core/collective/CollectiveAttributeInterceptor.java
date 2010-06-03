@@ -23,8 +23,6 @@ package org.apache.directory.server.core.collective;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilter;
@@ -112,7 +110,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
      * are added to
      * @param entry the entry to have the collective attributes injected
      * @param retAttrs array or attribute type to be specifically included in the result entry(s)
-     * @throws NamingException if there are problems accessing subentries
+     * @throws LdapException if there are problems accessing subentries
      */
     private void addCollectiveAttributes( OperationContext opContext, Entry entry, String[] retAttrs ) throws LdapException
     {

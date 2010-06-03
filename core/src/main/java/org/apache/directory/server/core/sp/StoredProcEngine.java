@@ -22,6 +22,7 @@ package org.apache.directory.server.core.sp;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.exception.LdapException;
 
 
 /**
@@ -55,8 +56,8 @@ public interface StoredProcEngine
      * @param fullSPName A fully qualified name of the stored procedure including its unit name.
      * @param spArgs A list or arguments to be passed to the stored procedure. It should be an empty array if there aren't any parameters defined.
      * @return The value obtained from invoked procedure. The client should know what will return exactly so that it can downcast to the appropriate type.
-     * @throws NamingException If an error occurs during invocation.
+     * @throws LdapException If an error occurs during invocation.
      */
-    public Object invokeProcedure( CoreSession session, String fullSPName, Object[] spArgs ) throws Exception;
+    public Object invokeProcedure( CoreSession session, String fullSPName, Object[] spArgs ) throws LdapException;
 
 }

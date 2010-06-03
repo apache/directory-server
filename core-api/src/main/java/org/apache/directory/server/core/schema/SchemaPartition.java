@@ -23,8 +23,6 @@ package org.apache.directory.server.core.schema;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
@@ -457,7 +455,7 @@ public final class SchemaPartition extends AbstractPartition
      * The current time is used to set the timestamp and the DN of current user
      * is set for the modifiersName.
      * 
-     * @throws NamingException if the update fails
+     * @throws LdapException if the update fails
      */
     private void updateSchemaModificationAttributes( OperationContext opContext ) throws LdapException
     {

@@ -573,7 +573,7 @@ public class InterceptorChainTest
         }
 
 
-        public Entry newEntry( DN dn ) throws NamingException
+        public Entry newEntry( DN dn ) throws LdapException
         {
             return null;
         }
