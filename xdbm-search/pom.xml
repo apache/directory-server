@@ -26,23 +26,63 @@
   
   <artifactId>apacheds-xdbm-search</artifactId>
   <name>ApacheDS Generalized (X) DBM Search Engine</name>
-  <packaging>jar</packaging>
-  <description>
-    Search engine implementation generalized for XDBM entry store scheme.
-  </description>
+  
+  <description>Search engine implementation generalized for XDBM entry store scheme</description>
   
   <dependencies>
     <dependency>
-      <artifactId>apacheds-core-avl</artifactId>
       <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
+      <artifactId>apacheds-core-avl</artifactId>
     </dependency>
 
     <dependency>
-      <artifactId>apacheds-core-api</artifactId>
       <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
+      <artifactId>apacheds-core-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-i18n</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-asn1</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-cursor</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-i18n</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-schema</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-schema-manager</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-schema-loader</artifactId>
     </dependency>
   </dependencies>
 </project>
-

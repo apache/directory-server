@@ -22,9 +22,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.directory.client.ldap</groupId>
-    <artifactId>ldap-client</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <groupId>org.apache.directory.server</groupId>
+    <artifactId>apacheds-parent</artifactId>
+    <version>1.5.8-SNAPSHOT</version>
   </parent>
 
   <artifactId>ldap-client-test</artifactId>
@@ -36,115 +36,50 @@
     <url>http://issues.apache.org/jira/browse/DIRAPI</url>
   </issueManagement>
 
-  <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/trunk/ldap-client-test</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/trunk/ldap-client-test</developerConnection>
-    <url>http://svn.apache.org/viewvc/directory/apacheds/trunk/ldap-client-test</url>
-  </scm>
-
-  <description>
-    LDAP Client API Tests
-  </description>
+  <description>LDAP Client API Tests</description>
 
   <dependencies>
     <!-- Apacheds dependencies -->
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-core-annotations</artifactId>
-      <version>${org.apache.directory.server.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-core-api</artifactId>
-      <version>${org.apache.directory.server.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-protocol-ldap</artifactId>
-      <version>${org.apache.directory.server.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-protocol-shared</artifactId>
-      <version>${org.apache.directory.server.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-server-annotations</artifactId>
-      <version>${org.apache.directory.server.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-test-framework</artifactId>
-      <version>${org.apache.directory.server.version}</version>
     </dependency>
 
     <!-- Shared dependencies -->
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap</artifactId>
-      <version>${org.apache.directory.shared.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-asn1</artifactId>
-      <version>${org.apache.directory.shared.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-cursor</artifactId>
-      <version>${org.apache.directory.shared.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-constants</artifactId>
-      <version>${org.apache.directory.shared.version}</version>
     </dependency>
 
     <!-- Other dependencies -->
     <dependency>
+      <groupId>org.apache.directory.client.ldap</groupId>
       <artifactId>ldap-client-api</artifactId>
-      <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.mina</groupId>
-      <artifactId>mina-core</artifactId>
-      <version>${mina.core.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>${slf4j.log4j12.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>${log4j.version}</version>
-    </dependency>
-        
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>${commons.io.version}</version>
     </dependency>
   </dependencies>
 
@@ -192,19 +127,4 @@
       </build>
     </profile>
   </profiles>
-
-  <repositories>
-    <repository>
-      <id>apache.snapshots</id>
-      <name>Apache Development Snapshot Repository</name>
-      <url>https://repository.apache.org/content/repositories/snapshots/</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
 </project>
-

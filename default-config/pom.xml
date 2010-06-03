@@ -1,85 +1,148 @@
-<?xml version="1.0"?><project>
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+  
+  http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>apacheds-parent</artifactId>
     <groupId>org.apache.directory.server</groupId>
+    <artifactId>apacheds-parent</artifactId>
     <version>1.5.8-SNAPSHOT</version>
   </parent>
-  <modelVersion>4.0.0</modelVersion>
 
   <artifactId>apacheds-default-config</artifactId>
   <name>ApacheDS Default Config</name>
 
   <dependencies>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-api</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-i18n</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-jdbm-partition</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-jdbm-store</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-kerberos-shared</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-ldif-partition</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-protocol-changepw</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-protocol-dhcp</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-protocol-dns</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-protocol-kerberos</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-protocol-ldap</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-protocol-ntp</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-protocol-shared</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-http-integration</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-xdbm-search</artifactId>
+    </dependency>
+    
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>${commons.io.version}</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.mina</groupId>
+      <artifactId>mina-core</artifactId>
     </dependency>
 
     <dependency>
-      <artifactId>apacheds-core-jndi</artifactId>
-      <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap</artifactId>
     </dependency>
 
     <dependency>
-      <artifactId>apacheds-jdbm-partition</artifactId>
-      <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-schema</artifactId>
     </dependency>
 
     <dependency>
-      <artifactId>apacheds-ldif-partition</artifactId>
-      <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-schema-loader</artifactId>
     </dependency>
 
     <dependency>
-      <artifactId>apacheds-protocol-ldap</artifactId>
-      <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-schema-manager</artifactId>
     </dependency>
 
     <dependency>
-      <artifactId>apacheds-protocol-kerberos</artifactId>
-      <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <artifactId>apacheds-protocol-dns</artifactId>
-      <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <artifactId>apacheds-protocol-dhcp</artifactId>
-      <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <artifactId>apacheds-protocol-ntp</artifactId>
-      <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <artifactId>apacheds-protocol-changepw</artifactId>
-      <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <artifactId>apacheds-http-integration</artifactId>
-      <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldif</artifactId>
     </dependency>
   </dependencies>
 </project>

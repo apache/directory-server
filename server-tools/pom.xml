@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
   Licensed to the Apache Software Foundation (ASF) under one
   or more contributor license agreements.  See the NOTICE file
@@ -18,7 +17,6 @@
   specific language governing permissions and limitations
   under the License.
 -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
@@ -30,90 +28,102 @@
   <artifactId>apacheds-server-tools</artifactId>
   <name>ApacheDS Server Tools</name>
 
-  <description>
-    Contained within this executable jar are various command line utilities
-    for apacheds.
-  </description>
-
-  <packaging>jar</packaging>  
+  <description>Contained within this executable jar are various command line utilities for apacheds.</description>
 
   <dependencies>
     <dependency>
-      <artifactId>apacheds-server-xml</artifactId>
       <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
+      <artifactId>apacheds-core</artifactId>
     </dependency>
-
+    
     <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-i18n</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-jdbm</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-jdbm-store</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-protocol-ldap</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-server-jndi</artifactId>
+    </dependency>
+    
+    <dependency>
       <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
+      <artifactId>apacheds-xdbm-search</artifactId>
     </dependency>
-
+    
     <dependency>
-      <artifactId>apacheds-jdbm-partition</artifactId>
       <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.xbean</groupId>
-      <artifactId>xbean-spring</artifactId>
-      <version>${xbean.spring.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>${slf4j.api.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-core</artifactId>
-      <version>${spring.core.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-beans</artifactId>
-      <version>${spring.beans.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context</artifactId>
-      <version>${spring.context.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.daemon</groupId>
-      <artifactId>daemon-bootstrappers</artifactId>
-      <version>${org.apache.directory.daemon.version}</version>
+      <artifactId>apacheds-xdbm-tools</artifactId>
     </dependency>
 
     <dependency>
       <groupId>commons-cli</groupId>
       <artifactId>commons-cli</artifactId>
-      <version>${commons.cli.version}</version>
     </dependency>
 
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
-      <version>${commons.lang.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>${slf4j.log4j12.version}</version>
+      <groupId>org.apache.directory.daemon</groupId>
+      <artifactId>daemon-bootstrappers</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>${log4j.version}</version>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-asn1</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-cursor</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-schema</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-schema-loader</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-schema-manager</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldif</artifactId>
     </dependency>
   </dependencies>
 

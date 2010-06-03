@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
   Licensed to the Apache Software Foundation (ASF) under one
   or more contributor license agreements.  See the NOTICE file
@@ -18,131 +17,128 @@
   specific language governing permissions and limitations
   under the License.
 -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+  <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>apacheds-parent</artifactId>
     <groupId>org.apache.directory.server</groupId>
     <version>1.5.8-SNAPSHOT</version>
   </parent>
   
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.apache.directory.server</groupId>
   <artifactId>apacheds-xbean-spring</artifactId>
   <name>ApacheDS Xbean Spring</name>
 
-  <url>http://maven.apache.org</url>
   <dependencies>
     <!-- The list of dependencies must include all modules with xbean annotations.  Grep for @org.apache.xbean.XBean -->
-    <!-- Also be sure that each module mentioned here generates a source jar by including
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
+    <!-- Also be sure that each module mentioned here generates a source jar by including:
+         ==============================================
+         <plugin>
+           <groupId>org.apache.maven.plugins</groupId>
+           <artifactId>maven-source-plugin</artifactId>
+           <executions>
+             <execution>
+               <id>attach-sources</id>
+               <phase>verify</phase>
+               <goals>
+                 <goal>jar</goal>
+               </goals>
+             </execution>
+           </executions>
+         </plugin>
+         ==============================================
     -->
     
     <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-core</artifactId>
-      <groupId>${project.groupId}</groupId>
       <version>${project.version}</version>
       <classifier>sources</classifier>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-interceptor-kerberos</artifactId>
-      <groupId>${project.groupId}</groupId>
       <version>${project.version}</version>
       <classifier>sources</classifier>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-jdbm-store</artifactId>
-      <groupId>${project.groupId}</groupId>
       <version>${project.version}</version>
       <classifier>sources</classifier>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-jdbm-partition</artifactId>
-      <groupId>${project.groupId}</groupId>
       <version>${project.version}</version>
       <classifier>sources</classifier>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-protocol-changepw</artifactId>
-      <groupId>${project.groupId}</groupId>
       <version>${project.version}</version>
       <classifier>sources</classifier>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-protocol-dns</artifactId>
-      <groupId>${project.groupId}</groupId>
       <version>${project.version}</version>
       <classifier>sources</classifier>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-protocol-kerberos</artifactId>
-      <groupId>${project.groupId}</groupId>
       <version>${project.version}</version>
       <classifier>sources</classifier>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-protocol-ldap</artifactId>
-      <groupId>${project.groupId}</groupId>
       <version>${project.version}</version>
       <classifier>sources</classifier>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-protocol-ntp</artifactId>
-      <groupId>${project.groupId}</groupId>
       <version>${project.version}</version>
       <classifier>sources</classifier>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-protocol-shared</artifactId>
-      <groupId>${project.groupId}</groupId>
       <version>${project.version}</version>
       <classifier>sources</classifier>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-server-jndi</artifactId>
-      <groupId>${project.groupId}</groupId>
       <version>${project.version}</version>
       <classifier>sources</classifier>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
-      <artifactId>apacheds-http-integration</artifactId>
       <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-http-integration</artifactId>
       <version>${project.version}</version>
       <classifier>sources</classifier>
       <scope>provided</scope>
@@ -151,6 +147,7 @@
     <dependency>
       <groupId>xerces</groupId>
       <artifactId>xercesImpl</artifactId>
+      <scope>test</scope>
     </dependency>
 
     <!-- replication interceptor xbean config metadata -->

@@ -29,36 +29,78 @@
   
   <artifactId>apacheds-core-integ</artifactId>
   <name>ApacheDS Core Integration</name>
-  <packaging>jar</packaging>  
 
-  <description>
-    Integration testing framework for Apache Directory Server.
-  </description>
+  <description>Integration testing framework for Apache Directory Server.</description>
 
   <dependencies>
     <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-annotations</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-jndi</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-i18n</artifactId>
-      <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
-    </dependency>  
+    </dependency>
 
     <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-test-framework</artifactId>
-      <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
-    </dependency>  
-
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>${commons.io.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-cursor</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-constants</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-jndi</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-schema-loader</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldif</artifactId>
     </dependency>
     
     <!-- the below dependency creates a circular dependency issue, should be changed to 0.1.0 after the client-api
@@ -66,7 +108,6 @@
     <dependency>
       <groupId>org.apache.directory.client.ldap</groupId>
       <artifactId>ldap-client-api</artifactId>
-      <version>${org.apache.directory.ldap.client.api.version}</version>
     </dependency> 
   </dependencies>
 

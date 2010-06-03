@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
   Licensed to the Apache Software Foundation (ASF) under one
   or more contributor license agreements.  See the NOTICE file
@@ -18,7 +17,6 @@
   specific language governing permissions and limitations
   under the License.
 -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
@@ -29,49 +27,120 @@
   
   <artifactId>apacheds-server-integ</artifactId>
   <name>ApacheDS Server Integration</name>
-  <packaging>jar</packaging>  
 
-  <description>
-    Integration testing framework for Apache Directory Server.
-  </description>
+  <description>Integration testing framework for Apache Directory Server.</description>
 
   <dependencies>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-net</groupId>
-      <artifactId>commons-net</artifactId>
-      <version>${commons.net.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <artifactId>apacheds-interceptor-kerberos</artifactId>
       <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
-    </dependency>  
-
+      <artifactId>apacheds-core</artifactId>
+    </dependency>
+    
     <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-annotations</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-core-integ</artifactId>
+    </dependency>
+    
+    <dependency>
       <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
-    </dependency>  
+      <artifactId>apacheds-core-jndi</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-kerberos-shared</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-interceptor-kerberos</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-protocol-ldap</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-server-annotations</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-test-framework</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>ldapsdk</groupId>
       <artifactId>ldapsdk</artifactId>
-      <version>${ldapsdk.version}</version>
-    </dependency>  
+    </dependency>
+
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-asn1</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-cursor</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-constants</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-jndi</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldif</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.mina</groupId>
+      <artifactId>mina-core</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>commons-net</groupId>
+      <artifactId>commons-net</artifactId>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <scope>test</scope>
+    </dependency>
     
     <dependency>
       <groupId>org.apache.directory.client.ldap</groupId>
       <artifactId>ldap-client-api</artifactId>
-      <version>${org.apache.directory.ldap.client.api.version}</version>
     </dependency>  
   </dependencies>
 
@@ -176,4 +245,3 @@
     </profile>
   </profiles>
 </project>
-

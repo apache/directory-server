@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
   Licensed to the Apache Software Foundation (ASF) under one
   or more contributor license agreements.  See the NOTICE file
@@ -18,7 +17,6 @@
   specific language governing permissions and limitations
   under the License.
 -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
@@ -27,35 +25,40 @@
     <version>1.5.8-SNAPSHOT</version>
   </parent>
   
-  <groupId>org.apache.directory.server</groupId>  
   <artifactId>apacheds-protocol-kerberos</artifactId>
-  
   <name>ApacheDS Protocol Kerberos</name>
 
-  <description>
-    The Kerberos Protocol Provider for ApacheDS
-  </description>
-
-  <packaging>jar</packaging>  
+  <description>The Kerberos Protocol Provider for ApacheDS</description>
 
   <dependencies>
     <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-i18n</artifactId>
-      <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
     </dependency>
 
     <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-kerberos-shared</artifactId>
-      <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
     </dependency>
 
     <dependency>
-      <artifactId>apacheds-jdbm-partition</artifactId>
       <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
-      <scope>test</scope>
+      <artifactId>apacheds-protocol-shared</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.mina</groupId>
+      <artifactId>mina-core</artifactId>
     </dependency>
   </dependencies>
 
@@ -86,4 +89,3 @@
     </plugins>
   </build>
 </project>
-

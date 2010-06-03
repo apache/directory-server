@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
   Licensed to the Apache Software Foundation (ASF) under one
   or more contributor license agreements.  See the NOTICE file
@@ -18,7 +17,6 @@
   specific language governing permissions and limitations
   under the License.
 -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
@@ -29,34 +27,28 @@
   
   <artifactId>apacheds-avl-partition</artifactId>
   <name>ApacheDS Avl Partition</name>
-  <packaging>jar</packaging>
-  <description>
-    A partition that backs it's entries and indices in AvlTrees within memory.
-  </description>
+  
+  <description>A partition that backs it's entries and indices in AvlTrees within memory</description>
 
   <dependencies>
     <dependency>
-      <artifactId>apacheds-i18n</artifactId>
       <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <artifactId>apacheds-core-avl</artifactId>
-      <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
       <artifactId>apacheds-core</artifactId>
+    </dependency>
+    
+    <dependency>
       <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
+      <artifactId>apacheds-core-avl</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-i18n</artifactId>
     </dependency>
 
     <dependency>
-      <artifactId>apacheds-xdbm-search</artifactId>
       <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
+      <artifactId>apacheds-xdbm-search</artifactId>
     </dependency>
   </dependencies>
 
@@ -78,4 +70,3 @@
     </plugins>
   </build>
 </project>
-

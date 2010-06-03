@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
   Licensed to the Apache Software Foundation (ASF) under one
   or more contributor license agreements.  See the NOTICE file
@@ -18,7 +17,6 @@
   specific language governing permissions and limitations
   under the License.
 -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
@@ -30,23 +28,22 @@
   <artifactId>apacheds-protocol-ntp</artifactId>
   <name>ApacheDS Protocol Ntp</name>
 
-  <description>
-    The NTP protocol provider for ApacheDS
-  </description>
-
-  <packaging>jar</packaging>  
+  <description>The NTP protocol provider for ApacheDS</description>
 
   <dependencies>
     <dependency>
-      <artifactId>apacheds-protocol-shared</artifactId>
       <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
+      <artifactId>apacheds-protocol-shared</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.mina</groupId>
+      <artifactId>mina-core</artifactId>
     </dependency>
 
     <dependency>
       <groupId>commons-net</groupId>
       <artifactId>commons-net</artifactId>
-      <version>${commons.net.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -69,4 +66,3 @@
     </plugins>
   </build>
 </project>
-

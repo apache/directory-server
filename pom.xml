@@ -21,7 +21,6 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
@@ -84,59 +83,375 @@
 
   <url>http://directory.apache.org/apacheds/1.5</url>
 
+  <distributionManagement>
+    <site>
+      <id>apache.directory.apacheds</id>
+      <url>${distMgmtSiteUrl}</url>
+    </site>
+  </distributionManagement>
+
+  <issueManagement>
+    <system>JIRA</system>
+    <url>http://issues.apache.org/jira/browse/DIRSERVER</url>
+  </issueManagement>
+  
+  <modules>
+    <module>i18n</module>
+    <module>all</module>
+    <module>jdbm</module>
+    <module>jdbm-store</module>
+    <module>jdbm-partition</module>
+    <module>xdbm-search</module>
+    <module>xdbm-tools</module>
+    <module>core</module>
+    <module>core-api</module>
+    <module>core-annotations</module>
+    <module>server-annotations</module>
+    <module>core-mock</module>
+    <module>core-jndi</module>
+    <module>core-constants</module>
+    <module>core-integ</module>
+    <module>core-avl</module>
+    <module>avl-partition</module>
+    <module>ldif-partition</module>
+    <module>protocol-shared</module>
+    <module>protocol-ntp</module>
+    <module>protocol-ldap</module>
+    <module>protocol-kerberos</module>
+    <module>protocol-dhcp</module>
+    <module>protocol-dns</module>
+    <module>protocol-changepw</module>
+    <module>server-integ</module>
+    <module>server-tools</module>
+    <module>default-config</module>
+    <!--Uncomment to build all in one OSGi bundle-->
+    <!--<module>osgi</module>-->
+
+    <!-- breaks the build on first try
+      <module>sar-plugin</module>
+      <module>server-sar</module>
+    -->
+
+    <module>server-xml</module>
+    <module>server-jndi</module>
+    <module>kerberos-shared</module>
+    <!--module>kerberos-unit</module-->
+    <module>interceptor-kerberos</module>
+    <module>kerberos-test</module>
+    <!--module>syncrepl</module-->
+    <module>server-replication</module>
+    <module>xbean-spring</module>
+    <module>http-integration</module>
+    <module>test-framework</module>
+    <module>ldap-client-test</module>
+  </modules>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.directory.buildtools</groupId>
+            <artifactId>directory-checkstyle</artifactId>
+            <version>${org.apache.directory.buildtools.directory-checkstyle.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+    </plugins>
+  </build>
+  
   <dependencyManagement>
     <dependencies>
-      <!--dependency>
+      <!-- Project sub-modules dependencies -->
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-all</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-avl-partition</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-benchmarks</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-core-annotations</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-core-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-core-avl</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-core-constants</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-core-integ</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-core-jndi</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-core-mock</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-default-config</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-http-integration</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-i18n</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-interceptor-kerberos</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-jdbm</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-jdbm-partition</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-jdbm-store</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-kerberos-shared</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-kerberos-test</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-ldap-client-test</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-ldif-partition</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-protocol-changepw</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-protocol-dhcp</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-protocol-dns</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-protocol-kerberos</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-protocol-ldap</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-protocol-ntp</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-protocol-shared</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-server-annotations</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-server-integ</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-server-jndi</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-server-replication</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-server-sar</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-server-tools</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-server-xml</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-syncrepl</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-test-framework</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-xbean-spring</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-xdbm-search</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-xdbm-tools</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <!-- Shared dependencies -->
+    
+      <dependency>
         <groupId>org.apache.directory.shared</groupId>
         <artifactId>shared-all</artifactId>
         <version>${org.apache.directory.shared.version}</version>
-      </dependency-->
-
+      </dependency>
+      
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
-        <artifactId>shared-ldap</artifactId>
+        <artifactId>shared-asn1</artifactId>
         <version>${org.apache.directory.shared.version}</version>
       </dependency>
-
-      <dependency>
-        <groupId>org.apache.directory.shared</groupId>
-        <artifactId>shared-ldap-schema</artifactId>
-        <version>${org.apache.directory.shared.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.directory.shared</groupId>
-        <artifactId>shared-ldap-schema-loader</artifactId>
-        <version>${org.apache.directory.shared.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.directory.shared</groupId>
-        <artifactId>shared-ldap-schema-manager</artifactId>
-        <version>${org.apache.directory.shared.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.directory.shared</groupId>
-        <artifactId>shared-cursor</artifactId>
-        <version>${org.apache.directory.shared.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.directory.shared</groupId>
-        <artifactId>shared-ldap-jndi</artifactId>
-        <version>${org.apache.directory.shared.version}</version>
-      </dependency>
-
+      
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
         <artifactId>shared-asn1-codec</artifactId>
         <version>${org.apache.directory.shared.version}</version>
       </dependency>
-
+      
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
-        <artifactId>shared-asn1</artifactId>
+        <artifactId>shared-cursor</artifactId>
+        <version>${org.apache.directory.shared.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.apache.directory.shared</groupId>
+        <artifactId>shared-dsml-parser</artifactId>
+        <version>${org.apache.directory.shared.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.apache.directory.shared</groupId>
+        <artifactId>shared-i18n</artifactId>
+        <version>${org.apache.directory.shared.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.apache.directory.shared</groupId>
+        <artifactId>shared-ldap</artifactId>
         <version>${org.apache.directory.shared.version}</version>
       </dependency>
       
@@ -154,15 +469,43 @@
       
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
+        <artifactId>shared-ldap-jndi</artifactId>
+        <version>${org.apache.directory.shared.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.apache.directory.shared</groupId>
         <artifactId>shared-ldif</artifactId>
         <version>${org.apache.directory.shared.version}</version>
       </dependency>
       
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
-        <artifactId>shared-dsml-parser</artifactId>
+        <artifactId>shared-ldap-schema</artifactId>
         <version>${org.apache.directory.shared.version}</version>
       </dependency>
+      
+      <dependency>
+        <groupId>org.apache.directory.shared</groupId>
+        <artifactId>shared-ldap-schema-loader</artifactId>
+        <version>${org.apache.directory.shared.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.apache.directory.shared</groupId>
+        <artifactId>shared-ldap-schema-manager</artifactId>
+        <version>${org.apache.directory.shared.version}</version>
+      </dependency>
+      
+      <!-- Client dependencies -->
+    
+      <dependency>
+        <groupId>org.apache.directory.client.ldap</groupId>
+        <artifactId>ldap-client-api</artifactId>
+        <version>${org.apache.directory.ldap.client.api.version}</version>
+      </dependency>
+      
+      <!-- Daemon dependencies -->
       
       <dependency>
         <groupId>org.apache.directory.daemon</groupId>
@@ -170,12 +513,16 @@
         <version>${daemon.bootstrappers.version}</version>
       </dependency>
 
+      <!-- Mina dependencies -->
+      
       <dependency>
         <groupId>org.apache.mina</groupId>
         <artifactId>mina-core</artifactId>
         <version>${mina.core.version}</version>
       </dependency>
 
+      <!-- Commons dependencies -->
+      
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
@@ -224,6 +571,8 @@
         <version>${commons.pool.version}</version>
       </dependency>
 
+      <!-- Logging dependencies -->
+
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
@@ -241,6 +590,8 @@
         <artifactId>log4j</artifactId>
         <version>${log4j.version}</version>
       </dependency>
+      
+      <!-- Other dependencies -->
 
       <dependency>
         <groupId>org.apache.velocity</groupId>
@@ -362,110 +713,37 @@
         <version>${xercesImpl.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.mortbay.jetty</groupId>
+        <artifactId>jetty</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+    
+      <dependency>
+        <groupId>org.mortbay.jetty</groupId>
+        <artifactId>servlet-api-2.5</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+    
+      <dependency>
+        <groupId>org.mortbay.jetty</groupId>
+        <artifactId>jetty-util</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
-  <issueManagement>
-    <system>JIRA</system>
-    <url>http://issues.apache.org/jira/browse/DIRSERVER</url>
-  </issueManagement>
-
-  <distributionManagement>
-    <site>
-      <id>apache.directory.apacheds</id>
-      <url>${distMgmtSiteUrl}</url>
-    </site>
-  </distributionManagement>
-
   <dependencies>
-    <!--dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-all</artifactId>
-    </dependency-->
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-schema</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-schema-loader</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-schema-manager</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-cursor</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-jndi</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-asn1-codec</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-asn1</artifactId>
-    </dependency>
-      
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-constants</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldap-converter</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-ldif</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.shared</groupId>
-      <artifactId>shared-dsml-parser</artifactId>
-    </dependency>
-
-    <!-- apacheds standard logging interface -->
+    <!-- common logging interface -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
 
-    <!-- standard logging implementation for tests -->
+    <!-- logging implementation used for unit tests -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <scope>test</scope>
-    </dependency>
-    
-    <!-- Most modules use commons-io in test -->
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
       <scope>test</scope>
     </dependency>
 
@@ -475,73 +753,6 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <modules>
-    <module>i18n</module>
-    <module>all</module>
-    <module>jdbm</module>
-    <module>jdbm-store</module>
-    <module>jdbm-partition</module>
-    <module>xdbm-search</module>
-    <module>xdbm-tools</module>
-    <module>core</module>
-    <module>core-api</module>
-    <module>core-annotations</module>
-    <module>server-annotations</module>
-    <module>core-mock</module>
-    <module>core-jndi</module>
-    <module>core-constants</module>
-    <module>core-integ</module>
-    <module>core-avl</module>
-    <module>avl-partition</module>
-    <module>ldif-partition</module>
-    <module>protocol-shared</module>
-    <module>protocol-ntp</module>
-    <module>protocol-ldap</module>
-    <module>protocol-kerberos</module>
-    <module>protocol-dhcp</module>
-    <module>protocol-dns</module>
-    <module>protocol-changepw</module>
-    <module>server-integ</module>
-    <module>server-tools</module>
-    <module>default-config</module>
-    <!--Uncomment to build all in one OSGi bundle-->
-    <!--<module>osgi</module>-->
-
-    <!-- breaks the build on first try
-      <module>sar-plugin</module>
-      <module>server-sar</module>
-    -->
-
-    <module>server-xml</module>
-    <module>server-jndi</module>
-    <module>kerberos-shared</module>
-    <!--module>kerberos-unit</module-->
-    <module>interceptor-kerberos</module>
-    <module>kerberos-test</module>
-    <!--module>syncrepl</module-->
-    <module>server-replication</module>
-    <module>xbean-spring</module>
-    <module>http-integration</module>
-    <module>test-framework</module>
-    <module>ldap-client-test</module>
-  </modules>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <dependencies>
-          <dependency>
-            <groupId>org.apache.directory.buildtools</groupId>
-            <artifactId>directory-checkstyle</artifactId>
-            <version>${org.apache.directory.buildtools.directory-checkstyle.version}</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-    </plugins>
-  </build>
 
   <reporting>
     <excludeDefaults>true</excludeDefaults>

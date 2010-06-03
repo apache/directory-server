@@ -15,7 +15,6 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<!-- $Rev:  $ $Date:  $ -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
@@ -26,18 +25,28 @@
   
   <artifactId>apacheds-core-avl</artifactId>
   <name>ApacheDS Core AVL</name>
-  <description>
-    A linked in memory AVL tree implementation with Cursor.
-  </description>
-
-  <packaging>jar</packaging>
+  
+  <description>A linked in memory AVL tree implementation with Cursor</description>
 
   <dependencies>
     <dependency>
-      <artifactId>apacheds-i18n</artifactId>
       <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
+      <artifactId>apacheds-i18n</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-cursor</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap</artifactId>
     </dependency>
   </dependencies>
 </project>
-
