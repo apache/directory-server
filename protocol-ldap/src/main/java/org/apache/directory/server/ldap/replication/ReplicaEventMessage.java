@@ -39,6 +39,7 @@ import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.DnSerializer;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.util.UTFUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,22 +111,22 @@ public class ReplicaEventMessage implements Externalizable
             modDnControl = new SyncModifyDnControl();
             modDnControl.setModDnType( modDnType );
             
-            modDnControl.setEntryDn( in.readUTF() );
+            modDnControl.setEntryDn( UTFUtils.readUTF( in ) );
             
             switch( modDnType )
             {
                 case MOVE:
-                    modDnControl.setNewSuperiorDn( in.readUTF() );
+                    modDnControl.setNewSuperiorDn( UTFUtils.readUTF( in ) );
                     break;
                    
                 case RENAME:
-                    modDnControl.setNewRdn( in.readUTF() );
+                    modDnControl.setNewRdn( UTFUtils.readUTF( in ) );
                     modDnControl.setDeleteOldRdn( in.readBoolean() );
                     break;
                     
                 case MOVEANDRENAME:
-                    modDnControl.setNewSuperiorDn( in.readUTF() );
-                    modDnControl.setNewRdn( in.readUTF() );
+                    modDnControl.setNewSuperiorDn( UTFUtils.readUTF( in ) );
+                    modDnControl.setNewRdn( UTFUtils.readUTF( in ) );
                     modDnControl.setDeleteOldRdn( in.readBoolean() );
             }
         }
@@ -148,7 +149,7 @@ public class ReplicaEventMessage implements Externalizable
         for ( int i = 0; i < nbAttributes; i++ )
         {
             // Read the attribute's OID
-            String oid = in.readUTF();
+            String oid = UTFUtils.readUTF( in );
 
             try
             {
@@ -180,22 +181,22 @@ public class ReplicaEventMessage implements Externalizable
             
             SyncModifyDnType modDnType = modDnControl.getModDnType();
             out.writeShort( modDnType.getValue() );
-            out.writeUTF( modDnControl.getEntryDn() );
+            UTFUtils.writeUTF( out, modDnControl.getEntryDn() );
             
             switch( modDnType )
             {
                 case MOVE:
-                    out.writeUTF( modDnControl.getNewSuperiorDn() );
+                    UTFUtils.writeUTF( out, modDnControl.getNewSuperiorDn() );
                     break;
                    
                 case RENAME:
-                    out.writeUTF( modDnControl.getNewRdn() );
+                    UTFUtils.writeUTF( out, modDnControl.getNewRdn() );
                     out.writeBoolean( modDnControl.isDeleteOldRdn() );
                     break;
                     
                 case MOVEANDRENAME:
-                    out.writeUTF( modDnControl.getNewSuperiorDn() );
-                    out.writeUTF( modDnControl.getNewRdn() );
+                    UTFUtils.writeUTF( out, modDnControl.getNewSuperiorDn() );
+                    UTFUtils.writeUTF( out, modDnControl.getNewRdn() );
                     out.writeBoolean( modDnControl.isDeleteOldRdn() );
             }
         }
@@ -221,7 +222,7 @@ public class ReplicaEventMessage implements Externalizable
             DefaultEntryAttribute attribute = ( DefaultEntryAttribute ) attrItr.next();
             // Write the oid to be able to restore the AttributeType when deserializing
             // the attribute
-            out.writeUTF( attribute.getAttributeType().getOid() );
+            UTFUtils.writeUTF( out, attribute.getAttributeType().getOid() );
 
             // Write the attribute
             attribute.serialize( out );
