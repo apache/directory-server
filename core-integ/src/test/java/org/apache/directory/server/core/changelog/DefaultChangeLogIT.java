@@ -121,7 +121,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
         assertPresent( sysRoot, "ou=test0,ou=system" ); // test present
         assertPresent( sysRoot, "ou=test1,ou=system" ); // test present
 
-        assertNotPresent( sysRoot, "ou=test2" );
+        assertNotPresent( sysRoot, "ou=test2,ou=system" );
         assertEquals( revision + 4, service.getChangeLog().getCurrentRevision() );
         assertEquals( t1, service.getChangeLog().getLatest() );
 
