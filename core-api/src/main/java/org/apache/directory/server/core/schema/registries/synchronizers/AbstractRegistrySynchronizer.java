@@ -158,7 +158,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         }
         
         RDN rdn = dn.getRdn( 1 );
-        return ( String ) rdn.getNormValue();
+        return rdn.getNormValue().getString();
     }
 
 
@@ -211,7 +211,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
                 I18n.err( I18n.ERR_338, objectType ) );
         }
         
-        if ( ! ( ( String ) rdn.getNormValue() ).equalsIgnoreCase( OBJECT_TYPE_TO_PATH.get( objectType ) ) )
+        if ( !rdn.getNormValue().getString().equalsIgnoreCase( OBJECT_TYPE_TO_PATH.get( objectType ) ) )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, 
                 I18n.err( I18n.ERR_339, objectType,  OBJECT_TYPE_TO_PATH.get( objectType ) ) );
@@ -345,7 +345,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         {
             DN dn = result.getDn();
             dn.normalize( schemaManager.getNormalizerMapping() );
-            oids.add( ( String ) dn.getRdn().getNormValue() );
+            oids.add( dn.getRdn().getNormValue().getString() );
         }
         
         return oids;

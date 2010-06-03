@@ -193,7 +193,7 @@ public class RegistrySynchronizerAdaptor
                 throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, msg );
             }
             
-            String ouValue = ( String ) opContext.getDn().getRdn().getNormValue();
+            String ouValue = opContext.getDn().getRdn().getNormValue().getString();
             ouValue = ouValue.trim().toLowerCase();
             
             if ( ! VALID_OU_VALUES.contains( ouValue ) )
@@ -249,7 +249,7 @@ public class RegistrySynchronizerAdaptor
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_378 ) );
             }
             
-            String ouValue = ( String ) opContext.getDn().getRdn().getNormValue();
+            String ouValue = opContext.getDn().getRdn().getNormValue().getString();
             ouValue = ouValue.trim().toLowerCase();
             
             if ( ! VALID_OU_VALUES.contains( ouValue ) )

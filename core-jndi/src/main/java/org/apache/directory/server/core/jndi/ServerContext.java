@@ -731,7 +731,7 @@ public abstract class ServerContext implements EventContext
         {
             if ( SchemaConstants.CN_AT.equals( rdn.getNormType() ) )
             {
-                serverEntry.put( rdn.getUpType(), ( String ) rdn.getUpValue() );
+                serverEntry.put( rdn.getUpType(), rdn.getUpValue() );
             }
             else
             {
@@ -824,13 +824,13 @@ public abstract class ServerContext implements EventContext
 
         if ( rdn.size() == 1 )
         {
-            serverEntry.put( rdn.getUpType(), ( String ) rdn.getNormValue() );
+            serverEntry.put( rdn.getUpType(), rdn.getUpValue() );
         }
         else
         {
             for ( AVA atav : rdn )
             {
-                serverEntry.put( atav.getUpType(), atav.getNormValue().getString() );
+                serverEntry.put( atav.getUpType(), atav.getUpValue() );
             }
         }
     }

@@ -231,7 +231,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         }
 
         Entry targetEntry = ( Entry ) entry.clone();
-        String newOid = ( String ) newRdn.getNormValue();
+        String newOid = newRdn.getNormValue().getString();
 
         if ( schemaManager.getSyntaxCheckerRegistry().contains( newOid ) )
         {
@@ -267,7 +267,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         Entry targetEntry = ( Entry ) entry.clone();
 
-        String newOid = ( String ) newRdn.getNormValue();
+        String newOid = newRdn.getNormValue().getString();
 
         if ( schemaManager.getSyntaxCheckerRegistry().contains( newOid ) )
         {
@@ -367,7 +367,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
                 I18n.err( I18n.ERR_397 ) );
         }
 
-        if ( !( ( String ) rdn.getNormValue() ).equalsIgnoreCase( SchemaConstants.SYNTAX_CHECKERS_AT ) )
+        if ( !rdn.getNormValue().getString().equalsIgnoreCase( SchemaConstants.SYNTAX_CHECKERS_AT ) )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
                 I18n.err( I18n.ERR_372 ) );

@@ -1561,7 +1561,7 @@ public class SchemaInterceptor extends BaseInterceptor
         }
 
         RDN rdn = dn.getRdn( 1 );
-        return ( String ) rdn.getNormValue();
+        return rdn.getNormValue().getString();
     }
 
 

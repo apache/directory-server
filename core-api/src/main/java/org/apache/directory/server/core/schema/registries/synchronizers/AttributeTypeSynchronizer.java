@@ -201,7 +201,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
 
         // Inject the new OID
         Entry targetEntry = ( Entry ) entry.clone();
-        String newOid = ( String ) newRdn.getNormValue();
+        String newOid = newRdn.getNormValue().getString();
         checkOidIsUnique( newOid );
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
 
@@ -244,7 +244,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         AttributeType oldAt = factory.getAttributeType( schemaManager, entry, schemaManager.getRegistries(),
             oldSchemaName );
         Entry targetEntry = ( Entry ) entry.clone();
-        String newOid = ( String ) newRn.getNormValue();
+        String newOid = newRn.getNormValue().getString();
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
         checkOidIsUnique( newOid );
         AttributeType newAt = factory.getAttributeType( schemaManager, targetEntry, schemaManager.getRegistries(),

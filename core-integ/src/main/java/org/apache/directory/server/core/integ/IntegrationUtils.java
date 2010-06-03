@@ -280,7 +280,7 @@ public class IntegrationUtils
         attr = new DefaultEntryAttribute( "ou", "Engineering", "People" );
         ldif.addAttribute( attr );
 
-        String uid = ( String ) dn.getRdn().getNormValue();
+        String uid = dn.getRdn().getNormValue().getString();
         ldif.putAttribute( "uid", uid );
 
         ldif.putAttribute( "l", "Bogusville" );

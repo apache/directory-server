@@ -501,7 +501,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
             throw new NamingException( I18n.err( I18n.ERR_434, dn.getNormName(), CN_OID, rdn.getNormType() ) );
         }
 
-        return ( String ) rdn.getNormValue();
+        return rdn.getNormValue().getString();
     }
 
 

@@ -267,7 +267,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         }
 
         Entry targetEntry = ( Entry ) entry.clone();
-        String newOid = ( String ) newRdn.getNormValue();
+        String newOid = newRdn.getNormValue().getString();
         checkOidIsUnique( newOid );
 
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
@@ -307,7 +307,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         }
 
         Entry targetEntry = ( Entry ) entry.clone();
-        String newOid = ( String ) newRn.getNormValue();
+        String newOid = newRn.getNormValue().getString();
         checkOidIsUnique( newOid );
 
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
@@ -393,7 +393,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_403 ) );
         }
 
-        if ( !( ( String ) rdn.getNormValue() ).equalsIgnoreCase( "syntaxes" ) )
+        if ( !rdn.getNormValue().getString().equalsIgnoreCase( "syntaxes" ) )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_363 ) );
         }
