@@ -186,7 +186,7 @@ public class SpringServerTest
             // Now, launch the server, and check that the ObjectClass index has been created in OS' tmp directory
             apacheDS.startup();
             
-            File tmpOCdb = new File( tmpDir, "dc.db" );
+            File tmpOCdb = new File( tmpDir, "0.9.2342.19200300.100.1.25.db" );
             assertTrue( tmpOCdb.exists() );
     
             // if transactions are disabled there is no dc.lg file
