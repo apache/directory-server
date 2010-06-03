@@ -391,43 +391,6 @@ public class SearchIT extends AbstractLdapTestUnit
     /**
      * Search operation with a base DN which contains a BER encoded value.
      */
-    //@Test
-    /*public void testSearchBEREncodedBase() throws NamingException
-    {
-        // create additional entry
-        Attributes attributes = this.getPersonAttributes( "Ferry", "Bryan Ferry" );
-        ctx.createSubcontext( "sn=Ferry", attributes );
-
-        SearchControls sctls = new SearchControls();
-        sctls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        String FILTER = "(cn=Bryan Ferry)";
-
-        // sn=Ferry with BEROctetString values
-        String base = "2.5.4.4=#4665727279";
-
-        try
-        {
-            // Check entry
-            NamingEnumeration enm = ctx.search( base, FILTER, sctls );
-            assertTrue( enm.hasMore() );
-            while ( enm.hasMore() )
-            {
-                SearchResult sr = ( SearchResult ) enm.next();
-                Attributes attrs = sr.getObject();
-                Attribute sn = attrs.get( "sn" );
-                assertNotNull( sn );
-                assertTrue( sn.contains( "Ferry" ) );
-            }
-        }
-        catch ( Exception e )
-        {
-            fail( e.getMessage() );
-        }
-    }*/
-
-    /**
-     * Search operation with a base DN which contains a BER encoded value.
-     */
     @Test
     public void testSearchWithBackslashEscapedBase() throws Exception
     {
@@ -468,7 +431,7 @@ public class SearchIT extends AbstractLdapTestUnit
     /**
      * Add a new attribute to a person entry.
      * 
-     * @throws NamingException
+     * @throws LdapException
      */
     @Test
     public void testSearchValue() throws Exception

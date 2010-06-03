@@ -23,7 +23,6 @@ package org.apache.directory.server.operations.compare;
 import static org.junit.Assert.assertEquals;
 
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -34,6 +33,7 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -84,7 +84,7 @@ public class MatchingRuleCompareIT extends AbstractLdapTestUnit
     /**
      * Compare with caseIgnoreMatch matching rule.
      * 
-     * @throws NamingException
+     * @throws LdapException
      */
     @Test
     public void testCaseIgnoreMatch() throws Exception
@@ -120,78 +120,9 @@ public class MatchingRuleCompareIT extends AbstractLdapTestUnit
     //
 
     /**
-     * Compare with telephoneNumberMatch matching rule.
-     * 
-     * @throws NamingException
-     */
-
-    // Comment this out until we have the telephone number match working.
-    //    public void testTelephoneNumberMatch() throws NamingException
-    //    {
-    //        // Setting up search controls for compare op
-    //        SearchControls ctls = new SearchControls();
-    //        ctls.setReturningAttributes(new String[] {}); // no attributes
-    //        ctls.setSearchScope(SearchControls.OBJECT_SCOPE);
-    //
-    //        String[] values = { "", "1234567890abc", "   1234567890 A B C", "123 456 7890 abc", "123-456-7890 abC",
-    //                "123456-7890 A bc" };
-    //        boolean[] expected = { false, true, true, true, true, true };
-    //
-    //        for (int i = 0; i < values.length; i++) {
-    //            String value = values[i];
-    //
-    //            NamingEnumeration enumeration = ctx.search(PERSON_RDN, "telephoneNumber={0}", new String[] { value }, ctls);
-    //            boolean result = enumeration.hasMore();
-    //
-    //            assertEquals("compare '" + PERSON_TELEPHONE + "' with '" + value + "'", expected[i], result);
-    //
-    //            enumeration.close();
-    //        }
-    //    }
-    /**
-     * Compare with octetStringMatch matching rule.
-     * 
-     * @throws NamingException
-     */
-
-// Cannot search the directory using binary attributes.  I don't know if this 
-// is valid according to specifications but this is the case with respect to apacheds
-// and userPassword is a binary attribute type.  This is why we get class cast 
-// exceptions for this search which fails.  To make this succeed some simple changes
-// are needed.
-    
-//    public void testOctetStringMatch() throws NamingException
-//    {
-//        // Setting up search controls for compare op
-//        SearchControls ctls = new SearchControls();
-//        ctls.setReturningAttributes( new String[]
-//            {} ); // no attributes
-//        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
-//
-//        String[] values =
-//            { "", PERSON_PWD, PERSON_PWD.toUpperCase(), PERSON_PWD.toLowerCase(), PERSON_PWD + "X" };
-//        boolean[] expected =
-//            { false, true, false, false, false };
-//
-//        for ( int i = 0; i < values.length; i++ )
-//        {
-//            String value = values[i];
-//
-//            NamingEnumeration enumeration = ctx.search( PERSON_RDN, "userPassword={0}", new String[]
-//                { value }, ctls );
-//            boolean result = enumeration.hasMore();
-//
-//            assertEquals( "compare '" + PERSON_PWD + "' with '" + value + "'", expected[i], result );
-//
-//            enumeration.close();
-//        }
-//    }
-
-
-    /**
      * Compare with distinguishedNameMatch matching rule.
      * 
-     * @throws NamingException
+     * @throws LdapException
      */
     @Test
     public void testDistinguishedNameMatch() throws Exception

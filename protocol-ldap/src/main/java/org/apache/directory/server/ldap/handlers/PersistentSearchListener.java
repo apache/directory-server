@@ -20,8 +20,6 @@
 package org.apache.directory.server.ldap.handlers;
 
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.event.DirectoryListener;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.ChangeOperationContext;
@@ -35,6 +33,7 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControl;
 import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.PersistentSearchControl;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
 import org.apache.directory.shared.ldap.message.internal.InternalAbandonableRequest;
@@ -74,7 +73,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
     }
 
 
-    public void abandon() throws NamingException
+    public void abandon() throws LdapException
     {
         // must abandon the operation 
         session.getCoreSession().getDirectoryService().getEventService().removeListener( this );
@@ -100,7 +99,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
         {
             abandon();
         }
-        catch ( NamingException e )
+        catch ( LdapException e )
         {
             LOG.error( I18n.err( I18n.ERR_164 ), e );
         }

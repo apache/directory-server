@@ -24,12 +24,12 @@ import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.security.Security;
 
-import javax.naming.NamingException;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
@@ -46,7 +46,7 @@ import org.apache.mina.filter.ssl.SslFilter;
  */
 public class LdapsInitializer
 {
-    public static IoFilterChainBuilder init( KeyStore ks, String certificatePassord ) throws NamingException
+    public static IoFilterChainBuilder init( KeyStore ks, String certificatePassord ) throws LdapException
     {
         SSLContext sslCtx;
         try
@@ -77,7 +77,7 @@ public class LdapsInitializer
         }
         catch ( Exception e )
         {
-            throw ( NamingException ) new NamingException( I18n.err( I18n.ERR_683 ) ).initCause( e );
+            throw new LdapException( I18n.err( I18n.ERR_683 ), e );
         }
 
         DefaultIoFilterChainBuilder chain = new DefaultIoFilterChainBuilder();

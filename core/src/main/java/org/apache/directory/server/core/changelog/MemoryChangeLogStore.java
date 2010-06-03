@@ -40,6 +40,7 @@ import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.ListCursor;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.util.DateUtils;
 
@@ -505,7 +506,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
-    public Cursor<ChangeLogEvent> findAfter( long revision ) throws Exception
+    public Cursor<ChangeLogEvent> findAfter( long revision ) throws LdapException
     {
         return new ListCursor<ChangeLogEvent>( ( int ) revision, events );
     }
@@ -517,7 +518,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
-    public Tag getLatest() throws Exception
+    public Tag getLatest() throws LdapException
     {
         return latest;
     }

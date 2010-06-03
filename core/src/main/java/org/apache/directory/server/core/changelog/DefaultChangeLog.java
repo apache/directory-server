@@ -112,7 +112,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
-    public long getCurrentRevision() throws Exception
+    public long getCurrentRevision() throws LdapException
     {
         synchronized( store )
         {
@@ -292,7 +292,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
-    public Tag getLatest() throws Exception
+    public Tag getLatest() throws LdapException
     {
         if ( latest != null )
         {

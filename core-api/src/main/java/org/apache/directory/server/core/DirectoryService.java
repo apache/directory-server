@@ -67,7 +67,7 @@ public interface DirectoryService extends ServerEntryFactory
      * @throws UnsupportedOperationException if this feature is not supported by the
      * change log
      */
-    long revert( long revision ) throws Exception;
+    long revert( long revision ) throws LdapException;
 
 
     /**
@@ -84,7 +84,7 @@ public interface DirectoryService extends ServerEntryFactory
      * @throws UnsupportedOperationException if this feature is not supported by the
      * change log
      */
-    long revert() throws Exception;
+    long revert() throws LdapException;
 
 
     PartitionNexus getPartitionNexus();

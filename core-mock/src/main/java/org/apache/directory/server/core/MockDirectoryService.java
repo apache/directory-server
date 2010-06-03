@@ -25,7 +25,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.changelog.ChangeLog;
@@ -66,13 +65,13 @@ public class MockDirectoryService implements DirectoryService
     }
 
 
-    public long revert( long revision ) throws NamingException
+    public long revert( long revision ) throws LdapException
     {
         return 0;
     }
 
 
-    public long revert() throws NamingException
+    public long revert() throws LdapException
     {
         return 0;
     }
@@ -90,12 +89,12 @@ public class MockDirectoryService implements DirectoryService
     }
 
 
-    public void addPartition( Partition partition ) throws NamingException
+    public void addPartition( Partition partition ) throws LdapException
     {
     }
 
 
-    public void removePartition( Partition partition ) throws NamingException
+    public void removePartition( Partition partition ) throws LdapException
     {
     }
 
@@ -134,17 +133,17 @@ public class MockDirectoryService implements DirectoryService
     }
 
 
-    public void startup() throws NamingException
+    public void startup() throws LdapException
     {
     }
 
 
-    public void shutdown() throws NamingException
+    public void shutdown() throws LdapException
     {
     }
 
 
-    public void sync() throws NamingException
+    public void sync() throws LdapException
     {
     }
 
@@ -155,7 +154,7 @@ public class MockDirectoryService implements DirectoryService
     }
 
 
-    public LdapContext getJndiContext() throws NamingException
+    public LdapContext getJndiContext() throws LdapException
     {
         return null;
     }
@@ -357,13 +356,13 @@ public class MockDirectoryService implements DirectoryService
     }
 
 
-    public CoreSession getSession() throws Exception
+    public CoreSession getSession() throws LdapException
     {
         return null;
     }
 
 
-    public CoreSession getSession( LdapPrincipal principal ) throws Exception
+    public CoreSession getSession( LdapPrincipal principal ) throws LdapException
     {
         return null;
     }
@@ -376,7 +375,7 @@ public class MockDirectoryService implements DirectoryService
 
     
     public CoreSession getSession( DN principalDn, byte[] credentials, String saslMechanism, String saslAuthId )
-        throws Exception
+        throws LdapException
     {
         return null;
     }

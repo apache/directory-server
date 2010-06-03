@@ -22,9 +22,10 @@ package org.apache.directory.server.core.changelog;
 
 import java.util.List;
 
-import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 
 
@@ -151,7 +152,7 @@ public interface ChangeLogStore
      * @throws IllegalArgumentException if the revision is out of range (less than 0
      * and greater than the current revision)
      */
-    Cursor<ChangeLogEvent> findAfter( long revision ) throws Exception;
+    Cursor<ChangeLogEvent> findAfter( long revision ) throws LdapException;
 
 
     /**

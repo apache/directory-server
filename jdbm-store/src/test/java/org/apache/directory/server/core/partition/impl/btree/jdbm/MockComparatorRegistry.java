@@ -22,8 +22,6 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 import java.util.Iterator;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
@@ -61,7 +59,7 @@ class MockComparatorRegistry extends DefaultComparatorRegistry
     }
 
 
-    public void register( LdapComparatorDescription description, LdapComparator<?> comparator ) throws NamingException
+    public void register( LdapComparatorDescription description, LdapComparator<?> comparator ) throws LdapException
     {
     }
 

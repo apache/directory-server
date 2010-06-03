@@ -19,11 +19,10 @@
  */
 package org.apache.directory.server.operations.extended;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.DN;
 import org.slf4j.Logger;
@@ -45,7 +44,7 @@ public class DITUtilitiesSP
      * @param ctx an LDAP context to perform operations on
      * @param rdn ctx relative name of the entry which is root of
      *        the subtree to be deleted
-     * @throws NamingException
+     * @throws LdapException
      */
     public static void deleteSubtree( CoreSession session, DN rdn ) throws Exception
     {

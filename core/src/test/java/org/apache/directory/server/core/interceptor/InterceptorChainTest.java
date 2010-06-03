@@ -30,7 +30,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.CoreSession;
@@ -282,13 +281,13 @@ public class InterceptorChainTest
         }
 
 
-        public long revert( long revision ) throws NamingException
+        public long revert( long revision ) throws LdapException
         {
             return 0;
         }
 
 
-        public long revert() throws NamingException
+        public long revert() throws LdapException
         {
             return 0;
         }
@@ -306,12 +305,12 @@ public class InterceptorChainTest
         }
 
 
-        public void addPartition( Partition partition ) throws NamingException
+        public void addPartition( Partition partition ) throws LdapException
         {
         }
 
 
-        public void removePartition( Partition partition ) throws NamingException
+        public void removePartition( Partition partition ) throws LdapException
         {
         }
 
@@ -350,17 +349,17 @@ public class InterceptorChainTest
         }
 
 
-        public void startup() throws NamingException
+        public void startup() throws LdapException
         {
         }
 
 
-        public void shutdown() throws NamingException
+        public void shutdown() throws LdapException
         {
         }
 
 
-        public void sync() throws NamingException
+        public void sync() throws LdapException
         {
         }
 
@@ -371,7 +370,7 @@ public class InterceptorChainTest
         }
 
 
-        public LdapContext getJndiContext() throws NamingException
+        public LdapContext getJndiContext() throws LdapException
         {
             return null;
         }
@@ -383,26 +382,26 @@ public class InterceptorChainTest
         }
 
 
-        public LdapContext getJndiContext( String baseName ) throws NamingException
+        public LdapContext getJndiContext( String baseName ) throws LdapException
         {
             return null;
         }
 
 
-        public LdapContext getJndiContext( LdapPrincipal principal ) throws NamingException
+        public LdapContext getJndiContext( LdapPrincipal principal ) throws LdapException
         {
             return null;
         }
 
 
-        public LdapContext getJndiContext( LdapPrincipal principal, String dn ) throws NamingException
+        public LdapContext getJndiContext( LdapPrincipal principal, String dn ) throws LdapException
         {
             return null;
         }
 
 
         public LdapContext getJndiContext( DN principalDn, String principal, byte[] credential,
-            String authentication, String baseName ) throws NamingException
+            String authentication, String baseName ) throws LdapException
         {
             return null;
         }
@@ -591,13 +590,13 @@ public class InterceptorChainTest
         }
 
 
-        public CoreSession getSession() throws Exception
+        public CoreSession getSession() throws LdapException
         {
             return null;
         }
 
 
-        public CoreSession getSession( LdapPrincipal principal ) throws Exception
+        public CoreSession getSession( LdapPrincipal principal ) throws LdapException
         {
             return null;
         }
@@ -610,7 +609,7 @@ public class InterceptorChainTest
 
 
         public CoreSession getSession( DN principalDn, byte[] credentials, String saslMechanism, String saslAuthId )
-            throws Exception
+            throws LdapException
         {
             return null;
         }

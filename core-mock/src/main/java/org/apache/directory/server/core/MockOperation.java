@@ -22,8 +22,6 @@ package org.apache.directory.server.core;
 import java.util.Collection;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -52,13 +50,13 @@ public class MockOperation implements OperationContext
 
 
     public EntryFilteringCursor search( SearchOperationContext opContext )
-        throws NamingException
+        throws LdapException
     {
         return new BaseEntryFilteringCursor( new MockCursor( count ), opContext );
     }
 
 
-    public EntryFilteringCursor search( SearchOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public EntryFilteringCursor search( SearchOperationContext opContext, Collection<String> bypass ) throws LdapException
     {
         return new BaseEntryFilteringCursor( new MockCursor( count ), opContext );
     }

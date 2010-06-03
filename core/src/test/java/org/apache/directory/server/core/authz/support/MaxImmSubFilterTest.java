@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.CoreSession;
@@ -494,13 +493,13 @@ public class MaxImmSubFilterTest
         }
 
 
-        public long revert( long revision ) throws NamingException
+        public long revert( long revision ) throws LdapException
         {
             return 0;
         }
 
 
-        public long revert() throws NamingException
+        public long revert() throws LdapException
         {
             return 0;
         }
@@ -518,12 +517,12 @@ public class MaxImmSubFilterTest
         }
 
 
-        public void addPartition( Partition partition ) throws NamingException
+        public void addPartition( Partition partition ) throws LdapException
         {
         }
 
 
-        public void removePartition( Partition partition ) throws NamingException
+        public void removePartition( Partition partition ) throws LdapException
         {
         }
 
@@ -562,17 +561,17 @@ public class MaxImmSubFilterTest
         }
 
 
-        public void startup() throws NamingException
+        public void startup() throws LdapException
         {
         }
 
 
-        public void shutdown() throws NamingException
+        public void shutdown() throws LdapException
         {
         }
 
 
-        public void sync() throws NamingException
+        public void sync() throws LdapException
         {
         }
 
@@ -583,7 +582,7 @@ public class MaxImmSubFilterTest
         }
 
 
-        public LdapContext getJndiContext() throws NamingException
+        public LdapContext getJndiContext() throws LdapException
         {
             return null;
         }
@@ -1027,7 +1026,7 @@ public class MaxImmSubFilterTest
         }
 
 
-        public void close() throws NamingException
+        public void close() throws LdapException
         {
             ii = count;
         }

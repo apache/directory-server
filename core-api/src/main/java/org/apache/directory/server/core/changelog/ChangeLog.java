@@ -72,7 +72,7 @@ public interface ChangeLog
      * @return the current revision
      * @throws Exception if there is a problem accessing this information
      */
-    long getCurrentRevision() throws Exception;
+    long getCurrentRevision() throws LdapException;
 
 
     /**
@@ -201,7 +201,7 @@ public interface ChangeLog
      * @return The latest tag
      * @throws Exception if there is a problem taking the latest tag
      */
-    Tag getLatest() throws Exception;
+    Tag getLatest() throws LdapException;
 
     /**
      * Initialize the ChangeLog system.

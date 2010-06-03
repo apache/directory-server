@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
@@ -207,7 +205,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      *
      * @param modContext
      * @param subContext
-     * @throws NamingException
+     * @throws LdapException
      */
     void detectPasswordModification( ModifyOperationContext modContext, ModifySubContext subContext )
         throws LdapException
@@ -281,7 +279,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      *
      * @param modContext
      * @param subContext
-     * @throws NamingException
+     * @throws LdapException
      */
     void lookupPrincipalAttributes( ModifyOperationContext modContext, ModifySubContext subContext )
         throws LdapException

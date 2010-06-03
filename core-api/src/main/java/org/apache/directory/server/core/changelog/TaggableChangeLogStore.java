@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.core.changelog;
 
+import org.apache.directory.shared.ldap.exception.LdapException;
+
 
 
 /**
@@ -67,7 +69,7 @@ public interface TaggableChangeLogStore extends ChangeLogStore
      * tags have been created
      * @throws Exception on failures to access the tag store
      */
-    Tag getLatest() throws Exception;
+    Tag getLatest() throws LdapException;
     
     
     /**

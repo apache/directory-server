@@ -27,8 +27,6 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
@@ -149,7 +147,7 @@ public class LdifFileLoader
             {
                 accept &= ( filters.get( ii ) ).filter( ldif, dn, entry, coreSession );
             }
-            catch ( NamingException e )
+            catch ( LdapException e )
             {
                 log.warn( "filter " + filters.get( ii ) + " was bypassed due to failures", e );
             }

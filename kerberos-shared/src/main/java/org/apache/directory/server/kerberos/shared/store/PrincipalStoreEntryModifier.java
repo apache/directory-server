@@ -20,6 +20,7 @@
 package org.apache.directory.server.kerberos.shared.store;
 
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,9 +32,10 @@ import org.apache.directory.server.kerberos.shared.io.decoder.EncryptionKeyDecod
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.SamType;
-import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapException;
 
 
 /**
@@ -275,10 +277,10 @@ public class PrincipalStoreEntryModifier
      *
      * @param krb5key
      * @return The map of encryption types to encryption keys.
-     * @throws NamingException
+     * @throws LdapException
      * @throws IOException
      */
-    public Map<EncryptionType, EncryptionKey> reconstituteKeyMap( EntryAttribute krb5key ) throws Exception
+    public Map<EncryptionType, EncryptionKey> reconstituteKeyMap( EntryAttribute krb5key ) throws IOException, LdapException
     {
         Map<EncryptionType, EncryptionKey> map = new HashMap<EncryptionType, EncryptionKey>();
 

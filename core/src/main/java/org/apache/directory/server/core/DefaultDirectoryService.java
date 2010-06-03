@@ -86,6 +86,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
@@ -694,7 +695,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public long revert() throws Exception
+    public long revert() throws LdapException
     {
         if ( changeLog == null || ! changeLog.isEnabled() )
         {
@@ -723,7 +724,7 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * We handle the ModDN/ModRDN operation for the revert here. 
      */
-    private void moddn( DN oldDn, DN newDn, boolean delOldRdn ) throws Exception
+    private void moddn( DN oldDn, DN newDn, boolean delOldRdn ) throws LdapException
     {
         if ( oldDn.size() == 0 )
         {
@@ -769,7 +770,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
     
     
-    public long revert( long revision ) throws Exception
+    public long revert( long revision ) throws LdapException
     {
         if ( changeLog == null || ! changeLog.isEnabled() )
         {
@@ -855,6 +856,10 @@ public class DefaultDirectoryService implements DirectoryService
             String message = I18n.err( I18n.ERR_77, revision );
             LOG.error( message );
             throw new LdapException( message );
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationException( e.getMessage() );
         }
 
         return changeLog.getCurrentRevision();

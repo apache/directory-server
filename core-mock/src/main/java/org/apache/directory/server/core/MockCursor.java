@@ -22,8 +22,6 @@ package org.apache.directory.server.core;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
@@ -52,7 +50,7 @@ public class MockCursor implements Cursor<Entry>
     }
 
 
-    public void close() throws NamingException
+    public void close() throws Exception
     {
         ii = count;
     }

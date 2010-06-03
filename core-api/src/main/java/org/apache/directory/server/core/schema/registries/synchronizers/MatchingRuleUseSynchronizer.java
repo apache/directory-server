@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -105,13 +103,13 @@ public class MatchingRuleUseSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void add( MatchingRuleUse mru ) throws NamingException
+    public void add( MatchingRuleUse mru ) throws LdapException
     {
         // TODO Auto-generated method stub
     }
 
 
-    public void delete( MatchingRuleUse mru, boolean cascade ) throws NamingException
+    public void delete( MatchingRuleUse mru, boolean cascade ) throws LdapException
     {
         // TODO Auto-generated method stub
     }

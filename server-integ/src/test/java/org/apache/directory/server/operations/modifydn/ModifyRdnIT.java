@@ -29,7 +29,6 @@ import static org.junit.Assert.fail;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.NoPermissionException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -43,6 +42,7 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -722,7 +722,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      * - Keep old Rdn
      * - Attributes: cn, sn, description, telephoneNumber must exist 
      * 
-     * @throws NamingException
+     * @throws LdapException
      */
     @Test
     public void testModifyMultiValuedRdnVariant5() throws Exception
@@ -768,7 +768,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      * - Delete old Rdn
      * - Must fail with schema violation, cn cannot be deleted
      * 
-     * @throws NamingException
+     * @throws LdapException
      */
     @Test
     public void testModifyMultiValuedRdnVariant6() throws Exception
@@ -828,7 +828,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      * - Keep old Rdn
      * - Attributes: cn, sn, description must exist 
      * 
-     * @throws NamingException
+     * @throws LdapException
      */
     @Test
     public void testModifyMultiValuedRdnVariant7() throws Exception
@@ -870,7 +870,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      * - Delete old Rdn
      * - Must fail with schema violation, cn cannot be deleted
      * 
-     * @throws NamingException
+     * @throws LdapException
      */
     @Test
     public void testModifyMultiValuedRdnVariant8() throws Exception
@@ -927,7 +927,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      * in its RDN. Must fail because an operational attribute can not be
      * deleted.
      * 
-     * @throws NamingException
+     * @throws LdapException
      */
     @Test
     public void testModifyRdnOperationalAttribute() throws Exception
@@ -972,7 +972,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      * person in its RDN (objectClass=person,ou=system). Must fail because the 
      * structural object class can not be deleted.
      * 
-     * @throws NamingException
+     * @throws LdapException
      */
     @Test
     public void testModifyRdnObjectClassAttribute() throws Exception
