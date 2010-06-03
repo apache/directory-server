@@ -313,7 +313,7 @@ public class JdbmStore<E> extends AbstractStore<E, Long>
         }
         else
         {
-            LOG.warn( "Supplied index {} is not a JdbmIndex.  "
+            LOG.debug( "Supplied index {} is not a JdbmIndex.  "
                 + "Will create new JdbmIndex using copied configuration parameters.", index );
             jdbmIndex = new JdbmIndex( index.getAttributeId() );
             jdbmIndex.setCacheSize( index.getCacheSize() );

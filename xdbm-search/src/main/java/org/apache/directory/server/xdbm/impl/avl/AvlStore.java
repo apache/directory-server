@@ -100,8 +100,8 @@ public class AvlStore<E> extends AbstractStore<E, Long>
         }
         else
         {
-            LOG.warn( "Supplied index {} is not a JdbmIndex.  "
-                + "Will create new JdbmIndex using copied configuration parameters.", index );
+            LOG.debug( "Supplied index {} is not a AvlIndex.  "
+                + "Will create new AvlIndex using copied configuration parameters.", index );
             avlIndex = new AvlIndex( index.getAttributeId() );
         }
 
