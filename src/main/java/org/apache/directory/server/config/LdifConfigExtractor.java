@@ -89,8 +89,6 @@ public class LdifConfigExtractor
         Pattern pattern = Pattern.compile( ".*config/ou=config.*\\.ldif" );
         Map<String, Boolean> list = ResourceMap.getResources( pattern );
 
-        System.out.println( list );
-        
         for ( Entry<String, Boolean> entry : list.entrySet() )
         {
             if ( entry.getValue() )
