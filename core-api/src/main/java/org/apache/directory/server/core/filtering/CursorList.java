@@ -452,11 +452,11 @@ public class CursorList implements EntryFilteringCursor
             {
                 if ( reason != null )
                 {
-                    c.close();
+                    c.close( reason );
                 }
                 else
                 {
-                    c.close( reason );
+                    c.close();
                 }
             }
             catch ( Exception e )
