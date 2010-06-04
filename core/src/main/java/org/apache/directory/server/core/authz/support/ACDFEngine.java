@@ -199,7 +199,7 @@ public class ACDFEngine
     {
         if ( entryName == null )
         {
-            throw new NullPointerException( "entryName" );
+            throw new IllegalArgumentException( "entryName" );
         }
 
         Entry userEntry = opContext.lookup( userName, USER_LOOKUP_BYPASS );

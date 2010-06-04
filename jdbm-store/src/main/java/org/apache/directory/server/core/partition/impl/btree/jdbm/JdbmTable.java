@@ -141,7 +141,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         if ( keyComparator == null )
         {
-            throw new NullPointerException( I18n.err( I18n.ERR_591 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_591 ) );
         }
         else
         {
@@ -150,7 +150,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         if ( valueComparator == null )
         {
-            throw new NullPointerException( I18n.err( I18n.ERR_592 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_592 ) );
         }
         else
         {
@@ -217,7 +217,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         if ( keyComparator == null )
         {
-            throw new NullPointerException( I18n.err( I18n.ERR_591 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_591 ) );
         }
         else
         {
@@ -1000,7 +1000,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     {
         if ( key == null )
         {
-            throw new NullPointerException( "key is null" );
+            throw new IllegalArgumentException( "key is null" );
         }
 
         if ( ! allowsDuplicates )

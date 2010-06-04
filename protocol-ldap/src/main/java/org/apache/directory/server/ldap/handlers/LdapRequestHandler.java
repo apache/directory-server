@@ -168,7 +168,7 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
                 // Reject all extended operations except StartTls  
                 InternalExtendedRequest req = ( InternalExtendedRequest ) message;
                 
-                if ( ! req.getID().equals( StartTlsHandler.EXTENSION_OID ) )
+                if ( ! req.getOid().equals( StartTlsHandler.EXTENSION_OID ) )
                 {
                     rejectWithoutConfidentiality( session, req.getResultResponse() );
                     return;

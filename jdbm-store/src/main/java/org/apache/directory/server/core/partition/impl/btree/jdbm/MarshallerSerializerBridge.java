@@ -20,11 +20,11 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import org.apache.directory.server.core.avltree.Marshaller;
-
 import java.io.IOException;
 
 import jdbm.helper.Serializer;
+
+import org.apache.directory.server.core.avltree.Marshaller;
 
 
 /**
@@ -47,7 +47,7 @@ public class MarshallerSerializerBridge<E> implements Marshaller<E>
     {
         if ( serializer == null )
         {
-            throw new NullPointerException( "serializer" );
+            throw new IllegalArgumentException( "serializer" );
         }
         this.serializer = serializer;
     }

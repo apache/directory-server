@@ -127,7 +127,7 @@ public class NtlmSaslServer extends AbstractSaslServer
     {
         if ( response == null )
         {
-            throw new NullPointerException( I18n.err( I18n.ERR_666 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_666 ) );
         }
 
         if ( response.length == 0 )

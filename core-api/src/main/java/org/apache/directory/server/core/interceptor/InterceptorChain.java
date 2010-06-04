@@ -1017,7 +1017,7 @@ public class InterceptorChain
 
             if ( interceptor == null )
             {
-                throw new NullPointerException( "interceptor" );
+                throw new IllegalArgumentException( "interceptor" );
             }
 
             this.prevEntry = prevEntry;

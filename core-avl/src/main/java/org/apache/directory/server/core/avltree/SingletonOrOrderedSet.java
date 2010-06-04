@@ -43,7 +43,7 @@ public class SingletonOrOrderedSet<V>
     {
         if ( singleton == null )
         {
-            throw new NullPointerException( I18n.err( I18n.ERR_447 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_447 ) );
         }
         
         this.singleton = singleton;
@@ -60,7 +60,7 @@ public class SingletonOrOrderedSet<V>
     {
         if ( orderedSet == null )
         {
-            throw new NullPointerException( I18n.err( I18n.ERR_448 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_448 ) );
         }
         
         this.orderedSet = orderedSet;
@@ -116,7 +116,7 @@ public class SingletonOrOrderedSet<V>
     {
         if ( singleton == null )
         {
-            throw new NullPointerException( I18n.err( I18n.ERR_447 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_447 ) );
         }
         
         if ( this.orderedSet != null )
@@ -142,7 +142,7 @@ public class SingletonOrOrderedSet<V>
     {
         if ( singleton == null )
         {
-            throw new NullPointerException( I18n.err( I18n.ERR_447 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_447 ) );
         }
         
         if ( this.singleton != null )
@@ -185,7 +185,7 @@ public class SingletonOrOrderedSet<V>
     {
         if ( orderedSet == null )
         {
-            throw new NullPointerException( I18n.err( I18n.ERR_448 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_448 ) );
         }
         
         if ( this.singleton != null )
@@ -211,7 +211,7 @@ public class SingletonOrOrderedSet<V>
     {
         if ( orderedSet == null )
         {
-            throw new NullPointerException( I18n.err( I18n.ERR_448 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_448 ) );
         }
         
         if ( this.orderedSet != null )

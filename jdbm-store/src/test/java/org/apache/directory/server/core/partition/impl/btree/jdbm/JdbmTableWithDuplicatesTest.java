@@ -174,7 +174,7 @@ public class JdbmTableWithDuplicatesTest
     }
 
 
-    @Test( expected = NullPointerException.class )
+    @Test( expected = IllegalArgumentException.class )
     public void testNullKeyComparator() throws Exception
     {
         assertNotNull( table.getKeyComparator() );
@@ -187,7 +187,7 @@ public class JdbmTableWithDuplicatesTest
     }
 
 
-    @Test( expected = NullPointerException.class )
+    @Test( expected = IllegalArgumentException.class )
     public void testNullValueComparator() throws Exception
     {
         assertNotNull( table.getValueComparator() );

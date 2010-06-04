@@ -50,7 +50,7 @@ public class SearchAbandonListener implements AbandonListener
     {
         if ( ldapServer == null )
         {
-            throw new NullPointerException( "ldapServer" );
+            throw new IllegalArgumentException( "ldapServer" );
         }
         
         this.ldapServer = ldapServer;

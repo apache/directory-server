@@ -47,12 +47,12 @@
 package jdbm.helper;
 
 
+import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
-import java.lang.ref.Reference;
 import java.util.Enumeration;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.directory.server.i18n.I18n;
 
@@ -136,7 +136,7 @@ public class SoftCache implements CachePolicy
     {
         if ( internal == null )
         {
-            throw new NullPointerException( I18n.err( I18n.ERR_531 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_531 ) );
         }
         
         this.internal = internal;
