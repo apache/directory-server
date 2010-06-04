@@ -47,7 +47,6 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
-import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
@@ -187,13 +186,6 @@ public class InterceptorChain
         public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws LdapException
         {
             nexus.moveAndRename( opContext );
-        }
-
-
-        public void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext )
-            throws LdapException
-        {
-            nexus.removeContextPartition( opContext );
         }
 
 
@@ -643,28 +635,6 @@ public class InterceptorChain
     }
 
 
-    public void removeContextPartition( RemoveContextPartitionOperationContext opContext ) throws LdapException
-    {
-        Element entry = getStartingEntry();
-        Interceptor head = entry.interceptor;
-        NextInterceptor next = entry.nextInterceptor;
-
-        try
-        {
-            head.removeContextPartition( next, opContext );
-        }
-        catch ( LdapException le )
-        {
-            throw le;
-        }
-        catch ( Throwable e )
-        {
-            throwInterceptorException( head, e );
-            throw new InternalError(); // Should be unreachable
-        }
-    }
-
-
     /**
      * Eagerly populates fields of operation contexts so multiple Interceptors 
      * in the processing pathway can reuse this value without performing a 
@@ -1007,14 +977,6 @@ public class InterceptorChain
                     {
                         return Element.this.nextEntry;
                     }
-
-                    //  I don't think we really need this since this check is performed by the chain when
-                    //  getting the interceptor head to use.
-                    //
-                    //                    if ( invocation.isBypassed( DirectoryPartitionNexusProxy.BYPASS_ALL ) )
-                    //                    {
-                    //                        return tail;
-                    //                    }
 
                     Element next = Element.this.nextEntry;
                     while ( next != tail )
@@ -1378,27 +1340,6 @@ public class InterceptorChain
                     catch ( Throwable e )
                     {
                         throwInterceptorException( interceptor, e );
-                    }
-                }
-
-
-                public void removeContextPartition( RemoveContextPartitionOperationContext opContext ) throws LdapException
-                {
-                    Element next = getNextEntry();
-                    Interceptor interceptor = next.interceptor;
-
-                    try
-                    {
-                        interceptor.removeContextPartition( next.nextInterceptor, opContext );
-                    }
-                    catch ( LdapException le )
-                    {
-                        throw le;
-                    }
-                    catch ( Throwable e )
-                    {
-                        throwInterceptorException( interceptor, e );
-                        throw new InternalError(); // Should be unreachable
                     }
                 }
             };

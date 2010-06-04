@@ -28,7 +28,6 @@ import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperat
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
-import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -78,7 +77,7 @@ public interface PartitionNexus extends Partition
      * @param opContext The Remove Partition context
      * @throws Exception If the removal can't be done
      */
-    public void removeContextPartition( RemoveContextPartitionOperationContext removeContextPartition )
+    public void removeContextPartition( DN partitionDn )
         throws LdapException;
 
 

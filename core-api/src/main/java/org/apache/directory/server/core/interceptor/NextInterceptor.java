@@ -38,7 +38,6 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
@@ -85,12 +84,6 @@ public interface NextInterceptor
      * Calls the next interceptor's {@link Interceptor#listSuffixes( NextInterceptor, ListSuffixOperationContext )}.
      */
     Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws LdapException;
-
-
-    /**
-     * Calls the next interceptor's {@link DefaultPartitionNexus#removeContextPartition( RemoveContextPartitionOperationContext )}.
-     */
-    void removeContextPartition( RemoveContextPartitionOperationContext opContext ) throws LdapException;
 
 
     /**

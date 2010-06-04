@@ -58,7 +58,6 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
@@ -372,9 +371,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             {
                 DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
                 adminDn.normalize( schemaManager.getNormalizerMapping() );
-                CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn,
-                    AuthenticationLevel.STRONG ), directoryService );
-                removeContextPartition( new RemoveContextPartitionOperationContext( adminSession, new DN( suffix ) ) );
+
+                removeContextPartition(  new DN( suffix ) );
             }
             catch ( Exception e )
             {
@@ -984,13 +982,13 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.PartitionNexus#removeContextPartition(org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext)
+     * @see org.apache.directory.server.core.partition.PartitionNexus#removeContextPartition(DN partitionDN)
      */
-    public synchronized void removeContextPartition( RemoveContextPartitionOperationContext removeContextPartition )
+    public synchronized void removeContextPartition( DN partitionDn )
         throws LdapException
     {
         // Get the Partition name. It's a DN.
-        String key = removeContextPartition.getDn().getNormName();
+        String key = partitionDn.getNormName();
 
         // Retrieve this partition from the aprtition's table
         Partition partition = partitions.get( key );

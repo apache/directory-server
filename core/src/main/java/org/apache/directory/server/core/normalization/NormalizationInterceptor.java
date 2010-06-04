@@ -39,7 +39,6 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
@@ -344,17 +343,6 @@ public class NormalizationInterceptor extends BaseInterceptor
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
         next.bind( opContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext )
-        throws LdapException
-    {
-        opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
-        next.removeContextPartition( opContext );
     }
 
 

@@ -55,7 +55,6 @@ import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.server.core.journal.DefaultJournal;
 import org.apache.directory.server.core.journal.Journal;
 import org.apache.directory.server.core.journal.JournalInterceptor;
@@ -605,9 +604,7 @@ public class DefaultDirectoryService implements DirectoryService
             return;
         }
 
-        RemoveContextPartitionOperationContext removePartitionCtx =
-                new RemoveContextPartitionOperationContext( adminSession, partition.getSuffixDn() );
-        partitionNexus.removeContextPartition( removePartitionCtx );
+        partitionNexus.removeContextPartition( partition.getSuffixDn() );
     }
 
 

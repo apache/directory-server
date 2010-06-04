@@ -41,7 +41,6 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
@@ -111,14 +110,6 @@ public class MockInterceptor implements Interceptor
     {
         interceptors.add( this );
         return next.listSuffixes( opContext );
-    }
-
-
-    public void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext )
-        throws LdapException
-    {
-        interceptors.add( this );
-        next.removeContextPartition( opContext );
     }
 
 

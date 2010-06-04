@@ -42,7 +42,6 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
@@ -136,10 +135,6 @@ public class TimerInterceptor implements Interceptor
     private static AtomicLong totalMoveAndRename = new AtomicLong( 0 );
     private static AtomicInteger nbMoveAndRenameCalls = new AtomicInteger( 0 );
     
-    /** Stats for the RemoveContextPartition operation */
-    private static AtomicLong totalRemoveContextPartition = new AtomicLong( 0 );
-    private static AtomicInteger nbRemoveContextPartitionCalls = new AtomicInteger( 0 );
-
     /** Stats for the rename operation */
     private static AtomicLong totalRename = new AtomicLong( 0 );
     private static AtomicInteger nbRenameCalls = new AtomicInteger( 0 );
@@ -681,34 +676,5 @@ public class TimerInterceptor implements Interceptor
         }
         
         return suffixes; 
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext )
-        throws LdapException
-    {
-        long t0 = System.nanoTime();
-        next.removeContextPartition( opContext );
-        long delta = System.nanoTime() - t0;
-        
-        if ( IS_DEBUG_STATS )
-        {
-            nbRemoveContextPartitionCalls.incrementAndGet();
-            totalRemoveContextPartition.getAndAdd( delta );
-    
-            if ( nbRemoveContextPartitionCalls.get() % 1000 == 0 )
-            {
-                long average = totalRemoveContextPartition.get()/(nbRemoveContextPartitionCalls.get() * 1000);
-                OPERATION_STATS.debug( name + " : Average removeContextPartition = {} microseconds, nb removeContextPartitions = {}", average, nbRemoveContextPartitionCalls.get() );
-            }
-        }
-
-        if ( IS_DEBUG_TIME )
-        {
-            OPERATION_TIME.debug( "{} : Delta removeContextPartition = {}", name, delta );
-        }
     }
 }
