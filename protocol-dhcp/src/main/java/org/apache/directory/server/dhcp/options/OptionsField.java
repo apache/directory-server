@@ -47,7 +47,7 @@ public class OptionsField
 
     public void add( DhcpOption option )
     {
-        options.put( new Integer( option.getTag() ), option );
+        options.put( Integer.valueOf( option.getTag() ), option );
     }
 
 
@@ -71,7 +71,7 @@ public class OptionsField
      */
     public DhcpOption get( Class optionClass )
     {
-        Integer key = new Integer( DhcpOption.getTagByClass( optionClass ) );
+        Integer key = Integer.valueOf( DhcpOption.getTagByClass( optionClass ) );
         return ( DhcpOption ) options.get( key );
     }
 
@@ -84,7 +84,7 @@ public class OptionsField
      */
     public DhcpOption get( int tag )
     {
-        Integer key = new Integer( tag );
+        Integer key = Integer.valueOf( tag );
         return ( DhcpOption ) options.get( key );
     }
 
@@ -103,7 +103,7 @@ public class OptionsField
         for ( Iterator i = options.iterator(); i.hasNext(); )
         {
             DhcpOption option = ( DhcpOption ) i.next();
-            this.options.put( new Integer( option.getTag() ), option );
+            this.options.put( Integer.valueOf( option.getTag() ), option );
         }
     }
 
@@ -115,7 +115,7 @@ public class OptionsField
      */
     public void remove( Class c )
     {
-        Integer key = new Integer( DhcpOption.getTagByClass( c ) );
+        Integer key = Integer.valueOf( DhcpOption.getTagByClass( c ) );
         options.remove( key );
     }
 
@@ -127,7 +127,7 @@ public class OptionsField
      */
     public void remove( int tag )
     {
-        Integer key = new Integer( tag );
+        Integer key = Integer.valueOf( tag );
         options.remove( key );
     }
 

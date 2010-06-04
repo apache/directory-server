@@ -385,7 +385,7 @@ public class ChangePasswordService
         EncApRepPartModifier encApModifier = new EncApRepPartModifier();
         encApModifier.setClientTime( authenticator.getClientTime() );
         encApModifier.setClientMicroSecond( authenticator.getClientMicroSecond() );
-        encApModifier.setSequenceNumber( new Integer( authenticator.getSequenceNumber() ) );
+        encApModifier.setSequenceNumber( Integer.valueOf( authenticator.getSequenceNumber() ) );
         encApModifier.setSubSessionKey( authenticator.getSubSessionKey() );
 
         EncApRepPart repPart = encApModifier.getEncApRepPart();

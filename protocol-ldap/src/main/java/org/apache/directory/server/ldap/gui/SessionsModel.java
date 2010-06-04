@@ -89,11 +89,11 @@ public class SessionsModel implements TableModel
             case ( 0 ):
                 return ( ( InetSocketAddress ) session.getIoSession().getRemoteAddress() ).getHostName();
             case ( 1 ):
-                return new Integer( ( ( InetSocketAddress ) session.getIoSession().getRemoteAddress() ).getPort() );
+                return Integer.valueOf( ( ( InetSocketAddress ) session.getIoSession().getRemoteAddress() ).getPort() );
             case ( 2 ):
                 return ( ( InetSocketAddress ) session.getIoSession().getLocalAddress() ).getHostName();
             case ( 3 ):
-                return new Integer( ( ( InetSocketAddress ) session.getIoSession().getLocalAddress() ).getPort() );
+                return Integer.valueOf( ( ( InetSocketAddress ) session.getIoSession().getLocalAddress() ).getPort() );
             default:
                 throw new IndexOutOfBoundsException( I18n.err( I18n.ERR_658, ( columns.length - 1 ) ) );
         }

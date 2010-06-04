@@ -44,7 +44,7 @@ public class KeyTupleArrayCursorTest
     Comparator<Integer> comparator;
     KeyTupleArrayCursor<Integer, Integer> cursor;
     
-    private static final Integer KEY = new Integer( 1 );
+    private static final Integer KEY = Integer.valueOf( 1 );
     
     @Before
     public void createTree()

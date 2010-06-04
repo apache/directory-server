@@ -161,7 +161,7 @@ public abstract class DhcpOption
 
                 DhcpOption o = ( DhcpOption ) c.newInstance();
 
-                Integer tagInt = new Integer( o.getTag() );
+                Integer tagInt = Integer.valueOf( o.getTag() );
                 classByCode.put( tagInt, c );
                 codeByClass.put( c, tagInt );
             }
@@ -178,7 +178,7 @@ public abstract class DhcpOption
 
     public static Class getClassByTag( int tag )
     {
-        return ( Class ) OPTION_CLASS_BY_CODE.get( new Integer( tag ) );
+        return ( Class ) OPTION_CLASS_BY_CODE.get( Integer.valueOf( tag ) );
     }
 
 

@@ -101,7 +101,7 @@ public class EncKdcRepPartDecoder implements Decoder, DecoderFactory
                     break;
                 case 2:
                     DERInteger tag2 = ( DERInteger ) derObject;
-                    modifier.setNonce( new Integer( tag2.intValue() ) );
+                    modifier.setNonce( Integer.valueOf( tag2.intValue() ) );
                     break;
                 case 3:
                     DERGeneralizedTime tag3 = ( DERGeneralizedTime ) derObject;

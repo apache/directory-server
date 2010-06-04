@@ -95,7 +95,7 @@ public class IntegerSerializer
         throws IOException
      {
          int number = Conversion.convertToInt( serialized );
-         return new Integer( number );
+         return Integer.valueOf( number );
      }
 
 }

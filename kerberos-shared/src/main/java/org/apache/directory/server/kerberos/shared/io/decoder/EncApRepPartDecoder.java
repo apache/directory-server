@@ -90,7 +90,7 @@ public class EncApRepPartDecoder implements Decoder, DecoderFactory
                     break;
                 case 1:
                     DERInteger tag1 = ( DERInteger ) derObject;
-                    modifier.setClientMicroSecond( new Integer( tag1.intValue() ) );
+                    modifier.setClientMicroSecond( Integer.valueOf( tag1.intValue() ) );
                     break;
                 case 2:
                     DERSequence tag2 = ( DERSequence ) derObject;
@@ -98,7 +98,7 @@ public class EncApRepPartDecoder implements Decoder, DecoderFactory
                     break;
                 case 3:
                     DERInteger tag3 = ( DERInteger ) derObject;
-                    modifier.setSequenceNumber( new Integer( tag3.intValue() ) );
+                    modifier.setSequenceNumber( Integer.valueOf( tag3.intValue() ) );
                     break;
             }
         }

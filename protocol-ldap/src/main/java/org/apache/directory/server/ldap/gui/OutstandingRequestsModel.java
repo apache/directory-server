@@ -85,7 +85,7 @@ public class OutstandingRequestsModel implements TableModel
         switch ( columnIndex )
         {
             case ( 0 ):
-                return new Integer( req.getMessageId() );
+                return Integer.valueOf( req.getMessageId() );
             case ( 1 ):
                 return req.getType().toString();
             default:

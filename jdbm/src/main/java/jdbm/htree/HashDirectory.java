@@ -46,18 +46,16 @@
 
 package jdbm.htree;
 
-import jdbm.RecordManager;
-
-import jdbm.helper.FastIterator;
-import jdbm.helper.IterationException;
-
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import jdbm.RecordManager;
+import jdbm.helper.FastIterator;
+import jdbm.helper.IterationException;
 
 import org.apache.directory.server.i18n.I18n;
 
@@ -523,7 +521,7 @@ final class HashDirectory
             if ( node instanceof HashDirectory ) {
                 // save current position
                 _dirStack.add( _dir );
-                _childStack.add( new Integer( _child ) );
+                _childStack.add( Integer.valueOf( _child ) );
 
                 _dir = (HashDirectory)node;
                 _child = -1;

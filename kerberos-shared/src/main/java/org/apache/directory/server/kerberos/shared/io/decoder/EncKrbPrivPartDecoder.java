@@ -82,11 +82,11 @@ public class EncKrbPrivPartDecoder implements Decoder, DecoderFactory
                     break;
                 case 2:
                     DERInteger tag2 = ( DERInteger ) derObject;
-                    modifier.setMicroSecond( new Integer( tag2.intValue() ) );
+                    modifier.setMicroSecond( Integer.valueOf( tag2.intValue() ) );
                     break;
                 case 3:
                     DERInteger tag3 = ( DERInteger ) derObject;
-                    modifier.setSequenceNumber( new Integer( tag3.intValue() ) );
+                    modifier.setSequenceNumber( Integer.valueOf( tag3.intValue() ) );
                     break;
                 case 4:
                     DERSequence tag4 = ( DERSequence ) derObject;
