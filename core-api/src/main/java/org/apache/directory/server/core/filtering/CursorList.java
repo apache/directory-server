@@ -83,23 +83,6 @@ public class CursorList implements EntryFilteringCursor
      */
     public CursorList( int start, List<EntryFilteringCursor> list, int end, SearchingOperationContext opContext )
     {
-        if ( ( start < 0 ) || ( start > list.size() ) )
-        {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_02005, start ) );
-        }
-
-        if ( ( end < 0 ) || ( end > list.size() ) )
-        {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_02006, end ) );
-        }
-
-        // check list is not empty list since the empty list is the only situation
-        // where we allow for start to equal the end: in other cases it makes no sense
-        if ( ( list.size() > 0 ) && ( start >= end ) )
-        {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_02007, start, end ) );
-        }
-
         if ( list != null )
         {
             this.list = list;
@@ -107,6 +90,23 @@ public class CursorList implements EntryFilteringCursor
         else
         {
             this.list = Collections.emptyList();
+        }
+
+        if ( ( start < 0 ) || ( start > this.list.size() ) )
+        {
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_02005, start ) );
+        }
+
+        if ( ( end < 0 ) || ( end > this.list.size() ) )
+        {
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_02006, end ) );
+        }
+
+        // check list is not empty list since the empty list is the only situation
+        // where we allow for start to equal the end: in other cases it makes no sense
+        if ( ( this.list.size() > 0 ) && ( start >= end ) )
+        {
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_02007, start, end ) );
         }
 
         this.start = start;
