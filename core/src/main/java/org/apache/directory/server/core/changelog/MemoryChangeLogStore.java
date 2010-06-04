@@ -171,7 +171,10 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
         
         if ( revFile.exists() )
         {
-            revFile.delete();
+            if( !revFile.delete() )
+            {
+                throw new IOException( I18n.err( I18n.ERR_726_FILE_UNDELETABLE, revFile.getAbsolutePath() ) );
+            }
         }
 
         PrintWriter out = null;
@@ -204,7 +207,10 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
         
         if ( tagFile.exists() )
         {
-            tagFile.delete();
+            if( !tagFile.delete() )
+            {
+                throw new IOException( I18n.err( I18n.ERR_726_FILE_UNDELETABLE, tagFile.getAbsolutePath() ) );
+            }
         }
 
         FileOutputStream out = null;
@@ -379,7 +385,10 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
         
         if ( file.exists() )
         {
-            file.delete();
+            if( !file.delete() )
+            {
+                throw new IOException( I18n.err( I18n.ERR_726_FILE_UNDELETABLE, file.getAbsolutePath() ) );
+            }
         }
 
         try
