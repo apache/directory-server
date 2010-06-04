@@ -44,7 +44,6 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.filtering.CursorList;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
-import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
@@ -238,13 +237,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             for ( Partition partition : directoryService.getPartitions() )
             {
                 partition.setSchemaManager( schemaManager );
-                CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn,
-                    AuthenticationLevel.STRONG ), directoryService );
-
-                AddContextPartitionOperationContext opCtx = new AddContextPartitionOperationContext( adminSession,
-                    partition );
-                addContextPartition( opCtx );
-                initializedPartitions.add( opCtx.getPartition() );
+                addContextPartition( partition );
+                initializedPartitions.add( partition );
             }
 
             createContextCsnModList();
@@ -946,10 +940,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#addContextPartition(org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext)
      */
-    public synchronized void addContextPartition( AddContextPartitionOperationContext opContext ) throws LdapException
+    public synchronized void addContextPartition( Partition partition ) throws LdapException
     {
-        Partition partition = opContext.getPartition();
-
         // Turn on default indices
         String key = partition.getSuffixDn().getNormName();
 

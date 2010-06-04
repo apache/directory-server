@@ -23,7 +23,6 @@ package org.apache.directory.server.core.partition;
 import java.util.Set;
 
 import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
@@ -67,10 +66,10 @@ public interface PartitionNexus extends Partition
     /**
      * Add a partition to the server.
      * 
-     * @param opContext The Add Partition context
+     * @param Partition The Partition to add
      * @throws Exception If the addition can't be done
      */
-    public void addContextPartition( AddContextPartitionOperationContext opContext ) throws LdapException;
+    public void addContextPartition( Partition partition ) throws LdapException;
 
 
     /**

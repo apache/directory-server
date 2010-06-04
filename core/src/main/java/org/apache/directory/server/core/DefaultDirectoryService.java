@@ -51,7 +51,6 @@ import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
-import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
@@ -593,9 +592,7 @@ public class DefaultDirectoryService implements DirectoryService
             return;
         }
 
-        AddContextPartitionOperationContext addPartitionCtx = 
-            new AddContextPartitionOperationContext( adminSession, partition );
-        partitionNexus.addContextPartition( addPartitionCtx );
+        partitionNexus.addContextPartition( partition );
     }
 
 
