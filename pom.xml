@@ -107,7 +107,6 @@
     <module>core-api</module>
     <module>core-annotations</module>
     <module>server-annotations</module>
-    <module>core-mock</module>
     <module>core-jndi</module>
     <module>core-constants</module>
     <module>core-integ</module>
@@ -196,6 +195,13 @@
       
       <dependency>
         <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-core-api</artifactId>
+        <version>${project.version}</version>
+        <classifier>tests</classifier>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-core-avl</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -215,12 +221,6 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-core-jndi</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>apacheds-core-mock</artifactId>
         <version>${project.version}</version>
       </dependency>
       

@@ -49,6 +49,12 @@ public class MockDirectoryService implements DirectoryService
     int count;
     
     
+    public MockDirectoryService()
+    {
+        this( 0 );
+    }
+    
+    
     public MockDirectoryService( int count )
     {
         this.count = count;

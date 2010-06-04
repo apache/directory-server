@@ -47,6 +47,13 @@
       <artifactId>apacheds-core-api</artifactId>
       <groupId>${project.groupId}</groupId>
     </dependency>
+
+    <dependency>
+      <artifactId>apacheds-core-api</artifactId>
+      <groupId>${project.groupId}</groupId>
+      <classifier>tests</classifier>
+      <scope>test</scope>
+    </dependency>
     
     <dependency>
       <groupId>commons-collections</groupId>

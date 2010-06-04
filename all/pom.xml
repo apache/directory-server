@@ -59,11 +59,6 @@
       <artifactId>apacheds-core-jndi</artifactId>
     </dependency>
     
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-core-mock</artifactId>
-    </dependency>
-    
     <!-- 
     <dependency>
       <groupId>${project.groupId}</groupId>

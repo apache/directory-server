@@ -22,40 +22,22 @@ package org.apache.directory.server.core.interceptor;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.ldap.LdapContext;
-
-import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
-import org.apache.directory.server.core.OperationManager;
-import org.apache.directory.server.core.ReferralManager;
-import org.apache.directory.server.core.changelog.ChangeLog;
-import org.apache.directory.server.core.event.EventService;
+import org.apache.directory.server.core.MockDirectoryService;
+import org.apache.directory.server.core.MockInterceptor;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.journal.Journal;
 import org.apache.directory.server.core.partition.ByPassConstants;
-import org.apache.directory.server.core.partition.DefaultPartitionNexus;
-import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.replication.ReplicationConfiguration;
-import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.csn.Csn;
-import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,12 +56,12 @@ public class InterceptorChainTest
     private InterceptorChain chain;
     List<MockInterceptor> interceptors = new ArrayList<MockInterceptor>( INTERCEPTOR_COUNT );
 
-    
+
     public InterceptorChainTest()
     {
     }
-    
-    
+
+
     @Before
     public void setUp() throws Exception
     {
@@ -87,12 +69,10 @@ public class InterceptorChainTest
 
         for ( int ii = 0; ii < INTERCEPTOR_COUNT; ii++ )
         {
-            MockInterceptor interceptor = new MockInterceptor();
-            interceptor.setTest( this );
-            interceptor.setName( Integer.toString( ii ) );
-            chain.addLast(interceptor);
+            MockInterceptor interceptor = new MockInterceptor( Integer.toString( ii ), interceptors );
+            chain.addLast( interceptor );
         }
-        
+
     }
 
 
@@ -109,8 +89,8 @@ public class InterceptorChainTest
     {
         DN dn = new DN( "ou=system" );
         DirectoryService ds = new MockDirectoryService();
-        DefaultCoreSession session = new DefaultCoreSession( 
-            new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ), ds );
+        DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ),
+            ds );
         LookupOperationContext opContext = new LookupOperationContext( session, dn );
         InvocationStack.getInstance().push( opContext );
 
@@ -135,8 +115,8 @@ public class InterceptorChainTest
     {
         DN dn = new DN( "ou=system" );
         DirectoryService ds = new MockDirectoryService();
-        DefaultCoreSession session = new DefaultCoreSession( 
-            new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ), ds );
+        DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ),
+            ds );
         LookupOperationContext opContext = new LookupOperationContext( session, dn );
         opContext.setByPassed( Collections.singleton( "0" ) );
         InvocationStack.getInstance().push( opContext );
@@ -162,8 +142,8 @@ public class InterceptorChainTest
     {
         DN dn = new DN( "ou=system" );
         DirectoryService ds = new MockDirectoryService();
-        DefaultCoreSession session = new DefaultCoreSession( 
-            new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ), ds );
+        DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ),
+            ds );
         LookupOperationContext opContext = new LookupOperationContext( session, dn );
         Set<String> bypass = new HashSet<String>();
         bypass.add( "0" );
@@ -192,8 +172,8 @@ public class InterceptorChainTest
     {
         DN dn = new DN( "ou=system" );
         DirectoryService ds = new MockDirectoryService();
-        DefaultCoreSession session = new DefaultCoreSession( 
-            new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ), ds );
+        DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ),
+            ds );
         LookupOperationContext opContext = new LookupOperationContext( session, dn );
         Set<String> bypass = new HashSet<String>();
         bypass.add( "0" );
@@ -221,8 +201,8 @@ public class InterceptorChainTest
     {
         DN dn = new DN( "ou=system" );
         DirectoryService ds = new MockDirectoryService();
-        DefaultCoreSession session = new DefaultCoreSession( 
-            new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ), ds );
+        DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ),
+            ds );
         LookupOperationContext opContext = new LookupOperationContext( session, dn );
         Set<String> bypass = new HashSet<String>();
         bypass.add( "1" );
@@ -249,9 +229,9 @@ public class InterceptorChainTest
     public void testCompleteBypass() throws Exception
     {
         DN dn = new DN( "ou=system" );
-        DirectoryService ds = new MockDirectoryService();
-        DefaultCoreSession session = new DefaultCoreSession( 
-            new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ), ds );
+        DirectoryService ds = new MockDirectoryService( 0 );
+        DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ),
+            ds );
         LookupOperationContext opContext = new LookupOperationContext( session, dn );
         opContext.setByPassed( ByPassConstants.BYPASS_ALL_COLLECTION );
         InvocationStack.getInstance().push( opContext );
@@ -265,477 +245,5 @@ public class InterceptorChainTest
         }
 
         assertEquals( 0, interceptors.size() );
-    }
-
-    
-    class MockDirectoryService implements DirectoryService
-    {
-        public Hashtable<String, Object> getEnvironment()
-        {
-            return null;
-        }
-
-
-        public void setEnvironment( Hashtable<String, Object> environment )
-        {
-        }
-
-
-        public long revert( long revision ) throws LdapException
-        {
-            return 0;
-        }
-
-
-        public long revert() throws LdapException
-        {
-            return 0;
-        }
-
-
-        public DefaultPartitionNexus getPartitionNexus()
-        {
-            return null;
-        }
-
-
-        public InterceptorChain getInterceptorChain()
-        {
-            return null;
-        }
-
-
-        public void addPartition( Partition partition ) throws LdapException
-        {
-        }
-
-
-        public void removePartition( Partition partition ) throws LdapException
-        {
-        }
-
-
-        public ReferralManager getReferralManager()
-        {
-            return null;
-        }
-
-
-        public void setReferralManager( ReferralManager referralManager )
-        {
-        }
-
-
-        public SchemaManager getSchemaManager()
-        {
-            return null;
-        }
-
-
-        public void setRegistries( Registries registries )
-        {
-        }
-
-
-        public SchemaService getSchemaService()
-        {
-            return null;
-        }
-
-
-        public void setSchemaService( SchemaService schemaService )
-        {
-
-        }
-
-
-        public void startup() throws LdapException
-        {
-        }
-
-
-        public void shutdown() throws LdapException
-        {
-        }
-
-
-        public void sync() throws LdapException
-        {
-        }
-
-
-        public boolean isStarted()
-        {
-            return false;
-        }
-
-
-        public LdapContext getJndiContext() throws LdapException
-        {
-            return null;
-        }
-
-
-        public DirectoryService getDirectoryService()
-        {
-            return null;
-        }
-
-
-        public LdapContext getJndiContext( String baseName ) throws LdapException
-        {
-            return null;
-        }
-
-
-        public LdapContext getJndiContext( LdapPrincipal principal ) throws LdapException
-        {
-            return null;
-        }
-
-
-        public LdapContext getJndiContext( LdapPrincipal principal, String dn ) throws LdapException
-        {
-            return null;
-        }
-
-
-        public LdapContext getJndiContext( DN principalDn, String principal, byte[] credential,
-            String authentication, String baseName ) throws LdapException
-        {
-            return null;
-        }
-
-
-        public void setInstanceId( String instanceId )
-        {
-        }
-
-
-        public String getInstanceId()
-        {
-            return null;
-        }
-
-
-        public Set<? extends Partition> getPartitions()
-        {
-            return null;
-        }
-
-
-        public void setPartitions( Set<? extends Partition> partitions )
-        {
-        }
-
-
-        public boolean isAccessControlEnabled()
-        {
-            return false;
-        }
-
-
-        public void setAccessControlEnabled( boolean accessControlEnabled )
-        {
-        }
-
-
-        public boolean isAllowAnonymousAccess()
-        {
-            return false;
-        }
-
-
-        public void setAllowAnonymousAccess( boolean enableAnonymousAccess )
-        {
-        }
-
-
-        public List<Interceptor> getInterceptors()
-        {
-            return null;
-        }
-
-
-        public void setInterceptors( List<Interceptor> interceptors )
-        {
-        }
-
-
-        public List<LdifEntry> getTestEntries()
-        {
-            return null;
-        }
-
-
-        public void setTestEntries( List<? extends LdifEntry> testEntries )
-        {
-        }
-
-
-        public File getWorkingDirectory()
-        {
-            return null;
-        }
-
-
-        public void setWorkingDirectory( File workingDirectory )
-        {
-        }
-
-
-        public void validate()
-        {
-        }
-
-
-        public void setShutdownHookEnabled( boolean shutdownHookEnabled )
-        {
-        }
-
-
-        public boolean isShutdownHookEnabled()
-        {
-            return false;
-        }
-
-
-        public void setExitVmOnShutdown( boolean exitVmOnShutdown )
-        {
-        }
-
-
-        public boolean isExitVmOnShutdown()
-        {
-            return false;
-        }
-
-
-        public void setMaxSizeLimit( long maxSizeLimit )
-        {
-        }
-
-
-        public long getMaxSizeLimit()
-        {
-            return 0;
-        }
-
-
-        public void setMaxTimeLimit( int maxTimeLimit )
-        {
-        }
-
-
-        public int getMaxTimeLimit()
-        {
-            return 0;
-        }
-
-
-        public void setSystemPartition( Partition systemPartition )
-        {
-        }
-
-
-        public Partition getSystemPartition()
-        {
-            return null;
-        }
-
-
-        public boolean isDenormalizeOpAttrsEnabled()
-        {
-            return false;
-        }
-
-
-        public void setDenormalizeOpAttrsEnabled( boolean denormalizeOpAttrsEnabled )
-        {
-        }
-        
-        public void setChangeLog( ChangeLog changeLog )
-        {
-            
-        }
-
-        
-        public ChangeLog getChangeLog()
-        {
-            return null;
-        }
-
-
-        public Journal getJournal()
-        {
-            return null;
-        }
-
-
-        public Entry newEntry( DN dn ) throws LdapException
-        {
-            return null;
-        }
-
-        
-        public Entry newEntry( String ldif, String dn )
-        {
-            return null;
-        }
-
-
-        public OperationManager getOperationManager()
-        {
-            return null;
-        }
-
-
-        public CoreSession getSession() throws LdapException
-        {
-            return null;
-        }
-
-
-        public CoreSession getSession( LdapPrincipal principal ) throws LdapException
-        {
-            return null;
-        }
-
-
-        public CoreSession getSession( DN principalDn, byte[] credentials ) throws LdapException
-        {
-            return null;
-        }
-
-
-        public CoreSession getSession( DN principalDn, byte[] credentials, String saslMechanism, String saslAuthId )
-            throws LdapException
-        {
-            return null;
-        }
-
-
-        public CoreSession getAdminSession()
-        {
-            return null;
-        }
-
-
-        public EventService getEventService()
-        {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-
-        public void setEventService( EventService eventService )
-        {
-            // TODO Auto-generated method stub
-            
-        }
-
-        
-        public boolean isPasswordHidden()
-        {
-            return false;
-        }
-        
-        
-        public void setPasswordHidden( boolean passwordHidden )
-        {
-        }
-
-
-        public int getMaxPDUSize()
-        {
-            return Integer.MAX_VALUE;
-        }
-
-
-        public void setMaxPDUSize( int maxPDUSize )
-        {
-            // Do nothing
-        }
-
-        
-        public Interceptor getInterceptor( String interceptorName )
-        {
-            return null;
-        }
-        
-        
-        public Csn getCSN()
-        {
-            return null;
-        }
-        
-        
-        public int getReplicaId()
-        {
-            return 0;
-        }
-        
-        
-        public void setReplicaId( int replicaId )
-        {
-            
-        }
-
-
-        public void setJournal( Journal journal )
-        {
-            // TODO Auto-generated method stub
-            
-        }
-
-
-        public void setReplicationConfiguration( ReplicationConfiguration replicationConfig )
-        {
-            // TODO Auto-generated method stub
-            
-        }
-
-
-        public ReplicationConfiguration getReplicationConfiguration()
-        {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-
-        public void setSchemaManager( SchemaManager schemaManager )
-        {
-            // TODO Auto-generated method stub
-            
-        }
-
-
-        public String getContextCsn()
-        {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-
-        public void setContextCsn( String lastKnownCsn )
-        {
-            // TODO Auto-generated method stub
-            
-        }
-
-
-        public long getSyncPeriodMillis()
-        {
-            // TODO Auto-generated method stub
-            return 0;
-        }
-
-
-        public void setSyncPeriodMillis( long syncPeriodMillis )
-        {
-            // TODO Auto-generated method stub
-            
-        }
-        
     }
 }

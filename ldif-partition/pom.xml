@@ -43,7 +43,9 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-core-mock</artifactId>
+      <artifactId>apacheds-core-api</artifactId>
+      <classifier>tests</classifier>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
