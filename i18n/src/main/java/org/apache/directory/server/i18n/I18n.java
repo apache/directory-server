@@ -759,7 +759,7 @@ public enum I18n
     ERR_723("ERR_723"),
     ERR_724("ERR_724"),
     ERR_725("ERR_725"),
-    // ERR_726( "ERR_726" ),
+    ERR_726_FILE_UNDELETABLE( "ERR_726_FILE_UNDELETABLE" ),
     ERR_727("ERR_727"),
     ERR_728("ERR_728"),
     ERR_729("ERR_729"),
