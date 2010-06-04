@@ -79,6 +79,7 @@
     <wrapper.version>3.2.3</wrapper.version>
     <xbean.spring.version>3.6</xbean.spring.version>
     <xercesImpl.version>2.9.1</xercesImpl.version>
+    <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
   </properties>
 
   <url>http://directory.apache.org/apacheds/1.5</url>
@@ -723,10 +724,23 @@
         <artifactId>jetty-util</artifactId>
         <version>${jetty.version}</version>
       </dependency>
+
+      <dependency>
+        <groupId>findbugs</groupId>
+        <artifactId>annotations</artifactId>
+        <version>${findbugs.annotations.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
   <dependencies>
+    <!-- for Java5 findbugs annotations are required in each module at compile time -->
+    <dependency>
+      <groupId>findbugs</groupId>
+      <artifactId>annotations</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
     <!-- common logging interface -->
     <dependency>
       <groupId>org.slf4j</groupId>
