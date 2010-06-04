@@ -24,10 +24,10 @@
     <version>1.5.8-SNAPSHOT</version>
   </parent>
   
-  <artifactId>apacheds-xdbm-search</artifactId>
-  <name>ApacheDS Generalized (X) DBM Search Engine</name>
+  <artifactId>apacheds-xdbm-partition</artifactId>
+  <name>ApacheDS Generalized (X) DBM Partition</name>
   
-  <description>Search engine implementation generalized for XDBM entry store scheme</description>
+  <description>Partition with search engine implementation generalized for XDBM entry store scheme</description>
   
   <dependencies>
     <dependency>

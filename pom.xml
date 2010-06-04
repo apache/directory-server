@@ -101,7 +101,7 @@
     <module>jdbm</module>
     <module>jdbm-store</module>
     <module>jdbm-partition</module>
-    <module>xdbm-search</module>
+    <module>xdbm-partition</module>
     <module>xdbm-tools</module>
     <module>core</module>
     <module>core-api</module>
@@ -394,7 +394,7 @@
       
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>apacheds-xdbm-search</artifactId>
+        <artifactId>apacheds-xdbm-partition</artifactId>
         <version>${project.version}</version>
       </dependency>
       
