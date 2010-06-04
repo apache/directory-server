@@ -418,8 +418,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
         if ( operation.getSession().isAnonymous() && !directoryService.isAllowAnonymousAccess() 
             && !operation.getDn().isEmpty() )
         {
-            LOG.error( I18n.err( I18n.ERR_5, operation.getName() ) );
-            throw new LdapNoPermissionException( I18n.err( I18n.ERR_5, operation.getName() ) );
+            String msg = I18n.err( I18n.ERR_5, operation.getName() );
+            LOG.error( msg );
+            throw new LdapNoPermissionException( msg );
         }
     }
 
