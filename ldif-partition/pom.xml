@@ -33,11 +33,6 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-avl-partition</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-core</artifactId>
     </dependency>
 

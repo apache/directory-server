@@ -21,7 +21,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.xdbm.AbstractXdbmPartition;
+import org.apache.directory.server.core.partition.impl.xdbm.AbstractXdbmPartition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.search.impl.CursorBuilder;
 import org.apache.directory.server.xdbm.search.impl.DefaultOptimizer;

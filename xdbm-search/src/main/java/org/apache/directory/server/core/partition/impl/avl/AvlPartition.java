@@ -17,14 +17,14 @@
  *   under the License.
  *
  */
-package org.apache.directory.server.core.partition.avl;
+package org.apache.directory.server.core.partition.impl.avl;
 
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.directory.server.xdbm.AbstractXdbmPartition;
+import org.apache.directory.server.core.partition.impl.xdbm.AbstractXdbmPartition;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.impl.avl.AvlStore;
 import org.apache.directory.server.xdbm.search.impl.CursorBuilder;

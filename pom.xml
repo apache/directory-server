@@ -112,7 +112,6 @@
     <module>core-constants</module>
     <module>core-integ</module>
     <module>core-avl</module>
-    <module>avl-partition</module>
     <module>ldif-partition</module>
     <module>protocol-shared</module>
     <module>protocol-ntp</module>
@@ -168,12 +167,6 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-all</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>apacheds-avl-partition</artifactId>
         <version>${project.version}</version>
       </dependency>
       
