@@ -82,6 +82,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.exception.LdapOperationException;
@@ -1343,17 +1344,9 @@ public class DefaultDirectoryService implements DirectoryService
         adminDn.normalize( schemaManager.getNormalizerMapping() );
         
         Entry adminEntry = partitionNexus.lookup( new LookupOperationContext( adminSession, adminDn ) );
-        Object userPassword = adminEntry.get( SchemaConstants.USER_PASSWORD_AT ).get();
+        Value<?> userPassword = adminEntry.get( SchemaConstants.USER_PASSWORD_AT ).get();
+        needToChangeAdminPassword = Arrays.equals( PartitionNexus.ADMIN_PASSWORD_BYTES, userPassword.getBytes() );
         
-        if ( userPassword instanceof byte[] )
-        {
-            needToChangeAdminPassword = Arrays.equals( PartitionNexus.ADMIN_PASSWORD_BYTES, ( byte[] ) userPassword );
-        }
-        else if ( userPassword.toString().equals( PartitionNexus.ADMIN_PASSWORD_STRING ) )
-        {
-            needToChangeAdminPassword = PartitionNexus.ADMIN_PASSWORD_STRING.equals( userPassword.toString() );
-        }
-
         if ( needToChangeAdminPassword )
         {
             LOG.warn( "You didn't change the admin password of directory service " + "instance '" + instanceId + "'.  "
