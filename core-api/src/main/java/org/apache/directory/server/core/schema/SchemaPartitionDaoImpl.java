@@ -883,7 +883,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
                 {
                     set.add( sr );
                 }
-                else if ( disabled.get().equals( "FALSE" ) )
+                else if ( disabled.get().toString().equals( "FALSE" ) )
                 {
                     set.add( sr );
                 }
