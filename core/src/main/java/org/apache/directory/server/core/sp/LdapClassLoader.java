@@ -62,8 +62,8 @@ import org.slf4j.LoggerFactory;
  */
 public class LdapClassLoader extends ClassLoader
 {
-    private static final Logger log = LoggerFactory.getLogger( LdapClassLoader.class );
-    public static String defaultSearchContextsConfig = "cn=classLoaderDefaultSearchContext,ou=configuration,ou=system";
+    private static final Logger LOG = LoggerFactory.getLogger( LdapClassLoader.class );
+    public static final String DEFAULT_SEARCH_CONTEXTS_CONFIG = "cn=classLoaderDefaultSearchContext,ou=configuration,ou=system";
     
     private DN defaultSearchDn;
     private DirectoryService directoryService;
@@ -73,7 +73,7 @@ public class LdapClassLoader extends ClassLoader
     {
         super( LdapClassLoader.class.getClassLoader() );
         this.directoryService = directoryService;
-        defaultSearchDn = new DN( defaultSearchContextsConfig );
+        defaultSearchDn = new DN( DEFAULT_SEARCH_CONTEXTS_CONFIG );
         defaultSearchDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
     }
 
@@ -100,13 +100,13 @@ public class LdapClassLoader extends ClassLoader
                     cursor.beforeFirst();
                     if ( cursor.next() ) // there should be only one!
                     {
-                        log.debug( "Class {} found under {} search context.", name, base );
+                        LOG.debug( "Class {} found under {} search context.", name, base );
                         Entry classEntry = cursor.get();
 
                         if ( cursor.next() )
                         {
                             Entry other = cursor.get();
-                            log.warn( "More than one class found on classpath at locations: {} \n\tand {}", 
+                            LOG.warn( "More than one class found on classpath at locations: {} \n\tand {}", 
                                 classEntry, other );
                         }
 
@@ -124,7 +124,7 @@ public class LdapClassLoader extends ClassLoader
         }
         catch ( Exception e )
         {
-            log.error( I18n.err( I18n.ERR_69, name ), e );
+            LOG.error( I18n.err( I18n.ERR_69, name ), e );
         }
 
         throw new ClassNotFoundException();
@@ -150,7 +150,7 @@ public class LdapClassLoader extends ClassLoader
             }
             catch ( LdapException e )
             {
-                log.debug( "No configuration data found for class loader default search contexts." );
+                LOG.debug( "No configuration data found for class loader default search contexts." );
             }
             
             if ( configEntry != null )
@@ -169,11 +169,11 @@ public class LdapClassLoader extends ClassLoader
                 {
                     classBytes = findClassInDIT( searchContexts, name );
                     
-                    log.debug( "Class " + name + " found under default search contexts." );
+                    LOG.debug( "Class " + name + " found under default search contexts." );
                 }
                 catch ( ClassNotFoundException e )
                 {
-                    log.debug( "Class " + name + " could not be found under default search contexts." );
+                    LOG.debug( "Class " + name + " could not be found under default search contexts." );
                 }
             }
             
@@ -200,13 +200,13 @@ public class LdapClassLoader extends ClassLoader
         catch ( ClassNotFoundException e )
         {
             String msg = I18n.err( I18n.ERR_293, name );
-            log.debug( msg );
+            LOG.debug( msg );
             throw new ClassNotFoundException( msg );
         }
         catch ( Exception e ) 
         {
             String msg = I18n.err( I18n.ERR_70, name );
-            log.error( msg, e );
+            LOG.error( msg, e );
             throw new ClassNotFoundException( msg );
         }
         
