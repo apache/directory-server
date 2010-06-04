@@ -83,11 +83,6 @@
     
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-jdbm-store</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-kerberos-shared</artifactId>
     </dependency>
     

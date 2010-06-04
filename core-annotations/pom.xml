@@ -54,11 +54,6 @@
     
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-jdbm-store</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-ldif-partition</artifactId>
     </dependency>
 

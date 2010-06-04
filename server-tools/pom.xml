@@ -53,7 +53,7 @@
     
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-jdbm-store</artifactId>
+      <artifactId>apacheds-jdbm-partition</artifactId>
     </dependency>
     
     <dependency>
