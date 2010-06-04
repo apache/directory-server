@@ -28,7 +28,6 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
@@ -84,10 +83,6 @@ public class TimerInterceptor implements Interceptor
     /** Stats for the add operation */
     private static AtomicLong totalAdd = new AtomicLong( 0 );
     private static AtomicInteger nbAddCalls = new AtomicInteger( 0 );
-
-    /** Stats for the AddContextPartition operation */
-    private static AtomicLong totalAddContextPartition = new AtomicLong( 0 );
-    private static AtomicInteger nbAddContextPartitionCalls = new AtomicInteger( 0 );
 
     /** Stats for the bind operation */
     private static AtomicLong totalBind = new AtomicLong( 0 );
@@ -194,37 +189,6 @@ public class TimerInterceptor implements Interceptor
         {
             OPERATION_TIME.debug( "{} : Delta add = {}", name, delta );
         }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void addContextPartition( NextInterceptor next, AddContextPartitionOperationContext opContext )
-        throws LdapException
-    {
-        long t0 = System.nanoTime();
-        next.addContextPartition( opContext );
-        long delta = System.nanoTime() - t0;
-
-        if ( IS_DEBUG_STATS )
-        {
-            nbAddContextPartitionCalls.incrementAndGet();
-            totalAddContextPartition.getAndAdd( delta );
-    
-            if ( nbAddContextPartitionCalls.get() % 1000 == 0 )
-            {
-                long average = totalAddContextPartition.get()/(nbAddContextPartitionCalls.get() * 1000);
-                OPERATION_STATS.debug( name + " : Average addContextPartition = {} microseconds, nb addContextPartitions = {}", average, nbAddContextPartitionCalls.get() );
-            }
-        }
-
-        if ( IS_DEBUG_TIME )
-        {
-            OPERATION_TIME.debug( "{} : Delta add = {}", name, delta );
-        }
-        
-        System.out.println( "{} : Delta addContextPartition = " + delta );
     }
 
 

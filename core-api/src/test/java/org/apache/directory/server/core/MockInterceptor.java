@@ -27,7 +27,6 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
@@ -112,14 +111,6 @@ public class MockInterceptor implements Interceptor
     {
         interceptors.add( this );
         return next.listSuffixes( opContext );
-    }
-
-
-    public void addContextPartition( NextInterceptor next, AddContextPartitionOperationContext opContext )
-        throws LdapException
-    {
-        interceptors.add( this );
-        next.addContextPartition( opContext );
     }
 
 

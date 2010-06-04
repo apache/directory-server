@@ -1428,7 +1428,6 @@ public class DefaultDirectoryService implements DirectoryService
         partitionNexus = new DefaultPartitionNexus( new DefaultEntry( schemaManager, DN.EMPTY_DN ) );
         partitionNexus.setDirectoryService( this );
         partitionNexus.initialize( );
-        //partitionNexus.addContextPartition( new AddContextPartitionOperationContext( adminSession, schemaService.getSchemaPartition() ) );
 
         // --------------------------------------------------------------------
         // Create all the bootstrap entries before initializing chain

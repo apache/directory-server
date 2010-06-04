@@ -28,7 +28,6 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
-import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
@@ -211,12 +210,6 @@ public abstract class BaseInterceptor implements Interceptor
     public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws LdapException
     {
         return next.search( opContext );
-    }
-
-
-    public void addContextPartition( NextInterceptor next, AddContextPartitionOperationContext opContext ) throws LdapException
-    {
-        next.addContextPartition( opContext );
     }
 
 

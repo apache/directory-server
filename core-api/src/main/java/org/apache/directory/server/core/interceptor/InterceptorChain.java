@@ -32,7 +32,6 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
-import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
@@ -188,13 +187,6 @@ public class InterceptorChain
         public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws LdapException
         {
             nexus.moveAndRename( opContext );
-        }
-
-
-        public void addContextPartition( NextInterceptor next, AddContextPartitionOperationContext opContext )
-            throws LdapException
-        {
-            nexus.addContextPartition( opContext );
         }
 
 
@@ -642,28 +634,6 @@ public class InterceptorChain
         catch ( LdapException le )
         {
             throw le;
-        }
-        catch ( Throwable e )
-        {
-            throwInterceptorException( head, e );
-            throw new InternalError(); // Should be unreachable
-        }
-    }
-
-
-    public void addContextPartition( AddContextPartitionOperationContext opContext ) throws Exception
-    {
-        Element entry = getStartingEntry();
-        Interceptor head = entry.interceptor;
-        NextInterceptor next = entry.nextInterceptor;
-
-        try
-        {
-            head.addContextPartition( next, opContext );
-        }
-        catch ( Exception ne )
-        {
-            throw ne;
         }
         catch ( Throwable e )
         {
@@ -1408,27 +1378,6 @@ public class InterceptorChain
                     catch ( Throwable e )
                     {
                         throwInterceptorException( interceptor, e );
-                    }
-                }
-
-
-                public void addContextPartition( AddContextPartitionOperationContext opContext ) throws LdapException
-                {
-                    Element next = getNextEntry();
-                    Interceptor interceptor = next.interceptor;
-
-                    try
-                    {
-                        interceptor.addContextPartition( next.nextInterceptor, opContext );
-                    }
-                    catch ( LdapException le )
-                    {
-                        throw le;
-                    }
-                    catch ( Throwable e )
-                    {
-                        throwInterceptorException( interceptor, e );
-                        throw new InternalError(); // Should be unreachable
                     }
                 }
 

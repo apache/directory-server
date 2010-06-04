@@ -27,7 +27,6 @@ import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
@@ -345,17 +344,6 @@ public class NormalizationInterceptor extends BaseInterceptor
     {
         opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
         next.bind( opContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void addContextPartition( NextInterceptor next, AddContextPartitionOperationContext opContext )
-        throws LdapException
-    {
-        opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
-        next.addContextPartition( opContext );
     }
 
 

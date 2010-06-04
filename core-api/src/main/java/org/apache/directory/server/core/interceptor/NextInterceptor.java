@@ -24,7 +24,6 @@ import java.util.Set;
 
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
-import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
@@ -86,12 +85,6 @@ public interface NextInterceptor
      * Calls the next interceptor's {@link Interceptor#listSuffixes( NextInterceptor, ListSuffixOperationContext )}.
      */
     Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws LdapException;
-
-
-    /**
-     * Calls the next interceptor's {@link DefaultPartitionNexus#addContextPartition( AddContextPartitionOperationContext )}.
-     */
-    void addContextPartition( AddContextPartitionOperationContext opContext ) throws LdapException;
 
 
     /**
