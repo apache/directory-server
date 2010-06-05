@@ -20,6 +20,8 @@
 package org.apache.directory.server.ntp;
 
 
+import static org.junit.Assert.assertTrue;
+
 import java.net.InetAddress;
 import java.util.concurrent.Executors;
 
@@ -32,7 +34,7 @@ import org.apache.mina.util.AvailablePortFinder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.assertTrue;
+
 
 /**
  * An test testing the Network Time Protocol (NTP).
@@ -52,17 +54,19 @@ public class NtpITest
     @Before
     public void setUp() throws Exception
     {
-        ntpConfig = new NtpServer( );
+        ntpConfig = new NtpServer();
         port = AvailablePortFinder.getNextAvailable( 10123 );
         TcpTransport tcpTransport = new TcpTransport( port );
         UdpTransport udpTransport = new UdpTransport( port );
         ntpConfig.setTransports( tcpTransport, udpTransport );
-        ntpConfig.getDatagramAcceptor( udpTransport ).getFilterChain().addLast( "executor", new ExecutorFilter( Executors.newCachedThreadPool() ) );
-        ntpConfig.getSocketAcceptor( tcpTransport ).getFilterChain().addLast( "executor", new ExecutorFilter( Executors.newCachedThreadPool() ) );
+        ntpConfig.getDatagramAcceptor( udpTransport ).getFilterChain().addLast( "executor",
+            new ExecutorFilter( Executors.newCachedThreadPool() ) );
+        ntpConfig.getSocketAcceptor( tcpTransport ).getFilterChain().addLast( "executor",
+            new ExecutorFilter( Executors.newCachedThreadPool() ) );
         ntpConfig.setEnabled( true );
         ntpConfig.start();
-
     }
+
 
     /**
      * Tests to make sure NTP works when enabled in the server.
@@ -72,21 +76,22 @@ public class NtpITest
     @Test
     public void testNtp() throws Exception
     {
-        long currentTime = System.currentTimeMillis();
-
         InetAddress host = InetAddress.getByName( null );
 
         NTPUDPClient ntp = new NTPUDPClient();
         ntp.setDefaultTimeout( 500000 );
 
+        long currentTime = System.currentTimeMillis();
         TimeInfo timeInfo = ntp.getTime( host, port );
         long returnTime = timeInfo.getReturnTime();
         assertTrue( currentTime - returnTime < 1000 );
 
         timeInfo.computeDetails();
 
-        assertTrue( 0 < timeInfo.getOffset() && timeInfo.getOffset() < 1000 );
-        assertTrue( 0 < timeInfo.getDelay() && timeInfo.getDelay() < 1000 );
+        String offsetMsg = "Expected offset in range (-1000, 1000), but was " + timeInfo.getOffset();
+        assertTrue( offsetMsg, -1000 < timeInfo.getOffset() && timeInfo.getOffset() < 1000 );
+        String delayMsg = "Expected delay in range [0, 1000), but was " + timeInfo.getOffset();
+        assertTrue( delayMsg, 0 <= timeInfo.getDelay() && timeInfo.getDelay() < 1000 );
     }
 
 
