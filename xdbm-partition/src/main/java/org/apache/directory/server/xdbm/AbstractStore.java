@@ -71,11 +71,11 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /** The default cache size is set to 10 000 objects */
     public static final int DEFAULT_CACHE_SIZE = 10000;
 
-    /** Static declarations to avoid lookup all over the code */
-    protected static AttributeType OBJECT_CLASS_AT;
-    protected static AttributeType ENTRY_CSN_AT;
-    protected static AttributeType ENTRY_UUID_AT;
-    protected static AttributeType ALIASED_OBJECT_NAME_AT;
+    /** Cached attributes types to avoid lookup all over the code */
+    protected AttributeType objectClassAT;
+    protected AttributeType entryCsnAT;
+    protected AttributeType entryUuidAT;
+    protected AttributeType aliasedObjectNameAT;
 
     /** true if initialized */
     protected boolean initialized;
@@ -813,7 +813,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         rdnIdx.add( key, id );
 
-        EntryAttribute objectClass = entry.get( OBJECT_CLASS_AT );
+        EntryAttribute objectClass = entry.get( objectClassAT );
 
         if ( objectClass == null )
         {
@@ -834,7 +834,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
         {
-            EntryAttribute aliasAttr = entry.get( ALIASED_OBJECT_NAME_AT );
+            EntryAttribute aliasAttr = entry.get( aliasedObjectNameAT );
             addAliasIndices( id, entryDn, aliasAttr.getString() );
         }
 
@@ -846,7 +846,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         oneLevelIdx.add( parentId, id );
 
         // Update the EntryCsn index
-        EntryAttribute entryCsn = entry.get( ENTRY_CSN_AT );
+        EntryAttribute entryCsn = entry.get( entryCsnAT );
 
         if ( entryCsn == null )
         {
@@ -857,7 +857,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         entryCsnIdx.add( entryCsn.getString(), id );
 
         // Update the EntryUuid index
-        EntryAttribute entryUuid = entry.get( ENTRY_UUID_AT );
+        EntryAttribute entryUuid = entry.get( entryUuidAT );
 
         if ( entryUuid == null )
         {
@@ -1007,7 +1007,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     {
         Entry entry = master.get( id );
 
-        EntryAttribute objectClass = entry.get( OBJECT_CLASS_AT );
+        EntryAttribute objectClass = entry.get( objectClassAT );
 
         if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
         {
