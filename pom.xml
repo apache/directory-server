@@ -124,16 +124,9 @@
     <module>default-config</module>
     <!--Uncomment to build all in one OSGi bundle-->
     <!--<module>osgi</module>-->
-
-    <!-- breaks the build on first try
-      <module>sar-plugin</module>
-      <module>server-sar</module>
-    -->
-
     <module>server-xml</module>
     <module>server-jndi</module>
     <module>kerberos-shared</module>
-    <!--module>kerberos-unit</module-->
     <module>interceptor-kerberos</module>
     <module>kerberos-test</module>
     <!--module>syncrepl</module-->
