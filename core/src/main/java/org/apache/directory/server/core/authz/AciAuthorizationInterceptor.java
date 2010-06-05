@@ -663,17 +663,17 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
     public boolean hasEntry( NextInterceptor next, EntryOperationContext entryContext ) throws LdapException
     {
-        DN name = entryContext.getDn();
+        DN dn = entryContext.getDn();
 
         if ( !entryContext.getSession().getDirectoryService().isAccessControlEnabled() )
         {
-            return name.size() == 0 || next.hasEntry( entryContext );
+            return ( dn.isRootDSE() || next.hasEntry( entryContext ) );
         }
 
         boolean answer = next.hasEntry( entryContext );
 
         // no checks on the RootDSE
-        if ( name.size() == 0 )
+        if ( dn.isRootDSE() )
         {
             // No need to go down to the stack, if the dn is empty 
             // It's the rootDSE, and it exists ! 
@@ -683,21 +683,22 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // TODO - eventually replace this with a check on session.isAnAdministrator()
         LdapPrincipal principal = entryContext.getSession().getEffectivePrincipal();
         DN principalDn = principal.getDN();
+        
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
             return answer;
         }
 
-        Entry entry = entryContext.lookup( name, ByPassConstants.HAS_ENTRY_BYPASS );
+        Entry entry = entryContext.lookup( dn, ByPassConstants.HAS_ENTRY_BYPASS );
         Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( entryContext, tuples, name, ( ( ClonedServerEntry ) entry ).getOriginalEntry() );
+        addPerscriptiveAciTuples( entryContext, tuples, dn, ( ( ClonedServerEntry ) entry ).getOriginalEntry() );
         addEntryAciTuples( tuples, ( ( ClonedServerEntry ) entry ).getOriginalEntry() );
-        addSubentryAciTuples( entryContext, tuples, name, ( ( ClonedServerEntry ) entry ).getOriginalEntry() );
+        addSubentryAciTuples( entryContext, tuples, dn, ( ( ClonedServerEntry ) entry ).getOriginalEntry() );
 
         // check that we have browse access to the entry
         engine.checkPermission( schemaManager, entryContext, userGroups, principalDn, principal
-            .getAuthenticationLevel(), name, null, null, BROWSE_PERMS, tuples, ( ( ClonedServerEntry ) entry )
+            .getAuthenticationLevel(), dn, null, null, BROWSE_PERMS, tuples, ( ( ClonedServerEntry ) entry )
             .getOriginalEntry(), null );
 
         return next.hasEntry( entryContext );

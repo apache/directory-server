@@ -17,37 +17,38 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.operations.getRootDse;
+package org.apache.directory.server.core.operations.hasEntry;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
-import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
 /**
- * Test the GetRootDSE operation
+ * Test the hasEntry operation
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
-public class GetRootDsePerfIT extends AbstractLdapTestUnit
+public class hasEntryPerfIT extends AbstractLdapTestUnit
 {
     /**
-     * A GetRootDSE performance test
+     * A hasEntry performance test
      */
     @Test
-    public void testPerfGetRootDSE() throws Exception
+    public void testPerfHasEntry() throws Exception
     {
-        GetRootDSEOperationContext opContext = new GetRootDSEOperationContext( service.getAdminSession() );
-        Entry rootDSE = service.getOperationManager().getRootDSE( opContext );
+        DN adminDn = new DN( "uid=admin, ou=system" );
+        EntryOperationContext opContext = new EntryOperationContext( service.getAdminSession(), adminDn );
+        boolean hasEntry = service.getOperationManager().hasEntry( opContext );
 
-        assertNotNull( rootDSE );
+        assertTrue( hasEntry );
         
         long t0 = System.currentTimeMillis();
         
@@ -55,7 +56,7 @@ public class GetRootDsePerfIT extends AbstractLdapTestUnit
         {
             for ( int j = 0; j < 5000; j++ )
             {
-                rootDSE = service.getOperationManager().getRootDSE( opContext );
+                hasEntry = service.getOperationManager().hasEntry( opContext );
             }
             
             System.out.print( "." );

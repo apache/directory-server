@@ -625,7 +625,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             LOG.debug( "Check if DN '" + dn + "' exists." );
         }
 
-        if ( dn.size() == 0 )
+        if ( dn.isRootDSE() )
         {
             return true;
         }
