@@ -23,9 +23,12 @@ package org.apache.directory.server.ldap;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.KeyStoreSpi;
+import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.Security;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -350,9 +353,19 @@ public class LdapServer extends DirectoryBackedService
         else
         {
             keyStore = KeyStore.getInstance( KeyStore.getDefaultType() );
-            FileInputStream fis = new FileInputStream( keystoreFile );
-            
-            keyStore.load( fis, null );
+            FileInputStream fis = null;
+            try
+            {
+                fis = new FileInputStream( keystoreFile );          
+                keyStore.load( fis, null );
+            }
+            finally
+            {
+                if ( fis != null )
+                {
+                    fis.close();
+                }
+            }
         }
     }
 
