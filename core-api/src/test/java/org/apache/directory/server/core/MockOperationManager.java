@@ -29,7 +29,6 @@ import org.apache.directory.server.core.interceptor.context.BindOperationContext
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
@@ -71,11 +70,6 @@ public class MockOperationManager implements OperationManager
 
     public void delete( DeleteOperationContext opContext ) throws LdapException
     {
-    }
-
-    public DN getMatchedName( GetMatchedNameOperationContext opContext ) throws LdapException
-    {
-        return null;
     }
 
     public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws LdapException

@@ -32,7 +32,6 @@ import org.apache.directory.server.core.interceptor.context.BindOperationContext
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
@@ -462,29 +461,6 @@ public class DefaultOperationManager implements OperationManager
 
         LOG.debug( "<< DeleteOperation successful" );
         LOG_CHANGES.debug( "<< DeleteOperation successful" );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public DN getMatchedName( GetMatchedNameOperationContext opContext ) throws LdapException
-    {
-        LOG.debug( ">> GetMatchedNameOperation : {}", opContext );
-
-        ensureStarted();
-        push( opContext );
-
-        try
-        {
-            return directoryService.getInterceptorChain().getMatchedName( opContext );
-        }
-        finally
-        {
-            pop();
-
-            LOG.debug( "<< GetMatchedNameOperation successful" );
-        }
     }
 
 

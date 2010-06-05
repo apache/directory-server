@@ -37,7 +37,6 @@ import org.apache.directory.server.core.interceptor.context.BindOperationContext
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
@@ -108,12 +107,6 @@ public class InterceptorChain
             throws LdapException
         {
             return nexus.getRootDSE( opContext );
-        }
-
-
-        public DN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws LdapException
-        {
-            return ( DN ) nexus.getMatchedName( opContext ).clone();
         }
 
 
@@ -534,28 +527,6 @@ public class InterceptorChain
         try
         {
             return head.getRootDSE( next, opContext );
-        }
-        catch ( LdapException le )
-        {
-            throw le;
-        }
-        catch ( Throwable e )
-        {
-            throwInterceptorException( head, e );
-            throw new InternalError(); // Should be unreachable
-        }
-    }
-
-
-    public DN getMatchedName( GetMatchedNameOperationContext opContext ) throws LdapException
-    {
-        Element entry = getStartingEntry();
-        Interceptor head = entry.interceptor;
-        NextInterceptor next = entry.nextInterceptor;
-
-        try
-        {
-            return head.getMatchedName( next, opContext );
         }
         catch ( LdapException le )
         {
@@ -1024,27 +995,6 @@ public class InterceptorChain
                     try
                     {
                         return interceptor.getRootDSE( next.nextInterceptor, opContext );
-                    }
-                    catch ( LdapException le )
-                    {
-                        throw le;
-                    }
-                    catch ( Throwable e )
-                    {
-                        throwInterceptorException( interceptor, e );
-                        throw new InternalError(); // Should be unreachable
-                    }
-                }
-
-
-                public DN getMatchedName( GetMatchedNameOperationContext opContext ) throws LdapException
-                {
-                    Element next = getNextEntry();
-                    Interceptor interceptor = next.interceptor;
-
-                    try
-                    {
-                        return interceptor.getMatchedName( next.nextInterceptor, opContext );
                     }
                     catch ( LdapException le )
                     {

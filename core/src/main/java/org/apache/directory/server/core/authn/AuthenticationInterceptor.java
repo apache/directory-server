@@ -41,7 +41,6 @@ import org.apache.directory.server.core.interceptor.context.BindOperationContext
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
@@ -225,18 +224,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
         checkAuthenticated( opContext );
         next.delete( opContext );
         invalidateAuthenticatorCaches( opContext.getDn() );
-    }
-
-
-    public DN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws LdapException
-    {
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "Operation Context: {}", opContext );
-        }
-
-        checkAuthenticated( opContext );
-        return next.getMatchedName( opContext );
     }
 
 

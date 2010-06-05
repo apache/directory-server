@@ -24,7 +24,6 @@ import java.util.Set;
 
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
@@ -98,19 +97,6 @@ public interface PartitionNexus extends Partition
      * @throws Exception if there is no partition for the dn
      */
     public Partition getPartition( DN dn ) throws LdapException;
-
-
-    /**
-     * Gets the most significant Dn that exists within the server for any Dn.
-     *
-     * @param getMatchedNameContext the context containing the  distinguished name 
-     * to use for matching.
-     * @return a distinguished name representing the matching portion of dn,
-     * as originally provided by the user on creation of the matched entry or 
-     * the empty string distinguished name if no match was found.
-     * @throws Exception if there are any problems
-     */
-    public DN getMatchedName( GetMatchedNameOperationContext matchedNameContext ) throws LdapException;
 
 
     /**

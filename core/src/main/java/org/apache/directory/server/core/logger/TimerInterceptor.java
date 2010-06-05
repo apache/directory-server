@@ -33,7 +33,6 @@ import org.apache.directory.server.core.interceptor.context.BindOperationContext
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
@@ -94,10 +93,6 @@ public class TimerInterceptor implements Interceptor
     /** Stats for the delete operation */
     private static AtomicLong totalDelete = new AtomicLong( 0 );
     private static AtomicInteger nbDeleteCalls = new AtomicInteger( 0 );
-    
-    /** Stats for the GetMatchedName operation */
-    private static AtomicLong totalGetMatchedName = new AtomicLong( 0 );
-    private static AtomicInteger nbGetMatchedNameCalls = new AtomicInteger( 0 );
     
     /** Stats for the GetRootDSE operation */
     private static AtomicLong totalGetRootDSE = new AtomicLong( 0 );
@@ -586,36 +581,6 @@ public class TimerInterceptor implements Interceptor
         {
             OPERATION_TIME.debug( "{} : Delta unbind = {}", name, delta );
         }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public DN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws LdapException
-    {
-        long t0 = System.nanoTime();
-        DN dn = next.getMatchedName( opContext );
-        long delta = System.nanoTime() - t0;
-        
-        if ( IS_DEBUG_STATS )
-        {
-            nbGetMatchedNameCalls.incrementAndGet();
-            totalGetMatchedName.getAndAdd( delta );
-    
-            if ( nbGetMatchedNameCalls.get() % 1000 == 0 )
-            {
-                long average = totalGetMatchedName.get()/(nbGetMatchedNameCalls.get() * 1000);
-                OPERATION_STATS.debug( name + " : Average getMatchedName = {} microseconds, nb getMatchedNames = {}", average, nbGetMatchedNameCalls.get() );
-            }
-        }
-
-        if ( IS_DEBUG_TIME )
-        {
-            OPERATION_TIME.debug( "{} : Delta getMatchedName = {}", name, delta );
-        }
-        
-        return dn;
     }
 
 

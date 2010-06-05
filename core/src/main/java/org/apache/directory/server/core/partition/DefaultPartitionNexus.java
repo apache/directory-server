@@ -49,7 +49,6 @@ import org.apache.directory.server.core.interceptor.context.BindOperationContext
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
@@ -1059,27 +1058,6 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         {
             return parent;
         }
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.PartitionNexus#getMatchedName(org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext)
-     */
-    public DN getMatchedName( GetMatchedNameOperationContext matchedNameContext ) throws LdapException
-    {
-        DN dn = ( DN ) matchedNameContext.getDn().clone();
-
-        while ( dn.size() > 0 )
-        {
-            if ( hasEntry( new EntryOperationContext( matchedNameContext.getSession(), dn ) ) )
-            {
-                return dn;
-            }
-
-            dn.remove( dn.size() - 1 );
-        }
-
-        return dn;
     }
 
 

@@ -183,8 +183,6 @@ public class ExceptionInterceptor extends BaseInterceptor
             {
                 LdapNoSuchObjectException e2 = new LdapNoSuchObjectException( I18n.err( I18n.ERR_251, parentDn
                     .getName() ) );
-                //e2.setResolvedName( new DN( nexus.getMatchedName( 
-                //  new GetMatchedNameOperationContext( opContext.getSession(), parentDn ) ).getName() ) );
                 throw e2;
             }
 
@@ -596,10 +594,6 @@ public class ExceptionInterceptor extends BaseInterceptor
                 e = new LdapNoSuchObjectException( dn.getName() );
             }
 
-            //e.setResolvedName( 
-            //    new DN( 
-            //        opContext.getSession().getDirectoryService().getOperationManager().getMatchedName( 
-            //            new GetMatchedNameOperationContext( opContext.getSession(), dn ) ).getName() ) );
             throw e;
         }
     }

@@ -47,7 +47,6 @@ import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
@@ -1059,48 +1058,6 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             name, oid, value, COMPARE_PERMS, tuples, entry, null );
 
         return next.compare( opContext );
-    }
-
-
-    public DN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws LdapException
-    {
-        // Access the principal requesting the operation, and bypass checks if it is the admin
-        LdapPrincipal principal = opContext.getSession().getEffectivePrincipal();
-        DN principalDn = principal.getDN();
-
-        if ( isPrincipalAnAdministrator( principalDn )
-            || !opContext.getSession().getDirectoryService().isAccessControlEnabled() )
-        {
-            return next.getMatchedName( opContext );
-        }
-
-        // get the present matched name
-        Entry entry;
-        DN matched = next.getMatchedName( opContext );
-
-        // check if we have disclose on error permission for the entry at the matched dn
-        // if not remove rdn and check that until nothing is left in the name and return
-        // that but if permission is granted then short the process and return the dn
-        while ( matched.size() > 0 )
-        {
-            entry = opContext.lookup( matched, ByPassConstants.GETMATCHEDDN_BYPASS );
-
-            Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
-            Collection<ACITuple> tuples = new HashSet<ACITuple>();
-            addPerscriptiveAciTuples( opContext, tuples, matched, ( ( ClonedServerEntry ) entry ).getOriginalEntry() );
-            addEntryAciTuples( tuples, entry );
-            addSubentryAciTuples( opContext, tuples, matched, entry );
-
-            if ( engine.hasPermission( schemaManager, opContext, userGroups, principalDn, principal
-                .getAuthenticationLevel(), matched, null, null, MATCHEDNAME_PERMS, tuples, entry, null ) )
-            {
-                return matched;
-            }
-
-            matched.remove( matched.size() - 1 );
-        }
-
-        return matched;
     }
 
 

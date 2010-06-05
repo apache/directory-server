@@ -30,7 +30,6 @@ import org.apache.directory.server.core.interceptor.context.BindOperationContext
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
@@ -138,12 +137,6 @@ public interface Interceptor
      * Filters {@link DefaultPartitionNexus#getRootDSE( GetRootDSEOperationContext )} call.
      */
     ClonedServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext  opContext ) throws LdapException;
-
-
-    /**
-     * Filters {@link DefaultPartitionNexus#getMatchedName( GetMatchedNameOperationContext )} call.
-     */
-    DN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws LdapException;
 
 
     /**

@@ -33,7 +33,6 @@ import org.apache.directory.server.core.interceptor.context.BindOperationContext
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
@@ -134,12 +133,6 @@ public abstract class BaseInterceptor implements Interceptor
     public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws LdapException
     {
         next.delete( opContext );
-    }
-
-
-    public DN getMatchedName ( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws LdapException
-    {
-        return next.getMatchedName( opContext );
     }
 
 
