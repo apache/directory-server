@@ -513,7 +513,6 @@ public class KdcServer extends DirectoryBackedService
         }
         
         LOG.info( "Kerberos service started." );
-        System.out.println( "Kerberos service started." );
     }
 
     
@@ -530,7 +529,6 @@ public class KdcServer extends DirectoryBackedService
         }
         
         LOG.info( "Kerberos service stopped." );
-        System.out.println( "Kerberos service stopped." );
     }
 
 
