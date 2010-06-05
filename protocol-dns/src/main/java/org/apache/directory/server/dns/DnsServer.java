@@ -129,7 +129,6 @@ public class DnsServer extends DirectoryBackedService
         }
 
         LOG.info( "DNS service started." );
-        System.out.println( "DNS service started." );
     }
 
 
@@ -145,7 +144,6 @@ public class DnsServer extends DirectoryBackedService
         }
         
         LOG.info( "DNS service stopped." );
-        System.out.println( "DNS service stopped." );
     }
     
     
