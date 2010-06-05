@@ -758,7 +758,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         // -----------------------------------------------------------
         if ( ( ids == null ) || ( ids.length == 0 ) )
         {
-            Entry rootDSE = ( Entry ) getRootDSE( null ).clone();
+            Entry rootDSE = getRootDSE( null );
             return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDSE ), searchOperationContext );
         }
 
@@ -796,7 +796,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         // return everything
         if ( allUserAttributes && allOperationalAttributes )
         {
-            Entry rootDSE = ( Entry ) getRootDSE( null ).clone();
+            Entry rootDSE = getRootDSE( null );
             return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDSE ), searchOperationContext );
         }
 
@@ -928,9 +928,9 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#getRootDSE(org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext)
      */
-    public ClonedServerEntry getRootDSE( GetRootDSEOperationContext getRootDSEContext )
+    public Entry getRootDSE( GetRootDSEOperationContext getRootDSEContext )
     {
-        return new ClonedServerEntry( rootDSE );
+        return rootDSE.clone();
     }
 
 

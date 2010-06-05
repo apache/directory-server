@@ -26,7 +26,6 @@ import javax.naming.Context;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -136,7 +135,7 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public ClonedServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws LdapException
+    public Entry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws LdapException
     {
         return next.getRootDSE( opContext );
     }

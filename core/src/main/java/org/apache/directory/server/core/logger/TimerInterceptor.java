@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -288,7 +287,7 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public ClonedServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext )
+    public Entry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext )
         throws LdapException
     {
         long t0 = System.nanoTime();
@@ -312,7 +311,7 @@ public class TimerInterceptor implements Interceptor
             OPERATION_TIME.debug( "{} : Delta getRootDSE = {}", name, delta );
         }
         
-        return (ClonedServerEntry)rootDSE;
+        return rootDSE;
     }
 
 

@@ -103,7 +103,7 @@ public class InterceptorChain
         }
 
 
-        public ClonedServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext )
+        public Entry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext )
             throws LdapException
         {
             return nexus.getRootDSE( opContext );
@@ -518,7 +518,7 @@ public class InterceptorChain
     }
 
 
-    public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws LdapException
+    public Entry getRootDSE( GetRootDSEOperationContext opContext ) throws LdapException
     {
         Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -987,7 +987,7 @@ public class InterceptorChain
                 }
 
 
-                public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws LdapException
+                public Entry getRootDSE( GetRootDSEOperationContext opContext ) throws LdapException
                 {
                     Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;

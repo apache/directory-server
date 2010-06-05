@@ -31,7 +31,6 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
@@ -227,7 +226,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public ClonedServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws LdapException
+    public Entry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {

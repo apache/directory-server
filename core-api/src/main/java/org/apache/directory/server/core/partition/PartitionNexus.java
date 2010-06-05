@@ -22,11 +22,11 @@ package org.apache.directory.server.core.partition;
 
 import java.util.Set;
 
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -58,7 +58,7 @@ public interface PartitionNexus extends Partition
      *
      * @return the attributes of the RootDSE
      */
-    public ClonedServerEntry getRootDSE( GetRootDSEOperationContext getRootDSEContext );
+    public Entry getRootDSE( GetRootDSEOperationContext getRootDSEContext );
 
 
     /**

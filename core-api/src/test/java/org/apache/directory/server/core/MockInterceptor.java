@@ -23,7 +23,6 @@ package org.apache.directory.server.core;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -83,7 +82,7 @@ public class MockInterceptor implements Interceptor
     }
 
 
-    public ClonedServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext )
+    public Entry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext )
         throws LdapException
     {
         interceptors.add( this );

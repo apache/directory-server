@@ -23,7 +23,6 @@ package org.apache.directory.server.core.interceptor;
 import java.util.Set;
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -136,7 +135,7 @@ public interface Interceptor
     /**
      * Filters {@link DefaultPartitionNexus#getRootDSE( GetRootDSEOperationContext )} call.
      */
-    ClonedServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext  opContext ) throws LdapException;
+    Entry getRootDSE( NextInterceptor next, GetRootDSEOperationContext  opContext ) throws LdapException;
 
 
     /**

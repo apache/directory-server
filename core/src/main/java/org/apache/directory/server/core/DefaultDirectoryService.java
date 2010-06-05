@@ -1436,7 +1436,7 @@ public class DefaultDirectoryService implements DirectoryService
             if( changeLog.isExposed() && changeLog.isTagSearchSupported() )
             {
                 String clSuffix = ( ( TaggableSearchableChangeLogStore ) changeLog.getChangeLogStore() ).getPartition().getSuffixDn().getName();
-                partitionNexus.getRootDSE( null ).getOriginalEntry().add( SchemaConstants.CHANGELOG_CONTEXT_AT, clSuffix );
+                partitionNexus.getRootDSE( null ).add( SchemaConstants.CHANGELOG_CONTEXT_AT, clSuffix );
             }
         }
         

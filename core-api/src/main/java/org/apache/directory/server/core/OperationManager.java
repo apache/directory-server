@@ -22,7 +22,6 @@ package org.apache.directory.server.core;
 
 import java.util.Set;
 
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -57,7 +56,7 @@ public interface OperationManager
     /**
      * TODO document after determining if this method should be here.
      */
-    ClonedServerEntry getRootDSE( GetRootDSEOperationContext  opContext ) throws LdapException;
+    Entry getRootDSE( GetRootDSEOperationContext  opContext ) throws LdapException;
 
 
     /**

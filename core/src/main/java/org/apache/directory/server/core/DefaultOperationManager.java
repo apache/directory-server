@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -467,7 +466,7 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws LdapException
+    public Entry getRootDSE( GetRootDSEOperationContext opContext ) throws LdapException
     {
         LOG.debug( ">> GetRootDSEOperation : {}", opContext );
 

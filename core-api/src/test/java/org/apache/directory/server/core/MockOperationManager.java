@@ -40,6 +40,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 
@@ -72,7 +73,7 @@ public class MockOperationManager implements OperationManager
     {
     }
 
-    public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws LdapException
+    public Entry getRootDSE( GetRootDSEOperationContext opContext ) throws LdapException
     {
         return null;
     }
