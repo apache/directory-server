@@ -28,7 +28,7 @@ import org.apache.directory.server.ldap.LdapServer;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DefaultLdapServerFactory
+public class DefaultLdapServerFactory implements LdapServerFactory
 {
     private LdapServer ldapServer;
     
@@ -40,16 +40,12 @@ public class DefaultLdapServerFactory
     {
     }
 
-    void init()
+    public void init()
     {
-        if ( ( ldapServer != null ) && ( ldapServer.isStarted() ) )
-        {
-            return;
-        }
     }
 
     
-    LdapServer getLdapServer()
+    public LdapServer getLdapServer()
     {
         return ldapServer;
     }
