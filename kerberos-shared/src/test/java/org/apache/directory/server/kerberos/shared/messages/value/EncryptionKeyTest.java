@@ -171,7 +171,7 @@ public class EncryptionKeyTest
 
         long t1 = System.currentTimeMillis();
 
-        System.out.println( "Delta = " + ( t1 - t0 ) );
+        //System.out.println( "Delta = " + ( t1 - t0 ) );
     }
 
 
@@ -194,7 +194,7 @@ public class EncryptionKeyTest
 
         long t1 = System.currentTimeMillis();
 
-        System.out.println( "Delta2 = " + ( t1 - t0 ) );
+        //System.out.println( "Delta2 = " + ( t1 - t0 ) );
     }
 
 
