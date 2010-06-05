@@ -504,7 +504,6 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
     public void handleSaslAuth( LdapSession ldapSession, InternalBindRequest bindRequest ) throws Exception
     {
         String saslMechanism = bindRequest.getSaslMechanism();
-        DirectoryService ds = getLdapServer().getDirectoryService();
 
         // Case #2 : the user does have a session. We have to unbind him
         if ( ldapSession.isAuthenticated() )
