@@ -321,7 +321,7 @@ public class ChangePasswordServer extends DirectoryBackedService
         }
         
         LOG.info( "ChangePassword service started." );
-        System.out.println( "ChangePassword service started." );
+        //System.out.println( "ChangePassword service started." );
     }
 
 
@@ -338,7 +338,7 @@ public class ChangePasswordServer extends DirectoryBackedService
         }
 
         LOG.info( "ChangePassword service stopped." );
-        System.out.println( "ChangePassword service stopped." );
+        //System.out.println( "ChangePassword service stopped." );
     }
 
 
