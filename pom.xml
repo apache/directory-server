@@ -387,6 +387,13 @@
       
       <dependency>
         <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-xdbm-partition</artifactId>
+        <version>${project.version}</version>
+        <classifier>tests</classifier>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-xdbm-tools</artifactId>
         <version>${project.version}</version>
       </dependency>
