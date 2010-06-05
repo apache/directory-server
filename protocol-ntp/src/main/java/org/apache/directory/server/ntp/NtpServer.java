@@ -143,7 +143,6 @@ public class NtpServer extends AbstractProtocolService
         }
         
         LOG.info( "NTP server started." );
-        System.out.println( "NTP server started." );
     }
 
     
@@ -163,7 +162,6 @@ public class NtpServer extends AbstractProtocolService
         }
 
         LOG.info( "NTP Server stopped." );
-        System.out.println( "NTP Server stopped." );
     }
     
     
