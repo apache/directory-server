@@ -32,7 +32,6 @@ import org.apache.directory.server.core.interceptor.context.CompareOperationCont
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
@@ -483,29 +482,6 @@ public class DefaultOperationManager implements OperationManager
             pop();
 
             LOG.debug( "<< getRootDSEOperation successful" );
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public DN getSuffix( GetSuffixOperationContext opContext ) throws LdapException
-    {
-        LOG.debug( ">> GetSuffixOperation : {}", opContext );
-
-        ensureStarted();
-        push( opContext );
-
-        try
-        {
-            return directoryService.getInterceptorChain().getSuffix( opContext );
-        }
-        finally
-        {
-            pop();
-
-            LOG.debug( "<< GetSuffixOperation successful" );
         }
     }
 

@@ -76,8 +76,8 @@ public class JdbmPartition extends AbstractXdbmPartition<Long>
         store.setId( id );
 
         // Normalize the suffix
-        suffixDn.normalize( schemaManager.getNormalizerMapping() );
-        store.setSuffixDn( suffixDn );
+        suffix.normalize( schemaManager.getNormalizerMapping() );
+        store.setSuffixDn( suffix );
         store.setPartitionDir( getPartitionDir() );
 
         for ( Index<?, Entry, Long> index : getIndexedAttributes() )

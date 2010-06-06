@@ -32,7 +32,6 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
@@ -149,7 +148,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             throw ne;
         }
 
-        DN suffix = nexus.getSuffix( new GetSuffixOperationContext( this.directoryService.getAdminSession(), name ) );
+        DN suffix = nexus.findSuffix( name );
 
         // we're adding the suffix entry so just ignore stuff to mess with the parent
         if ( suffix.equals( name ) )

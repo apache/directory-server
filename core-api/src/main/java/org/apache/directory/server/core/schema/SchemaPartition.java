@@ -123,6 +123,9 @@ public final class SchemaPartition extends AbstractPartition
     /** A static DN for the ou=schemaModifications entry */
     private static DN schemaModificationDN;
 
+    /** A static DN for the ou=schema partition */
+    private static DN schemaDN;
+
 
     /**
      * Sets the wrapped {@link Partition} which must be supplied or 
@@ -174,25 +177,16 @@ public final class SchemaPartition extends AbstractPartition
     /**
      * Always returns {@link ServerDNConstants#OU_SCHEMA_DN_NORMALIZED}: '2.5.4.11=schema'.
      */
-    public DN getSuffixDn()
+    public DN getSuffix()
     {
-        return wrapped.getSuffixDn();
-    }
-
-
-    /**
-     * Always returns {@link ServerDNConstants#OU_SCHEMA_DN}: 'ou=schema'.
-     */
-    public String getSuffix()
-    {
-        return SchemaConstants.OU_SCHEMA;
+        return wrapped.getSuffix();
     }
 
 
     /**
      * Has no affect: just logs a warning.
      */
-    public void setSuffix( String suffix )
+    public void setSuffix( DN suffix )
     {
         LOG.warn( "This partition's suffix is fixed: {}", SchemaConstants.OU_SCHEMA );
     }
@@ -216,11 +210,11 @@ public final class SchemaPartition extends AbstractPartition
         // Load apachemeta schema from within the ldap-schema Jar with all the
         // schema it depends on.  This is a minimal mandatory set of schemas.
         // -----------------------------------------------------------------------
-        //SerializableComparator.setSchemaManager( schemaManager );
-
+        schemaDN = new DN( SchemaConstants.OU_SCHEMA );
+        schemaDN.normalize( schemaManager.getNormalizerMapping() );
+        
         wrapped.setId( ID );
-        wrapped.setSuffix( SchemaConstants.OU_SCHEMA );
-        wrapped.getSuffixDn().normalize( schemaManager.getNormalizerMapping() );
+        wrapped.setSuffix( schemaDN );
         wrapped.setSchemaManager( schemaManager );
 
         try

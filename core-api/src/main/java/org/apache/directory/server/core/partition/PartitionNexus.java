@@ -24,7 +24,6 @@ import java.util.Set;
 
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -100,17 +99,15 @@ public interface PartitionNexus extends Partition
 
 
     /**
-     * Gets the distinguished name of the suffix that would hold an entry with
+     * Finds the distinguished name of the suffix that would hold an entry with
      * the supplied distinguished name parameter.  If the DN argument does not
      * fall under a partition suffix then the empty string Dn is returned.
      *
-     * @param suffixContext the Context containing normalized distinguished
-     * name to use for finding a suffix.
+     * @param The DN we want to find the suffix from
      * @return the suffix portion of dn, or the valid empty string Dn if no
      * naming context was found for dn.
-     * @throws Exception if there are any problems
      */
-    public DN getSuffix( GetSuffixOperationContext getSuffixContext ) throws LdapException;
+    public DN findSuffix( DN dn ) throws LdapException;
 
 
     /**

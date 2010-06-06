@@ -141,7 +141,7 @@ public class LdifPartitionTest
         // initialize the partition
         partition = new LdifPartition();
         partition.setId( "test-ldif" );
-        partition.setSuffix( "ou=test,ou=system" );
+        partition.setSuffix( new DN( "ou=test,ou=system" ) );
         partition.setSchemaManager( schemaManager );
         partition.setWorkingDirectory( wkdir.getAbsolutePath() );
         

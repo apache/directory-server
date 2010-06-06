@@ -30,7 +30,6 @@ import org.apache.directory.server.core.interceptor.context.CompareOperationCont
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
@@ -43,7 +42,6 @@ import org.apache.directory.server.core.interceptor.context.UnbindOperationConte
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -136,12 +134,6 @@ public interface Interceptor
      * Filters {@link DefaultPartitionNexus#getRootDSE( GetRootDSEOperationContext )} call.
      */
     Entry getRootDSE( NextInterceptor next, GetRootDSEOperationContext  opContext ) throws LdapException;
-
-
-    /**
-     * Filters {@link DefaultPartitionNexus#getSuffix( GetSuffixOperationContext )} call.
-     */
-    DN getSuffix ( NextInterceptor next, GetSuffixOperationContext opContext ) throws LdapException;
 
 
     /**

@@ -116,13 +116,13 @@ public class DirectoryServiceAnnotationTest
             if ( "example".equalsIgnoreCase( partition.getId() ) )
             {
                 assertTrue( partition.isInitialized() );
-                assertEquals( "dc=example,dc=com", partition.getSuffixDn().getName() );
+                assertEquals( "dc=example,dc=com", partition.getSuffix().getName() );
                 assertTrue( partition instanceof JdbmPartition );
             }
             else if ( "schema".equalsIgnoreCase( partition.getId() ) )
             {
                 assertTrue( partition.isInitialized() );
-                assertEquals( "ou=schema", partition.getSuffixDn().getName() );
+                assertEquals( "ou=schema", partition.getSuffix().getName() );
             }
         }
         
@@ -162,13 +162,13 @@ public class DirectoryServiceAnnotationTest
             if ( "example".equalsIgnoreCase( partition.getId() ) )
             {
                 assertTrue( partition.isInitialized() );
-                assertEquals( "dc=example,dc=com", partition.getSuffixDn().getName() );
+                assertEquals( "dc=example,dc=com", partition.getSuffix().getName() );
                 assertTrue( partition instanceof AvlPartition );
             }
             else if ( "schema".equalsIgnoreCase( partition.getId() ) )
             {
                 assertTrue( partition.isInitialized() );
-                assertEquals( "ou=schema", partition.getSuffixDn().getName() );
+                assertEquals( "ou=schema", partition.getSuffix().getName() );
             }
         }
 

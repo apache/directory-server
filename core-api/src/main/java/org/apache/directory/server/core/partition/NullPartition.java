@@ -105,15 +105,6 @@ public class NullPartition extends AbstractPartition
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.Partition#getSuffix()
-     */
-    public DN getSuffixDn()
-    {
-        return suffix;
-    }
-
-
-    /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#list(org.apache.directory.server.core.interceptor.context.ListOperationContext)
      */
     public EntryFilteringCursor list( ListOperationContext opContext ) throws LdapException
@@ -349,9 +340,9 @@ public class NullPartition extends AbstractPartition
     /**
      * {@inheritDoc}
      */
-    public void setSuffix( String suffix ) throws LdapInvalidDnException
+    public void setSuffix( DN suffix ) throws LdapInvalidDnException
     {
-        this.suffix = new DN( suffix );
+        this.suffix = suffix;
     }
 
 
@@ -363,9 +354,9 @@ public class NullPartition extends AbstractPartition
     }
 
 
-    public String getSuffix()
+    public DN getSuffix()
     {
-        return suffix.getName();
+        return suffix;
     }
 
 

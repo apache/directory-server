@@ -39,13 +39,13 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.DefaultModification;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.entry.StringValue;
+import org.apache.directory.shared.ldap.entry.DefaultModification;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -247,7 +247,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         try
         {
-            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
             
@@ -299,7 +299,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         try
         {
-            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
             
@@ -351,7 +351,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         try
         {
-            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
             
@@ -403,7 +403,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         try
         {
-            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
             
@@ -455,7 +455,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         try
         {
-            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
             
@@ -535,7 +535,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         try
         {
-            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
             
@@ -629,7 +629,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         try
         {
-            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
             
@@ -688,7 +688,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         try
         {
-            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
             
@@ -724,7 +724,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
         filter.addNode( new PresenceNode( M_OID_OID ) );
         filter.addNode( new PresenceNode( M_NAME_OID ) );
 
-        SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
+        SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
             filter, searchControls );
         searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
         
@@ -778,7 +778,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         try
         {
-            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
             
@@ -826,7 +826,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         try
         {
-            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
             
@@ -868,7 +868,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         try
         {
-            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
             
@@ -954,7 +954,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
         try
         {
-            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffixDn(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( null, partition.getSuffix(),
                 filter, searchControls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
             

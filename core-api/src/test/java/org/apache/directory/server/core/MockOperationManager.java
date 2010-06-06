@@ -30,7 +30,6 @@ import org.apache.directory.server.core.interceptor.context.CompareOperationCont
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
@@ -42,7 +41,6 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
 
 public class MockOperationManager implements OperationManager
 {
@@ -74,11 +72,6 @@ public class MockOperationManager implements OperationManager
     }
 
     public Entry getRootDSE( GetRootDSEOperationContext opContext ) throws LdapException
-    {
-        return null;
-    }
-
-    public DN getSuffix( GetSuffixOperationContext opContext ) throws LdapException
     {
         return null;
     }

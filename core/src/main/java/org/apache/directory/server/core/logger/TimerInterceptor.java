@@ -33,7 +33,6 @@ import org.apache.directory.server.core.interceptor.context.CompareOperationCont
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
@@ -45,7 +44,6 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,10 +94,6 @@ public class TimerInterceptor implements Interceptor
     /** Stats for the GetRootDSE operation */
     private static AtomicLong totalGetRootDSE = new AtomicLong( 0 );
     private static AtomicInteger nbGetRootDSECalls = new AtomicInteger( 0 );
-    
-    /** Stats for the GetSuffix operation */
-    private static AtomicLong totalGetSuffix = new AtomicLong( 0 );
-    private static AtomicInteger nbGetSuffixCalls = new AtomicInteger( 0 );
     
     /** Stats for the HasEntry operation */
     private static AtomicLong totalHasEntry = new AtomicLong( 0 );
@@ -580,36 +574,6 @@ public class TimerInterceptor implements Interceptor
         {
             OPERATION_TIME.debug( "{} : Delta unbind = {}", name, delta );
         }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public DN getSuffix( NextInterceptor next, GetSuffixOperationContext opContext ) throws LdapException
-    {
-        long t0 = System.nanoTime();
-        DN dn = next.getSuffix( opContext );
-        long delta = System.nanoTime() - t0;
-        
-        if ( IS_DEBUG_STATS )
-        {
-            nbGetSuffixCalls.incrementAndGet();
-            totalGetSuffix.getAndAdd( delta );
-    
-            if ( nbGetSuffixCalls.get() % 1000 == 0 )
-            {
-                long average = totalGetSuffix.get()/(nbGetSuffixCalls.get() * 1000);
-                OPERATION_STATS.debug( name + " : Average getSuffix = {} microseconds, nb getSuffixes = {}", average, nbGetSuffixCalls.get() );
-            }
-        }
-
-        if ( IS_DEBUG_TIME )
-        {
-            OPERATION_TIME.debug( "{} : Delta getSuffix = {}", name, delta );
-        }
-        
-        return dn;
     }
 
 

@@ -27,6 +27,7 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -46,7 +47,7 @@ public class JdbmPartitionFactory implements PartitionFactory
     {
         JdbmPartition partition = new JdbmPartition();
         partition.setId( id );
-        partition.setSuffix( suffix );
+        partition.setSuffix( new DN( suffix ) );
         partition.setCacheSize( 500 );
         partition.setPartitionDir( workingDirectory );
         return partition;

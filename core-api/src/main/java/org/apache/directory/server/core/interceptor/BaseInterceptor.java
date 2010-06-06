@@ -33,7 +33,6 @@ import org.apache.directory.server.core.interceptor.context.CompareOperationCont
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
@@ -47,7 +46,6 @@ import org.apache.directory.server.core.interceptor.context.UnbindOperationConte
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -138,12 +136,6 @@ public abstract class BaseInterceptor implements Interceptor
     public Entry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws LdapException
     {
         return next.getRootDSE( opContext );
-    }
-
-
-    public DN getSuffix( NextInterceptor next, GetSuffixOperationContext opContext ) throws LdapException
-    {
-        return next.getSuffix( opContext );
     }
 
 

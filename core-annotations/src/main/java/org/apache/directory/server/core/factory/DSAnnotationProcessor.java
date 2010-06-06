@@ -42,6 +42,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
+import org.apache.directory.shared.ldap.name.DN;
 import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,7 +109,7 @@ public class DSAnnotationProcessor
                 // The annotation contains a specific partition type, we use that type.
                 partition = createPartition.type().newInstance();
                 partition.setId( createPartition.name() );
-                partition.setSuffix( createPartition.suffix() );
+                partition.setSuffix( new DN( createPartition.suffix() ) );
 
                 if ( partition instanceof BTreePartition<?> )
                 {

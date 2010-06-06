@@ -156,7 +156,7 @@ public class LdifPartition extends BTreePartition<Long>
     {
         // Initialize the AvlPartition
         wrappedPartition.setId( id );
-        wrappedPartition.setSuffix( suffixDn.getName() );
+        wrappedPartition.setSuffix( suffix );
         wrappedPartition.setSchemaManager( schemaManager );
         wrappedPartition.initialize();
 
@@ -170,19 +170,19 @@ public class LdifPartition extends BTreePartition<Long>
 
         // Initialize the suffixDirectory : it's a composition
         // of the workingDirectory followed by the suffix
-        if ( ( suffixDn == null ) || ( suffixDn.isEmpty() ) )
+        if ( ( suffix == null ) || ( suffix.isEmpty() ) )
         {
             String msg = I18n.err( I18n.ERR_150 );
             LOG.error( msg );
             throw new LdapInvalidDnException( msg );
         }
 
-        if ( !suffixDn.isNormalized() )
+        if ( !suffix.isNormalized() )
         {
-            suffixDn.normalize( schemaManager.getNormalizerMapping() );
+            suffix.normalize( schemaManager.getNormalizerMapping() );
         }
 
-        String suffixDirName = getFileName( suffixDn );
+        String suffixDirName = getFileName( suffix );
         suffixDirectory = new File( workingDirectory, suffixDirName );
 
         // Create the context entry now, if it does not exists, or load the
@@ -529,7 +529,7 @@ public class LdifPartition extends BTreePartition<Long>
         StringBuilder filePath = new StringBuilder();
         filePath.append( suffixDirectory ).append( File.separator );
 
-        DN baseDn = ( DN ) entryDn.getSuffix( suffixDn.size() );
+        DN baseDn = ( DN ) entryDn.getSuffix( suffix.size() );
 
         for ( int i = 0; i < baseDn.size() - 1; i++ )
         {
@@ -542,7 +542,7 @@ public class LdifPartition extends BTreePartition<Long>
         
         String parentDir = null;
         
-        if( entryDn.equals( suffixDn ) )
+        if( entryDn.equals( suffix ) )
         {
             parentDir = suffixDirectory.getParent() + File.separator;
         }
@@ -993,7 +993,7 @@ public class LdifPartition extends BTreePartition<Long>
 
 
     @Override
-    public void setSuffix( String suffix ) throws LdapInvalidDnException
+    public void setSuffix( DN suffix ) throws LdapInvalidDnException
     {
         super.setSuffix( suffix );
         wrappedPartition.setSuffix( suffix );

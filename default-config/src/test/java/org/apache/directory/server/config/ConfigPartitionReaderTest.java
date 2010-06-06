@@ -33,6 +33,7 @@ import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.transport.Transport;
+import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
@@ -100,7 +101,7 @@ public class ConfigPartitionReaderTest
 
         LdifPartition configPartition = new LdifPartition();
         configPartition.setId( "config" );
-        configPartition.setSuffix( "ou=config" );
+        configPartition.setSuffix( new DN( "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
         configPartition.setWorkingDirectory( workingDirectory + "/config" );
         configPartition.setPartitionDir( new File( configPartition.getWorkingDirectory() ) );

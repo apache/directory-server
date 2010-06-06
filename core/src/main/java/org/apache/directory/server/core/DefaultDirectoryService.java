@@ -117,7 +117,7 @@ public class DefaultDirectoryService implements DirectoryService
     
     /** the root nexus */
     private DefaultPartitionNexus partitionNexus;
-
+    
     /** whether or not server is started for the first time */
     private boolean firstStart;
 
@@ -605,7 +605,7 @@ public class DefaultDirectoryService implements DirectoryService
             return;
         }
 
-        partitionNexus.removeContextPartition( partition.getSuffixDn() );
+        partitionNexus.removeContextPartition( partition.getSuffix() );
     }
 
 
@@ -915,7 +915,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         // load the last stored valid CSN value
         LookupOperationContext loc = new LookupOperationContext( getAdminSession() );
-        loc.setDn( systemPartition.getSuffixDn() );
+        loc.setDn( systemPartition.getSuffix() );
         loc.setAttrsId( new String[]{ "+" } );
         ClonedServerEntry entry = systemPartition.lookup( loc );
         
@@ -1405,7 +1405,7 @@ public class DefaultDirectoryService implements DirectoryService
         schemaService.initialize();
         schemaService.getSchemaPartition().initialize();
         partitions.add( schemaService.getSchemaPartition() );
-        systemPartition.getSuffixDn().normalize( schemaManager.getNormalizerMapping() );
+        systemPartition.getSuffix().normalize( schemaManager.getNormalizerMapping() );
 
         adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN ).normalize( schemaManager.getNormalizerMapping() );
         adminDn.normalize( schemaManager.getNormalizerMapping() );
@@ -1435,7 +1435,7 @@ public class DefaultDirectoryService implements DirectoryService
             
             if( changeLog.isExposed() && changeLog.isTagSearchSupported() )
             {
-                String clSuffix = ( ( TaggableSearchableChangeLogStore ) changeLog.getChangeLogStore() ).getPartition().getSuffixDn().getName();
+                String clSuffix = ( ( TaggableSearchableChangeLogStore ) changeLog.getChangeLogStore() ).getPartition().getSuffix().getName();
                 partitionNexus.getRootDSE( null ).add( SchemaConstants.CHANGELOG_CONTEXT_AT, clSuffix );
             }
         }

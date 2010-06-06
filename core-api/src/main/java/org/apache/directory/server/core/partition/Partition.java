@@ -72,18 +72,12 @@ public interface Partition
 
 
     /**
-     * Gets the user provided suffix for this Partition as a String.
-     */
-    String getSuffix();
-
-
-    /**
      * Sets the user provided suffix for this Partition as a String.
      *
      * @param suffix the suffix String for this Partition.
      * @throws LdapInvalidDnException if the suffix does not conform to LDAP DN syntax
      */
-    void setSuffix( String suffix ) throws LdapInvalidDnException;
+    void setSuffix( DN suffix ) throws LdapInvalidDnException;
 
 
     /**
@@ -122,7 +116,7 @@ public interface Partition
      * @return the suffix for this Partition.
      * @throws IllegalStateException if the Partition has not been initialized
      */
-    DN getSuffixDn();
+    DN getSuffix();
 
 
     /**

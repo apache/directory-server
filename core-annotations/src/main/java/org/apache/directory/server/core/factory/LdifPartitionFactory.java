@@ -27,6 +27,7 @@ import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.name.DN;
 
 
 /**
@@ -46,7 +47,7 @@ public class LdifPartitionFactory implements PartitionFactory
     {
         LdifPartition partition = new LdifPartition();
         partition.setId( id );
-        partition.setSuffix( suffix );
+        partition.setSuffix( new DN( suffix ) );
         partition.setCacheSize( 500 );
         partition.setWorkingDirectory( workingDirectory.getAbsolutePath() );
         partition.setPartitionDir( workingDirectory );

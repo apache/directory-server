@@ -50,7 +50,6 @@ import org.apache.directory.server.core.interceptor.context.CompareOperationCont
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
@@ -102,7 +101,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.ldap.util.tree.DnBranchNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -258,7 +256,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
                     }
                     catch ( Exception e )
                     {
-                        LOG.warn( "Failed to destroy a partition: " + partition.getSuffixDn(), e );
+                        LOG.warn( "Failed to destroy a partition: " + partition.getSuffix(), e );
                     }
                     finally
                     {
@@ -323,7 +321,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             system.add( addOperationContext );
         }
 
-        String key = system.getSuffixDn().getName();
+        String key = system.getSuffix().getName();
 
         if ( partitions.containsKey( key ) )
         {
@@ -333,18 +331,18 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         synchronized ( partitionLookupTree )
         {
             partitions.put( key, system );
-            partitionLookupTree.add( system.getSuffixDn(), system );
+            partitionLookupTree.add( system.getSuffix(), system );
             EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
 
             if ( namingContexts == null )
             {
                 namingContexts = new DefaultEntryAttribute( schemaManager
-                    .lookupAttributeTypeRegistry( SchemaConstants.NAMING_CONTEXTS_AT ), system.getSuffixDn().getName() );
+                    .lookupAttributeTypeRegistry( SchemaConstants.NAMING_CONTEXTS_AT ), system.getSuffix().getName() );
                 rootDSE.put( namingContexts );
             }
             else
             {
-                namingContexts.add( system.getSuffixDn().getName() );
+                namingContexts.add( system.getSuffix().getName() );
             }
         }
 
@@ -420,27 +418,9 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.PartitionNexus#getSuffixDn()
-     */
-    public DN getSuffixDn()
-    {
-        return DN.EMPTY_DN;
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.PartitionNexus#getSuffix()
-     */
-    public String getSuffix()
-    {
-        return StringTools.EMPTY;
-    }
-
-
-    /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#setSuffix(java.lang.String)
      */
-    public void setSuffix( String suffix )
+    public void setSuffix( DN suffix )
     {
         throw new UnsupportedOperationException();
     }
@@ -480,7 +460,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
                 timeStampAt.add( DateUtils.getGeneralizedTime() );
 
                 ModifyOperationContext csnModContext = new ModifyOperationContext( directoryService.getAdminSession(),
-                    system.getSuffixDn(), mods );
+                    system.getSuffix(), mods );
                 system.modify( csnModContext );
             }
         }
@@ -875,7 +855,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
                 List<EntryFilteringCursor> cursors = new ArrayList<EntryFilteringCursor>();
                 for ( Partition p : partitions.values() )
                 {
-                    opContext.setDn( p.getSuffixDn() );
+                    opContext.setDn( p.getSuffix() );
                     opContext.setScope( SearchScope.OBJECT );
                     cursors.add( p.search( opContext ) );
                 }
@@ -888,7 +868,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
                 for ( Partition p : partitions.values() )
                 {
                     ClonedServerEntry entry = p.lookup( new LookupOperationContext( directoryService.getAdminSession(),
-                        p.getSuffixDn() ) );
+                        p.getSuffix() ) );
                     if ( entry != null )
                     {
                         Partition backend = getPartition( entry.getDn() );
@@ -940,7 +920,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     public synchronized void addContextPartition( Partition partition ) throws LdapException
     {
         // Turn on default indices
-        String key = partition.getSuffixDn().getNormName();
+        String key = partition.getSuffix().getNormName();
 
         if ( partitions.containsKey( key ) )
         {
@@ -954,7 +934,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         synchronized ( partitionLookupTree )
         {
-            DN partitionSuffix = partition.getSuffixDn();
+            DN partitionSuffix = partition.getSuffix();
 
             if ( partitionSuffix == null )
             {
@@ -962,7 +942,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             }
 
             partitions.put( partitionSuffix.getNormName(), partition );
-            partitionLookupTree.add( partition.getSuffixDn(), partition );
+            partitionLookupTree.add( partition.getSuffix(), partition );
 
             EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
 
@@ -999,7 +979,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             throw new LdapNoSuchObjectException( msg );
         }
 
-        String partitionSuffix = partition.getSuffixDn().getName();
+        String partitionSuffix = partition.getSuffix().getName();
 
         // Retrieve the namingContexts from the RootDSE : the partition
         // suffix must be present in those namingContexts
@@ -1064,10 +1044,17 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#getSuffix(org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext)
      */
-    public DN getSuffix( GetSuffixOperationContext getSuffixContext ) throws LdapException
+    public DN findSuffix( DN dn ) throws LdapException
     {
-        Partition backend = getPartition( getSuffixContext.getDn() );
-        return backend.getSuffixDn();
+        Partition backend = getPartition( dn );
+        
+        return backend.getSuffix();
+    }
+    
+    
+    public DN getSuffix()
+    {
+        return null;
     }
 
 
@@ -1139,10 +1126,10 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         if ( namingContexts != null )
         {
-            namingContexts.remove( partition.getSuffixDn().getName() );
+            namingContexts.remove( partition.getSuffix().getName() );
         }
 
-        partitions.remove( partition.getSuffixDn().getName() );
+        partitions.remove( partition.getSuffix().getName() );
     }
 
 

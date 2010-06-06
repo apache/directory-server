@@ -32,7 +32,6 @@ import org.apache.directory.server.core.interceptor.context.BindOperationContext
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
@@ -294,16 +293,6 @@ public class NormalizationInterceptor extends BaseInterceptor
     // ------------------------------------------------------------------------
     // Normalize all Name based arguments for other interface operations
     // ------------------------------------------------------------------------
-    /**
-     * {@inheritDoc}
-     */
-    public DN getSuffix( NextInterceptor nextInterceptor, GetSuffixOperationContext opContext ) throws LdapException
-    {
-        opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
-        return nextInterceptor.getSuffix( opContext );
-    }
-
-
     /**
      * {@inheritDoc}
      */

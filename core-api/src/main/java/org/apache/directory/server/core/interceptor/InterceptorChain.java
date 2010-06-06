@@ -38,7 +38,6 @@ import org.apache.directory.server.core.interceptor.context.CompareOperationCont
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
@@ -56,7 +55,6 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.name.DN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,12 +105,6 @@ public class InterceptorChain
             throws LdapException
         {
             return nexus.getRootDSE( opContext );
-        }
-
-
-        public DN getSuffix( NextInterceptor next, GetSuffixOperationContext opContext ) throws LdapException
-        {
-            return ( DN ) nexus.getSuffix( opContext ).clone();
         }
 
 
@@ -527,28 +519,6 @@ public class InterceptorChain
         try
         {
             return head.getRootDSE( next, opContext );
-        }
-        catch ( LdapException le )
-        {
-            throw le;
-        }
-        catch ( Throwable e )
-        {
-            throwInterceptorException( head, e );
-            throw new InternalError(); // Should be unreachable
-        }
-    }
-
-
-    public DN getSuffix( GetSuffixOperationContext opContext ) throws LdapException
-    {
-        Element entry = getStartingEntry();
-        Interceptor head = entry.interceptor;
-        NextInterceptor next = entry.nextInterceptor;
-
-        try
-        {
-            return head.getSuffix( next, opContext );
         }
         catch ( LdapException le )
         {
@@ -995,27 +965,6 @@ public class InterceptorChain
                     try
                     {
                         return interceptor.getRootDSE( next.nextInterceptor, opContext );
-                    }
-                    catch ( LdapException le )
-                    {
-                        throw le;
-                    }
-                    catch ( Throwable e )
-                    {
-                        throwInterceptorException( interceptor, e );
-                        throw new InternalError(); // Should be unreachable
-                    }
-                }
-
-
-                public DN getSuffix( GetSuffixOperationContext opContext ) throws LdapException
-                {
-                    Element next = getNextEntry();
-                    Interceptor interceptor = next.interceptor;
-
-                    try
-                    {
-                        return interceptor.getSuffix( next.nextInterceptor, opContext );
                     }
                     catch ( LdapException le )
                     {
