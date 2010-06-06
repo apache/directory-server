@@ -579,7 +579,7 @@ public class LdifPartition extends BTreePartition<Long>
      */
     private String getFileName( RDN rdn ) throws LdapException
     {
-        String fileName = "";
+        StringBuffer fileName = new StringBuffer( "" );
 
         Iterator<AVA> iterator = rdn.iterator();
         while ( iterator.hasNext() )
@@ -595,15 +595,15 @@ public class LdifPartition extends BTreePartition<Long>
             // Now, get the normalized value
             String normValue = ava.getNormValue().getString();
 
-            fileName += atName + "=" + normValue;
+            fileName.append( atName ).append(  "=" ).append( normValue );
 
             if ( iterator.hasNext() )
             {
-                fileName += "+";
+                fileName.append( "+" );
             }
         }
 
-        return getOSFileName( fileName );
+        return getOSFileName( fileName.toString() );
     }
 
 
