@@ -104,8 +104,6 @@ import org.slf4j.LoggerFactory;
  *
  * @todo Better interceptor description required.
 
- * @org.apache.xbean.XBean
- *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

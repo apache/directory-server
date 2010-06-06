@@ -69,8 +69,6 @@ import org.slf4j.LoggerFactory;
  * permission he or she doesn't have, {@link NoPermissionException} will be
  * thrown and therefore the current invocation chain will terminate.
  *
- * @org.apache.xbean.XBean
- *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

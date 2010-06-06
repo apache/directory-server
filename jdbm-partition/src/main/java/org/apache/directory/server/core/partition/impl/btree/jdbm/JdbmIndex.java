@@ -24,6 +24,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import javax.naming.NamingException;
+
 import jdbm.RecordManager;
 import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
@@ -49,8 +51,6 @@ import org.slf4j.LoggerFactory;
 /** 
  * A Jdbm based index implementation.
  *
- * @org.apache.xbean.XBean
- * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */

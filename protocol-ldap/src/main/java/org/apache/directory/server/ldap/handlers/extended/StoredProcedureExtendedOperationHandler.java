@@ -53,8 +53,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
- * @org.apache.xbean.XBean
- *
+ * @Todo : Missing Javadoc
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$ $Date$
  */

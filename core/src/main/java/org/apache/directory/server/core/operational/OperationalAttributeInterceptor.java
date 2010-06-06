@@ -75,8 +75,6 @@ import org.slf4j.LoggerFactory;
  * <tt>'creatorsName'</tt>, <tt>'createTimestamp'</tt>, <tt>'modifiersName'</tt>,
  * and <tt>'modifyTimestamp'</tt>.
  *
- * @org.apache.xbean.XBean
- *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

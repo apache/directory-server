@@ -113,7 +113,6 @@ public interface DirectoryService extends ServerEntryFactory
     /**
      * Set the referralManager
      * 
-     * @org.apache.xbean.Property hidden="true"
      * @param referralManager The initialized referralManager
      */
     void setReferralManager( ReferralManager referralManager );
@@ -123,7 +122,6 @@ public interface DirectoryService extends ServerEntryFactory
 
 
     /**
-     * @org.apache.xbean.Property hidden="true"
      */
     void setSchemaService( SchemaService schemaService );
     
@@ -131,7 +129,6 @@ public interface DirectoryService extends ServerEntryFactory
     EventService getEventService();
     
     /**
-     * @org.apache.xbean.Property hidden="true"
      */
     void setEventService( EventService eventService );
 
@@ -216,7 +213,6 @@ public interface DirectoryService extends ServerEntryFactory
 
     
     /**
-     * @org.apache.xbean.Property hidden="true"
      */
     void setInstanceId( String instanceId );
 
@@ -235,7 +231,6 @@ public interface DirectoryService extends ServerEntryFactory
     /**
      * Sets {@link Partition}s used by this DirectoryService.
      *
-     * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.partition.Partition"
      * @param partitions the partitions to used
      */
     void setPartitions( Set<? extends Partition> partitions );
@@ -306,7 +301,6 @@ public interface DirectoryService extends ServerEntryFactory
     /**
      * Sets the interceptors in the server.
      *
-     * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.interceptor.Interceptor"
      * @param interceptors the interceptors to be used in the server.
      */
     void setInterceptors( List<Interceptor> interceptors );
@@ -331,7 +325,6 @@ public interface DirectoryService extends ServerEntryFactory
      * Sets test directory entries({@link Attributes}) to be loaded while
      * bootstrapping.
      *
-     * @org.apache.xbean.Property nestedType="org.apache.directory.shared.ldap.ldif.Entry"
      * @param testEntries the test entries to load while bootstrapping
      */
     void setTestEntries( List<? extends LdifEntry> testEntries );
@@ -360,7 +353,6 @@ public interface DirectoryService extends ServerEntryFactory
      * registers a JVM shutdown hook to flush caches and synchronize to disk safely.  This is
      * enabled by default.
      *
-     * @org.apache.xbean.Property hidden="true"
      * @param shutdownHookEnabled true to enable the shutdown hook, false to disable
      */
     void setShutdownHookEnabled( boolean shutdownHookEnabled );

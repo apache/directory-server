@@ -86,7 +86,6 @@ import org.slf4j.LoggerFactory;
  * In this exemple, the partition's suffix is <b>ou=example,ou=system</b>. 
  * <br>   
  *  
- * @org.apache.xbean.XBean
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

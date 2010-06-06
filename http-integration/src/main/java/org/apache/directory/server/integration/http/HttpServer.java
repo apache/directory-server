@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Class to start the jetty http server
  * 
- * @org.apache.xbean.XBean
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

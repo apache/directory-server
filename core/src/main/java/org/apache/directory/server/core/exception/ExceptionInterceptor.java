@@ -68,8 +68,6 @@ import org.apache.directory.shared.ldap.name.DN;
  * throwing a {@link Exception}. Those operations include when an entry
  * already exists at a DN and is added once again to the same DN.
  *
- * @org.apache.xbean.XBean
- *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */

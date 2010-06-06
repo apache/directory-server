@@ -58,8 +58,6 @@ import org.slf4j.LoggerFactory;
  * An {@link Interceptor} based service for notifying {@link 
  * DirectoryListener}s of changes to the DIT.
  *
- * @org.apache.xbean.XBean
- *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 666516 $
  */

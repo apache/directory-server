@@ -67,8 +67,6 @@ import org.slf4j.LoggerFactory;
  * If the RDN AttributeTypes are not present in the entry for an Add request,
  * they will be added.
  *
- * @org.apache.xbean.XBean
- *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */

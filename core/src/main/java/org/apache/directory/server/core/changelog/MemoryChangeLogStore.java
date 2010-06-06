@@ -48,8 +48,6 @@ import org.apache.directory.shared.ldap.util.DateUtils;
 /**
  * A change log store that keeps it's information in memory.
  *
- * @org.apache.xbean.XBean
- *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

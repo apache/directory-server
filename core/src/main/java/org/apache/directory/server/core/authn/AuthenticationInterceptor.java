@@ -69,7 +69,6 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
- * @org.apache.xbean.XBean
  */
 public class AuthenticationInterceptor extends BaseInterceptor
 {
@@ -132,7 +131,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
     
     /**
      * @param authenticators authenticators to be used by this AuthenticationInterceptor
-     * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.authn.Authenticator"
      */
     public void setAuthenticators( Set<Authenticator> authenticators )
     {

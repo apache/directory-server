@@ -53,8 +53,6 @@ import org.apache.directory.shared.ldap.exception.LdapException;
  * implemented to pass the flow of control to next interceptor by defaults.
  * Please override the methods you have concern in.
  *
- * @org.apache.xbean.XBean
- *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

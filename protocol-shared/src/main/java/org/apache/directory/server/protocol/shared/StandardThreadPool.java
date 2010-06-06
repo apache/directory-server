@@ -26,8 +26,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * @Todo : Missing Javadoc
  * @version $Rev$ $Date$
- * @org.apache.xbean.XBean
  */
 public class StandardThreadPool implements Executor
 {
@@ -47,7 +47,6 @@ public class StandardThreadPool implements Executor
 
     /**
      * TODO wont this hang if some tasks are sufficiently badly behaved?
-     * @org.apache.xbean.DestroyMethod
      */
     public void stop()
     {

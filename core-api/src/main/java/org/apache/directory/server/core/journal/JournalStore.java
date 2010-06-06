@@ -30,8 +30,6 @@ import org.apache.directory.shared.ldap.ldif.LdifEntry;
  * A store for change events on the directory which exposes methods for 
  * managing, querying and in general performing legal operations on the log.
  *
- * @org.apache.xbean.XBean
- *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

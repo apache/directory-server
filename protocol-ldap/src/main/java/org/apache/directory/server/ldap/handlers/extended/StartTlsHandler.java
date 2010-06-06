@@ -47,7 +47,6 @@ import org.apache.directory.shared.ldap.message.internal.InternalExtendedRespons
 import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.filter.ssl.SslFilter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +54,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Handler for the StartTLS extended operation.
  *
- * @org.apache.xbean.XBean
  * @see <a href="http://www.ietf.org/rfc/rfc2830.txt">RFC 2830</a>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$

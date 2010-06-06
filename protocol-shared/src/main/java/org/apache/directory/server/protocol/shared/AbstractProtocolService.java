@@ -32,7 +32,6 @@ import org.apache.mina.transport.socket.SocketAcceptor;
  * An abstract base class for a ProtocolService. The start/stop methods have
  * not been implemented.
  * 
- * @org.apache.xbean.XBean
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -64,7 +63,6 @@ public abstract class AbstractProtocolService implements ProtocolService
 
 
     /**
-     * @org.apache.xbean.Property hidden="true"
      */
     public void setDirectoryService( DirectoryService directoryService )
     {
@@ -79,8 +77,6 @@ public abstract class AbstractProtocolService implements ProtocolService
 
 
     /**
-     * @org.apache.xbean.Property hidden="true"
-     * 
      * @param started The state of this server
      */
     protected void setStarted( boolean started )
@@ -111,7 +107,6 @@ public abstract class AbstractProtocolService implements ProtocolService
 
 
     /**
-     * @org.apache.xbean.Property hidden="true"
      */
     public void setServiceId( String serviceId )
     {
@@ -129,8 +124,6 @@ public abstract class AbstractProtocolService implements ProtocolService
 
 
     /**
-     * @org.apache.xbean.Property hidden="true"
-     * 
      * Set the current server's name.
      * @param name The server name
      */

@@ -24,8 +24,6 @@ import java.util.List;
 /**
  * The replication configuration.
  * 
- * @org.apache.xbean.XBean
- * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: $, $Date: $
  *

@@ -26,7 +26,6 @@ import java.io.File;
 /**
  * A class to configure a web application 
  *
- * @org.apache.xbean.XBean
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

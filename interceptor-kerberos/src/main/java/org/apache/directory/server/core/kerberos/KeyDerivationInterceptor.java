@@ -82,8 +82,6 @@ import org.slf4j.LoggerFactory;
  * are used to derive Kerberos keys.  If the 'userPassword' is the special keyword
  * 'randomKey', a random key is generated and used as the Kerberos key.
  * 
- * @org.apache.xbean.XBean
- *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

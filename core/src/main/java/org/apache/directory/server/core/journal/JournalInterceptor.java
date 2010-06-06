@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * An interceptor which intercepts write operations to the directory and
  * logs them into a journal.
  * 
- * @org.apache.xbean.XBean
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class JournalInterceptor extends BaseInterceptor
 {

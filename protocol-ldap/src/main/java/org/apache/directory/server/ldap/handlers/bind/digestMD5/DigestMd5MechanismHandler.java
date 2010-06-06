@@ -20,6 +20,13 @@
 package org.apache.directory.server.ldap.handlers.bind.digestMD5;
 
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.sasl.Sasl;
+import javax.security.sasl.SaslServer;
+
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
@@ -28,18 +35,10 @@ import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
 
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.sasl.Sasl;
-import javax.security.sasl.SaslServer;
-
-import java.util.HashMap;
-import java.util.Map;
-
 
 /**
  * The DIGEST-MD5 mechanism handler.
  * 
- * @org.apache.xbean.XBean
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

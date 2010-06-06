@@ -20,6 +20,8 @@
 package org.apache.directory.server.ldap.handlers.bind;
 
 
+import javax.security.sasl.SaslServer;
+
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -36,14 +38,11 @@ import org.apache.directory.shared.ldap.name.DN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.security.sasl.SaslServer;
-
 
 /**
  * A Dummy mechanism handler for Simple mechanism: not really used but needed
  * for the mechanism map.
  *
- * @org.apache.xbean.XBean
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */

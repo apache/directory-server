@@ -57,8 +57,6 @@ import org.slf4j.LoggerFactory;
  * referral handling behavoir when the {@link Context#REFERRAL} is implicitly
  * or explicitly set to "ignore", when set to "throw" and when set to "follow". 
  * 
- * @org.apache.xbean.XBean
- *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */

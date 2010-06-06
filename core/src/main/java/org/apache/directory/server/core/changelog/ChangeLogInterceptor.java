@@ -56,8 +56,6 @@ import org.slf4j.LoggerFactory;
  * An interceptor which intercepts write operations to the directory and
  * logs them with the server's ChangeLog service.
  * Note: Adding/deleting a tag is not recorded as a change
- * 
- * @org.apache.xbean.XBean
  */
 public class ChangeLogInterceptor extends BaseInterceptor
 {

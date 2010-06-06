@@ -23,12 +23,9 @@ package org.apache.directory.server.ldap;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.KeyStoreSpi;
-import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.Security;
-import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -107,7 +104,6 @@ import org.slf4j.LoggerFactory;
  * An LDAP protocol provider implementation which dynamically associates
  * handlers.
  *
- * @org.apache.xbean.XBean
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 688548 $
  */
@@ -893,8 +889,6 @@ public class LdapServer extends DirectoryBackedService
     /**
      * Sets the {@link ExtendedOperationHandler}s.
      *
-     * @org.apache.xbean.Property nestedType="org.apache.directory.server.ldap.ExtendedOperationHandler"
-     *
      * @param handlers A collection of {@link ExtendedOperationHandler}s.
      */
     public void setExtendedOperationHandlers( Collection<ExtendedOperationHandler> handlers )
@@ -984,9 +978,7 @@ public class LdapServer extends DirectoryBackedService
     /**
      * Sets the realms serviced by this SASL host, used by DIGEST-MD5 and GSSAPI.
      *
-     * @org.apache.xbean.Property nestedType="java.lang.String"
-     *
-     * @param saslRealms The realms serviced by this SASL host, used by DIGEST-MD5 and GSSAPI.
+    * @param saslRealms The realms serviced by this SASL host, used by DIGEST-MD5 and GSSAPI.
      */
     public void setSaslRealms( List<String> saslRealms )
     {
@@ -995,7 +987,6 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * @org.apache.xbean.Map flat="true" dups="replace" keyName="mech-name"
      */
     public Map<String, MechanismHandler> getSaslMechanismHandlers()
     {
@@ -1046,7 +1037,6 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * @org.apache.xbean.Property hidden="true"
      */
     public void setSupportedControls( Set<String> supportedControls )
     {
@@ -1061,7 +1051,6 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * @org.apache.xbean.Property hidden="true"
      * @param abandonHandler The AbandonRequest handler
      */
     public void setAbandonHandler( LdapRequestHandler<InternalAbandonRequest> abandonHandler )
@@ -1080,7 +1069,6 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * @org.apache.xbean.Property hidden="true"
      * @param abandonHandler The AddRequest handler
      */
     public void setAddHandler( LdapRequestHandler<InternalAddRequest> addHandler )
@@ -1099,7 +1087,6 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * @org.apache.xbean.Property hidden="true"
      * @param abandonHandler The BindRequest handler
      */
     public void setBindHandler( LdapRequestHandler<InternalBindRequest> bindHandler )
@@ -1119,7 +1106,6 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * @org.apache.xbean.Property hidden="true"
      * @param abandonHandler The CompareRequest handler
      */
     public void setCompareHandler( LdapRequestHandler<InternalCompareRequest> compareHandler )
@@ -1138,7 +1124,6 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * @org.apache.xbean.Property hidden="true"
      * @param abandonHandler The DeleteRequest handler
      */
     public void setDeleteHandler( LdapRequestHandler<InternalDeleteRequest> deleteHandler )
@@ -1157,7 +1142,6 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * @org.apache.xbean.Property hidden="true"
      * @param abandonHandler The ExtendedRequest handler
      */
     public void setExtendedHandler( LdapRequestHandler<InternalExtendedRequest> extendedHandler )
@@ -1176,7 +1160,6 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * @org.apache.xbean.Property hidden="true"
      * @param abandonHandler The ModifyRequest handler
      */
     public void setModifyHandler( LdapRequestHandler<InternalModifyRequest> modifyHandler )
@@ -1195,7 +1178,6 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * @org.apache.xbean.Property hidden="true"
      * @param abandonHandler The ModifyDNRequest handler
      */
     public void setModifyDnHandler( LdapRequestHandler<InternalModifyDnRequest> modifyDnHandler )
@@ -1214,7 +1196,6 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * @org.apache.xbean.Property hidden="true"
      * @param abandonHandler The SearchRequest handler
      */
     public void setSearchHandler( LdapRequestHandler<InternalSearchRequest> searchHandler )
@@ -1288,7 +1269,6 @@ public class LdapServer extends DirectoryBackedService
     }
 
     /**
-     * @org.apache.xbean.Property hidden="true"
      * @param abandonHandler The UnbindRequest handler
      */
     public void setUnbindHandler( LdapRequestHandler<InternalUnbindRequest> unbindHandler )
@@ -1307,7 +1287,6 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * @org.apache.xbean.Property hidden="true"
      */
     public void setStarted( boolean started )
     {

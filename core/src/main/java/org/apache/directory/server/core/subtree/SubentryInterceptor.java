@@ -93,8 +93,6 @@ import org.slf4j.LoggerFactory;
  * The Subentry interceptor service which is responsible for filtering
  * out subentries on search operations and injecting operational attributes
  *
- * @org.apache.xbean.XBean
- *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */

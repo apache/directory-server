@@ -44,8 +44,6 @@ import org.apache.directory.shared.ldap.name.DN;
 /**
  * An extended handler for digital certificate generation
  * 
- * @org.apache.xbean.XBean
- *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
