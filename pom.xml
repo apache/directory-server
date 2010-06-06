@@ -124,14 +124,11 @@
     <module>default-config</module>
     <!--Uncomment to build all in one OSGi bundle-->
     <!--<module>osgi</module>-->
-    <module>server-xml</module>
     <module>server-jndi</module>
     <module>kerberos-shared</module>
     <module>interceptor-kerberos</module>
     <module>kerberos-test</module>
-    <!--module>syncrepl</module-->
     <module>server-replication</module>
-    <module>xbean-spring</module>
     <module>http-integration</module>
     <module>test-framework</module>
     <module>ldap-client-test</module>
