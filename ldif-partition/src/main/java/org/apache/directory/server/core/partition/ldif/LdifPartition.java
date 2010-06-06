@@ -579,7 +579,7 @@ public class LdifPartition extends BTreePartition<Long>
      */
     private String getFileName( RDN rdn ) throws LdapException
     {
-        StringBuffer fileName = new StringBuffer( "" );
+        StringBuilder fileName = new StringBuilder( "" );
 
         Iterator<AVA> iterator = rdn.iterator();
         while ( iterator.hasNext() )
