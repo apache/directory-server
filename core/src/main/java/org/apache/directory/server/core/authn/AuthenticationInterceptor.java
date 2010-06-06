@@ -42,7 +42,6 @@ import org.apache.directory.server.core.interceptor.context.DeleteOperationConte
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
@@ -256,18 +255,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         checkAuthenticated( opContext );
         return next.list( opContext );
-    }
-
-
-    public Set<String> listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws LdapException
-    {
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "Operation Context: {}", opContext );
-        }
-
-        checkAuthenticated( opContext );
-        return next.listSuffixes( opContext );
     }
 
 

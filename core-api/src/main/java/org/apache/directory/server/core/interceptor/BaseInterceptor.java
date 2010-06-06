@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.interceptor;
 
 
-import java.util.Set;
-
 import javax.naming.Context;
 
 import org.apache.directory.server.core.DirectoryService;
@@ -34,7 +32,6 @@ import org.apache.directory.server.core.interceptor.context.DeleteOperationConte
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
@@ -146,13 +143,6 @@ public abstract class BaseInterceptor implements Interceptor
     public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws LdapException
     {
         return next.list( opContext );
-    }
-
-
-    public Set<String> listSuffixes ( NextInterceptor next, ListSuffixOperationContext opContext ) 
-        throws LdapException
-    {
-        return next.listSuffixes( opContext );
     }
 
 

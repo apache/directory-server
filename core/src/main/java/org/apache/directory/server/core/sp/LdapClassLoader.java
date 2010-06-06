@@ -24,16 +24,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
-import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.StringValue;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.AndNode;
@@ -181,11 +179,7 @@ public class LdapClassLoader extends ClassLoader
             {
                 List<DN> namingContexts = new ArrayList<DN>();
                 
-                // TODO - why is this an operation????  Why can't we just list these damn things
-                // who went stupid crazy making everything into a damn operation  !!!! grrrr 
-                Set<String> suffixes = 
-                    directoryService.getPartitionNexus().listSuffixes( 
-                        new ListSuffixOperationContext( directoryService.getAdminSession() ) );
+                Set<String> suffixes = directoryService.getPartitionNexus().listSuffixes();
 
                 for ( String suffix:suffixes )
                 {

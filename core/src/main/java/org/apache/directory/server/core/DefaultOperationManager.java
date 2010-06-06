@@ -22,7 +22,6 @@ package org.apache.directory.server.core;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
@@ -33,7 +32,6 @@ import org.apache.directory.server.core.interceptor.context.DeleteOperationConte
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
@@ -528,29 +526,6 @@ public class DefaultOperationManager implements OperationManager
             pop();
 
             LOG.debug( "<< ListOperation successful" );
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws LdapException
-    {
-        LOG.debug( ">> ListSuffixesOperation : {}", opContext );
-
-        ensureStarted();
-        push( opContext );
-
-        try
-        {
-            return directoryService.getInterceptorChain().listSuffixes( opContext );
-        }
-        finally
-        {
-            pop();
-
-            LOG.debug( "<< ListSuffixesOperation successful" );
         }
     }
 

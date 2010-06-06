@@ -72,7 +72,7 @@ public class ReferralManagerImpl implements ReferralManager
         referrals = new DnBranchNode<Entry>();
         PartitionNexus nexus = directoryService.getPartitionNexus();
 
-        Set<String> suffixes = nexus.listSuffixes( null );
+        Set<String> suffixes = nexus.listSuffixes();
         
         init( directoryService, suffixes.toArray( new String[]{} ) );
         

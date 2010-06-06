@@ -19,8 +19,6 @@
  */
 package org.apache.directory.server.core;
 
-import java.util.Set;
-
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -31,7 +29,6 @@ import org.apache.directory.server.core.interceptor.context.DeleteOperationConte
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
@@ -82,11 +79,6 @@ public class MockOperationManager implements OperationManager
     }
 
     public EntryFilteringCursor list( ListOperationContext opContext ) throws LdapException
-    {
-        return null;
-    }
-
-    public Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws LdapException
     {
         return null;
     }

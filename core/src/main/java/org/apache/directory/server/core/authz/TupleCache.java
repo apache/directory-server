@@ -116,7 +116,7 @@ public class TupleCache
         // search all naming contexts for access control subentenries
         // generate ACITuple Arrays for each subentry
         // add that subentry to the hash
-        Set<String> suffixes = nexus.listSuffixes( null );
+        Set<String> suffixes = nexus.listSuffixes();
 
         for ( String suffix:suffixes )
         {

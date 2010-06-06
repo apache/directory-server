@@ -19,7 +19,6 @@
  */
 package org.apache.directory.server.core.logger;
 
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -34,7 +33,6 @@ import org.apache.directory.server.core.interceptor.context.DeleteOperationConte
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
@@ -102,10 +100,6 @@ public class TimerInterceptor implements Interceptor
     /** Stats for the list operation */
     private static AtomicLong totalList = new AtomicLong( 0 );
     private static AtomicInteger nbListCalls = new AtomicInteger( 0 );
-    
-    /** Stats for the ListSuffixes operation */
-    private static AtomicLong totalListSuffixes = new AtomicLong( 0 );
-    private static AtomicInteger nbListSuffixesCalls = new AtomicInteger( 0 );
     
     /** Stats for the lookup operation */
     private static AtomicLong totalLookup = new AtomicLong( 0 );
@@ -574,35 +568,5 @@ public class TimerInterceptor implements Interceptor
         {
             OPERATION_TIME.debug( "{} : Delta unbind = {}", name, delta );
         }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Set<String> listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws LdapException
-    {
-        long t0 = System.nanoTime();
-        Set<String> suffixes = next.listSuffixes( opContext );
-        long delta = System.nanoTime() - t0;
-        
-        if ( IS_DEBUG_STATS )
-        {
-            nbListSuffixesCalls.incrementAndGet();
-            totalListSuffixes.getAndAdd( delta );
-    
-            if ( nbListSuffixesCalls.get() % 1000 == 0 )
-            {
-                long average = totalListSuffixes.get()/(nbListSuffixesCalls.get() * 1000);
-                OPERATION_STATS.debug( name + " : Average listSuffixes = {} microseconds, nb listSuffixes = {}", average, nbListSuffixesCalls.get() );
-            }
-        }
-
-        if ( IS_DEBUG_TIME )
-        {
-            OPERATION_TIME.debug( "{} : Delta listSuffixes = {}", name, delta );
-        }
-        
-        return suffixes; 
     }
 }

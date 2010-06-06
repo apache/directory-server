@@ -126,7 +126,7 @@ public class GroupCache
         // search all naming contexts for static groups and generate
         // normalized sets of members to cache within the map
 
-        Set<String> suffixes = nexus.listSuffixes( null );
+        Set<String> suffixes = nexus.listSuffixes();
 
         for ( String suffix:suffixes )
         {

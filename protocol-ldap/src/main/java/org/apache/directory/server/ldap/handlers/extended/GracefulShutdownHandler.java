@@ -268,13 +268,6 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
     public static GracefulDisconnect getGracefulDisconnect( int timeOffline, int delay )
     {
         // build the graceful disconnect message with replicationContexts
-        // @todo add the referral objects for replication contexts using setup code below
-        //        Iterator list = nexus.listSuffixes( true );
-        //        while ( list.hasNext() )
-        //        {
-        //            LdapName dn = new LdapName( ( String ) list.next() );
-        //            DirectoryPartition partition = nexus.getPartition( dn );
-        //        }
         return new GracefulDisconnect( timeOffline, delay );
     }
 

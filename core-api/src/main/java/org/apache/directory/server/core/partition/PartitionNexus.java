@@ -24,7 +24,6 @@ import java.util.Set;
 
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
@@ -117,7 +116,7 @@ public interface PartitionNexus extends Partition
      * @return Iteration over ContextPartition suffix names as Names.
      * @throws Exception if there are any problems
      */
-    public Set<String> listSuffixes( ListSuffixOperationContext emptyContext ) throws LdapException;
+    public Set<String> listSuffixes() throws LdapException;
 
 
     /**

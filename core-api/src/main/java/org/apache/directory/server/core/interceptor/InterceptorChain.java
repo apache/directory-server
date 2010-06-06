@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.naming.ConfigurationException;
 
@@ -39,7 +38,6 @@ import org.apache.directory.server.core.interceptor.context.DeleteOperationConte
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
@@ -105,12 +103,6 @@ public class InterceptorChain
             throws LdapException
         {
             return nexus.getRootDSE( opContext );
-        }
-
-
-        public Set<String> listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws LdapException
-        {
-            return nexus.listSuffixes( opContext );
         }
 
 
@@ -554,28 +546,6 @@ public class InterceptorChain
     }
 
 
-    public Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws LdapException
-    {
-        Element entry = getStartingEntry();
-        Interceptor head = entry.interceptor;
-        NextInterceptor next = entry.nextInterceptor;
-
-        try
-        {
-            return head.listSuffixes( next, opContext );
-        }
-        catch ( LdapException le )
-        {
-            throw le;
-        }
-        catch ( Throwable e )
-        {
-            throwInterceptorException( head, e );
-            throw new InternalError(); // Should be unreachable
-        }
-    }
-
-
     /**
      * Eagerly populates fields of operation contexts so multiple Interceptors 
      * in the processing pathway can reuse this value without performing a 
@@ -965,27 +935,6 @@ public class InterceptorChain
                     try
                     {
                         return interceptor.getRootDSE( next.nextInterceptor, opContext );
-                    }
-                    catch ( LdapException le )
-                    {
-                        throw le;
-                    }
-                    catch ( Throwable e )
-                    {
-                        throwInterceptorException( interceptor, e );
-                        throw new InternalError(); // Should be unreachable
-                    }
-                }
-
-
-                public Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws LdapException
-                {
-                    Element next = getNextEntry();
-                    Interceptor interceptor = next.interceptor;
-
-                    try
-                    {
-                        return interceptor.listSuffixes( next.nextInterceptor, opContext );
                     }
                     catch ( LdapException le )
                     {

@@ -116,7 +116,7 @@ public class TriggerSpecCache
         // search all naming contexts for trigger subentenries
         // generate TriggerSpecification arrays for each subentry
         // add that subentry to the hash
-        Set<String> suffixes = nexus.listSuffixes( null );
+        Set<String> suffixes = nexus.listSuffixes();
         
         for ( String suffix:suffixes )
         {

@@ -51,7 +51,6 @@ import org.apache.directory.server.core.interceptor.context.DeleteOperationConte
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
@@ -1059,9 +1058,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.PartitionNexus#listSuffixes(org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext)
      */
-    public Set<String> listSuffixes( ListSuffixOperationContext emptyContext ) throws LdapException
+    public Set<String> listSuffixes() throws LdapException
     {
         return Collections.unmodifiableSet( partitions.keySet() );
     }

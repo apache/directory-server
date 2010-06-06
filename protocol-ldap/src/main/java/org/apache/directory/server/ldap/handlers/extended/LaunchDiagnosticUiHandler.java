@@ -30,10 +30,8 @@ import java.util.Set;
 import javax.swing.JFrame;
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
-import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
@@ -96,8 +94,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
         DN adminDn = new DN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
         adminDn.normalize( service.getSchemaManager().getNormalizerMapping() );
         LdapPrincipal principal = new LdapPrincipal( adminDn, AuthenticationLevel.STRONG );
-        CoreSession session = service.getSession( principal );
-        Set<String> suffixes = nexus.listSuffixes( new ListSuffixOperationContext( session ) );
+        Set<String> suffixes = nexus.listSuffixes();
         int launchedWindowCount = 0;
             
         for ( String suffix:suffixes )

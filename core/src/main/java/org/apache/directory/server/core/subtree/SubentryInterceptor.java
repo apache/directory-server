@@ -155,7 +155,7 @@ public class SubentryInterceptor extends BaseInterceptor
         evaluator = new SubtreeEvaluator( oidRegistry, schemaManager );
 
         // prepare to find all subentries in all namingContexts
-        Set<String> suffixes = this.nexus.listSuffixes( null );
+        Set<String> suffixes = nexus.listSuffixes();
         ExprNode filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
             SchemaConstants.SUBENTRY_OC ) );
         SearchControls controls = new SearchControls();
