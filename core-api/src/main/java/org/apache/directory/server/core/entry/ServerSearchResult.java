@@ -45,15 +45,15 @@ public class ServerSearchResult
     private Object object;
     
 
-    public ServerSearchResult( DN dn, Object obj, Entry serverEntry )
-    {
-        this.dn = dn;
-        this.serverEntry = serverEntry;
-        this.serverEntry.setDn( dn );
-    }
-
-
-    public ServerSearchResult( DN dn, Object obj, Entry serverEntry, boolean isRelative )
+    /**
+     * 
+     * Creates a new instance of ServerSearchResult.
+     *
+     * @param dn Distinguished name for this result
+     * @param serverEntry The associated entry 
+     * @param isRelative Tells if the name is relative to the target context
+     */
+    public ServerSearchResult( DN dn, Entry serverEntry, boolean isRelative )
     {
         this.dn = dn;
         this.serverEntry = serverEntry;
@@ -62,15 +62,14 @@ public class ServerSearchResult
     }
 
 
-    public ServerSearchResult( DN dn, String className, Object obj, Entry serverEntry )
-    {
-        this.dn = dn;
-        this.serverEntry = serverEntry;
-        this.serverEntry.setDn( dn );
-    }
-
-
-    public ServerSearchResult( DN dn, String className, Object obj, Entry serverEntry, boolean isRelative ) 
+    /**
+     * 
+     * Creates a new instance of ServerSearchResult.
+     *
+     * @param dn Distinguished name for this result
+     * @param serverEntry The associated entry
+     */
+    public ServerSearchResult( DN dn, Entry serverEntry ) 
     {
         this.dn = dn;
         this.serverEntry = serverEntry;
