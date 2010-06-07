@@ -206,7 +206,7 @@ public class BTree<K, V> implements Externalizable
             throw new IllegalArgumentException( I18n.err( I18n.ERR_519 ) );
         }
 
-        if ( keySerializer != null && !( keySerializer instanceof Serializable ) )
+        if ( keySerializer != null )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_520 ) );
         }
