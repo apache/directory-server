@@ -51,10 +51,13 @@ public class ClonedServerEntry implements Entry
     /** The copied entry */
     protected Entry clonedEntry;
 
+    /**
+     * Creates a new instance of ClonedServerEntry.
+     */
     public ClonedServerEntry()
     {
-        
     }
+
     
     /**
      * Creates a new instance of ClonedServerEntry.
@@ -65,7 +68,7 @@ public class ClonedServerEntry implements Entry
      */
     public ClonedServerEntry( Entry originalEntry )
     {
-        this.originalEntry = ( Entry )originalEntry.clone();
+        this.originalEntry = originalEntry;
         this.clonedEntry = ( Entry ) originalEntry.clone();
     }
     

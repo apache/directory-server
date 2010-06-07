@@ -64,19 +64,25 @@ public class SearchPerfIT extends AbstractLdapTestUnit
 
        assertEquals( 1, i );
 
-       for ( int j = 0; j < 10000; j++ )
-       {
-           cursor = connection.search( "uid=admin,ou=system", "(ObjectClass=*)", SearchScope.OBJECT, "*" );
-           cursor.close();
-       }
+       int nbIterations = 150000;
 
        long t0 = System.currentTimeMillis();
+       long t00 = 0L;
+       long tt0 = System.currentTimeMillis();
        
-       for ( int j = 0; j < 1000000; j++ )
+       for ( i = 0; i < nbIterations; i++ )
        {
-           if ( j % 10000 == 0 )
+           if ( i % 1000 == 0 )
            {
-               System.out.println(j);
+               long tt1 = System.currentTimeMillis();
+
+               System.out.println( i + ", " + ( tt1 - tt0 ) );
+               tt0 = tt1;
+           }
+
+           if ( i == 5000 )
+           {
+               t00 = System.currentTimeMillis();
            }
            
            cursor = connection.search( "uid=admin,ou=system", "(ObjectClass=*)", SearchScope.OBJECT, "*" );
@@ -84,8 +90,9 @@ public class SearchPerfIT extends AbstractLdapTestUnit
        }
        
        long t1 = System.currentTimeMillis();
-       
-       System.out.println( "Delta = " + ( t1 - t0 ) );
+
+       Long deltaWarmed = ( t1 - t00 );
+       System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 5000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
        connection.close();
    }
 }

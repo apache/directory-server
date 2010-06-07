@@ -62,21 +62,34 @@ public class LookupPerfIT extends AbstractLdapTestUnit
         
         assertNotNull( entry );
 
+        int nbIterations = 150000;
+
         long t0 = System.currentTimeMillis();
-        
-        for ( int i = 0; i < 100; i++ )
+        long t00 = 0L;
+        long tt0 = System.currentTimeMillis();
+
+        for ( int i = 0; i < nbIterations; i++ )
         {
-            for ( int j = 0; j < 5000; j++ )
+            if ( i % 1000 == 0 )
             {
-                connection.lookup( "uid=admin,ou=system", "+" );
+                long tt1 = System.currentTimeMillis();
+
+                System.out.println( i + ", " + ( tt1 - tt0 ) );
+                tt0 = tt1;
             }
-            
-            System.out.print( "." );
+
+            if ( i == 5000 )
+            {
+                t00 = System.currentTimeMillis();
+            }
+
+            connection.lookup( "uid=admin,ou=system", "+" );
         }
         
         long t1 = System.currentTimeMillis();
-        
-        System.out.println( "Delta : " + ( t1 - t0 ) );
+
+        Long deltaWarmed = ( t1 - t00 );
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 5000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
         connection.close();
     }
 }

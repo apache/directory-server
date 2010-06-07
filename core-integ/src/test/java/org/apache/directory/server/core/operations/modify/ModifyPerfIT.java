@@ -74,11 +74,13 @@ public class ModifyPerfIT extends AbstractLdapTestUnit
 
         connection.add( entry );
 
+        int nbIterations = 150000;
+
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
         long tt0 = System.currentTimeMillis();
 
-        for ( int i = 0; i < 1; i++ )
+        for ( int i = 0; i < nbIterations; i++ )
         {
             if ( i % 100 == 0 )
             {
@@ -88,7 +90,7 @@ public class ModifyPerfIT extends AbstractLdapTestUnit
                 tt0 = tt1;
             }
 
-            if ( i == 10000 )
+            if ( i == 5000 )
             {
                 t00 = System.currentTimeMillis();
             }
@@ -111,7 +113,8 @@ public class ModifyPerfIT extends AbstractLdapTestUnit
 
         long t1 = System.currentTimeMillis();
 
-        System.out.println( "Delta : " + ( t1 - t00 ) + "/" + ( t1 - t0 ) );
+        Long deltaWarmed = ( t1 - t00 );
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 5000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
         connection.close();
     }
 }

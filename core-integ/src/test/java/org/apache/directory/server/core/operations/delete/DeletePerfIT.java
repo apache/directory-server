@@ -19,14 +19,7 @@
  */
 package org.apache.directory.server.core.operations.delete;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.SearchResponse;
-import org.apache.directory.ldap.client.api.message.SearchResultEntry;
-import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
@@ -37,7 +30,6 @@ import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -102,7 +94,6 @@ public class DeletePerfIT extends AbstractLdapTestUnit
      * Test an add operation performance
      */
     @Test
-    @Ignore
     public void testDeletePerf() throws Exception
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );
@@ -114,11 +105,12 @@ public class DeletePerfIT extends AbstractLdapTestUnit
         entry.add( "cn", "test" );
         
         connection.add(entry );
-        
+        int nbIterations = 15000;
+
         long t0 = System.currentTimeMillis();
         long tt0 = System.currentTimeMillis();
         
-        for ( int i = 0; i < 5000; i++ )
+        for ( int i = 0; i < nbIterations; i++ )
         {
             if ( i% 1000 == 0 )
             {
@@ -142,16 +134,24 @@ public class DeletePerfIT extends AbstractLdapTestUnit
         System.out.println( "Delta addition : " + ( t1 - t0 ) );
         
         // Deletion
+
         t0 = System.currentTimeMillis();
+        long t00 = 0L;
         tt0 = System.currentTimeMillis();
         
-        for ( int i = 0; i < 5000; i++ )
+        for ( int i = 0; i < nbIterations; i++ )
         {
-            if ( i% 1000 == 0 )
+            if ( i % 100 == 0 )
             {
                 long tt1 = System.currentTimeMillis();
+
                 System.out.println( i + ", " + ( tt1 - tt0 ) );
                 tt0 = tt1;
+            }
+
+            if ( i == 5000 )
+            {
+                t00 = System.currentTimeMillis();
             }
             
             String name = "test" + i;
@@ -161,8 +161,9 @@ public class DeletePerfIT extends AbstractLdapTestUnit
         }
         
         t1 = System.currentTimeMillis();
-        
-        System.out.println( "Delta delete : " + ( t1 - t0 ) );
+
+        Long deltaWarmed = ( t1 - t00 );
+        System.out.println( "Delta deletion: " + deltaWarmed + "( " + ( ( ( nbIterations - 5000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
 
         connection.close();
     }
