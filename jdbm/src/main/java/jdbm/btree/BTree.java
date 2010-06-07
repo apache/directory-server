@@ -206,16 +206,6 @@ public class BTree<K, V> implements Externalizable
             throw new IllegalArgumentException( I18n.err( I18n.ERR_519 ) );
         }
 
-        if ( ( keySerializer != null ) && ! ( keySerializer instanceof Serializable ) )
-        {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_520 ) );
-        }
-
-        if ( ( valueSerializer != null ) && !( valueSerializer instanceof Serializable ) )
-        {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_521 ) );
-        }
-
         // make sure there's an even number of entries per BPage
         if ( ( pageSize & 1 ) != 0 )
         {
