@@ -210,9 +210,9 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private boolean isTheAdministrator( DN normalizedDn )
+    private boolean isTheAdministrator( DN dn )
     {
-        return normalizedDn.equals( ADMIN_SYSTEM_DN );
+        return dn.equals( ADMIN_SYSTEM_DN );
     }
 
 
@@ -394,7 +394,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             return entry;
         }
 
-        protectLookUp( session.getEffectivePrincipal().getDN(), opContext.getDn() );
+        protectLookUp( session.getEffectivePrincipal().getDNRef(), opContext.getDn() );
 
         return entry;
     }
@@ -422,7 +422,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
                 if ( normalizedDn.isChildOf( GROUP_BASE_DN ) )
                 {
                     // allow for self reads
-                    if ( normalizedDn.getNormName().equals( principalDn.getNormName() ) )
+                    if ( normalizedDn.equals( principalDn ) )
                     {
                         return;
                     }
@@ -510,7 +510,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         }
 
         // Users reading their own entries should be allowed to see all
-        boolean isSelfRead = dn.getNormName().equals( principalDn.getNormName() );
+        boolean isSelfRead = dn.equals( principalDn );
 
         if ( isSelfRead )
         {
@@ -523,8 +523,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             // stuff this if in here instead of up in outer if to prevent 
             // constant needless reexecution for all entries in other depths
 
-            if ( dn.getNormName().endsWith( ADMIN_SYSTEM_DN.getNormName() )
-                || dn.getNormName().endsWith( GROUP_BASE_DN.getNormName() ) )
+            if ( dn.isChildOf( ADMIN_SYSTEM_DN ) || dn.isChildOf( GROUP_BASE_DN ) )
             {
                 return false;
             }
