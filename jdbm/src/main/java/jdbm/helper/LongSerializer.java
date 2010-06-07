@@ -94,7 +94,7 @@ public class LongSerializer
         throws IOException
      {
          long number = Conversion.convertToLong( serialized );
-         return new Long( number );
+         return Long.valueOf( number );
      }
 
 }
