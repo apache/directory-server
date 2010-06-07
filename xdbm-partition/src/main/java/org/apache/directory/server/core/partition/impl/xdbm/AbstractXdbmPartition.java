@@ -309,7 +309,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
         }
         catch ( Exception e )
         {
-            
+            throw new LdapOperationErrorException( e.getMessage() );
         }
     }
 
