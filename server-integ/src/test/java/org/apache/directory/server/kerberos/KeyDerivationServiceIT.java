@@ -143,7 +143,12 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
          }
          else if ( vendor.equalsIgnoreCase( "BEA Systems, Inc." ) )
          {
-             // Could be 4 or 5 depending on whether AES-256 is enabled or not, on JRockit
+             // Could be 4 or 5 depending on whether AES-256 is enabled or not, on BEA JRockit
+             assertTrue( "Number of keys", krb5key.size() > 3 );
+         }
+         else if ( vendor.equalsIgnoreCase( "Oracle Corporation" ) )
+         {
+             // Could be 4 or 5 depending on whether AES-256 is enabled or not, on Oracle JRockit
              assertTrue( "Number of keys", krb5key.size() > 3 );
          }
          else if ( vendor.equalsIgnoreCase( "Apple Inc." ) )
