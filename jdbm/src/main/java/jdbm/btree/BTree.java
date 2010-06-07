@@ -55,12 +55,12 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.directory.server.i18n.I18n;
-
 import jdbm.RecordManager;
 import jdbm.helper.Serializer;
 import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
+
+import org.apache.directory.server.i18n.I18n;
 
 
 /**
@@ -206,12 +206,12 @@ public class BTree<K, V> implements Externalizable
             throw new IllegalArgumentException( I18n.err( I18n.ERR_519 ) );
         }
 
-        if ( keySerializer != null )
+        if ( ( keySerializer != null ) && ! ( keySerializer instanceof Serializable ) )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_520 ) );
         }
 
-        if ( valueSerializer != null && !( valueSerializer instanceof Serializable ) )
+        if ( ( valueSerializer != null ) && !( valueSerializer instanceof Serializable ) )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_521 ) );
         }
