@@ -42,9 +42,6 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.StoreUtils;
-import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
-import org.apache.directory.server.xdbm.impl.avl.AvlRdnIndex;
-import org.apache.directory.server.xdbm.impl.avl.AvlStore;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.Cursor;
@@ -621,7 +618,7 @@ public class AvlStoreTest
 
         RDN rdn = new RDN( "sn=James" );
 
-        store.rename( dn, rdn, true );
+        store.rename( dn, rdn, true, null );
     }
 
 
@@ -641,7 +638,7 @@ public class AvlStoreTest
 
         RDN rdn = new RDN( "sn=Ja\\+es" );
 
-        store.rename( dn, rdn, true );
+        store.rename( dn, rdn, true, null );
 
         DN dn2 = new DN( "sn=Ja\\+es,ou=Engineering,o=Good Times Co." );
         dn2.normalize( schemaManager.getNormalizerMapping() );

@@ -505,9 +505,10 @@ public interface Store<E, ID extends Comparable<ID>>
      * @param dn the normalized distinguished name of the entry to alter
      * @param newRdn the new RDN to set
      * @param deleteOldRdn whether or not to remove the old RDN attr/val
+     * @param entry the modified entry
      * @throws Exception if there are any errors propagating the name changes
      */
-    void rename( DN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception;
+    void rename( DN dn, RDN newRdn, boolean deleteOldRdn, Entry entry ) throws Exception;
 
 
     void move( DN oldChildDn, DN newParentDn, RDN newRdn, boolean deleteOldRdn ) throws Exception;

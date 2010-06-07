@@ -948,7 +948,7 @@ public class SchemaInterceptor extends BaseInterceptor
         DN oldDn = opContext.getDn();
         RDN newRdn = opContext.getNewRdn();
         boolean deleteOldRn = opContext.getDelOldDn();
-        Entry entry = ( Entry ) opContext.getEntry().getClonedEntry();
+        Entry entry = opContext.getEntry().getClonedEntry();
 
         /*
          *  Note: This is only a consistency checks, to the ensure that all
@@ -958,7 +958,6 @@ public class SchemaInterceptor extends BaseInterceptor
          */
         if ( deleteOldRn )
         {
-            Entry tmpEntry = ( Entry ) entry.clone();
             RDN oldRDN = oldDn.getRdn();
 
             // Delete the old RDN means we remove some attributes and values.
@@ -967,23 +966,8 @@ public class SchemaInterceptor extends BaseInterceptor
             for ( AVA atav : oldRDN )
             {
                 AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
-                tmpEntry.remove( type, atav.getUpValue() );
+                entry.remove( type, atav.getUpValue() );
             }
-
-            for ( AVA atav : newRdn )
-            {
-                AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
-
-                if ( !tmpEntry.contains( type, atav.getNormValue() ) )
-                {
-                    tmpEntry.add( new DefaultEntryAttribute( type, atav.getUpValue() ) );
-                }
-            }
-
-            // Substitute the RDN and check if the new entry is correct
-            tmpEntry.setDn( opContext.getNewDn() );
-
-            check( opContext.getNewDn(), tmpEntry );
 
             // Check that no operational attributes are removed
             for ( AVA atav : oldRDN )
@@ -996,6 +980,21 @@ public class SchemaInterceptor extends BaseInterceptor
                 }
             }
         }
+        
+        for ( AVA atav : newRdn )
+        {
+            AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
+
+            if ( !entry.contains( type, atav.getNormValue() ) )
+            {
+                entry.add( new DefaultEntryAttribute( type, atav.getUpValue() ) );
+            }
+        }
+
+        // Substitute the RDN and check if the new entry is correct
+        entry.setDn( opContext.getNewDn() );
+
+        check( opContext.getNewDn(), entry );
 
         next.rename( opContext );
     }

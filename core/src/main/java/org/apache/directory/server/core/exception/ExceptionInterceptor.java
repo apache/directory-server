@@ -354,17 +354,6 @@ public class ExceptionInterceptor extends BaseInterceptor
                 subschemSubentryDn, subschemSubentryDn ) );
         }
 
-        // Check to see if the renamed entry exists
-        if ( opContext.getEntry() == null )
-        {
-            // This is a nonsense : we can't rename an entry which does not exist
-            // on the server
-            LdapNoSuchObjectException ldnfe;
-            ldnfe = new LdapNoSuchObjectException( I18n.err( I18n.ERR_256, dn.getName() ) );
-            //ldnfe.setResolvedName( new DN( dn.getName() ) );
-            throw ldnfe;
-        }
-
         // check to see if target entry exists
         DN newDn = opContext.getNewDn();
 

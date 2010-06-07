@@ -212,7 +212,7 @@ public class EventInterceptor extends BaseInterceptor
 
     public void rename( NextInterceptor next, RenameOperationContext opContext ) throws LdapException
     {
-        Entry oriEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
+        Entry oriEntry = opContext.getEntry().getOriginalEntry();
         List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), oriEntry );
 
         next.rename( opContext );

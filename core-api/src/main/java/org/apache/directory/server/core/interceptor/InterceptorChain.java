@@ -51,8 +51,10 @@ import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -554,7 +556,7 @@ public class InterceptorChain
      */
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
-    private void eagerlyPopulateFields( OperationContext opContext )
+    private void eagerlyPopulateFields( OperationContext opContext ) throws LdapException
     {
         // If the entry field is not set for ops other than add for example 
         // then we set the entry but don't freak if we fail to do so since it
@@ -562,17 +564,30 @@ public class InterceptorChain
 
         if ( opContext.getEntry() == null )
         {
-            try
+            // We have to use the admin session here, otherwise we may have
+            // trouble reading the entry due to insufficient access rights 
+            CoreSession adminSession = opContext.getSession().getDirectoryService().getAdminSession();
+            
+            Entry foundEntry = adminSession.lookup( opContext.getDn(),
+                SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES_ARRAY );
+            
+            if ( foundEntry != null )
             {
-                // We have to use the admin session here, otherwise we may have
-                // trouble reading the entry due to insufficient access rights 
-                CoreSession adminSession = opContext.getSession().getDirectoryService().getAdminSession();
-                opContext.setEntry( ( ClonedServerEntry ) adminSession.lookup( opContext.getDn(),
-                    SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES_ARRAY ) );
+                if ( foundEntry instanceof DefaultEntry )
+                {
+                    opContext.setEntry( new ClonedServerEntry( foundEntry ) );
+                }
+                else
+                {
+                    opContext.setEntry( (ClonedServerEntry)foundEntry );
+                }
             }
-            catch ( Exception e )
+            else
             {
-                // might not exist
+                // This is an error : we *must* have an entry if we want to be able to rename.
+                LdapNoSuchObjectException ldnfe = new LdapNoSuchObjectException( I18n.err( I18n.ERR_256, opContext.getDn() ) );
+
+                throw ldnfe;
             }
         }
     }

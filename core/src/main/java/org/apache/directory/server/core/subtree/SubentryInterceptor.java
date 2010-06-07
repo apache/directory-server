@@ -789,7 +789,7 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         DN name = opContext.getDn();
 
-        Entry entry = ( Entry ) opContext.getEntry().getClonedEntry();
+        Entry entry = opContext.getEntry().getClonedEntry();
 
         EntryAttribute objectClasses = entry.get( objectClassType );
 

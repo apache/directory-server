@@ -698,7 +698,7 @@ public class JdbmStoreTest
 
         RDN rdn = new RDN( "sn=James" );
 
-        store.rename( dn, rdn, true );
+        store.rename( dn, rdn, true, null );
     }
 
 
@@ -718,7 +718,7 @@ public class JdbmStoreTest
 
         RDN rdn = new RDN( "sn=Ja\\+es" );
 
-        store.rename( dn, rdn, true );
+        store.rename( dn, rdn, true, null );
 
         DN dn2 = new DN( "sn=Ja\\+es,ou=Engineering,o=Good Times Co." );
         dn2.normalize( schemaManager.getNormalizerMapping() );

@@ -1069,10 +1069,17 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * @throws Exception if there are any errors propagating the name changes
      */
     @SuppressWarnings("unchecked")
-    public synchronized void rename( DN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception
+    public synchronized void rename( DN dn, RDN newRdn, boolean deleteOldRdn, Entry entry ) throws Exception
     {
         ID id = getEntryId( dn );
-        Entry entry = lookup( id );
+        boolean hasEntry = true;
+        
+        if ( entry == null )
+        {
+            hasEntry = false;
+            entry = lookup( id );
+        }
+        
         DN updn = entry.getDn();
 
         newRdn.normalize( schemaManager.getNormalizerMapping() );
@@ -1090,9 +1097,13 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         {
             String newNormType = newAtav.getNormType();
             Object newNormValue = newAtav.getNormValue().get();
-            AttributeType newRdnAttrType = schemaManager.lookupAttributeTypeRegistry( newNormType );
-
-            entry.add( newRdnAttrType, newAtav.getUpValue() );
+            
+            if ( ! hasEntry )
+            {
+                AttributeType newRdnAttrType = schemaManager.lookupAttributeTypeRegistry( newNormType );
+    
+                entry.add( newRdnAttrType, newAtav.getUpValue() );
+            }
 
             if ( hasUserIndexOn( newNormType ) )
             {
@@ -1192,7 +1203,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     public synchronized void move( DN oldChildDn, DN newParentDn, RDN newRdn, boolean deleteOldRdn ) throws Exception
     {
         ID childId = getEntryId( oldChildDn );
-        rename( oldChildDn, newRdn, deleteOldRdn );
+        rename( oldChildDn, newRdn, deleteOldRdn, null );
         move( oldChildDn, childId, newParentDn, newRdn );
 
         if ( isSyncOnWrite )

@@ -152,10 +152,19 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     public void rename( NextInterceptor nextInterceptor, RenameOperationContext opContext ) throws LdapException
     {
-        // Normalize the new RDN and the DN
+        // Normalize the new RDN and the DN if needed
+        
+        if ( !opContext.getDn().isNormalized() )
+        {
+            opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
+        }
+
         opContext.getNewRdn().normalize( schemaManager.getNormalizerMapping() );
-        opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
-        opContext.getNewDn().normalize( schemaManager.getNormalizerMapping() );
+        
+        if ( !opContext.getNewDn().isNormalized() )
+        {
+            opContext.getNewDn().normalize( schemaManager.getNormalizerMapping() );
+        }
 
         // Push to the next interceptor
         nextInterceptor.rename( opContext );

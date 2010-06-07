@@ -318,7 +318,14 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     {
         try
         {
-            store.rename( renameContext.getDn(), renameContext.getNewRdn(), renameContext.getDelOldDn() );
+            if ( renameContext.getEntry() != null )
+            {
+                store.rename( renameContext.getDn(), renameContext.getNewRdn(), renameContext.getDelOldDn(), renameContext.getEntry().getClonedEntry() );
+            }
+            else
+            {
+                store.rename( renameContext.getDn(), renameContext.getNewRdn(), renameContext.getDelOldDn(), null );
+            }
         }
         catch ( Exception e )
         {

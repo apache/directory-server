@@ -373,7 +373,7 @@ public class TriggerInterceptor extends BaseInterceptor
         }
 
         // Gather supplementary data.        
-        Entry renamedEntry = ( Entry ) renameContext.getEntry().getClonedEntry();
+        Entry renamedEntry = renameContext.getEntry().getClonedEntry();
 
         // @TODO : To be completely reviewed !!!
         DN oldRDN = new DN( name.getRdn().getName() );
