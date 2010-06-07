@@ -69,7 +69,6 @@ public class AddPerfIT extends AbstractLdapTestUnit
      * Test an add operation performance
      */
     @Test
-    //@Ignore
     public void testAddPerf() throws Exception
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );
@@ -81,11 +80,13 @@ public class AddPerfIT extends AbstractLdapTestUnit
         entry.add( "cn", "test" );
 
         connection.add( entry );
+        int nbIterations = 15000;
 
         long t0 = System.currentTimeMillis();
+        long t00 = 0L;
         long tt0 = System.currentTimeMillis();
 
-        for ( int i = 0; i < 10000; i++ )
+        for ( int i = 0; i < nbIterations; i++ )
         {
             if ( i % 100 == 0 )
             {
@@ -93,6 +94,11 @@ public class AddPerfIT extends AbstractLdapTestUnit
 
                 System.out.println( i + ", " + ( tt1 - tt0 ) );
                 tt0 = tt1;
+            }
+
+            if ( i == 5000 )
+            {
+                t00 = System.currentTimeMillis();
             }
 
             String name = "test" + i;
@@ -110,7 +116,8 @@ public class AddPerfIT extends AbstractLdapTestUnit
 
         long t1 = System.currentTimeMillis();
 
-        System.out.println( "Delta : " + ( t1 - t0 ) );
+        Long deltaWarmed = ( t1 - t00 );
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 5000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
         connection.close();
     }
 }

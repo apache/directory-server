@@ -80,11 +80,11 @@ public class RenamePerfIT extends AbstractLdapTestUnit
         entry.add( "cn", "test0" );
 
         connection.add( entry );
+        int nbIterations = 15000;
 
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
         long tt0 = System.currentTimeMillis();
-        int nbIterations = 15000;
         
         for ( int i = 0; i < nbIterations; i++ )
         {
