@@ -39,7 +39,6 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
  * A Cursor returning candidates satisfying a logical conjunction expression.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
 {

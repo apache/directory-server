@@ -34,7 +34,6 @@ import org.junit.Test;
  * Test the Kerberos Server annotation processing
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @CreateDS(name = "CreateKdcServerAnnotationTest-class")
 @CreateKdcServer(primaryRealm = "apache.org",

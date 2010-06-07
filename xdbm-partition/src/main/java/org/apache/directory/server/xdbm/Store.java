@@ -43,7 +43,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * database structure.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $$Rev$$
  */
 public interface Store<E, ID extends Comparable<ID>>
 {

@@ -54,7 +54,6 @@ package org.apache.directory.server.dns.io.encoder;
  *    address suffix field set to zero.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class A6RecordEncoder
 {

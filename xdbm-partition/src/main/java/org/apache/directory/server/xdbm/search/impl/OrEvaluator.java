@@ -36,7 +36,6 @@ import java.util.Comparator;
  * An Evaluator for logical disjunction (OR) expressions.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $$Rev$$
  */
 public class OrEvaluator<ID> implements Evaluator<OrNode, Entry, ID>
 {

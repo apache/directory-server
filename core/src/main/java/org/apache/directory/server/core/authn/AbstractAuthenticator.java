@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
  * Base class for all Authenticators.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public abstract class AbstractAuthenticator implements Authenticator
 {

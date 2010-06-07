@@ -53,7 +53,6 @@ import java.io.IOException;
  * forward and reverse order traversal.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: TupleBrowser.java,v 1.2 2001/05/19 14:02:00 boisvert Exp $
  */
 public abstract class TupleBrowser<K, V> {
     /**

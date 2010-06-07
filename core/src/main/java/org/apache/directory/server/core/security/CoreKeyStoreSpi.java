@@ -56,7 +56,6 @@ import org.slf4j.LoggerFactory;
  * as well as the self signed certificate.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class CoreKeyStoreSpi extends KeyStoreSpi
 {

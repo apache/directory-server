@@ -83,7 +83,6 @@ import org.slf4j.LoggerFactory;
  * 'randomKey', a random key is generated and used as the Kerberos key.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class KeyDerivationInterceptor extends BaseInterceptor
 {

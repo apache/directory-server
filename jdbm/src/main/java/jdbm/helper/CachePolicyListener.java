@@ -58,7 +58,6 @@ package jdbm.helper;
  * methods.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: CachePolicyListener.java,v 1.3 2003/11/01 13:25:41 dranatunga Exp $
  */
 public interface CachePolicyListener<T> 
 {

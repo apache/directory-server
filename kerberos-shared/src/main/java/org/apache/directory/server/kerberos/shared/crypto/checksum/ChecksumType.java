@@ -24,7 +24,6 @@ package org.apache.directory.server.kerberos.shared.crypto.checksum;
  * A type-safe enumeration of Kerberos checksum types.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public enum ChecksumType implements Comparable<ChecksumType>
 {

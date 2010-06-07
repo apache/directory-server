@@ -52,7 +52,6 @@ import com.sun.slamd.stat.TimeTracker;
  * our results under stress for more reliable feedback.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class BindBenchmark extends JobClass
 {

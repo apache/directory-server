@@ -34,7 +34,6 @@ import org.apache.mina.core.buffer.IoBuffer;
  * Decode a {@link IoBuffer} into keytab fields.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 class KeytabDecoder
 {

@@ -51,7 +51,6 @@ package jdbm.helper;
  *  Exception that occurs during eviction of an object in the cache.
  *
  *  @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- *  @version $Id: CacheEvictionException.java,v 1.4 2003/10/21 15:43:20 boisvert Exp $
  */
 public class CacheEvictionException
     extends Exception

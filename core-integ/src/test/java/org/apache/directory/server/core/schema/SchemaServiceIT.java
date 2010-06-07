@@ -60,7 +60,6 @@ import org.junit.runner.RunWith;
  * <a href="http://issues.apache.org/jira/browse/DIREVE-276">DIREVE-276</a>.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @ApplyLdifs( {
     // Entry # 1

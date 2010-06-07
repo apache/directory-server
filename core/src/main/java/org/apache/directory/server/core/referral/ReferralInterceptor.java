@@ -58,7 +58,6 @@ import org.slf4j.LoggerFactory;
  * or explicitly set to "ignore", when set to "throw" and when set to "follow". 
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class ReferralInterceptor extends BaseInterceptor
 {

@@ -55,7 +55,6 @@ import org.apache.directory.server.i18n.I18n;
  * Comparator for String objects.  Delegates to String.compareTo().
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: StringComparator.java,v 1.5 2005/06/25 23:12:31 doomdark Exp $
  */
 public final class StringComparator
     implements Comparator, Serializable

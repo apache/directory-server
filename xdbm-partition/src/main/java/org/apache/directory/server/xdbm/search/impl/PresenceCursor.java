@@ -34,7 +34,6 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  * A returning candidates satisfying an attribute presence expression.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $$Rev$$
  */
 public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<String, Entry, ID>
 {

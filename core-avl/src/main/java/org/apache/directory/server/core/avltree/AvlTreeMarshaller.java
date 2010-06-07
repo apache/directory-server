@@ -34,7 +34,6 @@ import org.apache.directory.server.i18n.I18n;
  * Class to serialize the AvlTree node data.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @SuppressWarnings("unchecked")
 public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>

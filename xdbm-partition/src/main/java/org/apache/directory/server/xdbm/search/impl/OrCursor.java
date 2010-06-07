@@ -40,7 +40,6 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
  * A Cursor returning candidates satisfying a logical disjunction expression.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
 {

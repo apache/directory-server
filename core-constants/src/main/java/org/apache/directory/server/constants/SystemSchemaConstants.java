@@ -24,7 +24,6 @@ package org.apache.directory.server.constants;
  * Constants for the System schema.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface SystemSchemaConstants
 {

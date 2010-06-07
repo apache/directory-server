@@ -39,7 +39,6 @@ import static org.junit.Assert.assertTrue;
  * "Advanced Encryption Standard (AES) Encryption for Kerberos 5."
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class AesEncryptionTest
 {

@@ -54,7 +54,6 @@ import org.slf4j.LoggerFactory;
  * A class that loads schemas from a partition.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class PartitionSchemaLoader extends AbstractSchemaLoader
 {

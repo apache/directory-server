@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
  * Client-bound messages and BOOTP messages are ignored.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 545042 $, $Date: 2007-06-06 22:32:01 -0500 (Mi, 06 Jun 2007) $
  * 
  */
 public abstract class AbstractDhcpService implements DhcpService {

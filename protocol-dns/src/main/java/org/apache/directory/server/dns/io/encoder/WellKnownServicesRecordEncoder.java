@@ -66,7 +66,6 @@ package org.apache.directory.server.dns.io.encoder;
  * or decimal numbers.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class WellKnownServicesRecordEncoder
 {

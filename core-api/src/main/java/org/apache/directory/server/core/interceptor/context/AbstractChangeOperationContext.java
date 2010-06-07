@@ -30,7 +30,6 @@ import org.apache.directory.shared.ldap.name.DN;
  * An abstract base class used by all change inducing operations.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public abstract class AbstractChangeOperationContext extends AbstractOperationContext implements ChangeOperationContext
 {

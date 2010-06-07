@@ -66,7 +66,6 @@ import org.junit.runner.RunWith;
  * Tests the referral handling functionality within the server's core.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
 public class ReferralIT extends AbstractLdapTestUnit

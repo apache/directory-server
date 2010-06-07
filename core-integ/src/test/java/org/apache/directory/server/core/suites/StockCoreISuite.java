@@ -90,7 +90,6 @@ import org.junit.runners.Suite;
  * A test suite containing all the classes, except those that are using the client-api.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @RunWith ( FrameworkSuite.class )
 @Suite.SuiteClasses ( {

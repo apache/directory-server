@@ -31,7 +31,6 @@ import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class DhcpEncoder implements ProtocolEncoder
 {

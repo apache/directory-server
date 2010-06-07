@@ -42,7 +42,6 @@ import org.apache.directory.shared.ldap.cursor.Tuple;
  * A Table implementation backed by in memory AVL tree.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class AvlTable<K, V> implements Table<K, V>
 {

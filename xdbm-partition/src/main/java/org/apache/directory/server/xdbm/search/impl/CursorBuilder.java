@@ -41,7 +41,6 @@ import org.apache.directory.shared.ldap.filter.SearchScope;
  * Builds Cursors over candidates that satisfy a filter expression.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class CursorBuilder<ID extends Comparable<ID>>
 {

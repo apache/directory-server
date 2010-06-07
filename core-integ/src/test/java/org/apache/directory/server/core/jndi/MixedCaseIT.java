@@ -53,7 +53,6 @@ import org.junit.runner.RunWith;
  * Tests various operations against a partition whose suffix contains both upper and lower case letters.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith(FrameworkRunner.class)
 @CreateDS(name = "MixedCaseITest-class",

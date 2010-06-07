@@ -30,7 +30,6 @@ import org.apache.directory.shared.ldap.message.internal.InternalUnbindRequest;
  * needed for the unbind operation, and used by all the interceptors
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class UnbindOperationContext extends AbstractOperationContext
 {

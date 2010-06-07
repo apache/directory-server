@@ -50,7 +50,6 @@ import static org.junit.Assert.assertFalse;
  * Tests the Authentication Service (AS) via the {@link KerberosProtocolHandler}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 {

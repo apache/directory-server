@@ -33,7 +33,6 @@ import org.apache.directory.shared.ldap.message.internal.InternalLdapResult;
 * A single reply handler for {@link InternalExtendedRequest}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 664302 $
  */
 public class ExtendedHandler extends LdapRequestHandler<InternalExtendedRequest>
 {

@@ -39,7 +39,6 @@ import javax.swing.JTextField;
  * Allows for operations on entries.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class EntryDialog extends JDialog
 {

@@ -66,7 +66,6 @@ import static org.junit.Assert.assertEquals;
  * Tests the ChangePasswordProtocolHandler.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class ChangepwProtocolHandlerTest
 {

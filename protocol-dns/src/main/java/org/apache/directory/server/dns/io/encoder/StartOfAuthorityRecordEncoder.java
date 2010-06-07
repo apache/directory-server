@@ -92,7 +92,6 @@ import org.apache.mina.core.buffer.IoBuffer;
  * change the SOA RR with known semantics.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class StartOfAuthorityRecordEncoder extends ResourceRecordEncoder
 {

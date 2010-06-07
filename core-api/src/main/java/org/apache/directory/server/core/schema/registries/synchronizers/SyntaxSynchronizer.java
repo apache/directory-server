@@ -50,7 +50,6 @@ import org.slf4j.LoggerFactory;
  * changes in the DIT to update the syntax registry.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
 {

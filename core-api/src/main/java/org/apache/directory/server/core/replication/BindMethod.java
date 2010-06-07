@@ -22,7 +22,6 @@ package org.apache.directory.server.core.replication;
 /**
  * An enum used to store the Bind Methods : SIMPLE or SASL 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  *
  */
 public enum BindMethod

@@ -34,7 +34,6 @@ import java.util.TimeZone;
  * part, the non-significant low order can be set to 0.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class NtpTimeStamp
 {

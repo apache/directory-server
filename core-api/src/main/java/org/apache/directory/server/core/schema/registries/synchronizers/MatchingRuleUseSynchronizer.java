@@ -33,7 +33,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * A schema entity change handler for DitMatchingRuleUses.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class MatchingRuleUseSynchronizer extends AbstractRegistrySynchronizer
 {

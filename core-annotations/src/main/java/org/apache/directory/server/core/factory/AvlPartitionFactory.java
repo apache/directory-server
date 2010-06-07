@@ -34,7 +34,6 @@ import org.apache.directory.shared.ldap.name.DN;
  * A factory used to generate {@link AvlPartition}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class AvlPartitionFactory implements PartitionFactory
 {

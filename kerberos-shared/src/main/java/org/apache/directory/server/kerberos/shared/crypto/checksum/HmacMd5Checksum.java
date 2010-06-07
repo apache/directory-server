@@ -31,7 +31,6 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 class HmacMd5Checksum implements ChecksumEngine
 {

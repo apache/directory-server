@@ -32,7 +32,6 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
  * A listener which is notified of changes to the directory service.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface DirectoryListener
 {

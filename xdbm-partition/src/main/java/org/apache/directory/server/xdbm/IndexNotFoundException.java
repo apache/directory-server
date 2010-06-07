@@ -29,7 +29,6 @@ import org.apache.directory.server.i18n.I18n;
  * NamingException for missing indicies if full table scans are disallowed.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class IndexNotFoundException extends NamingException
 {

@@ -51,7 +51,6 @@ import static org.junit.Assert.assertEquals;
  * Tests configuration of Ticket-Granting Service (TGS) policy.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 {

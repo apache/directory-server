@@ -22,7 +22,6 @@
  * Provides the KDC's Ticket-Granting Service (TGS).
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 
 package org.apache.directory.server.kerberos.kdc.ticketgrant;

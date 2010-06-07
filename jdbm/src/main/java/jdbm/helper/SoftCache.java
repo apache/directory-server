@@ -81,7 +81,6 @@ import org.apache.directory.server.i18n.I18n;
  * potentially concurrent code should synchronize on the cache instance.
  *
  * @author <a href="mailto:dranatunga@users.sourceforge.net">Dilum Ranatunga</a>
- * @version $Id: SoftCache.java,v 1.1 2003/11/01 13:29:27 dranatunga Exp $
  */
 public class SoftCache implements CachePolicy
 {

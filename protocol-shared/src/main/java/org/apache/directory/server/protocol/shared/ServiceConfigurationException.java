@@ -22,7 +22,6 @@ package org.apache.directory.server.protocol.shared;
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class ServiceConfigurationException extends RuntimeException
 {

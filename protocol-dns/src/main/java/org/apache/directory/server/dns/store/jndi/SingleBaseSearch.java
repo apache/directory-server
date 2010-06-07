@@ -45,7 +45,6 @@ import org.slf4j.LoggerFactory;
  * single base DN for resource records.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class SingleBaseSearch implements SearchStrategy
 {

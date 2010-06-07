@@ -87,7 +87,6 @@ import org.slf4j.LoggerFactory;
  *  An implementation of LdapConnection based on the CoreSession.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class LdapCoreSessionConnection implements LdapConnection
 {

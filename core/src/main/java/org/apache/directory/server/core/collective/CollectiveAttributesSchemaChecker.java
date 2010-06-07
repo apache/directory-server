@@ -45,7 +45,6 @@ import org.apache.directory.shared.ldap.schema.SchemaUtils;
  * Schema checking utilities specifically for operations on collective attributes.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev:$
  */
 public class CollectiveAttributesSchemaChecker
 {

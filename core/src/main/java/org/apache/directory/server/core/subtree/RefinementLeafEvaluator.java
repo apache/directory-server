@@ -37,7 +37,6 @@ import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
  * a refinement filter expression tree.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class RefinementLeafEvaluator
 {

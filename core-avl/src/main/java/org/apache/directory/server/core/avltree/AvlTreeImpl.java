@@ -29,7 +29,6 @@ import java.util.List;
  * An AVL tree implementation
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class AvlTreeImpl<K> implements AvlTree<K>
 {

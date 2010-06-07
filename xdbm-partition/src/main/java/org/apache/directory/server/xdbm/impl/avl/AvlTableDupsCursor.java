@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
  * returning the key and the value in a Tuple.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
 {

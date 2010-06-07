@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
  * An LDAP add operation {@link InternalAddRequest} handler.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class AddHandler extends LdapRequestHandler<InternalAddRequest>
 {

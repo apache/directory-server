@@ -31,7 +31,6 @@ import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
  * A cache for subtree specifications.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class SubentryCache
 {

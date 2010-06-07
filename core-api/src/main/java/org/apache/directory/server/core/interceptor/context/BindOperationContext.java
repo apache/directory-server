@@ -50,7 +50,6 @@ import org.slf4j.LoggerFactory;
  * needed for the bind operation, and used by all the interceptors
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class BindOperationContext implements OperationContext
 {

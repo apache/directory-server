@@ -55,7 +55,6 @@ import org.junit.runner.RunWith;
  * entries can cause changes on subentry operational attributes.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
 @CreateDS( factory=DefaultDirectoryServiceFactory.class, name="SubentryServiceEntryModificationHandlingIT-class" )

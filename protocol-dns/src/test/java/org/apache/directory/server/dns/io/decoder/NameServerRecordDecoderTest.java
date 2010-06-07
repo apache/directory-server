@@ -33,7 +33,6 @@ import static org.junit.Assert.assertEquals;
  * Tests for the NS resource record decoder.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 501160 $, $Date: 2007-01-29 12:41:33 -0700 (Mon, 29 Jan 2007) $
  */
 public class NameServerRecordDecoderTest
 {

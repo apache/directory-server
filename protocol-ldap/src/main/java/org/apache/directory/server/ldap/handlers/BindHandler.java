@@ -58,7 +58,6 @@ import org.slf4j.LoggerFactory;
  * Implements server-side of RFC 2222, sections 4.2 and 4.3.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 664302 $, $Date: 2008-06-07 04:44:00 -0400 (Sat, 07 Jun 2008) $
  */
 public class BindHandler extends LdapRequestHandler<InternalBindRequest>
 {

@@ -36,7 +36,6 @@ import org.apache.directory.shared.ldap.name.RDN;
  * If the refered entry is a ContextEntry, we may have more than one RDN stored
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 917312 $
  */
 public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable, Comparable<ParentIdAndRdn<ID>>
 {

@@ -24,7 +24,6 @@ package org.apache.directory.shared.client.api.utils;
  * String passwords before the client API can send them to the server.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class SASLPrep
 {

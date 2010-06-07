@@ -56,7 +56,6 @@ import org.junit.Test;
  * Tests to make sure the schema checker is operating correctly.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class SchemaCheckerTest
 {

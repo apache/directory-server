@@ -28,7 +28,6 @@ import java.io.IOException;
  * An interface to marshall/unmarshal the AVLTree keys.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface Marshaller<E>
 {

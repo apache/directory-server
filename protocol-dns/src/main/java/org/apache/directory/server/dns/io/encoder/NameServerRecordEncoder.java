@@ -51,7 +51,6 @@ import org.apache.mina.core.buffer.IoBuffer;
  * class information are normally queried using IN class protocols.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class NameServerRecordEncoder extends ResourceRecordEncoder
 {

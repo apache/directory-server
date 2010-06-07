@@ -35,7 +35,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * Class to serialize the Array data.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @SuppressWarnings("unchecked")
 public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>

@@ -58,7 +58,6 @@ import org.slf4j.LoggerFactory;
  * node must be inspected by code outside of this visitor.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class FilterNormalizingVisitor implements FilterVisitor
 {

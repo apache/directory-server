@@ -78,7 +78,6 @@ import org.apache.directory.server.i18n.I18n;
  * pseudo-key
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: BPage.java,v 1.6 2003/09/21 15:46:59 boisvert Exp $
  */
 public class BPage<K, V> implements Serializer
 {

@@ -47,7 +47,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * Top level filter expression evaluator builder implemenation.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class EvaluatorBuilder<ID extends Comparable<ID>>
 {

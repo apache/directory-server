@@ -87,7 +87,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * The DirContext implementation for the Server Side JNDI LDAP provider.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public abstract class ServerDirContext extends ServerContext implements EventDirContext
 {

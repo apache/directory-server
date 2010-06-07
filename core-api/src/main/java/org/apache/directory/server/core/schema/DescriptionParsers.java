@@ -63,7 +63,6 @@ import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescriptionS
  * certain entity types.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class DescriptionParsers
 {

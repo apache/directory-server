@@ -32,7 +32,6 @@ import org.junit.runner.RunWith;
  * TODO TestMultiLevelDS.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @RunWith( FrameworkRunner.class )
 @CreateDS( name = "TestMultiLevelDS-class" )

@@ -28,7 +28,6 @@ import java.util.List;
  * should hold a value(s) along with a key  
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface AvlTreeMap<K, V>
 {

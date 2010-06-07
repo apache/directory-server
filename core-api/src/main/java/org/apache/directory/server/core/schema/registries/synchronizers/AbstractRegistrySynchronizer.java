@@ -55,7 +55,6 @@ import org.slf4j.LoggerFactory;
  * An abstract registry synchronizer with some reused functionality.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public abstract class AbstractRegistrySynchronizer implements RegistrySynchronizer
 {

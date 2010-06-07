@@ -43,7 +43,6 @@ import org.slf4j.LoggerFactory;
  * move schema normalizers.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
 {

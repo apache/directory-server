@@ -52,7 +52,6 @@ import org.apache.mina.core.session.IoSessionConfig;
  * for generating message components.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public abstract class AbstractAuthenticationServiceTest
 {

@@ -23,7 +23,6 @@ package org.apache.directory.server.protocol.shared;
  * Type safe enumeration for the transport protocol.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public enum TransportProtocol
 {

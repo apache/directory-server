@@ -31,7 +31,6 @@ import org.apache.directory.server.dns.messages.ResourceRecord;
  * The store interface used by the DNS protocol to lookup resource records.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface RecordStore
 {

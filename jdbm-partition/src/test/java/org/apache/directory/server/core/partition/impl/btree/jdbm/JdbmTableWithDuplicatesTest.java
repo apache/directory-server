@@ -55,7 +55,6 @@ import org.slf4j.LoggerFactory;
  * Tests JdbmTable operations with duplicates.  Does not test Cursor capabilities.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class JdbmTableWithDuplicatesTest
 {

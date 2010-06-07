@@ -40,7 +40,6 @@ import org.apache.directory.shared.ldap.message.extended.LaunchDiagnosticUiReque
  * the server in debug mode is when you want the diagnostics turned on.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 434420 $
  */
 public class DiagnosticCommand extends ToolCommand
 {

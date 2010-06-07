@@ -36,7 +36,6 @@ import jdbm.helper.TupleBrowser;
  * arguments provided.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
 {

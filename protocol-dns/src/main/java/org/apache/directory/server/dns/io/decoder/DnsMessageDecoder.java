@@ -51,7 +51,6 @@ import org.slf4j.LoggerFactory;
  * from it according to the DnsMessage encoding in RFC-1035.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class DnsMessageDecoder
 {

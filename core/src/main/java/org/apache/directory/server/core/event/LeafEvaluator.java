@@ -52,7 +52,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * Evaluates LeafNode assertions on candidates using a database.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class LeafEvaluator implements Evaluator
 {

@@ -72,7 +72,6 @@ import org.slf4j.LoggerFactory;
  * because it is invalid ...). 
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: $
  */
 @RunWith ( FrameworkRunner.class ) 
 //@CreateDS( name="ModifyReferralIT-class", enableChangeLog=false )

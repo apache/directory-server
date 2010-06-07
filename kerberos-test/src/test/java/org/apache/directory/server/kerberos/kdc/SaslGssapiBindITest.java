@@ -80,7 +80,6 @@ import org.junit.runner.RunWith;
  * Kerberos ticket-granting service (TGS), and 1 for the LDAP service.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @RunWith( FrameworkRunner.class )
 @CreateDS( name="SaslGssapiBindITest-class",

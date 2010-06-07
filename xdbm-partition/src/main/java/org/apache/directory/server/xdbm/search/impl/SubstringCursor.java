@@ -35,7 +35,6 @@ import org.apache.directory.shared.ldap.entry.Entry;
  * A Cursor traversing candidates matching a Substring assertion expression.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<String, Entry, ID>
 {

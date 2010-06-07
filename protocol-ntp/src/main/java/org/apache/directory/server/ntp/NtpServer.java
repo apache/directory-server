@@ -42,7 +42,6 @@ import org.slf4j.LoggerFactory;
  * Contains the configuration parameters for the NTP protocol provider.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class NtpServer extends AbstractProtocolService
 {

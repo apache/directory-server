@@ -57,7 +57,6 @@ import org.junit.runner.RunWith;
  * Test case for client delete operation.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @RunWith(FrameworkRunner.class)
 @CreateLdapServer ( 

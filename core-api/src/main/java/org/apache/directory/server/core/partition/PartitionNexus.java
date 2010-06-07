@@ -37,7 +37,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * listing base suffixes.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 927404 $, $Date: 2010-03-25 14:55:18 +0100 (Do, 25. Mär 2010) $
  */
 public interface PartitionNexus extends Partition
 {

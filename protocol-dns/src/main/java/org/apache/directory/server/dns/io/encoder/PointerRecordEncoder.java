@@ -45,7 +45,6 @@ import org.apache.mina.core.buffer.IoBuffer;
  * description of the IN-ADDR.ARPA domain for an example.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class PointerRecordEncoder extends ResourceRecordEncoder
 {

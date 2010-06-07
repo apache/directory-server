@@ -52,7 +52,6 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
  * are not related with the operation. (18.8.3.2, X.501)
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class RelatedProtectedItemFilter implements ACITupleFilter
 {

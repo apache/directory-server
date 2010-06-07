@@ -25,7 +25,6 @@ package org.apache.directory.server.ldap.handlers.bind;
  * exchange during the SASL negociation.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class SaslConstants
 {

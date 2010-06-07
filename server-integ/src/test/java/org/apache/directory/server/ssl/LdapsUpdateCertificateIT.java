@@ -57,7 +57,6 @@ import org.junit.runner.RunWith;
  * to perform add modify operations on entries.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 642496 $
  */
 @RunWith ( FrameworkRunner.class ) 
 @CreateDS( allowAnonAccess=true, name="LdapsUpdateCertificateIT-class")

@@ -53,7 +53,6 @@ import java.io.IOException;
  * Default java serializer.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: DefaultSerializer.java,v 1.2 2003/09/21 15:47:00 boisvert Exp $
  */
 public class DefaultSerializer implements Serializer
 {

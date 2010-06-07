@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
  * An AVL tree testcase.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class AvlTreeTest
 {

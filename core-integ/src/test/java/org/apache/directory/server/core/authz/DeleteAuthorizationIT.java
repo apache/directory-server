@@ -48,7 +48,6 @@ import org.junit.runner.RunWith;
  * Tests whether or not authorization rules for entry deletion works properly.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
 @CreateDS( enableAccessControl=true )

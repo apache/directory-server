@@ -25,7 +25,6 @@ package org.apache.directory.server.core.changelog;
  * tags.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public enum RevisionOrder
 {

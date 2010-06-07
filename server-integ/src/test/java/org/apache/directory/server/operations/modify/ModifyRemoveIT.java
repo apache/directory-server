@@ -57,7 +57,6 @@ import org.junit.runner.RunWith;
  * single removal operation only.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class ) 
 //@CreateDS( name="ModifyRemoveIT-class", enableChangeLog=false )

@@ -67,7 +67,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
  * encrypt, while an unseal() operation performs a decrypt and a decode.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class CipherTextHandler
 {

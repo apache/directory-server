@@ -31,7 +31,6 @@ import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
  * TODO - can we get some documentation on this?
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface StoredProcedureParameterInjector
 {

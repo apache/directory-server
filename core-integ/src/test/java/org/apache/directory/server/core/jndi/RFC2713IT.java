@@ -42,7 +42,6 @@ import org.junit.runner.RunWith;
  * <a href="http://www.faqs.org/rfcs/rfc2713.html">RFC 2713</a>.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
 public class RFC2713IT extends AbstractLdapTestUnit

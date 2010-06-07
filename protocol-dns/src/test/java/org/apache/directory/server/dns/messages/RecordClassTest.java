@@ -27,7 +27,6 @@ import static org.junit.Assert.assertEquals;
  * Test case for the RecordClass class.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class RecordClassTest
 {

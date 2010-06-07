@@ -27,7 +27,6 @@ import org.apache.directory.shared.ldap.message.control.Control;
  * Constants for LDAP protocol service.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface LdapProtocolConstants
 {

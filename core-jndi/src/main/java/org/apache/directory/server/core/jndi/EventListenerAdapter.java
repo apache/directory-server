@@ -60,7 +60,6 @@ import org.slf4j.LoggerFactory;
  * we need to handle aliases, and referals?
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class EventListenerAdapter implements DirectoryListener
 {

@@ -40,7 +40,6 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 502338 $, $Date: 2007-02-01 11:59:43 -0800 (Thu, 01 Feb 2007) $
  */
 public class EncKdcRepPartDecoder implements Decoder, DecoderFactory
 {

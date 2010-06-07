@@ -59,7 +59,6 @@ import org.slf4j.LoggerFactory;
  * DirectoryListener}s of changes to the DIT.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 666516 $
  */
 public class EventInterceptor extends BaseInterceptor
 {

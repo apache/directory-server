@@ -58,7 +58,6 @@ import org.junit.runner.RunWith;
  * correctly.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
 public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit 

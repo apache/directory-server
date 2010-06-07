@@ -54,7 +54,6 @@ import java.io.PrintWriter;
  * trace will be that of the wrapped exception.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: WrappedRuntimeException.java,v 1.1 2002/05/31 06:33:20 boisvert Exp $
  */
 public class WrappedRuntimeException
     extends RuntimeException

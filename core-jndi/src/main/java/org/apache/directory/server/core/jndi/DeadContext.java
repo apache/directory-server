@@ -52,7 +52,6 @@ import javax.naming.Binding;
  * {@link javax.naming.InitialContext} and any one of its subclasses.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class DeadContext implements LdapContext, EventDirContext
 {

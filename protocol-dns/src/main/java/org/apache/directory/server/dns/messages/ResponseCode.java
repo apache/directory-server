@@ -27,7 +27,6 @@ import org.apache.directory.server.dns.util.ReverseEnumMap;
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public enum ResponseCode implements EnumConverter<Byte>
 {

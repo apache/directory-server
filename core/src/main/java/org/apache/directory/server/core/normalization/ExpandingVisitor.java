@@ -45,7 +45,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  *
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 429176 $
  */
 public class ExpandingVisitor implements FilterVisitor
 {

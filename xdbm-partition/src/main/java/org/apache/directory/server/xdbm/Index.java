@@ -33,7 +33,6 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  * values of the index.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public interface Index<K, O, ID>
 {

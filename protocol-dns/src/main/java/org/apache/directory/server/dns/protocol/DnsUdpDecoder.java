@@ -35,7 +35,6 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
  * DnsMessageDecoder to decode DnsMessages.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class DnsUdpDecoder extends ProtocolDecoderAdapter
 {

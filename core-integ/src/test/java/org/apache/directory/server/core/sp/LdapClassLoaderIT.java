@@ -45,7 +45,6 @@ import org.junit.runner.RunWith;
  * Test case for LdapClassLoader.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$ $Date$
  */
 @RunWith ( FrameworkRunner.class )
 @CreateDS( factory=DefaultDirectoryServiceFactory.class, name="LdapClassLoaderIT-class" )

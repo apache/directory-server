@@ -53,7 +53,6 @@ import org.junit.runner.RunWith;
  * Tests various search scenarios.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith(FrameworkRunner.class)
 public class SearchWithIndicesIT extends AbstractLdapTestUnit

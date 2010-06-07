@@ -29,7 +29,6 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 549315 $, $Date: 2007-06-20 18:13:53 -0700 (Wed, 20 Jun 2007) $
  */
 public class ChangePasswordTcpProtocolCodecFactory implements ProtocolCodecFactory
 {

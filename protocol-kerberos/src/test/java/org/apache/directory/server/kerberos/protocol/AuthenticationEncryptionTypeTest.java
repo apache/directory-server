@@ -58,7 +58,6 @@ import static org.junit.Assert.assertTrue;
  * Tests various facets of working with encryption types in the Authentication Service (AS).
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServiceTest
 {

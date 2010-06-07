@@ -38,7 +38,6 @@ import java.util.List;
  *    16-255   reserved
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public final class StratumType implements Comparable<StratumType>
 {

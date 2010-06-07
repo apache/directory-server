@@ -32,7 +32,6 @@ import org.apache.directory.server.dhcp.options.ShortOption;
  * The code for this option is 22, and its length is 2.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class MaximumDatagramSize extends ShortOption
 {

@@ -41,7 +41,6 @@ import org.junit.runner.RunWith;
  * Various extended operation tests.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 545029 $
  */
 @RunWith ( FrameworkRunner.class ) 
 @CreateLdapServer ( 

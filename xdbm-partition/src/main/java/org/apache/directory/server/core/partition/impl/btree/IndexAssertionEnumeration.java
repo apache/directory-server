@@ -36,7 +36,6 @@ import javax.naming.NamingException;
  * determines if a element should be returned based on a Assertion.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class IndexAssertionEnumeration implements NamingEnumeration<IndexEntry>
 {

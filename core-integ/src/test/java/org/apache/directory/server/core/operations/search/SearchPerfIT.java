@@ -37,7 +37,6 @@ import org.junit.runner.RunWith;
  * Tests the search() methods of the provider.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 938842 $
  */
 @RunWith ( FrameworkRunner.class )
 @CreateDS( name="SearchDS" )

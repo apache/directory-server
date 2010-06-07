@@ -28,7 +28,6 @@ import java.util.List;
  * The interface for an AVL Tree.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface AvlTree<K>
 {

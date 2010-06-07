@@ -47,7 +47,6 @@ import org.apache.directory.shared.ldap.util.tree.DnBranchNode;
  * the very same structure than for the partition manager.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class ReferralManagerImpl implements ReferralManager
 {

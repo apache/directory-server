@@ -58,7 +58,6 @@ import org.junit.runner.RunWith;
  * Tests the correct operation of the ServerExceptionService.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
 @CreateDS( name="ExceptionServiceIT-DS" )

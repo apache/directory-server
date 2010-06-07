@@ -23,6 +23,5 @@
  * with Simple and SASL authentication mechanisms.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 package org.apache.directory.server.ldap.handlers.bind;

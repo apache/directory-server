@@ -46,7 +46,6 @@ import org.slf4j.LoggerFactory;
  * Ticket message component as handed out by the ticket granting service.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class Ticket extends AbstractAsn1Object
 {

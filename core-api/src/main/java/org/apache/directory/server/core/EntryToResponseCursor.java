@@ -35,7 +35,6 @@ import org.apache.directory.shared.ldap.cursor.Cursor;
  * A cursor to get SearchResponseS after setting the underlying cursor's ServerEntry object in SearchResultEnty object 
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class EntryToResponseCursor<SearchResponse> implements Cursor<SearchResponse>
 {

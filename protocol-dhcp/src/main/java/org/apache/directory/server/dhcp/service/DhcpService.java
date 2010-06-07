@@ -32,7 +32,6 @@ import org.apache.directory.server.dhcp.messages.DhcpMessage;
  * be thread-safe with respect to concurrent calls to getReplyFor().
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 545042 $, $Date: 2007-06-06 22:32:01 -0500 (Mi, 06 Jun 2007) $
  */
 public interface DhcpService
 {

@@ -59,7 +59,6 @@ import org.apache.directory.shared.ldap.util.Base64;
  * operations against entries within the schema partition.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class SchemaSubentryModifier
 {

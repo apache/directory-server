@@ -51,7 +51,6 @@ import org.apache.directory.shared.ldap.name.RDN;
  * Base class for XDBM partitions that use an {@link Store}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends BTreePartition<ID>
 {

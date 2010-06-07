@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
  * 
  * @see org.apache.directory.server.dhcp.service.DhcpService
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class DhcpProtocolHandler implements IoHandler {
     private static final Logger logger = LoggerFactory

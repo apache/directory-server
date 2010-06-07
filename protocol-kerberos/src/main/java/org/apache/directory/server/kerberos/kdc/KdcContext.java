@@ -31,7 +31,6 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class KdcContext
 {

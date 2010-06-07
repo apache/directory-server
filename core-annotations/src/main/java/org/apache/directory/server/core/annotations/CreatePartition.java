@@ -47,7 +47,6 @@ import org.apache.directory.server.core.partition.Partition;
  * </pre>
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target( {ElementType.METHOD, ElementType.TYPE } )

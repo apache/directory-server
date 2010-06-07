@@ -41,7 +41,6 @@ import java.util.List;
  * listed can be contrived as appropriate.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class ReferenceIdentifier implements Comparable<ReferenceIdentifier>
 {

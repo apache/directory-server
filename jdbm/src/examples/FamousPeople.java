@@ -17,7 +17,6 @@ import jdbm.btree.BTree;
  * ordered traversal, reverse traversal and range lookup of records.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: FamousPeople.java,v 1.6 2003/10/21 15:32:02 boisvert Exp $
  */
 public class FamousPeople {
 
@@ -30,7 +29,7 @@ public class FamousPeople {
           "Picasso, Pablo",
           "Stallman, Richard",
           "Fort, Paul",
-          "Søndergaard, Ole",
+          "Sï¿½ndergaard, Ole",
           "Schwarzenegger, Arnold",
           "Dulkinys, Susanna" };
 

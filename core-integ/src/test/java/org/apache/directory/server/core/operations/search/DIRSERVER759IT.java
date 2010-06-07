@@ -47,7 +47,6 @@ import org.junit.runner.RunWith;
  * Tests the search() methods of the provider.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 493916 $
  */
 @RunWith ( FrameworkRunner.class )
 public class DIRSERVER759IT extends AbstractLdapTestUnit

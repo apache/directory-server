@@ -44,7 +44,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * Command for changing a principal's password in a JNDI context.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class ChangePassword implements DirectoryServiceOperation
 {

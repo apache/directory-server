@@ -42,7 +42,6 @@ import org.junit.runners.Suite;
  * A test suite containing all the classes that are using the client-api
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @RunWith ( FrameworkSuite.class )
 @CreateDS( enableAccessControl=true, name="MigratedStockCoreISuite-DS" )

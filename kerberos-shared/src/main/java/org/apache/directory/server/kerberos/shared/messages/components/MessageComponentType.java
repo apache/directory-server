@@ -29,7 +29,6 @@ import java.util.List;
  * Type-safe enumerator for message component types.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class MessageComponentType implements Comparable<MessageComponentType>
 {

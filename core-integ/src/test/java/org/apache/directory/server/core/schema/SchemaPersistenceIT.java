@@ -58,7 +58,6 @@ import org.junit.runner.RunWith;
  * on the subschemaSubentry with server restarts.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith(FrameworkRunner.class)
 @CreateDS( name="SchemaPersistenceIT-class" )

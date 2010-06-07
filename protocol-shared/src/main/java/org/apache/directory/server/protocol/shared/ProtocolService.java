@@ -29,7 +29,6 @@ import org.apache.mina.transport.socket.SocketAcceptor;
  * Minimum functionality required by an ApacheDS protocol service.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface ProtocolService
 {

@@ -30,10 +30,9 @@ import org.apache.directory.shared.ldap.schema.registries.DefaultComparatorRegis
 
 /**
  * TODO doc me!
-*
-* @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
-* @version $$Rev$$
-*/
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 class MockComparatorRegistry extends DefaultComparatorRegistry
 {
     public MockComparatorRegistry()

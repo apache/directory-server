@@ -26,7 +26,6 @@ import org.apache.directory.server.ldap.LdapServer;
  * The default LdapServer factory
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class DefaultLdapServerFactory implements LdapServerFactory
 {

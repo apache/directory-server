@@ -53,7 +53,6 @@ import org.junit.runner.RunWith;
  * Testcases for the SubentryInterceptor for Triggers.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev:$
  */
 @RunWith ( FrameworkRunner.class )
 @Ignore ( "Reverts are failing to delete marked entries. Fixing this " +

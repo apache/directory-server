@@ -36,7 +36,6 @@ import javax.naming.NamingException;
  * A NamingEnumeration over an Index which returns IndexRecords.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class IndexEnumeration<T> implements NamingEnumeration<IndexEntry>
 {

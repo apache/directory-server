@@ -59,7 +59,6 @@ import org.junit.runner.RunWith;
  * Tests the add operation
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @RunWith(FrameworkRunner.class)
 @CreateLdapServer ( 

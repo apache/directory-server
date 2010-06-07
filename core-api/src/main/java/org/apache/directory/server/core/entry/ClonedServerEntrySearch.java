@@ -34,7 +34,6 @@ import org.apache.directory.shared.ldap.entry.Entry;
  * entry, whch is *wrong*
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class ClonedServerEntrySearch extends ClonedServerEntry
 {

@@ -35,7 +35,6 @@ import org.apache.directory.shared.ldap.exception.LdapOtherException;
  * each methods for the detail of implementations.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public abstract class AbstractPartition implements Partition
 {

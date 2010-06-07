@@ -27,7 +27,6 @@ import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
  * An operational view of a subentry within the system.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class Subentry
 {

@@ -36,7 +36,6 @@ import org.apache.directory.shared.ldap.jndi.JndiUtils;
  * Adapts a Cursor over entries into a NamingEnumeration.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class NamingEnumerationAdapter implements NamingEnumeration<SearchResult>
 {

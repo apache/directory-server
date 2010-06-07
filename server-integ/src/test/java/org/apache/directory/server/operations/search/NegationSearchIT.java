@@ -49,7 +49,6 @@ import org.junit.runner.RunWith;
  * <a href="https://issues.apache.org/jira/browse/DIRSERVER-951">DIRSERVER-951</a>.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 519077 $
  */
 @RunWith ( FrameworkRunner.class ) 
 @CreateLdapServer ( 

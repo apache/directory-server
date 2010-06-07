@@ -38,7 +38,6 @@ import javax.crypto.spec.SecretKeySpec;
  * in RFC 3961, "Encryption and Checksum Specifications for Kerberos 5."
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 502338 $, $Date: 2007-02-01 11:59:43 -0800 (Thu, 01 Feb 2007) $
  */
 public class DesStringToKey
 {

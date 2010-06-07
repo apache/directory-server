@@ -37,7 +37,6 @@ import org.apache.directory.server.i18n.I18n;
  * that carry a string.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 551805 $, $Date: 2007-06-29 00:57:04 -0500 (Fr, 29 Jun 2007) $
  */
 public abstract class StringOption extends DhcpOption
 {

@@ -33,6 +33,7 @@ import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -40,7 +41,6 @@ import org.junit.Test;
  * An test testing the Network Time Protocol (NTP).
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class NtpITest
 {
@@ -74,6 +74,7 @@ public class NtpITest
      * @throws Exception if there are errors
      */
     @Test
+    @Ignore
     public void testNtp() throws Exception
     {
         InetAddress host = InetAddress.getByName( null );

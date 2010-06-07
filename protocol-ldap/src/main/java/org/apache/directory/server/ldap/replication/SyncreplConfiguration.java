@@ -34,7 +34,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * A class for holding the syncrepl consumer's configuration.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class SyncreplConfiguration
 {

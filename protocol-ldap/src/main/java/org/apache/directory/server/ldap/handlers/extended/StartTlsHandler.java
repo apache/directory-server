@@ -56,7 +56,6 @@ import org.slf4j.LoggerFactory;
  *
  * @see <a href="http://www.ietf.org/rfc/rfc2830.txt">RFC 2830</a>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class StartTlsHandler implements ExtendedOperationHandler
 {

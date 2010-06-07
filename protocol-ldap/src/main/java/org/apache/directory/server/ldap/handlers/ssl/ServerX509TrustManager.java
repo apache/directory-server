@@ -30,7 +30,6 @@ import javax.net.ssl.X509TrustManager;
  * An {@link X509TrustManager} for LDAP server.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev:687105 $, $Date:2008-08-19 19:40:48 +0200 (Tue, 19 Aug 2008) $
  */
 public class ServerX509TrustManager implements X509TrustManager
 {

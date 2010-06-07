@@ -24,7 +24,6 @@ package org.apache.directory.server.core.avltree;
  * A linked AVL tree node.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class LinkedAvlNode<T> 
 {

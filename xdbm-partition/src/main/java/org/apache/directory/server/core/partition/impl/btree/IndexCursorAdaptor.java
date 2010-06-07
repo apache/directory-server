@@ -39,7 +39,6 @@ import org.apache.directory.shared.ldap.cursor.TupleCursor;
  * IndexEntry objects rather than tuples.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class IndexCursorAdaptor<K, O, ID> implements IndexCursor<K, O, ID>
 {

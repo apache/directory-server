@@ -63,7 +63,6 @@ import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
  * Simple tool used to dump the contents of a jdbm based partition.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 493916 $
  */
 public class DumpCommand extends ToolCommand
 {

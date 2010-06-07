@@ -64,7 +64,6 @@ import org.slf4j.LoggerFactory;
  * Tests to for SubtreeScopeEvaluator and SubtreeScopeCursor.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $$Rev$$
  */
 public class SubtreeScopeTest
 {

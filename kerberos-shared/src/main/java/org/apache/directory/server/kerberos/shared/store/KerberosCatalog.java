@@ -30,7 +30,6 @@ import org.apache.directory.server.protocol.shared.catalog.Catalog;
  * A catalog for mapping Kerberos realms to search base DN's. 
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 class KerberosCatalog implements Catalog
 {

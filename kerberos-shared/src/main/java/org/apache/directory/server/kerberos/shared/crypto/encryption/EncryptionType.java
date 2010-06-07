@@ -28,7 +28,6 @@ import java.util.Map;
  * A type-safe enumeration of Kerberos encryption types.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public enum EncryptionType
 {

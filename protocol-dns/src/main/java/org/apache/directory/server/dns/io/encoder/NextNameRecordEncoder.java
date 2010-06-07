@@ -53,7 +53,6 @@ package org.apache.directory.server.dns.io.encoder;
  *    be inferred from the RDLENGTH and the length of the next domain name.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class NextNameRecordEncoder
 {

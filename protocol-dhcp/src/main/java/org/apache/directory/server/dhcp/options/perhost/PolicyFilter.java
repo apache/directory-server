@@ -36,7 +36,6 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  * 8, and the length MUST be a multiple of 8.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class PolicyFilter extends AddressListOption
 {

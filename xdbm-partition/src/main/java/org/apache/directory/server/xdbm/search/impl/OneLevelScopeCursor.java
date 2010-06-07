@@ -35,7 +35,6 @@ import org.apache.directory.shared.ldap.entry.Entry;
  * dereferencing considerations when enabled during search.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, Entry, ID>
 {

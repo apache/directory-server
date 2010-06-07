@@ -33,7 +33,6 @@ import org.apache.directory.server.dns.messages.ResourceRecord;
  * Interface to support the command pattern with JNDI contexts.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 437023 $, $Date: 2006-08-25 16:50:47 -0700 (Fri, 25 Aug 2006) $
  */
 public interface DnsOperation extends Serializable
 {

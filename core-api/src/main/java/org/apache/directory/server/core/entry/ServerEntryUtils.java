@@ -57,7 +57,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * A helper class used to manipulate Entries, Attributes and Values.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class ServerEntryUtils
 {

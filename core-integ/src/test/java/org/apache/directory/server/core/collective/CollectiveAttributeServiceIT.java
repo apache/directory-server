@@ -54,7 +54,6 @@ import org.junit.runner.RunWith;
  * Test cases for the collective attribute service.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
 public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit

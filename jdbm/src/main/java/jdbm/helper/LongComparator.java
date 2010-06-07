@@ -55,7 +55,6 @@ import org.apache.directory.server.i18n.I18n;
  * Comparator for java.lang.Long objects.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: LongComparator.java,v 1.4 2002/05/31 06:33:20 boisvert Exp $
  */
 public final class LongComparator
     implements Comparator, Serializable

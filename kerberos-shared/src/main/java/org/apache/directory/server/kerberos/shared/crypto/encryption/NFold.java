@@ -32,7 +32,6 @@ package org.apache.directory.server.kerberos.shared.crypto.encryption;
  * a n-bit result."
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class NFold
 {

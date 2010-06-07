@@ -86,7 +86,6 @@ import org.slf4j.LoggerFactory;
  * on replicas when the original operation is propagated or when replicas start up.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 {

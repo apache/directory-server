@@ -31,7 +31,6 @@ package org.apache.directory.server.dhcp.options;
  * This abstract base class is for options that carry lists of IP addresses.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public abstract class AddressListOption extends DhcpOption
 {

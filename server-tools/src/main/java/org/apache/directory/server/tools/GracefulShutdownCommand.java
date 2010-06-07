@@ -41,7 +41,6 @@ import org.apache.directory.shared.ldap.message.extended.GracefulShutdownRequest
  * @see <a href="http://docs.safehaus.org/display/APACHEDS/LDAP+Extensions+for+Graceful+Shutdown">
  * Graceful Shutdown</a>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 434420 $
  */
 public class GracefulShutdownCommand extends ToolCommand
 {

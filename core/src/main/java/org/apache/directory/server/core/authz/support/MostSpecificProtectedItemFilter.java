@@ -48,7 +48,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * explicitly.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class MostSpecificProtectedItemFilter implements ACITupleFilter
 {

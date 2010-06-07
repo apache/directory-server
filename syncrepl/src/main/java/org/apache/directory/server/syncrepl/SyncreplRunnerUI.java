@@ -73,7 +73,6 @@ import org.slf4j.LoggerFactory;
  *  and directory service between start/stop of consumer.
  *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class SyncreplRunnerUI implements ActionListener
 {

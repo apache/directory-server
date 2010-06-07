@@ -32,7 +32,6 @@ import org.apache.directory.shared.ldap.entry.Entry;
  * A Cursor over all entries in a partition which returns IndexEntries.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, Entry, ID>
 {

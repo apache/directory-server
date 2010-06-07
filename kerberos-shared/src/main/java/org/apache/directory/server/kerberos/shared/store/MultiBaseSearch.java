@@ -45,7 +45,6 @@ import org.apache.directory.server.protocol.shared.store.DirectoryServiceOperati
  * TODO are exception messages reasonable? I changed them to use the catalog key rather than the catalog value.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 class MultiBaseSearch implements PrincipalStore
 {

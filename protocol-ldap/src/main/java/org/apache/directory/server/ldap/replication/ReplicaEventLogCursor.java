@@ -32,7 +32,6 @@ import org.apache.directory.shared.ldap.cursor.AbstractCursor;
 /**
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 class ReplicaEventLogCursor extends AbstractCursor<ReplicaEventMessage>
 {

@@ -39,7 +39,6 @@ import java.io.IOException;
  * Test case for the BTreeRedirect serialization code.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class BTreeRedirectMarshallerTest
 {

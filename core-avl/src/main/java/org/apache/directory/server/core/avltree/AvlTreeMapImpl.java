@@ -31,7 +31,6 @@ import java.util.List;
  * will be stored in a AvlTree.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
 {

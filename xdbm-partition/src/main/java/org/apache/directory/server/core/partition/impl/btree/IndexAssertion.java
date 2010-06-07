@@ -29,7 +29,6 @@ import org.apache.directory.server.xdbm.IndexEntry;
  * It is strictly used for purposes internal to the search engine.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public interface IndexAssertion<K, E, ID>
 {

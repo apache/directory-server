@@ -55,7 +55,6 @@ import org.apache.directory.server.i18n.I18n;
  * Comparator for byte arrays.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: ByteArrayComparator.java,v 1.4 2002/05/31 06:33:20 boisvert Exp $
  */
 public final class ByteArrayComparator
     implements Comparator, Serializable

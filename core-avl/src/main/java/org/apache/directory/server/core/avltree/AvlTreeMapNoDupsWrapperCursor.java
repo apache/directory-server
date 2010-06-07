@@ -30,7 +30,6 @@ import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
  * no duplicates. 
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class AvlTreeMapNoDupsWrapperCursor<K,V> extends AbstractTupleCursor<K, V>
 {

@@ -34,7 +34,6 @@ import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
  * keys since JDBM does not natively support multiple values for the same key.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class KeyBTreeCursor<E> extends AbstractCursor<E>
 {

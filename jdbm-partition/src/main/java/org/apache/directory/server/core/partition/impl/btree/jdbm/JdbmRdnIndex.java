@@ -45,7 +45,6 @@ import org.slf4j.LoggerFactory;
  * A special index which stores RDN objects.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
 {

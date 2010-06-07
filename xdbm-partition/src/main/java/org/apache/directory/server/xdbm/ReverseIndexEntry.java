@@ -27,7 +27,6 @@ import org.apache.directory.shared.ldap.cursor.Tuple;
  * if one has already been loaded.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class ReverseIndexEntry<V, O, ID> implements IndexEntry<V, O, ID>
 {

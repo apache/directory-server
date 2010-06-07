@@ -30,7 +30,6 @@ import jdbm.helper.Serializer;
  * A custom BigInteger serializer to [de]serialize BigIntegers.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class BigIntegerSerializer implements Serializer
 {

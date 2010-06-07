@@ -51,7 +51,6 @@ import org.junit.runner.RunWith;
  * Tests the creation of contexts in various ways.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
 public class CreateContextIT extends AbstractLdapTestUnit

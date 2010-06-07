@@ -24,7 +24,6 @@ package org.apache.directory.server.core.authz.support;
  * An enumeration that represents the scope of user operation.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class OperationScope
 {

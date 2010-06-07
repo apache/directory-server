@@ -39,7 +39,6 @@ import org.apache.directory.shared.ldap.entry.Value;
  * used in each of these cases where the other remains null.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $$Rev$$
  */
 public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, Entry, ID>
 {

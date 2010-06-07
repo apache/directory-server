@@ -23,7 +23,6 @@ package org.apache.directory.server.kerberos.shared;
  * An cass to define Kerberos constants
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class KerberosConstants
 {

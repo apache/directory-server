@@ -49,7 +49,6 @@ import static org.junit.Assert.assertEquals;
  * {@link KerberosProtocolHandler}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
 {

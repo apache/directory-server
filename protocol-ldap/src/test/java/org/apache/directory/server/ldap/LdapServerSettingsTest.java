@@ -42,7 +42,6 @@ import java.util.HashMap;
  * Test to confirm correct behavoir for settings on LdapServer bean.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $$Rev$$
  */
 public class LdapServerSettingsTest
 {

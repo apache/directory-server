@@ -95,7 +95,6 @@ import org.slf4j.LoggerFactory;
  * NOTE: doco is missing at many parts. Will be added once the functionality is satisfactory
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @SuppressWarnings("unchecked")
 public class SyncReplProvider implements ReplicationProvider

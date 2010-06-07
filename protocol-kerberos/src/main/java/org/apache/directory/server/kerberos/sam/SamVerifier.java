@@ -44,7 +44,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.SamType;
  * </ul>
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public interface SamVerifier
 {

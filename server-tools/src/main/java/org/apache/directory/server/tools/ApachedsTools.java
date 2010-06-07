@@ -32,7 +32,6 @@ import org.apache.directory.server.i18n.I18n;
  * The main() application which executes command targets.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class ApachedsTools
 {

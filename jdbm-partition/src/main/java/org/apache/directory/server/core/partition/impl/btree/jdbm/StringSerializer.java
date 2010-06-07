@@ -29,7 +29,6 @@ import jdbm.helper.Serializer;
  * A custom String serializer to [de]serialize Strings.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class StringSerializer implements Serializer
 {

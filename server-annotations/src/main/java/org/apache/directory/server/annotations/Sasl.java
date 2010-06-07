@@ -43,7 +43,6 @@ import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
  * <li> The SASL mechanisms</li>
  * </ul>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @Documented
 @Inherited

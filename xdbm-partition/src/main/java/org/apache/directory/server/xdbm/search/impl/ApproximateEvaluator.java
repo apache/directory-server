@@ -43,7 +43,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * assertions.  Same as equality for now.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class ApproximateEvaluator<T, ID extends Comparable<ID>> implements Evaluator<ApproximateNode<T>, Entry, ID>
 {

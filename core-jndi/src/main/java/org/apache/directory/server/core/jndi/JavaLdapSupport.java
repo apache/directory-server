@@ -46,7 +46,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  *
  * @see <a href="http://www.faqs.org/rfcs/rfc2713.html">RFC 2713</a>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 class JavaLdapSupport
 {

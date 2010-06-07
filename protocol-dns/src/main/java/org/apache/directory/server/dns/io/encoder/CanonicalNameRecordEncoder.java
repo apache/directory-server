@@ -44,7 +44,6 @@ import org.apache.mina.core.buffer.IoBuffer;
  * the description of name server logic in [RFC-1034] for details.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class CanonicalNameRecordEncoder extends ResourceRecordEncoder
 {

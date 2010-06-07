@@ -51,7 +51,6 @@ import org.slf4j.LoggerFactory;
  * service and the ticket granting service of the KDC.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class KerberosProtocolHandler implements IoHandler
 {

@@ -27,7 +27,6 @@ import org.apache.directory.shared.ldap.filter.LeafNode;
  * to recognize attributes in a filter expression tree.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class UndefinedFilterAttributeException extends RuntimeException
 {

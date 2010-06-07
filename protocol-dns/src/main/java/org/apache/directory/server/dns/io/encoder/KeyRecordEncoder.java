@@ -57,7 +57,6 @@ package org.apache.directory.server.dns.io.encoder;
  *    2538].
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class KeyRecordEncoder
 {

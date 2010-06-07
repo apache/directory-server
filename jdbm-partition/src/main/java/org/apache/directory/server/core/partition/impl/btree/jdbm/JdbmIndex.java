@@ -52,7 +52,6 @@ import org.slf4j.LoggerFactory;
  * A Jdbm based index implementation.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class JdbmIndex<K, O> implements Index<K, O, Long>
 {

@@ -51,7 +51,6 @@ import org.junit.runner.RunWith;
  * Testcase for modifyDn operation.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @RunWith(FrameworkRunner.class)
 @ApplyLdifs( {

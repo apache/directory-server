@@ -46,7 +46,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  *     +---------------------+
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class DnsMessage
 {

@@ -32,7 +32,6 @@ import org.junit.Before;
  * A common class for all the MetaXXXHandler test classes
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUnit
 {

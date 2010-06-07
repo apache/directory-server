@@ -45,7 +45,6 @@ import org.slf4j.LoggerFactory;
  * setXxxHandler() methods of the LdapServer where Xxxx is Add, Modify, etc.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 class LdapProtocolHandler extends DemuxingIoHandler
 {

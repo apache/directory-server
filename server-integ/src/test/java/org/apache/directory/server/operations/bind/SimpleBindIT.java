@@ -59,7 +59,6 @@ import org.junit.runner.RunWith;
  * An {@link AbstractServerTest} testing SIMPLE authentication.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @RunWith ( FrameworkRunner.class ) 
 @ApplyLdifs( {

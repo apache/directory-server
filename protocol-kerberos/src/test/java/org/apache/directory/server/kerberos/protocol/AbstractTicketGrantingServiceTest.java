@@ -64,9 +64,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.types.Principa
  * for generating message components.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$        Ticket ticket = ticketModifier.getTicket();
-
-
  */
 public abstract class AbstractTicketGrantingServiceTest
 {

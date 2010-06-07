@@ -62,7 +62,6 @@ import org.slf4j.LoggerFactory;
  * Tests the cursor functionality with deeply nested filters.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class NestedFilterTest
 {

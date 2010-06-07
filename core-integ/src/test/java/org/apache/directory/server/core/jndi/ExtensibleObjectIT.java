@@ -44,7 +44,6 @@ import org.junit.runner.RunWith;
  * Tests the use of extensible objects.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
 @CreateDS( factory=DefaultDirectoryServiceFactory.class, name="ExtensibleObjectIT-class" )

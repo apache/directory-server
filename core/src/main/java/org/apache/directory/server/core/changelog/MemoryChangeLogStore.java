@@ -49,7 +49,6 @@ import org.apache.directory.shared.ldap.util.DateUtils;
  * A change log store that keeps it's information in memory.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class MemoryChangeLogStore implements TaggableChangeLogStore
 {

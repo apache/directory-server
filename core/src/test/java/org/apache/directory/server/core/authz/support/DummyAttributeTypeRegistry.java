@@ -43,7 +43,6 @@ import org.apache.directory.shared.ldap.schema.registries.SchemaObjectRegistry;
  * A mock {@link AttributeTypeRegistry} to test {@link ACITupleFilter} implementations.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  *
  */
 public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<AttributeType>

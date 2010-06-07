@@ -56,7 +56,6 @@ import org.junit.runner.RunWith;
  * properly when included in search filters on indexed attributes.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @RunWith ( FrameworkRunner.class ) 
 @ApplyLdifs( {

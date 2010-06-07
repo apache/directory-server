@@ -57,7 +57,6 @@ import java.util.Properties;
  * interface act as a factory to provide implementations of RecordManager.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: RecordManagerProvider.java,v 1.2 2005/06/25 23:12:31 doomdark Exp $
  */
 public interface RecordManagerProvider
 {

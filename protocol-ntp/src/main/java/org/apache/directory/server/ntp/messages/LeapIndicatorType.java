@@ -39,7 +39,6 @@ import java.util.List;
  *    11       3         alarm condition (clock not synchronized)
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public final class LeapIndicatorType implements Comparable<LeapIndicatorType>
 {

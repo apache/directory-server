@@ -50,7 +50,6 @@ import static org.junit.Assert.assertEquals;
  * This test is simply used to test that handlers can be set properly.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class SettingAlternativeHandlersTest
 {

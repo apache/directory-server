@@ -45,7 +45,6 @@ import org.junit.runner.RunWith;
  * Tests whether or not authentication with authorization works properly.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
 public class AuthzAuthnIT extends AbstractLdapTestUnit

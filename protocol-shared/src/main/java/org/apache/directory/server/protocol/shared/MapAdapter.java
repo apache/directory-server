@@ -38,7 +38,6 @@ import java.util.Set;
  * Dictionary's for legacy reasons, but the Dictionary is obsolete.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class MapAdapter implements Map<Object, Object>
 {

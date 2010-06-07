@@ -62,7 +62,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * An abstract {@link Partition} that uses general BTree operations.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public abstract class BTreePartition<ID> extends AbstractPartition
 {

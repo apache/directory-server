@@ -42,7 +42,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
  * keys for DES-, DES3-, AES-, and RC4-based encryption types.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class RandomKeyFactory
 {

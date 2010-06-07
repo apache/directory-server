@@ -30,7 +30,6 @@ import org.apache.directory.shared.ldap.name.DN;
  * the DN in AbstractOperationContext
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public abstract class EmptyOperationContext extends AbstractOperationContext
 {

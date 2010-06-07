@@ -73,7 +73,6 @@ import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
  * tuple left and all of them grants the access. (18.8.4. X.501)
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class ACDFEngine
 {

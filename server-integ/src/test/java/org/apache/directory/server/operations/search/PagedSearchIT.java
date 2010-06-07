@@ -108,7 +108,6 @@ import org.junit.runner.RunWith;
  * +-------+----+----+----+---------------------+----+---+<br>
  *</pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 545029 $
  */
 @RunWith ( FrameworkRunner.class )
 @CreateLdapServer ( 

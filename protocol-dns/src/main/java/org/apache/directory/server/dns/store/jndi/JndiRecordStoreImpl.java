@@ -35,7 +35,6 @@ import org.apache.directory.server.dns.store.RecordStore;
  * catalog mappings from directory configuration.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class JndiRecordStoreImpl implements RecordStore
 {

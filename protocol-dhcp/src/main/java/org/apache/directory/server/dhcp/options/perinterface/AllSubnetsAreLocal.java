@@ -35,7 +35,6 @@ import org.apache.directory.server.dhcp.options.ByteOption;
  * The code for this option is 27, and its length is 1.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class AllSubnetsAreLocal extends ByteOption
 {

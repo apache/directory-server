@@ -55,7 +55,6 @@ import org.apache.directory.server.i18n.I18n;
  * Comparator for Integer objects.
  *
  * @author <a href="mailto:cdaller@iicm.edu">Christof Dallermassl</a>
- * @version $Id: IntegerComparator.java,v 1.2 2002/05/31 06:33:20 boisvert Exp $
  */
 public final class IntegerComparator
     implements Comparator, Serializable

@@ -37,7 +37,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * A utility class for loading example LDIF data.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class StoreUtils
 {

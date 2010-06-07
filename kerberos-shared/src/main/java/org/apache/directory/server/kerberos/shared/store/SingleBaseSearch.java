@@ -36,7 +36,6 @@ import org.apache.directory.shared.ldap.name.DN;
  * for Kerberos principals.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 class SingleBaseSearch implements PrincipalStore
 {

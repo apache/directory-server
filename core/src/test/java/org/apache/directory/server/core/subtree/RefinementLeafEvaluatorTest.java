@@ -47,7 +47,6 @@ import org.junit.Test;
  * Unit test cases for testing the evaluator for refinement leaf nodes.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class RefinementLeafEvaluatorTest
 {

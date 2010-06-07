@@ -26,7 +26,6 @@ import org.apache.directory.shared.ldap.schema.comparators.SerializableComparato
  * A serializable comparator for long values.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class LongComparator extends SerializableComparator<Long>
 {

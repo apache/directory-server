@@ -25,7 +25,6 @@ package org.apache.directory.server.kerberos.shared.crypto.encryption;
  * determinations are based solely on JRE vendor.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class VendorHelper
 {

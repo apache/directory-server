@@ -59,7 +59,6 @@ package org.apache.directory.server.dns.io.encoder;
  *    field is meaningless and SHOULD BE zero.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class CertificateRecordEncoder
 {

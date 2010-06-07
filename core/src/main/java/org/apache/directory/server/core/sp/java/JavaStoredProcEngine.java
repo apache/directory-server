@@ -40,7 +40,6 @@ import org.apache.directory.shared.ldap.util.DirectoryClassUtils;
  * A {@link StoredProcEngine} implementation specific to Java stored procedures.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$ $Date$
  */
 public class JavaStoredProcEngine implements StoredProcEngine
 {

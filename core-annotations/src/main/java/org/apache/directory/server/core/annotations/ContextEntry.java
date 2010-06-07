@@ -27,7 +27,6 @@ import java.lang.annotation.Target;
  * An annotation for the Partition context entry
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target( {ElementType.METHOD, ElementType.TYPE } )

@@ -26,7 +26,6 @@ package org.apache.directory.server.core.sp;
  * A utility class for working with Stored Procedures.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$ $Date$
  */
 public class StoredProcUtils
 {

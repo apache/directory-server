@@ -33,7 +33,6 @@ import java.io.Serializable;
  * Test case for the default Marshaller implementation.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $$Rev$$
  */
 public class DefaultMarshallerTest
 {

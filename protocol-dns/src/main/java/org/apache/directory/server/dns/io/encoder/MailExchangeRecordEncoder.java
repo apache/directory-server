@@ -50,7 +50,6 @@ import org.apache.mina.core.buffer.IoBuffer;
  * [RFC-974].
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class MailExchangeRecordEncoder extends ResourceRecordEncoder
 {

@@ -51,7 +51,6 @@ import org.apache.directory.shared.ldap.exception.LdapException;
  * Please override the methods you have concern in.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public abstract class BaseInterceptor implements Interceptor
 {

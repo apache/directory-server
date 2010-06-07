@@ -31,7 +31,6 @@ import org.apache.directory.server.xdbm.search.Evaluator;
  * An Evaluator for logical negation (NOT) expressions.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $$Rev$$
  */
 public class NotEvaluator<ID> implements Evaluator<NotNode, Entry, ID>
 {

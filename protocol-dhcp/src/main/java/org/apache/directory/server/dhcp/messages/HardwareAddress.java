@@ -31,7 +31,6 @@ import org.apache.directory.server.i18n.I18n;
  * A representation of a DHCP hardware address.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 551805 $, $Date: 2007-06-29 00:57:04 -0500 (Fr, 29 Jun 2007) $
  */
 public final class HardwareAddress
 {

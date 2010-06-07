@@ -175,7 +175,6 @@ package org.apache.directory.server.dns.io.encoder;
  *    ANY, AXFR, etc. (but see section 5.6.2 with regard to IXFR).
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class SignatureRecordEncoder
 {

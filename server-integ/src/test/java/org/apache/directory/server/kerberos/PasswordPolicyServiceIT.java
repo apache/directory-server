@@ -61,7 +61,6 @@ import org.junit.runner.RunWith;
  * An {@link AbstractServerTest} testing the (@link {@link PasswordPolicyInterceptor}.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @RunWith ( FrameworkRunner.class ) 
 @CreateDS( allowAnonAccess=true, name="PasswordPolicyServiceIT-class",

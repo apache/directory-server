@@ -32,7 +32,6 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
  * count markers to determine the appropriate path.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public interface Optimizer
 {

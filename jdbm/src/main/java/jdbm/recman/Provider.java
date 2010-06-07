@@ -63,7 +63,6 @@ import jdbm.helper.MRU;
  * Provider of the default RecordManager implementation.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: Provider.java,v 1.3 2005/06/25 23:12:32 doomdark Exp $
  */
 public final class Provider implements RecordManagerProvider
 {

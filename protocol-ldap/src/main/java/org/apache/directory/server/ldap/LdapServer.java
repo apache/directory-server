@@ -105,7 +105,6 @@ import org.slf4j.LoggerFactory;
  * handlers.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 688548 $
  */
 public class LdapServer extends DirectoryBackedService
 {

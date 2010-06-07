@@ -27,7 +27,6 @@ import javax.security.auth.kerberos.KerberosPrincipal;
  * The store interface used by Kerberos services.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev:330489 $, $Date$
  */
 public interface PrincipalStore
 {

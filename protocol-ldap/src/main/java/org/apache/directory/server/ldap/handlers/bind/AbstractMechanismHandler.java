@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
  * An abstract class for all the MechanismHandlers, implementing some common methods
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public abstract class AbstractMechanismHandler implements MechanismHandler
 {

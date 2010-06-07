@@ -29,7 +29,6 @@ import java.util.List;
  * Type safe enumeration of Single-use Authentication Mechanism types
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public final class SamType implements Comparable<SamType>
 {

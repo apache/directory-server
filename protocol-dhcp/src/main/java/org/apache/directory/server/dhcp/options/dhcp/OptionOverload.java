@@ -44,7 +44,6 @@ import org.apache.directory.server.dhcp.options.ByteOption;
  *           3     both fields are used to hold options
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class OptionOverload extends ByteOption
 {

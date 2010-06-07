@@ -59,7 +59,6 @@ import org.slf4j.LoggerFactory;
  * 
  * @see javax.security.auth.callback.CallbackHandler
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public abstract class AbstractSaslCallbackHandler implements CallbackHandler
 {

@@ -51,7 +51,6 @@ import org.slf4j.LoggerFactory;
  * initialize the DirectoryService, call each test and do the cleanup at the end.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class FrameworkRunner extends BlockJUnit4ClassRunner
 {

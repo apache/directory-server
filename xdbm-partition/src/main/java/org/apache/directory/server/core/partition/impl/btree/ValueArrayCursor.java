@@ -33,7 +33,6 @@ import org.apache.directory.shared.ldap.cursor.Tuple;
  * A Cursor which returns the values of a single key as Tuples.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class ValueArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 {

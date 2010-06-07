@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
  * A Cursor over a BTree which manages duplicate keys.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
 {

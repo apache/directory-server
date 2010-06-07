@@ -33,7 +33,6 @@ import org.junit.Test;
  * Unit tests class NtpTimeStamp.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class NtpTimeStampTest
 {

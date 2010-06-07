@@ -24,7 +24,6 @@ package org.apache.directory.server.core.event;
  * Entry for a {@link DirectoryListener} in the {@link EventService}.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class RegistrationEntry
 {

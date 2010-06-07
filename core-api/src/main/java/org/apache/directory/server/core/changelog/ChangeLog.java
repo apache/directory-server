@@ -34,7 +34,6 @@ import org.apache.directory.shared.ldap.ldif.LdifEntry;
  * and revert the server to an earlier revision.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface ChangeLog
 {

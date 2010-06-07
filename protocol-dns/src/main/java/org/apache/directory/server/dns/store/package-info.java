@@ -23,7 +23,6 @@
  * to {@link org.apache.directory.server.dns.DnsServer}.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 
 package org.apache.directory.server.dns.store;

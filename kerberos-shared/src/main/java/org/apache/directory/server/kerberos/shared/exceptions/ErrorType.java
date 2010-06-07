@@ -29,7 +29,6 @@ import java.util.List;
  * A type-safe enumeration of Kerberos error types.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public final class ErrorType implements Comparable<ErrorType>
 {

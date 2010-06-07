@@ -29,7 +29,6 @@ import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
  * An anntation for the DirectoryService builder
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target( {ElementType.METHOD, ElementType.TYPE } )

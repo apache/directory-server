@@ -48,7 +48,6 @@ import org.apache.directory.server.xdbm.Store;
  * Optimizer that annotates the filter using scan counts.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
 {

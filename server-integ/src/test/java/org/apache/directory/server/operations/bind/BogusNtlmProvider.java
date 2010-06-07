@@ -30,7 +30,6 @@ import org.apache.mina.core.session.IoSession;
  * its license is not ASL 2.0 compatible.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class BogusNtlmProvider implements NtlmProvider
 {

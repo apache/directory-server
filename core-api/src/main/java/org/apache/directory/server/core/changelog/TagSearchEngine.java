@@ -48,7 +48,6 @@ import org.apache.directory.shared.ldap.cursor.Cursor;
  * search for revisions: however the converse may not be the case.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface TagSearchEngine
 {

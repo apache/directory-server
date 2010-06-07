@@ -24,7 +24,6 @@ package org.apache.directory.server.kerberos.shared.exceptions;
  * The root of the Kerberos exception hierarchy.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class KerberosException extends Exception
 {

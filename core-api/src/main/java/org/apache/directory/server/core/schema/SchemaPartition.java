@@ -101,7 +101,6 @@ import org.slf4j.LoggerFactory;
  * </ol>
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public final class SchemaPartition extends AbstractPartition
 {

@@ -38,7 +38,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * assertions.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<PresenceNode, Entry, ID>
 {

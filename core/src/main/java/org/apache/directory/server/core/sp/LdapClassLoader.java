@@ -56,7 +56,6 @@ import org.slf4j.LoggerFactory;
  * the class in the whole DIT. 
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$ $Date$
  */
 public class LdapClassLoader extends ClassLoader
 {

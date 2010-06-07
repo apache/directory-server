@@ -68,7 +68,6 @@ import org.slf4j.LoggerFactory;
  * they will be added.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class NormalizationInterceptor extends BaseInterceptor
 {

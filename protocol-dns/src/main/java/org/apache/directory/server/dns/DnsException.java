@@ -28,7 +28,6 @@ import org.apache.directory.server.dns.messages.ResponseCode;
  * The root of the DNS exception hierarchy.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class DnsException extends Exception
 {

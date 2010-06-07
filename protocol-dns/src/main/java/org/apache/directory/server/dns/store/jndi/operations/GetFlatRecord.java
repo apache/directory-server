@@ -46,7 +46,6 @@ import org.apache.directory.server.dns.store.jndi.DnsOperation;
  * A JNDI context operation for looking up a Resource Record with flat attributes.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class GetFlatRecord implements DnsOperation
 {

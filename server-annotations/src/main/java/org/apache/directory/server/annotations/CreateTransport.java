@@ -32,7 +32,6 @@ import java.lang.annotation.Target;
  * the instance for integration testing.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @Documented
 @Inherited

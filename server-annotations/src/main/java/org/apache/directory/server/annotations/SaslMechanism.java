@@ -24,7 +24,6 @@ package org.apache.directory.server.annotations;
  * TODO SaslMechanism.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public @interface SaslMechanism
 {

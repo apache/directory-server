@@ -29,7 +29,6 @@ import org.apache.directory.shared.asn1.primitives.BitString;
  * manipulating flags.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 540371 $, $Date: 2007-05-22 02:00:43 +0200 (Tue, 22 May 2007) $
  */
 public abstract class AbstractKerberosFlags extends BitString implements KerberosFlags
 {

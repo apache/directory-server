@@ -44,7 +44,6 @@ import org.slf4j.LoggerFactory;
  * running a Suite, and will call all the classes contained in the suite.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class FrameworkSuite extends Suite
 {

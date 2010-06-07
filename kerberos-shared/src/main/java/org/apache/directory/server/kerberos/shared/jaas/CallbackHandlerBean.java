@@ -33,7 +33,6 @@ import org.apache.directory.server.i18n.I18n;
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class CallbackHandlerBean implements CallbackHandler
 {

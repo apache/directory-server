@@ -27,7 +27,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 class NullEncryption extends EncryptionEngine
 {

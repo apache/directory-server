@@ -53,7 +53,6 @@ import org.apache.directory.shared.ldap.schema.ObjectClass;
  * can be plugged into the revision based find and lookup methods.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface ChangeLogSearchEngine
 {

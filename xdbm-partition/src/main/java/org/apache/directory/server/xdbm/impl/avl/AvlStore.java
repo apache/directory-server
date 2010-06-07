@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory;
  * of abstract class.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class AvlStore<E> extends AbstractStore<E, Long>
 {

@@ -31,7 +31,6 @@ import org.apache.directory.server.core.avltree.Marshaller;
  * A Marshaller which adapts a JDBM Serializer.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class MarshallerSerializerBridge<E> implements Marshaller<E>
 {

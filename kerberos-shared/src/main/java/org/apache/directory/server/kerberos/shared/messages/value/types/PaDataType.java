@@ -22,7 +22,6 @@ package org.apache.directory.server.kerberos.shared.messages.value.types;
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 540371 $, $Date: 2007-05-22 02:00:43 +0200 (Tue, 22 May 2007) $
  */
 public enum PaDataType
 {

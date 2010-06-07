@@ -35,7 +35,6 @@ import javax.naming.directory.SearchControls;
  * candidate entries returning their ids.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public interface SearchEngine<E, ID>
 {

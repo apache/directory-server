@@ -33,7 +33,6 @@ import org.apache.directory.server.dns.messages.ResourceRecordModifier;
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class RecordStoreStub implements RecordStore
 {

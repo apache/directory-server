@@ -26,7 +26,6 @@ import org.apache.directory.server.constants.ServerDNConstants;
  * Base class shared by all protocol providers for configuration.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public abstract class DirectoryBackedService extends AbstractProtocolService
 {

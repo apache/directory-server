@@ -48,7 +48,6 @@ import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
  * as the base for Stored Procedure storage on the DIT is also handled by this class.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$ $Date$
  */
 public class StoredProcExecutionManager
 {

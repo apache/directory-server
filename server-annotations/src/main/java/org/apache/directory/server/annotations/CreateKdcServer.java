@@ -37,7 +37,6 @@ import java.lang.annotation.Target;
  * <li>maximum renewable lifetime</li>
  * </ul>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @Documented
 @Inherited

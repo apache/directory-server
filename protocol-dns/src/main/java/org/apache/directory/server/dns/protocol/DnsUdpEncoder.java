@@ -34,7 +34,6 @@ import org.apache.mina.filter.codec.ProtocolEncoderOutput;
  * DnsMessageEncoder to encode DnsMessages.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class DnsUdpEncoder extends ProtocolEncoderAdapter
 {

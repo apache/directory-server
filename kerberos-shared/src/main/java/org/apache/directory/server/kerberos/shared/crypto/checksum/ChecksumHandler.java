@@ -37,7 +37,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.Checksum;
  * A Hashed Adapter encapsulating checksum engines for performing integrity checks.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class ChecksumHandler
 {

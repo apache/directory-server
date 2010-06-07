@@ -53,7 +53,6 @@ import org.junit.Test;
  * Tests the JdbmRdnIndex.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class JdbmRdnIndexTest
 {

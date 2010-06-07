@@ -41,7 +41,6 @@ import javax.swing.SwingConstants;
  * An about dialog for the introspector GUI.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class AboutDialog extends JDialog
 {

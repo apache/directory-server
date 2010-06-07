@@ -61,7 +61,6 @@ import org.junit.runner.RunWith;
  * properly when included in search filters on indexed attributes.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @RunWith ( FrameworkRunner.class ) 
 @CreateLdapServer ( 
@@ -129,8 +128,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
      * search iteration so we can make sure search time limits are adhered to.
      *
      * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
-     * @version $Rev$, $Date$
-     */
+         */
     class DelayInducingInterceptor extends BaseInterceptor
     {
         private Long delayMillis;

@@ -42,7 +42,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * {@link org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCount} constraint if available. (18.8.3.3, X.501)
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class MaxValueCountFilter implements ACITupleFilter
 {

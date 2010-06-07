@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
  * org.apache.directory.shared.ldap.message.internal.InternalUnbindRequest}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 664463 $
  */
 public class UnbindHandler extends LdapRequestHandler<InternalUnbindRequest>
 {

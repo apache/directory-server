@@ -47,7 +47,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * all entries contained in the them have the same DN suffix in common.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public interface Partition
 {

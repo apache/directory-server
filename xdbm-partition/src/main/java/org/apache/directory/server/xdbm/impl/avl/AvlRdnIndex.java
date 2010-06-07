@@ -34,7 +34,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * A special index which stores RDN objects.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class AvlRdnIndex<E> extends AvlIndex<ParentIdAndRdn<Long>, E>
 {

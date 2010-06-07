@@ -52,7 +52,6 @@ import org.junit.Test;
  * TODO move this to core-integ does not belong here and get rid of all the static 
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @Ignore ( "Ignore this test until we get the LDIF partition in place." )
 public class PartitionSchemaLoaderTest

@@ -34,7 +34,6 @@ import org.apache.mina.core.session.IoSession;
  * manager safely to things like the LdapProtocolHandler.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class LdapSessionManager
 {

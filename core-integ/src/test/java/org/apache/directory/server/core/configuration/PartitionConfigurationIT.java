@@ -49,7 +49,6 @@ import org.junit.runner.RunWith;
  * Tests dynamic partition addition and removal.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith(FrameworkRunner.class)
 public class PartitionConfigurationIT extends AbstractLdapTestUnit

@@ -49,7 +49,6 @@ import static org.junit.Assert.fail;
  * All values are in network byte order.  All text is ASCII.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class KeytabTest
 {

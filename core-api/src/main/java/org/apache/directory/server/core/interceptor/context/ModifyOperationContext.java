@@ -44,7 +44,6 @@ import org.apache.directory.shared.ldap.name.DN;
  * This context can use either Attributes or ModificationItem, but not both.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class ModifyOperationContext extends AbstractChangeOperationContext
 {

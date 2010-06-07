@@ -47,7 +47,6 @@ import org.apache.directory.server.xdbm.IndexEntry;
  * Evaluators based on leaf expressions.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public interface Evaluator<N extends ExprNode, E, ID>
 {

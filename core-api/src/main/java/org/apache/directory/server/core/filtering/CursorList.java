@@ -44,7 +44,6 @@ import org.slf4j.LoggerFactory;
  * WARN this is only used internally 
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class CursorList implements EntryFilteringCursor
 {

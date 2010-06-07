@@ -29,7 +29,6 @@ import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
  * Interface for a replication provider.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface ReplicationProvider
 {

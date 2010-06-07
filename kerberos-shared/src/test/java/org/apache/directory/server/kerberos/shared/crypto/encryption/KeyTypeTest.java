@@ -57,7 +57,6 @@ import static org.junit.Assert.assertTrue;
  * ArcFour with HMAC/md5, DES-CBC-CRC
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class KeyTypeTest
 {

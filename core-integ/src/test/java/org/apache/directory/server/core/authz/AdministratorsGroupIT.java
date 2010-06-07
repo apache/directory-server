@@ -44,7 +44,6 @@ import org.junit.runner.RunWith;
  * group behave as admin like users will full access rights.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
 public class AdministratorsGroupIT extends AbstractLdapTestUnit

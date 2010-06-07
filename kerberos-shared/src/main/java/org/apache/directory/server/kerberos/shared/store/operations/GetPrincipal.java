@@ -46,7 +46,6 @@ import org.apache.directory.shared.ldap.name.DN;
  * Encapsulates the action of looking up a principal in an embedded ApacheDS DIT.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class GetPrincipal implements DirectoryServiceOperation
 {

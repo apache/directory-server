@@ -46,7 +46,6 @@ import org.apache.directory.shared.ldap.name.DN;
  * candidate entries returning their ids.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEngine<Entry, ID>
 {

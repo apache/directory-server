@@ -34,7 +34,6 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  * 4.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class NameServers extends AddressListOption
 {

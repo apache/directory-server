@@ -41,7 +41,6 @@ import org.apache.mina.core.buffer.IoBuffer;
  * </pre>
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class IPv6RecordDecoder implements RecordDecoder
 {

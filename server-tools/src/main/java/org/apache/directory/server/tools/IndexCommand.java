@@ -49,7 +49,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * Simple tool used to dump the contents of a jdbm based partition.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 442600 $
  */
 public class IndexCommand extends ToolCommand
 {

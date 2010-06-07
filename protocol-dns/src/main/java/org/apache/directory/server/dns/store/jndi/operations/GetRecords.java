@@ -53,7 +53,6 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
  * A JNDI context operation for looking up Resource Records from an embedded JNDI provider.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class GetRecords implements DnsOperation
 {

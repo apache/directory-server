@@ -11,7 +11,6 @@ import java.util.Properties;
  * Sample JDBM application to demonstrate the use of basic JDBM operations.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: FruitBasket.java,v 1.3 2003/08/06 20:10:15 boisvert Exp $
  */
 public class FruitBasket
 {

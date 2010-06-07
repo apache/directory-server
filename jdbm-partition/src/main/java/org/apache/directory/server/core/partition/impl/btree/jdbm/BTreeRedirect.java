@@ -26,7 +26,6 @@ import java.io.Serializable;
  * A redirection pointer to another BTree.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class BTreeRedirect implements Serializable
 {

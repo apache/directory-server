@@ -38,7 +38,6 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
  * Authentication mechanisms.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public final class SamSubsystem
 {

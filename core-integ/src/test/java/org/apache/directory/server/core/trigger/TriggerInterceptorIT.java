@@ -45,7 +45,6 @@ import org.junit.runner.RunWith;
  * Integration tests for TriggerInterceptor.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev:$
  */
 @RunWith ( FrameworkRunner.class )
 @Ignore

@@ -28,7 +28,6 @@ import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
  * A Cursor for an ArrayTree.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class ArrayTreeCursor<K> extends AbstractCursor<K>
 {

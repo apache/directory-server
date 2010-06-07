@@ -39,7 +39,6 @@ import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
  * The CRAM-MD Sasl mechanism handler.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class CramMd5MechanismHandler extends AbstractMechanismHandler
 {

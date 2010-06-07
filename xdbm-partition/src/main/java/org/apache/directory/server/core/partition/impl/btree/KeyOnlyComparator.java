@@ -29,7 +29,6 @@ import org.apache.directory.shared.ldap.schema.comparators.SerializableComparato
  * A TupleComparator that compares keys only.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class KeyOnlyComparator<K, V> implements TupleComparator<K, V>, Serializable
 {

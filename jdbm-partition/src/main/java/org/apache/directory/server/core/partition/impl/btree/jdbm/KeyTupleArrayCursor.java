@@ -33,7 +33,6 @@ import org.apache.directory.shared.ldap.cursor.Tuple;
  * will always return the same key.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class KeyTupleArrayCursor<K,V> extends AbstractTupleCursor<K,V>
 {

@@ -54,7 +54,6 @@ import org.apache.directory.shared.ldap.util.PreferencesDictionary;
  * should be included with the system.ldif that is packaged with the server.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class ServerSystemPreferences extends AbstractPreferences
 {

@@ -35,7 +35,6 @@ import java.io.IOException;
  * for values rather than just the value.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $$Rev$$
  */
 public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContainer<V>>
 {

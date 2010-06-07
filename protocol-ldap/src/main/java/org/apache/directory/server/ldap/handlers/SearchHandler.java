@@ -80,7 +80,6 @@ import org.slf4j.LoggerFactory;
  * A handler for processing search requests.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 664302 $
  */
 public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
 {

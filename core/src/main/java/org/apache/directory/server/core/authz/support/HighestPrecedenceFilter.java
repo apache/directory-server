@@ -39,7 +39,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * than the highest remaining precedence. (18.8.4.1, X.501)
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class HighestPrecedenceFilter implements ACITupleFilter
 {

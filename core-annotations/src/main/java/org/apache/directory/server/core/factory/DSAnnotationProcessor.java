@@ -52,7 +52,6 @@ import org.slf4j.LoggerFactory;
  * A Helper class used to create a DS from the annotations
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class DSAnnotationProcessor
 {

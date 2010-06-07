@@ -35,7 +35,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFl
  * Encrypted part of Tickets.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class EncTicketPart implements Encodable
 {

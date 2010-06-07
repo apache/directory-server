@@ -31,7 +31,6 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  * parameters (attributeId, cacheSize, wkDirPath). All other methods are not working.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 917312 $
  */
 public class GenericIndex<K, O, ID> implements Index<K, O, ID>
 {

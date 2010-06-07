@@ -43,7 +43,6 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 540371 $, $Date: 2007-05-21 17:00:43 -0700 (Mon, 21 May 2007) $
  */
 public class KdcReplyDecoder
 {

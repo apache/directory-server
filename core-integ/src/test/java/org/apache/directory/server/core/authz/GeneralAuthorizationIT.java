@@ -37,7 +37,6 @@ import org.junit.runner.RunWith;
  * Tests various authorization functionality without any specific operation.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 494176 $
  */
 @RunWith(FrameworkRunner.class)
 public class GeneralAuthorizationIT extends AbstractLdapTestUnit 

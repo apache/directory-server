@@ -48,7 +48,6 @@ import org.junit.runner.RunWith;
  * Tests whether or not authorization around entry addition works properly.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
 public class AddAuthorizationIT extends AbstractLdapTestUnit

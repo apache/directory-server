@@ -72,7 +72,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 583938 $, $Date: 2007-10-11 21:57:20 +0200 (Thu, 11 Oct 2007) $
  */
 public class TicketGrantingService
 {

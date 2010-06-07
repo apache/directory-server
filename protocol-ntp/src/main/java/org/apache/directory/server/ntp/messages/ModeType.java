@@ -42,7 +42,6 @@ import java.util.List;
  *    7        reserved for private use
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public final class ModeType implements Comparable<ModeType>
 {

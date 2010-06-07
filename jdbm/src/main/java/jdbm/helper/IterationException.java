@@ -52,7 +52,6 @@ package jdbm.helper;
  * Iteration exception.
  *
  * @author <a href="boisvert@intalio.com">Alex Boisvert</a>
- * @version $Revision: 1.2 $
  */
 public class IterationException
     extends WrappedRuntimeException

@@ -53,7 +53,6 @@ import org.junit.runner.RunWith;
  * A test class for ClientAbandonRequest.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @RunWith(FrameworkRunner.class)
 @CreateLdapServer ( 

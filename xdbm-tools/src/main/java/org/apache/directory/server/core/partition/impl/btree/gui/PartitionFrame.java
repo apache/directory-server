@@ -83,7 +83,6 @@ import org.slf4j.LoggerFactory;
  * The frame for the database.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class PartitionFrame extends JFrame
 {

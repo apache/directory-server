@@ -33,7 +33,6 @@ import javax.net.SocketFactory;
  * Simple Socket factory to create sockets with or without SSL enabled.
  * If SSL enabled a "bougus" SSL Context is used (suitable for test purposes)
  * 
- * @version $Rev$, $Date$
  */
 public class SSLSocketFactory extends SocketFactory
 {

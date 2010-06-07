@@ -56,7 +56,6 @@ import org.slf4j.LoggerFactory;
  * Thos two loggers must be set to DEBUG.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class TimerInterceptor implements Interceptor
 {

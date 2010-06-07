@@ -28,7 +28,6 @@ import javax.security.auth.kerberos.KerberosKey;
  * generalized timestamp representing the pre-auth data.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public interface KeyIntegrityChecker
 {

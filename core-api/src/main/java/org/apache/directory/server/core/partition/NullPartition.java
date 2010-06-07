@@ -54,7 +54,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * A dummy do nothing partition that is useful for testing NullPartition.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class NullPartition extends AbstractPartition
 {

@@ -41,7 +41,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * An Index backed by an AVL Tree.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class AvlIndex<K, O> implements Index<K, O, Long>
 {

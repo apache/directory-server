@@ -38,7 +38,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * specified extra information.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  *
  */
 public interface ACITupleFilter

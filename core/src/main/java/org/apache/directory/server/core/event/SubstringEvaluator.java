@@ -42,7 +42,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * Evaluates substring filter assertions on an entry.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class SubstringEvaluator implements Evaluator
 {

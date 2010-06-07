@@ -99,7 +99,6 @@ import org.slf4j.LoggerFactory;
  * Various add scenario tests.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 674593 $
  */
 @RunWith ( FrameworkRunner.class )
 @CreateDS( allowAnonAccess=true, name="AddIT-class",

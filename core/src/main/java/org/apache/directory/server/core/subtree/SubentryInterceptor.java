@@ -94,7 +94,6 @@ import org.slf4j.LoggerFactory;
  * out subentries on search operations and injecting operational attributes
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class SubentryInterceptor extends BaseInterceptor
 {

@@ -69,7 +69,6 @@ import org.apache.directory.shared.ldap.name.DN;
  * already exists at a DN and is added once again to the same DN.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class ExceptionInterceptor extends BaseInterceptor
 {

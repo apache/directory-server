@@ -69,7 +69,6 @@ import org.slf4j.LoggerFactory;
  * order last to first, cause each underlying cursor of OrCursor will have elements in their own order.<br>
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class OrCursorTest
 {

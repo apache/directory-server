@@ -35,7 +35,6 @@ import static org.junit.Assert.fail;
  * Tests the AvlTreeCursor class.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class AvlTreeCursorTest
 {

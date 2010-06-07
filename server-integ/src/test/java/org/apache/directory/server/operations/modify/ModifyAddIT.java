@@ -63,7 +63,6 @@ import org.junit.runner.RunWith;
  * existing attribute value with a modify operation does not cause an error.").
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class ) 
 @ApplyLdifs( {

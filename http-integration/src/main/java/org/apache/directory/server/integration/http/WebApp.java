@@ -27,7 +27,6 @@ import java.io.File;
  * A class to configure a web application 
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class WebApp
 {

@@ -62,7 +62,6 @@ import org.slf4j.LoggerFactory;
  * Apache Directory Server top level.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class ApacheDS
 {

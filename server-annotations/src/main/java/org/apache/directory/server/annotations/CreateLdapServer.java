@@ -40,7 +40,6 @@ import org.apache.directory.server.factory.DefaultLdapServerFactory;
  * <li> The certificate password</li>
  * </ul>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @Documented
 @Inherited

@@ -46,7 +46,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * Provides JNDI service to {@link AbstractContextFactory}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface DirectoryService extends ServerEntryFactory
 {

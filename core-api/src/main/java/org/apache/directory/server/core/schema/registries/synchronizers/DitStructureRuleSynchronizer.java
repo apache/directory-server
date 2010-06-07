@@ -33,7 +33,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * A schema entity change handler for DitStructureRules.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class DitStructureRuleSynchronizer extends AbstractRegistrySynchronizer
 {

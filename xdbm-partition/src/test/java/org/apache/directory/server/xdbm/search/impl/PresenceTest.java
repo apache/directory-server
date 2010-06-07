@@ -59,7 +59,6 @@ import org.slf4j.LoggerFactory;
  * Tests PresenceCursor and PresenceEvaluator functionality.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $$Rev$$
  */
 public class PresenceTest
 {

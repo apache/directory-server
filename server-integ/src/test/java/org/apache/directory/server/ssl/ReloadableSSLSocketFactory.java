@@ -40,7 +40,6 @@ import javax.net.ssl.TrustManagerFactory;
  * initializes the trust manager factory each time it is used.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class ReloadableSSLSocketFactory extends SSLSocketFactory
 {

@@ -33,7 +33,6 @@ import java.util.prefs.PreferencesFactory;
  * are not available and will throw NotImplementedExceptions.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class ServerPreferencesFactory implements PreferencesFactory
 {

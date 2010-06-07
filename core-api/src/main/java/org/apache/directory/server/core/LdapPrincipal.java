@@ -37,7 +37,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * name of the principal as well as the String representation.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public final class LdapPrincipal implements Principal, Cloneable, Externalizable
 {

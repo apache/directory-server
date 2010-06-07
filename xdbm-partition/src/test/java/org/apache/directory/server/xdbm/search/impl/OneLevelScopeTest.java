@@ -63,7 +63,6 @@ import org.slf4j.LoggerFactory;
  * Tests to for OneLevelScopeEvaluator and OneLevelScopeCursor.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $$Rev$$
  */
 public class OneLevelScopeTest
 {

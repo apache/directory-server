@@ -50,7 +50,6 @@ import org.junit.runner.RunWith;
  * should.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith(FrameworkRunner.class)
 @CreateDS( name="SimpleAuthenticationIT-DS" )

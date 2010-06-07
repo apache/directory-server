@@ -48,7 +48,6 @@ import java.util.Comparator;
  * Document me!
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class KeyBTreeCursorTest
 {

@@ -46,7 +46,6 @@ import static org.junit.Assert.assertEquals;
  * is option "ENC-TKT-IN-SKEY."
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class EncTktInSkeyTest extends AbstractTicketGrantingServiceTest
 {

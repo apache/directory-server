@@ -29,7 +29,6 @@ import org.apache.directory.server.xdbm.Index;
  * A factory used to generate {@link Partition}s and their {@link Index}es.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface PartitionFactory
 {

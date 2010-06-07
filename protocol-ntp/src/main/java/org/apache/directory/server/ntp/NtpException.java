@@ -25,7 +25,6 @@ package org.apache.directory.server.ntp;
  * The root of the NTP exception hierarchy.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class NtpException extends Exception
 {

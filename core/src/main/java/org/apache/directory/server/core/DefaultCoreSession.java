@@ -79,7 +79,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * TODO - need to supply controls and other parameters to setup opContexts
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class DefaultCoreSession implements CoreSession
 {

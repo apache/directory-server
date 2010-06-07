@@ -58,7 +58,6 @@ import org.junit.runner.RunWith;
  * to the ldap server.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith(FrameworkRunner.class)
 public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler

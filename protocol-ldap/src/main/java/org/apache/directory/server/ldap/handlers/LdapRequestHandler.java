@@ -53,7 +53,6 @@ import org.slf4j.LoggerFactory;
  * A base class for all LDAP request handlers.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 541827 $
  */
 public abstract class LdapRequestHandler<T extends InternalRequest> implements MessageHandler<T>
 {

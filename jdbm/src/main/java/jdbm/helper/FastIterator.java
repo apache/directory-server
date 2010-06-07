@@ -51,7 +51,6 @@ package jdbm.helper;
 /**
  * Fast and simple iterator.
  *
- * @version $Revision: 1.2 $
  * @author <a href="boisvert@intalio.com">Alex Boisvert</a>
  */
 public abstract class FastIterator

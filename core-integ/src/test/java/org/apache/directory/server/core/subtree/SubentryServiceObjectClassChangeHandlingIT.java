@@ -53,7 +53,6 @@ import org.junit.runner.RunWith;
  * Selection Membership upon objectClass attribute value changes.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
 @CreateDS( factory=DefaultDirectoryServiceFactory.class, name="SubentryServiceObjectClassChangeHandlingIT-class" )

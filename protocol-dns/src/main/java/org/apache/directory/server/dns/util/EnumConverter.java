@@ -35,7 +35,6 @@ package org.apache.directory.server.dns.util;
  * 
  * @param <K> 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface EnumConverter<K>
 {

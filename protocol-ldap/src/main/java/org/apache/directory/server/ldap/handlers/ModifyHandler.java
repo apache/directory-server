@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
  * A single reply handler for {@link InternalModifyRequest}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 664302 $
  */
 public class ModifyHandler extends LdapRequestHandler<InternalModifyRequest>
 {

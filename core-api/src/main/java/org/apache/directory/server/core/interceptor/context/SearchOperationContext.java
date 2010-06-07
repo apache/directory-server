@@ -41,7 +41,6 @@ import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
  * needed for the search operation, and used by all the interceptors
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class SearchOperationContext extends SearchingOperationContext
 {

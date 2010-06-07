@@ -24,7 +24,6 @@ package org.apache.directory.server.replication.configuration;
  * Document me!
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public interface ReplicationTrigger
 {

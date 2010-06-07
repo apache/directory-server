@@ -46,7 +46,6 @@ import org.slf4j.LoggerFactory;
  * respective {@link Registries}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 {

@@ -31,7 +31,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
  * Encrypted part of private messages.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class EncKrbPrivPart extends KerberosMessage implements Encodable
 {

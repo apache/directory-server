@@ -45,7 +45,6 @@ import javax.naming.spi.InitialContextFactory;
  * as using singleton pattern if you're going to extend this factory.
  * <p>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  * 
  * @see javax.naming.spi.InitialContextFactory
  */

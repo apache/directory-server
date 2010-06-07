@@ -32,7 +32,6 @@ import java.io.PrintStream;
  * Utility methods for Index objects.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $$Rev$$
  */
 public class IndexUtils
 {

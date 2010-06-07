@@ -61,7 +61,6 @@ import org.slf4j.LoggerFactory;
  * A dialog showing index values.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 639279 $
  */
 public class IndexDialog<K, O, ID> extends JDialog
 {

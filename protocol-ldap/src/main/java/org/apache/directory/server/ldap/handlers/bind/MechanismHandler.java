@@ -31,7 +31,6 @@ import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
  * 
  * @see javax.security.sasl.SaslServer
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface MechanismHandler
 {

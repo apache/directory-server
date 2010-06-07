@@ -27,7 +27,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @Todo : Missing Javadoc
- * @version $Rev$ $Date$
  */
 public class StandardThreadPool implements Executor
 {

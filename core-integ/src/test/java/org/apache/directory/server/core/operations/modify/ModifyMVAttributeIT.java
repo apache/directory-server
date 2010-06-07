@@ -39,7 +39,6 @@ import org.junit.runner.RunWith;
  * Test the modification of an entry with a MV attribute We add one new value N times
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @RunWith ( FrameworkRunner.class )
 @ApplyLdifs(

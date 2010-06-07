@@ -45,7 +45,6 @@ import org.junit.runner.Description;
  * Annotation processor for creating LDAP and Kerberos servers.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class ServerAnnotationProcessor
 {

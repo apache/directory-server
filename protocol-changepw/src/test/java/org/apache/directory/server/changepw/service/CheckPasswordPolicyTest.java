@@ -30,7 +30,6 @@ import static org.junit.Assert.assertFalse;
  * Tests {@link CheckPasswordPolicy}.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class CheckPasswordPolicyTest
 {

@@ -48,7 +48,6 @@ import org.junit.runner.RunWith;
  * new superior.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 679049 $
  */
 @RunWith(FrameworkRunner.class)
 @CreateLdapServer(transports =

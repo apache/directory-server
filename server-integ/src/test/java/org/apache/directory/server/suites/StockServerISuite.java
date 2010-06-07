@@ -70,7 +70,6 @@ import org.junit.runners.Suite;
  * Stock (default configuration) server integration test suite.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @RunWith ( FrameworkSuite.class )
 @Suite.SuiteClasses ( {

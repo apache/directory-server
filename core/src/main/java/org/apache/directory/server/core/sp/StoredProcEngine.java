@@ -29,7 +29,6 @@ import org.apache.directory.shared.ldap.exception.LdapException;
  * An abstraction over stored procedure execution depending on the type of the language supported.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$ $Date$
  */
 public interface StoredProcEngine
 {

@@ -56,7 +56,6 @@ import java.io.ObjectOutputStream;
  * Serialization-related utility methods.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: Serialization.java,v 1.1 2002/05/31 06:33:20 boisvert Exp $
  */
 public final class Serialization
 {

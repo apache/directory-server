@@ -29,7 +29,6 @@ import org.apache.directory.shared.ldap.schema.comparators.SerializableComparato
  * Used to compare the sorting order of binary data.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public interface TupleComparator<K, V> extends Serializable
 {

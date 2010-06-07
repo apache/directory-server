@@ -30,7 +30,6 @@ import org.apache.directory.shared.ldap.name.DN;
  * Interface to support the command pattern for LDAP operations.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface DirectoryServiceOperation extends Serializable
 {

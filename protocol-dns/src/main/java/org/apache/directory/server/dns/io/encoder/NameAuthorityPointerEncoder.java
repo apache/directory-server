@@ -131,7 +131,6 @@ package org.apache.directory.server.dns.io.encoder;
  *       be in error and SHOULD be either ignored or an error returned.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class NameAuthorityPointerEncoder
 {

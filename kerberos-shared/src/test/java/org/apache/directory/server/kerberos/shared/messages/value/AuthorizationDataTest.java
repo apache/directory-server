@@ -32,7 +32,6 @@ import static org.junit.Assert.assertTrue;
  * Test the AuthorizationData encoding and decoding
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 542147 $, $Date: 2007-05-28 10:14:21 +0200 (Mon, 28 May 2007) $
  */
 public class AuthorizationDataTest
 {

@@ -34,7 +34,6 @@ import org.apache.directory.server.dhcp.options.AddressOption;
  * The code for the time offset option is 2, and its length is 4 octets.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class TimeOffset extends AddressOption
 {

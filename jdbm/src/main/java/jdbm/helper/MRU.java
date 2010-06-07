@@ -64,7 +64,6 @@ import org.apache.directory.server.i18n.I18n;
  *  Methods are *not* synchronized, so no concurrent access is allowed.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: MRU.java,v 1.8 2005/06/25 23:12:31 doomdark Exp $
  */
 public class MRU<K, V> implements CachePolicy<K, V>
 {

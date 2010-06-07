@@ -28,7 +28,6 @@ import org.apache.mina.core.session.IoSession;
  * calling native SSPI interfaces.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public interface NtlmProvider
 {

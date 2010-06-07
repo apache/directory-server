@@ -49,7 +49,6 @@ import org.junit.runner.RunWith;
  * A class to test the search operation with a returningAttributes parameter
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @RunWith(FrameworkRunner.class)
 @CreateLdapServer(

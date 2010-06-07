@@ -34,7 +34,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFl
  * Base class for encrypted parts of KDC responses.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class EncKdcRepPart implements Encodable
 {

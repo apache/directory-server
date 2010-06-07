@@ -32,7 +32,6 @@ import org.apache.directory.shared.ldap.codec.search.controls.persistentSearch.P
  * either RENAME or MOVE notifications are enabled.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public enum EventType
 {

@@ -63,7 +63,6 @@ import jdbm.helper.Serializer;
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="cg@cdegroot.com">Cees de Groot</a>
- * @version $Id: RecordManager.java,v 1.3 2005/06/25 23:12:31 doomdark Exp $
  */
 public interface RecordManager
 {

@@ -29,7 +29,6 @@ import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class Krb5LoginConfiguration extends Configuration
 {

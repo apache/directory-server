@@ -31,7 +31,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
  * matching tuple is found, the KRB_AP_ERR_REPEAT error is returned."
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface ReplayCache
 {

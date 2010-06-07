@@ -84,7 +84,6 @@ import org.slf4j.LoggerFactory;
  * An ACI based authorization service.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class AciAuthorizationInterceptor extends BaseInterceptor
 {

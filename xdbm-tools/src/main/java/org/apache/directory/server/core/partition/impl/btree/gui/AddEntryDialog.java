@@ -51,7 +51,6 @@ import org.slf4j.LoggerFactory;
  * Allows for operations on entries.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class AddEntryDialog extends JDialog implements ActionListener
 {

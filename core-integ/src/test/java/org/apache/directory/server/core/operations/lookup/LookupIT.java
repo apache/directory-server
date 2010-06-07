@@ -36,7 +36,6 @@ import org.junit.runner.RunWith;
  * Test the lookup operation
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
 @ApplyLdifs( {

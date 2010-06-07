@@ -37,7 +37,6 @@ import org.apache.directory.server.i18n.I18n;
  * This abstract base class is for options that carry a single IP address.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public abstract class AddressOption extends DhcpOption
 {

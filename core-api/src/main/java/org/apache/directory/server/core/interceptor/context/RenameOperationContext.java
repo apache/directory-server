@@ -38,7 +38,6 @@ import org.apache.directory.shared.ldap.name.RDN;
  * This is used when the modifyDN is about changing the RDN, not the base DN.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class RenameOperationContext extends AbstractChangeOperationContext
 {

@@ -55,7 +55,6 @@ import org.junit.runner.RunWith;
  * TODO print the performance results in a neat tabular fashion 
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @RunWith(FrameworkRunner.class)
 @CreateDS( 

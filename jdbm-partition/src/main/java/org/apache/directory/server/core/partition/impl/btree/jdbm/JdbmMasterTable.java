@@ -35,7 +35,6 @@ import org.apache.directory.shared.ldap.schema.comparators.SerializableComparato
  * The master table used to store the Attributes of entries.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable<Long, E>
 {

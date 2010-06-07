@@ -32,7 +32,6 @@ import org.apache.directory.server.core.interceptor.context.SearchingOperationCo
  * order.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public interface EntryFilter
 {

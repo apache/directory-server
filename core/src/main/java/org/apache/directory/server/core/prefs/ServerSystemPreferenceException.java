@@ -25,7 +25,6 @@ package org.apache.directory.server.core.prefs;
  * {@link ServerSystemPreferences} failed.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class ServerSystemPreferenceException extends RuntimeException
 {

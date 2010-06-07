@@ -34,7 +34,6 @@ import org.apache.directory.shared.ldap.entry.Value;
  * A general purpose table model for entry attributes.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class AttributesTableModel extends AbstractTableModel
 {

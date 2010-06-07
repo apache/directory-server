@@ -32,7 +32,6 @@ import org.apache.directory.shared.ldap.cursor.DefaultClosureMonitor;
  * An abstract TupleCursor.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public abstract class AbstractIndexCursor<K, E, ID> implements IndexCursor<K, E, ID>
 {

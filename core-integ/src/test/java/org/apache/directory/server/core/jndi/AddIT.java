@@ -43,7 +43,6 @@ import org.junit.runner.RunWith;
  * Contributed by Luke Taylor to fix DIRSERVER-169.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith(FrameworkRunner.class)
 public class AddIT extends AbstractLdapTestUnit

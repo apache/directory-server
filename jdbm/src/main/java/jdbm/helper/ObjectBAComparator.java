@@ -58,7 +58,6 @@ import org.apache.directory.server.i18n.I18n;
  * transparent deserialization from byte array to object.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: ObjectBAComparator.java,v 1.1 2002/05/31 06:33:20 boisvert Exp $
  */
 public final class ObjectBAComparator
     implements Comparator, Serializable

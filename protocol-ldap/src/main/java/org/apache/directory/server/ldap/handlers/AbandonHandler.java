@@ -28,7 +28,6 @@ import org.apache.directory.shared.ldap.message.internal.InternalAbandonRequest;
  * AbandonRequest handler implementation.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class AbandonHandler extends LdapRequestHandler<InternalAbandonRequest>
 {

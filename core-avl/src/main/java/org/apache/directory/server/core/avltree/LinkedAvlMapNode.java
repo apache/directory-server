@@ -24,7 +24,6 @@ package org.apache.directory.server.core.avltree;
  * A linked AVL tree node with support to store value along with a key.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class LinkedAvlMapNode<K, V>
 {

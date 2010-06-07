@@ -56,7 +56,6 @@ import java.util.Enumeration;
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="mailto:dranatunga@users.sourceforge.net">Dilum Ranatunga</a>
- * @version $Id: CachePolicy.java,v 1.5 2003/11/01 13:25:02 dranatunga Exp $
  */
 public interface CachePolicy<K,V>
 {

@@ -61,7 +61,6 @@ import static org.junit.Assert.assertNotNull;
  * Tests the Ticket-Granting Service (TGS) via the {@link KerberosProtocolHandler}.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 {

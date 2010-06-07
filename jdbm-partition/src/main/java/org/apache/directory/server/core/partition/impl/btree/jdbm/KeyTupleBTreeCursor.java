@@ -36,7 +36,6 @@ import jdbm.btree.BTree;
  * return the same key.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
 {

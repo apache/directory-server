@@ -29,7 +29,6 @@ import org.apache.directory.shared.ldap.name.DN;
  * Document this class.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 class PreferencesUtils
 {

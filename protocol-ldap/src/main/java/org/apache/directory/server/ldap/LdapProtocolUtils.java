@@ -29,7 +29,6 @@ import org.apache.directory.shared.ldap.message.internal.InternalResponse;
  * Utility methods used by the LDAP protocol service.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class LdapProtocolUtils implements LdapProtocolConstants
 {

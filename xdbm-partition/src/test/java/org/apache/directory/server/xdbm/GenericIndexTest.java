@@ -35,7 +35,6 @@ import org.junit.Test;
  * Tests the {@link GenericIndex} class.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class GenericIndexTest
 {

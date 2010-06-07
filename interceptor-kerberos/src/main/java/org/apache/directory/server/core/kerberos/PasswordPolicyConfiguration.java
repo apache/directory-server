@@ -29,7 +29,6 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
  * <a href="http://tools.ietf.org/html/draft-behera-ldap-password-policy-10">this draft</a>.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class PasswordPolicyConfiguration
 {

@@ -52,7 +52,6 @@ import java.io.IOException;
  * Optimized serializer for integers.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: IntegerSerializer.java,v 1.2 2003/09/21 15:47:00 boisvert Exp $
  */
 public class IntegerSerializer
     implements Serializer

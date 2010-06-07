@@ -44,7 +44,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
  * clockSkew
  *    
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class InMemoryReplayCache extends Thread implements ReplayCache
 {

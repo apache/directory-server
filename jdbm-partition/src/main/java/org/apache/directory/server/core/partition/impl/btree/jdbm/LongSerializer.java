@@ -29,7 +29,6 @@ import java.io.IOException;
  * A {@link Serializer} for Longs
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class LongSerializer implements Serializer
 {

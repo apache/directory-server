@@ -33,7 +33,6 @@ import org.apache.mina.transport.socket.SocketAcceptor;
  * not been implemented.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public abstract class AbstractProtocolService implements ProtocolService
 {

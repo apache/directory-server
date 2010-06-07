@@ -67,7 +67,6 @@ import org.slf4j.LoggerFactory;
  * An {@link Interceptor} that authenticates users.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class AuthenticationInterceptor extends BaseInterceptor
 {

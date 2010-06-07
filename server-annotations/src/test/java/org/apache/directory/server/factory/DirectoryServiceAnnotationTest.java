@@ -56,7 +56,6 @@ import org.junit.Test;
  * Test the creation of a DS using a factory.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @CreateDS( name = "classDS" )
 public class DirectoryServiceAnnotationTest

@@ -29,7 +29,6 @@ import org.apache.directory.server.dhcp.options.OptionsField;
  * names in brackets.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class DhcpMessage {
     /**

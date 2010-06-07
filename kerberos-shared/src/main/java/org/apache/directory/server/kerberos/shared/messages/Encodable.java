@@ -25,7 +25,6 @@ package org.apache.directory.server.kerberos.shared.messages;
  * Marker interface for ASN.1 encodable objects.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface Encodable
 {

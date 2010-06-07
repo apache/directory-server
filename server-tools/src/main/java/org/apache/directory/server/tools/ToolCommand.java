@@ -32,7 +32,6 @@ import org.apache.directory.server.configuration.ApacheDS;
  * Simple base class for tool commands.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public abstract class ToolCommand
 {

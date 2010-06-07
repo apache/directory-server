@@ -23,7 +23,6 @@ package org.apache.directory.server.constants;
  * DN constants used in the server.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev:$
  */
 public interface ServerDNConstants
 {

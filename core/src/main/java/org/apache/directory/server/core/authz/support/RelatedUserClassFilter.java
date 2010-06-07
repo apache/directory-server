@@ -44,7 +44,6 @@ import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
  * are not related with the current user. (18.8.3.1, X.501)
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class RelatedUserClassFilter implements ACITupleFilter
 {

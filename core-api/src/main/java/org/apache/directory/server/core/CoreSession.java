@@ -57,7 +57,6 @@ import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
  * various decisions during the course of operation handling.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface CoreSession
 {

@@ -34,7 +34,6 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * length MUST be a multiple of 2.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class PathMtuPlateauTable extends DhcpOption
 {

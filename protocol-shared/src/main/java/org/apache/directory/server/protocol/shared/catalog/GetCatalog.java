@@ -40,7 +40,6 @@ import org.apache.directory.shared.ldap.name.DN;
  * A Session operation for building a catalog.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class GetCatalog implements DirectoryServiceOperation
 {

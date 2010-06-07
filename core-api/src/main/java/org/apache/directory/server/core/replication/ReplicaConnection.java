@@ -25,7 +25,6 @@ package org.apache.directory.server.core.replication;
  * SimpleReplicaConnection or the SaslReplicaConnection.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: $, $Date: $
  *
  */
 public abstract class ReplicaConnection

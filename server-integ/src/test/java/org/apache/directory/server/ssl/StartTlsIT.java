@@ -71,7 +71,6 @@ import org.slf4j.LoggerFactory;
  * connection is not established.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 639006 $
  */
 @RunWith ( FrameworkRunner.class ) 
 @CreateDS( allowAnonAccess=true, name="StartTlsIT-class")

@@ -37,7 +37,6 @@ import org.junit.runner.RunWith;
  * Tests the ServerSystemPreferences class.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
 public class PreferencesIT extends AbstractLdapTestUnit

@@ -41,7 +41,6 @@ import org.apache.mina.core.buffer.IoBuffer;
  * depends on the domain where it is found.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class TextRecordEncoder extends ResourceRecordEncoder
 {

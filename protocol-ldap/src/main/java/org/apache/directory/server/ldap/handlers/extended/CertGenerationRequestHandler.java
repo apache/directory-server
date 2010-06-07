@@ -45,7 +45,6 @@ import org.apache.directory.shared.ldap.name.DN;
  * An extended handler for digital certificate generation
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class CertGenerationRequestHandler implements ExtendedOperationHandler
 {

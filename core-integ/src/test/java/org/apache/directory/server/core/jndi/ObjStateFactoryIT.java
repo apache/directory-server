@@ -54,7 +54,6 @@ import org.junit.runner.RunWith;
  * Tests to make sure that object and state factories work.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
 public class ObjStateFactoryIT extends AbstractLdapTestUnit

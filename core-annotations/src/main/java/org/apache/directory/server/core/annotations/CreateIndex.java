@@ -41,7 +41,6 @@ import org.apache.directory.server.xdbm.Index;
  * a specific kind of Index. It defaults to JdbmIndex.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target( {ElementType.METHOD, ElementType.TYPE } )

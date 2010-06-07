@@ -54,7 +54,6 @@ import java.io.IOException;
  * serialization is performed.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: ByteArraySerializer.java,v 1.1 2003/03/21 02:48:42 boisvert Exp $
  */
 public final class ByteArraySerializer
     implements Serializer

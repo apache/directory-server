@@ -32,7 +32,6 @@ import org.apache.directory.shared.ldap.name.DN;
  * attributes of the entry itself or indices can be used for rapid evaluation.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public interface Evaluator
 {

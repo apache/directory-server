@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
  * all the other methods are handled by the {@link IoHandlerAdapter} class.<br/>
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class NtpProtocolHandler extends IoHandlerAdapter
 {

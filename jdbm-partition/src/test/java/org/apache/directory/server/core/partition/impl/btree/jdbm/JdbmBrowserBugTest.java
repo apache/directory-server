@@ -45,7 +45,6 @@ import static junit.framework.Assert.assertEquals;
  * A test case to confirm the JDBM browser issue.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $$Rev$$
  */
 public class JdbmBrowserBugTest
 {

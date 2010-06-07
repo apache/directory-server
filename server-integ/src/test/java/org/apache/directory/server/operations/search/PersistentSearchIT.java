@@ -69,7 +69,6 @@ import org.slf4j.LoggerFactory;
  * Test case which tests the correct operation of the persistent search control.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class ) 
 @CreateLdapServer ( 

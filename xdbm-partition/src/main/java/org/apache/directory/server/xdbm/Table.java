@@ -31,7 +31,6 @@ import org.apache.directory.shared.ldap.cursor.Tuple;
  * implementation details.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public interface Table<K, V>
 {

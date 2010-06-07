@@ -44,7 +44,6 @@ package org.apache.directory.server.dns.io.encoder;
  * when talking between machines or operating systems of the same type.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class HostInformationRecordEncoder
 {

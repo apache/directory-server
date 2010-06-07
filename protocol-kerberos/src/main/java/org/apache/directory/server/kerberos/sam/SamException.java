@@ -28,7 +28,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.SamType;
  *
  * @warning this should extend from KerberosException in o.a.k.exception.
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class SamException extends Exception
 {

@@ -27,7 +27,6 @@ import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
  * An empty Cursor implementation.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
 {

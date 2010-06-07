@@ -28,7 +28,6 @@ import org.apache.directory.shared.ldap.schema.comparators.SerializableComparato
  * A comparator used to compare {@link ParentIdAndRdn} stored in the RDN index.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class ParentIdAndRdnComparator<ID extends Comparable<ID>> extends SerializableComparator<ParentIdAndRdn<ID>>
 {

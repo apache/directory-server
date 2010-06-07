@@ -49,7 +49,6 @@ import org.junit.runner.RunWith;
  * Created to demonstrate DIRSERVER-1055
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 569048 $
  */
 @RunWith ( FrameworkRunner.class )
 @CreateLdapServer ( 

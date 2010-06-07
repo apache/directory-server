@@ -62,7 +62,6 @@ import org.junit.runner.RunWith;
  * Tests to make sure the server is operating correctly when handling referrals.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 545029 $
  */
 @RunWith ( FrameworkRunner.class )
 @CreateLdapServer ( 

@@ -35,7 +35,6 @@ import org.apache.directory.shared.ldap.entry.Entry;
  * Adapts index cursors to return just Entry objects.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class ServerEntryCursorAdaptor<ID> implements Cursor<Entry>
 {

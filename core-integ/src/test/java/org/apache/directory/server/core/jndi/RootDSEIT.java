@@ -47,7 +47,6 @@ import org.junit.runner.RunWith;
  * Testing RootDSE lookups and context creation using the empty string.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
 @CreateDS()

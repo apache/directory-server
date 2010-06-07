@@ -29,7 +29,6 @@ import org.apache.directory.shared.ldap.exception.LdapException;
  * more than one tag on a revision in our case for snapshotting server state.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface TaggableChangeLogStore extends ChangeLogStore
 {

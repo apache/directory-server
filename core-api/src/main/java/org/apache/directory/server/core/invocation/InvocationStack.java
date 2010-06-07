@@ -36,7 +36,6 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
  * {@link #getInstance()} to get current invocation stack.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public final class InvocationStack
 {

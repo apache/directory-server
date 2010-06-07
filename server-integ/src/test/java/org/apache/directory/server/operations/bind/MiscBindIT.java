@@ -79,7 +79,6 @@ import org.junit.runner.RunWith;
  * A set of miscellaneous tests.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 682556 $
  */
 @RunWith ( FrameworkRunner.class ) 
 @CreateDS( allowAnonAccess=true, name="SaslBindIT-class",

@@ -27,7 +27,6 @@ import javax.naming.directory.SearchControls;
  * TODO Scope.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public enum Scope
 {

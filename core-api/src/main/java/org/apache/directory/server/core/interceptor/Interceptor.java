@@ -101,8 +101,6 @@ import org.apache.directory.shared.ldap.exception.LdapException;
  * </pre>
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
- * @see NextInterceptor
  */
 public interface Interceptor
 {

@@ -35,7 +35,6 @@ import org.apache.directory.server.dhcp.options.ShortOption;
  * legal value is 576 octets.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class MaximumDhcpMessageSize extends ShortOption
 {

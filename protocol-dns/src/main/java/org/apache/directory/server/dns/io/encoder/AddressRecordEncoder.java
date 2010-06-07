@@ -49,7 +49,6 @@ import org.apache.mina.core.buffer.IoBuffer;
  * "10.2.0.52" or "192.0.5.6").
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class AddressRecordEncoder extends ResourceRecordEncoder
 {

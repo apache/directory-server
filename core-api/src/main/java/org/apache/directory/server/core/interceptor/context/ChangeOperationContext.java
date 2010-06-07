@@ -28,7 +28,6 @@ import org.apache.directory.server.core.changelog.ChangeLogEvent;
  * Operations (write based) causing changes extend this interface. 
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface ChangeOperationContext extends OperationContext
 {

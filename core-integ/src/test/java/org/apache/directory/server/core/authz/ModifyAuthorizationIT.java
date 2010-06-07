@@ -58,7 +58,6 @@ import org.junit.runner.RunWith;
  * Tests whether or not authorization around entry modify operations work properly.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith(FrameworkRunner.class)
 @CreateDS( enableAccessControl=true )

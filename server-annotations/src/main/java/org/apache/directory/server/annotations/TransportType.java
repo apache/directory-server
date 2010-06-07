@@ -24,7 +24,6 @@ package org.apache.directory.server.annotations;
  * The two different type of Transport
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public enum TransportType
 {

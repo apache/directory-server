@@ -39,7 +39,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * related {@link MicroOperation}s. (18.8.3.4, X.501) 
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  *
  */
 public class MicroOperationFilter implements ACITupleFilter

@@ -67,7 +67,6 @@ import org.apache.directory.server.i18n.I18n;
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="cg@cdegroot.com">Cees de Groot</a>
- * @version $Id: CacheRecordManager.java,v 1.9 2005/06/25 23:12:32 doomdark Exp $
  */
 public class CacheRecordManager implements RecordManager
 {

@@ -39,7 +39,6 @@ import org.apache.directory.server.i18n.I18n;
  * [RFC 4120]:
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public final class KeyUsage implements Comparable<KeyUsage>
 {

@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
  *         ::= SEQUENCE OF HostAddress
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class HostAddresses extends AbstractAsn1Object
 {

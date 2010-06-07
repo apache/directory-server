@@ -50,7 +50,6 @@ import org.apache.directory.shared.ldap.name.DN;
  * authorization tests.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class AutzIntegUtils
 {

@@ -40,7 +40,6 @@ import org.apache.directory.shared.ldap.constants.LdapSecurityConstants;
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 class DesCbcMd5Encryption extends EncryptionEngine
 {

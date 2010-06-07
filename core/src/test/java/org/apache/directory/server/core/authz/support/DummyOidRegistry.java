@@ -33,7 +33,6 @@ import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
  * A mock {@link OidRegistry} to test {@link ACITupleFilter} implementations.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  *
  */
 class DummyOidRegistry extends OidRegistry

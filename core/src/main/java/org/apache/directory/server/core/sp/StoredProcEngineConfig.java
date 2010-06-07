@@ -26,7 +26,6 @@ package org.apache.directory.server.core.sp;
  * A configuration wrapper for {@link StoredProcEngine}s.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$ $Date$
  */
 public interface StoredProcEngineConfig
 {

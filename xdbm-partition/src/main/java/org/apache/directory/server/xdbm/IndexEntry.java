@@ -26,7 +26,6 @@ import org.apache.directory.shared.ldap.cursor.Tuple;
  * Interface for index entries.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $$Rev$$
  */
 public interface IndexEntry<V, O, ID>
 {

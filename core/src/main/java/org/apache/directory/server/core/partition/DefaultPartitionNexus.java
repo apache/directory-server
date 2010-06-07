@@ -112,7 +112,6 @@ import org.slf4j.LoggerFactory;
  * listing base suffixes.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class DefaultPartitionNexus extends AbstractPartition implements PartitionNexus
 {

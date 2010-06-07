@@ -39,7 +39,6 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
  * An LDAP BER Decoder/Encoder factory implementing {@link ProtocolCodecFactory}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 final class LdapProtocolCodecFactory implements ProtocolCodecFactory
 {

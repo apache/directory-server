@@ -32,7 +32,6 @@ import org.junit.Test;
  * Tests the {@link EmptyIndexCursor} class.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class EmptyIndexCursorTest
 {

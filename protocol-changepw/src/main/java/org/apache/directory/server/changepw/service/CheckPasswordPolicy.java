@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
  * A basic password policy check using well-established methods.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class CheckPasswordPolicy implements IoHandlerCommand
 {

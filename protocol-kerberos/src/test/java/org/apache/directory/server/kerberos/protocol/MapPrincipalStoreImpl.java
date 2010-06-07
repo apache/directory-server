@@ -38,7 +38,6 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntryModi
  * store implements only getPrincipal, as required by the Kerberos service.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class MapPrincipalStoreImpl implements PrincipalStore
 {

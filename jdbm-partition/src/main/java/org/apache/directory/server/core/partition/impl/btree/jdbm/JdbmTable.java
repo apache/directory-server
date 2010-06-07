@@ -51,7 +51,6 @@ import org.slf4j.LoggerFactory;
  * A jdbm Btree wrapper that enables duplicate sorted keys using collections.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class JdbmTable<K,V> implements Table<K,V>
 {

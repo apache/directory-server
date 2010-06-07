@@ -33,7 +33,6 @@ import org.apache.directory.server.xdbm.search.Evaluator;
  * entry database.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Evaluator<ScopeNode, E, ID>
 {

@@ -31,7 +31,6 @@ import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
  * A Cursor for AvlTreeMap without duplicates.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractTupleCursor<K, SingletonOrOrderedSet<V>>
 {

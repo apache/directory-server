@@ -47,7 +47,6 @@ import org.junit.runner.RunWith;
  * for user accounts if the user is not the admin.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
 @CreateDS()

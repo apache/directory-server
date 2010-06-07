@@ -75,7 +75,6 @@ import org.apache.directory.server.i18n.I18n;
  * discriminate between different keys based on their hash code.
  *
  *  @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- *  @version $Id: HashBucket.java,v 1.2 2005/06/25 23:12:32 doomdark Exp $
  */
 final class HashBucket
     extends HashNode

@@ -54,7 +54,6 @@ import org.slf4j.LoggerFactory;
  * functionality will be used and tested anyway in all other test cases.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @RunWith ( FrameworkRunner.class )
 @CreateDS( factory=DefaultDirectoryServiceFactory.class, name="DefaultChangeLogIT-class" )

@@ -29,7 +29,6 @@ import org.apache.directory.server.core.DirectoryService;
  * methods to be used.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface DirectoryServiceFactory
 {

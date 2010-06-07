@@ -53,7 +53,6 @@ import org.junit.runner.RunWith;
  * Originally created to demonstrate DIREVE-173.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 679049 $
  */
 @RunWith ( FrameworkRunner.class )
 @CreateDS( name="ModifyRdnIT-class", enableChangeLog=false )

@@ -88,7 +88,6 @@ import jdbm.helper.TupleBrowser;
  * the key size, which impacts all non-leaf <code>BPage</code> objects.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: BTree.java,v 1.6 2005/06/25 23:12:31 doomdark Exp $
  */
 public class BTree<K, V> implements Externalizable
 {

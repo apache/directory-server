@@ -95,7 +95,6 @@ import org.slf4j.LoggerFactory;
  * TODO write test cases
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class SyncReplConsumer implements ConnectionClosedEventListener
 {

@@ -54,7 +54,6 @@ import org.slf4j.LoggerFactory;
  * Tests the server to make sure standard compare operations work properly.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @RunWith ( FrameworkRunner.class ) 
 @CreateLdapServer ( 

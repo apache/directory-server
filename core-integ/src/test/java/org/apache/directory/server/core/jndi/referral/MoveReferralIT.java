@@ -60,7 +60,6 @@ import org.junit.runner.RunWith;
  * http://cwiki.apache.org/confluence/display/DIRxSRVx11/Referral+Handling+Changes
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 691179 $
  */
 @RunWith ( FrameworkRunner.class )
 @ApplyLdifs( {

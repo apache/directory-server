@@ -48,7 +48,6 @@ import org.junit.runner.RunWith;
  * Tests for DIRSERVERR-1139
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
 public class CompareDirserver1139IT extends AbstractLdapTestUnit

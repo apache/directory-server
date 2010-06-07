@@ -49,7 +49,6 @@ import org.slf4j.LoggerFactory;
  * the core as plaintext.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class PasswordPolicyInterceptor extends BaseInterceptor
 {

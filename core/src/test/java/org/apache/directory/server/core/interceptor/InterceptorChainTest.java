@@ -48,7 +48,6 @@ import org.junit.Test;
  * instructions in the chain.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class InterceptorChainTest
 {

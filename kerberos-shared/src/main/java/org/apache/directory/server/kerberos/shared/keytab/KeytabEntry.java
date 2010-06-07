@@ -28,7 +28,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
  * An entry within a keytab file.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class KeytabEntry
 {

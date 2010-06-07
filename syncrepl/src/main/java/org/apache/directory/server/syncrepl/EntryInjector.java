@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
  * A utility class to inject entries into the syncrepl provider server.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class EntryInjector extends JPanel implements ActionListener
 {

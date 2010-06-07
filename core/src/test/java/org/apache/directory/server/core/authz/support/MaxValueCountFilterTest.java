@@ -52,7 +52,6 @@ import org.junit.Test;
  * Tests {@link MaxValueCountFilter}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class MaxValueCountFilterTest
 {

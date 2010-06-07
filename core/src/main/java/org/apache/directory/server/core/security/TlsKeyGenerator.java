@@ -56,7 +56,6 @@ import org.slf4j.LoggerFactory;
  * Generates the default RSA key pair for the server.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class TlsKeyGenerator
 {

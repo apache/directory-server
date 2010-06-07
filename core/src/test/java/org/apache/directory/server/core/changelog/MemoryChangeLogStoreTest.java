@@ -53,7 +53,6 @@ import org.junit.Test;
  * Tests the MemoryChangeLogStore.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class MemoryChangeLogStoreTest
 {

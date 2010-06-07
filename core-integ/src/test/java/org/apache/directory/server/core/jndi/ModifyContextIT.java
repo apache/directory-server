@@ -51,7 +51,6 @@ import org.junit.runner.RunWith;
  * operations in LDAP.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
 @CreateDS( factory=DefaultDirectoryServiceFactory.class, name="ModifyContextIT-class" )

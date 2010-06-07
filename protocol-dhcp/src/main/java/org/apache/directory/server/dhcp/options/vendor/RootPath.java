@@ -32,7 +32,6 @@ import org.apache.directory.server.dhcp.options.StringOption;
  * The code for this option is 17.  Its minimum length is 1.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class RootPath extends StringOption
 {

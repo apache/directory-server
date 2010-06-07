@@ -36,7 +36,6 @@ import java.util.Comparator;
  * An Evaluator for logical conjunction (AND) expressions.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $$Rev$$
  */
 public class AndEvaluator<ID> implements Evaluator<AndNode, Entry, ID>
 {

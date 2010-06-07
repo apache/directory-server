@@ -52,7 +52,6 @@ package org.apache.directory.server.dns.io.encoder;
  * with a mailing list.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class MailInformationRecordEncoder
 {

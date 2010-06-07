@@ -76,7 +76,6 @@ import org.junit.runner.RunWith;
  * name and to generate random keys when the special keyword "randomKey" is used.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 @RunWith ( FrameworkRunner.class ) 
 @CreateDS( name="KeyDerivationServiceIT-class",

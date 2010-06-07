@@ -27,7 +27,6 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * it. Users are therefore required to manually deal with the contained data.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 552077 $, $Date: 2007-06-29 21:23:39 -0500 (Fr, 29 Jun 2007) $
  */
 public class UnrecognizedOption extends DhcpOption {
     private final byte tag;

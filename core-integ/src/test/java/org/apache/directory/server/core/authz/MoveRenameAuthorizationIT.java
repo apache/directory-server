@@ -50,7 +50,6 @@ import org.junit.runner.RunWith;
  * Tests whether or not authorization around entry renames and moves work properly.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
 public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit

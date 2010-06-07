@@ -32,7 +32,6 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class ChangePasswordUdpDecoder extends ProtocolDecoderAdapter
 {

@@ -43,7 +43,6 @@ import javax.security.sasl.SaslException;
  * this mechanism.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $$Rev$$
  */
 public class PlainSaslServer extends AbstractSaslServer
 {

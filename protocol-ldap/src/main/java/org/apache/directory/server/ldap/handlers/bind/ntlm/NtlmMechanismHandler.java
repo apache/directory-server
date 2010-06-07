@@ -34,7 +34,6 @@ import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
  * using jCIFS or native Win32 system calls via a JNI wrapper.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class NtlmMechanismHandler extends AbstractMechanismHandler
 {

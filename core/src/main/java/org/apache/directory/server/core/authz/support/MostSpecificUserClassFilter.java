@@ -46,7 +46,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
  * matching subtree, discard all other tuples.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class MostSpecificUserClassFilter implements ACITupleFilter
 {

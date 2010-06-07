@@ -24,7 +24,6 @@ package org.apache.directory.server.xdbm;
  * A master table used to store indexable entries.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public interface MasterTable<ID, E> extends Table<ID, E>
 {

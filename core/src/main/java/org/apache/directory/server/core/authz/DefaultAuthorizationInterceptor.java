@@ -70,7 +70,6 @@ import org.slf4j.LoggerFactory;
  * thrown and therefore the current invocation chain will terminate.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class DefaultAuthorizationInterceptor extends BaseInterceptor
 {

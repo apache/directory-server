@@ -72,7 +72,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * stored in a Ldif File, and they could be added entries or modified entries.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 406112 $
  */
 public class ImportCommand extends ToolCommand
 {

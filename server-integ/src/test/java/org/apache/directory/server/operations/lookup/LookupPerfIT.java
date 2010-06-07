@@ -52,7 +52,6 @@ import org.junit.runner.RunWith;
  * Testcase for the lookup operation.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 682556 $
  */
 @RunWith(FrameworkRunner.class)
 @CreateLdapServer(

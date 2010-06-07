@@ -49,7 +49,6 @@ import org.slf4j.LoggerFactory;
  * the Interceptors.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public abstract class SearchingOperationContext extends AbstractOperationContext
 {

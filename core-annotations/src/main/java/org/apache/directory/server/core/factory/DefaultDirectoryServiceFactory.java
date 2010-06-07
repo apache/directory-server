@@ -46,7 +46,6 @@ import org.slf4j.LoggerFactory;
  * A Default factory for DirectoryService.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
 {

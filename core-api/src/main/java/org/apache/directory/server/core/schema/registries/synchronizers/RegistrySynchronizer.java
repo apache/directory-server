@@ -32,7 +32,6 @@ import org.apache.directory.shared.ldap.name.RDN;
  * to update registries so they're synchronized with entries on disk.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public interface RegistrySynchronizer
 {

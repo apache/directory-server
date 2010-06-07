@@ -52,7 +52,6 @@ import static org.junit.Assert.assertEquals;
  * Tests various facets of working with encryption types in the Ticket-Granting Service (TGS).
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServiceTest
 {

@@ -24,7 +24,6 @@ package org.apache.directory.server.core.changelog;
  * A structure telling the changeLog what to do with the incoming change
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public enum LogChange
 {

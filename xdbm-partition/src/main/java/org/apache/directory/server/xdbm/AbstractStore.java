@@ -61,7 +61,6 @@ import org.slf4j.LoggerFactory;
  * Base implementation of a {@link Store}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $$Rev$$
  */
 public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Store<E, ID>
 {

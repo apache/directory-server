@@ -43,7 +43,6 @@ import org.apache.directory.shared.ldap.name.DN;
  * An XDBM Partition backed by in memory AVL Trees.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class AvlPartition extends AbstractXdbmPartition<Long>
 {

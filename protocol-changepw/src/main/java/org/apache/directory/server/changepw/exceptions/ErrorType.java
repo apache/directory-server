@@ -30,7 +30,6 @@ import java.util.List;
  * Type safe enumeration of Change Password error types
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public final class ErrorType implements Comparable<ErrorType>
 {

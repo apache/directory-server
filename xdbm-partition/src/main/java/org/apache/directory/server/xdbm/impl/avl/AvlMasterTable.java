@@ -32,7 +32,6 @@ import org.apache.directory.server.xdbm.MasterTable;
  * with this single use of delete so we should just use containment.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class AvlMasterTable<E> extends AvlTable<Long, E> implements MasterTable<Long, E>
 {

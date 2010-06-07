@@ -43,7 +43,6 @@ import org.slf4j.LoggerFactory;
  * LDAP server forms a session.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class LdapSession
 {

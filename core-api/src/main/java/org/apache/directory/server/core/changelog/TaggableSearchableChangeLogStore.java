@@ -27,7 +27,6 @@ import org.apache.directory.server.core.partition.Partition;
  * TODO TaggableSearchableChangeLogStore.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface TaggableSearchableChangeLogStore extends TaggableChangeLogStore, SearchableChangeLogStore
 {

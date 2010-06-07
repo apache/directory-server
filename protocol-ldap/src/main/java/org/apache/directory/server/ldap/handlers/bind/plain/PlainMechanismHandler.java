@@ -33,7 +33,6 @@ import org.apache.directory.shared.ldap.message.internal.InternalBindRequest;
  * A handler for the PLAIN Sasl mechanism. 
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class PlainMechanismHandler extends AbstractMechanismHandler
 {

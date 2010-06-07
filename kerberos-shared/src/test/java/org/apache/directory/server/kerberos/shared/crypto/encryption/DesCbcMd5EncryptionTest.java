@@ -33,7 +33,6 @@ import static org.junit.Assert.assertTrue;
  * Test case for the DES-CBC-MD5 encryption type.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class DesCbcMd5EncryptionTest
 {

@@ -29,7 +29,6 @@ import org.apache.directory.server.core.sp.StoredProcEngineConfig;
  * A {@link StoredProcEngineConfig} implementation specific to Java stored procedures.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$ $Date$
  */
 public class JavaStoredProcEngineConfig implements StoredProcEngineConfig
 {
