@@ -1053,20 +1053,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
 
     /**
-     * Changes the relative distinguished name of an entry specified by a 
-     * distinguished name with the optional removal of the old RDN attribute
-     * value from the entry.  Name changes propagate down as dn changes to the 
-     * descendants of the entry where the RDN changed. 
-     * 
-     * An RDN change operation does not change parent child relationships.  It 
-     * merely propagates a name change at a point in the DIT where the RDN is 
-     * changed. The change propagates down the subtree rooted at the 
-     * distinguished name specified.
-     *
-     * @param dn the normalized distinguished name of the entry to alter
-     * @param newRdn the new RDN to set
-     * @param deleteOldRdn whether or not to remove the old RDN attr/val
-     * @throws Exception if there are any errors propagating the name changes
+     * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
     public synchronized void rename( DN dn, RDN newRdn, boolean deleteOldRdn, Entry entry ) throws Exception
@@ -1179,6 +1166,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             }
         }
 
+        
         /*
          * H A N D L E   D N   C H A N G E
          * ====================================================================
@@ -1200,10 +1188,19 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized void rename( DN dn, RDN newRdn, boolean deleteOldRdn ) throws Exception
+    {
+        rename( dn, newRdn, deleteOldRdn, null );
+    }
+
+
     public synchronized void move( DN oldChildDn, DN newParentDn, RDN newRdn, boolean deleteOldRdn ) throws Exception
     {
         ID childId = getEntryId( oldChildDn );
-        rename( oldChildDn, newRdn, deleteOldRdn, null );
+        rename( oldChildDn, newRdn, deleteOldRdn );
         move( oldChildDn, childId, newParentDn, newRdn );
 
         if ( isSyncOnWrite )
