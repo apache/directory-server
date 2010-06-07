@@ -96,7 +96,6 @@ import org.slf4j.LoggerFactory;
  * and instantiate the necessary objects like DirectoryService, Interceptors etc.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class ConfigPartitionReader
 {

@@ -25,7 +25,6 @@ package org.apache.directory.server.config;
  * Constants defined for the elements of config schema
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public interface ConfigSchemaConstants
 {

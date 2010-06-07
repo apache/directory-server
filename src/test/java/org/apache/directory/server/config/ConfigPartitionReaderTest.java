@@ -51,7 +51,6 @@ import org.junit.Test;
  * Test class for ConfigPartitionReader
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class ConfigPartitionReaderTest
 {

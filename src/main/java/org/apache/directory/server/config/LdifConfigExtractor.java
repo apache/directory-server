@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
  *       We should create a AbstractLdifExtractor class and move the reusable code there 
  *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class LdifConfigExtractor
 {
