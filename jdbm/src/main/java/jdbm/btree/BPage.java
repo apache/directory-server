@@ -798,7 +798,7 @@ public class BPage<K, V> implements Serializer
         // binary search
         while ( left < right )
         {
-            int middle = ( left + right ) >> 1;
+            int middle = ( left + right ) >>> 1;
             
             int comp = compare( keys[middle], key );
             
