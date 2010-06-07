@@ -404,11 +404,6 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
     public final void bind( DN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId )
         throws LdapException
     {
-        if ( bindDn == null || credentials == null || mechanisms == null || saslAuthId == null )
-        {
-            // do nothing just using variables to prevent yellow lights : bad :)
-        }
-
         // does nothing
         throw new LdapAuthenticationNotSupportedException( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED, I18n
             .err( I18n.ERR_702 ) );
