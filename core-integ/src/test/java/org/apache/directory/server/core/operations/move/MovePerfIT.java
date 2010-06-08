@@ -72,13 +72,15 @@ public class MovePerfIT extends AbstractLdapTestUnit
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );
 
         String oldDn = "cn=test,ou=system";
-        String newDn = "cn=test,dc=example,dc=com";
+        String newDn = "cn=test,ou=users,ou=system";
+        String oldSuperior = "ou=system";
+        String newSuperior = "ou=users,ou=system";
 
         DN dn = new DN( oldDn );
         Entry entry = new DefaultEntry( service.getSchemaManager(), dn );
         entry.add( "ObjectClass", "top", "person" );
         entry.add( "sn", "TEST" );
-        entry.add( "cn", "test0" );
+        entry.add( "cn", "test" );
 
         connection.add( entry );
         int nbIterations = 15000;
@@ -105,13 +107,18 @@ public class MovePerfIT extends AbstractLdapTestUnit
             String newRdn = "cn=test" + i;
             
             long ttt0 = System.nanoTime();
-            connection.move( oldDn, newDn );
+            connection.move( oldDn, newSuperior );
             long ttt1 = System.nanoTime();
 
             // Swap the dn
             String tmpDn = newDn;
             newDn = oldDn;
             oldDn = tmpDn;
+            
+            // Swap the superiors
+            String tmpSuperior = newSuperior;
+            newSuperior = oldSuperior;
+            oldSuperior = tmpSuperior;
             //System.out.println("added " + i + ", delta = " + (ttt1-ttt0)/1000);
         }
 
