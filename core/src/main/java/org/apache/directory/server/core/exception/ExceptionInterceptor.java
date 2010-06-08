@@ -387,7 +387,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         DN oriChildName = opContext.getDn();
         DN newParentName = opContext.getParent();
 
-        if ( oriChildName.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
+        if ( oriChildName.equals( subschemSubentryDn ) )
         {
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_258,
                 subschemSubentryDn, subschemSubentryDn ) );
@@ -402,9 +402,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         assertHasEntry( opContext, msg, newParentName );
 
         // check to see if target entry exists
-        String rdn = oriChildName.get( oriChildName.size() - 1 );
-        DN target = ( DN ) newParentName.clone();
-        target.add( rdn );
+        DN target = opContext.getNewDn();
 
         if ( nextInterceptor.hasEntry( new EntryOperationContext( opContext.getSession(), target ) ) )
         {

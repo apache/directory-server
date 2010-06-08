@@ -909,13 +909,12 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
     {
         DN oriChildName = moveContext.getDn();
-        DN newParentName = moveContext.getParent();
 
         // Access the principal requesting the operation, and bypass checks if it is the admin
-        Entry entry = moveContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
+        Entry entry = moveContext.getEntry();
 
-        DN newName = ( DN ) newParentName.clone();
-        newName.add( oriChildName.get( oriChildName.size() - 1 ) );
+        DN newDn = moveContext.getNewDn();
+
         LdapPrincipal principal = moveContext.getSession().getEffectivePrincipal();
         DN principalDn = principal.getDN();
 
@@ -932,8 +931,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
             next.move( moveContext );
-            tupleCache.subentryRenamed( oriChildName, newName );
-            groupCache.groupRenamed( oriChildName, newName );
+            tupleCache.subentryRenamed( oriChildName, newDn );
+            groupCache.groupRenamed( oriChildName, newDn );
             return;
         }
 
@@ -960,7 +959,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // and access control subentry operational attributes.
         SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class
             .getName() );
-        Entry subentryAttrs = subentryInterceptor.getSubentryAttributes( newName, importedEntry );
+        Entry subentryAttrs = subentryInterceptor.getSubentryAttributes( newDn, importedEntry );
 
         for ( EntryAttribute attribute : importedEntry )
         {
@@ -969,15 +968,15 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Collection<ACITuple> destTuples = new HashSet<ACITuple>();
         // Import permission is only valid for prescriptive ACIs
-        addPerscriptiveAciTuples( moveContext, destTuples, newName, subentryAttrs );
+        addPerscriptiveAciTuples( moveContext, destTuples, newDn, subentryAttrs );
         // Evaluate the target context to see whether it
         // allows an entry named newName to be imported as a subordinate.
         engine.checkPermission( schemaManager, moveContext, userGroups, principalDn,
-            principal.getAuthenticationLevel(), newName, null, null, IMPORT_PERMS, destTuples, subentryAttrs, null );
+            principal.getAuthenticationLevel(), newDn, null, null, IMPORT_PERMS, destTuples, subentryAttrs, null );
 
         next.move( moveContext );
-        tupleCache.subentryRenamed( oriChildName, newName );
-        groupCache.groupRenamed( oriChildName, newName );
+        tupleCache.subentryRenamed( oriChildName, newDn );
+        groupCache.groupRenamed( oriChildName, newDn );
     }
 
 

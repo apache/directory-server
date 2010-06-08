@@ -579,7 +579,6 @@ public class DefaultCoreSession implements CoreSession
     public void move( DN dn, DN newParent, LogChange log ) throws LdapException
     {
         MoveOperationContext opContext = new MoveOperationContext( this, dn, newParent );
-        
         opContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();

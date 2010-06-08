@@ -291,10 +291,7 @@ public class ReferralInterceptor extends BaseInterceptor
      **/
     public void move( NextInterceptor next, MoveOperationContext opContext ) throws LdapException
     {
-        DN oldName = opContext.getDn();
-
-        DN newName = ( DN ) opContext.getParent().clone();
-        newName.add( oldName.get( oldName.size() - 1 ) );
+        DN newDn = opContext.getNewDn();
 
         // Check if the entry is a referral itself
         boolean isReferral = isReferral( opContext.getEntry() );
@@ -304,7 +301,7 @@ public class ReferralInterceptor extends BaseInterceptor
         if ( isReferral )
         {
             // Update the referralManager
-            LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), newName );
+            LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), newDn );
 
             Entry newEntry = nexus.lookup( lookupContext );
 

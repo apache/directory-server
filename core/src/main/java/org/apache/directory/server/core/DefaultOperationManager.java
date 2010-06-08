@@ -661,6 +661,10 @@ public class DefaultOperationManager implements OperationManager
             DN dn = opContext.getDn();
             dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
+            // Normalize the opContext DN
+            DN parentDn = opContext.getParent();
+            parentDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
+
             // We have to deal with the referral first
             directoryService.getReferralManager().lockRead();
 
@@ -711,10 +715,6 @@ public class DefaultOperationManager implements OperationManager
             }
 
             // Now, check the destination
-            // Normalize the opContext DN
-            DN parentDn = opContext.getParent();
-            parentDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
-
             // If he parent DN is a referral, or has a referral ancestor, we have to issue a AffectMultipleDsas result
             // as stated by RFC 3296 Section 5.6.2
             if ( directoryService.getReferralManager().isReferral( parentDn )
@@ -731,6 +731,11 @@ public class DefaultOperationManager implements OperationManager
 
             // Unlock the ReferralManager
             directoryService.getReferralManager().unlock();
+
+            // Create the newDN now
+            DN newDn = (DN)(opContext.getParent().clone());
+            newDn.add( dn.getRdn() );
+            opContext.setNewDn( newDn );
 
             // Call the Add method
             InterceptorChain interceptorChain = directoryService.getInterceptorChain();

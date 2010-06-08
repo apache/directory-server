@@ -1035,8 +1035,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             // calculate the new DN now for use below to modify subentry operational
             // attributes contained within this regular entry with name changes
-            DN newName = ( DN ) newParentName.clone();
-            newName.add( oriChildName.get( oriChildName.size() - 1 ) );
+            DN newName = opContext.getNewDn();
             List<Modification> mods = getModsOnEntryRdnChange( oriChildName, newName, entry );
 
             if ( mods.size() > 0 )

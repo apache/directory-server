@@ -39,6 +39,9 @@ public class MoveOperationContext extends AbstractChangeOperationContext
     /** The parent DN */
     private DN parent;
     
+    /** The New target DN */
+    private DN newDn;
+    
 
     /**
      * Creates a new instance of MoveOperationContext.
@@ -104,6 +107,26 @@ public class MoveOperationContext extends AbstractChangeOperationContext
     public void setParent( DN parent )
     {
         this.parent = parent;
+    }
+
+
+    /**
+     *  @return The new DN
+     */
+    public DN getNewDn()
+    {
+        return newDn;
+    }
+    
+
+    /**
+     * Set the new DN
+     *
+     * @param newDn The new DN
+     */
+    public void setNewDn( DN newDn )
+    {
+        this.newDn = newDn;
     }
 
 
