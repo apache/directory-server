@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.operations.rename;
+package org.apache.directory.server.core.operations.move;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.ContextEntry;
@@ -34,13 +34,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Test the rename operation performances
+ * Test the move operation performances
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS(name = "RenamePerfDS", 
+@CreateDS(name = "MovePerfDS", 
     partitions = 
     { 
         @CreatePartition( 
@@ -61,17 +61,18 @@ import org.junit.runner.RunWith;
             })
     }, 
     enableChangeLog = false)
-public class RenamePerfIT extends AbstractLdapTestUnit
+public class MovePerfIT extends AbstractLdapTestUnit
 {
     /**
-     * Test a rename operation performance
+     * Test a move operation performance
      */
     @Test
-    public void testRenamePerf() throws Exception
+    public void testMovePerf() throws Exception
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );
 
-        String oldDn ="cn=test0,ou=system";
+        String oldDn = "cn=test,ou=system";
+        String newDn = "cn=test,dc=example,dc=com";
 
         DN dn = new DN( oldDn );
         Entry entry = new DefaultEntry( service.getSchemaManager(), dn );
@@ -104,10 +105,13 @@ public class RenamePerfIT extends AbstractLdapTestUnit
             String newRdn = "cn=test" + i;
             
             long ttt0 = System.nanoTime();
-            connection.rename( oldDn, newRdn, true );
+            connection.move( oldDn, newDn );
             long ttt1 = System.nanoTime();
 
-            oldDn = newRdn + ",ou=system"; 
+            // Swap the dn
+            String tmpDn = newDn;
+            newDn = oldDn;
+            oldDn = tmpDn;
             //System.out.println("added " + i + ", delta = " + (ttt1-ttt0)/1000);
         }
 
