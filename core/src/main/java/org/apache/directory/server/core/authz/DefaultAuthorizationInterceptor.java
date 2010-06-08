@@ -272,7 +272,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
                 return;
             }
 
-            if ( dn.equals( ServerDNConstants.ADMIN_SYSTEM_DN ) )
+            if ( dn.equals( ADMIN_SYSTEM_DN ) )
             {
                 String msg = I18n.err( I18n.ERR_18, principalDn.getName() );
                 LOG.error( msg );
