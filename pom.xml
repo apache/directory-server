@@ -30,6 +30,7 @@
   <modules>
     <module>project</module>
     <module>directory-checkstyle</module>
+    <module>junit-addons</module>
     <module>shared</module>
     <module>daemon</module>
     <module>ldap-client</module>
