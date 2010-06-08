@@ -176,8 +176,16 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     public void move( NextInterceptor nextInterceptor, MoveOperationContext opContext ) throws LdapException
     {
-        opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
-        opContext.getParent().normalize( schemaManager.getNormalizerMapping() );
+        if ( !opContext.getDn().isNormalized() )
+        {
+            opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
+        }
+
+        if ( !opContext.getParent().isNormalized() )
+        {
+            opContext.getParent().normalize( schemaManager.getNormalizerMapping() );
+        }
+
         nextInterceptor.move( opContext );
     }
 
