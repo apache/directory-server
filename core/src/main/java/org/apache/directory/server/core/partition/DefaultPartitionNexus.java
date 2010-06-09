@@ -697,10 +697,15 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#move(org.apache.directory.server.core.interceptor.context.MoveOperationContext)
      */
-    public void move( MoveOperationContext opContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
-        Partition backend = getPartition( opContext.getDn() );
-        backend.move( opContext );
+        // Get the current partition
+        Partition backend = getPartition( moveContext.getDn() );
+        
+        // We also have to get the new partition as it can be different
+        //Partition newBackend = getPartition( opContext.getNewDn() );
+        
+        backend.move( moveContext );
     }
 
 

@@ -155,9 +155,9 @@ public class InterceptorChain
         }
 
 
-        public void move( NextInterceptor next, MoveOperationContext opContext ) throws LdapException
+        public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
         {
-            nexus.move( opContext );
+            nexus.move( moveContext );
         }
 
 

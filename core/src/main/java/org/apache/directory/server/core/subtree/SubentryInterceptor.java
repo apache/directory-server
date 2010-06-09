@@ -961,12 +961,15 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
     {
-        DN oriChildName = opContext.getDn();
-        DN newParentName = opContext.getNewSuperior();
+        DN oriChildName = moveContext.getDn();
+        DN newParentName = moveContext.getNewSuperior();
 
-        Entry entry = opContext.getEntry();
+        Entry entry = moveContext.getEntry();
 
         EntryAttribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
@@ -984,7 +987,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             String newNormName = newName.getNormName();
             subentryCache.setSubentry( newNormName, ss, subentry.getTypes() );
-            next.move( opContext );
+            next.move( moveContext );
 
             subentry = subentryCache.getSubentry( newNormName );
 
@@ -994,7 +997,7 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
 
-            SearchOperationContext searchOperationContext = new SearchOperationContext( opContext.getSession(), baseDn,
+            SearchOperationContext searchOperationContext = new SearchOperationContext( moveContext.getSession(), baseDn,
                 filter, controls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
 
@@ -1010,7 +1013,7 @@ public class SubentryInterceptor extends BaseInterceptor
     
                     if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                     {
-                        nexus.modify( new ModifyOperationContext( opContext.getSession(), dn, getOperationalModsForReplace(
+                        nexus.modify( new ModifyOperationContext( moveContext.getSession(), dn, getOperationalModsForReplace(
                             oriChildName, newName, subentry, candidate ) ) );
                     }
                 }
@@ -1024,23 +1027,23 @@ public class SubentryInterceptor extends BaseInterceptor
         }
         else
         {
-            if ( hasAdministrativeDescendant( opContext, oriChildName ) )
+            if ( hasAdministrativeDescendant( moveContext, oriChildName ) )
             {
                 String msg = I18n.err( I18n.ERR_308 );
                 LOG.warn( msg );
                 throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
             }
 
-            next.move( opContext );
+            next.move( moveContext );
 
             // calculate the new DN now for use below to modify subentry operational
             // attributes contained within this regular entry with name changes
-            DN newName = opContext.getNewDn();
+            DN newName = moveContext.getNewDn();
             List<Modification> mods = getModsOnEntryRdnChange( oriChildName, newName, entry );
 
             if ( mods.size() > 0 )
             {
-                nexus.modify( new ModifyOperationContext( opContext.getSession(), newName, mods ) );
+                nexus.modify( new ModifyOperationContext( moveContext.getSession(), newName, mods ) );
             }
         }
     }

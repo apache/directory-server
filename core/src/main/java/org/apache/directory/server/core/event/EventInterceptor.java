@@ -266,12 +266,15 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
     {
-        Entry oriEntry = opContext.getEntry();
-        List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), oriEntry );
+        Entry oriEntry = moveContext.getEntry();
+        List<RegistrationEntry> selecting = getSelectingRegistrations( moveContext.getDn(), oriEntry );
 
-        next.move( opContext );
+        next.move( moveContext );
 
         if ( selecting.isEmpty() )
         {
@@ -282,7 +285,7 @@ public class EventInterceptor extends BaseInterceptor
         {
             if ( EventType.isMove( registration.getCriteria().getEventMask() ) )
             {
-                fire( opContext, EventType.MOVE, registration.getListener() );
+                fire( moveContext, EventType.MOVE, registration.getListener() );
             }
         }
     }

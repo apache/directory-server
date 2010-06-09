@@ -906,6 +906,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
     {
         DN oriChildName = moveContext.getDn();

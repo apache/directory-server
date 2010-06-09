@@ -431,10 +431,10 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws LdapException
+    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        next.move( opContext );
+        next.move( moveContext );
         long delta = System.nanoTime() - t0;
         
         if ( IS_DEBUG_STATS )

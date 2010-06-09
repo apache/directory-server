@@ -149,10 +149,10 @@ public class MockInterceptor implements Interceptor
     }
 
 
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws LdapException
+    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
     {
         interceptors.add( this );
-        next.move( opContext );
+        next.move( moveContext );
     }
 
 

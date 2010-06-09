@@ -379,12 +379,11 @@ public class ExceptionInterceptor extends BaseInterceptor
 
 
     /**
-     * Checks to see the entry being moved exists, and so does its parent, otherwise throws the appropriate
-     * LdapException.
+     * {@inheritDoc}
      */
-    public void move( NextInterceptor nextInterceptor, MoveOperationContext opContext ) throws LdapException
+    public void move( NextInterceptor nextInterceptor, MoveOperationContext moveContext ) throws LdapException
     {
-        DN oriChildName = opContext.getDn();
+        DN oriChildName = moveContext.getDn();
 
         if ( oriChildName.equals( subschemSubentryDn ) )
         {
@@ -392,7 +391,7 @@ public class ExceptionInterceptor extends BaseInterceptor
                 subschemSubentryDn, subschemSubentryDn ) );
         }
 
-        nextInterceptor.move( opContext );
+        nextInterceptor.move( moveContext );
 
         // Remove the original entry from the NotAlias cache, if needed
         synchronized ( notAliasCache )

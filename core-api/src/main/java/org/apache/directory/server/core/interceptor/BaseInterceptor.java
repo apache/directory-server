@@ -171,9 +171,12 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
     {
-        next.move( opContext );
+        next.move( moveContext );
     }
 
 

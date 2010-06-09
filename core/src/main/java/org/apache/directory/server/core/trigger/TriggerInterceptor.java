@@ -480,6 +480,9 @@ public class TriggerInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
     {
         // Bypass trigger handling if the service is disabled.

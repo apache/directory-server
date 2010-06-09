@@ -329,7 +329,7 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws LdapException
+    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
     {
         long opRevision = 0;
         
@@ -340,15 +340,15 @@ public class JournalInterceptor extends BaseInterceptor
             // Store the moved entry
             LdifEntry ldif = new LdifEntry();
             ldif.setChangeType( ChangeType.ModDn );
-            ldif.setDn( opContext.getDn() );
-            ldif.setNewSuperior( opContext.getNewSuperior().getNormName() );
+            ldif.setDn( moveContext.getDn() );
+            ldif.setNewSuperior( moveContext.getNewSuperior().getNormName() );
             
             journal.log( getPrincipal(), opRevision, ldif );
         }
         
         try
         {
-            next.move( opContext );
+            next.move( moveContext );
             
             if ( journalEnabled )
             {

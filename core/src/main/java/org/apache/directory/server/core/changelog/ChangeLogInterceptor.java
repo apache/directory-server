@@ -352,21 +352,24 @@ public class ChangeLogInterceptor extends BaseInterceptor
     }
 
 
-    public void move ( NextInterceptor next, MoveOperationContext opCtx ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
     {
-        next.move( opCtx );
+        next.move( moveContext );
 
-        if ( ! changeLog.isEnabled() || ! opCtx.isFirstOperation() )
+        if ( ! changeLog.isEnabled() || ! moveContext.isFirstOperation() )
         {
             return;
         }
 
         LdifEntry forward = new LdifEntry();
         forward.setChangeType( ChangeType.ModDn );
-        forward.setDn( opCtx.getDn() );
-        forward.setNewSuperior( opCtx.getNewSuperior().getName() );
+        forward.setDn( moveContext.getDn() );
+        forward.setNewSuperior( moveContext.getNewSuperior().getName() );
 
-        LdifEntry reverse = LdifRevertor.reverseMove( opCtx.getNewSuperior(), opCtx.getDn() );
-        opCtx.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
+        LdifEntry reverse = LdifRevertor.reverseMove( moveContext.getNewSuperior(), moveContext.getDn() );
+        moveContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
     }
 }

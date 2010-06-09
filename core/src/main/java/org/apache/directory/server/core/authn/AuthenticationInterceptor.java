@@ -338,16 +338,19 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Operation Context: {}", opContext );
+            LOG.debug( "Operation Context: {}", moveContext );
         }
 
-        checkAuthenticated( opContext );
-        next.move( opContext );
-        invalidateAuthenticatorCaches( opContext.getDn() );
+        checkAuthenticated( moveContext );
+        next.move( moveContext );
+        invalidateAuthenticatorCaches( moveContext.getDn() );
     }
 
 
