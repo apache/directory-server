@@ -44,7 +44,6 @@ import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
 
 
 /**
@@ -336,7 +335,11 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
 
     public final void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
-        checkIsValidMove( moveAndRenameContext.getDn(), moveAndRenameContext.getParent() );
+        if ( moveAndRenameContext.getParent().isChildOf( moveAndRenameContext.getDn() ) )
+        {
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
+                "cannot place an entry below itself" );
+        }
 
         try
         {
@@ -352,59 +355,20 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
 
     public final void move( MoveOperationContext moveContext ) throws LdapException
     {
-        checkIsValidMove( moveContext.getDn(), moveContext.getNewSuperior() );
-
-        try
-        {
-            store.move( moveContext.getDn(), moveContext.getNewSuperior() );
-        }
-        catch ( Exception e )
-        {
-            throw new LdapOperationErrorException( e.getMessage() );
-        }
-    }
-
-
-    /**
-     * 
-     * checks whether the moving of given entry is valid
-     *
-     * @param oldChildDn the entry's DN to be moved
-     * @param newParentDn new parent entry's DN
-     * @throws Exception
-     */
-    private void checkIsValidMove( DN oldChildDn, DN newParentDn ) throws LdapException
-    {
-        boolean invalid = false;
-
-        DN newParentDNClone = ( DN ) newParentDn.clone();
-        newParentDNClone.remove( newParentDNClone.size() - 1 );
-
-        if ( newParentDn.size() >= oldChildDn.size() )
-        {
-            for ( int i = 0; i < oldChildDn.size(); i++ )
-            {
-                RDN nameRdn = oldChildDn.getRdn( i );
-                RDN ldapRdn = newParentDn.getRdn( i );
-
-                if ( nameRdn.compareTo( ldapRdn ) == 0 )
-                {
-                    invalid = true;
-                }
-                else
-                {
-                    invalid = false;
-                    break;
-                }
-            }
-        }
-
-        if ( invalid )
+        if ( moveContext.getNewSuperior().isChildOf( moveContext.getDn() ) )
         {
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
                 "cannot place an entry below itself" );
         }
 
+        try
+        {
+            store.move( moveContext.getDn(), moveContext.getNewSuperior() ); //, moveContext.getEntry().getClonedEntry() );
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationErrorException( e.getMessage() );
+        }
     }
 
 
