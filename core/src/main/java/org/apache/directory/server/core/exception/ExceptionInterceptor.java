@@ -385,7 +385,6 @@ public class ExceptionInterceptor extends BaseInterceptor
     public void move( NextInterceptor nextInterceptor, MoveOperationContext opContext ) throws LdapException
     {
         DN oriChildName = opContext.getDn();
-        DN newParentName = opContext.getNewSuperior();
 
         if ( oriChildName.equals( subschemSubentryDn ) )
         {
