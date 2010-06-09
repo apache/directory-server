@@ -493,7 +493,7 @@ public class TriggerInterceptor extends BaseInterceptor
         DN newParentName = opContext.getParent();
 
         // Gather supplementary data.        
-        Entry movedEntry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
+        Entry movedEntry = opContext.getEntry();
 
         DN oldRDN = new DN( oriChildName.getRdn().getName() );
         RDN newRDN = new RDN( oriChildName.getRdn().getName() );

@@ -966,7 +966,7 @@ public class SubentryInterceptor extends BaseInterceptor
         DN oriChildName = opContext.getDn();
         DN newParentName = opContext.getParent();
 
-        Entry entry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
+        Entry entry = opContext.getEntry();
 
         EntryAttribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
