@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
     private boolean deleteOldRn;
-    private DN oldRDN;
+    private RDN oldRDN;
     private RDN newRDN;
     private DN oldSuperiorDN;
     private DN newSuperiorDN;
@@ -41,16 +41,16 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
 
 
     public ModifyDNStoredProcedureParameterInjector( OperationContext opContext, boolean deleteOldRn,
-        DN oldRDN, RDN newRDN, DN oldSuperiorDN, DN newSuperiorDN, DN oldDN, DN newDN)
+        RDN oldRDN, RDN newRDN, DN oldSuperiorDN, DN newSuperiorDN, DN oldDN, DN newDN)
     {
         super( opContext );
         this.deleteOldRn = deleteOldRn;
-        this.oldRDN = oldRDN;
-        this.newRDN = newRDN;
-        this.oldSuperiorDN = oldSuperiorDN;
-        this.newSuperiorDN = newSuperiorDN;
-        this.oldDN = oldDN;
-        this.newDN = newDN;
+        this.oldRDN = (RDN)oldRDN.clone();
+        this.newRDN = (RDN)newRDN.clone();
+        this.oldSuperiorDN = (DN)oldSuperiorDN.clone();
+        this.newSuperiorDN = (DN)newSuperiorDN.clone();
+        this.oldDN = (DN)oldDN.clone();
+        this.newDN = (DN)newDN.clone();
         
         Map<Class<?>, MicroInjector> injectors = super.getInjectors();
         injectors.put( StoredProcedureParameter.ModifyDN_ENTRY.class, $entryInjector );

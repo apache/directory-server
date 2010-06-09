@@ -376,11 +376,11 @@ public class TriggerInterceptor extends BaseInterceptor
         Entry renamedEntry = renameContext.getEntry().getClonedEntry();
 
         // @TODO : To be completely reviewed !!!
-        DN oldRDN = new DN( name.getRdn().getName() );
+        RDN oldRDN = name.getRdn();
         DN oldSuperiorDN = ( DN ) name.clone();
         oldSuperiorDN.remove( oldSuperiorDN.size() - 1 );
-        DN newSuperiorDN = ( DN ) oldSuperiorDN.clone();
-        DN oldDN = ( DN ) name.clone();
+        DN newSuperiorDN = oldSuperiorDN;
+        DN oldDN = name;
         DN newDN = ( DN ) name.clone();
         newDN.add( newRdn );
 
@@ -421,11 +421,11 @@ public class TriggerInterceptor extends BaseInterceptor
         // Gather supplementary data.        
         Entry movedEntry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
 
-        DN oldRDN = new DN( oriChildName.getRdn().getName() );
+        RDN oldRDN = oriChildName.getRdn();
         DN oldSuperiorDN = ( DN ) oriChildName.clone();
         oldSuperiorDN.remove( oldSuperiorDN.size() - 1 );
-        DN newSuperiorDN = ( DN ) parent.clone();
-        DN oldDN = ( DN ) oriChildName.clone();
+        DN newSuperiorDN = parent;
+        DN oldDN = oriChildName;
         DN newDN = ( DN ) parent.clone();
         newDN.add( newRdn.getName() );
 
@@ -495,12 +495,12 @@ public class TriggerInterceptor extends BaseInterceptor
         // Gather supplementary data.        
         Entry movedEntry = opContext.getEntry();
 
-        DN oldRDN = new DN( oriChildName.getRdn().getName() );
-        RDN newRDN = new RDN( oriChildName.getRdn().getName() );
+        RDN oldRDN = oriChildName.getRdn();
+        RDN newRDN = oriChildName.getRdn();
         DN oldSuperiorDN = ( DN ) oriChildName.clone();
         oldSuperiorDN.remove( oldSuperiorDN.size() - 1 );
-        DN newSuperiorDN = ( DN ) newParentName.clone();
-        DN oldDN = ( DN ) oriChildName.clone();
+        DN newSuperiorDN = newParentName;
+        DN oldDN = oriChildName;
         DN newDN = ( DN ) newParentName.clone();
         newDN.add( newRDN.getName() );
 
