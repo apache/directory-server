@@ -662,7 +662,7 @@ public class DefaultOperationManager implements OperationManager
             dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // Normalize the opContext DN
-            DN parentDn = opContext.getParent();
+            DN parentDn = opContext.getNewSuperior();
             parentDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // We have to deal with the referral first
@@ -731,11 +731,6 @@ public class DefaultOperationManager implements OperationManager
 
             // Unlock the ReferralManager
             directoryService.getReferralManager().unlock();
-
-            // Create the newDN now
-            DN newDn = (DN)(opContext.getParent().clone());
-            newDn.add( dn.getRdn() );
-            opContext.setNewDn( newDn );
 
             // Call the Add method
             InterceptorChain interceptorChain = directoryService.getInterceptorChain();

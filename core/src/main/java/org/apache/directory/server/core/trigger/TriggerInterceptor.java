@@ -490,7 +490,7 @@ public class TriggerInterceptor extends BaseInterceptor
         }
 
         DN oriChildName = opContext.getDn();
-        DN newParentName = opContext.getParent();
+        DN newParentName = opContext.getNewSuperior();
 
         // Gather supplementary data.        
         Entry movedEntry = opContext.getEntry();

@@ -26,6 +26,7 @@ import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.RDN;
 
 
 /**
@@ -36,8 +37,14 @@ import org.apache.directory.shared.ldap.name.DN;
  */
 public class MoveOperationContext extends AbstractChangeOperationContext
 {
-    /** The parent DN */
-    private DN parent;
+    /** The old superior */
+    private DN oldSuperior;
+
+    /** The entry RDN */
+    private RDN rdn;
+    
+    /** The newSuperior DN */
+    private DN newSuperior;
     
     /** The New target DN */
     private DN newDn;
@@ -55,19 +62,22 @@ public class MoveOperationContext extends AbstractChangeOperationContext
     /**
      * Creates a new instance of MoveOperationContext.
      */
-    public MoveOperationContext( CoreSession session, DN oldDn, DN parent )
+    public MoveOperationContext( CoreSession session, DN oldDn, DN newSuperior )
     {
         super( session, oldDn );
-        this.parent = parent;
+        this.newSuperior = newSuperior;
+        oldSuperior = oldDn.getParent();
+        rdn = ( RDN )(oldDn.getRdn().clone());
+        newDn = ((DN)(newSuperior.clone())).add( rdn );
     }
 
     
     public MoveOperationContext( CoreSession session, InternalModifyDnRequest modifyDnRequest )
     {
         super( session, modifyDnRequest.getName() );
-        this.parent = modifyDnRequest.getNewSuperior();
+        this.newSuperior = modifyDnRequest.getNewSuperior();
         
-        if ( parent == null )
+        if ( newSuperior == null )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_326_NEW_SUPERIROR_CANNOT_BE_NULL, modifyDnRequest ) );
         }
@@ -87,28 +97,21 @@ public class MoveOperationContext extends AbstractChangeOperationContext
         {
             throwReferral();
         }
+
+        oldSuperior = modifyDnRequest.getName().getParent();
+        rdn = ( RDN )(modifyDnRequest.getName().getRdn().clone());
+        newDn = ((DN)(newSuperior.clone())).add( rdn );
     }
 
 
     /**
-     *  @return The parent DN
+     *  @return The newSuperior DN
      */
-    public DN getParent()
+    public DN getNewSuperior()
     {
-        return parent;
+        return newSuperior;
     }
     
-
-    /**
-     * Set the parent DN
-     *
-     * @param parent The parent
-     */
-    public void setParent( DN parent )
-    {
-        this.parent = parent;
-    }
-
 
     /**
      *  @return The new DN
@@ -118,17 +121,6 @@ public class MoveOperationContext extends AbstractChangeOperationContext
         return newDn;
     }
     
-
-    /**
-     * Set the new DN
-     *
-     * @param newDn The new DN
-     */
-    public void setNewDn( DN newDn )
-    {
-        this.newDn = newDn;
-    }
-
 
     /**
      * @return the operation name
@@ -145,6 +137,6 @@ public class MoveOperationContext extends AbstractChangeOperationContext
     public String toString()
     {
         return "ReplaceContext for old DN '" + getDn().getName() + "'" +
-        ", parent '" + parent + "'";
+        ", newSuperior '" + newSuperior + "'";
     }
 }

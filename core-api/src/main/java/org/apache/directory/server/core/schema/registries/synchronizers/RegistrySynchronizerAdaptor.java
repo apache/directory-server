@@ -356,14 +356,14 @@ public class RegistrySynchronizerAdaptor
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
                 RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
-                synchronizer.move( opContext.getDn(), opContext.getParent(), entry, cascade );
+                synchronizer.move( opContext.getDn(), opContext.getNewSuperior(), entry, cascade );
                 return;
             }
         }
 
         if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
-            schemaSynchronizer.move( opContext.getDn(), opContext.getParent(), entry, cascade );
+            schemaSynchronizer.move( opContext.getDn(), opContext.getNewSuperior(), entry, cascade );
             return;
         }
         

@@ -341,7 +341,7 @@ public class JournalInterceptor extends BaseInterceptor
             LdifEntry ldif = new LdifEntry();
             ldif.setChangeType( ChangeType.ModDn );
             ldif.setDn( opContext.getDn() );
-            ldif.setNewSuperior( opContext.getParent().getNormName() );
+            ldif.setNewSuperior( opContext.getNewSuperior().getNormName() );
             
             journal.log( getPrincipal(), opRevision, ldif );
         }

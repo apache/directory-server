@@ -364,9 +364,9 @@ public class ChangeLogInterceptor extends BaseInterceptor
         LdifEntry forward = new LdifEntry();
         forward.setChangeType( ChangeType.ModDn );
         forward.setDn( opCtx.getDn() );
-        forward.setNewSuperior( opCtx.getParent().getName() );
+        forward.setNewSuperior( opCtx.getNewSuperior().getName() );
 
-        LdifEntry reverse = LdifRevertor.reverseMove( opCtx.getParent(), opCtx.getDn() );
+        LdifEntry reverse = LdifRevertor.reverseMove( opCtx.getNewSuperior(), opCtx.getDn() );
         opCtx.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
     }
 }

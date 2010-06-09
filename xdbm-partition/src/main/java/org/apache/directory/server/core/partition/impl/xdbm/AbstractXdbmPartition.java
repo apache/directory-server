@@ -352,11 +352,11 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
 
     public final void move( MoveOperationContext moveContext ) throws LdapException
     {
-        checkIsValidMove( moveContext.getDn(), moveContext.getParent() );
+        checkIsValidMove( moveContext.getDn(), moveContext.getNewSuperior() );
 
         try
         {
-            store.move( moveContext.getDn(), moveContext.getParent() );
+            store.move( moveContext.getDn(), moveContext.getNewSuperior() );
         }
         catch ( Exception e )
         {

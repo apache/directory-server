@@ -339,7 +339,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         List<Modification> items = ModifyOperationContext.createModItems( serverEntry,
             ModificationOperation.REPLACE_ATTRIBUTE );
 
-        ModifyOperationContext newModify = new ModifyOperationContext( opContext.getSession(), opContext.getParent(),
+        ModifyOperationContext newModify = new ModifyOperationContext( opContext.getSession(), opContext.getNewSuperior(),
             items );
 
         service.getPartitionNexus().modify( newModify );
