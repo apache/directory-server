@@ -393,29 +393,7 @@ public class ExceptionInterceptor extends BaseInterceptor
                 subschemSubentryDn, subschemSubentryDn ) );
         }
 
-        // check if child to move exists
-        String msg = "Attempt to move to non-existant parent: ";
-        assertHasEntry( opContext, msg, oriChildName );
-
-        // check if parent to move to exists
-        msg = "Attempt to move to non-existant parent: ";
-        assertHasEntry( opContext, msg, newParentName );
-
-        // check to see if target entry exists
-        DN target = opContext.getNewDn();
-
-        if ( nextInterceptor.hasEntry( new EntryOperationContext( opContext.getSession(), target ) ) )
-        {
-            // we must calculate the resolved name using the user provided Rdn value
-            String upRdn = new DN( oriChildName.getName() ).get( oriChildName.size() - 1 );
-            DN upTarget = ( DN ) newParentName.clone();
-            upTarget.add( upRdn );
-
-            LdapEntryAlreadyExistsException e;
-            e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_257, upTarget.getName() ) );
-            //e.setResolvedName( new DN( upTarget.getName() ) );
-            throw e;
-        }
+        nextInterceptor.move( opContext );
 
         // Remove the original entry from the NotAlias cache, if needed
         synchronized ( notAliasCache )
@@ -425,8 +403,6 @@ public class ExceptionInterceptor extends BaseInterceptor
                 notAliasCache.remove( oriChildName.getNormName() );
             }
         }
-
-        nextInterceptor.move( opContext );
     }
 
 

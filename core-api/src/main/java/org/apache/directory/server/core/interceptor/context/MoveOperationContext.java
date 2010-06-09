@@ -105,6 +105,15 @@ public class MoveOperationContext extends AbstractChangeOperationContext
 
 
     /**
+     *  @return The oldSuperior DN
+     */
+    public DN getOldSuperior()
+    {
+        return oldSuperior;
+    }
+
+
+    /**
      *  @return The newSuperior DN
      */
     public DN getNewSuperior()
@@ -113,6 +122,15 @@ public class MoveOperationContext extends AbstractChangeOperationContext
     }
     
 
+    /**
+     *  @return The RDN
+     */
+    public RDN getRdn()
+    {
+        return rdn;
+    }
+    
+    
     /**
      *  @return The new DN
      */

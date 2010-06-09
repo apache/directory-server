@@ -174,25 +174,34 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void move( NextInterceptor nextInterceptor, MoveOperationContext opContext ) throws LdapException
+    public void move( NextInterceptor nextInterceptor, MoveOperationContext moveContext ) throws LdapException
     {
-        if ( !opContext.getDn().isNormalized() )
+        if ( !moveContext.getDn().isNormalized() )
         {
-            opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
+            moveContext.getDn().normalize( schemaManager.getNormalizerMapping() );
         }
 
-        if ( !opContext.getNewSuperior().isNormalized() )
+        if ( !moveContext.getOldSuperior().isNormalized() )
         {
-            opContext.getNewSuperior().normalize( schemaManager.getNormalizerMapping() );
+            moveContext.getOldSuperior().normalize( schemaManager.getNormalizerMapping() );
         }
         
-        if ( !opContext.getNewDn().isNormalized() )
+        if ( !moveContext.getNewSuperior().isNormalized() )
         {
-            opContext.getNewDn().normalize( schemaManager.getNormalizerMapping() );
+            moveContext.getNewSuperior().normalize( schemaManager.getNormalizerMapping() );
         }
         
-
-        nextInterceptor.move( opContext );
+        if ( !moveContext.getNewDn().isNormalized() )
+        {
+            moveContext.getNewDn().normalize( schemaManager.getNormalizerMapping() );
+        }
+        
+        if ( !moveContext.getRdn().isNormalized() )
+        {
+            moveContext.getRdn().normalize( schemaManager.getNormalizerMapping() );
+        }
+        
+        nextInterceptor.move( moveContext );
     }
 
 
