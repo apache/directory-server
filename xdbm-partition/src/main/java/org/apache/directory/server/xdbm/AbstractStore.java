@@ -42,6 +42,7 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAliasDereferencingException;
 import org.apache.directory.shared.ldap.exception.LdapAliasException;
+import org.apache.directory.shared.ldap.exception.LdapEntryAlreadyExistsException;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
@@ -673,17 +674,15 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     //------------------------------------------------------------------------
     // DN and ID handling
     //------------------------------------------------------------------------
-
     /**
      * {@inheritDoc}
      */
     public ID getEntryId( DN dn ) throws Exception
     {
+        // Just to be sure that the DN is normalized
         if ( !dn.isNormalized() )
         {
             dn.normalize( schemaManager.getNormalizerMapping() );
-            // TODO: force normalized DN
-            //throw new IllegalArgumentException( I18n.err( I18n.ERR_218, suffixDn.getName() ) );
         }
 
         int dnSize = dn.size();
@@ -691,12 +690,14 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
 
         ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( getRootId(), suffixDn.getRdns() );
 
+        // Check into the RDN index
         ID curEntryId = rdnIdx.forwardLookup( key );
 
         for ( ; i < dnSize; i++ )
         {
             key = new ParentIdAndRdn<ID>( curEntryId, dn.getRdn( i ) );
             curEntryId = rdnIdx.forwardLookup( key );
+            
             if ( curEntryId == null )
             {
                 break;
@@ -1197,11 +1198,14 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     }
 
 
-    public synchronized void move( DN oldChildDn, DN newParentDn, RDN newRdn, boolean deleteOldRdn ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized void moveAndRename( DN oldDn, DN newSuperior, RDN newRdn, Entry modifiedEntry, boolean deleteOldRdn ) throws Exception
     {
-        ID childId = getEntryId( oldChildDn );
-        rename( oldChildDn, newRdn, deleteOldRdn );
-        move( oldChildDn, childId, newParentDn, newRdn );
+        ID childId = getEntryId( oldDn );
+        rename( oldDn, newRdn, deleteOldRdn );
+        moveAndRename( oldDn, childId, newSuperior, newRdn );
 
         if ( isSyncOnWrite )
         {
@@ -1210,10 +1214,99 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     }
 
 
-    public synchronized void move( DN oldChildDn, DN newParentDn ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized void move( DN oldDn, DN newSuperiorDn, DN newDn  ) throws Exception
     {
-        ID childId = getEntryId( oldChildDn );
-        move( oldChildDn, childId, newParentDn, oldChildDn.getRdn() );
+        move( oldDn, newSuperiorDn, newDn, null );
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized void move( DN oldDn, DN newSuperiorDn, DN newDn, Entry modifiedEntry ) throws Exception
+    {
+        // Check that the parent DN exists
+        ID newParentId = getEntryId( newSuperiorDn );
+        
+        if ( newParentId == null )
+        {
+            // This is not allowed : the parent must exist
+            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException( 
+                I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newSuperiorDn.getName() ) );
+            throw ne;
+        }
+        
+        // Now check that the new entry does not exist
+        ID newId = getEntryId( newDn );
+        
+        if ( newId != null )
+        {
+            // This is not allowed : we should not be able to move an entry
+            // to an existing position
+            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException( 
+                I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newSuperiorDn.getName() ) );
+            throw ne;
+        }
+        
+
+        // Get the entry and the old parent IDs
+        ID entryId = getEntryId( oldDn );
+        ID oldParentId = getParentId( entryId );
+
+        /*
+         * All aliases including and below oldChildDn, will be affected by
+         * the move operation with respect to one and subtree userIndices since
+         * their relationship to ancestors above oldChildDn will be 
+         * destroyed.  For each alias below and including oldChildDn we will
+         * drop the index tuples mapping ancestor ids above oldChildDn to the
+         * respective target ids of the aliases.
+         */
+        dropMovedAliasIndices( oldDn );
+
+        /*
+         * Drop the old parent child relationship and add the new one
+         * Set the new parent id for the child replacing the old parent id
+         */
+        oneLevelIdx.drop( oldParentId, entryId );
+        oneLevelIdx.add( newParentId, entryId );
+
+        updateSubLevelIndex( entryId, oldParentId, newParentId );
+
+        // Update the RDN index
+        rdnIdx.drop( entryId );
+        ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( newParentId, oldDn.getRdn() );
+        rdnIdx.add( key, entryId );
+
+        
+        /* 
+         * Read Alias Index Tuples
+         * 
+         * If this is a name change due to a move operation then the one and
+         * subtree userIndices for aliases were purged before the aliases were
+         * moved.  Now we must add them for each alias entry we have moved.  
+         * 
+         * aliasTarget is used as a marker to tell us if we're moving an 
+         * alias.  If it is null then the moved entry is not an alias.
+         */
+        String aliasTarget = aliasIdx.reverseLookup( entryId );
+
+        if ( null != aliasTarget )
+        {
+            addAliasIndices( entryId, buildEntryDn( entryId ), aliasTarget );
+        }
+        
+        // Update the master table with the modified entry
+        // Warning : this test is an hack. As we may call the Store API directly
+        // we may not have a modified entry to update. For instance, if the ModifierName
+        // or ModifyTimeStamp AT are not updated, there is no reason we want to update the
+        // master table.
+        if ( modifiedEntry != null )
+        {
+            master.put( entryId, modifiedEntry );
+        }
 
         if ( isSyncOnWrite )
         {
@@ -1801,10 +1894,10 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * @param newParentDn the normalized dn of the new parent for the child
      * @throws Exception if something goes wrong
      */
-    protected void move( DN oldChildDn, ID childId, DN newParentDn, RDN newRdn ) throws Exception
+    protected void moveAndRename( DN oldDn, ID childId, DN newSuperior, RDN newRdn ) throws Exception
     {
         // Get the child and the new parent to be entries and Ids
-        ID newParentId = getEntryId( newParentDn );
+        ID newParentId = getEntryId( newSuperior );
         ID oldParentId = getParentId( childId );
 
         /*
@@ -1815,7 +1908,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
          * drop the index tuples mapping ancestor ids above oldChildDn to the
          * respective target ids of the aliases.
          */
-        dropMovedAliasIndices( oldChildDn );
+        dropMovedAliasIndices( oldDn );
 
         /*
          * Drop the old parent child relationship and add the new one
@@ -1855,28 +1948,28 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * Updates the SubLevel Index as part of a move operation.
      *
-     * @param childId child id to be moved
+     * @param entrtyId child id to be moved
      * @param oldParentId old parent's id
      * @param newParentId new parent's id
      * @throws Exception
      */
-    protected void updateSubLevelIndex( ID childId, ID oldParentId, ID newParentId ) throws Exception
+    protected void updateSubLevelIndex( ID entryId, ID oldParentId, ID newParentId ) throws Exception
     {
         ID tempId = oldParentId;
         List<ID> parentIds = new ArrayList<ID>();
 
         // find all the parents of the oldParentId
-        while ( tempId != null && !tempId.equals( getRootId() ) && !tempId.equals( getSuffixId() ) )
+        while ( ( tempId != null ) && !tempId.equals( getRootId() ) && !tempId.equals( getSuffixId() ) )
         {
             parentIds.add( tempId );
             tempId = getParentId( tempId );
         }
 
         // find all the children of the childId
-        Cursor<IndexEntry<ID, E, ID>> cursor = subLevelIdx.forwardCursor( childId );
+        Cursor<IndexEntry<ID, E, ID>> cursor = subLevelIdx.forwardCursor( entryId );
 
         List<ID> childIds = new ArrayList<ID>();
-        childIds.add( childId );
+        childIds.add( entryId );
 
         while ( cursor.next() )
         {
@@ -1896,7 +1989,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         tempId = newParentId;
 
         // find all the parents of the newParentId
-        while ( tempId != null && !tempId.equals( getRootId() ) && !tempId.equals( getSuffixId() ) )
+        while ( ( tempId != null)  && !tempId.equals( getRootId() ) && !tempId.equals( getSuffixId() ) )
         {
             parentIds.add( tempId );
             tempId = getParentId( tempId );

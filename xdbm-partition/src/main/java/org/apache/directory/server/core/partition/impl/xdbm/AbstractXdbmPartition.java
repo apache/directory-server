@@ -343,8 +343,8 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
 
         try
         {
-            store.move( moveAndRenameContext.getDn(), moveAndRenameContext.getParent(), moveAndRenameContext.getNewRdn(),
-                moveAndRenameContext.getDelOldDn() );
+            store.moveAndRename( moveAndRenameContext.getDn(), moveAndRenameContext.getParent(), moveAndRenameContext.getNewRdn(),
+                null, moveAndRenameContext.getDelOldDn() );
         }
         catch ( Exception e )
         {
@@ -363,7 +363,11 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
 
         try
         {
-            store.move( moveContext.getDn(), moveContext.getNewSuperior() ); //, moveContext.getEntry().getClonedEntry() );
+            DN oldDn = moveContext.getDn();
+            DN newSuperior = moveContext.getNewSuperior();
+            DN newDn = moveContext.getNewDn();
+            
+            store.move( oldDn, newSuperior, newDn );
         }
         catch ( Exception e )
         {

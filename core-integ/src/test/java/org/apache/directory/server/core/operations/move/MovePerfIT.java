@@ -19,7 +19,11 @@
  */
 package org.apache.directory.server.core.operations.move;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.message.SearchResponse;
 import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
@@ -32,6 +36,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 
 /**
  * Test the move operation performances
@@ -83,7 +88,7 @@ public class MovePerfIT extends AbstractLdapTestUnit
         entry.add( "cn", "test" );
 
         connection.add( entry );
-        int nbIterations = 15000;
+        int nbIterations = 25000;
 
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
@@ -99,7 +104,7 @@ public class MovePerfIT extends AbstractLdapTestUnit
                 tt0 = tt1;
             }
 
-            if ( i == 5000 )
+            if ( i == 15000 )
             {
                 t00 = System.currentTimeMillis();
             }
@@ -108,6 +113,12 @@ public class MovePerfIT extends AbstractLdapTestUnit
             
             long ttt0 = System.nanoTime();
             connection.move( oldDn, newSuperior );
+            
+            SearchResponse oldEntry = connection.lookup( oldDn );
+            SearchResponse newEntry = connection.lookup( newDn );
+            
+            assertNull( oldEntry );
+            assertNotNull( newEntry );
             long ttt1 = System.nanoTime();
 
             // Swap the dn
@@ -125,7 +136,7 @@ public class MovePerfIT extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 5000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 15000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
         connection.close();
     }
 

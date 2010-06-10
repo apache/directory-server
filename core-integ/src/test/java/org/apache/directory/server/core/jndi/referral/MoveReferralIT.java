@@ -48,6 +48,7 @@ import org.apache.directory.shared.ldap.exception.LdapPartialResultException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -335,7 +336,43 @@ public class MoveReferralIT extends AbstractLdapTestUnit
         catch ( NamingException ne )
         {
             assertTrue( true );
-            //assertEquals( ResultCodeEnum.AFFECTS_MULTIPLE_DSAS, ((LdapNamingException)ne).getResultCode() );
+        }
+    }
+
+    
+    /**
+     * Test a move of an existing referral to a new superior
+     * being a referral
+     */
+    @Test
+    @Ignore
+    public void testMoveExistingReferralJNDIIgnore() throws Exception
+    {
+        WWCtx.addToEnvironment( DirContext.REFERRAL, "ignore" );
+        WWCtx.rename( "ou=Roles,o=MNN", "ou=Roles,o=PNN" );
+
+        // Check that the entry has been moved
+        Object moved = PNNCtx.lookup( "ou=Roles" );
+        assertNotNull( moved );
+    }
+
+    
+    /**
+     * Test a move of an existing referral to a new superior
+     * being a referral
+     */
+    @Test
+    public void testMoveExistingReferralJNDIThrow() throws Exception
+    {
+        try
+        {
+            MNNCtx.addToEnvironment( DirContext.REFERRAL, "throw" );
+            MNNCtx.rename( "ou=Roles", "ou=New Roles" );
+            fail();
+        }
+        catch ( NamingException ne )
+        {
+            assertTrue( true );
         }
     }
 

@@ -139,9 +139,8 @@ public class ExceptionInterceptor extends BaseInterceptor
         // check if the entry already exists
         if ( nextInterceptor.hasEntry( new EntryOperationContext( opContext.getSession(), name ) ) )
         {
-            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_250, name
-                .getName() ) );
-            //ne.setResolvedName( new DN( name.getName() ) );
+            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException( 
+                I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, name.getName() ) );
             throw ne;
         }
 
@@ -177,8 +176,8 @@ public class ExceptionInterceptor extends BaseInterceptor
             }
             catch ( Exception e )
             {
-                LdapNoSuchObjectException e2 = new LdapNoSuchObjectException( I18n.err( I18n.ERR_251, parentDn
-                    .getName() ) );
+                LdapNoSuchObjectException e2 = new LdapNoSuchObjectException( 
+                    I18n.err( I18n.ERR_251_PARENT_NOT_FOUND, parentDn.getName() ) );
                 throw e2;
             }
 

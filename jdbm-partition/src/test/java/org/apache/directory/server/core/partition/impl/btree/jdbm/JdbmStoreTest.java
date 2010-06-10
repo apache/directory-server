@@ -561,8 +561,10 @@ public class JdbmStoreTest
 
         DN newParentDn = new DN( "ou=Board of Directors,o=Good Times Co." );
         newParentDn.normalize( schemaManager.getNormalizerMapping() );
+        
+        DN newDn = ((DN)newParentDn.clone()).add( martinDn.getRdn() );
 
-        store.move( martinDn, newParentDn );
+        store.move( martinDn, newParentDn, newDn, entry );
         cursor = idx.forwardCursor( 3L );
         cursor.afterLast();
         assertTrue( cursor.previous() );
@@ -589,7 +591,9 @@ public class JdbmStoreTest
         entry.add( "entryUUID", UUID.randomUUID().toString() );
         store.add( entry );
 
-        store.move( marketingDn, newParentDn );
+        newDn = ((DN)newParentDn.clone()).add( marketingDn.getRdn() );
+
+        store.move( marketingDn, newParentDn, newDn, entry );
 
         cursor = idx.forwardCursor( 3L );
         cursor.afterLast();
@@ -748,7 +752,7 @@ public class JdbmStoreTest
 
         RDN rdn = new RDN( "cn=Ryan" );
 
-        store.move( childDn, parentDn, rdn, true );
+        store.moveAndRename( childDn, parentDn, rdn, childEntry, true );
 
         // to drop the alias indices   
         childDn = new DN( "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co." );
@@ -759,7 +763,9 @@ public class JdbmStoreTest
 
         assertEquals( 3, store.getSubAliasIndex().count() );
 
-        store.move( childDn, parentDn );
+        DN newDn = ((DN)parentDn.clone()).add( childDn.getRdn() );
+        
+        store.move( childDn, parentDn, newDn, childEntry );
 
         assertEquals( 4, store.getSubAliasIndex().count() );
     }
