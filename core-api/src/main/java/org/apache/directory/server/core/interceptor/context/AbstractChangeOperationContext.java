@@ -23,6 +23,7 @@ package org.apache.directory.server.core.interceptor.context;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.changelog.ChangeLogEvent;
 import org.apache.directory.server.core.changelog.LogChange;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
 
 
@@ -33,24 +34,58 @@ import org.apache.directory.shared.ldap.name.DN;
  */
 public abstract class AbstractChangeOperationContext extends AbstractOperationContext implements ChangeOperationContext
 {
+    /** The ChangeLog event */
     private ChangeLogEvent changeLogEvent;
     
-    /** The flag used to tell the server to store the change sinto the changeLog */
+    /** The flag used to tell the server to store the changes into the changeLog */
     protected LogChange logChange;
+    
+    /** The modified Entry as it will be stored into the backend */
+    protected Entry modifiedEntry;
 
     
+    /**
+     * 
+     * Creates a new instance of AbstractChangeOperationContext.
+     *
+     * @param session
+     */
     public AbstractChangeOperationContext( CoreSession session )
     {
         super( session );
     }
 
     
+    /**
+     * 
+     * Creates a new instance of AbstractChangeOperationContext.
+     *
+     * @param session
+     */
     public AbstractChangeOperationContext( CoreSession session, DN dn )
     {
         super( session, dn );
     }
 
     
+    /**
+     * @return the modifiedEntry
+     */
+    public Entry getModifiedEntry()
+    {
+        return modifiedEntry;
+    }
+
+
+    /**
+     * @param modifiedEntry the modifiedEntry to set
+     */
+    public void setModifiedEntry( Entry modifiedEntry )
+    {
+        this.modifiedEntry = modifiedEntry;
+    }
+
+
     /**
      * @see org.apache.directory.server.core.interceptor.context.ChangeOperationContext#getChangeLogEvent()
      */

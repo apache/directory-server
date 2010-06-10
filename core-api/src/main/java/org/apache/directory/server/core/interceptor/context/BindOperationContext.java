@@ -20,26 +20,13 @@
 package org.apache.directory.server.core.interceptor.context;
  
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.ReferralHandlingMode;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
-import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.message.control.Control;
-import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +38,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class BindOperationContext implements OperationContext
+public class BindOperationContext extends AbstractOperationContext
 {
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( BindOperationContext.class );
@@ -65,34 +52,10 @@ public class BindOperationContext implements OperationContext
     /** The SASL identifier */
     private String saslAuthId;
     
-    private static final Control[] EMPTY_CONTROLS = new Control[0];
-
-    /** The DN associated with the context */
-    private DN dn;
-    
-    /** The associated request's controls */
-    private Map<String, Control> requestControls = new HashMap<String, Control>(4);
-
-    /** The associated response's controls */
-    private Map<String, Control> responseControls = new HashMap<String, Control>(4);
-
     /** A flag to tell that this is a collateral operation */
     private boolean collateralOperation;
     
-    /** the Interceptors bypassed by this operation */
-    private Collection<String> bypassed;
-    
-    private CoreSession session;
-    
-    private LdapPrincipal authorizedPrincipal;
-    
-    private OperationContext next;
-    
-    private OperationContext previous;
-
     private ReferralHandlingMode referralHandlingMode;
-
-    private ClonedServerEntry entry;
 
     
     /**
@@ -100,7 +63,7 @@ public class BindOperationContext implements OperationContext
      */
     public BindOperationContext( CoreSession session )
     {
-        this.session = session;
+        super( session );
     }
 
     
@@ -221,18 +184,6 @@ public class BindOperationContext implements OperationContext
     }
 
 
-    public CoreSession getSession()
-    {
-        return session;
-    }
-    
-    
-    public void setSession( CoreSession session )
-    {
-        this.session = session;
-    }
-
-
     /**
      * Tells if the current operation is considered a side effect of the
      * current context
@@ -249,262 +200,6 @@ public class BindOperationContext implements OperationContext
     }
 
 
-    /**
-     * @return The associated DN
-     */
-    public DN getDn()
-    {
-        return dn;
-    }
-
-    
-    /**
-     * Set the context DN
-     *
-     * @param dn The DN to set
-     */
-    public void setDn( DN dn )
-    {
-        this.dn = dn;
-    }
-
-    
-    public void addRequestControl( Control requestControl )
-    {
-        requestControls.put( requestControl.getOid(), requestControl );
-    }
-
-    
-    public Control getRequestControl( String numericOid )
-    {
-        return requestControls.get( numericOid );
-    }
-
-    
-    public boolean hasRequestControl( String numericOid )
-    {
-        return requestControls.containsKey( numericOid );
-    }
-
-    
-    public boolean hasRequestControls()
-    {
-        return ! requestControls.isEmpty();
-    }
-
-
-    public void addResponseControl( Control responseControl )
-    {
-        responseControls.put( responseControl.getOid(), responseControl );
-    }
-
-
-    public Control getResponseControl( String numericOid )
-    {
-        return responseControls.get( numericOid );
-    }
-
-
-    public boolean hasResponseControl( String numericOid )
-    {
-        return responseControls.containsKey( numericOid );
-    }
-
-
-    public Control[] getResponseControls()
-    {
-        if ( responseControls.isEmpty() )
-        {
-            return EMPTY_CONTROLS;
-        }
-        
-        return responseControls.values().toArray( EMPTY_CONTROLS );
-    }
-
-
-    public boolean hasResponseControls()
-    {
-        return ! responseControls.isEmpty();
-    }
-
-
-    public int getResponseControlCount()
-    {
-        return responseControls.size();
-    }
-
-
-    public void addRequestControls( Control[] requestControls )
-    {
-        for ( Control c : requestControls )
-        {
-            this.requestControls.put( c.getOid(), c );
-        }
-    }
-
-
-    /**
-     * Gets the set of bypassed Interceptors.
-     *
-     * @return the set of bypassed Interceptors
-     */
-    public Collection<String> getByPassed()
-    {
-        if ( bypassed == null )
-        {
-            return Collections.emptyList();
-        }
-        
-        return Collections.unmodifiableCollection( bypassed );
-    }
-    
-    
-    /**
-     * Sets the set of bypassed Interceptors.
-     * 
-     * @param byPassed the set of bypassed Interceptors
-     */
-    public void setByPassed( Collection<String> byPassed )
-    {
-        this.bypassed = byPassed;
-    }
-
-    
-    /**
-     * Checks to see if an Interceptor is bypassed for this operation.
-     *
-     * @param interceptorName the interceptorName of the Interceptor to check for bypass
-     * @return true if the Interceptor should be bypassed, false otherwise
-     */
-    public boolean isBypassed( String interceptorName )
-    {
-        return bypassed != null && bypassed.contains( interceptorName );
-    }
-
-
-    /**
-     * Checks to see if any Interceptors are bypassed by this operation.
-     *
-     * @return true if at least one bypass exists
-     */
-    public boolean hasBypass()
-    {
-        return bypassed != null && !bypassed.isEmpty();
-    }
-    
-    
-    public LookupOperationContext newLookupContext( DN dn )
-    {
-        return new LookupOperationContext( session, dn );
-    }
-
-
-    public Entry lookup( LookupOperationContext opContext ) throws LdapException
-    {
-        return session.getDirectoryService().getOperationManager().lookup( opContext );
-    }
-
-
-    public Entry lookup( DN dn, Collection<String> byPassed ) throws LdapException
-    {
-        LookupOperationContext opContext = newLookupContext( dn );
-        opContext.setByPassed( byPassed );
-        return session.getDirectoryService().getOperationManager().lookup( opContext );
-    }
-
-
-    public LdapPrincipal getEffectivePrincipal()
-    {
-        if ( authorizedPrincipal != null )
-        {
-            return authorizedPrincipal;
-        }
-        
-        return session.getEffectivePrincipal();
-    }
-    
-    
-    // -----------------------------------------------------------------------
-    // OperationContext Linked List Methods
-    // -----------------------------------------------------------------------
-    
-    
-    public boolean isFirstOperation()
-    {
-        return previous == null;
-    }
-    
-    
-    public OperationContext getFirstOperation()
-    {
-        if ( previous == null )
-        {
-            return this;
-        }
-        
-        return previous.getFirstOperation();
-    }
-    
-    
-    public OperationContext getLastOperation()
-    {
-        if ( next == null )
-        {
-            return this;
-        }
-        
-        return next.getLastOperation();
-    }
-    
-    
-    public OperationContext getNextOperation()
-    {
-        return next;
-    }
-    
-    
-    public OperationContext getPreviousOperation()
-    {
-        return previous;
-    }
-
-
-    public void add( Entry entry, Collection<String> bypass ) throws LdapException
-    {
-        throw new NotImplementedException();
-    }
-
-
-    public void delete( DN dn, Collection<String> bypass ) throws LdapException
-    {
-        throw new NotImplementedException();
-    }
-
-
-    public void modify( DN dn, List<Modification> mods, Collection<String> bypass ) throws LdapException
-    {
-        throw new NotImplementedException();
-    }
-
-
-    private void setup( AbstractOperationContext opContext )
-    {
-        opContext.setPreviousOperation( this );
-        next = opContext;
-        opContext.setByPassed( opContext.getByPassed() );
-        opContext.setAuthorizedPrincipal( authorizedPrincipal );
-    }
-    
-    
-    public boolean hasEntry( DN dn, Collection<String> byPassed ) throws LdapException
-    {
-        EntryOperationContext opContext = new EntryOperationContext( session, dn );
-        setup( opContext );
-        opContext.setByPassed( byPassed );
-        return session.getDirectoryService().getOperationManager().hasEntry( opContext );
-    }
-
-
     public ReferralHandlingMode getReferralHandlingMode()
     {
         return referralHandlingMode;
@@ -514,18 +209,6 @@ public class BindOperationContext implements OperationContext
     public void setReferralHandlingMode( ReferralHandlingMode referralHandlingMode )
     {
         this.referralHandlingMode = referralHandlingMode;
-    }
-
-
-    public ClonedServerEntry getEntry()
-    {
-        return entry;
-    }
-
-
-    public void setEntry( ClonedServerEntry entry )
-    {
-        this.entry = entry;
     }
 
 

@@ -106,7 +106,7 @@ public abstract class AbstractOperationContext implements OperationContext
     }
     
     
-    protected void setSession( CoreSession session )
+    public void setSession( CoreSession session )
     {
         this.session = session;
     }

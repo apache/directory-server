@@ -19,11 +19,7 @@
  */
 package org.apache.directory.server.core.operations.move;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.SearchResponse;
 import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
@@ -114,11 +110,11 @@ public class MovePerfIT extends AbstractLdapTestUnit
             long ttt0 = System.nanoTime();
             connection.move( oldDn, newSuperior );
             
-            SearchResponse oldEntry = connection.lookup( oldDn );
-            SearchResponse newEntry = connection.lookup( newDn );
+            //SearchResponse oldEntry = connection.lookup( oldDn );
+            //SearchResponse newEntry = connection.lookup( newDn );
             
-            assertNull( oldEntry );
-            assertNotNull( newEntry );
+            //assertNull( oldEntry );
+            //assertNotNull( newEntry );
             long ttt1 = System.nanoTime();
 
             // Swap the dn
