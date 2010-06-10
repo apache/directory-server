@@ -647,6 +647,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     {
         ModifyDnResponse resp = new ModifyDnResponse();
         resp.setLdapResult( getDefaultResult() );
+        
         try
         {
             session.move( new DN( entryDn ), new DN( newSuperiorDn ) );

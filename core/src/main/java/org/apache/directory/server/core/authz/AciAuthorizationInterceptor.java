@@ -914,7 +914,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         DN oriChildName = moveContext.getDn();
 
         // Access the principal requesting the operation, and bypass checks if it is the admin
-        Entry entry = moveContext.getEntry();
+        Entry entry = moveContext.getOriginalEntry();
 
         DN newDn = moveContext.getNewDn();
 

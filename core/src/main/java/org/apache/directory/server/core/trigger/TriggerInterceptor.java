@@ -499,7 +499,7 @@ public class TriggerInterceptor extends BaseInterceptor
         DN newSuperior = moveContext.getNewSuperior();
 
         // Gather supplementary data.        
-        Entry movedEntry = moveContext.getEntry();
+        Entry movedEntry = moveContext.getOriginalEntry();
 
         //RDN newRDN = dn.getRdn();
 

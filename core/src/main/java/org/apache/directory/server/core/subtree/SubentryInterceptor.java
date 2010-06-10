@@ -969,7 +969,7 @@ public class SubentryInterceptor extends BaseInterceptor
         DN oriChildName = moveContext.getDn();
         DN newParentName = moveContext.getNewSuperior();
 
-        Entry entry = moveContext.getEntry();
+        Entry entry = moveContext.getOriginalEntry();
 
         EntryAttribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 

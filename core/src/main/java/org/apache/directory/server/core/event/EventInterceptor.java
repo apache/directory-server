@@ -271,7 +271,7 @@ public class EventInterceptor extends BaseInterceptor
      */
     public void move( NextInterceptor next, MoveOperationContext moveContext ) throws LdapException
     {
-        Entry oriEntry = moveContext.getEntry();
+        Entry oriEntry = moveContext.getOriginalEntry();
         List<RegistrationEntry> selecting = getSelectingRegistrations( moveContext.getDn(), oriEntry );
 
         next.move( moveContext );

@@ -40,6 +40,9 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
     /** The flag used to tell the server to store the changes into the changeLog */
     protected LogChange logChange;
     
+    /** The original Entry */
+    protected Entry originalEntry;
+
     /** The modified Entry as it will be stored into the backend */
     protected Entry modifiedEntry;
 
@@ -68,6 +71,24 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
     }
 
     
+    /**
+     * @return the originalEntry
+     */
+    public Entry getOriginalEntry()
+    {
+        return originalEntry;
+    }
+
+
+    /**
+     * @param originalEntry the originalEntry to set
+     */
+    public void setOriginalEntry( Entry originalEntry )
+    {
+        this.originalEntry = originalEntry;
+    }
+
+
     /**
      * @return the modifiedEntry
      */

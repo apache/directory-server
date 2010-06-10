@@ -366,8 +366,9 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
             DN oldDn = moveContext.getDn();
             DN newSuperior = moveContext.getNewSuperior();
             DN newDn = moveContext.getNewDn();
+            Entry modifiedEntry = moveContext.getModifiedEntry();
             
-            store.move( oldDn, newSuperior, newDn );
+            store.move( oldDn, newSuperior, newDn, modifiedEntry );
         }
         catch ( Exception e )
         {

@@ -593,6 +593,29 @@ public class InterceptorChain
     }
 
 
+    private Entry getOriginalEntry( OperationContext opContext ) throws LdapException
+    {
+        // We have to use the admin session here, otherwise we may have
+        // trouble reading the entry due to insufficient access rights 
+        CoreSession adminSession = opContext.getSession().getDirectoryService().getAdminSession();
+        
+        Entry foundEntry = adminSession.lookup( opContext.getDn(),
+            SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES_ARRAY );
+        
+        if ( foundEntry != null )
+        {
+            return foundEntry;
+        }
+        else
+        {
+            // This is an error : we *must* have an entry if we want to be able to rename.
+            LdapNoSuchObjectException ldnfe = new LdapNoSuchObjectException( I18n.err( I18n.ERR_256, opContext.getDn() ) );
+
+            throw ldnfe;
+        }
+    }
+
+    
     public void delete( DeleteOperationContext opContext ) throws LdapException
     {
         Element entry = getStartingEntry();
@@ -788,16 +811,16 @@ public class InterceptorChain
     }
 
 
-    public void rename( RenameOperationContext opContext ) throws LdapException
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
-        eagerlyPopulateFields( opContext );
-
+        eagerlyPopulateFields( renameContext );
+        
         try
         {
-            head.rename( next, opContext );
+            head.rename( next, renameContext );
         }
         catch ( LdapException le )
         {
@@ -810,16 +833,18 @@ public class InterceptorChain
     }
 
 
-    public void move( MoveOperationContext opContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
         Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
-        eagerlyPopulateFields( opContext );
+        Entry originalEntry = getOriginalEntry( moveContext );
+        
+        moveContext.setOriginalEntry( originalEntry );
 
         try
         {
-            head.move( next, opContext );
+            head.move( next, moveContext );
         }
         catch ( LdapException le )
         {

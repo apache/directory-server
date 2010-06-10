@@ -294,21 +294,17 @@ public class ReferralInterceptor extends BaseInterceptor
         DN newDn = moveContext.getNewDn();
 
         // Check if the entry is a referral itself
-        boolean isReferral = isReferral( moveContext.getEntry() );
+        boolean isReferral = isReferral( moveContext.getOriginalEntry() );
 
         next.move( moveContext );
 
         if ( isReferral )
         {
             // Update the referralManager
-            LookupOperationContext lookupContext = new LookupOperationContext( moveContext.getSession(), newDn );
-
-            Entry newEntry = nexus.lookup( lookupContext );
-
             referralManager.lockWrite();
 
-            referralManager.addReferral( newEntry );
-            referralManager.removeReferral( moveContext.getEntry() );
+            referralManager.addReferral( moveContext.getModifiedEntry() );
+            referralManager.removeReferral( moveContext.getOriginalEntry() );
 
             referralManager.unlock();
         }

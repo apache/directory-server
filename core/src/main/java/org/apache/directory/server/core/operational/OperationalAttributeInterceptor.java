@@ -332,20 +332,13 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      */
     public void move( NextInterceptor nextInterceptor, MoveOperationContext moveContext ) throws LdapException
     {
+        Entry modifiedEntry = moveContext.getOriginalEntry().clone();
+        modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
+        modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        modifiedEntry.setDn( moveContext.getNewDn() );
+        moveContext.setModifiedEntry( modifiedEntry );
+        
         nextInterceptor.move( moveContext );
-
-        // add operational attributes after call in case the operation fails
-        Entry serverEntry = new DefaultEntry( schemaManager, moveContext.getDn() );
-        serverEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
-        serverEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-
-        List<Modification> items = ModifyOperationContext.createModItems( serverEntry,
-            ModificationOperation.REPLACE_ATTRIBUTE );
-
-        ModifyOperationContext newModify = new ModifyOperationContext( moveContext.getSession(), moveContext.getNewSuperior(),
-            items );
-
-        service.getPartitionNexus().modify( newModify );
     }
 
 
