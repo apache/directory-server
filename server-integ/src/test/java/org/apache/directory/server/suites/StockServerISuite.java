@@ -54,6 +54,7 @@ import org.apache.directory.server.operations.search.NegationSearchIT;
 import org.apache.directory.server.operations.search.PagedSearchIT;
 import org.apache.directory.server.operations.search.PersistentSearchIT;
 import org.apache.directory.server.operations.search.ReferralSearchIT;
+import org.apache.directory.server.operations.search.ReferralSearchNoRevertIT;
 import org.apache.directory.server.operations.search.SchemaSearchIT;
 import org.apache.directory.server.operations.search.SearchIT;
 import org.apache.directory.server.operations.search.SearchLimitsIT;
@@ -73,7 +74,6 @@ import org.junit.runners.Suite;
  */
 @RunWith ( FrameworkSuite.class )
 @Suite.SuiteClasses ( {
-
         // kerberos
         KeyDerivationServiceIT.class,
         PasswordPolicyServiceIT.class,
@@ -121,6 +121,7 @@ import org.junit.runners.Suite;
         PagedSearchIT.class,
         PersistentSearchIT.class,
         ReferralSearchIT.class,
+        ReferralSearchNoRevertIT.class,
         SchemaSearchIT.class,
         SearchIT.class,
         SearchLimitsIT.class,

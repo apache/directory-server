@@ -430,56 +430,6 @@ public class ReferralSearchIT extends AbstractLdapTestUnit
      * Test of an search operation with a referral after the entry
      * has been moved.
      *
-     * search for "cn=alex karasulu" on "c=america, ou=system"
-     * we should get a referral URL thrown, which point to
-     * "c=usa, ou=system", and ask for a subtree search
-     */
-    @Test
-    public void testSearchBaseWithReferralThrowAfterMove() throws Exception
-    {
-        DirContext ctx = getWiredContextThrowOnRefferal( ldapServer );
-
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-
-        try
-        {
-            ctx.search( "c=america,ou=Countries,ou=system", "(cn=alex karasulu)", controls );
-            fail( "Should fail here throwing a ReferralException" );
-        }
-        catch ( ReferralException re )
-        {
-            String referral = (String)re.getReferralInfo();
-            assertEquals( "ldap://localhost:" + ldapServer.getPort() + "/c=usa,ou=system??base", referral );
-        }
-        
-        ((LdapContext)ctx).setRequestControls( new javax.naming.ldap.Control[]{new ManageReferralControl()} );
-
-        // Now let's move the entry
-        ctx.rename( "c=america,ou=Countries,ou=system", "c=america,ou=system" );
-
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-
-        ((LdapContext)ctx).setRequestControls( new javax.naming.ldap.Control[]{} );
-
-        try
-        {
-            ctx.search( "c=america,ou=system", "(cn=alex karasulu)", controls );
-            fail( "Should fail here throwing a ReferralException" );
-        }
-        catch ( ReferralException re )
-        {
-            String referral = (String)re.getReferralInfo();
-            assertEquals( "ldap://localhost:" + ldapServer.getPort() + "/c=usa,ou=system??base", referral );
-        }
-        
-    }
-
-    
-    /**
-     * Test of an search operation with a referral after the entry
-     * has been moved.
-     *
      * search for "cn=alex karasulu" on "c=usa, ou=system"
      * we should get a referral URL thrown, which point to
      * "c=usa, ou=system", and ask for a subtree search
