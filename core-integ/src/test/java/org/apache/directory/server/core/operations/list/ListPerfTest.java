@@ -65,33 +65,46 @@ public class ListPerfTest extends AbstractLdapTestUnit
         
         assertEquals( 5, nb );
         
-        long t0 = System.currentTimeMillis();
-        
-        for ( int i = 0; i < 10; i++ )
-        {
-            for ( int j = 0; j < 5000; j++ )
-            {
-                nb = 0;
-                cursor = service.getOperationManager().list( opContext );
+        int nbIterations = 150000;
 
-                while ( cursor.next() )
-                {
-                    Entry entry = cursor.get();
-                    nb++;
-                    
-                    assertNotNull( entry );
-                }
+        long t0 = System.currentTimeMillis();
+        long t00 = 0L;
+        long tt0 = System.currentTimeMillis();
+        
+        for ( int i = 0; i < nbIterations; i++ )
+        {
+            if ( i % 1000 == 0 )
+            {
+                long tt1 = System.currentTimeMillis();
+
+                System.out.println( i + ", " + ( tt1 - tt0 ) );
+                tt0 = tt1;
+            }
+
+            if ( i == 50000 )
+            {
+                t00 = System.currentTimeMillis();
+            }
+
+            nb = 0;
+            cursor = service.getOperationManager().list( opContext );
+
+            while ( cursor.next() )
+            {
+                Entry entry = cursor.get();
+                nb++;
                 
-                cursor.close();
-                
-                assertEquals( 5, nb );
+                assertNotNull( entry );
             }
             
-            System.out.print( "." );
+            cursor.close();
+            
+            assertEquals( 5, nb );
         }
-        
+            
         long t1 = System.currentTimeMillis();
-        
-        System.out.println( "Delta : " + ( t1 - t0 ) );
+
+        Long deltaWarmed = ( t1 - t00 );
+        System.out.println( "Delta list: " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
     }
 }

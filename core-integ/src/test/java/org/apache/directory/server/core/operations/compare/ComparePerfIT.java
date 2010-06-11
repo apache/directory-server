@@ -112,7 +112,7 @@ public class ComparePerfIT extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta copare: " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
+        System.out.println( "Delta compare: " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
 
         connection.close();
     }

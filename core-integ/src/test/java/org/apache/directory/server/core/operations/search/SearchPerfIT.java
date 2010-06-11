@@ -80,7 +80,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
                tt0 = tt1;
            }
 
-           if ( i == 5000 )
+           if ( i == 50000 )
            {
                t00 = System.currentTimeMillis();
            }
@@ -92,7 +92,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
        long t1 = System.currentTimeMillis();
 
        Long deltaWarmed = ( t1 - t00 );
-       System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 5000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
+       System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
        connection.close();
    }
 }
