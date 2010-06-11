@@ -57,13 +57,12 @@ public class KeyBTreeCursorTest
 
     File dbFile;
     RecordManager recman;
-    BTree bt;
+    BTree<String, byte[]> bt;
     Comparator<String> comparator;
 
     KeyBTreeCursor<String> cursor;
 
 
-    @SuppressWarnings({"unchecked"})
     @Before
     public void createCursor() throws Exception
     {
@@ -239,9 +238,9 @@ public class KeyBTreeCursorTest
 
         // browse will position us right after "4" and getNext() will return 8
         // since "5", "6", and "7" do not exist
-        TupleBrowser browser = bt.browse( "5" );
+        TupleBrowser<String, byte[]> browser = bt.browse( "5" );
         assertNotNull( browser );
-        Tuple tuple = new Tuple();
+        Tuple<String, byte[]> tuple = new Tuple<String, byte[]>();
         browser.getNext( tuple );
         assertEquals( "8", tuple.getKey() );
 
@@ -249,7 +248,7 @@ public class KeyBTreeCursorTest
         // since "2" exists.
         browser = bt.browse( "2" );
         assertNotNull( browser );
-        tuple = new Tuple();
+        tuple = new Tuple<String, byte[]>();
         browser.getNext( tuple );
         assertEquals( "2", tuple.getKey() );
 
@@ -257,7 +256,7 @@ public class KeyBTreeCursorTest
         // since nothing else exists past 8.  We've come to the end.
         browser = bt.browse( "9" );
         assertNotNull( browser );
-        tuple = new Tuple();
+        tuple = new Tuple<String, byte[]>();
         browser.getNext( tuple );
         assertNull( tuple.getKey() );
 
@@ -266,7 +265,7 @@ public class KeyBTreeCursorTest
         // getNext() will however return "1".
         browser = bt.browse( "0" );
         assertNotNull( browser );
-        tuple = new Tuple();
+        tuple = new Tuple<String, byte[]>();
         browser.getPrevious( tuple );
         assertNull( tuple.getKey() );
         browser.getNext( tuple );

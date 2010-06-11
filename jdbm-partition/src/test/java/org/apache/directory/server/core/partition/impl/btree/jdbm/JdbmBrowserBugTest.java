@@ -49,7 +49,7 @@ import static junit.framework.Assert.assertEquals;
 public class JdbmBrowserBugTest
 {
     Comparator<Integer> comparator;
-    BTree bt;
+    BTree<Integer, Integer> bt;
     private static final String TEST_OUTPUT_PATH = "test.output.path";
     private static final Logger LOG = LoggerFactory.getLogger( JdbmBrowserBugTest.class.getSimpleName() );
     private File dbFile = null;
@@ -112,19 +112,19 @@ public class JdbmBrowserBugTest
         bt.insert( 30, 3, true );
         bt.insert( 25, 3, true );
 
-        Tuple tuple = new Tuple();
-        TupleBrowser browser = bt.browse( null );
+        Tuple<Integer, Integer> tuple = new Tuple<Integer, Integer>();
+        TupleBrowser<Integer, Integer> browser = bt.browse( null );
         assertTrue( browser.getPrevious( tuple ) );
         //noinspection AssertEqualsBetweenInconvertibleTypes
-        assertEquals( 30, tuple.getKey() );
+        assertEquals( Integer.valueOf( 30 ), tuple.getKey() );
 
         assertTrue( browser.getPrevious( tuple ) );
         //noinspection AssertEqualsBetweenInconvertibleTypes
-        assertEquals( 25, tuple.getKey() );
+        assertEquals( Integer.valueOf( 25 ), tuple.getKey() );
 
         assertTrue( browser.getNext( tuple ) );
         //noinspection AssertEqualsBetweenInconvertibleTypes
         assertEquals( "If this works the jdbm bug is gone: will start to return " +
-            "30 instead as expected for correct operation", 25, tuple.getKey() );
+            "30 instead as expected for correct operation", Integer.valueOf( 25 ), tuple.getKey() );
     }
 }

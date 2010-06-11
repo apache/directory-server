@@ -160,11 +160,11 @@ public class JdbmIndexTest
     public void testAttributeId() throws Exception
     {
         // uninitialized index
-        JdbmIndex jdbmIndex1 = new JdbmIndex();
+        JdbmIndex<Object, Object> jdbmIndex1 = new JdbmIndex<Object, Object>();
         jdbmIndex1.setAttributeId( "foo" );
         assertEquals( "foo", jdbmIndex1.getAttributeId() );
 
-        JdbmIndex jdbmIndex2 = new JdbmIndex( "bar" );
+        JdbmIndex<Object, Object> jdbmIndex2 = new JdbmIndex<Object, Object>( "bar" );
         assertEquals( "bar", jdbmIndex2.getAttributeId() );
 
         // initialized index
@@ -190,7 +190,7 @@ public class JdbmIndexTest
     public void testCacheSize() throws Exception
     {
         // uninitialized index
-        JdbmIndex jdbmIndex = new JdbmIndex();
+        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>();
         jdbmIndex.setCacheSize( 337 );
         assertEquals( 337, jdbmIndex.getCacheSize() );
 
@@ -242,7 +242,7 @@ public class JdbmIndexTest
     public void testNumDupLimit() throws Exception
     {
         // uninitialized index
-        JdbmIndex jdbmIndex = new JdbmIndex();
+        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>();
         jdbmIndex.setNumDupLimit( 337 );
         assertEquals( 337, jdbmIndex.getNumDupLimit() );
 
@@ -250,13 +250,13 @@ public class JdbmIndexTest
         initIndex();
         try
         {
-            ( ( JdbmIndex ) idx ).setNumDupLimit( 30 );
+            ( ( JdbmIndex<String, Entry> ) idx ).setNumDupLimit( 30 );
             fail( "Should not be able to set numDupLimit after initialization." );
         }
         catch ( Exception e )
         {
         }
-        assertEquals( JdbmIndex.DEFAULT_DUPLICATE_LIMIT, ( ( JdbmIndex ) idx ).getNumDupLimit() );
+        assertEquals( JdbmIndex.DEFAULT_DUPLICATE_LIMIT, ( ( JdbmIndex<String, Entry> ) idx ).getNumDupLimit() );
     }
 
 
@@ -264,7 +264,7 @@ public class JdbmIndexTest
     public void testGetAttribute() throws Exception
     {
         // uninitialized index
-        JdbmIndex jdbmIndex = new JdbmIndex();
+        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>();
         assertNull( jdbmIndex.getAttribute() );
 
         initIndex();
@@ -275,7 +275,7 @@ public class JdbmIndexTest
     @Test
     public void testIsCountExact() throws Exception
     {
-        assertFalse( new JdbmIndex().isCountExact() );
+        assertFalse( new JdbmIndex<Object, Object>().isCountExact() );
     }
 
 
@@ -560,7 +560,7 @@ public class JdbmIndexTest
     @Test
     public void testNoEqualityMatching() throws Exception
     {
-        JdbmIndex jdbmIndex = new JdbmIndex();
+        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>();
 
         try
         {
@@ -582,7 +582,7 @@ public class JdbmIndexTest
     @Test
     public void testSingleValuedAttribute() throws Exception
     {
-        JdbmIndex jdbmIndex = new JdbmIndex();
+        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>();
         jdbmIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATORS_NAME_AT ),
             dbFileDir );
         jdbmIndex.close();
