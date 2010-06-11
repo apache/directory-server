@@ -1,0 +1,150 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ *
+ */
+package org.apache.directory.server.core.operations.moveAndRename;
+
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.message.ModifyDnRequest;
+import org.apache.directory.server.core.annotations.ContextEntry;
+import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.annotations.CreateIndex;
+import org.apache.directory.server.core.annotations.CreatePartition;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.shared.ldap.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.RDN;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+
+/**
+ * Test the move operation performances
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$
+ */
+@RunWith(FrameworkRunner.class)
+@CreateDS(name = "MovePerfDS", 
+    partitions = 
+    { 
+        @CreatePartition( 
+            name = "example", 
+            suffix = "dc=example,dc=com", 
+            contextEntry = 
+                @ContextEntry(
+                    entryLdif = 
+                        "dn: dc=example,dc=com\n" +
+                        "dc: example\n" + 
+                        "objectClass: top\n" + 
+                        "objectClass: domain\n\n"), 
+            indexes =
+            { 
+                @CreateIndex(attribute = "objectClass", cacheSize = 1000), 
+                @CreateIndex(attribute = "sn", cacheSize = 1000),
+                @CreateIndex(attribute = "cn", cacheSize = 1000) 
+            })
+    }, 
+    enableChangeLog = false)
+public class MoveAndRenamePerfIT extends AbstractLdapTestUnit
+{
+    /**
+     * Test a move operation performance
+     */
+    @Test
+    public void testMovePerf() throws Exception
+    {
+        LdapConnection connection = IntegrationUtils.getAdminConnection( service );
+
+        DN oldDn = new DN( "cn=testOld,ou=system" );
+        DN newDn = new DN( "cn=testNew,ou=users,ou=system" );
+        DN oldSuperior = new DN( "ou=system" );
+        DN newSuperior = new DN( "ou=users,ou=system" );
+        RDN oldRdn = new RDN( "cn=testOld" );
+        RDN newRdn = new RDN( "cn=testNew" );
+
+        Entry entry = new DefaultEntry( service.getSchemaManager(), oldDn );
+        entry.add( "ObjectClass", "top", "person" );
+        entry.add( "sn", "TESTOld" );
+        entry.add( "cn", "testOld" );
+
+        connection.add( entry );
+        int nbIterations = 25000;
+
+        long t0 = System.currentTimeMillis();
+        long t00 = 0L;
+        long tt0 = System.currentTimeMillis();
+        
+        for ( int i = 0; i < nbIterations; i++ )
+        {
+            if ( i % 100 == 0 )
+            {
+                long tt1 = System.currentTimeMillis();
+
+                System.out.println( i + ", " + ( tt1 - tt0 ) );
+                tt0 = tt1;
+            }
+
+            if ( i == 15000 )
+            {
+                t00 = System.currentTimeMillis();
+            }
+
+            long ttt0 = System.nanoTime();
+            ModifyDnRequest modDnReq = new ModifyDnRequest();
+            modDnReq.setEntryDn( oldDn );
+            modDnReq.setNewSuperior( newSuperior );
+            modDnReq.setNewRdn( newRdn );
+            modDnReq.setDeleteOldRdn( true );
+            
+            connection.modifyDn( modDnReq );
+            
+            //SearchResponse oldEntry = connection.lookup( oldDn );
+            //SearchResponse newEntry = connection.lookup( newDn );
+            
+            //assertNull( oldEntry );
+            //assertNotNull( newEntry );
+            long ttt1 = System.nanoTime();
+
+            // Swap the dn
+            DN tmpDn = newDn;
+            newDn = oldDn;
+            oldDn = tmpDn;
+            
+            // Swap the superiors
+            DN tmpSuperior = newSuperior;
+            newSuperior = oldSuperior;
+            oldSuperior = tmpSuperior;
+            
+            // Swap thr RDN
+            RDN tmpRdn = newRdn;
+            newRdn = oldRdn;
+            oldRdn = tmpRdn;
+            //System.out.println("added " + i + ", delta = " + (ttt1-ttt0)/1000);
+        }
+
+        long t1 = System.currentTimeMillis();
+
+        Long deltaWarmed = ( t1 - t00 );
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 15000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
+        connection.close();
+    }
+}
