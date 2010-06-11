@@ -38,20 +38,23 @@ public class TextRecordEncoderTest extends AbstractResourceRecordEncoderTest
     String characterString = "This is a string";
 
 
-    protected Map getAttributes()
+    @Override
+    protected Map<String, Object> getAttributes()
     {
-        Map map = new HashMap();
+        Map<String, Object> map = new HashMap<String, Object>();
         map.put( DnsAttribute.CHARACTER_STRING.toLowerCase(), characterString );
         return map;
     }
 
 
+    @Override
     protected ResourceRecordEncoder getEncoder()
     {
         return new TextRecordEncoder();
     }
 
 
+    @Override
     protected void putExpectedResourceData( IoBuffer expectedData )
     {
         expectedData.put( ( byte ) ( characterString.length() + 1 ) );

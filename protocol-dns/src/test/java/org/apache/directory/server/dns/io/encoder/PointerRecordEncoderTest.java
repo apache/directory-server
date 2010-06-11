@@ -39,20 +39,23 @@ public class PointerRecordEncoderTest extends AbstractResourceRecordEncoderTest
     String[] ptrParts = ptrName.split( "\\." );
 
 
-    protected Map getAttributes()
+    @Override
+    protected Map<String, Object> getAttributes()
     {
-        Map map = new HashMap();
+        Map<String, Object> map = new HashMap<String, Object>();
         map.put( DnsAttribute.DOMAIN_NAME.toLowerCase(), ptrName );
         return map;
     }
 
 
+    @Override
     protected ResourceRecordEncoder getEncoder()
     {
         return new PointerRecordEncoder();
     }
 
 
+    @Override
     protected void putExpectedResourceData( IoBuffer expectedData )
     {
         expectedData.put( ( byte ) 15 );

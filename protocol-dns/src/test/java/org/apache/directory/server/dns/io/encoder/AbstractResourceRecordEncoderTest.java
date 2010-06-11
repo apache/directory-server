@@ -100,7 +100,7 @@ public abstract class AbstractResourceRecordEncoderTest
      * @return the attributes to be used as the resource data for the resource
      *         record
      */
-    protected abstract Map getAttributes();
+    protected abstract Map<String, Object> getAttributes();
 
 
     /**

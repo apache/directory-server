@@ -40,6 +40,7 @@ public class AddressRecordEncoderTest extends AbstractResourceRecordEncoderTest
     InetAddress address;
 
 
+    @Override
     protected void setUpResourceData()
     {
         try
@@ -53,20 +54,23 @@ public class AddressRecordEncoderTest extends AbstractResourceRecordEncoderTest
     }
 
 
-    protected Map getAttributes()
+    @Override
+    protected Map<String, Object> getAttributes()
     {
-        Map attributes = new HashMap();
+        Map<String, Object> attributes = new HashMap<String, Object>();
         attributes.put( DnsAttribute.IP_ADDRESS, address );
         return attributes;
     }
 
 
+    @Override
     protected ResourceRecordEncoder getEncoder()
     {
         return new AddressRecordEncoder();
     }
 
 
+    @Override
     protected void putExpectedResourceData( IoBuffer expectedData )
     {
         expectedData.put( ( byte ) address.getAddress().length );

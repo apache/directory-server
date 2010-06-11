@@ -43,9 +43,9 @@ public class ServerSelectionRecordEncoderTest extends AbstractResourceRecordEnco
 
 
     @Override
-    protected Map getAttributes()
+    protected Map<String, Object> getAttributes()
     {
-        Map map = new HashMap();
+        Map<String, Object> map = new HashMap<String, Object>();
         map.put( DnsAttribute.SERVICE_PRIORITY.toLowerCase(), priority );
         map.put( DnsAttribute.SERVICE_WEIGHT.toLowerCase(), weight );
         map.put( DnsAttribute.SERVICE_PORT.toLowerCase(), port );

@@ -40,21 +40,24 @@ public class MailExchangeRecordEncoderTest extends AbstractResourceRecordEncoder
     String[] mxParts = mxHost.split( "\\." );
 
 
-    protected Map getAttributes()
+    @Override
+    protected Map<String, Object> getAttributes()
     {
-        Map map = new HashMap();
+        Map<String, Object> map = new HashMap<String, Object>();
         map.put( DnsAttribute.MX_PREFERENCE.toLowerCase(), mxPreference );
         map.put( DnsAttribute.DOMAIN_NAME.toLowerCase(), mxHost );
         return map;
     }
 
 
+    @Override
     protected ResourceRecordEncoder getEncoder()
     {
         return new MailExchangeRecordEncoder();
     }
 
 
+    @Override
     protected void putExpectedResourceData( IoBuffer expectedData )
     {
         expectedData.put( ( byte ) 20 );

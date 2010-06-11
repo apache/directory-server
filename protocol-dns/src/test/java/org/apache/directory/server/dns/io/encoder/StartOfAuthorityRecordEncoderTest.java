@@ -46,9 +46,10 @@ public class StartOfAuthorityRecordEncoderTest extends AbstractResourceRecordEnc
     String minimum = "3600";
 
 
-    protected Map getAttributes()
+    @Override
+    protected Map<String, Object> getAttributes()
     {
-        Map map = new HashMap();
+        Map<String, Object> map = new HashMap<String, Object>();
         map.put( DnsAttribute.SOA_M_NAME.toLowerCase(), mName );
         map.put( DnsAttribute.SOA_R_NAME.toLowerCase(), rName );
         map.put( DnsAttribute.SOA_SERIAL.toLowerCase(), serial );
@@ -60,12 +61,14 @@ public class StartOfAuthorityRecordEncoderTest extends AbstractResourceRecordEnc
     }
 
 
+    @Override
     protected ResourceRecordEncoder getEncoder()
     {
         return new StartOfAuthorityRecordEncoder();
     }
 
 
+    @Override
     protected void putExpectedResourceData( IoBuffer expectedData )
     {
         expectedData.put( ( byte ) 60 ); // 1 + 18 + 1 + 20 + 4 + 4 + 4 + 4 + 4
