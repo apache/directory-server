@@ -57,7 +57,7 @@ import org.apache.directory.server.i18n.I18n;
  * @author <a href="mailto:cdaller@iicm.edu">Christof Dallermassl</a>
  */
 public final class IntegerComparator
-    implements Comparator, Serializable
+    implements Comparator<Integer>, Serializable
 {
 
     /**
@@ -74,7 +74,7 @@ public final class IntegerComparator
      * @return a positive integer if obj1 > obj2, 0 if obj1 == obj2,
      *         and a negative integer if obj1 < obj2
      */
-    public int compare( Object obj1, Object obj2 )
+    public int compare( Integer obj1, Integer obj2 )
     {
         if ( obj1 == obj2 ) {
             return 0;
@@ -90,8 +90,8 @@ public final class IntegerComparator
 
         // complicated to avoid usage of Integer.compareTo, as this
         // method is Java 1.2 only!
-        int int1 = ( (Integer) obj1 ).intValue();
-        int int2 = ( (Integer) obj2 ).intValue();
+        int int1 = obj1.intValue();
+        int int2 = obj2.intValue();
         if ( int1 == int2 ) {
             return 0;
         }

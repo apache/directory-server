@@ -57,7 +57,7 @@ import org.apache.directory.server.i18n.I18n;
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  */
 public final class LongComparator
-    implements Comparator, Serializable
+    implements Comparator<Long>, Serializable
 {
 
     /**
@@ -74,7 +74,7 @@ public final class LongComparator
      * @return a positive integer if obj1 > obj2, 0 if obj1 == obj2,
      *         and a negative integer if obj1 < obj2
      */
-     public int compare( Object obj1, Object obj2 )
+     public int compare( Long obj1, Long obj2 )
      {
         if ( obj1 == null ) {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_525 ) );
@@ -84,8 +84,8 @@ public final class LongComparator
             throw new IllegalArgumentException( I18n.err( I18n.ERR_526 ) );
         }
 
-        long l1 = ( (Long) obj1 ).longValue();
-        long l2 = ( (Long) obj2 ).longValue();
+        long l1 = obj1.longValue();
+        long l2 = obj2.longValue();
 
         if ( l1 > l2 ) {
             return 1;

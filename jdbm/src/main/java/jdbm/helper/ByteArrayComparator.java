@@ -57,7 +57,7 @@ import org.apache.directory.server.i18n.I18n;
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  */
 public final class ByteArrayComparator
-    implements Comparator, Serializable
+    implements Comparator<byte[]>, Serializable
 {
 
     /**
@@ -74,7 +74,7 @@ public final class ByteArrayComparator
      * @return a positive integer if obj1 > obj2, 0 if obj1 == obj2,
      *         and a negative integer if obj1 < obj2
      */
-     public int compare( Object obj1, Object obj2 )
+     public int compare( byte[] obj1, byte[] obj2 )
      {
         if ( obj1 == null ) {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_525 ) );
@@ -84,7 +84,7 @@ public final class ByteArrayComparator
             throw new IllegalArgumentException( I18n.err( I18n.ERR_526 ) );
         }
 
-        return compareByteArray( (byte[]) obj1, (byte[]) obj2 );
+        return compareByteArray( obj1, obj2 );
      }
 
 
