@@ -41,6 +41,7 @@ import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
@@ -393,6 +394,29 @@ public class SchemaInterceptor extends BaseInterceptor
         EntryFilteringCursor cursor = nextInterceptor.list( opContext );
         cursor.addEntryFilter( binaryAttributeFilter );
         return cursor;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean compare( NextInterceptor next, CompareOperationContext compareContext ) throws LdapException
+    {
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Operation Context: {}", compareContext );
+        }
+
+        // Check that the requested AT exists
+        // complain if we do not recognize the attribute being compared
+        if ( !schemaManager.getAttributeTypeRegistry().contains( compareContext.getOid() ) )
+        {
+            throw new LdapInvalidAttributeTypeException( I18n.err( I18n.ERR_266, compareContext.getOid() ) );
+        }
+
+        boolean result = next.compare( compareContext );
+        
+        return result;
     }
 
 

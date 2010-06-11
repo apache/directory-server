@@ -301,17 +301,17 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public boolean compare( CompareOperationContext opContext ) throws LdapException
+    public boolean compare( CompareOperationContext compareContext ) throws LdapException
     {
-        LOG.debug( ">> CompareOperation : {}", opContext );
+        LOG.debug( ">> CompareOperation : {}", compareContext );
 
         ensureStarted();
-        push( opContext );
+        push( compareContext );
 
         try
         {
             // Normalize the opContext DN
-            DN dn = opContext.getDn();
+            DN dn = compareContext.getDn();
             dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // We have to deal with the referral first
@@ -323,13 +323,13 @@ public class DefaultOperationManager implements OperationManager
             if ( parentEntry != null )
             {
                 // We have found a parent referral for the current DN 
-                DN childDn = ( DN ) dn.getSuffix( parentEntry.getDn().size() );
+                DN childDn = dn.getSuffix( parentEntry.getDn().size() );
 
                 if ( directoryService.getReferralManager().isReferral( dn ) )
                 {
                     // This is a referral. We can delete it if the ManageDsaIt flag is true
                     // Otherwise, we just throw a LdapReferralException
-                    if ( !opContext.isReferralIgnored() )
+                    if ( !compareContext.isReferralIgnored() )
                     {
                         // Throw a Referral Exception
                         // Unlock the referral manager
@@ -343,7 +343,7 @@ public class DefaultOperationManager implements OperationManager
                 {
                     // Depending on the Context.REFERRAL property value, we will throw
                     // a different exception.
-                    if ( opContext.isReferralIgnored() )
+                    if ( compareContext.isReferralIgnored() )
                     {
                         directoryService.getReferralManager().unlock();
 
@@ -366,7 +366,7 @@ public class DefaultOperationManager implements OperationManager
 
             // Call the Add method
             InterceptorChain interceptorChain = directoryService.getInterceptorChain();
-            return interceptorChain.compare( opContext );
+            return interceptorChain.compare( compareContext );
         }
         finally
         {

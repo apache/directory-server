@@ -40,11 +40,13 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.AVA;
 import org.apache.directory.shared.ldap.name.DN;
@@ -325,20 +327,33 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws LdapException
+    public boolean compare( NextInterceptor next, CompareOperationContext compareContext ) throws LdapException
     {
-        opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
-
-        AttributeType at = opContext.getSession().getDirectoryService().getSchemaManager().lookupAttributeTypeRegistry(
-            opContext.getOid() );
-
-        if ( at.getSyntax().isHumanReadable() && ( opContext.getValue().isBinary() ) )
+        if ( !compareContext.getDn().isNormalized() )
         {
-            String value = opContext.getValue().getString();
-            opContext.setValue( new StringValue( value ) );
+            compareContext.getDn().normalize( schemaManager.getNormalizerMapping() );
         }
 
-        return next.compare( opContext );
+        // Get the attributeType from the OID
+        try
+        {
+            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( compareContext.getOid() );
+    
+            // Translate the value from binary to String if the AT is HR
+            if ( attributeType.getSyntax().isHumanReadable() && ( compareContext.getValue().isBinary() ) )
+            {
+                String value = compareContext.getValue().getString();
+                compareContext.setValue( new StringValue( value ) );
+            }
+            
+            compareContext.setAttributeType( attributeType );
+        }
+        catch ( LdapException le )
+        {
+            throw new LdapInvalidAttributeTypeException( I18n.err( I18n.ERR_266, compareContext.getOid() ) );
+        }
+
+        return next.compare( compareContext );
     }
 
 

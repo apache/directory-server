@@ -309,17 +309,21 @@ public class AuthenticationInterceptor extends BaseInterceptor
         invalidateAuthenticatorCaches( opContext.getDn() );
     }
 
-
-    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws LdapException
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean compare( NextInterceptor next, CompareOperationContext compareContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Operation Context: {}", opContext );
+            LOG.debug( "Operation Context: {}", compareContext );
         }
 
-        checkAuthenticated( opContext );
-        boolean result = next.compare( opContext );
-        invalidateAuthenticatorCaches( opContext.getDn() );
+        checkAuthenticated( compareContext );
+        boolean result = next.compare( compareContext );
+        invalidateAuthenticatorCaches( compareContext.getDn() );
+        
         return result;
     }
 

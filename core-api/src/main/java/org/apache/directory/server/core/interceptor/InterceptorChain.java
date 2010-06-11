@@ -94,9 +94,9 @@ public class InterceptorChain
         }
 
 
-        public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws LdapException
+        public boolean compare( NextInterceptor next, CompareOperationContext compareContext ) throws LdapException
         {
-            return nexus.compare( opContext );
+            return nexus.compare( compareContext );
         }
 
 
@@ -525,15 +525,16 @@ public class InterceptorChain
     }
 
 
-    public boolean compare( CompareOperationContext opContext ) throws LdapException
+    public boolean compare( CompareOperationContext compareContext ) throws LdapException
     {
         Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
+        compareContext.setOriginalEntry( getOriginalEntry( compareContext ) );
 
         try
         {
-            return head.compare( next, opContext );
+            return head.compare( next, compareContext );
         }
         catch ( LdapException le )
         {

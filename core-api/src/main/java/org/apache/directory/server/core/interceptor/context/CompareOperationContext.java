@@ -27,6 +27,7 @@ import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.message.internal.InternalCompareRequest;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -40,6 +41,9 @@ public class CompareOperationContext extends AbstractOperationContext
 {
     /** The entry OID */
     private String oid;
+    
+    /** The associated AttributeType */
+    private AttributeType attributeType;
 
     /** The value to be compared */
     private Value<?> value;
@@ -160,6 +164,26 @@ public class CompareOperationContext extends AbstractOperationContext
     }
 
 
+    /**
+     *  @return The AttributeType for the compared value
+     */
+    public AttributeType getAttributeType()
+    {
+        return attributeType;
+    }
+
+
+    /**
+     * Set the AttributeType associated with the OID
+     * 
+     * @param attributeType The AttributeType
+     */
+    public void setAttributeType( AttributeType attributeType )
+    {
+        this.attributeType = attributeType;
+    }
+    
+    
     /**
      * @return the operation name
      */

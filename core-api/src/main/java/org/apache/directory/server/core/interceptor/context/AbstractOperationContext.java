@@ -52,6 +52,9 @@ public abstract class AbstractOperationContext implements OperationContext
     
     /** The entry associated with the target entry of this OperationContext */
     protected ClonedServerEntry entry;
+
+    /** The original Entry */
+    protected Entry originalEntry;
     
     /** The associated request's controls */
     protected Map<String, Control> requestControls = new HashMap<String, Control>(4);
@@ -222,6 +225,24 @@ public abstract class AbstractOperationContext implements OperationContext
      * @return the operation name
      */
     public abstract String getName();
+
+
+    /**
+     * @return the originalEntry
+     */
+    public Entry getOriginalEntry()
+    {
+        return originalEntry;
+    }
+
+
+    /**
+     * @param originalEntry the originalEntry to set
+     */
+    public void setOriginalEntry( Entry originalEntry )
+    {
+        this.originalEntry = originalEntry;
+    }
 
 
     /**

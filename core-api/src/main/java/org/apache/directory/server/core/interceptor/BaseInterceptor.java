@@ -186,9 +186,9 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws LdapException
+    public boolean compare( NextInterceptor next, CompareOperationContext compareContext ) throws LdapException
     {
-        return next.compare( opContext );
+        return next.compare( compareContext );
     }
 
 
