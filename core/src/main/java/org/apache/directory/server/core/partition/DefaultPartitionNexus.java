@@ -531,19 +531,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      */
     public boolean compare( CompareOperationContext compareContext ) throws LdapException
     {
-        Partition partition = getPartition( compareContext.getDn() );
-        //AttributeTypeRegistry registry = schemaManager.getAttributeTypeRegistry();
-
-        // complain if we do not recognize the attribute being compared
-        if ( !schemaManager.getAttributeTypeRegistry().contains( compareContext.getOid() ) )
-        {
-            throw new LdapInvalidAttributeTypeException( I18n.err( I18n.ERR_266, compareContext.getOid() ) );
-        }
-
-        AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( compareContext.getOid() );
-
-        EntryAttribute attr = partition.lookup( compareContext.newLookupContext( compareContext.getDn() ) ).get(
-            attrType.getName() );
+        EntryAttribute attr = compareContext.getOriginalEntry().get( compareContext.getAttributeType() );
 
         // complain if the attribute being compared does not exist in the entry
         if ( attr == null )
@@ -552,7 +540,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         }
 
         // see first if simple match without normalization succeeds
-        if ( attr.contains( ( Value<?> ) compareContext.getValue() ) )
+        if ( attr.contains( compareContext.getValue() ) )
         {
             return true;
         }
@@ -564,7 +552,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
          * assertion value for comparisons with normalized attribute values.  Loop
          * through all values looking for a match.
          */
-        Normalizer normalizer = attrType.getEquality().getNormalizer();
+        Normalizer normalizer = compareContext.getAttributeType().getEquality().getNormalizer();
         Value<?> reqVal = normalizer.normalize( compareContext.getValue() );
 
         for ( Value<?> value : attr )
