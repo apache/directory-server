@@ -156,6 +156,16 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
              // Could be 4 or 5 depending on whether AES-256 is enabled or not, on Apple JVM
              assertTrue( "Number of keys", krb5key.size() > 3 );
          }
+         else if ( vendor.equalsIgnoreCase( "Apple Inc." ) )
+         {
+             // Could be 4 or 5 depending on whether AES-256 is enabled or not, on Apple JVM
+             assertTrue( "Number of keys", krb5key.size() > 3 );
+         }
+         else if ( vendor.equalsIgnoreCase( "\"Apple Computer, Inc.\"" ) )
+         {
+             // Could be 4 or 5 depending on whether AES-256 is enabled or not, on Apple JVM
+             assertTrue( "Number of keys", krb5key.size() > 3 );
+         }
          else
          {
              fail( "Unkown JVM" );
