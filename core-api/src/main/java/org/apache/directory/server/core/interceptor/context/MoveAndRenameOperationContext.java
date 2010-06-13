@@ -24,6 +24,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
@@ -37,8 +38,8 @@ import org.apache.directory.shared.ldap.name.RDN;
  */
 public class MoveAndRenameOperationContext extends RenameOperationContext
 {
-    /** The parent DN */
-    private DN parent;
+    /** The new superior DN */
+    private DN newSuperiorDn;
 
     /** Cached calculated new DN after move and rename */
     private DN newDn;
@@ -60,10 +61,10 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
      * @param newRdn the new rdn to use for the target once renamed
      * @param delOldRdn true if the old rdn value is deleted, false otherwise
      */
-    public MoveAndRenameOperationContext( CoreSession session, DN oldDn, DN parent, RDN newRdn, boolean delOldRdn )
+    public MoveAndRenameOperationContext( CoreSession session, DN oldDn, DN newSuperiorDn, RDN newRdn, boolean delOldRdn )
     {
         super( session, oldDn, newRdn, delOldRdn );
-        this.parent = parent;
+        this.newSuperiorDn = newSuperiorDn;
     }
 
 
@@ -71,9 +72,9 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
     {
         // super sets the newRdn and the delOldRdn members and tests
         super( session, modifyDnRequest );
-        this.parent = modifyDnRequest.getNewSuperior();
+        this.newSuperiorDn = modifyDnRequest.getNewSuperior();
         
-        if ( parent == null )
+        if ( newSuperiorDn == null )
         {
             throw new IllegalStateException( I18n.err( I18n.ERR_325, modifyDnRequest ) );
         }
@@ -86,26 +87,39 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
         {
             throwReferral();
         }
+        
+        newDn = (DN)newSuperiorDn.clone();
+        newDn.add( getNewRdn() );
+        
+        try
+        {
+            newDn.normalize( session.getDirectoryService()
+                .getSchemaManager().getNormalizerMapping() );
+        }
+        catch ( LdapInvalidDnException lide )
+        {
+            throw new IllegalStateException( I18n.err( I18n.ERR_325, modifyDnRequest ) );
+        }
     }
 
 
     /**
-     *  @return The parent DN
+     *  @return The new superior DN
      */
-    public DN getParent()
+    public DN getNewSuperior()
     {
-        return parent;
+        return newSuperiorDn;
     }
 
 
     /**
-     * Set the parent DN
+     * Set the new Superior DN
      *
-     * @param parent The parent
+     * @param newSuperiorDn The new Superior DN
      */
-    public void setParent( DN parent )
+    public void setNewSuperiorDn( DN newSuperiorDn )
     {
-        this.parent = parent;
+        this.newSuperiorDn = newSuperiorDn;
     }
 
     
@@ -117,14 +131,6 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
      */
     public DN getNewDn() throws LdapException
     {
-        if ( newDn == null )
-        {
-            newDn = new DN( getParent().getName() );
-            newDn.add( getNewRdn().getName() );
-            newDn.normalize( session.getDirectoryService()
-                .getSchemaManager().getNormalizerMapping() );
-        }
-        
         return newDn;
     }
     
@@ -134,7 +140,6 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
      */
     public String toString()
     {
-        return "ReplaceContext for old DN '" + getDn().getName() + "'" +
-        ", parent '" + parent + "'";
+        return "ReplaceContext for old DN '" + getDn().getName() + "' : " + newDn;
     }
 }

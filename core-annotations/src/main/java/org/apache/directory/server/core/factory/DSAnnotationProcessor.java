@@ -242,7 +242,7 @@ public class DSAnnotationProcessor
      */
     private static void injectEntry( LdifEntry entry, DirectoryService service ) throws LdapException
     {
-        if ( entry.isChangeAdd() )
+        if ( entry.isChangeAdd() || entry.isLdifContent() )
         {
             service.getAdminSession().add( new DefaultEntry( service.getSchemaManager(), entry.getEntry() ) );
         }

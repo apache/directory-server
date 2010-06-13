@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.operations.moveAndRename;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.message.ModifyDnRequest;
+import org.apache.directory.ldap.client.api.message.SearchResponse;
 import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
@@ -34,6 +34,9 @@ import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -76,10 +79,6 @@ public class MoveAndRenamePerfIT extends AbstractLdapTestUnit
 
         DN oldDn = new DN( "cn=testOld,ou=system" );
         DN newDn = new DN( "cn=testNew,ou=users,ou=system" );
-        DN oldSuperior = new DN( "ou=system" );
-        DN newSuperior = new DN( "ou=users,ou=system" );
-        RDN oldRdn = new RDN( "cn=testOld" );
-        RDN newRdn = new RDN( "cn=testNew" );
 
         Entry entry = new DefaultEntry( service.getSchemaManager(), oldDn );
         entry.add( "ObjectClass", "top", "person" );
@@ -109,19 +108,14 @@ public class MoveAndRenamePerfIT extends AbstractLdapTestUnit
             }
 
             long ttt0 = System.nanoTime();
-            ModifyDnRequest modDnReq = new ModifyDnRequest();
-            modDnReq.setEntryDn( oldDn );
-            modDnReq.setNewSuperior( newSuperior );
-            modDnReq.setNewRdn( newRdn );
-            modDnReq.setDeleteOldRdn( true );
             
-            connection.modifyDn( modDnReq );
+            connection.moveAndRename( oldDn, newDn );
             
-            //SearchResponse oldEntry = connection.lookup( oldDn );
-            //SearchResponse newEntry = connection.lookup( newDn );
+            SearchResponse oldEntry = connection.lookup( oldDn.getName() );
+            SearchResponse newEntry = connection.lookup( newDn.getName() );
             
-            //assertNull( oldEntry );
-            //assertNotNull( newEntry );
+            assertNull( oldEntry );
+            assertNotNull( newEntry );
             long ttt1 = System.nanoTime();
 
             // Swap the dn
@@ -129,15 +123,6 @@ public class MoveAndRenamePerfIT extends AbstractLdapTestUnit
             newDn = oldDn;
             oldDn = tmpDn;
             
-            // Swap the superiors
-            DN tmpSuperior = newSuperior;
-            newSuperior = oldSuperior;
-            oldSuperior = tmpSuperior;
-            
-            // Swap thr RDN
-            RDN tmpRdn = newRdn;
-            newRdn = oldRdn;
-            oldRdn = tmpRdn;
             //System.out.println("added " + i + ", delta = " + (ttt1-ttt0)/1000);
         }
 

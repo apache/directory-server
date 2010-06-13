@@ -622,10 +622,10 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void moveAndRename( DN dn, DN newParent, RDN newRdn, boolean deleteOldRdn, LogChange log ) throws LdapException
+    public void moveAndRename( DN dn, DN newSuperiorDn, RDN newRdn, boolean deleteOldRdn, LogChange log ) throws LdapException
     {
         MoveAndRenameOperationContext opContext = 
-            new MoveAndRenameOperationContext( this, dn, newParent, newRdn, deleteOldRdn );
+            new MoveAndRenameOperationContext( this, dn, newSuperiorDn, newRdn, deleteOldRdn );
         
         opContext.setLogChange( log );
 

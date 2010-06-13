@@ -218,8 +218,16 @@ public class NormalizationInterceptor extends BaseInterceptor
         rdn.normalize( schemaManager.getNormalizerMapping() );
         opContext.setNewRdn( rdn.getRdn() );
 
-        opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
-        opContext.getParent().normalize( schemaManager.getNormalizerMapping() );
+        if ( !opContext.getDn().isNormalized() )
+        {
+            opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
+        }
+        
+        if ( !opContext.getNewSuperior().isNormalized() )
+        {
+            opContext.getNewSuperior().normalize( schemaManager.getNormalizerMapping() );
+        }
+        
         nextInterceptor.moveAndRename( opContext );
     }
 

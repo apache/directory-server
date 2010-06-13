@@ -872,7 +872,7 @@ public class SearchHandler extends LdapRequestHandler<InternalSearchRequest>
                         break;
                         
                     default:
-                        throw new IllegalStateException( I18n.err( I18n.ERR_686 ) );
+                        ldapUrl.setScope( SearchScope.OBJECT.getScope() );
                 }
                 
                 respRef.getReferral().addLdapUrl( ldapUrl.toString() );

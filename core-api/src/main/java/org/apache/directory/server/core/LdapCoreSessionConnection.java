@@ -601,6 +601,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     {
         ModifyDnResponse resp = new ModifyDnResponse();
         resp.setLdapResult( getDefaultResult() );
+        
         try
         {
             InternalModifyDnRequest iModDnReq = new ModifyDnRequestImpl( modDnRequest.getMessageId() );
@@ -627,6 +628,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     {
         ModifyDnResponse resp = new ModifyDnResponse();
         resp.setLdapResult( getDefaultResult() );
+        
         try
         {
             session.move( entryDn, newSuperiorDn );
@@ -668,6 +670,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     {
         ModifyDnResponse resp = new ModifyDnResponse();
         resp.setLdapResult( getDefaultResult() );
+        
         try
         {
             session.rename( entryDn, newRdn, deleteOldRdn );
@@ -688,6 +691,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     {
         ModifyDnResponse resp = new ModifyDnResponse();
         resp.setLdapResult( getDefaultResult() );
+        
         try
         {
             session.rename( entryDn, newRdn, false );
@@ -708,6 +712,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     {
         ModifyDnResponse resp = new ModifyDnResponse();
         resp.setLdapResult( getDefaultResult() );
+        
         try
         {
             session.rename( new DN( entryDn ), new RDN( newRdn ), deleteOldRdn );
@@ -741,6 +746,87 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
 
         return resp;
+    }
+
+
+    /**
+     * Moves and renames the given entryDn.The old RDN will be deleted
+     * 
+     * @see #moveAndRename(DN, DN, boolean)
+     */
+    public ModifyDnResponse moveAndRename( DN entryDn, DN newDn ) throws LdapException
+    {
+        return moveAndRename( entryDn, newDn, true );
+    }
+
+
+    /**
+     * Moves and renames the given entryDn.The old RDN will be deleted
+     * 
+     * @see #moveAndRename(DN, DN, boolean)
+     */
+    public ModifyDnResponse moveAndRename( String entryDn, String newDn ) throws LdapException
+    {
+        return moveAndRename( new DN( entryDn ), new DN( newDn ), true );
+    }
+
+
+    /**
+     * Moves and renames the given entryDn.The old RDN will be deleted if requested
+     * 
+     * @param entryDn The original entry DN
+     * @param newDn The new Entry DN
+     * @param deleteOldRdn Tells if the old RDN must be removed
+     */
+    public ModifyDnResponse moveAndRename( DN entryDn, DN newDn, boolean deleteOldRdn ) throws LdapException
+    {
+        // Check the parameters first
+        if ( entryDn == null ) 
+        {
+            throw new IllegalArgumentException( "The entry DN must not be null" );
+        }
+        
+        if ( entryDn.isRootDSE() )
+        {
+            throw new IllegalArgumentException( "The RootDSE cannot be moved" );
+        }
+        
+        if ( newDn == null ) 
+        {
+            throw new IllegalArgumentException( "The new DN must not be null" );
+        }
+        
+        if ( newDn.isRootDSE() )
+        {
+            throw new IllegalArgumentException( "The RootDSE cannot be the target" );
+        }
+        
+        ModifyDnResponse resp = new ModifyDnResponse();
+        resp.setLdapResult( getDefaultResult() );
+
+        try
+        {
+            session.moveAndRename( entryDn, newDn.getParent(), newDn.getRdn(), deleteOldRdn );
+        }
+        catch ( Exception e )
+        {
+            resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
+        }
+
+        return resp;
+    }
+
+
+    /**
+     * Moves and renames the given entryDn.The old RDN will be deleted if requested
+     * 
+     * @param entryDn The original entry DN
+     * @param newDn The new Entry DN
+     * @param deleteOldRdn Tells if the old RDN must be removed
+     */
+    public ModifyDnResponse moveAndRename( String entryDn, String newDn, boolean deleteOldRdn ) throws LdapException
+    {
+        return moveAndRename( new DN( entryDn ), new DN( newDn ), deleteOldRdn );
     }
 
 

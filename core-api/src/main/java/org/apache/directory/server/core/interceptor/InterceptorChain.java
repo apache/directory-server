@@ -863,7 +863,8 @@ public class InterceptorChain
         Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
-        eagerlyPopulateFields( opContext );
+        opContext.setOriginalEntry( getOriginalEntry( opContext ) );
+        opContext.setModifiedEntry( opContext.getOriginalEntry().clone() );
 
         try
         {

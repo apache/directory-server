@@ -316,7 +316,7 @@ public class ReferralInterceptor extends BaseInterceptor
      **/
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws LdapException
     {
-        DN newName = ( DN ) opContext.getParent().clone();
+        DN newName = ( DN ) opContext.getNewSuperior().clone();
         newName.add( opContext.getNewRdn() );
 
         // Check if the entry is a referral itself

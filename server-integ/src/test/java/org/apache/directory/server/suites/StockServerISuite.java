@@ -54,6 +54,7 @@ import org.apache.directory.server.operations.search.NegationSearchIT;
 import org.apache.directory.server.operations.search.PagedSearchIT;
 import org.apache.directory.server.operations.search.PersistentSearchIT;
 import org.apache.directory.server.operations.search.ReferralSearchIT;
+import org.apache.directory.server.operations.search.ReferralSearchMoveAndRenameIT;
 import org.apache.directory.server.operations.search.ReferralSearchNoRevertIT;
 import org.apache.directory.server.operations.search.SchemaSearchIT;
 import org.apache.directory.server.operations.search.SearchIT;
@@ -122,6 +123,7 @@ import org.junit.runners.Suite;
         PersistentSearchIT.class,
         ReferralSearchIT.class,
         ReferralSearchNoRevertIT.class,
+        //ReferralSearchMoveAndRenameIT.class,
         SchemaSearchIT.class,
         SearchIT.class,
         SearchLimitsIT.class,

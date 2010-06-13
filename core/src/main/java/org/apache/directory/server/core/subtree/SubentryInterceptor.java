@@ -875,7 +875,7 @@ public class SubentryInterceptor extends BaseInterceptor
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws LdapException
     {
         DN oriChildName = opContext.getDn();
-        DN parent = opContext.getParent();
+        DN parent = opContext.getNewSuperior();
 
         Entry entry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
 

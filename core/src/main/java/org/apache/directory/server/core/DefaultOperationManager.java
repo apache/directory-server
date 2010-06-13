@@ -814,13 +814,13 @@ public class DefaultOperationManager implements OperationManager
 
             // Now, check the destination
             // Normalize the opContext DN
-            DN parentDn = opContext.getParent();
-            parentDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
+            DN newSuperiorDn = opContext.getNewSuperior();
+            newSuperiorDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // If he parent DN is a referral, or has a referral ancestor, we have to issue a AffectMultipleDsas result
             // as stated by RFC 3296 Section 5.6.2
-            if ( directoryService.getReferralManager().isReferral( parentDn )
-                || directoryService.getReferralManager().hasParentReferral( parentDn ) )
+            if ( directoryService.getReferralManager().isReferral( newSuperiorDn )
+                || directoryService.getReferralManager().hasParentReferral( newSuperiorDn ) )
             {
                 // Unlock the referral manager
                 directoryService.getReferralManager().unlock();

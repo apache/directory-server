@@ -37,6 +37,7 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.schema.SchemaService;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -344,10 +345,18 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setDn( opCtx.getDn() );
         forward.setDeleteOldRdn( opCtx.getDelOldDn() );
         forward.setNewRdn( opCtx.getNewRdn().getName() );
-        forward.setNewSuperior( opCtx.getParent().getName() );
-
+        forward.setNewSuperior( opCtx.getNewSuperior().getName() );
+        
         List<LdifEntry> reverses = LdifRevertor.reverseMoveAndRename(  
-            serverEntry, opCtx.getParent(), new RDN( opCtx.getNewRdn() ), false );
+            serverEntry, opCtx.getNewSuperior(), new RDN( opCtx.getNewRdn() ), false );
+        
+        if ( opCtx.isReferralIgnored() )
+        {
+            forward.addControl( new ManageDsaITControl() );
+            LdifEntry reversedEntry = reverses.get( 0 );
+            reversedEntry.addControl( new ManageDsaITControl() );
+        }
+        
         opCtx.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverses ) );
     }
 
