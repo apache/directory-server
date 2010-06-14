@@ -304,7 +304,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
         try
         {
-            if( ! opContext.getNewSuperior().isChildOf( clientMsgLog.getSearchCriteria().getBase() ) )
+            if( ! opContext.getNewSuperiorDn().isChildOf( clientMsgLog.getSearchCriteria().getBase() ) )
             {
                 sendDeletedEntry( opContext.getEntry() );
                 return;
@@ -312,7 +312,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
             SyncModifyDnControl modDnControl = new SyncModifyDnControl( SyncModifyDnType.MOVEANDRENAME );
             modDnControl.setEntryDn( opContext.getDn().getNormName() );
-            modDnControl.setNewSuperiorDn( opContext.getNewSuperior().getNormName() );
+            modDnControl.setNewSuperiorDn( opContext.getNewSuperiorDn().getNormName() );
             modDnControl.setNewRdn( opContext.getNewRdn().getNormName() );
             modDnControl.setDeleteOldRdn( opContext.getDeleteOldRdn() );
 

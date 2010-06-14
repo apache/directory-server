@@ -411,7 +411,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         throws LdapException
     {
         DN oriChildName = moveAndRenameContext.getDn();
-        DN parent = moveAndRenameContext.getNewSuperior();
+        DN parent = moveAndRenameContext.getNewSuperiorDn();
 
         if ( oriChildName.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
         {

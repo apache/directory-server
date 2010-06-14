@@ -814,7 +814,7 @@ public class DefaultOperationManager implements OperationManager
 
             // Now, check the destination
             // Normalize the opContext DN
-            DN newSuperiorDn = moveAndRenameContext.getNewSuperior();
+            DN newSuperiorDn = moveAndRenameContext.getNewSuperiorDn();
             newSuperiorDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // If he parent DN is a referral, or has a referral ancestor, we have to issue a AffectMultipleDsas result

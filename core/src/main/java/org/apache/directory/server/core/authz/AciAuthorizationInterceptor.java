@@ -832,7 +832,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         throws LdapException
     {
         DN oriChildName = moveAndRenameContext.getDn();
-        DN newParentName = moveAndRenameContext.getNewSuperior();
+        DN newParentName = moveAndRenameContext.getNewSuperiorDn();
 
         Entry entry = moveAndRenameContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
 

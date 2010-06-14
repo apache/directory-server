@@ -223,9 +223,9 @@ public class NormalizationInterceptor extends BaseInterceptor
             moveAndRenameContext.getDn().normalize( schemaManager.getNormalizerMapping() );
         }
         
-        if ( !moveAndRenameContext.getNewSuperior().isNormalized() )
+        if ( !moveAndRenameContext.getNewSuperiorDn().isNormalized() )
         {
-            moveAndRenameContext.getNewSuperior().normalize( schemaManager.getNormalizerMapping() );
+            moveAndRenameContext.getNewSuperiorDn().normalize( schemaManager.getNormalizerMapping() );
         }
         
         nextInterceptor.moveAndRename( moveAndRenameContext );

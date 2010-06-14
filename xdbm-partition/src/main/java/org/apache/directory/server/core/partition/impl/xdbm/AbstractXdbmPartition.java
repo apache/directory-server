@@ -335,7 +335,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
 
     public final void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
-        if ( moveAndRenameContext.getNewSuperior().isChildOf( moveAndRenameContext.getDn() ) )
+        if ( moveAndRenameContext.getNewSuperiorDn().isChildOf( moveAndRenameContext.getDn() ) )
         {
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
                 "cannot place an entry below itself" );
@@ -343,7 +343,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
 
         try
         {
-            store.moveAndRename( moveAndRenameContext.getDn(), moveAndRenameContext.getNewSuperior(), moveAndRenameContext.getNewRdn(),
+            store.moveAndRename( moveAndRenameContext.getDn(), moveAndRenameContext.getNewSuperiorDn(), moveAndRenameContext.getNewRdn(),
                 null, moveAndRenameContext.getDeleteOldRdn() );
         }
         catch ( Exception e )

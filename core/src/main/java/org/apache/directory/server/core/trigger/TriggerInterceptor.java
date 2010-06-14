@@ -407,7 +407,7 @@ public class TriggerInterceptor extends BaseInterceptor
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         DN oriChildName = moveAndRenameContext.getDn();
-        DN parent = moveAndRenameContext.getNewSuperior();
+        DN parent = moveAndRenameContext.getNewSuperiorDn();
         RDN newRdn = moveAndRenameContext.getNewRdn();
         boolean deleteOldRn = moveAndRenameContext.getDeleteOldRdn();
 
