@@ -129,7 +129,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
      * @return the normalized new name after move and rename
      * @throws Exception if the name cannot be normalized
      */
-    public DN getNewDn() throws LdapException
+    public DN getNewDn()
     {
         return newDn;
     }

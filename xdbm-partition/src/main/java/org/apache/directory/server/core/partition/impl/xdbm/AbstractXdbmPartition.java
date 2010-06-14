@@ -319,11 +319,11 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
         {
             if ( renameContext.getEntry() != null )
             {
-                store.rename( renameContext.getDn(), renameContext.getNewRdn(), renameContext.getDelOldDn(), renameContext.getEntry().getClonedEntry() );
+                store.rename( renameContext.getDn(), renameContext.getNewRdn(), renameContext.getDeleteOldRdn(), renameContext.getEntry().getClonedEntry() );
             }
             else
             {
-                store.rename( renameContext.getDn(), renameContext.getNewRdn(), renameContext.getDelOldDn() );
+                store.rename( renameContext.getDn(), renameContext.getNewRdn(), renameContext.getDeleteOldRdn() );
             }
         }
         catch ( Exception e )
@@ -344,7 +344,7 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
         try
         {
             store.moveAndRename( moveAndRenameContext.getDn(), moveAndRenameContext.getNewSuperior(), moveAndRenameContext.getNewRdn(),
-                null, moveAndRenameContext.getDelOldDn() );
+                null, moveAndRenameContext.getDeleteOldRdn() );
         }
         catch ( Exception e )
         {

@@ -314,7 +314,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             modDnControl.setEntryDn( opContext.getDn().getNormName() );
             modDnControl.setNewSuperiorDn( opContext.getNewSuperior().getNormName() );
             modDnControl.setNewRdn( opContext.getNewRdn().getNormName() );
-            modDnControl.setDeleteOldRdn( opContext.getDelOldDn() );
+            modDnControl.setDeleteOldRdn( opContext.getDeleteOldRdn() );
 
             if ( pushInRealTime )
             {
@@ -360,7 +360,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             modDnControl.setModDnType( SyncModifyDnType.RENAME );
             modDnControl.setEntryDn( opContext.getDn().getName() );
             modDnControl.setNewRdn( opContext.getNewRdn().getName() );
-            modDnControl.setDeleteOldRdn( opContext.getDelOldDn() );
+            modDnControl.setDeleteOldRdn( opContext.getDeleteOldRdn() );
 
             if ( pushInRealTime )
             {

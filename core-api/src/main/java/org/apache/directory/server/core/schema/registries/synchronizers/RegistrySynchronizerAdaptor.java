@@ -386,7 +386,7 @@ public class RegistrySynchronizerAdaptor
             {
                 RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
                 synchronizer.moveAndRename( opContext.getDn(), opContext.getNewSuperior(), opContext.getNewRdn(), 
-                    opContext.getDelOldDn(), entry, cascade );
+                    opContext.getDeleteOldRdn(), entry, cascade );
                 return;
             }
         }
@@ -394,7 +394,7 @@ public class RegistrySynchronizerAdaptor
         if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
             schemaSynchronizer.moveAndRename( opContext.getDn(), opContext.getNewSuperior(), opContext.getNewRdn(), 
-                opContext.getDelOldDn(), entry, cascade );
+                opContext.getDeleteOldRdn(), entry, cascade );
             return;
         }
         

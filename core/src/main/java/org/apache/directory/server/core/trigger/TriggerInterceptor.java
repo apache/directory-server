@@ -363,7 +363,7 @@ public class TriggerInterceptor extends BaseInterceptor
     {
         DN name = renameContext.getDn();
         RDN newRdn = renameContext.getNewRdn();
-        boolean deleteOldRn = renameContext.getDelOldDn();
+        boolean deleteOldRn = renameContext.getDeleteOldRdn();
 
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
@@ -409,7 +409,7 @@ public class TriggerInterceptor extends BaseInterceptor
         DN oriChildName = moveAndRenameContext.getDn();
         DN parent = moveAndRenameContext.getNewSuperior();
         RDN newRdn = moveAndRenameContext.getNewRdn();
-        boolean deleteOldRn = moveAndRenameContext.getDelOldDn();
+        boolean deleteOldRn = moveAndRenameContext.getDeleteOldRdn();
 
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )

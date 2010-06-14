@@ -313,10 +313,10 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setChangeType( ChangeType.ModRdn );
         forward.setDn( renameContext.getDn() );
         forward.setNewRdn( renameContext.getNewRdn().getName() );
-        forward.setDeleteOldRdn( renameContext.getDelOldDn() );
+        forward.setDeleteOldRdn( renameContext.getDeleteOldRdn() );
 
         List<LdifEntry> reverses = LdifRevertor.reverseRename( 
-            serverEntry, renameContext.getNewRdn(), renameContext.getDelOldDn() );
+            serverEntry, renameContext.getNewRdn(), renameContext.getDeleteOldRdn() );
         
         renameContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverses ) );
     }
@@ -343,7 +343,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         LdifEntry forward = new LdifEntry();
         forward.setChangeType( ChangeType.ModDn );
         forward.setDn( moveAndRenameContext.getDn() );
-        forward.setDeleteOldRdn( moveAndRenameContext.getDelOldDn() );
+        forward.setDeleteOldRdn( moveAndRenameContext.getDeleteOldRdn() );
         forward.setNewRdn( moveAndRenameContext.getNewRdn().getName() );
         forward.setNewSuperior( moveAndRenameContext.getNewSuperior().getName() );
         

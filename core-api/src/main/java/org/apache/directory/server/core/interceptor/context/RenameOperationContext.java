@@ -47,8 +47,8 @@ public class RenameOperationContext extends AbstractChangeOperationContext
     /** Cached copy of the new DN */
     private DN newDn;
 
-    /** The flag to remove the old DN Attribute  */
-    private boolean delOldDn;
+    /** The flag to remove the old RDN Attribute  */
+    private boolean deleteOldRdn;
 
     /** The entry after being renamed and altered for rdn attributes */ 
     private ClonedServerEntry alteredEntry;
@@ -70,11 +70,11 @@ public class RenameOperationContext extends AbstractChangeOperationContext
      * @param newRdn the new RDN to use for the target
      * @param delOldDn true if we delete the old RDN value
      */
-    public RenameOperationContext( CoreSession session, DN oldDn, RDN newRdn, boolean delOldDn )
+    public RenameOperationContext( CoreSession session, DN oldDn, RDN newRdn, boolean deleteOldRdn )
     {
         super( session, oldDn );
         this.newRdn = newRdn;
-        this.delOldDn = delOldDn;
+        this.deleteOldRdn = deleteOldRdn;
     }
 
 
@@ -88,7 +88,7 @@ public class RenameOperationContext extends AbstractChangeOperationContext
             throw new IllegalStateException( I18n.err( I18n.ERR_328, modifyDnRequest ) );
         }
         
-        this.delOldDn = modifyDnRequest.getDeleteOldRdn();
+        this.deleteOldRdn = modifyDnRequest.getDeleteOldRdn();
         this.requestControls = modifyDnRequest.getControls();
         
         if ( requestControls.containsKey( ManageDsaITControl.CONTROL_OID ) )
@@ -103,28 +103,28 @@ public class RenameOperationContext extends AbstractChangeOperationContext
 
 
     /**
-     * @return The delete old DN flag
+     * @return The delete old RDN flag
      */
-    public boolean getDelOldDn() 
+    public boolean getDeleteOldRdn() 
     {
-        return delOldDn;
+        return deleteOldRdn;
     }
 
 
     /**
-     * Set the flag to delete the old DN
-     * @param delOldDn the flag to set
+     * Set the flag to delete the old RDN
+     * @param deleteOldRdn the flag to set
      */
-    public void setDelOldDn( boolean delOldDn ) 
+    public void setDelOldDn( boolean deleteOldRdn ) 
     {
-        this.delOldDn = delOldDn;
+        this.deleteOldRdn = deleteOldRdn;
     }
 
 
     /**
      * @return The new DN either computed if null or already computed
      */
-    public DN getNewDn() throws LdapException
+    public DN getNewDn()
     {
         return newDn;
     }
@@ -199,6 +199,6 @@ public class RenameOperationContext extends AbstractChangeOperationContext
     {
         return "RenameContext for old DN '" + getDn().getName() + "'" +
         ", new RDN '" + newRdn + "'" +
-        ( delOldDn ? ", delete old Dn" : "" ) ; 
+        ( deleteOldRdn ? ", delete old Rdn" : "" ) ; 
     }
 }

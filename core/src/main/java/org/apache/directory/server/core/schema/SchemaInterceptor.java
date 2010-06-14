@@ -971,7 +971,7 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         DN oldDn = opContext.getDn();
         RDN newRdn = opContext.getNewRdn();
-        boolean deleteOldRn = opContext.getDelOldDn();
+        boolean deleteOldRn = opContext.getDeleteOldRdn();
         Entry entry = opContext.getEntry().getClonedEntry();
 
         /*

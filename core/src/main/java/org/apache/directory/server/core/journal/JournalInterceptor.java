@@ -252,7 +252,7 @@ public class JournalInterceptor extends BaseInterceptor
             ldif.setChangeType( ChangeType.ModRdn );
             ldif.setDn( opContext.getDn() );
             ldif.setNewRdn( opContext.getNewRdn().getNormName() );
-            ldif.setDeleteOldRdn( opContext.getDelOldDn() );
+            ldif.setDeleteOldRdn( opContext.getDeleteOldRdn() );
             
             journal.log( getPrincipal(), opRevision, ldif );
         }
@@ -297,7 +297,7 @@ public class JournalInterceptor extends BaseInterceptor
             ldif.setChangeType( ChangeType.ModDn );
             ldif.setDn( moveAndRenameContext.getDn() );
             ldif.setNewRdn( moveAndRenameContext.getNewRdn().getNormName() );
-            ldif.setDeleteOldRdn( moveAndRenameContext.getDelOldDn() );
+            ldif.setDeleteOldRdn( moveAndRenameContext.getDeleteOldRdn() );
             ldif.setNewSuperior( moveAndRenameContext.getNewDn().getNormName() );
             
             journal.log( getPrincipal(), opRevision, ldif );
