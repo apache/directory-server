@@ -858,17 +858,17 @@ public class InterceptorChain
     }
 
 
-    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Element entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
-        opContext.setOriginalEntry( getOriginalEntry( opContext ) );
-        opContext.setModifiedEntry( opContext.getOriginalEntry().clone() );
+        moveAndRenameContext.setOriginalEntry( getOriginalEntry( moveAndRenameContext ) );
+        moveAndRenameContext.setModifiedEntry( moveAndRenameContext.getOriginalEntry().clone() );
 
         try
         {
-            head.moveAndRename( next, opContext );
+            head.moveAndRename( next, moveAndRenameContext );
         }
         catch ( LdapException le )
         {

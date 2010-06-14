@@ -116,7 +116,7 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#moveAndRename( NextInterceptor, MoveAndRenameOperationContext )}.
      */
-    void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException;
+    void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException;
 
 
     /**

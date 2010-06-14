@@ -157,10 +157,10 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext )
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
         throws LdapException
     {
-        next.moveAndRename( opContext );
+        next.moveAndRename( moveAndRenameContext );
     }
 
 
