@@ -305,7 +305,7 @@ public class NullPartition extends AbstractPartition
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#moveAndRename(org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext)
      */
-    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
     }
 

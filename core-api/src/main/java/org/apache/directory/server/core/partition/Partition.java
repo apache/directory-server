@@ -259,11 +259,11 @@ public interface Partition
      * namespace this parameters is ignored.  An example of a namespace where
      * this parameter is significant is the LDAP namespace.
      *
-     * @param opContext The context contain all the information about
+     * @param moveAndRenameContext The context contain all the information about
      * the modifyDN operation
      * @throws Exception if there are any problems
      */
-    void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException;
+    void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException;
 
 
     /**
