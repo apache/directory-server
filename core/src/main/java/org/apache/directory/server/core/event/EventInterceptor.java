@@ -247,7 +247,7 @@ public class EventInterceptor extends BaseInterceptor
             return;
         }
 
-        moveAndRenameContext.setModifiedEntry( ( ClonedServerEntry ) moveAndRenameContext.lookup( moveAndRenameContext.getNewDn(),
+        moveAndRenameContext.setModifiedEntry( moveAndRenameContext.lookup( moveAndRenameContext.getNewDn(),
             ByPassConstants.LOOKUP_BYPASS ) );
 
         for ( final RegistrationEntry registration : selecting )
