@@ -25,7 +25,6 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.codec.MessageTypeEnum;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl;
-import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
@@ -45,14 +44,10 @@ public class RenameOperationContext extends AbstractChangeOperationContext
     private RDN newRdn;
 
     /** Cached copy of the new DN */
-    private DN newDn;
+    protected DN newDn;
 
     /** The flag to remove the old RDN Attribute  */
     private boolean deleteOldRdn;
-
-    /** The entry after being renamed and altered for rdn attributes */ 
-    private ClonedServerEntry alteredEntry;
-    
 
     /**
      * Creates a new instance of RenameOperationContext.
@@ -112,16 +107,6 @@ public class RenameOperationContext extends AbstractChangeOperationContext
 
 
     /**
-     * Set the flag to delete the old RDN
-     * @param deleteOldRdn the flag to set
-     */
-    public void setDelOldDn( boolean deleteOldRdn ) 
-    {
-        this.deleteOldRdn = deleteOldRdn;
-    }
-
-
-    /**
      * @return The new DN either computed if null or already computed
      */
     public DN getNewDn()
@@ -136,16 +121,6 @@ public class RenameOperationContext extends AbstractChangeOperationContext
     public RDN getNewRdn()
     {
         return newRdn;
-    }
-
-
-    /**
-     * Set the new RDN
-     * @param newRdn The new RDN
-     */
-    public void setNewRdn( RDN newRdn )
-    {
-        this.newRdn = newRdn;
     }
 
 
@@ -165,30 +140,6 @@ public class RenameOperationContext extends AbstractChangeOperationContext
     public String getName()
     {
         return MessageTypeEnum.MODIFYDN_REQUEST.name();
-    }
-    
-    
-    /**
-     * Returns the entry after it has been renamed and potentially changed for 
-     * RDN alterations.
-     *
-     * @return the new renamed entry
-     */
-    public ClonedServerEntry getAlteredEntry()
-    {
-        return alteredEntry;
-    }
-
-    
-    /**
-     * Set the modified entry once the operation has been proceced
-     * on the backend.
-     *
-     * @param alteredEntry The modified entry
-     */
-    public void setAlteredEntry( ClonedServerEntry alteredEntry ) 
-    {
-        this.alteredEntry = alteredEntry;
     }
     
     
