@@ -156,10 +156,10 @@ public class MockInterceptor implements Interceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws LdapException
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         interceptors.add( this );
-        next.moveAndRename( opContext );
+        next.moveAndRename( moveAndRenameContext );
     }
 
 

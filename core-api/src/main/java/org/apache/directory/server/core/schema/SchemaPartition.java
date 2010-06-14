@@ -384,13 +384,13 @@ public final class SchemaPartition extends AbstractPartition
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#moveAndRename(org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext)
      */
-    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
-        boolean cascade = opContext.hasRequestControl( CascadeControl.CONTROL_OID );
-        Entry entry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
-        synchronizer.moveAndRename( opContext, entry, cascade );
-        wrapped.moveAndRename( opContext );
-        updateSchemaModificationAttributes( opContext );
+        boolean cascade = moveAndRenameContext.hasRequestControl( CascadeControl.CONTROL_OID );
+        Entry entry = moveAndRenameContext.lookup( moveAndRenameContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
+        synchronizer.moveAndRename( moveAndRenameContext, entry, cascade );
+        wrapped.moveAndRename( moveAndRenameContext );
+        updateSchemaModificationAttributes( moveAndRenameContext );
     }
 
 

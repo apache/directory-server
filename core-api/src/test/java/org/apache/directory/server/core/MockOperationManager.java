@@ -96,7 +96,7 @@ public class MockOperationManager implements OperationManager
     {
     }
 
-    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
     }
 
