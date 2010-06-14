@@ -872,12 +872,12 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws LdapException
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
-        DN oriChildName = opContext.getDn();
-        DN parent = opContext.getNewSuperior();
+        DN oriChildName = moveAndRenameContext.getDn();
+        DN parent = moveAndRenameContext.getNewSuperior();
 
-        Entry entry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
+        Entry entry = moveAndRenameContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
 
         EntryAttribute objectClasses = entry.get( objectClassType );
 
@@ -892,11 +892,11 @@ public class SubentryInterceptor extends BaseInterceptor
             DN newName = ( DN ) parent.clone();
             newName.remove( newName.size() - 1 );
 
-            newName.add( opContext.getNewRdn() );
+            newName.add( moveAndRenameContext.getNewRdn() );
 
             String newNormName = newName.getNormName();
             subentryCache.setSubentry( newNormName, ss, subentry.getTypes() );
-            next.moveAndRename( opContext );
+            next.moveAndRename( moveAndRenameContext );
 
             subentry = subentryCache.getSubentry( newNormName );
 
@@ -907,7 +907,7 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
 
-            SearchOperationContext searchOperationContext = new SearchOperationContext( opContext.getSession(), baseDn,
+            SearchOperationContext searchOperationContext = new SearchOperationContext( moveAndRenameContext.getSession(), baseDn,
                 filter, controls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
 
@@ -923,7 +923,7 @@ public class SubentryInterceptor extends BaseInterceptor
     
                     if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                     {
-                        nexus.modify( new ModifyOperationContext( opContext.getSession(), dn, getOperationalModsForReplace(
+                        nexus.modify( new ModifyOperationContext( moveAndRenameContext.getSession(), dn, getOperationalModsForReplace(
                             oriChildName, newName, subentry, candidate ) ) );
                     }
                 }
@@ -937,25 +937,25 @@ public class SubentryInterceptor extends BaseInterceptor
         }
         else
         {
-            if ( hasAdministrativeDescendant( opContext, oriChildName ) )
+            if ( hasAdministrativeDescendant( moveAndRenameContext, oriChildName ) )
             {
                 String msg = I18n.err( I18n.ERR_308 );
                 LOG.warn( msg );
                 throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
             }
 
-            next.moveAndRename( opContext );
+            next.moveAndRename( moveAndRenameContext );
 
             // calculate the new DN now for use below to modify subentry operational
             // attributes contained within this regular entry with name changes
             DN newName = ( DN ) parent.clone();
-            newName.add( opContext.getNewRdn() );
+            newName.add( moveAndRenameContext.getNewRdn() );
             newName.normalize( schemaManager.getNormalizerMapping() );
             List<Modification> mods = getModsOnEntryRdnChange( oriChildName, newName, entry );
 
             if ( mods.size() > 0 )
             {
-                nexus.modify( new ModifyOperationContext( opContext.getSession(), newName, mods ) );
+                nexus.modify( new ModifyOperationContext( moveAndRenameContext.getSession(), newName, mods ) );
             }
         }
     }

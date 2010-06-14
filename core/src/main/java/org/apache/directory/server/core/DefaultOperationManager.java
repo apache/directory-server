@@ -749,18 +749,18 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
-        LOG.debug( ">> MoveAndRenameOperation : {}", opContext );
-        LOG_CHANGES.debug( ">> MoveAndRenameOperation : {}", opContext );
+        LOG.debug( ">> MoveAndRenameOperation : {}", moveAndRenameContext );
+        LOG_CHANGES.debug( ">> MoveAndRenameOperation : {}", moveAndRenameContext );
 
         ensureStarted();
-        push( opContext );
+        push( moveAndRenameContext );
 
         try
         {
             // Normalize the opContext DN
-            DN dn = opContext.getDn();
+            DN dn = moveAndRenameContext.getDn();
             dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // We have to deal with the referral first
@@ -778,7 +778,7 @@ public class DefaultOperationManager implements OperationManager
                 {
                     // This is a referral. We can delete it if the ManageDsaIt flag is true
                     // Otherwise, we just throw a LdapReferralException
-                    if ( !opContext.isReferralIgnored() )
+                    if ( !moveAndRenameContext.isReferralIgnored() )
                     {
                         // Throw a Referral Exception
                         // Unlock the referral manager
@@ -794,7 +794,7 @@ public class DefaultOperationManager implements OperationManager
 
                     // Depending on the Context.REFERRAL property value, we will throw
                     // a different exception.
-                    if ( opContext.isReferralIgnored() )
+                    if ( moveAndRenameContext.isReferralIgnored() )
                     {
                         directoryService.getReferralManager().unlock();
 
@@ -814,7 +814,7 @@ public class DefaultOperationManager implements OperationManager
 
             // Now, check the destination
             // Normalize the opContext DN
-            DN newSuperiorDn = opContext.getNewSuperior();
+            DN newSuperiorDn = moveAndRenameContext.getNewSuperior();
             newSuperiorDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // If he parent DN is a referral, or has a referral ancestor, we have to issue a AffectMultipleDsas result
@@ -838,7 +838,7 @@ public class DefaultOperationManager implements OperationManager
 
             // Call the Add method
             InterceptorChain interceptorChain = directoryService.getInterceptorChain();
-            interceptorChain.moveAndRename( opContext );
+            interceptorChain.moveAndRename( moveAndRenameContext );
         }
         finally
         {

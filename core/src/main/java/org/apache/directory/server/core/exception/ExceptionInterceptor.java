@@ -407,11 +407,11 @@ public class ExceptionInterceptor extends BaseInterceptor
      * Checks to see the entry being moved exists, and so does its parent, otherwise throws the appropriate
      * LdapException.
      */
-    public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext opContext )
+    public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext moveAndRenameContext )
         throws LdapException
     {
-        DN oriChildName = opContext.getDn();
-        DN parent = opContext.getNewSuperior();
+        DN oriChildName = moveAndRenameContext.getDn();
+        DN parent = moveAndRenameContext.getNewSuperior();
 
         if ( oriChildName.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
         {
@@ -421,21 +421,21 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         // check if child to move exists
         String msg = "Attempt to move to non-existant parent: ";
-        assertHasEntry( opContext, msg, oriChildName );
+        assertHasEntry( moveAndRenameContext, msg, oriChildName );
 
         // check if parent to move to exists
         msg = "Attempt to move to non-existant parent: ";
-        assertHasEntry( opContext, msg, parent );
+        assertHasEntry( moveAndRenameContext, msg, parent );
 
         // check to see if target entry exists
         DN target = ( DN ) parent.clone();
-        target.add( opContext.getNewRdn() );
+        target.add( moveAndRenameContext.getNewRdn() );
 
-        if ( nextInterceptor.hasEntry( new EntryOperationContext( opContext.getSession(), target ) ) )
+        if ( nextInterceptor.hasEntry( new EntryOperationContext( moveAndRenameContext.getSession(), target ) ) )
         {
             // we must calculate the resolved name using the user provided Rdn value
             DN upTarget = ( DN ) parent.clone();
-            upTarget.add( opContext.getNewRdn() );
+            upTarget.add( moveAndRenameContext.getNewRdn() );
 
             LdapEntryAlreadyExistsException e;
             e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_257, upTarget.getName() ) );
@@ -452,7 +452,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             }
         }
 
-        nextInterceptor.moveAndRename( opContext );
+        nextInterceptor.moveAndRename( moveAndRenameContext );
     }
 
 

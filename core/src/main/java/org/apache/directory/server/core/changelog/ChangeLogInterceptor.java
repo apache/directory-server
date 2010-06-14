@@ -322,42 +322,42 @@ public class ChangeLogInterceptor extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opCtx )
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
         throws LdapException
     {
         Entry serverEntry = null;
         
-        if ( changeLog.isEnabled() && opCtx.isFirstOperation() )
+        if ( changeLog.isEnabled() && moveAndRenameContext.isFirstOperation() )
         {
             // @todo make sure we're not putting in operational attributes that cannot be user modified
-            serverEntry = opCtx.lookup( opCtx.getDn(), ByPassConstants.LOOKUP_BYPASS );
+            serverEntry = moveAndRenameContext.lookup( moveAndRenameContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
         }
 
-        next.moveAndRename( opCtx );
+        next.moveAndRename( moveAndRenameContext );
 
-        if ( ! changeLog.isEnabled() || ! opCtx.isFirstOperation() )
+        if ( ! changeLog.isEnabled() || ! moveAndRenameContext.isFirstOperation() )
         {
             return;
         }
 
         LdifEntry forward = new LdifEntry();
         forward.setChangeType( ChangeType.ModDn );
-        forward.setDn( opCtx.getDn() );
-        forward.setDeleteOldRdn( opCtx.getDelOldDn() );
-        forward.setNewRdn( opCtx.getNewRdn().getName() );
-        forward.setNewSuperior( opCtx.getNewSuperior().getName() );
+        forward.setDn( moveAndRenameContext.getDn() );
+        forward.setDeleteOldRdn( moveAndRenameContext.getDelOldDn() );
+        forward.setNewRdn( moveAndRenameContext.getNewRdn().getName() );
+        forward.setNewSuperior( moveAndRenameContext.getNewSuperior().getName() );
         
         List<LdifEntry> reverses = LdifRevertor.reverseMoveAndRename(  
-            serverEntry, opCtx.getNewSuperior(), new RDN( opCtx.getNewRdn() ), false );
+            serverEntry, moveAndRenameContext.getNewSuperior(), new RDN( moveAndRenameContext.getNewRdn() ), false );
         
-        if ( opCtx.isReferralIgnored() )
+        if ( moveAndRenameContext.isReferralIgnored() )
         {
             forward.addControl( new ManageDsaITControl() );
             LdifEntry reversedEntry = reverses.get( 0 );
             reversedEntry.addControl( new ManageDsaITControl() );
         }
         
-        opCtx.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverses ) );
+        moveAndRenameContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverses ) );
     }
 
 

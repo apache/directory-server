@@ -404,22 +404,22 @@ public class TriggerInterceptor extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws LdapException
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
-        DN oriChildName = opContext.getDn();
-        DN parent = opContext.getNewSuperior();
-        RDN newRdn = opContext.getNewRdn();
-        boolean deleteOldRn = opContext.getDelOldDn();
+        DN oriChildName = moveAndRenameContext.getDn();
+        DN parent = moveAndRenameContext.getNewSuperior();
+        RDN newRdn = moveAndRenameContext.getNewRdn();
+        boolean deleteOldRn = moveAndRenameContext.getDelOldDn();
 
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
         {
-            next.moveAndRename( opContext );
+            next.moveAndRename( moveAndRenameContext );
             return;
         }
 
         // Gather supplementary data.        
-        Entry movedEntry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
+        Entry movedEntry = moveAndRenameContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
 
         RDN oldRDN = oriChildName.getRdn();
         DN oldSuperiorDN = ( DN ) oriChildName.clone();
@@ -429,12 +429,12 @@ public class TriggerInterceptor extends BaseInterceptor
         DN newDN = ( DN ) parent.clone();
         newDN.add( newRdn.getName() );
 
-        StoredProcedureParameterInjector injector = new ModifyDNStoredProcedureParameterInjector( opContext,
+        StoredProcedureParameterInjector injector = new ModifyDNStoredProcedureParameterInjector( moveAndRenameContext,
             deleteOldRn, oldRDN, newRdn, oldSuperiorDN, newSuperiorDN, oldDN, newDN );
 
         // Gather Trigger Specifications which apply to the entry being exported.
         List<TriggerSpecification> exportTriggerSpecs = new ArrayList<TriggerSpecification>();
-        addPrescriptiveTriggerSpecs( opContext, exportTriggerSpecs, oriChildName, movedEntry );
+        addPrescriptiveTriggerSpecs( moveAndRenameContext, exportTriggerSpecs, oriChildName, movedEntry );
         addEntryTriggerSpecs( exportTriggerSpecs, movedEntry );
 
         // Get the entry again without operational attributes
@@ -442,7 +442,7 @@ public class TriggerInterceptor extends BaseInterceptor
         // will not be valid at the new location.
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
-        Entry importedEntry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        Entry importedEntry = moveAndRenameContext.lookup( oriChildName, ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
 
         // As the target entry does not exist yet and so
         // its subentry operational attributes are not there,
@@ -461,7 +461,7 @@ public class TriggerInterceptor extends BaseInterceptor
         // Gather Trigger Specifications which apply to the entry being imported.
         // Note: Entry Trigger Specifications are not valid for Import.
         List<TriggerSpecification> importTriggerSpecs = new ArrayList<TriggerSpecification>();
-        addPrescriptiveTriggerSpecs( opContext, importTriggerSpecs, newDN, fakeImportedEntry );
+        addPrescriptiveTriggerSpecs( moveAndRenameContext, importTriggerSpecs, newDN, fakeImportedEntry );
 
         Map<ActionTime, List<TriggerSpecification>> exportTriggerMap = getActionTimeMappedTriggerSpecsForOperation(
             exportTriggerSpecs, LdapOperation.MODIFYDN_EXPORT );
@@ -469,14 +469,14 @@ public class TriggerInterceptor extends BaseInterceptor
         Map<ActionTime, List<TriggerSpecification>> importTriggerMap = getActionTimeMappedTriggerSpecsForOperation(
             importTriggerSpecs, LdapOperation.MODIFYDN_IMPORT );
 
-        next.moveAndRename( opContext );
+        next.moveAndRename( moveAndRenameContext );
         triggerSpecCache.subentryRenamed( oldDN, newDN );
 
         // Fire AFTER Triggers.
         List<TriggerSpecification> afterExportTriggerSpecs = exportTriggerMap.get( ActionTime.AFTER );
         List<TriggerSpecification> afterImportTriggerSpecs = importTriggerMap.get( ActionTime.AFTER );
-        executeTriggers( opContext, afterExportTriggerSpecs, injector );
-        executeTriggers( opContext, afterImportTriggerSpecs, injector );
+        executeTriggers( moveAndRenameContext, afterExportTriggerSpecs, injector );
+        executeTriggers( moveAndRenameContext, afterImportTriggerSpecs, injector );
     }
 
 

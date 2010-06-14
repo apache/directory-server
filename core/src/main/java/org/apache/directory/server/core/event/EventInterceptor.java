@@ -236,18 +236,18 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, final MoveAndRenameOperationContext opContext ) throws LdapException
+    public void moveAndRename( NextInterceptor next, final MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
-        Entry oriEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
-        List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), oriEntry );
-        next.moveAndRename( opContext );
+        Entry oriEntry = moveAndRenameContext.lookup( moveAndRenameContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
+        List<RegistrationEntry> selecting = getSelectingRegistrations( moveAndRenameContext.getDn(), oriEntry );
+        next.moveAndRename( moveAndRenameContext );
 
         if ( selecting.isEmpty() )
         {
             return;
         }
 
-        opContext.setAlteredEntry( ( ClonedServerEntry ) opContext.lookup( opContext.getNewDn(),
+        moveAndRenameContext.setAlteredEntry( ( ClonedServerEntry ) moveAndRenameContext.lookup( moveAndRenameContext.getNewDn(),
             ByPassConstants.LOOKUP_BYPASS ) );
 
         for ( final RegistrationEntry registration : selecting )
@@ -258,7 +258,7 @@ public class EventInterceptor extends BaseInterceptor
                 {
                     public void run()
                     {
-                        registration.getListener().entryMovedAndRenamed( opContext );
+                        registration.getListener().entryMovedAndRenamed( moveAndRenameContext );
                     }
                 } );
             }

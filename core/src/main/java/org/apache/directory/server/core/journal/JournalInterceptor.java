@@ -283,7 +283,7 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext )
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
         throws LdapException
     {
         long opRevision = 0;
@@ -295,17 +295,17 @@ public class JournalInterceptor extends BaseInterceptor
             // Store the renamed entry
             LdifEntry ldif = new LdifEntry();
             ldif.setChangeType( ChangeType.ModDn );
-            ldif.setDn( opContext.getDn() );
-            ldif.setNewRdn( opContext.getNewRdn().getNormName() );
-            ldif.setDeleteOldRdn( opContext.getDelOldDn() );
-            ldif.setNewSuperior( opContext.getNewDn().getNormName() );
+            ldif.setDn( moveAndRenameContext.getDn() );
+            ldif.setNewRdn( moveAndRenameContext.getNewRdn().getNormName() );
+            ldif.setDeleteOldRdn( moveAndRenameContext.getDelOldDn() );
+            ldif.setNewSuperior( moveAndRenameContext.getNewDn().getNormName() );
             
             journal.log( getPrincipal(), opRevision, ldif );
         }
         
         try
         {
-            next.moveAndRename( opContext );
+            next.moveAndRename( moveAndRenameContext );
             
             if ( journalEnabled )
             {

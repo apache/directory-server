@@ -700,10 +700,10 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#moveAndRename(org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext)
      */
-    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
-        Partition backend = getPartition( opContext.getDn() );
-        backend.moveAndRename( opContext );
+        Partition backend = getPartition( moveAndRenameContext.getDn() );
+        backend.moveAndRename( moveAndRenameContext );
     }
 
 

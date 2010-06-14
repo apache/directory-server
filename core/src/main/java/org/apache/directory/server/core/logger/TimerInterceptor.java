@@ -459,10 +459,10 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws LdapException
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        next.moveAndRename( opContext );
+        next.moveAndRename( moveAndRenameContext );
         long delta = System.nanoTime() - t0;
         
         if ( IS_DEBUG_STATS )
