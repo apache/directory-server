@@ -161,9 +161,9 @@ public class InterceptorChain
         }
 
 
-        public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws LdapException
+        public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
         {
-            nexus.moveAndRename( opContext );
+            nexus.moveAndRename( moveAndRenameContext );
         }
 
 
@@ -1172,14 +1172,14 @@ public class InterceptorChain
                 }
 
 
-                public void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException
+                public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
                 {
                     Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
 
                     try
                     {
-                        interceptor.moveAndRename( next.nextInterceptor, opContext );
+                        interceptor.moveAndRename( next.nextInterceptor, moveAndRenameContext );
                     }
                     catch ( LdapException le )
                     {
