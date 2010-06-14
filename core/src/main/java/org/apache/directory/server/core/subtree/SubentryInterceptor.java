@@ -877,7 +877,7 @@ public class SubentryInterceptor extends BaseInterceptor
         DN oriChildName = moveAndRenameContext.getDn();
         DN parent = moveAndRenameContext.getNewSuperiorDn();
 
-        Entry entry = moveAndRenameContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
+        Entry entry = moveAndRenameContext.getOriginalEntry();
 
         EntryAttribute objectClasses = entry.get( objectClassType );
 

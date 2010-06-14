@@ -330,7 +330,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         if ( changeLog.isEnabled() && moveAndRenameContext.isFirstOperation() )
         {
             // @todo make sure we're not putting in operational attributes that cannot be user modified
-            serverEntry = moveAndRenameContext.lookup( moveAndRenameContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
+            serverEntry = moveAndRenameContext.getOriginalEntry();
         }
 
         next.moveAndRename( moveAndRenameContext );

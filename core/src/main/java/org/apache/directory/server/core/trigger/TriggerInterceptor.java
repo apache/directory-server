@@ -419,7 +419,7 @@ public class TriggerInterceptor extends BaseInterceptor
         }
 
         // Gather supplementary data.        
-        Entry movedEntry = moveAndRenameContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
+        Entry movedEntry = moveAndRenameContext.getOriginalEntry();
 
         RDN oldRDN = oriChildName.getRdn();
         DN oldSuperiorDN = ( DN ) oriChildName.clone();

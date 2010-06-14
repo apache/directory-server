@@ -834,7 +834,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         DN oriChildName = moveAndRenameContext.getDn();
         DN newParentName = moveAndRenameContext.getNewSuperiorDn();
 
-        Entry entry = moveAndRenameContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
+        Entry entry = moveAndRenameContext.getOriginalEntry();
 
         LdapPrincipal principal = moveAndRenameContext.getSession().getEffectivePrincipal();
         DN principalDn = principal.getDN();
