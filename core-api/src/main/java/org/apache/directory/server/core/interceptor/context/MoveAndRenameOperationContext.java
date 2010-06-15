@@ -61,6 +61,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
     {
         super( session, oldDn, newRdn, delOldRdn );
         this.newSuperiorDn = newSuperiorDn;
+        newDn = ((DN)newSuperiorDn.clone()).add( newRdn );
     }
 
 
@@ -84,8 +85,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
             throwReferral();
         }
         
-        newDn = (DN)newSuperiorDn.clone();
-        newDn.add( getNewRdn() );
+        newDn = ((DN)newSuperiorDn.clone()).add(newRdn);
         
         try
         {

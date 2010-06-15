@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.name.RDN;
 public class RenameOperationContext extends AbstractChangeOperationContext
 {
     /** The new RDN */
-    private RDN newRdn;
+    protected RDN newRdn;
 
     /** Cached copy of the new DN */
     protected DN newDn;
