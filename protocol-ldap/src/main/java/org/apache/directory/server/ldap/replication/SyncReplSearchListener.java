@@ -318,10 +318,10 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
             if ( pushInRealTime )
             {
-                Entry alteredEntry = opContext.getModifiedEntry();
+                Entry alteredEntry = opContext.getAlteredEntry();
                 
                 InternalSearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
-                respEntry.setObjectName( opContext.getModifiedEntry().getDn() );
+                respEntry.setObjectName( opContext.getAlteredEntry().getDn() );
                 respEntry.setEntry( alteredEntry );
 
                 SyncStateValueControl syncModify = new SyncStateValueControl();
@@ -372,13 +372,13 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 syncModify.setSyncStateType( SyncStateTypeEnum.MODDN );
                 syncModify.setEntryUUID( StringTools.uuidToBytes( entry.get(
                     SchemaConstants.ENTRY_UUID_AT ).getString() ) );
-                syncModify.setCookie( getCookie( opContext.getModifiedEntry() ) );
+                syncModify.setCookie( getCookie( opContext.getAlteredEntry() ) );
                 respEntry.add( syncModify );
                 respEntry.add( modDnControl );
                 
                 WriteFuture future = session.getIoSession().write( respEntry );
                 
-                handleWriteFuture( future, opContext.getModifiedEntry(), null, modDnControl );
+                handleWriteFuture( future, opContext.getAlteredEntry(), null, modDnControl );
             }
             else
             {

@@ -224,7 +224,7 @@ public class EventInterceptor extends BaseInterceptor
 
         // Get the modifed entry
         Entry alteredEntry = opContext.lookup( opContext.getNewDn(), ByPassConstants.LOOKUP_BYPASS );
-        opContext.setModifiedEntry( ( ClonedServerEntry ) alteredEntry );
+        opContext.setAlteredEntry( ( ClonedServerEntry ) alteredEntry );
 
         for ( final RegistrationEntry registration : selecting )
         {
@@ -247,7 +247,7 @@ public class EventInterceptor extends BaseInterceptor
             return;
         }
 
-        moveAndRenameContext.setModifiedEntry( moveAndRenameContext.lookup( moveAndRenameContext.getNewDn(),
+        moveAndRenameContext.setAlteredEntry( ( ClonedServerEntry ) moveAndRenameContext.lookup( moveAndRenameContext.getNewDn(),
             ByPassConstants.LOOKUP_BYPASS ) );
 
         for ( final RegistrationEntry registration : selecting )

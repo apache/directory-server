@@ -40,6 +40,9 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
     /** The new superior DN */
     private DN newSuperiorDn;
 
+    /** Cached calculated new DN after move and rename */
+    private DN newDn;
+
     /**
      * Creates a new instance of MoveAndRenameOperationContext.
      */
@@ -119,6 +122,18 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
     }
 
     
+    /**
+     * Gets cached copy of already computed new name or creates it if not 
+     *
+     * @return the normalized new name after move and rename
+     * @throws Exception if the name cannot be normalized
+     */
+    public DN getNewDn()
+    {
+        return newDn;
+    }
+    
+
     /**
      * @see Object#toString()
      */

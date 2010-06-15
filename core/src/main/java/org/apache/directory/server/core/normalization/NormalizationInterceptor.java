@@ -213,8 +213,10 @@ public class NormalizationInterceptor extends BaseInterceptor
     public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext moveAndRenameContext )
         throws LdapException
     {
-        RDN rdn = moveAndRenameContext.getNewRdn();
+        DN rdn = new DN();
+        rdn.add( moveAndRenameContext.getNewRdn() );
         rdn.normalize( schemaManager.getNormalizerMapping() );
+        moveAndRenameContext.setNewRdn( rdn.getRdn() );
 
         if ( !moveAndRenameContext.getDn().isNormalized() )
         {

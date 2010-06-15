@@ -363,7 +363,7 @@ public class LdifPartition extends BTreePartition<Long>
 
         // Get the modified entry and store it in the context for post usage
         ClonedServerEntry modifiedEntry = lookup( id );
-        moveAndRenameContext.setModifiedEntry( modifiedEntry );
+        moveAndRenameContext.setAlteredEntry( modifiedEntry );
 
         entryMoved( oldDn, modifiedEntry, id );
     }
@@ -383,7 +383,7 @@ public class LdifPartition extends BTreePartition<Long>
 
         // Get the modified entry and store it in the context for post usage
         ClonedServerEntry modifiedEntry = lookup( id );
-        renameContext.setModifiedEntry( modifiedEntry );
+        renameContext.setAlteredEntry( modifiedEntry );
 
         // Now move the potential children for the old entry
         // and remove the old entry
