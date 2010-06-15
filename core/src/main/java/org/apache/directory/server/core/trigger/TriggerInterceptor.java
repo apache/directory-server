@@ -406,8 +406,8 @@ public class TriggerInterceptor extends BaseInterceptor
 
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
-        DN oriChildName = moveAndRenameContext.getDn();
-        DN parent = moveAndRenameContext.getNewSuperiorDn();
+        DN oldDn = moveAndRenameContext.getDn();
+        DN newSuperiorDn = moveAndRenameContext.getNewSuperiorDn();
         RDN newRdn = moveAndRenameContext.getNewRdn();
         boolean deleteOldRn = moveAndRenameContext.getDeleteOldRdn();
 
@@ -421,20 +421,18 @@ public class TriggerInterceptor extends BaseInterceptor
         // Gather supplementary data.        
         Entry movedEntry = moveAndRenameContext.getOriginalEntry();
 
-        RDN oldRDN = oriChildName.getRdn();
-        DN oldSuperiorDN = ( DN ) oriChildName.clone();
+        RDN oldRDN = oldDn.getRdn();
+        DN oldSuperiorDN = ( DN ) oldDn.clone();
         oldSuperiorDN.remove( oldSuperiorDN.size() - 1 );
-        DN newSuperiorDN = parent;
-        DN oldDN = oriChildName;
-        DN newDN = ( DN ) parent.clone();
-        newDN.add( newRdn.getName() );
+        DN oldDN = oldDn;
+        DN newDN = moveAndRenameContext.getNewDn();
 
         StoredProcedureParameterInjector injector = new ModifyDNStoredProcedureParameterInjector( moveAndRenameContext,
-            deleteOldRn, oldRDN, newRdn, oldSuperiorDN, newSuperiorDN, oldDN, newDN );
+            deleteOldRn, oldRDN, newRdn, oldSuperiorDN, newSuperiorDn, oldDN, newDN );
 
         // Gather Trigger Specifications which apply to the entry being exported.
         List<TriggerSpecification> exportTriggerSpecs = new ArrayList<TriggerSpecification>();
-        addPrescriptiveTriggerSpecs( moveAndRenameContext, exportTriggerSpecs, oriChildName, movedEntry );
+        addPrescriptiveTriggerSpecs( moveAndRenameContext, exportTriggerSpecs, oldDn, movedEntry );
         addEntryTriggerSpecs( exportTriggerSpecs, movedEntry );
 
         // Get the entry again without operational attributes
@@ -442,7 +440,7 @@ public class TriggerInterceptor extends BaseInterceptor
         // will not be valid at the new location.
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
-        Entry importedEntry = moveAndRenameContext.lookup( oriChildName, ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        Entry importedEntry = moveAndRenameContext.lookup( oldDn, ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
 
         // As the target entry does not exist yet and so
         // its subentry operational attributes are not there,

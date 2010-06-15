@@ -247,8 +247,6 @@ public class EventInterceptor extends BaseInterceptor
             return;
         }
 
-        moveAndRenameContext.setModifiedEntry( moveAndRenameContext.lookup( moveAndRenameContext.getNewDn(), ByPassConstants.LOOKUP_BYPASS ) );
-
         for ( final RegistrationEntry registration : selecting )
         {
             if ( EventType.isMoveAndRename( registration.getCriteria().getEventMask() ) )
