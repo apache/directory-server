@@ -199,10 +199,10 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws LdapException
+    public boolean compare( NextInterceptor next, CompareOperationContext compareContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        boolean compare = next.compare( opContext );
+        boolean compare = next.compare( compareContext );
         long delta = System.nanoTime() - t0;
         
         if ( IS_DEBUG_STATS )

@@ -946,14 +946,14 @@ public class InterceptorChain
                 }
 
 
-                public boolean compare( CompareOperationContext opContext ) throws LdapException
+                public boolean compare( CompareOperationContext compareContext ) throws LdapException
                 {
                     Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
 
                     try
                     {
-                        return interceptor.compare( next.nextInterceptor, opContext );
+                        return interceptor.compare( next.nextInterceptor, compareContext );
                     }
                     catch ( LdapException le )
                     {

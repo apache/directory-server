@@ -51,7 +51,7 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#compare( NextInterceptor, CompareOperationContext )}.
      */
-    boolean compare( CompareOperationContext opContext ) throws LdapException;
+    boolean compare( CompareOperationContext compareContext ) throws LdapException;
 
 
     /**

@@ -1029,35 +1029,35 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public boolean compare( NextInterceptor next, CompareOperationContext copmpareContext ) throws LdapException
+    public boolean compare( NextInterceptor next, CompareOperationContext compareContext ) throws LdapException
     {
-        CoreSession session = copmpareContext.getSession();
-        DN dn = copmpareContext.getDn();
-        String oid = copmpareContext.getOid();
-        Value<?> value = copmpareContext.getValue();
+        CoreSession session = compareContext.getSession();
+        DN dn = compareContext.getDn();
+        String oid = compareContext.getOid();
+        Value<?> value = compareContext.getValue();
 
-        Entry entry = copmpareContext.getOriginalEntry();
+        Entry entry = compareContext.getOriginalEntry();
 
         LdapPrincipal principal = session.getEffectivePrincipal();
         DN principalDn = principal.getDN();
 
         if ( isPrincipalAnAdministrator( principalDn ) || !session.getDirectoryService().isAccessControlEnabled() )
         {
-            return next.compare( copmpareContext );
+            return next.compare( compareContext );
         }
 
         Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( copmpareContext, tuples, dn, entry );
+        addPerscriptiveAciTuples( compareContext, tuples, dn, entry );
         addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( copmpareContext, tuples, dn, entry );
+        addSubentryAciTuples( compareContext, tuples, dn, entry );
 
-        engine.checkPermission( schemaManager, copmpareContext, userGroups, principalDn, principal.getAuthenticationLevel(),
+        engine.checkPermission( schemaManager, compareContext, userGroups, principalDn, principal.getAuthenticationLevel(),
             dn, null, null, READ_PERMS, tuples, entry, null );
-        engine.checkPermission( schemaManager, copmpareContext, userGroups, principalDn, principal.getAuthenticationLevel(),
+        engine.checkPermission( schemaManager, compareContext, userGroups, principalDn, principal.getAuthenticationLevel(),
             dn, oid, value, COMPARE_PERMS, tuples, entry, null );
 
-        return next.compare( copmpareContext );
+        return next.compare( compareContext );
     }
 
 
