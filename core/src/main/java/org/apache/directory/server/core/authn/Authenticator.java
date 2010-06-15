@@ -83,5 +83,5 @@ public interface Authenticator
     /**
      * Performs authentication and returns the principal if succeeded.
      */
-    public LdapPrincipal authenticate( BindOperationContext opContext ) throws Exception;
+    public LdapPrincipal authenticate( BindOperationContext bindContext ) throws Exception;
 }

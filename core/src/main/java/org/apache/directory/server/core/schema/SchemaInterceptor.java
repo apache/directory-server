@@ -388,10 +388,10 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext )
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext listContext )
         throws LdapException
     {
-        EntryFilteringCursor cursor = nextInterceptor.list( opContext );
+        EntryFilteringCursor cursor = nextInterceptor.list( listContext );
         cursor.addEntryFilter( binaryAttributeFilter );
         return cursor;
     }
@@ -666,12 +666,12 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext )
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext )
         throws LdapException
     {
-        DN base = opContext.getDn();
-        SearchControls searchCtls = opContext.getSearchControls();
-        ExprNode filter = opContext.getFilter();
+        DN base = searchContext.getDn();
+        SearchControls searchCtls = searchContext.getSearchControls();
+        ExprNode filter = searchContext.getFilter();
 
         // We have to eliminate bad attributes from the request, accordingly
         // to RFC 2251, chap. 4.5.1. Basically, all unknown attributes are removed
@@ -689,7 +689,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Deal with the normal case : searching for a normal value (not subSchemaSubEntry)
         if ( !subschemaSubentryDnNorm.equals( baseNormForm ) )
         {
-            EntryFilteringCursor cursor = nextInterceptor.search( opContext );
+            EntryFilteringCursor cursor = nextInterceptor.search( searchContext );
 
             if ( searchCtls.getReturningAttributes() != null )
             {
@@ -728,7 +728,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 }
                 else
                 {
-                    return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), opContext );
+                    return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
                 }
 
                 String nodeOid = schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() );
@@ -741,11 +741,11 @@ public class SchemaInterceptor extends BaseInterceptor
                     // call.setBypass( true );
                     Entry serverEntry = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );
                     serverEntry.setDn( base );
-                    return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), opContext );
+                    return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext );
                 }
                 else
                 {
-                    return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), opContext );
+                    return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
                 }
             }
             else if ( filter instanceof PresenceNode )
@@ -759,23 +759,23 @@ public class SchemaInterceptor extends BaseInterceptor
                     Entry serverEntry = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );
                     serverEntry.setDn( base );
                     EntryFilteringCursor cursor = new BaseEntryFilteringCursor(
-                        new SingletonCursor<Entry>( serverEntry ), opContext );
+                        new SingletonCursor<Entry>( serverEntry ), searchContext );
                     return cursor;
                 }
             }
         }
 
         // In any case not handled previously, just return an empty result
-        return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), opContext );
+        return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
     }
 
 
     /**
      * Search for an entry, using its DN. Binary attributes and ObjectClass attribute are removed.
      */
-    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws LdapException
+    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws LdapException
     {
-        Entry result = nextInterceptor.lookup( opContext );
+        Entry result = nextInterceptor.lookup( lookupContext );
 
         if ( result == null )
         {
@@ -967,12 +967,12 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws LdapException
+    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
     {
-        DN oldDn = opContext.getDn();
-        RDN newRdn = opContext.getNewRdn();
-        boolean deleteOldRn = opContext.getDeleteOldRdn();
-        Entry entry = opContext.getEntry().getClonedEntry();
+        DN oldDn = renameContext.getDn();
+        RDN newRdn = renameContext.getNewRdn();
+        boolean deleteOldRn = renameContext.getDeleteOldRdn();
+        Entry entry = renameContext.getEntry().getClonedEntry();
 
         /*
          *  Note: This is only a consistency checks, to the ensure that all
@@ -1016,11 +1016,11 @@ public class SchemaInterceptor extends BaseInterceptor
         }
 
         // Substitute the RDN and check if the new entry is correct
-        entry.setDn( opContext.getNewDn() );
+        entry.setDn( renameContext.getNewDn() );
 
-        check( opContext.getNewDn(), entry );
+        check( renameContext.getNewDn(), entry );
 
-        next.rename( opContext );
+        next.rename( renameContext );
     }
 
 
@@ -1221,7 +1221,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws LdapException
+    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
     {
         // A modification on a simple entry will be done in three steps :
         // - get the original entry (it should already been in the context)
@@ -1238,15 +1238,15 @@ public class SchemaInterceptor extends BaseInterceptor
 
         // First, check that the entry is either a subschemaSubentry or a schema element.
         // This is the case if it's a child of cn=schema or ou=schema
-        DN dn = opContext.getDn();
+        DN dn = modifyContext.getDn();
 
         // Gets the stored entry on which the modification must be applied
         if ( dn.equals( subschemaSubentryDn ) )
         {
-            LOG.debug( "Modification attempt on schema subentry {}: \n{}", dn, opContext );
+            LOG.debug( "Modification attempt on schema subentry {}: \n{}", dn, modifyContext );
 
             // We can get rid of the modifiersName and modifyTimestamp, they are useless.
-            List<Modification> mods = opContext.getModItems();
+            List<Modification> mods = modifyContext.getModItems();
             List<Modification> cleanMods = new ArrayList<Modification>();
 
             for ( Modification mod : mods )
@@ -1259,20 +1259,20 @@ public class SchemaInterceptor extends BaseInterceptor
                 }
             }
 
-            opContext.setModItems( cleanMods );
+            modifyContext.setModItems( cleanMods );
 
             // Now that the entry has been modified, update the SSSE
-            schemaSubEntryManager.modifySchemaSubentry( opContext, opContext
+            schemaSubEntryManager.modifySchemaSubentry( modifyContext, modifyContext
                 .hasRequestControl( CascadeControl.CONTROL_OID ) );
 
             return;
         }
 
-        Entry entry = opContext.getEntry();
-        List<Modification> modifications = opContext.getModItems();
+        Entry entry = modifyContext.getEntry();
+        List<Modification> modifications = modifyContext.getModItems();
         checkModifyEntry( dn, entry, modifications );
 
-        next.modify( opContext );
+        next.modify( modifyContext );
     }
 
 
@@ -1316,7 +1316,6 @@ public class SchemaInterceptor extends BaseInterceptor
                         break;
                     }
                 }
-
             }
         }
     }

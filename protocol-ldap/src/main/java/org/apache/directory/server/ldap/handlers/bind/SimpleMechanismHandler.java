@@ -55,29 +55,29 @@ public class SimpleMechanismHandler implements MechanismHandler
     {
         // create a new Bind context, with a null session, as we don't have 
         // any context yet.
-        BindOperationContext opContext = new BindOperationContext( null );
+        BindOperationContext bindContext = new BindOperationContext( null );
         
         // Stores the DN of the user to check, and its password
-        opContext.setDn( bindRequest.getName() );
-        opContext.setCredentials( bindRequest.getCredentials() );
+        bindContext.setDn( bindRequest.getName() );
+        bindContext.setCredentials( bindRequest.getCredentials() );
 
         // Stores the request controls into the operation context
-        LdapProtocolUtils.setRequestControls( opContext, bindRequest );
+        LdapProtocolUtils.setRequestControls( bindContext, bindRequest );
         
         try
         {
             CoreSession adminSession = ldapSession.getLdapServer().getDirectoryService().getAdminSession();
 
             // And call the OperationManager bind operation.
-            adminSession.getDirectoryService().getOperationManager().bind( opContext );
+            adminSession.getDirectoryService().getOperationManager().bind( bindContext );
             
             // As a result, store the created session in the Core Session
-            ldapSession.setCoreSession( opContext.getSession() );
+            ldapSession.setCoreSession( bindContext.getSession() );
             
             // Return the successful response
             InternalBindResponse response = ( InternalBindResponse ) bindRequest.getResultResponse();
             response.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
-            LdapProtocolUtils.setResponseControls( opContext, response );
+            LdapProtocolUtils.setResponseControls( bindContext, response );
             
             // Write it back to the client
             ldapSession.getIoSession().write( response );

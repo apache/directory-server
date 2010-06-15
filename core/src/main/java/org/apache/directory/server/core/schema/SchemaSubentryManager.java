@@ -155,9 +155,9 @@ public class SchemaSubentryManager
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaChangeManager#modifySchemaSubentry(org.apache.directory.server.core.interceptor.context.ModifyOperationContext, org.apache.directory.server.core.entry.Entry, org.apache.directory.server.core.entry.Entry, boolean)
      */
-    public void modifySchemaSubentry( ModifyOperationContext opContext, boolean doCascadeModify ) throws LdapException 
+    public void modifySchemaSubentry( ModifyOperationContext modifyContext, boolean doCascadeModify ) throws LdapException 
     {
-        for ( Modification mod : opContext.getModItems() )
+        for ( Modification mod : modifyContext.getModItems() )
         {
             String opAttrOid = schemaManager.getAttributeTypeRegistry().getOidByName( mod.getAttribute().getId() );
             
@@ -166,11 +166,11 @@ public class SchemaSubentryManager
             switch ( mod.getOperation() )
             {
                 case ADD_ATTRIBUTE :
-                    modifyAddOperation( opContext, opAttrOid, serverAttribute, doCascadeModify );
+                    modifyAddOperation( modifyContext, opAttrOid, serverAttribute, doCascadeModify );
                     break;
                     
                 case REMOVE_ATTRIBUTE :
-                    modifyRemoveOperation( opContext, opAttrOid, serverAttribute );
+                    modifyRemoveOperation( modifyContext, opAttrOid, serverAttribute );
                     break; 
                     
                 case REPLACE_ATTRIBUTE :
@@ -187,7 +187,7 @@ public class SchemaSubentryManager
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaChangeManager#modifySchemaSubentry(org.apache.directory.server.core.interceptor.context.ModifyOperationContext, org.apache.directory.shared.ldap.name.DN, int, org.apache.directory.server.core.entry.Entry, org.apache.directory.server.core.entry.Entry, org.apache.directory.server.core.entry.Entry, boolean)
      */
-    public void modifySchemaSubentry( ModifyOperationContext opContext, DN name, int modOp, Entry mods, 
+    public void modifySchemaSubentry( ModifyOperationContext modifyContext, DN name, int modOp, Entry mods, 
         Entry subentry, Entry targetSubentry, boolean doCascadeModify ) throws Exception
     {
         Set<AttributeType> attributeTypes = mods.getAttributeTypes();
@@ -197,7 +197,7 @@ public class SchemaSubentryManager
             case( DirContext.ADD_ATTRIBUTE ):
                 for ( AttributeType attributeType:attributeTypes )
                 {
-                    modifyAddOperation( opContext, attributeType.getOid(), 
+                    modifyAddOperation( modifyContext, attributeType.getOid(), 
                         mods.get( attributeType ), doCascadeModify );
                 }
             
@@ -206,7 +206,7 @@ public class SchemaSubentryManager
             case( DirContext.REMOVE_ATTRIBUTE ):
                 for ( AttributeType attributeType:attributeTypes )
                 {
-                    modifyRemoveOperation( opContext, attributeType.getOid(), 
+                    modifyRemoveOperation( modifyContext, attributeType.getOid(), 
                         mods.get( attributeType ) );
                 }
             
@@ -231,7 +231,7 @@ public class SchemaSubentryManager
      * @throws Exception if there are problems updating the registries and the
      * schema partition
      */
-    private void modifyRemoveOperation( ModifyOperationContext opContext, String opAttrOid, 
+    private void modifyRemoveOperation( ModifyOperationContext modifyContext, String opAttrOid, 
         EntryAttribute mods ) throws LdapException
     {
         int index = opAttr2handlerIndex.get( opAttrOid );
@@ -243,7 +243,7 @@ public class SchemaSubentryManager
                 
                 for ( LdapComparatorDescription comparatorDescription : comparatorDescriptions )
                 {
-                    subentryModifier.delete( opContext, comparatorDescription );
+                    subentryModifier.delete( modifyContext, comparatorDescription );
                 }
                 break;
             case( NORMALIZER_INDEX ):
@@ -251,7 +251,7 @@ public class SchemaSubentryManager
                 
                 for ( NormalizerDescription normalizerDescription : normalizerDescriptions )
                 {
-                    subentryModifier.delete( opContext, normalizerDescription );
+                    subentryModifier.delete( modifyContext, normalizerDescription );
                 }
                 
                 break;
@@ -261,7 +261,7 @@ public class SchemaSubentryManager
                 
                 for ( SyntaxCheckerDescription syntaxCheckerDescription : syntaxCheckerDescriptions )
                 {
-                    subentryModifier.delete( opContext, syntaxCheckerDescription );
+                    subentryModifier.delete( modifyContext, syntaxCheckerDescription );
                 }
                 
                 break;
@@ -271,7 +271,7 @@ public class SchemaSubentryManager
                 
                 for ( LdapSyntax syntax : syntaxes )
                 {
-                    subentryModifier.deleteSchemaObject( opContext, syntax );
+                    subentryModifier.deleteSchemaObject( modifyContext, syntax );
                 }
                 
                 break;
@@ -281,7 +281,7 @@ public class SchemaSubentryManager
                 
                 for ( MatchingRule mr : mrs )
                 {
-                    subentryModifier.deleteSchemaObject( opContext, mr );
+                    subentryModifier.deleteSchemaObject( modifyContext, mr );
                 }
                 
                 break;
@@ -291,7 +291,7 @@ public class SchemaSubentryManager
                 
                 for ( AttributeType at : ats )
                 {
-                    subentryModifier.deleteSchemaObject( opContext, at );
+                    subentryModifier.deleteSchemaObject( modifyContext, at );
                 }
                 
                 break;
@@ -301,7 +301,7 @@ public class SchemaSubentryManager
 
                 for ( ObjectClass oc : ocs )
                 {
-                    subentryModifier.deleteSchemaObject( opContext, oc );
+                    subentryModifier.deleteSchemaObject( modifyContext, oc );
                 }
                 
                 break;
@@ -311,7 +311,7 @@ public class SchemaSubentryManager
                 
                 for ( MatchingRuleUse mru : mrus )
                 {
-                    subentryModifier.deleteSchemaObject( opContext, mru );
+                    subentryModifier.deleteSchemaObject( modifyContext, mru );
                 }
                 
                 break;
@@ -321,7 +321,7 @@ public class SchemaSubentryManager
                 
                 for ( DITStructureRule dsr : dsrs )
                 {
-                    subentryModifier.deleteSchemaObject( opContext, dsr );
+                    subentryModifier.deleteSchemaObject( modifyContext, dsr );
                 }
                 
                 break;
@@ -331,7 +331,7 @@ public class SchemaSubentryManager
                 
                 for ( DITContentRule dcr : dcrs )
                 {
-                    subentryModifier.deleteSchemaObject( opContext, dcr );
+                    subentryModifier.deleteSchemaObject( modifyContext, dcr );
                 }
                 
                 break;
@@ -341,7 +341,7 @@ public class SchemaSubentryManager
                 
                 for ( NameForm nf : nfs )
                 {
-                    subentryModifier.deleteSchemaObject( opContext, nf );
+                    subentryModifier.deleteSchemaObject( modifyContext, nf );
                 }
                 
                 break;
@@ -362,7 +362,7 @@ public class SchemaSubentryManager
      * @throws Exception if there are problems updating the registries and the
      * schema partition
      */
-    private void modifyAddOperation( ModifyOperationContext opContext, String opAttrOid, 
+    private void modifyAddOperation( ModifyOperationContext modifyContext, String opAttrOid, 
         EntryAttribute mods, boolean doCascadeModify ) throws LdapException
     {
         if ( doCascadeModify )
@@ -379,7 +379,7 @@ public class SchemaSubentryManager
                 
                 for ( LdapComparatorDescription comparatorDescription : comparatorDescriptions )
                 {
-                    subentryModifier.add( opContext, comparatorDescription );
+                    subentryModifier.add( modifyContext, comparatorDescription );
                 }
                 
                 break;
@@ -389,7 +389,7 @@ public class SchemaSubentryManager
                 
                 for ( NormalizerDescription normalizerDescription : normalizerDescriptions )
                 {
-                    subentryModifier.add( opContext, normalizerDescription );
+                    subentryModifier.add( modifyContext, normalizerDescription );
                 }
                 
                 break;
@@ -399,7 +399,7 @@ public class SchemaSubentryManager
                 
                 for ( SyntaxCheckerDescription syntaxCheckerDescription : syntaxCheckerDescriptions )
                 {
-                    subentryModifier.add( opContext, syntaxCheckerDescription );
+                    subentryModifier.add( modifyContext, syntaxCheckerDescription );
                 }
                 
                 break;
@@ -409,7 +409,7 @@ public class SchemaSubentryManager
                 
                 for ( LdapSyntax syntax : syntaxes )
                 {
-                    subentryModifier.addSchemaObject( opContext, syntax );
+                    subentryModifier.addSchemaObject( modifyContext, syntax );
                 }
                 
                 break;
@@ -419,7 +419,7 @@ public class SchemaSubentryManager
                 
                 for ( MatchingRule mr : mrs )
                 {
-                    subentryModifier.addSchemaObject( opContext, mr );
+                    subentryModifier.addSchemaObject( modifyContext, mr );
                 }
                 
                 break;
@@ -429,7 +429,7 @@ public class SchemaSubentryManager
                 
                 for ( AttributeType at : ats )
                 {
-                    subentryModifier.addSchemaObject( opContext, at );
+                    subentryModifier.addSchemaObject( modifyContext, at );
                 }
                 
                 break;
@@ -439,7 +439,7 @@ public class SchemaSubentryManager
 
                 for ( ObjectClass oc : ocs )
                 {
-                    subentryModifier.addSchemaObject( opContext, oc );
+                    subentryModifier.addSchemaObject( modifyContext, oc );
                 }
                 
                 break;
@@ -449,7 +449,7 @@ public class SchemaSubentryManager
                 
                 for ( MatchingRuleUse mru : mrus )
                 {
-                    subentryModifier.addSchemaObject( opContext, mru );
+                    subentryModifier.addSchemaObject( modifyContext, mru );
                 }
                 
                 break;
@@ -459,7 +459,7 @@ public class SchemaSubentryManager
                 
                 for ( DITStructureRule dsr : dsrs )
                 {
-                    subentryModifier.addSchemaObject( opContext, dsr );
+                    subentryModifier.addSchemaObject( modifyContext, dsr );
                 }
                 
                 break;
@@ -469,7 +469,7 @@ public class SchemaSubentryManager
                 
                 for ( DITContentRule dcr : dcrs )
                 {
-                    subentryModifier.addSchemaObject( opContext, dcr );
+                    subentryModifier.addSchemaObject( modifyContext, dcr );
                 }
                 
                 break;
@@ -479,7 +479,7 @@ public class SchemaSubentryManager
                 
                 for ( NameForm nf : nfs )
                 {
-                    subentryModifier.addSchemaObject( opContext, nf );
+                    subentryModifier.addSchemaObject( modifyContext, nf );
                 }
                 
                 break;

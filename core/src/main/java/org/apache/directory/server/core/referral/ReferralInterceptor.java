@@ -265,12 +265,12 @@ public class ReferralInterceptor extends BaseInterceptor
      * 
      * If the entry does not exist in the server, we will get a NoSuchObject error
      */
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws LdapException
+    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
     {
         // First delete the entry into the server
-        next.delete( opContext );
+        next.delete( deleteContext );
 
-        Entry entry = opContext.getEntry();
+        Entry entry = deleteContext.getEntry();
 
         // Check if the entry exists and is a referral itself
         // If so, we have to update the referralManager
@@ -339,17 +339,17 @@ public class ReferralInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      **/
-    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws LdapException
+    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
     {
         // Check if the entry is a referral itself
-        boolean isReferral = isReferral( opContext.getEntry() );
+        boolean isReferral = isReferral( renameContext.getEntry() );
 
-        next.rename( opContext );
+        next.rename( renameContext );
 
         if ( isReferral )
         {
             // Update the referralManager
-            LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), opContext
+            LookupOperationContext lookupContext = new LookupOperationContext( renameContext.getSession(), renameContext
                 .getNewDn() );
 
             Entry newEntry = nexus.lookup( lookupContext );
@@ -357,7 +357,7 @@ public class ReferralInterceptor extends BaseInterceptor
             referralManager.lockWrite();
 
             referralManager.addReferral( newEntry );
-            referralManager.removeReferral( opContext.getEntry().getOriginalEntry() );
+            referralManager.removeReferral( renameContext.getEntry().getOriginalEntry() );
 
             referralManager.unlock();
         }
@@ -367,12 +367,12 @@ public class ReferralInterceptor extends BaseInterceptor
     /**
      * Modify an entry in the server.
      */
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws LdapException
+    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
     {
-        DN dn = opContext.getDn();
+        DN dn = modifyContext.getDn();
 
         // handle a normal modify without following referrals
-        next.modify( opContext );
+        next.modify( modifyContext );
 
         // Check if we are trying to modify the schema or the rootDSE,
         // if so, we don't modify the referralManager
@@ -387,7 +387,7 @@ public class ReferralInterceptor extends BaseInterceptor
         // TODO: this can be spare, as we already have the altered entry
         // into the opContext, but for an unknow reason, this will fail
         // on eferral tests...
-        LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), dn );
+        LookupOperationContext lookupContext = new LookupOperationContext( modifyContext.getSession(), dn );
 
         Entry newEntry = nexus.lookup( lookupContext );
 
@@ -400,7 +400,7 @@ public class ReferralInterceptor extends BaseInterceptor
 
             if ( referralManager.isReferral( newEntry.getDn() ) )
             {
-                referralManager.removeReferral( opContext.getEntry() );
+                referralManager.removeReferral( modifyContext.getEntry() );
                 referralManager.addReferral( newEntry );
             }
 

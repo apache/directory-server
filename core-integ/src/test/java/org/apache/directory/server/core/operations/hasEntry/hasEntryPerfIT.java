@@ -44,8 +44,8 @@ public class hasEntryPerfIT extends AbstractLdapTestUnit
     public void testPerfHasEntry() throws Exception
     {
         DN adminDn = new DN( "uid=admin, ou=system" );
-        EntryOperationContext opContext = new EntryOperationContext( service.getAdminSession(), adminDn );
-        boolean hasEntry = service.getOperationManager().hasEntry( opContext );
+        EntryOperationContext hasEntryContext = new EntryOperationContext( service.getAdminSession(), adminDn );
+        boolean hasEntry = service.getOperationManager().hasEntry( hasEntryContext );
 
         assertTrue( hasEntry );
         int nbIterations = 150000;
@@ -69,7 +69,7 @@ public class hasEntryPerfIT extends AbstractLdapTestUnit
                 t00 = System.currentTimeMillis();
             }
 
-            hasEntry = service.getOperationManager().hasEntry( opContext );
+            hasEntry = service.getOperationManager().hasEntry( hasEntryContext );
         }
         
         long t1 = System.currentTimeMillis();

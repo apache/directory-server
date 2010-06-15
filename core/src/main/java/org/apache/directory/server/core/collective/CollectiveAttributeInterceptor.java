@@ -297,41 +297,41 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     // Interceptor Method Overrides
     // ------------------------------------------------------------------------
 
-    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws LdapException
+    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws LdapException
     {
-        Entry result = nextInterceptor.lookup( opContext );
+        Entry result = nextInterceptor.lookup( lookupContext );
 
         if ( result == null )
         {
             return null;
         }
 
-        if ( ( opContext.getAttrsId() == null ) || ( opContext.getAttrsId().size() == 0 ) )
+        if ( ( lookupContext.getAttrsId() == null ) || ( lookupContext.getAttrsId().size() == 0 ) )
         {
-            addCollectiveAttributes( opContext, result, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
+            addCollectiveAttributes( lookupContext, result, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
         }
         else
         {
-            addCollectiveAttributes( opContext, result, opContext.getAttrsIdArray() );
+            addCollectiveAttributes( lookupContext, result, lookupContext.getAttrsIdArray() );
         }
 
         return result;
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext )
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext listContext )
         throws LdapException
     {
-        EntryFilteringCursor cursor = nextInterceptor.list( opContext );
+        EntryFilteringCursor cursor = nextInterceptor.list( listContext );
         cursor.addEntryFilter( SEARCH_FILTER );
         return cursor;
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext )
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext )
         throws LdapException
     {
-        EntryFilteringCursor cursor = nextInterceptor.search( opContext );
+        EntryFilteringCursor cursor = nextInterceptor.search( searchContext );
         cursor.addEntryFilter( SEARCH_FILTER );
         return cursor;
     }
@@ -349,10 +349,10 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws LdapException
+    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
     {
-        collectiveAttributesSchemaChecker.checkModify( opContext );
+        collectiveAttributesSchemaChecker.checkModify( modifyContext );
 
-        next.modify( opContext );
+        next.modify( modifyContext );
     }
 }

@@ -38,47 +38,47 @@ public interface DirectoryListener
     /**
      * Called when an entry has been added.
      *
-     * @param opContext the add operation context responsible for the change
+     * @param addContext the add operation context responsible for the change
      */
-    void entryAdded( AddOperationContext opContext ); 
+    void entryAdded( AddOperationContext addContext ); 
     
     
     /**
      * Called when an entry has been deleted.
      *
-     * @param opContext the delete operation context responsible for the change
+     * @param deleteContext the delete operation context responsible for the change
      */
-    void entryDeleted( DeleteOperationContext opContext );
+    void entryDeleted( DeleteOperationContext deleteContext );
     
     
     /**
      * Called when an entry has been modified.
      *
-     * @param opContext the modify operation context responsible for the change
+     * @param modifyContext the modify operation context responsible for the change
      */
-    void entryModified( ModifyOperationContext opContext );
+    void entryModified( ModifyOperationContext modifyContext );
     
     
     /**
      * Called when an entry has been renamed.
      *
-     * @param opContext the rename operation context responsible for the change
+     * @param renameContext the rename operation context responsible for the change
      */
-    void entryRenamed( RenameOperationContext opContext );
+    void entryRenamed( RenameOperationContext renameContext );
     
     
     /**
      * Called when an entry is moved.
      *
-     * @param opContext the move operation context responsible for the change
+     * @param moveContext the move operation context responsible for the change
      */
-    void entryMoved( MoveOperationContext opContext );
+    void entryMoved( MoveOperationContext moveContext );
     
     
     /**
      * Called when an entry is moved and renamed at the same time.
      *
-     * @param opContext the move/rename operation context responsible for the change
+     * @param moveAndRenameContext the move/rename operation context responsible for the change
      */
-    void entryMovedAndRenamed( MoveAndRenameOperationContext opContext );
+    void entryMovedAndRenamed( MoveAndRenameOperationContext moveAndRenameContext );
 }

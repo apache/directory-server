@@ -171,10 +171,10 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public void bind( NextInterceptor next, BindOperationContext opContext ) throws LdapException
+    public void bind( NextInterceptor next, BindOperationContext bindContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        next.bind( opContext );
+        next.bind( bindContext );
         long delta = System.nanoTime() - t0;
         
         if ( IS_DEBUG_STATS )
@@ -229,10 +229,10 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws LdapException
+    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        next.delete( opContext );
+        next.delete( deleteContext );
         long delta = System.nanoTime() - t0;
         
         if ( IS_DEBUG_STATS )
@@ -274,11 +274,11 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public Entry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext )
+    public Entry getRootDSE( NextInterceptor next, GetRootDSEOperationContext getRootDseContext )
         throws LdapException
     {
         long t0 = System.nanoTime();
-        Entry rootDSE = next.getRootDSE( opContext );
+        Entry rootDSE = next.getRootDSE( getRootDseContext );
         long delta = System.nanoTime() - t0;
         
         if ( IS_DEBUG_STATS )
@@ -305,10 +305,10 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public boolean hasEntry( NextInterceptor next, EntryOperationContext opContext ) throws LdapException
+    public boolean hasEntry( NextInterceptor next, EntryOperationContext hasEntryContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        boolean hasEntry = next.hasEntry( opContext );
+        boolean hasEntry = next.hasEntry( hasEntryContext );
         long delta = System.nanoTime() - t0;
         
         if ( IS_DEBUG_STATS )
@@ -343,10 +343,10 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws LdapException
+    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext listContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        EntryFilteringCursor cursor = next.list( opContext );
+        EntryFilteringCursor cursor = next.list( listContext );
         long delta = System.nanoTime() - t0;
         
         if ( IS_DEBUG_STATS )
@@ -373,10 +373,10 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public Entry lookup( NextInterceptor next, LookupOperationContext opContext ) throws LdapException
+    public Entry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        Entry entry = next.lookup( opContext );
+        Entry entry = next.lookup( lookupContext );
         long delta = System.nanoTime() - t0;
         
         if ( IS_DEBUG_STATS )
@@ -403,10 +403,10 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws LdapException
+    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        next.modify( opContext );
+        next.modify( modifyContext );
         long delta = System.nanoTime() - t0;
         
         if ( IS_DEBUG_STATS )
@@ -487,10 +487,10 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws LdapException
+    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        next.rename( opContext );
+        next.rename( renameContext );
         long delta = System.nanoTime() - t0;
         
         if ( IS_DEBUG_STATS )
@@ -515,10 +515,10 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws LdapException
+    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        EntryFilteringCursor cursor = next.search( opContext );
+        EntryFilteringCursor cursor = next.search( searchContext );
         long delta = System.nanoTime() - t0;
         
         if ( IS_DEBUG_STATS )
@@ -545,10 +545,10 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public void unbind( NextInterceptor next, UnbindOperationContext opContext ) throws LdapException
+    public void unbind( NextInterceptor next, UnbindOperationContext unbindContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        next.unbind( opContext );
+        next.unbind( unbindContext );
         long delta = System.nanoTime() - t0;
         
         if ( IS_DEBUG_STATS )

@@ -104,14 +104,14 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
 
         // create a new Bind context, with a null session, as we don't have 
         // any context yet.
-        BindOperationContext opContext = new BindOperationContext( null );
+        BindOperationContext bindContext = new BindOperationContext( null );
         
         // Stores the DN of the user to check, and its password
-        opContext.setDn( bindRequest.getName() );
-        opContext.setCredentials( bindRequest.getCredentials() );
+        bindContext.setDn( bindRequest.getName() );
+        bindContext.setCredentials( bindRequest.getCredentials() );
 
         // Stores the request controls into the operation context
-        LdapProtocolUtils.setRequestControls( opContext, bindRequest );
+        LdapProtocolUtils.setRequestControls( bindContext, bindRequest );
 
         try
         {
@@ -172,10 +172,10 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
             // opContext.setEntry( principalEntry );
 
             // And call the OperationManager bind operation.
-            getLdapServer().getDirectoryService().getOperationManager().bind( opContext );
+            getLdapServer().getDirectoryService().getOperationManager().bind( bindContext );
 
             // As a result, store the created session in the Core Session
-            ldapSession.setCoreSession( opContext.getSession() );
+            ldapSession.setCoreSession( bindContext.getSession() );
 
             // And set the current state accordingly
             if ( !ldapSession.getCoreSession().isAnonymous() )

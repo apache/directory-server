@@ -121,39 +121,39 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws LdapException
+    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
     {
-        next.delete( opContext );
+        next.delete( deleteContext );
     }
 
 
-    public Entry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws LdapException
+    public Entry getRootDSE( NextInterceptor next, GetRootDSEOperationContext getRootDseContext ) throws LdapException
     {
-        return next.getRootDSE( opContext );
+        return next.getRootDSE( getRootDseContext );
     }
 
 
-    public boolean hasEntry( NextInterceptor next, EntryOperationContext opContext ) throws LdapException
+    public boolean hasEntry( NextInterceptor next, EntryOperationContext hasEntryContext ) throws LdapException
     {
-        return next.hasEntry( opContext );
+        return next.hasEntry( hasEntryContext );
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws LdapException
+    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext listContext ) throws LdapException
     {
-        return next.list( opContext );
+        return next.list( listContext );
     }
 
 
-    public Entry lookup( NextInterceptor next, LookupOperationContext opContext ) throws LdapException
+    public Entry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws LdapException
     {
-        return next.lookup( opContext );
+        return next.lookup( lookupContext );
     }
 
     
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws LdapException
+    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
     {
-        next.modify( opContext );
+        next.modify( modifyContext );
     }
 
 
@@ -164,10 +164,10 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext opContext )
+    public void rename( NextInterceptor next, RenameOperationContext renameContext )
         throws LdapException
     {
-        next.rename( opContext );
+        next.rename( renameContext );
     }
 
 
@@ -180,9 +180,9 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws LdapException
+    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException
     {
-        return next.search( opContext );
+        return next.search( searchContext );
     }
 
 
@@ -192,14 +192,14 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void bind( NextInterceptor next, BindOperationContext opContext ) throws LdapException
+    public void bind( NextInterceptor next, BindOperationContext bindContext ) throws LdapException
     {
-        next.bind( opContext );
+        next.bind( bindContext );
     }
 
 
-    public void unbind( NextInterceptor next, UnbindOperationContext opContext ) throws LdapException
+    public void unbind( NextInterceptor next, UnbindOperationContext unbindContext ) throws LdapException
     {
-        next.unbind( opContext );
+        next.unbind( unbindContext );
     }
 }

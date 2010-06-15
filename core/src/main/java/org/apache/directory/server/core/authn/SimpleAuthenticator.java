@@ -187,13 +187,13 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * @return A byte array which can be empty if the password was not found
      * @throws Exception If we have a problem during the lookup operation
      */
-    private LdapPrincipal getStoredPassword( BindOperationContext opContext ) throws LdapAuthenticationException
+    private LdapPrincipal getStoredPassword( BindOperationContext bindContext ) throws LdapAuthenticationException
     {
         LdapPrincipal principal = null;
 
         synchronized ( credentialCache )
         {
-            principal = ( LdapPrincipal ) credentialCache.get( opContext.getDn().getNormName() );
+            principal = ( LdapPrincipal ) credentialCache.get( bindContext.getDn().getNormName() );
         }
 
         byte[] storedPassword;
@@ -202,7 +202,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             // Not found in the cache
             // Get the user password from the backend
-            storedPassword = lookupUserPassword( opContext );
+            storedPassword = lookupUserPassword( bindContext );
 
             // Deal with the special case where the user didn't enter a password
             // We will compare the empty array with the credentials. Sometime,
@@ -214,12 +214,12 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             }
 
             // Create the new principal before storing it in the cache
-            principal = new LdapPrincipal( opContext.getDn(), AuthenticationLevel.SIMPLE, storedPassword );
+            principal = new LdapPrincipal( bindContext.getDn(), AuthenticationLevel.SIMPLE, storedPassword );
 
             // Now, update the local cache.
             synchronized ( credentialCache )
             {
-                credentialCache.put( opContext.getDn().getNormName(), principal );
+                credentialCache.put( bindContext.getDn().getNormName(), principal );
             }
         }
 
@@ -268,17 +268,17 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      *  The stored password is always using the unsalted form, and is stored as a bytes array.
      *  </p>
      */
-    public LdapPrincipal authenticate( BindOperationContext opContext ) throws LdapAuthenticationException
+    public LdapPrincipal authenticate( BindOperationContext bindContext ) throws LdapAuthenticationException
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Authenticating {}", opContext.getDn() );
+            LOG.debug( "Authenticating {}", bindContext.getDn() );
         }
 
         // ---- extract password from JNDI environment
-        byte[] credentials = opContext.getCredentials();
+        byte[] credentials = bindContext.getCredentials();
 
-        LdapPrincipal principal = getStoredPassword( opContext );
+        LdapPrincipal principal = getStoredPassword( bindContext );
 
         // Get the stored password, either from cache or from backend
         byte[] storedPassword = principal.getUserPassword();
@@ -289,7 +289,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             if ( IS_DEBUG )
             {
-                LOG.debug( "{} Authenticated", opContext.getDn() );
+                LOG.debug( "{} Authenticated", bindContext.getDn() );
             }
 
             return principal;
@@ -318,7 +318,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             {
                 if ( IS_DEBUG )
                 {
-                    LOG.debug( "{} Authenticated", opContext.getDn() );
+                    LOG.debug( "{} Authenticated", bindContext.getDn() );
                 }
 
                 return principal;
@@ -326,7 +326,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             else
             {
                 // Bad password ...
-                String message = I18n.err( I18n.ERR_230, opContext.getDn().getName() );
+                String message = I18n.err( I18n.ERR_230, bindContext.getDn().getName() );
                 LOG.info( message );
                 throw new LdapAuthenticationException( message );
             }
@@ -334,7 +334,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         else
         {
             // Bad password ...
-            String message = I18n.err( I18n.ERR_230, opContext.getDn().getName() );
+            String message = I18n.err( I18n.ERR_230, bindContext.getDn().getName() );
             LOG.info( message );
             throw new LdapAuthenticationException( message );
         }
@@ -580,11 +580,11 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
     /**
      * Local function which request the password from the backend
-     * @param principalDn the principal to lookup
+     * @param bindContext the Bind operation context
      * @return the credentials from the backend
      * @throws Exception if there are problems accessing backend
      */
-    private byte[] lookupUserPassword( BindOperationContext opContext ) throws LdapAuthenticationException
+    private byte[] lookupUserPassword( BindOperationContext bindContext ) throws LdapAuthenticationException
     {
         // ---- lookup the principal entry's userPassword attribute
         Entry userEntry;
@@ -594,18 +594,18 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             /*
              * NOTE: at this point the BindOperationContext does not has a 
              * null session since the user has not yet authenticated so we
-             * cannot use opContext.lookup() yet.  This is a very special
-             * case where we cannot rely on the opContext to perform a new
+             * cannot use lookup() yet.  This is a very special
+             * case where we cannot rely on the bindContext to perform a new
              * sub operation.
              */
             LookupOperationContext lookupContext = new LookupOperationContext( getDirectoryService().getAdminSession(),
-                opContext.getDn() );
+                bindContext.getDn() );
             lookupContext.setByPassed( USERLOOKUP_BYPASS );
             userEntry = getDirectoryService().getOperationManager().lookup( lookupContext );
 
             if ( userEntry == null )
             {
-                DN dn = opContext.getDn();
+                DN dn = bindContext.getDn();
                 String upDn = ( dn == null ? "" : dn.getName() );
 
                 throw new LdapAuthenticationException( I18n.err( I18n.ERR_231, upDn ) );

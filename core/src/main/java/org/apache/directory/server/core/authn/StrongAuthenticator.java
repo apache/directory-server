@@ -49,9 +49,9 @@ public class StrongAuthenticator extends AbstractAuthenticator
      * User has already been authenticated during SASL negotiation. Set the authentication level
      * to strong and return an {@link LdapPrincipal}.
      */
-    public LdapPrincipal authenticate( BindOperationContext opContext ) throws LdapAuthenticationException
+    public LdapPrincipal authenticate( BindOperationContext bindContext ) throws LdapAuthenticationException
     {
         // Possibly check if user account is disabled, other account checks.
-        return new LdapPrincipal( opContext.getDn(), AuthenticationLevel.STRONG );
+        return new LdapPrincipal( bindContext.getDn(), AuthenticationLevel.STRONG );
     }
 }

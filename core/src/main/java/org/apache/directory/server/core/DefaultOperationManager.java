@@ -225,7 +225,7 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            // Normalize the opContext DN
+            // Normalize the addContext DN
             DN dn = addContext.getDn();
             dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
@@ -278,16 +278,16 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public void bind( BindOperationContext opContext ) throws LdapException
+    public void bind( BindOperationContext bindContext ) throws LdapException
     {
-        LOG.debug( ">> BindOperation : {}", opContext );
+        LOG.debug( ">> BindOperation : {}", bindContext );
 
         ensureStarted();
-        push( opContext );
+        push( bindContext );
 
         try
         {
-            directoryService.getInterceptorChain().bind( opContext );
+            directoryService.getInterceptorChain().bind( bindContext );
         }
         finally
         {
@@ -310,7 +310,7 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            // Normalize the opContext DN
+            // Normalize the compareContext DN
             DN dn = compareContext.getDn();
             dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
@@ -380,18 +380,18 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public void delete( DeleteOperationContext opContext ) throws LdapException
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
-        LOG.debug( ">> DeleteOperation : {}", opContext );
-        LOG_CHANGES.debug( ">> DeleteOperation : {}", opContext );
+        LOG.debug( ">> DeleteOperation : {}", deleteContext );
+        LOG_CHANGES.debug( ">> DeleteOperation : {}", deleteContext );
 
         ensureStarted();
-        push( opContext );
+        push( deleteContext );
 
         try
         {
-            // Normalize the opContext DN
-            DN dn = opContext.getDn();
+            // Normalize the deleteContext DN
+            DN dn = deleteContext.getDn();
             dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // We have to deal with the referral first
@@ -408,7 +408,7 @@ public class DefaultOperationManager implements OperationManager
                 {
                     // This is a referral. We can delete it if the ManageDsaIt flag is true
                     // Otherwise, we just throw a LdapReferralException
-                    if ( !opContext.isReferralIgnored() )
+                    if ( !deleteContext.isReferralIgnored() )
                     {
                         // Throw a Referral Exception
                         // Unlock the referral manager
@@ -424,7 +424,7 @@ public class DefaultOperationManager implements OperationManager
 
                     // Depending on the Context.REFERRAL property value, we will throw
                     // a different exception.
-                    if ( opContext.isReferralIgnored() )
+                    if ( deleteContext.isReferralIgnored() )
                     {
                         directoryService.getReferralManager().unlock();
 
@@ -447,7 +447,7 @@ public class DefaultOperationManager implements OperationManager
 
             // Call the Add method
             InterceptorChain interceptorChain = directoryService.getInterceptorChain();
-            interceptorChain.delete( opContext );
+            interceptorChain.delete( deleteContext );
         }
         finally
         {
@@ -462,17 +462,17 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public Entry getRootDSE( GetRootDSEOperationContext opContext ) throws LdapException
+    public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException
     {
-        LOG.debug( ">> GetRootDSEOperation : {}", opContext );
+        LOG.debug( ">> GetRootDSEOperation : {}", getRootDseContext );
 
         ensureStarted();
-        push( opContext );
+        push( getRootDseContext );
 
         try
         {
             InterceptorChain chain = directoryService.getInterceptorChain();
-            return chain.getRootDSE( opContext );
+            return chain.getRootDSE( getRootDseContext );
         }
         finally
         {
@@ -486,16 +486,16 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public boolean hasEntry( EntryOperationContext opContext ) throws LdapException
+    public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
     {
-        LOG.debug( ">> hasEntryOperation : {}", opContext );
+        LOG.debug( ">> hasEntryOperation : {}", hasEntryContext );
 
         ensureStarted();
-        push( opContext );
+        push( hasEntryContext );
 
         try
         {
-            return directoryService.getInterceptorChain().hasEntry( opContext );
+            return directoryService.getInterceptorChain().hasEntry( hasEntryContext );
         }
         finally
         {
@@ -509,16 +509,16 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor list( ListOperationContext opContext ) throws LdapException
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
-        LOG.debug( ">> ListOperation : {}", opContext );
+        LOG.debug( ">> ListOperation : {}", listContext );
 
         ensureStarted();
-        push( opContext );
+        push( listContext );
 
         try
         {
-            return directoryService.getInterceptorChain().list( opContext );
+            return directoryService.getInterceptorChain().list( listContext );
         }
         finally
         {
@@ -532,17 +532,17 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public Entry lookup( LookupOperationContext opContext ) throws LdapException
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
-        LOG.debug( ">> LookupOperation : {}", opContext );
+        LOG.debug( ">> LookupOperation : {}", lookupContext );
 
         ensureStarted();
-        push( opContext );
+        push( lookupContext );
 
         try
         {
             InterceptorChain chain = directoryService.getInterceptorChain();
-            return chain.lookup( opContext );
+            return chain.lookup( lookupContext );
         }
         finally
         {
@@ -556,18 +556,18 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public void modify( ModifyOperationContext opContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
-        LOG.debug( ">> ModifyOperation : {}", opContext );
-        LOG_CHANGES.debug( ">> ModifyOperation : {}", opContext );
+        LOG.debug( ">> ModifyOperation : {}", modifyContext );
+        LOG_CHANGES.debug( ">> ModifyOperation : {}", modifyContext );
 
         ensureStarted();
-        push( opContext );
+        push( modifyContext );
 
         try
         {
-            // Normalize the opContext DN
-            DN dn = opContext.getDn();
+            // Normalize the modifyContext DN
+            DN dn = modifyContext.getDn();
             dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             ReferralManager referralManager = directoryService.getReferralManager();
@@ -584,7 +584,7 @@ public class DefaultOperationManager implements OperationManager
                 {
                     // This is a referral. We can delete it if the ManageDsaIt flag is true
                     // Otherwise, we just throw a LdapReferralException
-                    if ( !opContext.isReferralIgnored() )
+                    if ( !modifyContext.isReferralIgnored() )
                     {
                         // Throw a Referral Exception
                         // Unlock the referral manager
@@ -603,7 +603,7 @@ public class DefaultOperationManager implements OperationManager
 
                     // Depending on the Context.REFERRAL property value, we will throw
                     // a different exception.
-                    if ( opContext.isReferralIgnored() )
+                    if ( modifyContext.isReferralIgnored() )
                     {
                         referralManager.unlock();
 
@@ -632,7 +632,7 @@ public class DefaultOperationManager implements OperationManager
 
             // Call the Add method
             InterceptorChain interceptorChain = directoryService.getInterceptorChain();
-            interceptorChain.modify( opContext );
+            interceptorChain.modify( modifyContext );
         }
         finally
         {
@@ -647,22 +647,22 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public void move( MoveOperationContext opContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
-        LOG.debug( ">> MoveOperation : {}", opContext );
-        LOG_CHANGES.debug( ">> MoveOperation : {}", opContext );
+        LOG.debug( ">> MoveOperation : {}", moveContext );
+        LOG_CHANGES.debug( ">> MoveOperation : {}", moveContext );
 
         ensureStarted();
-        push( opContext );
+        push( moveContext );
 
         try
         {
-            // Normalize the opContext DN
-            DN dn = opContext.getDn();
+            // Normalize the moveContext DN
+            DN dn = moveContext.getDn();
             dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
-            // Normalize the opContext superior DN
-            DN newSuperiorDn = opContext.getNewSuperior();
+            // Normalize the moveContext superior DN
+            DN newSuperiorDn = moveContext.getNewSuperior();
             newSuperiorDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // We have to deal with the referral first
@@ -680,7 +680,7 @@ public class DefaultOperationManager implements OperationManager
                 {
                     // This is a referral. We can delete it if the ManageDsaIt flag is true
                     // Otherwise, we just throw a LdapReferralException
-                    if ( !opContext.isReferralIgnored() )
+                    if ( !moveContext.isReferralIgnored() )
                     {
                         // Throw a Referral Exception
                         // Unlock the referral manager
@@ -696,7 +696,7 @@ public class DefaultOperationManager implements OperationManager
 
                     // Depending on the Context.REFERRAL property value, we will throw
                     // a different exception.
-                    if ( opContext.isReferralIgnored() )
+                    if ( moveContext.isReferralIgnored() )
                     {
                         directoryService.getReferralManager().unlock();
 
@@ -734,7 +734,7 @@ public class DefaultOperationManager implements OperationManager
 
             // Call the Add method
             InterceptorChain interceptorChain = directoryService.getInterceptorChain();
-            interceptorChain.move( opContext );
+            interceptorChain.move( moveContext );
         }
         finally
         {
@@ -759,7 +759,7 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            // Normalize the opContext DN
+            // Normalize the moveAndRenameContext DN
             DN dn = moveAndRenameContext.getDn();
             dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
@@ -813,7 +813,7 @@ public class DefaultOperationManager implements OperationManager
             }
 
             // Now, check the destination
-            // Normalize the opContext DN
+            // Normalize the moveAndRenameContext DN
             DN newSuperiorDn = moveAndRenameContext.getNewSuperiorDn();
             newSuperiorDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
@@ -853,18 +853,18 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc} 
      */
-    public void rename( RenameOperationContext opContext ) throws LdapException
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
-        LOG.debug( ">> RenameOperation : {}", opContext );
-        LOG_CHANGES.debug( ">> RenameOperation : {}", opContext );
+        LOG.debug( ">> RenameOperation : {}", renameContext );
+        LOG_CHANGES.debug( ">> RenameOperation : {}", renameContext );
 
         ensureStarted();
-        push( opContext );
+        push( renameContext );
 
         try
         {
-            // Normalize the opContext DN
-            DN dn = opContext.getDn();
+            // Normalize the renameContext DN
+            DN dn = renameContext.getDn();
             dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // Inject the newDn into the operation context
@@ -873,8 +873,8 @@ public class DefaultOperationManager implements OperationManager
             {
                 DN newDn = ( DN ) dn.clone();
                 newDn.remove( dn.size() - 1 );
-                newDn.add( opContext.getNewRdn() );
-                opContext.setNewDn( newDn );
+                newDn.add( renameContext.getNewRdn() );
+                renameContext.setNewDn( newDn );
             }
 
             // We have to deal with the referral first
@@ -892,7 +892,7 @@ public class DefaultOperationManager implements OperationManager
                 {
                     // This is a referral. We can delete it if the ManageDsaIt flag is true
                     // Otherwise, we just throw a LdapReferralException
-                    if ( !opContext.isReferralIgnored() )
+                    if ( !renameContext.isReferralIgnored() )
                     {
                         // Throw a Referral Exception
                         // Unlock the referral manager
@@ -908,7 +908,7 @@ public class DefaultOperationManager implements OperationManager
 
                     // Depending on the Context.REFERRAL property value, we will throw
                     // a different exception.
-                    if ( opContext.isReferralIgnored() )
+                    if ( renameContext.isReferralIgnored() )
                     {
                         directoryService.getReferralManager().unlock();
 
@@ -931,7 +931,7 @@ public class DefaultOperationManager implements OperationManager
 
             // Call the Add method
             InterceptorChain interceptorChain = directoryService.getInterceptorChain();
-            interceptorChain.rename( opContext );
+            interceptorChain.rename( renameContext );
         }
         finally
         {
@@ -946,17 +946,17 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor search( SearchOperationContext opContext ) throws LdapException
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
-        LOG.debug( ">> SearchOperation : {}", opContext );
+        LOG.debug( ">> SearchOperation : {}", searchContext );
 
         ensureStarted();
-        push( opContext );
+        push( searchContext );
 
         try
         {
-            // Normalize the opContext DN
-            DN dn = opContext.getDn();
+            // Normalize the searchContext DN
+            DN dn = searchContext.getDn();
             dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // We have to deal with the referral first
@@ -974,14 +974,14 @@ public class DefaultOperationManager implements OperationManager
                 {
                     // This is a referral. We can return it if the ManageDsaIt flag is true
                     // Otherwise, we just throw a LdapReferralException
-                    if ( !opContext.isReferralIgnored() )
+                    if ( !searchContext.isReferralIgnored() )
                     {
                         // Throw a Referral Exception
                         // Unlock the referral manager
                         directoryService.getReferralManager().unlock();
 
                         LdapReferralException exception = buildReferralExceptionForSearch( parentEntry, childDn,
-                            opContext.getScope() );
+                            searchContext.getScope() );
                         throw exception;
                     }
                 }
@@ -991,7 +991,7 @@ public class DefaultOperationManager implements OperationManager
 
                     // Depending on the Context.REFERRAL property value, we will throw
                     // a different exception.
-                    if ( opContext.isReferralIgnored() )
+                    if ( searchContext.isReferralIgnored() )
                     {
                         directoryService.getReferralManager().unlock();
 
@@ -1004,7 +1004,7 @@ public class DefaultOperationManager implements OperationManager
                         directoryService.getReferralManager().unlock();
 
                         LdapReferralException exception = buildReferralExceptionForSearch( parentEntry, childDn,
-                            opContext.getScope() );
+                            searchContext.getScope() );
                         throw exception;
                     }
                 }
@@ -1015,7 +1015,7 @@ public class DefaultOperationManager implements OperationManager
 
             // Call the Add method
             InterceptorChain interceptorChain = directoryService.getInterceptorChain();
-            return interceptorChain.search( opContext );
+            return interceptorChain.search( searchContext );
         }
         finally
         {
@@ -1029,16 +1029,16 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public void unbind( UnbindOperationContext opContext ) throws LdapException
+    public void unbind( UnbindOperationContext unbindContext ) throws LdapException
     {
-        LOG.debug( ">> UnbindOperation : {}", opContext );
+        LOG.debug( ">> UnbindOperation : {}", unbindContext );
 
         ensureStarted();
-        push( opContext );
+        push( unbindContext );
 
         try
         {
-            directoryService.getInterceptorChain().unbind( opContext );
+            directoryService.getInterceptorChain().unbind( unbindContext );
         }
         finally
         {

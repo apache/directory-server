@@ -317,7 +317,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     /**
      * {@inheritDoc}
      */
-    public abstract boolean modify( ModifyOperationContext opContext, Entry targetEntry, boolean cascade ) 
+    public abstract boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade ) 
         throws LdapException;
     
     

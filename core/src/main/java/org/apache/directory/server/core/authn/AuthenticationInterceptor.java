@@ -208,64 +208,64 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws LdapException
+    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Operation Context: {}", opContext );
+            LOG.debug( "Operation Context: {}", deleteContext );
         }
 
-        checkAuthenticated( opContext );
-        next.delete( opContext );
-        invalidateAuthenticatorCaches( opContext.getDn() );
+        checkAuthenticated( deleteContext );
+        next.delete( deleteContext );
+        invalidateAuthenticatorCaches( deleteContext.getDn() );
     }
 
 
-    public Entry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws LdapException
+    public Entry getRootDSE( NextInterceptor next, GetRootDSEOperationContext getRootDseContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Operation Context: {}", opContext );
+            LOG.debug( "Operation Context: {}", getRootDseContext );
         }
 
-        checkAuthenticated( opContext );
-        return next.getRootDSE( opContext );
+        checkAuthenticated( getRootDseContext );
+        return next.getRootDSE( getRootDseContext );
     }
 
 
-    public boolean hasEntry( NextInterceptor next, EntryOperationContext opContext ) throws LdapException
+    public boolean hasEntry( NextInterceptor next, EntryOperationContext hasEntryContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Operation Context: {}", opContext );
+            LOG.debug( "Operation Context: {}", hasEntryContext );
         }
 
-        checkAuthenticated( opContext );
-        return next.hasEntry( opContext );
+        checkAuthenticated( hasEntryContext );
+        return next.hasEntry( hasEntryContext );
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws LdapException
+    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext listContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Operation Context: {}", opContext );
+            LOG.debug( "Operation Context: {}", listContext );
         }
 
-        checkAuthenticated( opContext );
-        return next.list( opContext );
+        checkAuthenticated( listContext );
+        return next.list( listContext );
     }
 
 
-    public Entry lookup( NextInterceptor next, LookupOperationContext opContext ) throws LdapException
+    public Entry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Operation Context: {}", opContext );
+            LOG.debug( "Operation Context: {}", lookupContext );
         }
 
-        checkAuthenticated( opContext );
-        return next.lookup( opContext );
+        checkAuthenticated( lookupContext );
+        return next.lookup( lookupContext );
     }
 
     
@@ -284,29 +284,29 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws LdapException
+    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Operation Context: {}", opContext );
+            LOG.debug( "Operation Context: {}", modifyContext );
         }
 
-        checkAuthenticated( opContext );
-        next.modify( opContext );
-        invalidateAuthenticatorCaches( opContext.getDn() );
+        checkAuthenticated( modifyContext );
+        next.modify( modifyContext );
+        invalidateAuthenticatorCaches( modifyContext.getDn() );
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws LdapException
+    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Operation Context: {}", opContext );
+            LOG.debug( "Operation Context: {}", renameContext );
         }
 
-        checkAuthenticated( opContext );
-        next.rename( opContext );
-        invalidateAuthenticatorCaches( opContext.getDn() );
+        checkAuthenticated( renameContext );
+        next.rename( renameContext );
+        invalidateAuthenticatorCaches( renameContext.getDn() );
     }
 
     
@@ -358,22 +358,21 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws LdapException
+    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Operation Context: {}", opContext );
+            LOG.debug( "Operation Context: {}", searchContext );
         }
 
-        checkAuthenticated( opContext );
-        return next.search( opContext );
+        checkAuthenticated( searchContext );
+        return next.search( searchContext );
     }
 
 
     /**
      * Check if the current operation has a valid PrincipalDN or not.
      *
-     * @param opContext the OperationContext for this operation
      * @param operation the operation type
      * @throws Exception
      */
@@ -389,28 +388,28 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public void bind( NextInterceptor next, BindOperationContext opContext ) throws LdapException
+    public void bind( NextInterceptor next, BindOperationContext bindContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Operation Context: {}", opContext );
+            LOG.debug( "Operation Context: {}", bindContext );
         }
 
-        if ( ( opContext.getSession() != null ) && ( opContext.getSession().getEffectivePrincipal() != null ) )
+        if ( ( bindContext.getSession() != null ) && ( bindContext.getSession().getEffectivePrincipal() != null ) )
         {
             // null out the credentials
-            opContext.setCredentials( null );
+            bindContext.setCredentials( null );
         }
         
         // pick the first matching authenticator type
-        AuthenticationLevel level = opContext.getAuthenticationLevel();
+        AuthenticationLevel level = bindContext.getAuthenticationLevel();
         
         if ( level == AuthenticationLevel.UNAUTHENT )
         {
             // This is a case where the Bind request contains a DN, but no password.
             // We don't check the DN, we just return a UnwillingToPerform error
             // Cf RFC 4513, chap. 5.1.2
-            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, "Cannot Bind for DN " + opContext.getDn().getName() );
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, "Cannot Bind for DN " + bindContext.getDn().getName() );
         }
 
         Collection<Authenticator> authenticators = getAuthenticators( level );
@@ -420,18 +419,18 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.debug( "No authenticators found, delegating bind to the nexus." );
 
             // as a last resort try binding via the nexus
-            next.bind( opContext );
+            next.bind( bindContext );
 
             LOG.debug( "Nexus succeeded on bind operation." );
 
             // bind succeeded if we got this far
             // TODO - authentication level not being set
-            LdapPrincipal principal = new LdapPrincipal( opContext.getDn(), AuthenticationLevel.SIMPLE );
+            LdapPrincipal principal = new LdapPrincipal( bindContext.getDn(), AuthenticationLevel.SIMPLE );
             CoreSession session = new DefaultCoreSession( principal, directoryService );
-            opContext.setSession( session );
+            bindContext.setSession( session );
 
             // remove creds so there is no security risk
-            opContext.setCredentials( null );
+            bindContext.setCredentials( null );
             return;
         }
 
@@ -442,17 +441,17 @@ public class AuthenticationInterceptor extends BaseInterceptor
             try
             {
                 // perform the authentication
-                LdapPrincipal principal = authenticator.authenticate( opContext );
+                LdapPrincipal principal = authenticator.authenticate( bindContext );
                 
                 LdapPrincipal clonedPrincipal = (LdapPrincipal)(principal.clone());
 
                 // remove creds so there is no security risk
-                opContext.setCredentials( null );
+                bindContext.setCredentials( null );
                 clonedPrincipal.setUserPassword( StringTools.EMPTY_BYTES );
 
                 // authentication was successful
                 CoreSession session = new DefaultCoreSession( clonedPrincipal, directoryService );
-                opContext.setSession( session );
+                bindContext.setSession( session );
 
                 return;
             }
@@ -461,7 +460,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 // authentication failed, try the next authenticator
                 if ( LOG.isInfoEnabled() )
                 {
-                    LOG.info( "Authenticator {} failed to authenticate: {}", authenticator, opContext );
+                    LOG.info( "Authenticator {} failed to authenticate: {}", authenticator, bindContext );
                 }
             }
             catch ( Exception e )
@@ -469,7 +468,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 // Log other exceptions than LdapAuthenticationException
                 if ( LOG.isWarnEnabled() )
                 {
-                    LOG.info( "Unexpected failure for Authenticator {} : {}", authenticator, opContext );
+                    LOG.info( "Unexpected failure for Authenticator {} : {}", authenticator, bindContext );
                 }
             }
         }
@@ -479,7 +478,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.info( "Cannot bind to the server " );
         }
 
-        DN dn = opContext.getDn();
+        DN dn = bindContext.getDn();
         String upDn = ( dn == null ? "" : dn.getName() );
         throw new LdapAuthenticationException( I18n.err( I18n.ERR_229, upDn ) );
     }

@@ -48,51 +48,51 @@ public class MockOperationManager implements OperationManager
         this.count = count;
     }
     
-    public void add( AddOperationContext opContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
     }
 
     
-    public void bind( BindOperationContext opContext ) throws LdapException
+    public void bind( BindOperationContext bindContext ) throws LdapException
     {
     }
 
     
-    public boolean compare( CompareOperationContext opContext ) throws LdapException
+    public boolean compare( CompareOperationContext compareContext ) throws LdapException
     {
         return false;
     }
 
 
-    public void delete( DeleteOperationContext opContext ) throws LdapException
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
     }
 
-    public Entry getRootDSE( GetRootDSEOperationContext opContext ) throws LdapException
+    public Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException
     {
         return null;
     }
 
-    public boolean hasEntry( EntryOperationContext opContext ) throws LdapException
+    public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
     {
         return false;
     }
 
-    public EntryFilteringCursor list( ListOperationContext opContext ) throws LdapException
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
         return null;
     }
 
-    public ClonedServerEntry lookup( LookupOperationContext opContext ) throws LdapException
+    public ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         return null;
     }
 
-    public void modify( ModifyOperationContext opContext ) throws LdapException
+    public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
     }
 
-    public void move( MoveOperationContext opContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
     }
 
@@ -100,19 +100,19 @@ public class MockOperationManager implements OperationManager
     {
     }
 
-    public void rename( RenameOperationContext opContext ) throws LdapException
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
     }
 
-    public EntryFilteringCursor search( SearchOperationContext opContext ) throws LdapException
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
         MockCursor cursor = new MockCursor( count );
-        cursor.setSchemaManager( opContext.getSession().getDirectoryService().getSchemaManager() );
-        return new BaseEntryFilteringCursor( cursor, opContext );
+        cursor.setSchemaManager( searchContext.getSession().getDirectoryService().getSchemaManager() );
+        return new BaseEntryFilteringCursor( cursor, searchContext );
     }
 
 
-    public void unbind( UnbindOperationContext opContext ) throws LdapException
+    public void unbind( UnbindOperationContext unbindContext ) throws LdapException
     {
     }
 }

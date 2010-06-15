@@ -252,12 +252,12 @@ public class SubentryInterceptor extends BaseInterceptor
     // Methods/Code dealing with Subentry Visibility
     // -----------------------------------------------------------------------
 
-    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext )
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext listContext )
         throws LdapException
     {
-        EntryFilteringCursor cursor = nextInterceptor.list( opContext );
+        EntryFilteringCursor cursor = nextInterceptor.list( listContext );
 
-        if ( !isSubentryVisible( opContext ) )
+        if ( !isSubentryVisible( listContext ) )
         {
             cursor.addEntryFilter( new HideSubentriesFilter() );
         }
@@ -266,19 +266,19 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext )
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext )
         throws LdapException
     {
-        EntryFilteringCursor cursor = nextInterceptor.search( opContext );
+        EntryFilteringCursor cursor = nextInterceptor.search( searchContext );
 
         // object scope searches by default return subentries
-        if ( opContext.getScope() == SearchScope.OBJECT )
+        if ( searchContext.getScope() == SearchScope.OBJECT )
         {
             return cursor;
         }
 
         // for subtree and one level scope we filter
-        if ( !isSubentryVisible( opContext ) )
+        if ( !isSubentryVisible( searchContext ) )
         {
             cursor.addEntryFilter( new HideSubentriesFilter() );
         }
@@ -602,15 +602,15 @@ public class SubentryInterceptor extends BaseInterceptor
     // Methods dealing subentry deletion
     // -----------------------------------------------------------------------
 
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws LdapException
+    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
     {
-        DN name = opContext.getDn();
-        Entry entry = opContext.getEntry();
+        DN name = deleteContext.getDn();
+        Entry entry = deleteContext.getEntry();
         EntryAttribute objectClasses = entry.get( objectClassType );
 
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
         {
-            next.delete( opContext );
+            next.delete( deleteContext );
 
             SubtreeSpecification ss = subentryCache.removeSubentry( name.getNormName() ).getSubtreeSpecification();
 
@@ -634,7 +634,7 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
 
-            SearchOperationContext searchOperationContext = new SearchOperationContext( opContext.getSession(), baseDn,
+            SearchOperationContext searchOperationContext = new SearchOperationContext( deleteContext.getSession(), baseDn,
                 filter, controls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
 
@@ -650,7 +650,7 @@ public class SubentryInterceptor extends BaseInterceptor
     
                     if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                     {
-                        nexus.modify( new ModifyOperationContext( opContext.getSession(), dn, getOperationalModsForRemove(
+                        nexus.modify( new ModifyOperationContext( deleteContext.getSession(), dn, getOperationalModsForRemove(
                             name, candidate ) ) );
                     }
                 }
@@ -664,7 +664,7 @@ public class SubentryInterceptor extends BaseInterceptor
         }
         else
         {
-            next.delete( opContext );
+            next.delete( deleteContext );
         }
     }
 
@@ -1093,12 +1093,12 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws LdapException
+    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
     {
-        DN dn = opContext.getDn();
-        List<Modification> mods = opContext.getModItems();
+        DN dn = modifyContext.getDn();
+        List<Modification> mods = modifyContext.getModItems();
 
-        Entry entry = opContext.getEntry();
+        Entry entry = modifyContext.getEntry();
 
         EntryAttribute objectClasses = entry.get( objectClassType );
         boolean isSubtreeSpecificationModification = false;
@@ -1132,7 +1132,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
 
             subentryCache.setSubentry( dn.getNormName(), ssNew, getSubentryTypes( entry, mods ) );
-            next.modify( opContext );
+            next.modify( modifyContext );
 
             // search for all entries selected by the old SS and remove references to subentry
             DN apName = ( DN ) dn.clone();
@@ -1146,7 +1146,7 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
 
-            SearchOperationContext searchOperationContext = new SearchOperationContext( opContext.getSession(),
+            SearchOperationContext searchOperationContext = new SearchOperationContext( modifyContext.getSession(),
                 oldBaseDn, filter, controls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
 
@@ -1162,7 +1162,7 @@ public class SubentryInterceptor extends BaseInterceptor
     
                     if ( evaluator.evaluate( ssOld, apName, candidateDn, candidate ) )
                     {
-                        nexus.modify( new ModifyOperationContext( opContext.getSession(), candidateDn,
+                        nexus.modify( new ModifyOperationContext( modifyContext.getSession(), candidateDn,
                             getOperationalModsForRemove( dn, candidate ) ) );
                     }
                 }
@@ -1178,7 +1178,7 @@ public class SubentryInterceptor extends BaseInterceptor
             DN newBaseDn = ( DN ) apName.clone();
             newBaseDn.addAll( ssNew.getBase() );
 
-            searchOperationContext = new SearchOperationContext( opContext.getSession(), newBaseDn, filter, controls );
+            searchOperationContext = new SearchOperationContext( modifyContext.getSession(), newBaseDn, filter, controls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
 
             subentries = nexus.search( searchOperationContext );
@@ -1193,7 +1193,7 @@ public class SubentryInterceptor extends BaseInterceptor
     
                     if ( evaluator.evaluate( ssNew, apName, candidateDn, candidate ) )
                     {
-                        nexus.modify( new ModifyOperationContext( opContext.getSession(), candidateDn,
+                        nexus.modify( new ModifyOperationContext( modifyContext.getSession(), candidateDn,
                             getOperationalModsForAdd( candidate, operational ) ) );
                     }
                 }
@@ -1205,17 +1205,17 @@ public class SubentryInterceptor extends BaseInterceptor
         }
         else
         {
-            next.modify( opContext );
+            next.modify( modifyContext );
 
             if ( !objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
             {
-                Entry newEntry = opContext.getAlteredEntry(); 
+                Entry newEntry = modifyContext.getAlteredEntry(); 
 
                 List<Modification> subentriesOpAttrMods = getModsOnEntryModification( dn, entry, newEntry );
 
                 if ( subentriesOpAttrMods.size() > 0 )
                 {
-                    nexus.modify( new ModifyOperationContext( opContext.getSession(), dn, subentriesOpAttrMods ) );
+                    nexus.modify( new ModifyOperationContext( modifyContext.getSession(), dn, subentriesOpAttrMods ) );
                 }
             }
         }
@@ -1462,7 +1462,7 @@ public class SubentryInterceptor extends BaseInterceptor
      */
     public class HideSubentriesFilter implements EntryFilter
     {
-        public boolean accept( SearchingOperationContext operation, ClonedServerEntry entry ) throws Exception
+        public boolean accept( SearchingOperationContext searchContext, ClonedServerEntry entry ) throws Exception
         {
             String dn = entry.getDn().getNormName();
 
@@ -1493,7 +1493,7 @@ public class SubentryInterceptor extends BaseInterceptor
      */
     public class HideEntriesFilter implements EntryFilter
     {
-        public boolean accept( SearchingOperationContext operation, ClonedServerEntry entry ) throws Exception
+        public boolean accept( SearchingOperationContext searchContext, ClonedServerEntry entry ) throws Exception
         {
             String dn = entry.getDn().getNormName();
 
@@ -1576,5 +1576,4 @@ public class SubentryInterceptor extends BaseInterceptor
 
         return modList;
     }
-
 }

@@ -163,10 +163,10 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
-    public void delete( NextInterceptor next, final DeleteOperationContext opContext ) throws LdapException
+    public void delete( NextInterceptor next, final DeleteOperationContext deleteContext ) throws LdapException
     {
-        List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), opContext.getEntry() );
-        next.delete( opContext );
+        List<RegistrationEntry> selecting = getSelectingRegistrations( deleteContext.getDn(), deleteContext.getEntry() );
+        next.delete( deleteContext );
 
         if ( selecting.isEmpty() )
         {
@@ -177,19 +177,19 @@ public class EventInterceptor extends BaseInterceptor
         {
             if ( EventType.isDelete( registration.getCriteria().getEventMask() ) )
             {
-                fire( opContext, EventType.DELETE, registration.getListener() );
+                fire( deleteContext, EventType.DELETE, registration.getListener() );
             }
         }
     }
 
 
-    public void modify( NextInterceptor next, final ModifyOperationContext opContext ) throws LdapException
+    public void modify( NextInterceptor next, final ModifyOperationContext modifyContext ) throws LdapException
     {
-        Entry oriEntry = opContext.getEntry();
+        Entry oriEntry = modifyContext.getEntry();
 
-        List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), oriEntry );
+        List<RegistrationEntry> selecting = getSelectingRegistrations( modifyContext.getDn(), oriEntry );
 
-        next.modify( opContext );
+        next.modify( modifyContext );
 
         if ( selecting.isEmpty() )
         {
@@ -197,25 +197,25 @@ public class EventInterceptor extends BaseInterceptor
         }
 
         // Get the modified entry
-        Entry alteredEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
-        opContext.setAlteredEntry( ( ClonedServerEntry ) alteredEntry );
+        Entry alteredEntry = modifyContext.lookup( modifyContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
+        modifyContext.setAlteredEntry( ( ClonedServerEntry ) alteredEntry );
 
         for ( final RegistrationEntry registration : selecting )
         {
             if ( EventType.isModify( registration.getCriteria().getEventMask() ) )
             {
-                fire( opContext, EventType.MODIFY, registration.getListener() );
+                fire( modifyContext, EventType.MODIFY, registration.getListener() );
             }
         }
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws LdapException
+    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
     {
-        Entry oriEntry = opContext.getEntry().getOriginalEntry();
-        List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), oriEntry );
+        Entry oriEntry = renameContext.getEntry().getOriginalEntry();
+        List<RegistrationEntry> selecting = getSelectingRegistrations( renameContext.getDn(), oriEntry );
 
-        next.rename( opContext );
+        next.rename( renameContext );
 
         if ( selecting.isEmpty() )
         {
@@ -223,14 +223,14 @@ public class EventInterceptor extends BaseInterceptor
         }
 
         // Get the modifed entry
-        Entry alteredEntry = opContext.lookup( opContext.getNewDn(), ByPassConstants.LOOKUP_BYPASS );
-        opContext.setModifiedEntry( ( ClonedServerEntry ) alteredEntry );
+        Entry alteredEntry = renameContext.lookup( renameContext.getNewDn(), ByPassConstants.LOOKUP_BYPASS );
+        renameContext.setModifiedEntry( ( ClonedServerEntry ) alteredEntry );
 
         for ( final RegistrationEntry registration : selecting )
         {
             if ( EventType.isRename( registration.getCriteria().getEventMask() ) )
             {
-                fire( opContext, EventType.RENAME, registration.getListener() );
+                fire( renameContext, EventType.RENAME, registration.getListener() );
             }
         }
     }

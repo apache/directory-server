@@ -112,11 +112,11 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
-    public boolean modify( ModifyOperationContext opContext, Entry targetEntry, boolean cascade )
+    public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade )
         throws LdapException
     {
-        DN name = opContext.getDn();
-        Entry entry = opContext.getEntry();
+        DN name = modifyContext.getDn();
+        Entry entry = modifyContext.getEntry();
         String schemaName = getSchemaName( name );
         String oid = getOid( entry );
         AttributeType at = factory.getAttributeType( schemaManager, targetEntry, schemaManager.getRegistries(),

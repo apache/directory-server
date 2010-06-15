@@ -162,13 +162,13 @@ public abstract class ServerContext implements EventContext
         dn = props.getProviderDn();
 
         /*
-         * Need do bind operation here, and opContext returned contains the 
+         * Need do bind operation here, and bindContext returned contains the 
          * newly created session.
          */
-        BindOperationContext opContext = doBindOperation( props.getBindDn(), props.getCredentials(), 
+        BindOperationContext bindContext = doBindOperation( props.getBindDn(), props.getCredentials(), 
             props.getSaslMechanism(), props.getSaslAuthId() );
 
-        session = opContext.getSession();
+        session = bindContext.getSession();
         OperationManager operationManager = service.getOperationManager();
         
         if ( ! operationManager.hasEntry( new EntryOperationContext( session, dn ) ) )
@@ -319,10 +319,13 @@ public abstract class ServerContext implements EventContext
         
         Object typesOnlyObj = getEnvironment().get( "java.naming.ldap.typesOnly" );
         boolean typesOnly = false;
+        
         if( typesOnlyObj != null )
         {
             typesOnly = Boolean.parseBoolean( typesOnlyObj.toString() );
         }
+        
+        SearchOperationContext searchContext = null;
 
         // We have to check if it's a compare operation or a search. 
         // A compare operation has a OBJECT scope search, the filter must
@@ -333,30 +336,30 @@ public abstract class ServerContext implements EventContext
                 && ( searchControls.getReturningAttributes().length == 0 ) )
             && ( filter instanceof EqualityNode ) )
         {
-            opContext = new CompareOperationContext( session, dn, ((EqualityNode)filter).getAttribute(), ((EqualityNode)filter).getValue() );
+        	CompareOperationContext compareContext = new CompareOperationContext( session, dn, ((EqualityNode)filter).getAttribute(), ((EqualityNode)filter).getValue() );
             
             // Inject the referral handling into the operation context
-            injectReferralControl( opContext );
+            injectReferralControl( compareContext );
 
             // Call the operation
-            boolean result = operationManager.compare( (CompareOperationContext)opContext );
+            boolean result = operationManager.compare( compareContext );
 
             // setup the op context and populate with request controls
-            opContext = new SearchOperationContext( session, dn, filter,
+            searchContext = new SearchOperationContext( session, dn, filter,
                 searchControls );
-            ((SearchOperationContext)opContext).setAliasDerefMode( aliasDerefMode );
-            opContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+            searchContext.setAliasDerefMode( aliasDerefMode );
+            searchContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
             
-            ( ( SearchOperationContext ) opContext ).setTypesOnly(  typesOnly );
+            searchContext.setTypesOnly(  typesOnly );
             
             if ( result )
             {
                 Entry emptyEntry = new DefaultEntry( service.getSchemaManager(), DN.EMPTY_DN ); 
-                return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( emptyEntry ), (SearchOperationContext)opContext );
+                return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( emptyEntry ), searchContext );
             }
             else
             {
-                return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), (SearchOperationContext)opContext );
+                return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
             }
         }
         else
@@ -364,21 +367,21 @@ public abstract class ServerContext implements EventContext
             // It's a Search
             
             // setup the op context and populate with request controls
-            opContext = new SearchOperationContext( session, dn, filter, searchControls );
-            ( ( SearchOperationContext ) opContext ).setAliasDerefMode( aliasDerefMode );
-            opContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
-            ( ( SearchOperationContext ) opContext ).setTypesOnly(  typesOnly );
+        	searchContext = new SearchOperationContext( session, dn, filter, searchControls );
+        	searchContext.setAliasDerefMode( aliasDerefMode );
+        	searchContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+        	searchContext.setTypesOnly(  typesOnly );
             
             // Inject the referral handling into the operation context
-            injectReferralControl( opContext );
+            injectReferralControl( searchContext );
 
             // execute search operation
-            results = operationManager.search( (SearchOperationContext)opContext );
+            results = operationManager.search( searchContext );
         }
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
-        responseControls = JndiUtils.toJndiControls( opContext.getResponseControls() );
+        responseControls = JndiUtils.toJndiControls( searchContext.getResponseControls() );
 
         return results;
     }
@@ -390,16 +393,16 @@ public abstract class ServerContext implements EventContext
     protected EntryFilteringCursor doListOperation( DN target ) throws Exception
     {
         // setup the op context and populate with request controls
-        ListOperationContext opCtx = new ListOperationContext( session, target );
-        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+        ListOperationContext listContext = new ListOperationContext( session, target );
+        listContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
 
         // execute list operation
         OperationManager operationManager = service.getOperationManager();
-        EntryFilteringCursor results = operationManager.list( opCtx );
+        EntryFilteringCursor results = operationManager.list( listContext );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
-        responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
+        responseControls = JndiUtils.toJndiControls( listContext.getResponseControls() );
 
         return results;
     }
@@ -407,13 +410,13 @@ public abstract class ServerContext implements EventContext
 
     protected Entry doGetRootDSEOperation( DN target ) throws Exception
     {
-        GetRootDSEOperationContext opCtx = new GetRootDSEOperationContext( session, target );
-        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+        GetRootDSEOperationContext getRootDseContext = new GetRootDSEOperationContext( session, target );
+        getRootDseContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
 
         // do not reset request controls since this is not an external 
         // operation and not do bother setting the response controls either
         OperationManager operationManager = service.getOperationManager();
-        return operationManager.getRootDSE( opCtx );
+        return operationManager.getRootDSE( getRootDseContext );
     }
 
 
@@ -423,17 +426,15 @@ public abstract class ServerContext implements EventContext
     protected Entry doLookupOperation( DN target ) throws Exception
     {
         // setup the op context and populate with request controls
-        LookupOperationContext opCtx;
-
         // execute lookup/getRootDSE operation
-        opCtx = new LookupOperationContext( session, target );
-        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, target );
+        lookupContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
         OperationManager operationManager = service.getOperationManager();
-        Entry serverEntry = operationManager.lookup( opCtx );
+        Entry serverEntry = operationManager.lookup( lookupContext );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
-        responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
+        responseControls = JndiUtils.toJndiControls( lookupContext.getResponseControls() );
         return serverEntry;
     }
 
@@ -444,20 +445,18 @@ public abstract class ServerContext implements EventContext
     protected Entry doLookupOperation( DN target, String[] attrIds ) throws Exception
     {
         // setup the op context and populate with request controls
-        LookupOperationContext opCtx;
-
         // execute lookup/getRootDSE operation
-        opCtx = new LookupOperationContext( session, target, attrIds );
-        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, target, attrIds );
+        lookupContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
         OperationManager operationManager = service.getOperationManager();
-        Entry serverEntry = operationManager.lookup( opCtx );
+        Entry serverEntry = operationManager.lookup( lookupContext );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
-        responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
+        responseControls = JndiUtils.toJndiControls( lookupContext.getResponseControls() );
 
         // Now remove the ObjectClass attribute if it has not been requested
-        if ( ( opCtx.getAttrsId() != null ) && ( opCtx.getAttrsId().size() != 0 ) &&
+        if ( ( lookupContext.getAttrsId() != null ) && ( lookupContext.getAttrsId().size() != 0 ) &&
             ( ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ) != null )
                 && ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ).size() == 0 ) ) )
         {
@@ -475,21 +474,21 @@ public abstract class ServerContext implements EventContext
         String saslAuthId ) throws Exception
     {
         // setup the op context and populate with request controls
-        BindOperationContext opCtx = new BindOperationContext( null );
-        opCtx.setDn( bindDn );
-        opCtx.setCredentials( credentials );
-        opCtx.setSaslMechanism( saslMechanism );
-        opCtx.setSaslAuthId( saslAuthId );
-        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+        BindOperationContext bindContext = new BindOperationContext( null );
+        bindContext.setDn( bindDn );
+        bindContext.setCredentials( credentials );
+        bindContext.setSaslMechanism( saslMechanism );
+        bindContext.setSaslAuthId( saslAuthId );
+        bindContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
 
         // execute bind operation
         OperationManager operationManager = service.getOperationManager();
-        operationManager.bind( opCtx );
+        operationManager.bind( bindContext );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
-        responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
-        return opCtx;
+        responseControls = JndiUtils.toJndiControls( bindContext.getResponseControls() );
+        return bindContext;
     }
 
 
@@ -500,20 +499,20 @@ public abstract class ServerContext implements EventContext
         throws Exception
     {
         // setup the op context and populate with request controls
-        MoveAndRenameOperationContext opCtx = new MoveAndRenameOperationContext( session, oldDn, parent, new RDN(
+        MoveAndRenameOperationContext moveAndRenameContext = new MoveAndRenameOperationContext( session, oldDn, parent, new RDN(
             newRdn ), delOldDn );
-        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+        moveAndRenameContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
 
         // Inject the referral handling into the operation context
-        injectReferralControl( opCtx );
+        injectReferralControl( moveAndRenameContext );
         
         // execute moveAndRename operation
         OperationManager operationManager = service.getOperationManager();
-        operationManager.moveAndRename( opCtx );
+        operationManager.moveAndRename( moveAndRenameContext );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
-        responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
+        responseControls = JndiUtils.toJndiControls( moveAndRenameContext.getResponseControls() );
     }
 
 
@@ -523,19 +522,19 @@ public abstract class ServerContext implements EventContext
     protected void doModifyOperation( DN dn, List<Modification> modifications ) throws Exception
     {
         // setup the op context and populate with request controls
-        ModifyOperationContext opCtx = new ModifyOperationContext( session, dn, modifications );
-        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+        ModifyOperationContext modifyContext = new ModifyOperationContext( session, dn, modifications );
+        modifyContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
 
         // Inject the referral handling into the operation context
-        injectReferralControl( opCtx );
+        injectReferralControl( modifyContext );
         
         // execute modify operation
         OperationManager operationManager = service.getOperationManager();
-        operationManager.modify( opCtx );
+        operationManager.modify( modifyContext );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
-        responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
+        responseControls = JndiUtils.toJndiControls( modifyContext.getResponseControls() );
     }
 
 
@@ -545,19 +544,19 @@ public abstract class ServerContext implements EventContext
     protected void doMove( DN oldDn, DN target ) throws Exception
     {
         // setup the op context and populate with request controls
-        MoveOperationContext opCtx = new MoveOperationContext( session, oldDn, target );
-        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+        MoveOperationContext moveContext = new MoveOperationContext( session, oldDn, target );
+        moveContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
 
         // Inject the referral handling into the operation context
-        injectReferralControl( opCtx );
+        injectReferralControl( moveContext );
         
         // execute move operation
         OperationManager operationManager = service.getOperationManager();
-        operationManager.move( opCtx );
+        operationManager.move( moveContext );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
-        responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
+        responseControls = JndiUtils.toJndiControls( moveContext.getResponseControls() );
     }
 
 
@@ -567,19 +566,19 @@ public abstract class ServerContext implements EventContext
     protected void doRename( DN oldDn, RDN newRdn, boolean delOldRdn ) throws Exception
     {
         // setup the op context and populate with request controls
-        RenameOperationContext opCtx = new RenameOperationContext( session, oldDn, newRdn, delOldRdn );
-        opCtx.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
+        RenameOperationContext renameContext = new RenameOperationContext( session, oldDn, newRdn, delOldRdn );
+        renameContext.addRequestControls( JndiUtils.fromJndiControls( requestControls ) );
 
         // Inject the referral handling into the operation context
-        injectReferralControl( opCtx );
+        injectReferralControl( renameContext );
         
         // execute rename operation
         OperationManager operationManager = service.getOperationManager();
-        operationManager.rename( opCtx );
+        operationManager.rename( renameContext );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
-        responseControls = JndiUtils.toJndiControls( opCtx.getResponseControls() );
+        responseControls = JndiUtils.toJndiControls( renameContext.getResponseControls() );
     }
 
     

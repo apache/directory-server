@@ -60,7 +60,7 @@ public class CursorList implements EntryFilteringCursor
     private int index = -1;
 
     /** the operation context */
-    private SearchingOperationContext opContext;
+    private SearchingOperationContext searchContext;
 
     /** flag to detect the closed cursor */
     private boolean closed;
@@ -80,7 +80,7 @@ public class CursorList implements EntryFilteringCursor
      * @param list the list this ListCursor operates on
      * @param end the upper bound index
      */
-    public CursorList( int start, List<EntryFilteringCursor> list, int end, SearchingOperationContext opContext )
+    public CursorList( int start, List<EntryFilteringCursor> list, int end, SearchingOperationContext searchContext )
     {
         if ( list != null )
         {
@@ -110,7 +110,7 @@ public class CursorList implements EntryFilteringCursor
 
         this.start = start;
         this.end = end;
-        this.opContext = opContext;
+        this.searchContext = searchContext;
     }
 
 
@@ -120,9 +120,9 @@ public class CursorList implements EntryFilteringCursor
      *
      * @param list the backing for this ListCursor
      */
-    public CursorList( List<EntryFilteringCursor> list, SearchingOperationContext opContext )
+    public CursorList( List<EntryFilteringCursor> list, SearchingOperationContext searchContext )
     {
-        this( 0, list, list.size(), opContext );
+        this( 0, list, list.size(), searchContext );
     }
 
 
@@ -409,7 +409,7 @@ public class CursorList implements EntryFilteringCursor
 
     public SearchingOperationContext getOperationContext()
     {
-        return opContext;
+        return searchContext;
     }
 
 

@@ -136,12 +136,12 @@ public class DefaultCoreSession implements CoreSession
      */
     public void add( Entry entry, LogChange log ) throws LdapException
     {
-        AddOperationContext opContext = new AddOperationContext( this, entry );
+        AddOperationContext addContext = new AddOperationContext( this, entry );
 
-        opContext.setLogChange( log );
+        addContext.setLogChange( log );
         
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.add( opContext );
+        operationManager.add( addContext );
     }
 
 
@@ -150,13 +150,13 @@ public class DefaultCoreSession implements CoreSession
      */
     public void add( Entry entry, boolean ignoreReferral, LogChange log ) throws LdapException
     {
-        AddOperationContext opContext = new AddOperationContext( this, entry );
+        AddOperationContext addContext = new AddOperationContext( this, entry );
 
-        opContext.setLogChange( log );
-        setReferralHandling( opContext, ignoreReferral );
+        addContext.setLogChange( log );
+        setReferralHandling( addContext, ignoreReferral );
         
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.add( opContext );
+        operationManager.add( addContext );
     }
 
 
@@ -174,13 +174,13 @@ public class DefaultCoreSession implements CoreSession
      */
     public void add( InternalAddRequest addRequest, LogChange log ) throws LdapException
     {
-        AddOperationContext opContext = new AddOperationContext( this, addRequest );
+        AddOperationContext addContext = new AddOperationContext( this, addRequest );
 
-        opContext.setLogChange( log );
+        addContext.setLogChange( log );
         
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.add( opContext );
-        addRequest.getResultResponse().addAll( opContext.getResponseControls() );
+        operationManager.add( addContext );
+        addRequest.getResultResponse().addAll( addContext.getResponseControls() );
     }
 
     
@@ -243,14 +243,14 @@ public class DefaultCoreSession implements CoreSession
      */
     public boolean compare( DN dn, String oid, Object value, boolean ignoreReferral ) throws LdapException
     {
-        CompareOperationContext opContext =  
+        CompareOperationContext compareContext =  
                 new CompareOperationContext( this, dn, oid, 
                     convertToValue( oid, value ) );
         
-        setReferralHandling( opContext, ignoreReferral );
+        setReferralHandling( compareContext, ignoreReferral );
         
         OperationManager operationManager = directoryService.getOperationManager();
-        return operationManager.compare( opContext );
+        return operationManager.compare( compareContext );
     }
 
 
@@ -268,12 +268,12 @@ public class DefaultCoreSession implements CoreSession
      */
     public void delete( DN dn, LogChange log ) throws LdapException
     {
-        DeleteOperationContext opContext = new DeleteOperationContext( this, dn );
+        DeleteOperationContext deleteContext = new DeleteOperationContext( this, dn );
 
-        opContext.setLogChange( log );
+        deleteContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.delete( opContext );
+        operationManager.delete( deleteContext );
     }
 
 
@@ -291,13 +291,13 @@ public class DefaultCoreSession implements CoreSession
      */
     public void delete( DN dn, boolean ignoreReferral, LogChange log ) throws LdapException
     {
-        DeleteOperationContext opContext = new DeleteOperationContext( this, dn );
+        DeleteOperationContext deleteContext = new DeleteOperationContext( this, dn );
         
-        opContext.setLogChange( log );
-        setReferralHandling( opContext, ignoreReferral );
+        deleteContext.setLogChange( log );
+        setReferralHandling( deleteContext, ignoreReferral );
 
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.delete( opContext );
+        operationManager.delete( deleteContext );
     }
 
 
@@ -445,10 +445,10 @@ public class DefaultCoreSession implements CoreSession
     {
         OperationManager operationManager = directoryService.getOperationManager();
 
-        ListOperationContext listOperationContext = new ListOperationContext( this, dn, returningAttributes );
-        listOperationContext.setAliasDerefMode( aliasDerefMode );
+        ListOperationContext listContext = new ListOperationContext( this, dn, returningAttributes );
+        listContext.setAliasDerefMode( aliasDerefMode );
         
-        return operationManager.list( listOperationContext );
+        return operationManager.list( listContext );
     }
 
 
@@ -460,12 +460,12 @@ public class DefaultCoreSession implements CoreSession
     {
         OperationManager operationManager = directoryService.getOperationManager();
 
-        ListOperationContext listOperationContext = new ListOperationContext( this, dn, returningAttributes );
-        listOperationContext.setSizeLimit( sizeLimit );
-        listOperationContext.setTimeLimit( timeLimit );
-        listOperationContext.setAliasDerefMode( aliasDerefMode );
+        ListOperationContext listContext = new ListOperationContext( this, dn, returningAttributes );
+        listContext.setSizeLimit( sizeLimit );
+        listContext.setTimeLimit( timeLimit );
+        listContext.setAliasDerefMode( aliasDerefMode );
         
-        return operationManager.list( listOperationContext );
+        return operationManager.list( listContext );
     }
 
 
@@ -485,9 +485,9 @@ public class DefaultCoreSession implements CoreSession
     public Entry lookup( DN dn, String[] attrId ) throws LdapException
     {
         OperationManager operationManager = directoryService.getOperationManager();
-        LookupOperationContext lookupOperationContext = new LookupOperationContext( this, dn, attrId );
+        LookupOperationContext lookupContext = new LookupOperationContext( this, dn, attrId );
 
-        Entry entry = operationManager.lookup( lookupOperationContext );
+        Entry entry = operationManager.lookup( lookupContext );
         
         return entry;
     }
@@ -519,12 +519,12 @@ public class DefaultCoreSession implements CoreSession
             serverModifications.add( new DefaultModification( directoryService.getSchemaManager(), mod ) );
         }
         
-        ModifyOperationContext opContext = new ModifyOperationContext( this, dn, serverModifications );
+        ModifyOperationContext modifyContext = new ModifyOperationContext( this, dn, serverModifications );
 
-        opContext.setLogChange( log );
+        modifyContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.modify( opContext );
+        operationManager.modify( modifyContext );
     }
 
 
@@ -554,13 +554,13 @@ public class DefaultCoreSession implements CoreSession
             serverModifications.add( new DefaultModification( directoryService.getSchemaManager(), mod ) );
         }
 
-        ModifyOperationContext opContext = new ModifyOperationContext( this, dn, serverModifications );
+        ModifyOperationContext modifyContext = new ModifyOperationContext( this, dn, serverModifications );
         
-        setReferralHandling( opContext, ignoreReferral );
-        opContext.setLogChange( log );
+        setReferralHandling( modifyContext, ignoreReferral );
+        modifyContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.modify( opContext );
+        operationManager.modify( modifyContext );
     }
 
 
@@ -578,11 +578,11 @@ public class DefaultCoreSession implements CoreSession
      */
     public void move( DN dn, DN newParent, LogChange log ) throws LdapException
     {
-        MoveOperationContext opContext = new MoveOperationContext( this, dn, newParent );
-        opContext.setLogChange( log );
+        MoveOperationContext moveContext = new MoveOperationContext( this, dn, newParent );
+        moveContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.move( opContext );
+        operationManager.move( moveContext );
     }
 
 
@@ -601,12 +601,12 @@ public class DefaultCoreSession implements CoreSession
     public void move( DN dn, DN newParent, boolean ignoreReferral, LogChange log ) throws LdapException
     {
         OperationManager operationManager = directoryService.getOperationManager();
-        MoveOperationContext opContext = new MoveOperationContext( this, dn, newParent );
+        MoveOperationContext moveContext = new MoveOperationContext( this, dn, newParent );
         
-        setReferralHandling( opContext, ignoreReferral );
-        opContext.setLogChange( log );
+        setReferralHandling( moveContext, ignoreReferral );
+        moveContext.setLogChange( log );
 
-        operationManager.move( opContext );
+        operationManager.move( moveContext );
     }
 
 
@@ -624,13 +624,13 @@ public class DefaultCoreSession implements CoreSession
      */
     public void moveAndRename( DN dn, DN newSuperiorDn, RDN newRdn, boolean deleteOldRdn, LogChange log ) throws LdapException
     {
-        MoveAndRenameOperationContext opContext = 
+        MoveAndRenameOperationContext moveAndRenameContext = 
             new MoveAndRenameOperationContext( this, dn, newSuperiorDn, newRdn, deleteOldRdn );
         
-        opContext.setLogChange( log );
+        moveAndRenameContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.moveAndRename( opContext );
+        operationManager.moveAndRename( moveAndRenameContext );
     }
 
 
@@ -649,12 +649,12 @@ public class DefaultCoreSession implements CoreSession
     public void moveAndRename( DN dn, DN newParent, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log ) throws LdapException
     {
         OperationManager operationManager = directoryService.getOperationManager();
-        MoveAndRenameOperationContext opContext = new MoveAndRenameOperationContext( this, dn, newParent, newRdn, deleteOldRdn );
+        MoveAndRenameOperationContext moveAndRenameContext = new MoveAndRenameOperationContext( this, dn, newParent, newRdn, deleteOldRdn );
         
-        opContext.setLogChange( log );
-        setReferralHandling( opContext, ignoreReferral );
+        moveAndRenameContext.setLogChange( log );
+        setReferralHandling( moveAndRenameContext, ignoreReferral );
 
-        operationManager.moveAndRename( opContext );
+        operationManager.moveAndRename( moveAndRenameContext );
     }
 
 
@@ -672,13 +672,13 @@ public class DefaultCoreSession implements CoreSession
      */
     public void rename( DN dn, RDN newRdn, boolean deleteOldRdn, LogChange log ) throws LdapException
     {
-        RenameOperationContext opContext = new RenameOperationContext( this, dn, newRdn, deleteOldRdn );
+        RenameOperationContext renameContext = new RenameOperationContext( this, dn, newRdn, deleteOldRdn );
         
-        opContext.setLogChange( log );
+        renameContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
         
-        operationManager.rename( opContext );
+        operationManager.rename( renameContext );
     }
 
 
@@ -697,12 +697,12 @@ public class DefaultCoreSession implements CoreSession
     public void rename( DN dn, RDN newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log ) throws LdapException
     {
         OperationManager operationManager = directoryService.getOperationManager();
-        RenameOperationContext opContext = new RenameOperationContext( this, dn, newRdn, deleteOldRdn );
+        RenameOperationContext renameContext = new RenameOperationContext( this, dn, newRdn, deleteOldRdn );
         
-        opContext.setLogChange( log );
-        setReferralHandling( opContext, ignoreReferral );
+        renameContext.setLogChange( log );
+        setReferralHandling( renameContext, ignoreReferral );
 
-        operationManager.rename( opContext );
+        operationManager.rename( renameContext );
     }
 
 
@@ -732,12 +732,12 @@ public class DefaultCoreSession implements CoreSession
             throw new LdapInvalidSearchFilterException( pe.getMessage() );
         }
         
-        SearchOperationContext searchOperationContext = new SearchOperationContext( this, dn, SearchScope.OBJECT, 
+        SearchOperationContext searchContext = new SearchOperationContext( this, dn, SearchScope.OBJECT, 
             filterNode, null );
-        searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS ); 
-        setReferralHandling( searchOperationContext, ignoreReferrals );
+        searchContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS ); 
+        setReferralHandling( searchContext, ignoreReferrals );
 
-        return operationManager.search( searchOperationContext );
+        return operationManager.search( searchContext );
     }
     
 
@@ -749,11 +749,11 @@ public class DefaultCoreSession implements CoreSession
     {
         OperationManager operationManager = directoryService.getOperationManager();
 
-        SearchOperationContext searchOperationContext = new SearchOperationContext( this, dn, scope, filter, 
+        SearchOperationContext searchContext = new SearchOperationContext( this, dn, scope, filter, 
             returningAttributes );
-        searchOperationContext.setAliasDerefMode( aliasDerefMode );
+        searchContext.setAliasDerefMode( aliasDerefMode );
 
-        return operationManager.search( searchOperationContext );
+        return operationManager.search( searchContext );
     }
 
 
@@ -765,13 +765,13 @@ public class DefaultCoreSession implements CoreSession
     {
         OperationManager operationManager = directoryService.getOperationManager();
 
-        SearchOperationContext searchOperationContext = new SearchOperationContext( this, dn, scope, filter, 
+        SearchOperationContext searchContext = new SearchOperationContext( this, dn, scope, filter, 
             returningAttributes );
-        searchOperationContext.setAliasDerefMode( aliasDerefMode );
-        searchOperationContext.setSizeLimit( sizeLimit );
-        searchOperationContext.setTimeLimit( timeLimit );
+        searchContext.setAliasDerefMode( aliasDerefMode );
+        searchContext.setSizeLimit( sizeLimit );
+        searchContext.setTimeLimit( timeLimit );
         
-        return operationManager.search( searchOperationContext );
+        return operationManager.search( searchContext );
     }
 
 
@@ -786,10 +786,10 @@ public class DefaultCoreSession implements CoreSession
      */
     public boolean compare( InternalCompareRequest compareRequest ) throws LdapException
     {
-        CompareOperationContext opContext = new CompareOperationContext( this, compareRequest );
+        CompareOperationContext compareContext = new CompareOperationContext( this, compareRequest );
         OperationManager operationManager = directoryService.getOperationManager();
-        boolean result = operationManager.compare( opContext );
-        compareRequest.getResultResponse().addAll( opContext.getResponseControls() );
+        boolean result = operationManager.compare( compareContext );
+        compareRequest.getResultResponse().addAll( compareContext.getResponseControls() );
         return result;
     }
 
@@ -808,21 +808,21 @@ public class DefaultCoreSession implements CoreSession
      */
     public void delete( InternalDeleteRequest deleteRequest, LogChange log ) throws LdapException
     {
-        DeleteOperationContext opContext = new DeleteOperationContext( this, deleteRequest );
+        DeleteOperationContext deleteContext = new DeleteOperationContext( this, deleteRequest );
         
-        opContext.setLogChange( log );
+        deleteContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.delete( opContext );
-        deleteRequest.getResultResponse().addAll( opContext.getResponseControls() );
+        operationManager.delete( deleteContext );
+        deleteRequest.getResultResponse().addAll( deleteContext.getResponseControls() );
     }
 
 
     public boolean exists( DN dn ) throws LdapException
     {
-        EntryOperationContext opContext = new EntryOperationContext( this, dn );
+        EntryOperationContext hasEntryContext = new EntryOperationContext( this, dn );
         OperationManager operationManager = directoryService.getOperationManager();
-        return operationManager.hasEntry( opContext );
+        return operationManager.hasEntry( hasEntryContext );
     }
 
 
@@ -840,13 +840,13 @@ public class DefaultCoreSession implements CoreSession
      */
     public void modify( InternalModifyRequest modifyRequest, LogChange log ) throws LdapException
     {
-        ModifyOperationContext opContext = new ModifyOperationContext( this, modifyRequest );
+        ModifyOperationContext modifyContext = new ModifyOperationContext( this, modifyRequest );
 
-        opContext.setLogChange( log );
+        modifyContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.modify( opContext );
-        modifyRequest.getResultResponse().addAll( opContext.getResponseControls() );
+        operationManager.modify( modifyContext );
+        modifyRequest.getResultResponse().addAll( modifyContext.getResponseControls() );
     }
 
 
@@ -864,13 +864,13 @@ public class DefaultCoreSession implements CoreSession
      */
     public void move( InternalModifyDnRequest modifyDnRequest, LogChange log ) throws LdapException
     {
-        MoveOperationContext opContext = new MoveOperationContext( this, modifyDnRequest );
+        MoveOperationContext moveContext = new MoveOperationContext( this, modifyDnRequest );
         
-        opContext.setLogChange( log );
+        moveContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.move( opContext );
-        modifyDnRequest.getResultResponse().addAll( opContext.getResponseControls() );
+        operationManager.move( moveContext );
+        modifyDnRequest.getResultResponse().addAll( moveContext.getResponseControls() );
     }
 
 
@@ -888,13 +888,13 @@ public class DefaultCoreSession implements CoreSession
      */
     public void moveAndRename( InternalModifyDnRequest modifyDnRequest, LogChange log ) throws LdapException
     {
-        MoveAndRenameOperationContext opContext = new MoveAndRenameOperationContext( this, modifyDnRequest );
+        MoveAndRenameOperationContext moveAndRenameContext = new MoveAndRenameOperationContext( this, modifyDnRequest );
 
-        opContext.setLogChange( log );
+        moveAndRenameContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.moveAndRename( opContext );
-        modifyDnRequest.getResultResponse().addAll( opContext.getResponseControls() );
+        operationManager.moveAndRename( moveAndRenameContext );
+        modifyDnRequest.getResultResponse().addAll( moveAndRenameContext.getResponseControls() );
     }
 
 
@@ -912,22 +912,22 @@ public class DefaultCoreSession implements CoreSession
      */
     public void rename( InternalModifyDnRequest modifyDnRequest, LogChange log ) throws LdapException
     {
-        RenameOperationContext opContext = new RenameOperationContext( this, modifyDnRequest );
+        RenameOperationContext renameContext = new RenameOperationContext( this, modifyDnRequest );
 
-        opContext.setLogChange( log );
+        renameContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.rename( opContext );
-        modifyDnRequest.getResultResponse().addAll( opContext.getResponseControls() );
+        operationManager.rename( renameContext );
+        modifyDnRequest.getResultResponse().addAll( renameContext.getResponseControls() );
     }
 
 
     public EntryFilteringCursor search( InternalSearchRequest searchRequest ) throws LdapException
     {
-        SearchOperationContext opContext = new SearchOperationContext( this, searchRequest );
+        SearchOperationContext searchContext = new SearchOperationContext( this, searchRequest );
         OperationManager operationManager = directoryService.getOperationManager();
-        EntryFilteringCursor cursor = operationManager.search( opContext );
-        searchRequest.getResultResponse().addAll( opContext.getResponseControls() );
+        EntryFilteringCursor cursor = operationManager.search( searchContext );
+        searchRequest.getResultResponse().addAll( searchContext.getResponseControls() );
         
         return cursor;
     }
@@ -943,6 +943,5 @@ public class DefaultCoreSession implements CoreSession
     public void unbind( InternalUnbindRequest unbindRequest )
     {
         // TODO Auto-generated method stub
-        
     }
 }

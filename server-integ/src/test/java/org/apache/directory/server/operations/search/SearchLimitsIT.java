@@ -134,9 +134,9 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
         private Long delayMillis;
 
         
-        public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws LdapException
+        public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext searchContext ) throws LdapException
         {
-            EntryFilteringCursor cursor = next.search( opContext );
+            EntryFilteringCursor cursor = next.search( searchContext );
             cursor.addEntryFilter( new EntryFilter() {
                 public boolean accept( SearchingOperationContext operation, ClonedServerEntry result ) throws Exception
                 {

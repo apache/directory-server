@@ -70,7 +70,7 @@ public interface PartitionNexus extends Partition
     /**
      * Remove a partition from the server.
      * 
-     * @param opContext The Remove Partition context
+     * @param partitionDn the partition DN
      * @throws Exception If the removal can't be done
      */
     public void removeContextPartition( DN partitionDn )
@@ -136,5 +136,5 @@ public interface PartitionNexus extends Partition
     public void registerSupportedSaslMechanisms( Set<String> supportedSaslMechanisms ) throws LdapException;
 
 
-    public boolean compare( CompareOperationContext opContext ) throws LdapException;
+    public boolean compare( CompareOperationContext compareContext ) throws LdapException;
 }

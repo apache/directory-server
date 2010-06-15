@@ -306,65 +306,65 @@ public abstract class AbstractOperationContext implements OperationContext
     
     public boolean hasEntry( DN dn, Collection<String> byPassed ) throws LdapException
     {
-        EntryOperationContext opContext = new EntryOperationContext( session, dn );
-        setup( opContext );
-        opContext.setByPassed( byPassed );
-        return session.getDirectoryService().getOperationManager().hasEntry( opContext );
+        EntryOperationContext hasEntryContext = new EntryOperationContext( session, dn );
+        setup( hasEntryContext );
+        hasEntryContext.setByPassed( byPassed );
+        return session.getDirectoryService().getOperationManager().hasEntry( hasEntryContext );
     }
     
     
     public void add( Entry entry, Collection<String> byPassed ) throws LdapException
     {
-        AddOperationContext opContext = new AddOperationContext( session, entry );
-        setup( opContext );
-        opContext.setByPassed( byPassed );
-        session.getDirectoryService().getOperationManager().add( opContext );
+        AddOperationContext addContext = new AddOperationContext( session, entry );
+        setup( addContext );
+        addContext.setByPassed( byPassed );
+        session.getDirectoryService().getOperationManager().add( addContext );
     }
     
     
     public void delete( DN dn, Collection<String> byPassed ) throws LdapException
     {
-        DeleteOperationContext opContext = new DeleteOperationContext( session, dn );
-        setup( opContext );
-        opContext.setByPassed( byPassed );
-        session.getDirectoryService().getOperationManager().delete( opContext );
+        DeleteOperationContext deleteContext = new DeleteOperationContext( session, dn );
+        setup( deleteContext );
+        deleteContext.setByPassed( byPassed );
+        session.getDirectoryService().getOperationManager().delete( deleteContext );
     }
     
     
     public void modify( DN dn, List<Modification> mods, Collection<String> byPassed ) throws LdapException
     {
-        ModifyOperationContext opContext = new ModifyOperationContext( session, dn, mods );
-        setup( opContext );
-        opContext.setByPassed( byPassed );
-        session.getDirectoryService().getOperationManager().modify( opContext );
+        ModifyOperationContext modifyContext = new ModifyOperationContext( session, dn, mods );
+        setup( modifyContext );
+        modifyContext.setByPassed( byPassed );
+        session.getDirectoryService().getOperationManager().modify( modifyContext );
     }
     
     
     // TODO - need synchronization here and where we update links
     public LookupOperationContext newLookupContext( DN dn )
     {
-        LookupOperationContext opContext = new LookupOperationContext( session, dn );
-        setup( opContext );
-        return opContext;
+        LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
+        setup( lookupContext );
+        return lookupContext;
     }
 
 
-    public Entry lookup( LookupOperationContext opContext ) throws LdapException
+    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
-        if ( opContext != next )
+        if ( lookupContext != next )
         {
             throw new IllegalStateException( I18n.err( I18n.ERR_319 ) );
         }
         
-        return session.getDirectoryService().getOperationManager().lookup( opContext );
+        return session.getDirectoryService().getOperationManager().lookup( lookupContext );
     }
 
 
     public Entry lookup( DN dn, Collection<String> byPassed ) throws LdapException
     {
-        LookupOperationContext opContext = newLookupContext( dn );
-        opContext.setByPassed( byPassed );
-        return session.getDirectoryService().getOperationManager().lookup( opContext );
+        LookupOperationContext lookupContext = newLookupContext( dn );
+        lookupContext.setByPassed( byPassed );
+        return session.getDirectoryService().getOperationManager().lookup( lookupContext );
     }
     
 

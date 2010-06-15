@@ -143,26 +143,26 @@ public interface Partition
      * Deletes a leaf entry from this ContextPartition: non-leaf entries cannot be 
      * deleted until this operation has been applied to their children.
      *
-     * @param opContext the context of the entry to
+     * @param deleteContext the context of the entry to
      * delete from this ContextPartition.
      * @throws Exception if there are any problems
      */
-    void delete( DeleteOperationContext opContext ) throws LdapException;
+    void delete( DeleteOperationContext deleteContext ) throws LdapException;
 
 
     /**
      * Adds an entry to this ContextPartition.
      *
-     * @param opContext the context used  to add and entry to this ContextPartition
+     * @param addContext the context used  to add and entry to this ContextPartition
      * @throws LdapException if there are any problems
      */
-    void add( AddOperationContext opContext ) throws LdapException;
+    void add( AddOperationContext addContext ) throws LdapException;
 
 
     /**
      * Modifies an entry by adding, removing or replacing a set of attributes.
      *
-     * @param opContext The context containing the modification operation 
+     * @param modifyContext The context containing the modification operation 
      * to perform on the entry which is one of constants specified by the 
      * DirContext interface:
      * <code>ADD_ATTRIBUTE, REMOVE_ATTRIBUTE, REPLACE_ATTRIBUTE</code>.
@@ -173,7 +173,7 @@ public interface Partition
      * @see javax.naming.directory.DirContext#REMOVE_ATTRIBUTE
      * @see javax.naming.directory.DirContext#REPLACE_ATTRIBUTE
      */
-    void modify( ModifyOperationContext opContext ) throws LdapException;
+    void modify( ModifyOperationContext modifyContext ) throws LdapException;
 
 
     /**
@@ -182,11 +182,11 @@ public interface Partition
      * used to optimize operations rather than conducting a full search with 
      * retrieval.
      *
-     * @param opContext the context containing the distinguished/absolute name for the search/listing
+     * @param listContext the context containing the distinguished/absolute name for the search/listing
      * @return a NamingEnumeration containing objects of type {@link ServerSearchResult}
      * @throws Exception if there are any problems
      */
-    EntryFilteringCursor list( ListOperationContext opContext ) throws LdapException;
+    EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException;
 
 
     /**
@@ -197,11 +197,11 @@ public interface Partition
      * namespace specific or implementation specific key for the set of LDAP
      * Controls.
      *
-     * @param opContext The context containing the information used by the operation
+     * @param searchContext The context containing the information used by the operation
      * @throws Exception if there are any problems
      * @return a NamingEnumeration containing objects of type 
      */
-    EntryFilteringCursor search( SearchOperationContext opContext ) throws LdapException;
+    EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException;
 
 
     /**
@@ -222,11 +222,11 @@ public interface Partition
     /**
      * Fast operation to check and see if a particular entry exists.
      *
-     * @param opContext The context used to pass informations
+     * @param hasEntryContext The context used to pass informations
      * @return true if the entry exists, false if it does not
      * @throws Exception if there are any problems
      */
-    boolean hasEntry( EntryOperationContext opContext ) throws LdapException;
+    boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException;
 
 
     /**
@@ -235,20 +235,20 @@ public interface Partition
      * This makes sense only in certain namespaces like LDAP and will be ignored
      * if it is irrelevant.
      *
-     * @param opContext the modify DN context
+     * @param renameContext the modify DN context
      * @throws Exception if there are any problems
      */
-    void rename( RenameOperationContext opContext ) throws LdapException;
+    void rename( RenameOperationContext renameContext ) throws LdapException;
 
 
     /**
      * Transplants a child entry, to a position in the namespace under a new
      * parent entry.
      *
-     * @param opContext The context containing the DNs to move
+     * @param moveContext The context containing the DNs to move
      * @throws Exception if there are any problems
      */
-    void move( MoveOperationContext opContext ) throws LdapException;
+    void move( MoveOperationContext moveContext ) throws LdapException;
 
 
     /**
@@ -271,10 +271,10 @@ public interface Partition
      * need not support this operation.  This operation is here to enable those
      * interested in implementing virtual directories with ApacheDS.
      * 
-     * @param opContext the bind context, containing all the needed informations to bind
+     * @param bindContext the bind context, containing all the needed informations to bind
      * @throws LdapException if something goes wrong
      */
-    void bind( BindOperationContext opContext ) throws LdapException;
+    void bind( BindOperationContext bindContext ) throws LdapException;
 
 
     /**
@@ -282,8 +282,8 @@ public interface Partition
      * need not support this operation.  This operation is here to enable those
      * interested in implementing virtual directories with ApacheDS.
      * 
-     * @param opContext the context used to unbind
+     * @param unbindContext the context used to unbind
      * @throws Exception if something goes wrong
      */
-    void unbind( UnbindOperationContext opContext ) throws LdapException;
+    void unbind( UnbindOperationContext unbindContext ) throws LdapException;
 }

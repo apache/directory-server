@@ -49,16 +49,16 @@ public class MockOperation implements OperationContext
     }
 
 
-    public EntryFilteringCursor search( SearchOperationContext opContext )
+    public EntryFilteringCursor search( SearchOperationContext searchContext )
         throws LdapException
     {
-        return new BaseEntryFilteringCursor( new MockCursor( count ), opContext );
+        return new BaseEntryFilteringCursor( new MockCursor( count ), searchContext );
     }
 
 
-    public EntryFilteringCursor search( SearchOperationContext opContext, Collection<String> bypass ) throws LdapException
+    public EntryFilteringCursor search( SearchOperationContext searchContext, Collection<String> bypass ) throws LdapException
     {
-        return new BaseEntryFilteringCursor( new MockCursor( count ), opContext );
+        return new BaseEntryFilteringCursor( new MockCursor( count ), searchContext );
     }
 
 

@@ -90,12 +90,12 @@ public class InterceptorChainTest
         DirectoryService ds = new MockDirectoryService();
         DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ),
             ds );
-        LookupOperationContext opContext = new LookupOperationContext( session, dn );
-        InvocationStack.getInstance().push( opContext );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
+        InvocationStack.getInstance().push( lookupContext );
 
         try
         {
-            chain.lookup( opContext );
+            chain.lookup( lookupContext );
         }
         catch ( Exception e )
         {
@@ -116,13 +116,13 @@ public class InterceptorChainTest
         DirectoryService ds = new MockDirectoryService();
         DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ),
             ds );
-        LookupOperationContext opContext = new LookupOperationContext( session, dn );
-        opContext.setByPassed( Collections.singleton( "0" ) );
-        InvocationStack.getInstance().push( opContext );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
+        lookupContext.setByPassed( Collections.singleton( "0" ) );
+        InvocationStack.getInstance().push( lookupContext );
 
         try
         {
-            chain.lookup( opContext );
+            chain.lookup( lookupContext );
         }
         catch ( Exception e )
         {
@@ -143,16 +143,16 @@ public class InterceptorChainTest
         DirectoryService ds = new MockDirectoryService();
         DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ),
             ds );
-        LookupOperationContext opContext = new LookupOperationContext( session, dn );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
         Set<String> bypass = new HashSet<String>();
         bypass.add( "0" );
         bypass.add( "1" );
-        opContext.setByPassed( bypass );
-        InvocationStack.getInstance().push( opContext );
+        lookupContext.setByPassed( bypass );
+        InvocationStack.getInstance().push( lookupContext );
 
         try
         {
-            chain.lookup( opContext );
+            chain.lookup( lookupContext );
         }
         catch ( Exception e )
         {
@@ -173,16 +173,16 @@ public class InterceptorChainTest
         DirectoryService ds = new MockDirectoryService();
         DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ),
             ds );
-        LookupOperationContext opContext = new LookupOperationContext( session, dn );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
         Set<String> bypass = new HashSet<String>();
         bypass.add( "0" );
         bypass.add( "4" );
-        opContext.setByPassed( bypass );
-        InvocationStack.getInstance().push( opContext );
+        lookupContext.setByPassed( bypass );
+        InvocationStack.getInstance().push( lookupContext );
 
         try
         {
-            chain.lookup( opContext );
+            chain.lookup( lookupContext );
         }
         catch ( Exception e )
         {
@@ -202,16 +202,16 @@ public class InterceptorChainTest
         DirectoryService ds = new MockDirectoryService();
         DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ),
             ds );
-        LookupOperationContext opContext = new LookupOperationContext( session, dn );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
         Set<String> bypass = new HashSet<String>();
         bypass.add( "1" );
         bypass.add( "3" );
-        opContext.setByPassed( bypass );
-        InvocationStack.getInstance().push( opContext );
+        lookupContext.setByPassed( bypass );
+        InvocationStack.getInstance().push( lookupContext );
 
         try
         {
-            chain.lookup( opContext );
+            chain.lookup( lookupContext );
         }
         catch ( Exception e )
         {
@@ -231,13 +231,13 @@ public class InterceptorChainTest
         DirectoryService ds = new MockDirectoryService( 0 );
         DefaultCoreSession session = new DefaultCoreSession( new LdapPrincipal( new DN(), AuthenticationLevel.STRONG ),
             ds );
-        LookupOperationContext opContext = new LookupOperationContext( session, dn );
-        opContext.setByPassed( ByPassConstants.BYPASS_ALL_COLLECTION );
-        InvocationStack.getInstance().push( opContext );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
+        lookupContext.setByPassed( ByPassConstants.BYPASS_ALL_COLLECTION );
+        InvocationStack.getInstance().push( lookupContext );
 
         try
         {
-            chain.lookup( opContext );
+            chain.lookup( lookupContext );
         }
         catch ( Exception e )
         {

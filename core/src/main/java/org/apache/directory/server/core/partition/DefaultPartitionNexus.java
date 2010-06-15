@@ -582,9 +582,9 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#hasEntry(org.apache.directory.server.core.interceptor.context.EntryOperationContext)
      */
-    public boolean hasEntry( EntryOperationContext opContext ) throws LdapException
+    public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
     {
-        DN dn = opContext.getDn();
+        DN dn = hasEntryContext.getDn();
 
         if ( IS_DEBUG )
         {
@@ -597,26 +597,26 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         }
 
         Partition backend = getPartition( dn );
-        return backend.hasEntry( opContext );
+        return backend.hasEntry( hasEntryContext );
     }
 
 
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#list(org.apache.directory.server.core.interceptor.context.ListOperationContext)
      */
-    public EntryFilteringCursor list( ListOperationContext opContext ) throws LdapException
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
-        Partition backend = getPartition( opContext.getDn() );
-        return backend.list( opContext );
+        Partition backend = getPartition( listContext.getDn() );
+        return backend.list( listContext );
     }
 
 
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#lookup(org.apache.directory.server.core.interceptor.context.LookupOperationContext)
      */
-    public ClonedServerEntry lookup( LookupOperationContext opContext ) throws LdapException
+    public ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
-        DN dn = opContext.getDn();
+        DN dn = lookupContext.getDn();
 
         // This is for the case we do a lookup on the rootDSE
         if ( dn.size() == 0 )
@@ -624,13 +624,13 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             ClonedServerEntry retval = new ClonedServerEntry( rootDSE );
             Set<AttributeType> attributeTypes = rootDSE.getAttributeTypes();
 
-            if ( opContext.getAttrsId() != null && !opContext.getAttrsId().isEmpty() )
+            if ( lookupContext.getAttrsId() != null && !lookupContext.getAttrsId().isEmpty() )
             {
                 for ( AttributeType attributeType : attributeTypes )
                 {
                     String oid = attributeType.getOid();
 
-                    if ( !opContext.getAttrsId().contains( oid ) )
+                    if ( !lookupContext.getAttrsId().contains( oid ) )
                     {
                         retval.removeAttributes( attributeType );
                     }
@@ -644,7 +644,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         }
 
         Partition backend = getPartition( dn );
-        return backend.lookup( opContext );
+        return backend.lookup( lookupContext );
     }
 
 
@@ -710,16 +710,16 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#rename(org.apache.directory.server.core.interceptor.context.RenameOperationContext)
      */
-    public void rename( RenameOperationContext opContext ) throws LdapException
+    public void rename( RenameOperationContext renameContext ) throws LdapException
     {
-        Partition backend = getPartition( opContext.getDn() );
-        backend.rename( opContext );
+        Partition backend = getPartition( renameContext.getDn() );
+        backend.rename( renameContext );
     }
 
 
-    private EntryFilteringCursor searchRootDSE( SearchOperationContext searchOperationContext ) throws LdapException
+    private EntryFilteringCursor searchRootDSE( SearchOperationContext searchContext ) throws LdapException
     {
-        SearchControls searchControls = searchOperationContext.getSearchControls();
+        SearchControls searchControls = searchContext.getSearchControls();
 
         String[] ids = searchControls.getReturningAttributes();
 
@@ -730,7 +730,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         if ( ( ids == null ) || ( ids.length == 0 ) )
         {
             Entry rootDSE = getRootDSE( null );
-            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDSE ), searchOperationContext );
+            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDSE ), searchContext );
         }
 
         // -----------------------------------------------------------
@@ -739,9 +739,9 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         // -----------------------------------------------------------
 
         Set<String> realIds = new HashSet<String>();
-        boolean allUserAttributes = searchOperationContext.isAllUserAttributes();
-        boolean allOperationalAttributes = searchOperationContext.isAllOperationalAttributes();
-        boolean noAttribute = searchOperationContext.isNoAttributes();
+        boolean allUserAttributes = searchContext.isAllUserAttributes();
+        boolean allOperationalAttributes = searchContext.isAllOperationalAttributes();
+        boolean noAttribute = searchContext.isNoAttributes();
 
         for ( String id : ids )
         {
@@ -761,19 +761,19 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         if ( noAttribute )
         {
             Entry serverEntry = new DefaultEntry( schemaManager, DN.EMPTY_DN );
-            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchOperationContext );
+            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext );
         }
 
         // return everything
         if ( allUserAttributes && allOperationalAttributes )
         {
             Entry rootDSE = getRootDSE( null );
-            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDSE ), searchOperationContext );
+            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDSE ), searchContext );
         }
 
         Entry serverEntry = new DefaultEntry( schemaManager, DN.EMPTY_DN );
 
-        Entry rootDSE = getRootDSE( new GetRootDSEOperationContext( searchOperationContext.getSession() ) );
+        Entry rootDSE = getRootDSE( new GetRootDSEOperationContext( searchContext.getSession() ) );
 
         for ( EntryAttribute attribute : rootDSE )
         {
@@ -793,18 +793,18 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             }
         }
 
-        return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchOperationContext );
+        return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext );
     }
 
 
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.PartitionNexus#search(org.apache.directory.server.core.interceptor.context.SearchOperationContext)
      */
-    public EntryFilteringCursor search( SearchOperationContext opContext ) throws LdapException
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
-        DN base = opContext.getDn();
-        SearchControls searchCtls = opContext.getSearchControls();
-        ExprNode filter = opContext.getFilter();
+        DN base = searchContext.getDn();
+        SearchControls searchCtls = searchContext.getSearchControls();
+        ExprNode filter = searchContext.getFilter();
 
         // TODO since we're handling the *, and + in the EntryFilteringCursor
         // we may not need this code: we need see if this is actually the 
@@ -835,23 +835,23 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
              */
             if ( ( filter instanceof PresenceNode ) && isObjectScope && isSearchAll )
             {
-                return searchRootDSE( opContext );
+                return searchRootDSE( searchContext );
             }
             else if ( isObjectScope && ( !isSearchAll ) )
             {
-                return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), opContext );
+                return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
             }
             else if ( isOnelevelScope )
             {
                 List<EntryFilteringCursor> cursors = new ArrayList<EntryFilteringCursor>();
                 for ( Partition p : partitions.values() )
                 {
-                    opContext.setDn( p.getSuffix() );
-                    opContext.setScope( SearchScope.OBJECT );
-                    cursors.add( p.search( opContext ) );
+                    searchContext.setDn( p.getSuffix() );
+                    searchContext.setScope( SearchScope.OBJECT );
+                    cursors.add( p.search( searchContext ) );
                 }
 
-                return new CursorList( cursors, opContext );
+                return new CursorList( cursors, searchContext );
             }
             else if ( isSublevelScope )
             {
@@ -863,13 +863,13 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
                     if ( entry != null )
                     {
                         Partition backend = getPartition( entry.getDn() );
-                        opContext.setDn( entry.getDn() );
-                        cursors.add( backend.search( opContext ) );
+                        searchContext.setDn( entry.getDn() );
+                        cursors.add( backend.search( searchContext ) );
                     }
                 }
 
                 // don't feed the above Cursors' list to a BaseEntryFilteringCursor it is skipping the naming context entry of each partition 
-                return new CursorList( cursors, opContext );
+                return new CursorList( cursors, searchContext );
             }
 
             // TODO : handle searches based on the RootDSE
@@ -882,7 +882,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         }
 
         Partition backend = getPartition( base );
-        return backend.search( opContext );
+        return backend.search( searchContext );
     }
 
 

@@ -243,16 +243,16 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor nextInterceptor, ModifyOperationContext opContext ) throws LdapException
+    public void modify( NextInterceptor nextInterceptor, ModifyOperationContext modifyContext ) throws LdapException
     {
         // We must check that the user hasn't injected either the modifiersName
         // or the modifyTimestamp operational attributes : they are not supposed to be
         // added at this point EXCEPT in cases of replication by a admin user.
         // If so, remove them, and if there are no more attributes, simply return.
         // otherwise, inject those values into the list of modifications
-        List<Modification> mods = opContext.getModItems();
+        List<Modification> mods = modifyContext.getModItems();
 
-        boolean isAdmin = opContext.getSession().getAuthenticatedPrincipal().getDN().equals( adminDn );
+        boolean isAdmin = modifyContext.getSession().getAuthenticatedPrincipal().getDN().equals( adminDn );
 
         boolean modifierAtPresent = false;
         boolean modifiedTimeAtPresent = false;
@@ -313,17 +313,17 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         }
 
         // Go down in the chain
-        nextInterceptor.modify( opContext );
+        nextInterceptor.modify( modifyContext );
     }
 
 
-    public void rename( NextInterceptor nextInterceptor, RenameOperationContext opContext ) throws LdapException
+    public void rename( NextInterceptor nextInterceptor, RenameOperationContext renameContext ) throws LdapException
     {
-        Entry entry = ((ClonedServerEntry)opContext.getEntry() ).getClonedEntry();
+        Entry entry = ((ClonedServerEntry)renameContext.getEntry() ).getClonedEntry();
         entry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
         entry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-        nextInterceptor.rename( opContext );
+        nextInterceptor.rename( renameContext );
     }
 
 
@@ -355,22 +355,22 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws LdapException
+    public Entry lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws LdapException
     {
-        Entry result = nextInterceptor.lookup( opContext );
+        Entry result = nextInterceptor.lookup( lookupContext );
 
         if ( result == null )
         {
             return null;
         }
 
-        if ( opContext.getAttrsId() == null )
+        if ( lookupContext.getAttrsId() == null )
         {
             filterOperationalAttributes( result );
         }
-        else if ( ( opContext.getAllOperational() == null ) || ( opContext.getAllOperational() == false ) )
+        else if ( ( lookupContext.getAllOperational() == null ) || ( lookupContext.getAllOperational() == false ) )
         {
-            filter( opContext, result );
+            filter( lookupContext, result );
         }
 
         denormalizeEntryOpAttrs( result );
@@ -378,22 +378,22 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext )
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext listContext )
         throws LdapException
     {
-        EntryFilteringCursor cursor = nextInterceptor.list( opContext );
+        EntryFilteringCursor cursor = nextInterceptor.list( listContext );
         cursor.addEntryFilter( SEARCH_FILTER );
         return cursor;
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext )
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext searchContext )
         throws LdapException
     {
-        EntryFilteringCursor cursor = nextInterceptor.search( opContext );
+        EntryFilteringCursor cursor = nextInterceptor.search( searchContext );
 
-        if ( opContext.isAllOperationalAttributes()
-            || ( opContext.getReturningAttributes() != null && !opContext.getReturningAttributes().isEmpty() ) )
+        if ( searchContext.isAllOperationalAttributes()
+            || ( searchContext.getReturningAttributes() != null && !searchContext.getReturningAttributes().isEmpty() ) )
         {
             if ( service.isDenormalizeOpAttrsEnabled() )
             {

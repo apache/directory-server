@@ -150,7 +150,7 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws LdapException
+    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
     {
         long opRevision = 0;
         
@@ -161,14 +161,14 @@ public class JournalInterceptor extends BaseInterceptor
             // Store the deleted entry
             LdifEntry ldif = new LdifEntry();
             ldif.setChangeType( ChangeType.Delete );
-            ldif.setDn( opContext.getDn() );
+            ldif.setDn( deleteContext.getDn() );
             
             journal.log( getPrincipal(), opRevision, ldif );
         }
 
         try
         {
-            next.delete( opContext );
+            next.delete( deleteContext );
 
             if ( journalEnabled )
             {
@@ -192,7 +192,7 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws LdapException
+    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
     {
         long opRevision = 0;
         
@@ -203,10 +203,10 @@ public class JournalInterceptor extends BaseInterceptor
             // Store the modified entry
             LdifEntry ldif = new LdifEntry();
             ldif.setChangeType( ChangeType.Modify );
-            ldif.setDn( opContext.getDn() );
+            ldif.setDn( modifyContext.getDn() );
             
             // Store the modifications 
-            for ( Modification modification:opContext.getModItems() )
+            for ( Modification modification:modifyContext.getModItems() )
             {
                 ldif.addModificationItem( modification );
             }
@@ -216,7 +216,7 @@ public class JournalInterceptor extends BaseInterceptor
         
         try
         {
-            next.modify( opContext );
+            next.modify( modifyContext );
 
             if ( journalEnabled )
             {
@@ -239,7 +239,7 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void rename ( NextInterceptor next, RenameOperationContext opContext ) throws LdapException
+    public void rename ( NextInterceptor next, RenameOperationContext renameContext ) throws LdapException
     {
         long opRevision = 0;
         
@@ -250,16 +250,16 @@ public class JournalInterceptor extends BaseInterceptor
             // Store the renamed entry
             LdifEntry ldif = new LdifEntry();
             ldif.setChangeType( ChangeType.ModRdn );
-            ldif.setDn( opContext.getDn() );
-            ldif.setNewRdn( opContext.getNewRdn().getNormName() );
-            ldif.setDeleteOldRdn( opContext.getDeleteOldRdn() );
+            ldif.setDn( renameContext.getDn() );
+            ldif.setNewRdn( renameContext.getNewRdn().getNormName() );
+            ldif.setDeleteOldRdn( renameContext.getDeleteOldRdn() );
             
             journal.log( getPrincipal(), opRevision, ldif );
         }
         
         try
         {
-            next.rename( opContext );
+            next.rename( renameContext );
     
             if ( journalEnabled )
             {

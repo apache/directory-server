@@ -325,37 +325,37 @@ public class TriggerInterceptor extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws LdapException
+    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
     {
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
         {
-            next.modify( opContext );
+            next.modify( modifyContext );
             return;
         }
 
-        DN normName = opContext.getDn();
+        DN normName = modifyContext.getDn();
 
         // Gather supplementary data.
-        Entry originalEntry = opContext.getEntry();
+        Entry originalEntry = modifyContext.getEntry();
 
-        StoredProcedureParameterInjector injector = new ModifyStoredProcedureParameterInjector( opContext );
+        StoredProcedureParameterInjector injector = new ModifyStoredProcedureParameterInjector( modifyContext );
 
         // Gather Trigger Specifications which apply to the entry being modified.
         List<TriggerSpecification> triggerSpecs = new ArrayList<TriggerSpecification>();
-        addPrescriptiveTriggerSpecs( opContext, triggerSpecs, normName, originalEntry );
+        addPrescriptiveTriggerSpecs( modifyContext, triggerSpecs, normName, originalEntry );
         addEntryTriggerSpecs( triggerSpecs, originalEntry );
 
         Map<ActionTime, List<TriggerSpecification>> triggerMap = getActionTimeMappedTriggerSpecsForOperation(
             triggerSpecs, LdapOperation.MODIFY );
 
-        next.modify( opContext );
+        next.modify( modifyContext );
 
-        triggerSpecCache.subentryModified( opContext, originalEntry );
+        triggerSpecCache.subentryModified( modifyContext, originalEntry );
 
         // Fire AFTER Triggers.
         List<TriggerSpecification> afterTriggerSpecs = triggerMap.get( ActionTime.AFTER );
-        executeTriggers( opContext, afterTriggerSpecs, injector );
+        executeTriggers( modifyContext, afterTriggerSpecs, injector );
     }
 
 
@@ -616,5 +616,4 @@ public class TriggerInterceptor extends BaseInterceptor
             throw lne;
         }
     }
-
 }

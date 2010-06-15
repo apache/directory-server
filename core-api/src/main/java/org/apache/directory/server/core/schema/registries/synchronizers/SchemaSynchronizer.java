@@ -115,10 +115,10 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * Depending in the existence of this attribute in the previous entry, we will
      * have to update the entry or not.
      */
-    public boolean modify( ModifyOperationContext opContext, Entry targetEntry, boolean cascade ) throws LdapException
+    public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade ) throws LdapException
     {
-        Entry entry = opContext.getEntry();
-        List<Modification> mods = opContext.getModItems(); 
+        Entry entry = modifyContext.getEntry();
+        List<Modification> mods = modifyContext.getModItems(); 
         boolean hasModification = SCHEMA_UNCHANGED;
         
         // Check if the entry has a m-disabled attribute 
@@ -134,11 +134,11 @@ public class SchemaSynchronizer implements RegistrySynchronizer
             ModificationOperation modification = disabledModification.getOperation();
             EntryAttribute attribute = disabledModification.getAttribute();
             
-            hasModification = modifyDisable( opContext, modification, attribute, disabledInEntry );
+            hasModification = modifyDisable( modifyContext, modification, attribute, disabledInEntry );
         }
         else if ( disabledInEntry != null )
         {
-            hasModification = modifyDisable( opContext, ModificationOperation.REMOVE_ATTRIBUTE, null, disabledInEntry );
+            hasModification = modifyDisable( modifyContext, ModificationOperation.REMOVE_ATTRIBUTE, null, disabledInEntry );
         }
             
         
@@ -391,10 +391,10 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * +-------+-------+-------------------+--------------------+--------------------+
      * </pre>
      */
-    private boolean modifyDisable( ModifyOperationContext opContext, ModificationOperation modOp, 
+    private boolean modifyDisable( ModifyOperationContext modifyContext, ModificationOperation modOp, 
         EntryAttribute disabledInMods, EntryAttribute disabledInEntry ) throws LdapException
     {
-        DN name = opContext.getDn();
+        DN name = modifyContext.getDn();
         
         switch ( modOp )
         {

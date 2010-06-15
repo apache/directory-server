@@ -344,7 +344,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
                 /**
                  * Wait 1 second before going any further
                  */
-                public void bind( NextInterceptor next, BindOperationContext opContext ) throws LdapException
+                public void bind( NextInterceptor next, BindOperationContext bindContext ) throws LdapException
                 {
                     // Wait 1 second
                     try
@@ -356,7 +356,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
                         // Ok, get out
                     }
                     
-                    next.bind( opContext );
+                    next.bind( bindContext );
                 }
             } );
             

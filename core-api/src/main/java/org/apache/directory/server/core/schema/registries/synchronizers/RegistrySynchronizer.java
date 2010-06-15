@@ -75,13 +75,13 @@ public interface RegistrySynchronizer
     /**
      * Applies a set of modification to an entry
      *
-     * @param opContext The OperationContext, which contains the entry and the modifications to apply
+     * @param modifyContext The OperationContext, which contains the entry and the modifications to apply
      * @param targetEntry The modified entry
      * @param cascaded Unused
      * @return True if the modification has been done
      * @throws Exception If the modification failed
      */
-    boolean modify( ModifyOperationContext opContext, Entry targetEntry, boolean cascaded )
+    boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascaded )
         throws LdapException;
     
     void moveAndRename( DN oriChildName, DN newParentName, RDN newRn, boolean deleteOldRn, Entry entry,

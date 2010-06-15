@@ -130,9 +130,9 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     }
 
 
-    public void entryAdded( AddOperationContext opContext )
+    public void entryAdded( AddOperationContext addContext )
     {
-        Entry entry = opContext.getEntry();
+        Entry entry = addContext.getEntry();
 
         LOG.debug( "sending added entry {}", entry.getDn() );
         
@@ -157,7 +157,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             }
             else
             {
-                clientMsgLog.log( EventType.ADD, opContext.getEntry() );
+                clientMsgLog.log( EventType.ADD, addContext.getEntry() );
             }
         }
         catch ( LdapInvalidAttributeValueException e )
@@ -168,9 +168,9 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     }
 
 
-    public void entryDeleted( DeleteOperationContext opContext )
+    public void entryDeleted( DeleteOperationContext deleteContext )
     {
-        sendDeletedEntry( opContext.getEntry() );
+        sendDeletedEntry( deleteContext.getEntry() );
     }
 
 
@@ -210,9 +210,9 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     }
     
     
-    public void entryModified( ModifyOperationContext opContext )
+    public void entryModified( ModifyOperationContext modifyContext )
     {
-        Entry alteredEntry = opContext.getAlteredEntry();
+        Entry alteredEntry = modifyContext.getAlteredEntry();
 
         LOG.debug( "sending modified entry {}", alteredEntry.getDn() );
 
@@ -222,7 +222,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             {
                 
                 InternalSearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
-                respEntry.setObjectName( opContext.getDn() );
+                respEntry.setObjectName( modifyContext.getDn() );
                 respEntry.setEntry( alteredEntry );
 
                 SyncStateValueControl syncModify = new SyncStateValueControl();
@@ -239,7 +239,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             }
             else
             {
-                clientMsgLog.log( EventType.MODIFY, opContext.getAlteredEntry() );
+                clientMsgLog.log( EventType.MODIFY, modifyContext.getAlteredEntry() );
             }
         }
         catch ( Exception e )
@@ -249,28 +249,28 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     }
 
 
-    public void entryMoved( MoveOperationContext opContext )
+    public void entryMoved( MoveOperationContext moveContext )
     {
-        Entry entry = opContext.getEntry();
+        Entry entry = moveContext.getEntry();
 
         LOG.debug( "sending moved entry {}", entry.getDn() );
 
         try
         {
-            if( ! opContext.getNewSuperior().isChildOf( clientMsgLog.getSearchCriteria().getBase() ) )
+            if( ! moveContext.getNewSuperior().isChildOf( clientMsgLog.getSearchCriteria().getBase() ) )
             {
-                sendDeletedEntry( opContext.getEntry() );
+                sendDeletedEntry( moveContext.getEntry() );
                 return;
             }
             
             SyncModifyDnControl modDnControl = new SyncModifyDnControl( SyncModifyDnType.MOVE );
-            modDnControl.setEntryDn( opContext.getDn().getNormName() );
-            modDnControl.setNewSuperiorDn( opContext.getNewSuperior().getNormName() );
+            modDnControl.setEntryDn( moveContext.getDn().getNormName() );
+            modDnControl.setNewSuperiorDn( moveContext.getNewSuperior().getNormName() );
 
             if ( pushInRealTime )
             {
                 InternalSearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
-                respEntry.setObjectName( opContext.getDn() );
+                respEntry.setObjectName( moveContext.getDn() );
                 respEntry.setEntry( entry );
 
                 SyncStateValueControl syncModify = new SyncStateValueControl();
@@ -287,7 +287,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             }
             else
             {
-                clientMsgLog.log( new ReplicaEventMessage( modDnControl, opContext.getEntry() ) );
+                clientMsgLog.log( new ReplicaEventMessage( modDnControl, moveContext.getEntry() ) );
             }
         }
         catch ( Exception e )
@@ -297,31 +297,31 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     }
 
 
-    public void entryMovedAndRenamed( MoveAndRenameOperationContext opContext )
+    public void entryMovedAndRenamed( MoveAndRenameOperationContext moveAndRenameContext )
     {
         
-        LOG.debug( "sending moveAndRenamed entry {}", opContext.getDn() );
+        LOG.debug( "sending moveAndRenamed entry {}", moveAndRenameContext.getDn() );
 
         try
         {
-            if( ! opContext.getNewSuperiorDn().isChildOf( clientMsgLog.getSearchCriteria().getBase() ) )
+            if( ! moveAndRenameContext.getNewSuperiorDn().isChildOf( clientMsgLog.getSearchCriteria().getBase() ) )
             {
-                sendDeletedEntry( opContext.getEntry() );
+                sendDeletedEntry( moveAndRenameContext.getEntry() );
                 return;
             }
 
             SyncModifyDnControl modDnControl = new SyncModifyDnControl( SyncModifyDnType.MOVEANDRENAME );
-            modDnControl.setEntryDn( opContext.getDn().getNormName() );
-            modDnControl.setNewSuperiorDn( opContext.getNewSuperiorDn().getNormName() );
-            modDnControl.setNewRdn( opContext.getNewRdn().getNormName() );
-            modDnControl.setDeleteOldRdn( opContext.getDeleteOldRdn() );
+            modDnControl.setEntryDn( moveAndRenameContext.getDn().getNormName() );
+            modDnControl.setNewSuperiorDn( moveAndRenameContext.getNewSuperiorDn().getNormName() );
+            modDnControl.setNewRdn( moveAndRenameContext.getNewRdn().getNormName() );
+            modDnControl.setDeleteOldRdn( moveAndRenameContext.getDeleteOldRdn() );
 
             if ( pushInRealTime )
             {
-                Entry alteredEntry = opContext.getModifiedEntry();
+                Entry alteredEntry = moveAndRenameContext.getModifiedEntry();
                 
                 InternalSearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
-                respEntry.setObjectName( opContext.getModifiedEntry().getDn() );
+                respEntry.setObjectName( moveAndRenameContext.getModifiedEntry().getDn() );
                 respEntry.setEntry( alteredEntry );
 
                 SyncStateValueControl syncModify = new SyncStateValueControl();
@@ -338,7 +338,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             }
             else
             {
-                clientMsgLog.log( new ReplicaEventMessage( modDnControl, opContext.getEntry() ) );
+                clientMsgLog.log( new ReplicaEventMessage( modDnControl, moveAndRenameContext.getEntry() ) );
             }
         }
         catch ( Exception e )
@@ -348,9 +348,9 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     }
 
 
-    public void entryRenamed( RenameOperationContext opContext )
+    public void entryRenamed( RenameOperationContext renameContext )
     {
-        Entry entry = opContext.getEntry();
+        Entry entry = renameContext.getEntry();
         
         LOG.debug( "sending renamed entry {}", entry.getDn() );
         
@@ -358,9 +358,9 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         {
             SyncModifyDnControl modDnControl = new SyncModifyDnControl();
             modDnControl.setModDnType( SyncModifyDnType.RENAME );
-            modDnControl.setEntryDn( opContext.getDn().getName() );
-            modDnControl.setNewRdn( opContext.getNewRdn().getName() );
-            modDnControl.setDeleteOldRdn( opContext.getDeleteOldRdn() );
+            modDnControl.setEntryDn( renameContext.getDn().getName() );
+            modDnControl.setNewRdn( renameContext.getNewRdn().getName() );
+            modDnControl.setDeleteOldRdn( renameContext.getDeleteOldRdn() );
 
             if ( pushInRealTime )
             {
@@ -372,17 +372,17 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 syncModify.setSyncStateType( SyncStateTypeEnum.MODDN );
                 syncModify.setEntryUUID( StringTools.uuidToBytes( entry.get(
                     SchemaConstants.ENTRY_UUID_AT ).getString() ) );
-                syncModify.setCookie( getCookie( opContext.getModifiedEntry() ) );
+                syncModify.setCookie( getCookie( renameContext.getModifiedEntry() ) );
                 respEntry.add( syncModify );
                 respEntry.add( modDnControl );
                 
                 WriteFuture future = session.getIoSession().write( respEntry );
                 
-                handleWriteFuture( future, opContext.getModifiedEntry(), null, modDnControl );
+                handleWriteFuture( future, renameContext.getModifiedEntry(), null, modDnControl );
             }
             else
             {
-                clientMsgLog.log( new ReplicaEventMessage( modDnControl, opContext.getEntry() ) );
+                clientMsgLog.log( new ReplicaEventMessage( modDnControl, renameContext.getEntry() ) );
             }
         }
         catch ( Exception e )

@@ -127,7 +127,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
     }
 
 
-    public void entryAdded( AddOperationContext opContext )
+    public void entryAdded( AddOperationContext addContext )
     {
         if ( ! control.isNotificationEnabled( ChangeType.ADD ) )
         {
@@ -135,14 +135,14 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
         }
     
         InternalSearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
-        respEntry.setObjectName( opContext.getDn() );
-        respEntry.setEntry( opContext.getEntry() );
-        setECResponseControl( respEntry, opContext, ChangeType.ADD );
+        respEntry.setObjectName( addContext.getDn() );
+        respEntry.setEntry( addContext.getEntry() );
+        setECResponseControl( respEntry, addContext, ChangeType.ADD );
         session.getIoSession().write( respEntry );
     }
 
 
-    public void entryDeleted( DeleteOperationContext opContext )
+    public void entryDeleted( DeleteOperationContext deleteContext )
     {
         if ( ! control.isNotificationEnabled( ChangeType.DELETE ) )
         {
@@ -150,14 +150,14 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
         }
     
         InternalSearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
-        respEntry.setObjectName( opContext.getDn() );
-        respEntry.setEntry( opContext.getEntry() );
-        setECResponseControl( respEntry, opContext, ChangeType.DELETE );
+        respEntry.setObjectName( deleteContext.getDn() );
+        respEntry.setEntry( deleteContext.getEntry() );
+        setECResponseControl( respEntry, deleteContext, ChangeType.DELETE );
         session.getIoSession().write( respEntry );
     }
 
 
-    public void entryModified( ModifyOperationContext opContext )
+    public void entryModified( ModifyOperationContext modifyContext )
     {
         if ( ! control.isNotificationEnabled( ChangeType.MODIFY ) )
         {
@@ -165,14 +165,14 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
         }
     
         InternalSearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
-        respEntry.setObjectName( opContext.getDn() );
-        respEntry.setEntry( opContext.getAlteredEntry() );
-        setECResponseControl( respEntry, opContext, ChangeType.MODIFY );
+        respEntry.setObjectName( modifyContext.getDn() );
+        respEntry.setEntry( modifyContext.getAlteredEntry() );
+        setECResponseControl( respEntry, modifyContext, ChangeType.MODIFY );
         session.getIoSession().write( respEntry );
     }
 
 
-    public void entryMoved( MoveOperationContext opContext )
+    public void entryMoved( MoveOperationContext moveContext )
     {
         if ( ! control.isNotificationEnabled( ChangeType.MODDN ) )
         {
@@ -180,20 +180,20 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
         }
     
         InternalSearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
-        respEntry.setObjectName( opContext.getDn() );
-        respEntry.setEntry( opContext.getEntry() );
-        setECResponseControl( respEntry, opContext, ChangeType.MODDN );
+        respEntry.setObjectName( moveContext.getDn() );
+        respEntry.setEntry( moveContext.getEntry() );
+        setECResponseControl( respEntry, moveContext, ChangeType.MODDN );
         session.getIoSession().write( respEntry );
     }
 
 
-    public void entryMovedAndRenamed( MoveAndRenameOperationContext opContext )
+    public void entryMovedAndRenamed( MoveAndRenameOperationContext moveAndRenameContext )
     {
-        entryRenamed( opContext );
+        entryRenamed( moveAndRenameContext );
     }
 
 
-    public void entryRenamed( RenameOperationContext opContext )
+    public void entryRenamed( RenameOperationContext renameContext )
     {
         if ( ! control.isNotificationEnabled( ChangeType.MODDN ) )
         {
@@ -201,9 +201,9 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
         }
     
         InternalSearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
-        respEntry.setObjectName( opContext.getModifiedEntry().getDn() );
-        respEntry.setEntry( opContext.getModifiedEntry() );
-        setECResponseControl( respEntry, opContext, ChangeType.MODDN );
+        respEntry.setObjectName( renameContext.getModifiedEntry().getDn() );
+        respEntry.setEntry( renameContext.getModifiedEntry() );
+        setECResponseControl( respEntry, renameContext, ChangeType.MODDN );
         session.getIoSession().write( respEntry );
     }
 }

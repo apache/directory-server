@@ -149,12 +149,12 @@ public class RegistrySynchronizerAdaptor
     /**
      * Add a new SchemaObject or a new Schema in the Schema partition.
      *
-     * @param opContext The Add context, containing the entry to be added
+     * @param addContext The Add context, containing the entry to be added
      * @throws Exception If the addition failed 
      */
-    public void add( AddOperationContext opContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
-        EntryAttribute oc = opContext.getEntry().get( objectClassAT );
+        EntryAttribute oc = addContext.getEntry().get( objectClassAT );
         
         // First check if we are adding a schemaObject
         for ( Value<?> value:oc )
@@ -167,7 +167,7 @@ public class RegistrySynchronizerAdaptor
                 // This is one of the eleven SchemaObject :
                 // AT, C, DCR, DSR, MR, MRU, NF, N, OC, S, SC
                 RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
-                Entry entry = opContext.getEntry();
+                Entry entry = addContext.getEntry();
                 synchronizer.add( entry );
                 return;
             }
@@ -177,7 +177,7 @@ public class RegistrySynchronizerAdaptor
         // e.g. ou=my custom schema,ou=schema
         if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
-            Entry entry = opContext.getEntry();
+            Entry entry = addContext.getEntry();
             schemaSynchronizer.add( entry );
             return;
         }
@@ -186,14 +186,14 @@ public class RegistrySynchronizerAdaptor
         // e.g. ou=attributeTypes,ou=my custom schema,ou=schema
         if ( oc.contains( SchemaConstants.ORGANIZATIONAL_UNIT_OC ) )
         {
-            if ( opContext.getDn().size() != 3 )
+            if ( addContext.getDn().size() != 3 )
             {
                 String msg = I18n.err( I18n.ERR_81 );
                 LOG.error( msg );
                 throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, msg );
             }
             
-            String ouValue = opContext.getDn().getRdn().getNormValue().getString();
+            String ouValue = addContext.getDn().getRdn().getNormValue().getString();
             ouValue = ouValue.trim().toLowerCase();
             
             if ( ! VALID_OU_VALUES.contains( ouValue ) )
@@ -208,7 +208,7 @@ public class RegistrySynchronizerAdaptor
         }
 
         
-        String msg = I18n.err( I18n.ERR_83, opContext.getDn() );
+        String msg = I18n.err( I18n.ERR_83, addContext.getDn() );
         LOG.error( msg );
         throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
     }
@@ -217,10 +217,10 @@ public class RegistrySynchronizerAdaptor
     /**
      * {@inheritDoc}
      */
-    public void delete( DeleteOperationContext opContext, boolean doCascadeDelete ) 
+    public void delete( DeleteOperationContext deleteContext, boolean doCascadeDelete ) 
         throws LdapException
     {
-        Entry entry = opContext.getEntry();
+        Entry entry = deleteContext.getEntry();
         
         EntryAttribute oc = entry.get( objectClassAT );
         
@@ -244,12 +244,12 @@ public class RegistrySynchronizerAdaptor
         
         if ( oc.contains( SchemaConstants.ORGANIZATIONAL_UNIT_OC ) )
         {
-            if ( opContext.getDn().size() != 3 )
+            if ( deleteContext.getDn().size() != 3 )
             {
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_378 ) );
             }
             
-            String ouValue = opContext.getDn().getRdn().getNormValue().getString();
+            String ouValue = deleteContext.getDn().getRdn().getNormValue().getString();
             ouValue = ouValue.trim().toLowerCase();
             
             if ( ! VALID_OU_VALUES.contains( ouValue ) )
@@ -268,14 +268,14 @@ public class RegistrySynchronizerAdaptor
     /**
      * Modify the schema
      *
-     * @param opContext The context
+     * @param modifyContext The context
      * @param targetEntry The modified entry
      * @param doCascadeModify Not used
      * @throws Exception If the modification failed
      */
-    public boolean modify( ModifyOperationContext opContext, Entry targetEntry, boolean doCascadeModify ) throws LdapException
+    public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean doCascadeModify ) throws LdapException
     {
-        Entry entry = opContext.getEntry();
+        Entry entry = modifyContext.getEntry();
         EntryAttribute oc = entry.get( objectClassAT );
         
         for ( Value<?> value:oc )
@@ -285,14 +285,14 @@ public class RegistrySynchronizerAdaptor
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
                 RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
-                boolean hasModification = synchronizer.modify( opContext, targetEntry, doCascadeModify );
+                boolean hasModification = synchronizer.modify( modifyContext, targetEntry, doCascadeModify );
                 return hasModification;
             }
         }
 
         if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
-            boolean hasModification = schemaSynchronizer.modify( opContext, targetEntry, doCascadeModify );
+            boolean hasModification = schemaSynchronizer.modify( modifyContext, targetEntry, doCascadeModify );
             return hasModification;
         }
 
@@ -302,7 +302,7 @@ public class RegistrySynchronizerAdaptor
         }
         
         LOG.error( String.format( I18n.err( I18n.ERR_84 ), 
-            opContext.getDn(), entry, opContext.getModItems() ) );
+            modifyContext.getDn(), entry, modifyContext.getModItems() ) );
         throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
 
@@ -310,14 +310,14 @@ public class RegistrySynchronizerAdaptor
     /**
      * Rename a Schema Object.
      *
-     * @param opContext The contect contaoning the rename informations
+     * @param renameContext The contect contaoning the rename informations
      * @param doCascadeModify unused
      * @throws Exception If the rename failed
      */
-    public void rename( RenameOperationContext opContext, boolean doCascadeModify ) 
+    public void rename( RenameOperationContext renameContext, boolean doCascadeModify ) 
         throws LdapException
     {
-        Entry originalEntry = opContext.getEntry().getOriginalEntry();
+        Entry originalEntry = renameContext.getEntry().getOriginalEntry();
         EntryAttribute oc = originalEntry.get( objectClassAT );
         
         for ( Value<?> value:oc )
@@ -327,14 +327,14 @@ public class RegistrySynchronizerAdaptor
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
                 RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
-                synchronizer.rename( originalEntry, opContext.getNewRdn(), doCascadeModify );
+                synchronizer.rename( originalEntry, renameContext.getNewRdn(), doCascadeModify );
                 return;
             }
         }
 
         if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
-            schemaSynchronizer.rename( originalEntry, opContext.getNewRdn(), doCascadeModify );
+            schemaSynchronizer.rename( originalEntry, renameContext.getNewRdn(), doCascadeModify );
             return;
         }
         
@@ -345,7 +345,7 @@ public class RegistrySynchronizerAdaptor
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaChangeManager#replace(org.apache.directory.server.core.interceptor.context.MoveOperationContext, org.apache.directory.server.core.entry.Entry, boolean)
      */
-    public void move( MoveOperationContext opContext, Entry entry, boolean cascade ) throws LdapException
+    public void move( MoveOperationContext moveContext, Entry entry, boolean cascade ) throws LdapException
     {
         EntryAttribute oc = entry.get( objectClassAT );
         
@@ -356,14 +356,14 @@ public class RegistrySynchronizerAdaptor
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
                 RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
-                synchronizer.move( opContext.getDn(), opContext.getNewSuperior(), entry, cascade );
+                synchronizer.move( moveContext.getDn(), moveContext.getNewSuperior(), entry, cascade );
                 return;
             }
         }
 
         if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
-            schemaSynchronizer.move( opContext.getDn(), opContext.getNewSuperior(), entry, cascade );
+            schemaSynchronizer.move( moveContext.getDn(), moveContext.getNewSuperior(), entry, cascade );
             return;
         }
         
@@ -374,7 +374,7 @@ public class RegistrySynchronizerAdaptor
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaChangeManager#move(org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext, org.apache.directory.server.core.entry.Entry, boolean)
      */
-    public void moveAndRename( MoveAndRenameOperationContext opContext, Entry entry, boolean cascade ) throws LdapException
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext, Entry entry, boolean cascade ) throws LdapException
     {
         EntryAttribute oc = entry.get( objectClassAT );
         
@@ -385,16 +385,16 @@ public class RegistrySynchronizerAdaptor
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
                 RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
-                synchronizer.moveAndRename( opContext.getDn(), opContext.getNewSuperiorDn(), opContext.getNewRdn(), 
-                    opContext.getDeleteOldRdn(), entry, cascade );
+                synchronizer.moveAndRename( moveAndRenameContext.getDn(), moveAndRenameContext.getNewSuperiorDn(), moveAndRenameContext.getNewRdn(), 
+                    moveAndRenameContext.getDeleteOldRdn(), entry, cascade );
                 return;
             }
         }
 
         if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
-            schemaSynchronizer.moveAndRename( opContext.getDn(), opContext.getNewSuperiorDn(), opContext.getNewRdn(), 
-                opContext.getDeleteOldRdn(), entry, cascade );
+            schemaSynchronizer.moveAndRename( moveAndRenameContext.getDn(), moveAndRenameContext.getNewSuperiorDn(), moveAndRenameContext.getNewRdn(), 
+                moveAndRenameContext.getDeleteOldRdn(), entry, cascade );
             return;
         }
         

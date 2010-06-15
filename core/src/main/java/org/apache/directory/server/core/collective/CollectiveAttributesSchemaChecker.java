@@ -74,10 +74,10 @@ public class CollectiveAttributesSchemaChecker
     }
 
 
-    public void checkModify( ModifyOperationContext opContext ) throws LdapException
+    public void checkModify( ModifyOperationContext modifyContext ) throws LdapException
     {
-        List<Modification> mods = opContext.getModItems();
-        Entry originalEntry = opContext.getEntry();
+        List<Modification> mods = modifyContext.getModItems();
+        Entry originalEntry = modifyContext.getEntry();
         Entry targetEntry = ( Entry ) SchemaUtils.getTargetEntry( mods, originalEntry );
 
         EntryAttribute targetObjectClasses = targetEntry.get( SchemaConstants.OBJECT_CLASS_AT );

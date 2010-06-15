@@ -233,9 +233,9 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     /**
      * {@inheritDoc}
      */
-    public void delete( DeleteOperationContext opContext ) throws LdapException
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
-        DN dn = opContext.getDn();
+        DN dn = deleteContext.getDn();
 
         ID id = getEntryId( dn );
 
@@ -256,30 +256,30 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     }
 
 
-    public abstract void add( AddOperationContext opContext ) throws LdapException;
+    public abstract void add( AddOperationContext addContext ) throws LdapException;
 
 
-    public abstract void modify( ModifyOperationContext opContext ) throws LdapException;
+    public abstract void modify( ModifyOperationContext modifyContext ) throws LdapException;
 
 
-    public EntryFilteringCursor list( ListOperationContext opContext ) throws LdapException
+    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
-        return new BaseEntryFilteringCursor( new ServerEntryCursorAdaptor<ID>( this, list( getEntryId( opContext
-            .getDn() ) ) ), opContext );
+        return new BaseEntryFilteringCursor( new ServerEntryCursorAdaptor<ID>( this, list( getEntryId( listContext
+            .getDn() ) ) ), listContext );
     }
 
 
-    public EntryFilteringCursor search( SearchOperationContext opContext ) throws LdapException
+    public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
         try
         {
-            SearchControls searchCtls = opContext.getSearchControls();
+            SearchControls searchCtls = searchContext.getSearchControls();
             IndexCursor<ID, Entry, ID> underlying;
     
-            underlying = searchEngine.cursor( opContext.getDn(), opContext.getAliasDerefMode(), opContext.getFilter(),
+            underlying = searchEngine.cursor( searchContext.getDn(), searchContext.getAliasDerefMode(), searchContext.getFilter(),
                 searchCtls );
     
-            return new BaseEntryFilteringCursor( new ServerEntryCursorAdaptor<ID>( this, underlying ), opContext );
+            return new BaseEntryFilteringCursor( new ServerEntryCursorAdaptor<ID>( this, underlying ), searchContext );
         }
         catch ( Exception e )
         {
@@ -288,9 +288,9 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     }
 
 
-    public ClonedServerEntry lookup( LookupOperationContext opContext ) throws LdapException
+    public ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
-        ID id = getEntryId( opContext.getDn() );
+        ID id = getEntryId( lookupContext.getDn() );
 
         if ( id == null )
         {
@@ -299,14 +299,14 @@ public abstract class BTreePartition<ID> extends AbstractPartition
 
         ClonedServerEntry entry = lookup( id );
 
-        if ( ( opContext.getAttrsId() == null ) || ( opContext.getAttrsId().size() == 0 ) )
+        if ( ( lookupContext.getAttrsId() == null ) || ( lookupContext.getAttrsId().size() == 0 ) )
         {
             return entry;
         }
 
         for ( AttributeType attributeType : ( ( Entry ) entry.getOriginalEntry() ).getAttributeTypes() )
         {
-            if ( !opContext.getAttrsId().contains( attributeType.getOid() ) )
+            if ( !lookupContext.getAttrsId().contains( attributeType.getOid() ) )
             {
                 entry.removeAttributes( attributeType );
             }
@@ -316,16 +316,16 @@ public abstract class BTreePartition<ID> extends AbstractPartition
     }
 
 
-    public boolean hasEntry( EntryOperationContext opContext ) throws LdapException
+    public boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException
     {
-        return null != getEntryId( opContext.getDn() );
+        return null != getEntryId( hasEntryContext.getDn() );
     }
 
 
-    public abstract void rename( RenameOperationContext opContext ) throws LdapException;
+    public abstract void rename( RenameOperationContext renameContext ) throws LdapException;
 
 
-    public abstract void move( MoveOperationContext opContext ) throws LdapException;
+    public abstract void move( MoveOperationContext moveContext ) throws LdapException;
 
 
     public abstract void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException;

@@ -137,20 +137,20 @@ public class ChangeLogInterceptor extends BaseInterceptor
      * The delete operation has to be stored with a way to restore the deleted element.
      * There is no way to do that but reading the entry and dump it into the LOG.
      */
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws LdapException
+    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws LdapException
     {
         // @todo make sure we're not putting in operational attributes that cannot be user modified
         // must save the entry if change log is enabled
         Entry serverEntry = null;
 
-        if ( changeLog.isEnabled() && opContext.isFirstOperation() )
+        if ( changeLog.isEnabled() && deleteContext.isFirstOperation() )
         {
-            serverEntry = getAttributes( opContext );
+            serverEntry = getAttributes( deleteContext );
         }
 
-        next.delete( opContext );
+        next.delete( deleteContext );
 
-        if ( ! changeLog.isEnabled() || ! opContext.isFirstOperation() )
+        if ( ! changeLog.isEnabled() || ! deleteContext.isFirstOperation() )
         {
             return;
         }
@@ -163,7 +163,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
         LdifEntry forward = new LdifEntry();
         forward.setChangeType( ChangeType.Delete );
-        forward.setDn( opContext.getDn() );
+        forward.setDn( deleteContext.getDn() );
         
         Entry reverseEntry = new DefaultEntry( serverEntry.getDn() );
 
@@ -177,8 +177,8 @@ public class ChangeLogInterceptor extends BaseInterceptor
             }
         }
 
-        LdifEntry reverse = LdifRevertor.reverseDel( opContext.getDn(), reverseEntry );
-        opContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
+        LdifEntry reverse = LdifRevertor.reverseDel( deleteContext.getDn(), reverseEntry );
+        deleteContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
     }
 
 
@@ -211,41 +211,41 @@ public class ChangeLogInterceptor extends BaseInterceptor
     /**
      * 
      */
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws LdapException
+    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws LdapException
     {
         Entry serverEntry = null;
-        Modification modification = ServerEntryUtils.getModificationItem( opContext.getModItems(), entryDeleted );
+        Modification modification = ServerEntryUtils.getModificationItem( modifyContext.getModItems(), entryDeleted );
         boolean isDelete = ( modification != null );
 
-        if ( ! isDelete && ( changeLog.isEnabled() && opContext.isFirstOperation() ) )
+        if ( ! isDelete && ( changeLog.isEnabled() && modifyContext.isFirstOperation() ) )
         {
             // @todo make sure we're not putting in operational attributes that cannot be user modified
-            serverEntry = getAttributes( opContext );
+            serverEntry = getAttributes( modifyContext );
         }
         
         // Duplicate modifications so that the reverse does not contain the operational attributes
         List<Modification> clonedMods = new ArrayList<Modification>(); 
 
-        for ( Modification mod : opContext.getModItems() )
+        for ( Modification mod : modifyContext.getModItems() )
         {
             clonedMods.add( mod.clone() );
         }
 
         // Call the next interceptor
-        next.modify( opContext );
+        next.modify( modifyContext );
 
         // @TODO: needs big consideration!!!
         // NOTE: perhaps we need to log this as a system operation that cannot and should not be reapplied?
         if ( 
             isDelete ||   
             ! changeLog.isEnabled() || 
-            ! opContext.isFirstOperation() ||
+            ! modifyContext.isFirstOperation() ||
             
          // if there are no modifications due to stripping out bogus non-
          // existing attributes then we will have no modification items and
          // should ignore not this without registering it with the changelog
          
-            opContext.getModItems().size() == 0 )  
+            modifyContext.getModItems().size() == 0 )  
         {
             if ( isDelete )
             {
@@ -257,7 +257,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
         LdifEntry forward = new LdifEntry();
         forward.setChangeType( ChangeType.Modify );
-        forward.setDn( opContext.getDn() );
+        forward.setDn( modifyContext.getDn() );
         
         List<Modification> mods = new ArrayList<Modification>( clonedMods.size() );
         
@@ -277,11 +277,11 @@ public class ChangeLogInterceptor extends BaseInterceptor
         }
 
         LdifEntry reverse = LdifRevertor.reverseModify( 
-            opContext.getDn(), 
+            modifyContext.getDn(), 
             mods, 
             clientEntry );
         
-        opContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
+        modifyContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
     }
 
 

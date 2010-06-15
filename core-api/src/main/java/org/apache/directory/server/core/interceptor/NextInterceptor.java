@@ -57,13 +57,13 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#getRootDSE( NextInterceptor, GetRootDSEOperationContext )}.
      */
-    Entry getRootDSE( GetRootDSEOperationContext opContext ) throws LdapException;
+    Entry getRootDSE( GetRootDSEOperationContext getRootDseContext ) throws LdapException;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#delete(NextInterceptor, DeleteOperationContext )}.
      */
-    void delete( DeleteOperationContext opContext ) throws LdapException;
+    void delete( DeleteOperationContext deleteContext ) throws LdapException;
 
 
     /**
@@ -75,42 +75,42 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#modify( NextInterceptor, ModifyOperationContext )}.
      */
-    void modify( ModifyOperationContext opContext ) throws LdapException;
+    void modify( ModifyOperationContext modifyContext ) throws LdapException;
 
     /**
      * Calls the next interceptor's {@link Interceptor#list( NextInterceptor, ListOperationContext )}.
      */
-    EntryFilteringCursor list( ListOperationContext opContext ) throws LdapException;
+    EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException;
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#search( NextInterceptor, SearchOperationContext opContext )}.
+     * Calls the next interceptor's {@link Interceptor#search( NextInterceptor, SearchOperationContext searchContext )}.
      */
-    EntryFilteringCursor search( SearchOperationContext opContext ) throws LdapException;
+    EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#lookup( NextInterceptor, LookupOperationContext )}.
      */
-    Entry lookup( LookupOperationContext opContext ) throws LdapException;
+    Entry lookup( LookupOperationContext lookupContext ) throws LdapException;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#hasEntry( NextInterceptor, EntryOperationContext )}.
      */
-    boolean hasEntry( EntryOperationContext opContext ) throws LdapException;
+    boolean hasEntry( EntryOperationContext hasEntryContext ) throws LdapException;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#rename( NextInterceptor, RenameOperationContext )}.
      */
-    void rename( RenameOperationContext opContext ) throws LdapException;
+    void rename( RenameOperationContext renameContext ) throws LdapException;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#move( NextInterceptor, MoveOperationContext )}.
      */
-    void move( MoveOperationContext opContext ) throws LdapException;
+    void move( MoveOperationContext moveContext ) throws LdapException;
 
 
     /**
@@ -122,10 +122,10 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#bind( NextInterceptor, BindOperationContext )}
      */
-    void bind( BindOperationContext opContext ) throws LdapException;
+    void bind( BindOperationContext bindContext ) throws LdapException;
 
     /**
      * Calls the next interceptor's {@link Interceptor#unbind( NextInterceptor, UnbindOperationContext )}
      */
-    void unbind( UnbindOperationContext opContext ) throws LdapException;
+    void unbind( UnbindOperationContext unbindContext ) throws LdapException;
 }
