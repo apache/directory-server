@@ -409,32 +409,12 @@ public class ExceptionInterceptor extends BaseInterceptor
         throws LdapException
     {
         DN oldDn = moveAndRenameContext.getDn();
-        DN newSuperiorDn = moveAndRenameContext.getNewSuperiorDn();
 
+        // Don't allow M&R in the SSSE
         if ( oldDn.equals( subschemSubentryDn ) )
         {
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_258,
                 subschemSubentryDn, subschemSubentryDn ) );
-        }
-
-        // check if child to move exists
-        String msg = "Attempt to move to non-existant parent: ";
-        assertHasEntry( moveAndRenameContext, msg, oldDn );
-
-        // check if parent to move to exists
-        msg = "Attempt to move to non-existant parent: ";
-        assertHasEntry( moveAndRenameContext, msg, newSuperiorDn );
-
-        // check to see if target entry exists
-        DN newDn = moveAndRenameContext.getNewDn();
-
-        if ( nextInterceptor.hasEntry( new EntryOperationContext( moveAndRenameContext.getSession(), newDn ) ) )
-        {
-            // we must calculate the resolved name using the user provided Rdn value
-            LdapEntryAlreadyExistsException e;
-            e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newDn ) );
-            //e.setResolvedName( new DN( upTarget.getName() ) );
-            throw e;
         }
 
         // Remove the original entry from the NotAlias cache, if needed

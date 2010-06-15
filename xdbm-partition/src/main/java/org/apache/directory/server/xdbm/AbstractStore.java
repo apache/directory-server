@@ -1203,8 +1203,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      */
     public synchronized void moveAndRename( DN oldDn, DN newSuperiorDn, RDN newRdn, Entry modifiedEntry, boolean deleteOldRdn ) throws Exception
     {
-    	// Check that the old entry exists, that the new superior exists and
-    	// that the new DN does not exist
+    	// Check that the old entry exists
         ID oldId = getEntryId( oldDn );
         
         if ( oldId == null )
@@ -1215,6 +1214,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             throw nse;
         }
         
+        // Check that the new superior exist
         ID newSuperiorId = getEntryId( newSuperiorDn );
         
         if ( newSuperiorId == null )
