@@ -348,7 +348,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setNewSuperior( moveAndRenameContext.getNewSuperiorDn().getName() );
         
         List<LdifEntry> reverses = LdifRevertor.reverseMoveAndRename(  
-            serverEntry, moveAndRenameContext.getNewSuperiorDn(), new RDN( moveAndRenameContext.getNewRdn() ), false );
+            serverEntry, moveAndRenameContext.getNewSuperiorDn(), moveAndRenameContext.getNewRdn(), false );
         
         if ( moveAndRenameContext.isReferralIgnored() )
         {
