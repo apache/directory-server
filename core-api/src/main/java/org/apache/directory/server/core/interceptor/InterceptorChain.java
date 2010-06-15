@@ -586,7 +586,7 @@ public class InterceptorChain
             else
             {
                 // This is an error : we *must* have an entry if we want to be able to rename.
-                LdapNoSuchObjectException ldnfe = new LdapNoSuchObjectException( I18n.err( I18n.ERR_256, opContext.getDn() ) );
+                LdapNoSuchObjectException ldnfe = new LdapNoSuchObjectException( I18n.err( I18n.ERR_256_NO_SUCH_OBJECT, opContext.getDn() ) );
 
                 throw ldnfe;
             }
@@ -610,7 +610,7 @@ public class InterceptorChain
         else
         {
             // This is an error : we *must* have an entry if we want to be able to rename.
-            LdapNoSuchObjectException ldnfe = new LdapNoSuchObjectException( I18n.err( I18n.ERR_256, opContext.getDn() ) );
+            LdapNoSuchObjectException ldnfe = new LdapNoSuchObjectException( I18n.err( I18n.ERR_256_NO_SUCH_OBJECT, opContext.getDn() ) );
 
             throw ldnfe;
         }

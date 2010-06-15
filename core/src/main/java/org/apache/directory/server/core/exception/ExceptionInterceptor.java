@@ -73,7 +73,6 @@ import org.apache.directory.shared.ldap.name.DN;
 public class ExceptionInterceptor extends BaseInterceptor
 {
     private PartitionNexus nexus;
-    private DirectoryService directoryService;
     private DN subschemSubentryDn;
 
     /**
@@ -110,7 +109,6 @@ public class ExceptionInterceptor extends BaseInterceptor
 
     public void init( DirectoryService directoryService ) throws LdapException
     {
-        this.directoryService = directoryService;
         nexus = directoryService.getPartitionNexus();
         Value<?> attr = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemSubentryDn = new DN( attr.getString() );
@@ -359,7 +357,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         if ( nextInterceptor.hasEntry( new EntryOperationContext( opContext.getSession(), newDn ) ) )
         {
             LdapEntryAlreadyExistsException e;
-            e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_257, newDn.getName() ) );
+            e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newDn.getName() ) );
             //e.setResolvedName( new DN( newDn.getName() ) );
             throw e;
         }
@@ -410,10 +408,10 @@ public class ExceptionInterceptor extends BaseInterceptor
     public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext moveAndRenameContext )
         throws LdapException
     {
-        DN oriChildName = moveAndRenameContext.getDn();
-        DN parent = moveAndRenameContext.getNewSuperiorDn();
+        DN oldDn = moveAndRenameContext.getDn();
+        DN newSuperiorDn = moveAndRenameContext.getNewSuperiorDn();
 
-        if ( oriChildName.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
+        if ( oldDn.equals( subschemSubentryDn ) )
         {
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_258,
                 subschemSubentryDn, subschemSubentryDn ) );
@@ -421,24 +419,20 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         // check if child to move exists
         String msg = "Attempt to move to non-existant parent: ";
-        assertHasEntry( moveAndRenameContext, msg, oriChildName );
+        assertHasEntry( moveAndRenameContext, msg, oldDn );
 
         // check if parent to move to exists
         msg = "Attempt to move to non-existant parent: ";
-        assertHasEntry( moveAndRenameContext, msg, parent );
+        assertHasEntry( moveAndRenameContext, msg, newSuperiorDn );
 
         // check to see if target entry exists
-        DN target = ( DN ) parent.clone();
-        target.add( moveAndRenameContext.getNewRdn() );
+        DN newDn = moveAndRenameContext.getNewDn();
 
-        if ( nextInterceptor.hasEntry( new EntryOperationContext( moveAndRenameContext.getSession(), target ) ) )
+        if ( nextInterceptor.hasEntry( new EntryOperationContext( moveAndRenameContext.getSession(), newDn ) ) )
         {
             // we must calculate the resolved name using the user provided Rdn value
-            DN upTarget = ( DN ) parent.clone();
-            upTarget.add( moveAndRenameContext.getNewRdn() );
-
             LdapEntryAlreadyExistsException e;
-            e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_257, upTarget.getName() ) );
+            e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newDn ) );
             //e.setResolvedName( new DN( upTarget.getName() ) );
             throw e;
         }
@@ -446,9 +440,9 @@ public class ExceptionInterceptor extends BaseInterceptor
         // Remove the original entry from the NotAlias cache, if needed
         synchronized ( notAliasCache )
         {
-            if ( notAliasCache.containsKey( oriChildName.getNormName() ) )
+            if ( notAliasCache.containsKey( oldDn.getNormName() ) )
             {
-                notAliasCache.remove( oriChildName.getNormName() );
+                notAliasCache.remove( oldDn.getNormName() );
             }
         }
 

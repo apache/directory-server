@@ -44,6 +44,7 @@ import org.apache.directory.shared.ldap.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.name.RDN;
 
 
 /**
@@ -343,8 +344,18 @@ public abstract class AbstractXdbmPartition<ID extends Comparable<ID>> extends B
 
         try
         {
-            store.moveAndRename( moveAndRenameContext.getDn(), moveAndRenameContext.getNewSuperiorDn(), moveAndRenameContext.getNewRdn(),
-                null, moveAndRenameContext.getDeleteOldRdn() );
+        	DN oldDn = moveAndRenameContext.getDn();
+        	DN newSuperiorDn = moveAndRenameContext.getNewSuperiorDn();
+        	RDN newRdn = moveAndRenameContext.getNewRdn();
+        	boolean deleteOldRdn = moveAndRenameContext.getDeleteOldRdn();
+        	
+            store.moveAndRename( oldDn, newSuperiorDn, newRdn, null, deleteOldRdn );
+        }
+        catch ( LdapException le )
+        {
+        	// In case we get an LdapException, just rethrow it as is to 
+        	// avoid having it lost
+        	throw le;
         }
         catch ( Exception e )
         {

@@ -1201,11 +1201,46 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
     /**
      * {@inheritDoc}
      */
-    public synchronized void moveAndRename( DN oldDn, DN newSuperior, RDN newRdn, Entry modifiedEntry, boolean deleteOldRdn ) throws Exception
+    public synchronized void moveAndRename( DN oldDn, DN newSuperiorDn, RDN newRdn, Entry modifiedEntry, boolean deleteOldRdn ) throws Exception
     {
-        ID childId = getEntryId( oldDn );
+    	// Check that the old entry exists, that the new superior exists and
+    	// that the new DN does not exist
+        ID oldId = getEntryId( oldDn );
+        
+        if ( oldId == null )
+        {
+            // This is not allowed : the old entry must exist
+        	LdapNoSuchObjectException nse = new LdapNoSuchObjectException( 
+                I18n.err( I18n.ERR_256_NO_SUCH_OBJECT, oldDn ) );
+            throw nse;
+        }
+        
+        ID newSuperiorId = getEntryId( newSuperiorDn );
+        
+        if ( newSuperiorId == null )
+        {
+            // This is not allowed : the new superior must exist
+        	LdapNoSuchObjectException nse = new LdapNoSuchObjectException( 
+                I18n.err( I18n.ERR_256_NO_SUCH_OBJECT, newSuperiorDn ) );
+            throw nse;
+        }
+        
+        DN newDn = ((DN)newSuperiorDn.clone()).add( newRdn );
+        
+        // Now check that the new entry does not exist
+        ID newId = getEntryId( newDn );
+        
+        if ( newId != null )
+        {
+            // This is not allowed : we should not be able to move an entry
+            // to an existing position
+            LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException( 
+                I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newSuperiorDn.getName() ) );
+            throw ne;
+        }
+
         rename( oldDn, newRdn, deleteOldRdn );
-        moveAndRename( oldDn, childId, newSuperior, newRdn );
+        moveAndRename( oldDn, oldId, newSuperiorDn, newRdn );
 
         if ( isSyncOnWrite )
         {
@@ -1235,7 +1270,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         {
             // This is not allowed : the parent must exist
             LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException( 
-                I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newSuperiorDn.getName() ) );
+                I18n.err( I18n.ERR_256_NO_SUCH_OBJECT, newSuperiorDn.getName() ) );
             throw ne;
         }
         
@@ -1250,7 +1285,6 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
                 I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newSuperiorDn.getName() ) );
             throw ne;
         }
-        
 
         // Get the entry and the old parent IDs
         ID entryId = getEntryId( oldDn );
