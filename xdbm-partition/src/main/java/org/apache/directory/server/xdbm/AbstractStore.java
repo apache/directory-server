@@ -1239,8 +1239,8 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
             throw ne;
         }
 
-        rename( oldDn, newRdn, deleteOldRdn );
-        moveAndRename( oldDn, oldId, newSuperiorDn, newRdn );
+        rename( oldDn, newRdn, deleteOldRdn, modifiedEntry );
+        moveAndRename( oldDn, oldId, newSuperiorDn, newRdn, modifiedEntry );
 
         if ( isSyncOnWrite )
         {
@@ -1928,7 +1928,7 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
      * @param newParentDn the normalized dn of the new parent for the child
      * @throws Exception if something goes wrong
      */
-    protected void moveAndRename( DN oldDn, ID childId, DN newSuperior, RDN newRdn ) throws Exception
+    protected void moveAndRename( DN oldDn, ID childId, DN newSuperior, RDN newRdn, Entry modifiedEntry ) throws Exception
     {
         // Get the child and the new parent to be entries and Ids
         ID newParentId = getEntryId( newSuperior );
@@ -1975,6 +1975,16 @@ public abstract class AbstractStore<E, ID extends Comparable<ID>> implements Sto
         if ( null != aliasTarget )
         {
             addAliasIndices( childId, buildEntryDn( childId ), aliasTarget );
+        }
+
+        // Update the master table with the modified entry
+        // Warning : this test is an hack. As we may call the Store API directly
+        // we may not have a modified entry to update. For instance, if the ModifierName
+        // or ModifyTimeStamp AT are not updated, there is no reason we want to update the
+        // master table.
+        if ( modifiedEntry != null )
+        {
+            master.put( childId, modifiedEntry );
         }
     }
 
