@@ -861,8 +861,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( moveAndRenameContext, tuples, oriChildName, ( ( ClonedServerEntry ) entry )
-            .getOriginalEntry() );
+        addPerscriptiveAciTuples( moveAndRenameContext, tuples, oriChildName,entry );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( moveAndRenameContext, tuples, oriChildName, entry );
 
