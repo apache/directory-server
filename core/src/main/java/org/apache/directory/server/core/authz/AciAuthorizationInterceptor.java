@@ -831,15 +831,13 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
         throws LdapException
     {
-        DN oriChildName = moveAndRenameContext.getDn();
-        DN newParentName = moveAndRenameContext.getNewSuperiorDn();
+        DN oldDn = moveAndRenameContext.getDn();
 
         Entry entry = moveAndRenameContext.getOriginalEntry();
 
         LdapPrincipal principal = moveAndRenameContext.getSession().getEffectivePrincipal();
         DN principalDn = principal.getDN();
-        DN newName = ( DN ) newParentName.clone();
-        newName.add( moveAndRenameContext.getNewRdn().getName() );
+        DN newDn = moveAndRenameContext.getNewDn();
 
         // bypass authz code if we are disabled
         if ( !moveAndRenameContext.getSession().getDirectoryService().isAccessControlEnabled() )
@@ -848,25 +846,25 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return;
         }
 
-        protectCriticalEntries( oriChildName );
+        protectCriticalEntries( oldDn );
 
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
             next.moveAndRename( moveAndRenameContext );
-            tupleCache.subentryRenamed( oriChildName, newName );
-            groupCache.groupRenamed( oriChildName, newName );
+            tupleCache.subentryRenamed( oldDn, newDn );
+            groupCache.groupRenamed( oldDn, newDn );
             return;
         }
 
         Set<DN> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( moveAndRenameContext, tuples, oriChildName,entry );
+        addPerscriptiveAciTuples( moveAndRenameContext, tuples, oldDn,entry );
         addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( moveAndRenameContext, tuples, oriChildName, entry );
+        addSubentryAciTuples( moveAndRenameContext, tuples, oldDn, entry );
 
         engine.checkPermission( schemaManager, moveAndRenameContext, userGroups, principalDn, principal
-            .getAuthenticationLevel(), oriChildName, null, null, MOVERENAME_PERMS, tuples, entry, null );
+            .getAuthenticationLevel(), oldDn, null, null, MOVERENAME_PERMS, tuples, entry, null );
 
         // Get the entry again without operational attributes
         // because access control subentry operational attributes
@@ -874,7 +872,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
 
-        Entry importedEntry = moveAndRenameContext.lookup( oriChildName,
+        Entry importedEntry = moveAndRenameContext.lookup( oldDn,
             ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
 
         // As the target entry does not exist yet and so
@@ -884,7 +882,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // and access control subentry operational attributes.
         SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class
             .getName() );
-        Entry subentryAttrs = subentryInterceptor.getSubentryAttributes( newName, importedEntry );
+        Entry subentryAttrs = subentryInterceptor.getSubentryAttributes( newDn, importedEntry );
 
         for ( EntryAttribute attribute : importedEntry )
         {
@@ -893,15 +891,15 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Collection<ACITuple> destTuples = new HashSet<ACITuple>();
         // Import permission is only valid for prescriptive ACIs
-        addPerscriptiveAciTuples( moveAndRenameContext, destTuples, newName, subentryAttrs );
+        addPerscriptiveAciTuples( moveAndRenameContext, destTuples, newDn, subentryAttrs );
         // Evaluate the target context to see whether it
         // allows an entry named newName to be imported as a subordinate.
         engine.checkPermission( schemaManager, moveAndRenameContext, userGroups, principalDn, principal
-            .getAuthenticationLevel(), newName, null, null, IMPORT_PERMS, destTuples, subentryAttrs, null );
+            .getAuthenticationLevel(), newDn, null, null, IMPORT_PERMS, destTuples, subentryAttrs, null );
 
         next.moveAndRename( moveAndRenameContext );
-        tupleCache.subentryRenamed( oriChildName, newName );
-        groupCache.groupRenamed( oriChildName, newName );
+        tupleCache.subentryRenamed( oldDn, newDn );
+        groupCache.groupRenamed( oldDn, newDn );
     }
 
 
