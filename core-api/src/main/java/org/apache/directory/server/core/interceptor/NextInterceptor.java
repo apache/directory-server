@@ -69,7 +69,7 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#add( NextInterceptor, AddOperationContext )}.
      */
-    void add( AddOperationContext opContext ) throws LdapException;
+    void add( AddOperationContext addContext ) throws LdapException;
 
 
     /**

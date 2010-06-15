@@ -143,10 +143,10 @@ public class TimerInterceptor implements Interceptor
     /**
      * {@inheritDoc}
      */
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws LdapException
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
         long t0 = System.nanoTime();
-        next.add( opContext );
+        next.add( addContext );
         long delta = System.nanoTime() - t0;
 
         if ( IS_DEBUG_STATS )

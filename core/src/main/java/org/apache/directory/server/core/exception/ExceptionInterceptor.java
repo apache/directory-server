@@ -125,9 +125,9 @@ public class ExceptionInterceptor extends BaseInterceptor
      * In the pre-invocation state this interceptor method checks to see if the entry to be added already exists.  If it
      * does an exception is raised.
      */
-    public void add( NextInterceptor nextInterceptor, AddOperationContext opContext ) throws LdapException
+    public void add( NextInterceptor nextInterceptor, AddOperationContext addContext ) throws LdapException
     {
-        DN name = opContext.getDn();
+        DN name = addContext.getDn();
 
         if ( subschemSubentryDn.getNormName().equals( name.getNormName() ) )
         {
@@ -135,7 +135,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         }
 
         // check if the entry already exists
-        if ( nextInterceptor.hasEntry( new EntryOperationContext( opContext.getSession(), name ) ) )
+        if ( nextInterceptor.hasEntry( new EntryOperationContext( addContext.getSession(), name ) ) )
         {
             LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException( 
                 I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, name.getName() ) );
@@ -147,7 +147,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         // we're adding the suffix entry so just ignore stuff to mess with the parent
         if ( suffix.equals( name ) )
         {
-            nextInterceptor.add( opContext );
+            nextInterceptor.add( addContext );
             return;
         }
 
@@ -170,7 +170,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
             try
             {
-                attrs = opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS );
+                attrs = addContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS );
             }
             catch ( Exception e )
             {
@@ -198,7 +198,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             }
         }
 
-        nextInterceptor.add( opContext );
+        nextInterceptor.add( addContext );
     }
 
 

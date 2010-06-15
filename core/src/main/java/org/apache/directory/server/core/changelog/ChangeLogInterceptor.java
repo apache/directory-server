@@ -100,16 +100,16 @@ public class ChangeLogInterceptor extends BaseInterceptor
     // -----------------------------------------------------------------------
     
 
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws LdapException
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
-        next.add( opContext );
+        next.add( addContext );
 
-        if ( ! changeLog.isEnabled() || ! opContext.isFirstOperation() )
+        if ( ! changeLog.isEnabled() || ! addContext.isFirstOperation() )
         {
             return;
         }
 
-        Entry addEntry = opContext.getEntry();
+        Entry addEntry = addContext.getEntry();
 
         // we don't want to record addition of a tag as a change
         if( addEntry.get( REV_AT_OID ) != null )
@@ -119,7 +119,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         
         LdifEntry forward = new LdifEntry();
         forward.setChangeType( ChangeType.Add );
-        forward.setDn( opContext.getDn() );
+        forward.setDn( addContext.getDn() );
 
         Set<AttributeType> list = addEntry.getAttributeTypes();
         
@@ -128,8 +128,8 @@ public class ChangeLogInterceptor extends BaseInterceptor
             forward.addAttribute( addEntry.get( attributeType).clone() );
         }
         
-        LdifEntry reverse = LdifRevertor.reverseAdd( opContext.getDn() );
-        opContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
+        LdifEntry reverse = LdifRevertor.reverseAdd( addContext.getDn() );
+        addContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
     }
 
 

@@ -100,10 +100,10 @@ public class MockInterceptor implements Interceptor
     }
 
 
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws LdapException
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
         interceptors.add( this );
-        next.add( opContext );
+        next.add( addContext );
     }
 
 

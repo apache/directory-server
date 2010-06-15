@@ -110,12 +110,12 @@ public class NormalizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void add( NextInterceptor nextInterceptor, AddOperationContext opContext ) throws LdapException
+    public void add( NextInterceptor nextInterceptor, AddOperationContext addContext ) throws LdapException
     {
-        opContext.getDn().normalize( schemaManager.getNormalizerMapping() );
-        opContext.getEntry().getDn().normalize( schemaManager.getNormalizerMapping() );
-        addRdnAttributesToEntry( opContext.getDn(), opContext.getEntry() );
-        nextInterceptor.add( opContext );
+        addContext.getDn().normalize( schemaManager.getNormalizerMapping() );
+        addContext.getEntry().getDn().normalize( schemaManager.getNormalizerMapping() );
+        addRdnAttributesToEntry( addContext.getDn(), addContext.getEntry() );
+        nextInterceptor.add( addContext );
     }
 
 

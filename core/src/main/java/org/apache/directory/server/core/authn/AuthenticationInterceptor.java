@@ -196,15 +196,15 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws LdapException
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Operation Context: {}", opContext );
+            LOG.debug( "Operation Context: {}", addContext );
         }
 
-        checkAuthenticated( opContext );
-        next.add( opContext );
+        checkAuthenticated( addContext );
+        next.add( addContext );
     }
 
 

@@ -341,11 +341,11 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     // Partial Schema Checking
     // ------------------------------------------------------------------------
 
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws LdapException
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
-        collectiveAttributesSchemaChecker.checkAdd( opContext.getDn(), opContext.getEntry() );
+        collectiveAttributesSchemaChecker.checkAdd( addContext.getDn(), addContext.getEntry() );
 
-        next.add( opContext );
+        next.add( addContext );
     }
 
 

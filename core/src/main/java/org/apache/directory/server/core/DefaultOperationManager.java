@@ -215,18 +215,18 @@ public class DefaultOperationManager implements OperationManager
     /**
      * {@inheritDoc}
      */
-    public void add( AddOperationContext opContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
-        LOG.debug( ">> AddOperation : {}", opContext );
-        LOG_CHANGES.debug( ">> AddOperation : {}", opContext );
+        LOG.debug( ">> AddOperation : {}", addContext );
+        LOG_CHANGES.debug( ">> AddOperation : {}", addContext );
 
         ensureStarted();
-        push( opContext );
+        push( addContext );
 
         try
         {
             // Normalize the opContext DN
-            DN dn = opContext.getDn();
+            DN dn = addContext.getDn();
             dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // We have to deal with the referral first
@@ -239,7 +239,7 @@ public class DefaultOperationManager implements OperationManager
 
                 // Depending on the Context.REFERRAL property value, we will throw
                 // a different exception.
-                if ( opContext.isReferralIgnored() )
+                if ( addContext.isReferralIgnored() )
                 {
                     directoryService.getReferralManager().unlock();
 
@@ -262,7 +262,7 @@ public class DefaultOperationManager implements OperationManager
 
                 // Call the Add method
                 InterceptorChain interceptorChain = directoryService.getInterceptorChain();
-                interceptorChain.add( opContext );
+                interceptorChain.add( addContext );
             }
         }
         finally

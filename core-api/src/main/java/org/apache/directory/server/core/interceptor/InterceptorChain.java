@@ -113,9 +113,9 @@ public class InterceptorChain
         }
 
 
-        public void add( NextInterceptor next, AddOperationContext opContext ) throws LdapException
+        public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
         {
-            nexus.add( opContext );
+            nexus.add( addContext );
         }
 
 
@@ -639,7 +639,7 @@ public class InterceptorChain
     }
 
 
-    public void add( AddOperationContext opContext ) throws LdapException
+    public void add( AddOperationContext addContext ) throws LdapException
     {
         Element node = getStartingEntry();
         Interceptor head = node.interceptor;
@@ -647,7 +647,7 @@ public class InterceptorChain
 
         try
         {
-            head.add( next, opContext );
+            head.add( next, addContext );
         }
         catch ( LdapException le )
         {
@@ -1008,14 +1008,14 @@ public class InterceptorChain
                 }
 
 
-                public void add( AddOperationContext opContext ) throws LdapException
+                public void add( AddOperationContext addContext ) throws LdapException
                 {
                     Element next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
 
                     try
                     {
-                        interceptor.add( next.nextInterceptor, opContext );
+                        interceptor.add( next.nextInterceptor, addContext );
                     }
                     catch ( LdapException le )
                     {

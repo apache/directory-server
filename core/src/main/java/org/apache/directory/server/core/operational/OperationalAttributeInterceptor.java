@@ -165,15 +165,15 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      * - entryCSN
      * - entryUUID 
      */
-    public void add( NextInterceptor nextInterceptor, AddOperationContext opContext ) throws LdapException
+    public void add( NextInterceptor nextInterceptor, AddOperationContext addContext ) throws LdapException
     {
         String principal = getPrincipal().getName();
 
-        Entry entry = opContext.getEntry();
+        Entry entry = addContext.getEntry();
 
         // If we are using replication, the below four OAs may already be present and we retain
         // those values if the user is admin.
-        boolean isAdmin = opContext.getSession().getAuthenticatedPrincipal().getName().equals(
+        boolean isAdmin = addContext.getSession().getAuthenticatedPrincipal().getName().equals(
             ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
 
         if ( entry.containsAttribute( SchemaConstants.ENTRY_UUID_AT ) )
@@ -236,7 +236,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         }
 
-        nextInterceptor.add( opContext );
+        nextInterceptor.add( addContext );
     }
 
 

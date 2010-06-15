@@ -143,10 +143,10 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor next, final AddOperationContext opContext ) throws LdapException
+    public void add( NextInterceptor next, final AddOperationContext addContext ) throws LdapException
     {
-        next.add( opContext );
-        List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), opContext.getEntry() );
+        next.add( addContext );
+        List<RegistrationEntry> selecting = getSelectingRegistrations( addContext.getDn(), addContext.getEntry() );
 
         if ( selecting.isEmpty() )
         {
@@ -157,7 +157,7 @@ public class EventInterceptor extends BaseInterceptor
         {
             if ( EventType.isAdd( registration.getCriteria().getEventMask() ) )
             {
-                fire( opContext, EventType.ADD, registration.getListener() );
+                fire( addContext, EventType.ADD, registration.getListener() );
             }
         }
     }

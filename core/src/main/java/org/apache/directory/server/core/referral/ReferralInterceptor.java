@@ -229,15 +229,15 @@ public class ReferralInterceptor extends BaseInterceptor
      * entryAlreadyExists error.
      *  
      */
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws LdapException
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
-        Entry entry = opContext.getEntry();
+        Entry entry = addContext.getEntry();
 
         // Check if the entry is a referral itself
         boolean isReferral = isReferral( entry );
 
         // We add the entry into the server
-        next.add( opContext );
+        next.add( addContext );
 
         // If the addition is successful, we update the referralManager 
         if ( isReferral )

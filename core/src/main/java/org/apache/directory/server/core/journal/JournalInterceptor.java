@@ -99,7 +99,7 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws LdapException
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
         long opRevision = 0;
         
@@ -108,11 +108,11 @@ public class JournalInterceptor extends BaseInterceptor
             opRevision = revision.incrementAndGet();
             
             // Store the added entry
-            Entry addEntry = opContext.getEntry();
+            Entry addEntry = addContext.getEntry();
 
             LdifEntry ldif = new LdifEntry();
             ldif.setChangeType( ChangeType.Add );
-            ldif.setDn( opContext.getDn() );
+            ldif.setDn( addContext.getDn() );
 
             Set<AttributeType> list = addEntry.getAttributeTypes();
             
@@ -126,7 +126,7 @@ public class JournalInterceptor extends BaseInterceptor
 
         try
         {
-            next.add( opContext );
+            next.add( addContext );
 
             if ( journalEnabled )
             {

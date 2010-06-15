@@ -146,7 +146,7 @@ public interface Interceptor
     /**
      * Filters {@link Partition#add( AddOperationContext )} call.
      */
-    void add( NextInterceptor next, AddOperationContext opContext ) throws LdapException;
+    void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException;
 
 
     /**

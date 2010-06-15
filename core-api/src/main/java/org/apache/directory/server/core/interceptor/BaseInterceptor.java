@@ -115,9 +115,9 @@ public abstract class BaseInterceptor implements Interceptor
     // Interceptor's Invoke Method
     // ------------------------------------------------------------------------
 
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws LdapException
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws LdapException
     {
-        next.add( opContext );
+        next.add( addContext );
     }
 
 
