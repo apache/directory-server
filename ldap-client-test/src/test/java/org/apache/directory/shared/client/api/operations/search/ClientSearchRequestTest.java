@@ -165,6 +165,33 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     }
 
     
+    /**
+     * Test a search with a Substring filter
+     * @throws Exception
+     */
+    @Test
+    public void testSearchPersonSubstring() throws Exception
+    {
+        SearchFuture searchFuture = connection.searchAsync( "ou=system", "(objectclass=*ers*)", SearchScope.SUBTREE, "*",
+            "+" );
+        int count = 0;
+        SearchResponse searchResponse = null;
+        do
+        {
+            searchResponse = ( SearchResponse ) searchFuture.get( 100000, TimeUnit.MILLISECONDS );
+            assertNotNull( searchResponse );
+            
+            if ( !( searchResponse instanceof SearchResultDone ) )
+            {
+                count++;
+            }
+        }
+        while ( !( searchResponse instanceof SearchResultDone ) );
+
+        assertEquals(2, count );
+    }
+
+    
     @Test
     public void testSearchWithDerefAlias() throws Exception
     {
