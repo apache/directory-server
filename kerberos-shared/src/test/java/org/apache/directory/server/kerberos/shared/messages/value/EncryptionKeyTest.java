@@ -20,50 +20,55 @@
 package org.apache.directory.server.kerberos.shared.messages.value;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.io.encoder.EncryptionKeyEncoder;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.runner.RunWith;
 
 /**
  * Test the EncryptionKey encoding and decoding
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class EncryptionKeyTest
 {
-    EncryptionKey encryptionA;
-    EncryptionKey encryptionACopy;
-    EncryptionKey encryptionB;
-    EncryptionKey encryptionC;
-    EncryptionKey encryptionD;
+    private static EncryptionKey encryptionA;
+    private static EncryptionKey encryptionACopy;
+    private static EncryptionKey encryptionB;
+    private static EncryptionKey encryptionC;
+    private static EncryptionKey encryptionD;
 
-    byte[] encryptionValueA = { 0x01, 0x02, 0x03 };
-    byte[] encryptionValueB = { 0x01, 0x02, 0x03 };
-    byte[] encryptionValueC = { 0x01, 0x02, 0x04 };
+    private static final byte[] ENCRYPTION_VALUE_A = { 0x01, 0x02, 0x03 };
+    private static final byte[] ENCRYPTION_VALUE_B = { 0x01, 0x02, 0x03 };
+    private static final byte[] ENCRYPTION_VALUE_C = { 0x01, 0x02, 0x04 };
 
     
     /**
      * Initialize name instances
      */
-    @Before
-    public void initNames() throws Exception
+    @BeforeClass
+    public static void initNames() throws Exception
     {
-        encryptionA = new EncryptionKey ( EncryptionType.AES128_CTS_HMAC_SHA1_96, encryptionValueA );
-        encryptionACopy = new EncryptionKey ( EncryptionType.AES128_CTS_HMAC_SHA1_96, encryptionValueA );
-        encryptionB = new EncryptionKey ( EncryptionType.AES128_CTS_HMAC_SHA1_96, encryptionValueB );
-        encryptionC = new EncryptionKey ( EncryptionType.AES128_CTS_HMAC_SHA1_96, encryptionValueC );
-        encryptionD = new EncryptionKey ( EncryptionType.AES256_CTS_HMAC_SHA1_96, encryptionValueA );
+        encryptionA = new EncryptionKey ( EncryptionType.AES128_CTS_HMAC_SHA1_96, ENCRYPTION_VALUE_A );
+        encryptionACopy = new EncryptionKey ( EncryptionType.AES128_CTS_HMAC_SHA1_96, ENCRYPTION_VALUE_A );
+        encryptionB = new EncryptionKey ( EncryptionType.AES128_CTS_HMAC_SHA1_96, ENCRYPTION_VALUE_B );
+        encryptionC = new EncryptionKey ( EncryptionType.AES128_CTS_HMAC_SHA1_96, ENCRYPTION_VALUE_C );
+        encryptionD = new EncryptionKey ( EncryptionType.AES256_CTS_HMAC_SHA1_96, ENCRYPTION_VALUE_A );
 
     }
 
@@ -161,14 +166,14 @@ public class EncryptionKeyTest
             { 0x01, 0x02, 0x03 } );
         EncryptionKeyEncoder.encode( ec );
 
-        long t0 = System.currentTimeMillis();
+        // long t0 = System.currentTimeMillis();
 
         //for ( int i = 0; i < 10000000; i++ )
         {
             EncryptionKeyEncoder.encode( ec );
         }
 
-        long t1 = System.currentTimeMillis();
+        // long t1 = System.currentTimeMillis();
 
         //System.out.println( "Delta = " + ( t1 - t0 ) );
     }
@@ -182,7 +187,7 @@ public class EncryptionKeyTest
         ByteBuffer encoded = ByteBuffer.allocate( ec.computeLength() );
         ec.encode( encoded );
 
-        long t0 = System.currentTimeMillis();
+        // long t0 = System.currentTimeMillis();
 
         //for ( int i = 0; i < 40000000; i++ )
         {
@@ -191,7 +196,7 @@ public class EncryptionKeyTest
             ec.encode( encoded );
         }
 
-        long t1 = System.currentTimeMillis();
+        // long t1 = System.currentTimeMillis();
 
         //System.out.println( "Delta2 = " + ( t1 - t0 ) );
     }

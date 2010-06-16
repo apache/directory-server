@@ -21,7 +21,11 @@ package org.apache.directory.server.core.avltree;
 
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
@@ -34,6 +38,8 @@ import java.io.Serializable;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class DefaultMarshallerTest
 {
     DefaultMarshaller marshaller = DefaultMarshaller.INSTANCE;
@@ -61,6 +67,8 @@ public class DefaultMarshallerTest
 
     static class Bar implements Serializable
     {
+        private static final long serialVersionUID = 2982919006977619754L;
+
         int intValue = 37;
         String stringValue = "bar";
         long longValue = 32L;
@@ -70,6 +78,8 @@ public class DefaultMarshallerTest
 
     static class Foo implements Serializable
     {
+        private static final long serialVersionUID = -1366956596647335984L;
+
         float floatValue = 3;
         String stringValue = "foo";
         double doubleValue = 1.2;

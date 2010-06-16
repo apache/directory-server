@@ -33,9 +33,12 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Comparator;
 
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.junit.AfterClass;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +48,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class AvlTreeMarshallerTest
 {
     private static final long[] AVLTREE_KEYS_PRE_REMOVE =
@@ -85,20 +90,17 @@ public class AvlTreeMarshallerTest
 //        0, 0, 0, 4, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, -74, 
 //        0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0 
 //    };
-
-    AvlTree<Integer> tree;
-    Comparator<Integer> comparator;
-    AvlTreeMarshaller<Integer> treeMarshaller;
-    
+   
     static AvlTree<Integer> savedTree;
     
     static File treeFile = new File( System.getProperty( "java.io.tmpdir" ) + File.separator + "avl.tree");
     
+    private static Comparator<Integer> comparator;
+    
     private static final Logger LOG = LoggerFactory.getLogger( AvlTreeMarshallerTest.class.getSimpleName() );
 
-    
-    @Before
-    public void createTree()
+    @BeforeClass
+    public static void createComparator()
     {
         comparator = new Comparator<Integer>() 
         {
@@ -107,10 +109,16 @@ public class AvlTreeMarshallerTest
                 return i1.compareTo( i2 );
             }
         };
-        
-      
-        tree = new AvlTreeImpl<Integer>( comparator );
-        treeMarshaller = new AvlTreeMarshaller<Integer>( comparator, new IntegerKeyMarshaller() );
+    }
+    private AvlTree<Integer> createTree()
+    {
+        return new AvlTreeImpl<Integer>( comparator );
+    }
+
+    
+    private AvlTreeMarshaller<Integer> createTreeMarshaller()
+    {
+        return new AvlTreeMarshaller<Integer>( comparator, new IntegerKeyMarshaller() );
     }
 
     
@@ -163,6 +171,7 @@ public class AvlTreeMarshallerTest
     @Test
     public void testMarshalEmptyTree() throws IOException
     {
+        AvlTreeMarshaller<Integer> treeMarshaller = createTreeMarshaller();
         byte[] bites = treeMarshaller.serialize( new AvlTreeImpl<Integer>( comparator ) );
         AvlTree<Integer> tree = treeMarshaller.deserialize( bites );
         assertNotNull( tree );
@@ -172,6 +181,7 @@ public class AvlTreeMarshallerTest
     @Test
     public void testRoundTripEmpty() throws IOException
     {
+        AvlTreeMarshaller<Integer> treeMarshaller = createTreeMarshaller();
         AvlTree<Integer> original = new AvlTreeImpl<Integer>( comparator );
         byte[] bites = treeMarshaller.serialize( original );
         AvlTree<Integer> deserialized = treeMarshaller.deserialize( bites );
@@ -182,6 +192,7 @@ public class AvlTreeMarshallerTest
     @Test
     public void testRoundTripOneEntry() throws IOException
     {
+        AvlTreeMarshaller<Integer> treeMarshaller = createTreeMarshaller();
         AvlTree<Integer> original = new AvlTreeImpl<Integer>( comparator );
         original.insert( 0 );
         byte[] bites = treeMarshaller.serialize( original );
@@ -195,6 +206,7 @@ public class AvlTreeMarshallerTest
     @Test
     public void testRoundTripOneEntryFirstLast() throws IOException
     {
+        AvlTreeMarshaller<Integer> treeMarshaller = createTreeMarshaller();
         AvlTree<Integer> original = new AvlTreeImpl<Integer>( comparator );
         original.insert( 0 );
         byte[] bites = treeMarshaller.serialize( original );
@@ -221,6 +233,7 @@ public class AvlTreeMarshallerTest
     @Test
     public void testRoundTripTwoEntries() throws IOException
     {
+        AvlTreeMarshaller<Integer> treeMarshaller = createTreeMarshaller();
         AvlTree<Integer> original = new AvlTreeImpl<Integer>( comparator );
         original.insert( 0 );
         original.insert( 1 );
@@ -236,6 +249,7 @@ public class AvlTreeMarshallerTest
     @Test
     public void testRoundTripTwoEntriesFirstLast() throws IOException
     {
+        AvlTreeMarshaller<Integer> treeMarshaller = createTreeMarshaller();
         AvlTree<Integer> original = new AvlTreeImpl<Integer>( comparator );
         original.insert( 0 );
         original.insert( 1 );
@@ -264,6 +278,7 @@ public class AvlTreeMarshallerTest
     @Test
     public void testRoundTripManyEntries() throws Exception
     {
+        AvlTreeMarshaller<Integer> treeMarshaller = createTreeMarshaller();
         AvlTree<Integer> original = new AvlTreeImpl<Integer>( comparator );
         for ( int ii = 0; ii < 100; ii++ )
         {
@@ -287,6 +302,7 @@ public class AvlTreeMarshallerTest
     @Test
     public void testRoundTripManyEntriesFirstLast() throws Exception
     {
+        AvlTreeMarshaller<Integer> treeMarshaller = createTreeMarshaller();
         AvlTree<Integer> original = new AvlTreeImpl<Integer>( comparator );
         for ( int ii = 0; ii < 100; ii++ )
         {
@@ -355,6 +371,8 @@ public class AvlTreeMarshallerTest
 
     static class Bar implements Serializable
     {
+        private static final long serialVersionUID = -6304421912253987925L;
+
         Integer intValue = 37;
         String stringValue = "bar";
         long longValue = 32L;
@@ -370,6 +388,8 @@ public class AvlTreeMarshallerTest
 
     static class Foo implements Serializable
     {
+        private static final long serialVersionUID = 2036800942831561377L;
+
         float floatValue = 3;
         String stringValue = "foo";
         double doubleValue = 1.2;
@@ -379,8 +399,11 @@ public class AvlTreeMarshallerTest
 
 
     @Test
-    public void testMarshal() throws IOException
+    public void testMarshal_UnMarshal() throws FileNotFoundException, IOException
     {
+        // Marhsall
+        AvlTree<Integer> tree = createTree();
+        AvlTreeMarshaller<Integer> treeMarshaller = createTreeMarshaller();
         tree.insert( 37 );
         tree.insert( 7 );
         tree.insert( 25 );
@@ -400,12 +423,8 @@ public class AvlTreeMarshallerTest
         }
         
         assertTrue( true );
-    }
 
-
-    @Test
-    public void testUnMarshal() throws FileNotFoundException, IOException
-    {
+        // UnMarshall
         FileInputStream fin = new FileInputStream(treeFile);
         
         byte[] data = new byte[ ( int )treeFile.length() ];
@@ -449,6 +468,7 @@ public class AvlTreeMarshallerTest
     @Test( expected = IOException.class )
     public void testDeserializeNullData() throws IOException
     {
+        AvlTreeMarshaller<Integer> treeMarshaller = createTreeMarshaller();
         treeMarshaller.deserialize( null );
     }
     

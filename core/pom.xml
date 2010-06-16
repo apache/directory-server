@@ -39,6 +39,12 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.apache.directory.junit</groupId>
+      <artifactId>junit-addons</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <artifactId>apacheds-i18n</artifactId>
       <groupId>${project.groupId}</groupId>
     </dependency>

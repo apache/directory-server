@@ -25,7 +25,10 @@ import java.util.Arrays;
 
 import javax.crypto.spec.DESKeySpec;
 
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertTrue;
 
@@ -36,29 +39,31 @@ import static org.junit.Assert.assertTrue;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class DesStringToKeyTest
 {
-    private byte[] fanFold1 =
+    private static final byte[] FAN_FOLD1 =
         { ( byte ) 0xC0, ( byte ) 0x1E, ( byte ) 0x38, ( byte ) 0x68, ( byte ) 0x8A, ( byte ) 0xC8, ( byte ) 0x6C,
             ( byte ) 0x2E };
-    private byte[] intermediateKey1 =
+    private static final byte[] INTERMEDIATE_KEY1 =
         { ( byte ) 0xC1, ( byte ) 0x1F, ( byte ) 0x38, ( byte ) 0x68, ( byte ) 0x8A, ( byte ) 0xC8, ( byte ) 0x6D,
             ( byte ) 0x2F };
-    private byte[] desKey1 =
+    private static final byte[] DES_KEY1 =
         { ( byte ) 0xCB, ( byte ) 0xC2, ( byte ) 0x2F, ( byte ) 0xAE, ( byte ) 0x23, ( byte ) 0x52, ( byte ) 0x98,
             ( byte ) 0xE3 };
 
-    private byte[] fanFold2 =
+    private static final byte[] FAN_FOLD2 =
         { ( byte ) 0xA0, ( byte ) 0x28, ( byte ) 0x94, ( byte ) 0x4E, ( byte ) 0xE6, ( byte ) 0x3C, ( byte ) 0x04,
             ( byte ) 0x16 };
-    private byte[] intermediateKey2 =
+    private static final byte[] INTERMEDIATE_KEY2 =
         { ( byte ) 0xA1, ( byte ) 0x29, ( byte ) 0x94, ( byte ) 0x4F, ( byte ) 0xE6, ( byte ) 0x3D, ( byte ) 0x04,
             ( byte ) 0x16 };
-    private byte[] desKey2 =
+    private static final byte[] DES_KEY2 =
         { ( byte ) 0xDF, ( byte ) 0x3D, ( byte ) 0x32, ( byte ) 0xA7, ( byte ) 0x4F, ( byte ) 0xD9, ( byte ) 0x2A,
             ( byte ) 0x01 };
 
-    private DesStringToKey stringToKey = new DesStringToKey();
+    private static final DesStringToKey stringToKey = new DesStringToKey();
 
 
     /**
@@ -69,7 +74,7 @@ public class DesStringToKeyTest
     {
         byte[] key = stringToKey.getKey( "password", "ATHENA.MIT.EDU", "raeburn" );
 
-        assertTrue( "Key match", Arrays.equals( desKey1, key ) );
+        assertTrue( "Key match", Arrays.equals( DES_KEY1, key ) );
     }
 
 
@@ -81,7 +86,7 @@ public class DesStringToKeyTest
     {
         byte[] key = stringToKey.getKey( "potatoe", "WHITEHOUSE.GOV", "danny" );
 
-        assertTrue( "Key match", Arrays.equals( desKey2, key ) );
+        assertTrue( "Key match", Arrays.equals( DES_KEY2, key ) );
     }
 
 
@@ -99,13 +104,13 @@ public class DesStringToKeyTest
         byte[] paddedByteArray = stringToKey.padString( encodedByteArray );
         byte[] fanFold = stringToKey.fanFold( paddedByteArray );
 
-        assertTrue( "Key match", Arrays.equals( fanFold1, fanFold ) );
+        assertTrue( "Key match", Arrays.equals( FAN_FOLD1, fanFold ) );
 
         fanFold = stringToKey.setParity( fanFold );
-        assertTrue( "Key match", Arrays.equals( intermediateKey1, fanFold ) );
+        assertTrue( "Key match", Arrays.equals( INTERMEDIATE_KEY1, fanFold ) );
 
         byte[] secretKey = getDesKey( paddedByteArray, fanFold );
-        assertTrue( "Key match", Arrays.equals( desKey1, secretKey ) );
+        assertTrue( "Key match", Arrays.equals( DES_KEY1, secretKey ) );
     }
 
 
@@ -123,13 +128,13 @@ public class DesStringToKeyTest
         byte[] paddedByteArray = stringToKey.padString( encodedByteArray );
         byte[] fanFold = stringToKey.fanFold( paddedByteArray );
 
-        assertTrue( "Key match", Arrays.equals( fanFold2, fanFold ) );
+        assertTrue( "Key match", Arrays.equals( FAN_FOLD2, fanFold ) );
 
         fanFold = stringToKey.setParity( fanFold );
-        assertTrue( "Key match", Arrays.equals( intermediateKey2, fanFold ) );
+        assertTrue( "Key match", Arrays.equals( INTERMEDIATE_KEY2, fanFold ) );
 
         byte[] secretKey = getDesKey( paddedByteArray, fanFold );
-        assertTrue( "Key match", Arrays.equals( desKey2, secretKey ) );
+        assertTrue( "Key match", Arrays.equals( DES_KEY2, secretKey ) );
     }
 
 

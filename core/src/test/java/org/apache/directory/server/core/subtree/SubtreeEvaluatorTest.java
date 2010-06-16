@@ -28,6 +28,8 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.core.normalization.FilterNormalizingVisitor;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -48,6 +50,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -55,12 +58,14 @@ import org.junit.Test;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class SubtreeEvaluatorTest
 {
     private static SchemaManager schemaManager;
-    private SubtreeEvaluator evaluator;
-    FilterNormalizingVisitor visitor;
-    static ConcreteNameComponentNormalizer ncn;
+    private static SubtreeEvaluator evaluator;
+    private static FilterNormalizingVisitor visitor;
+    private static ConcreteNameComponentNormalizer ncn;
 
 
     @BeforeClass
@@ -89,19 +94,14 @@ public class SubtreeEvaluatorTest
         }
 
         ncn = new ConcreteNameComponentNormalizer( schemaManager );
-    }
 
-
-    @Before
-    public void initTest()
-    {
         visitor = new FilterNormalizingVisitor( ncn, schemaManager );
         evaluator = new SubtreeEvaluator( schemaManager.getGlobalOidRegistry(), schemaManager );
     }
 
 
-    @After
-    public void destroyTest()
+    @AfterClass
+    public static void destroyTest()
     {
         visitor = null;
         evaluator = null;

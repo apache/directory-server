@@ -42,6 +42,8 @@ import java.util.Set;
 import javax.naming.directory.InvalidAttributeValueException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -59,6 +61,7 @@ import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -66,6 +69,8 @@ import org.junit.Test;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class SchemaAwareEntryAttributeTest
 {
     private static LdifSchemaLoader loader;

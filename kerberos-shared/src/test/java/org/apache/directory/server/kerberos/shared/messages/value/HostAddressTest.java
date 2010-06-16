@@ -27,30 +27,35 @@ import static org.junit.Assert.assertTrue;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.kerberos.shared.messages.value.types.HostAddrType;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Test the HostAddress encoding and decoding
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class HostAddressTest
 {
-    HostAddress hostAddressA;
-    HostAddress hostAddressACopy;
-    HostAddress hostAddressB;
-    HostAddress hostAddressC;
-    HostAddress hostAddressD;
+    private static HostAddress hostAddressA;
+    private static HostAddress hostAddressACopy;
+    private static HostAddress hostAddressB;
+    private static HostAddress hostAddressC;
+    private static HostAddress hostAddressD;
 
     
     /**
      * Initialize name instances
      */
-    @Before
-    public void initNames() throws Exception
+    @BeforeClass
+    public static void initNames() throws Exception
     {
         hostAddressA = new HostAddress( HostAddrType.ADDRTYPE_INET, new byte[]
                                                                             { 0x01, 0x02, 0x03, 0x04 } );

@@ -22,10 +22,13 @@ package org.apache.directory.server.core.prefs;
 
 import static org.junit.Assert.assertEquals;
 
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -33,6 +36,8 @@ import org.junit.Test;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class PreferencesUtilsTest
 {
     /**

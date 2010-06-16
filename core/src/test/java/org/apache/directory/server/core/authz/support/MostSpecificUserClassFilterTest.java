@@ -30,6 +30,8 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.core.authz.support.MostSpecificUserClassFilter;
 import org.apache.directory.server.core.authz.support.OperationScope;
 import org.apache.directory.shared.ldap.aci.ACITuple;
@@ -40,6 +42,7 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -47,6 +50,8 @@ import org.junit.Test;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class MostSpecificUserClassFilterTest
 {
     private static final Set<DN> EMPTY_NAME_SET = Collections.unmodifiableSet( new HashSet<DN>() );

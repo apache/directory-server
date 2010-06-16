@@ -21,9 +21,15 @@
 
 package org.apache.directory.server.core.sp;
 
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import static org.junit.Assert.assertEquals;
 
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class StoredProcUtilsTest
 {
     @Test

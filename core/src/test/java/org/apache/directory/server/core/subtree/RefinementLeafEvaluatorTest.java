@@ -24,9 +24,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.GreaterEqNode;
@@ -37,10 +39,10 @@ import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -48,6 +50,8 @@ import org.junit.Test;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class RefinementLeafEvaluatorTest
 {
     /** The ObjectClass AttributeType */
@@ -57,7 +61,7 @@ public class RefinementLeafEvaluatorTest
     private static Registries registries;
 
     /** the refinement leaf evaluator to test */
-    private RefinementLeafEvaluator evaluator;
+    private static RefinementLeafEvaluator evaluator;
 
 
     /**
@@ -81,26 +85,17 @@ public class RefinementLeafEvaluatorTest
         registries = sm.getRegistries();
         
         OBJECT_CLASS = registries.getAttributeTypeRegistry().lookup( "objectClass" );
+
+        OidRegistry registry = registries.getGlobalOidRegistry();
+        evaluator = new RefinementLeafEvaluator( registry );
     }
     
 
     /**
-     * Initializes registries and creates the leaf evaluator
-     * @throws Exception if there are schema initialization problems
-     */
-    @Before 
-    public void setUp() throws Exception
-    {
-        OidRegistry registry = registries.getGlobalOidRegistry();
-        evaluator = new RefinementLeafEvaluator( registry );
-    }
-
-
-    /**
      * Sets evaluator and registries to null.
      */
-    @After 
-    public void tearDown()
+    @AfterClass 
+    public static void tearDown()
     {
         evaluator = null;
     }

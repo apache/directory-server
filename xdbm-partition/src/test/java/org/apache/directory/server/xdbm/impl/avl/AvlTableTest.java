@@ -29,11 +29,14 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Comparator;
 
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.xdbm.impl.avl.AvlTable;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.Tuple;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -41,16 +44,18 @@ import org.junit.Test;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class AvlTableTest
 {
     private AvlTable<Integer,Integer> dups;
     private AvlTable<Integer,Integer> nodups;
+    private final Comparator<Integer> comparator = new IntComparator();
     
     
     @Before
     public void setUp()
     {
-        IntComparator comparator = new IntComparator();
         dups = new AvlTable<Integer,Integer>( "dups", comparator, comparator, true );
         nodups = new AvlTable<Integer,Integer>( "nodups", comparator, comparator, false );
     }

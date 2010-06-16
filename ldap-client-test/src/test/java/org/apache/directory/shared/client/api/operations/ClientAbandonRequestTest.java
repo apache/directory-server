@@ -76,7 +76,7 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
         connection.setTimeOut( 0L );
         connection.bind( bindDn.getName(), "secret" );
 
-        session = ldapServer.getDirectoryService().getSession();
+//        session = ldapServer.getDirectoryService().getSession();
     }
     
     

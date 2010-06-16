@@ -30,6 +30,14 @@
   
   <description>Internationalization of errors and other messages</description>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.directory.junit</groupId>
+      <artifactId>junit-addons</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
   <build>
     <plugins>
       <plugin>

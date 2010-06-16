@@ -23,12 +23,14 @@ package org.apache.directory.server.core.entry;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -36,22 +38,23 @@ import org.junit.Test;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class ClonedServerEntryTest
 {
-    ClonedServerEntry clonedServerEntryA;
-    ClonedServerEntry clonedServerEntryACopy;
-    ClonedServerEntry clonedServerEntryB;
-    ClonedServerEntry clonedServerEntryC;
-    ClonedServerEntry clonedServerEntryA1;
-    ClonedServerEntry clonedServerEntryACopy1;
-    ClonedServerEntry clonedServerEntryB1;
-    ClonedServerEntry clonedServerEntryC1;
+    private static ClonedServerEntry clonedServerEntryA;
+    private static ClonedServerEntry clonedServerEntryACopy;
+    private static ClonedServerEntry clonedServerEntryB;
+    private static ClonedServerEntry clonedServerEntryA1;
+    private static ClonedServerEntry clonedServerEntryACopy1;
+    private static ClonedServerEntry clonedServerEntryB1;
+    private static ClonedServerEntry clonedServerEntryC1;
 
     /**
      * Initialize name instances
      */
-    @Before
-    public void initNames() throws Exception
+    @BeforeClass
+    public static void initNames() throws Exception
     {
         Entry eA = new DefaultEntry(new DN( "dc=example,dc=com" ));
         Entry eB = new DefaultEntry(new DN( "dc=example,dc=com" ));
@@ -60,7 +63,6 @@ public class ClonedServerEntryTest
         clonedServerEntryA = new ClonedServerEntry();
         clonedServerEntryACopy = new ClonedServerEntry();
         clonedServerEntryB = new ClonedServerEntry();
-        clonedServerEntryC = new ClonedServerEntry();
         clonedServerEntryA1 = new ClonedServerEntry( eA );
         clonedServerEntryACopy1 = new ClonedServerEntry( eA );
         clonedServerEntryB1 = new ClonedServerEntry( eB );

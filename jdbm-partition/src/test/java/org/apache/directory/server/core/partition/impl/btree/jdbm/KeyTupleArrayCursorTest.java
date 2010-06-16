@@ -24,11 +24,14 @@ import static junit.framework.Assert.assertTrue;
 
 import java.util.Comparator;
 
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.core.avltree.ArrayTree;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.cursor.Tuple;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * 
@@ -36,11 +39,12 @@ import org.junit.Test;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class KeyTupleArrayCursorTest
 {
 
     ArrayTree<Integer> tree;
-    Comparator<Integer> comparator;
     KeyTupleArrayCursor<Integer, Integer> cursor;
     
     private static final Integer KEY = Integer.valueOf( 1 );
@@ -48,8 +52,8 @@ public class KeyTupleArrayCursorTest
     @Before
     public void createTree()
     {
-      comparator = new Comparator<Integer>() 
-      {
+        Comparator<Integer> comparator = new Comparator<Integer>() 
+        {
 
           public int compare( Integer i1, Integer i2 )
           {

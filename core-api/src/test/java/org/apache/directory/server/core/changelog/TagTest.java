@@ -23,9 +23,11 @@ package org.apache.directory.server.core.changelog;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import org.junit.Before;
-import org.junit.Ignore;
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -33,21 +35,23 @@ import org.junit.Test;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class TagTest
 {
-    Tag tagA;
-    Tag tagACopy;
-    Tag tagANull;
-    Tag tagB;
-    Tag tagC;
-    Tag tagD;
+    private static Tag tagA;
+    private static Tag tagACopy;
+    private static Tag tagANull;
+    private static Tag tagB;
+    private static Tag tagC;
+    private static Tag tagD;
 
 
     /**
      * Initialize name instances
      */
-    @Before
-    public void initNames() throws Exception
+    @BeforeClass
+    public static void initNames() throws Exception
     {
 
         tagA = new Tag( 1L, "aa", 1L, 1L );
@@ -124,5 +128,6 @@ public class TagTest
         assertFalse( tagC.equals( tagA ) );
         assertFalse( tagA.equals( tagANull ) );
         assertFalse( tagANull.equals( tagA ) );
+        assertFalse( tagD.equals( tagA ));
     }
 }

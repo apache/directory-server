@@ -29,6 +29,8 @@ import java.net.UnknownHostException;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.changepw.ChangePasswordServer;
 import org.apache.directory.server.changepw.io.ChangePasswordDataEncoder;
 import org.apache.directory.server.changepw.messages.ChangePasswordError;
@@ -59,7 +61,10 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.TicketFactory;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.DummySession;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -67,6 +72,8 @@ import static org.junit.Assert.assertEquals;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class ChangepwProtocolHandlerTest
 {
     /**
@@ -76,23 +83,22 @@ public class ChangepwProtocolHandlerTest
     //private static final byte[] SUCCESS = new byte[]
     //    { ( byte ) 0x00, ( byte ) 0x00 };
 
-    private ChangePasswordServer config;
-    private PrincipalStore store;
-    private ChangePasswordProtocolHandler handler;
-    private ChPwdDummySession session;
+    private static ChangePasswordServer config;
+    private static PrincipalStore store;
+    private static ChangePasswordProtocolHandler handler;
 
-    private CipherTextHandler cipherTextHandler = new CipherTextHandler();
+    private static final CipherTextHandler cipherTextHandler = new CipherTextHandler();
 
 
     /**
      * Creates a new instance of ChangepwProtocolHandlerTest.
      */
-    public ChangepwProtocolHandlerTest()
+    @BeforeClass
+    public static void setup()
     {
         config = new ChangePasswordServer();
         store = new MapPrincipalStoreImpl();
         handler = new ChangePasswordProtocolHandler( config, store );
-        session = new ChPwdDummySession();
     }
 
 
@@ -102,6 +108,7 @@ public class ChangepwProtocolHandlerTest
     @Test
     public void testProtocolVersionNumber()
     {
+        ChPwdDummySession session = new ChPwdDummySession();
         ChangePasswordRequest message = new ChangePasswordRequest( ( short ) 2, null, null );
 
         handler.messageReceived( session, message );
@@ -119,6 +126,7 @@ public class ChangepwProtocolHandlerTest
     @Test
     public void testMissingTicket()
     {
+        ChPwdDummySession session = new ChPwdDummySession();
         ChangePasswordRequest message = new ChangePasswordRequest( ( short ) 1, null, null );
 
         handler.messageReceived( session, message );
@@ -138,6 +146,7 @@ public class ChangepwProtocolHandlerTest
     @Test
     public void testInitialFlagRequired() throws Exception
     {
+        ChPwdDummySession session = new ChPwdDummySession();
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "kadmin/changepw@EXAMPLE.COM" );
@@ -215,6 +224,7 @@ public class ChangepwProtocolHandlerTest
     @Test
     public void testSetPassword() throws Exception
     {
+        ChPwdDummySession session = new ChPwdDummySession();
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "kadmin/changepw@EXAMPLE.COM" );

@@ -23,34 +23,38 @@ package org.apache.directory.server.kerberos.shared.messages.value;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.kerberos.shared.messages.value.types.HostAddrType;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Test the HostAddresses encoding and decoding
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class HostAddressesTest
 {
-    HostAddresses hostAddressesA;
-    HostAddresses hostAddressesACopy;
-    HostAddresses hostAddressesB;
-    HostAddresses hostAddressesC;
-    HostAddresses hostAddressesD;
+    private static HostAddresses hostAddressesA;
+    private static HostAddresses hostAddressesACopy;
+    private static HostAddresses hostAddressesB;
+    private static HostAddresses hostAddressesC;
+    private static HostAddresses hostAddressesD;
 
     
     /**
      * Initialize name instances
      */
-    @Before
-    public void initNames() throws Exception
+    @BeforeClass
+    public static void initNames() throws Exception
     {
         hostAddressesA = new HostAddresses ( new HostAddress[]
             { new HostAddress( HostAddrType.ADDRTYPE_INET, new byte[]

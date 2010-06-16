@@ -30,8 +30,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import org.junit.Before;
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,10 +43,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class AvlTreeMapTest
 {
 
-    AvlTreeMap<Integer, Integer> tree;
 
     private static final Logger LOG = LoggerFactory.getLogger( AvlTreeTest.class );
 
@@ -59,16 +62,16 @@ public class AvlTreeMapTest
     };
 
     
-    @Before
-    public void createTree()
+    private AvlTreeMap<Integer, Integer> createTree()
     {
-        tree = new AvlTreeMapImpl<Integer, Integer>( comparator, comparator, true );
+        return new AvlTreeMapImpl<Integer, Integer>( comparator, comparator, true );
     }
 
 
     @Test
     public void testEmpty()
     {
+        AvlTreeMap<Integer, Integer> tree = createTree();
         assertTrue( tree.isDupsAllowed() );
         assertTrue( tree.isEmpty() );
         assertNull( tree.getFirst() );
@@ -87,6 +90,7 @@ public class AvlTreeMapTest
     @Test
     public void testFirstAndLast()
     {
+        AvlTreeMap<Integer, Integer> tree = createTree();
         tree.insert( 7, 1 );
         assertFalse( tree.isEmpty() );
         assertNotNull( tree.getFirst() );
@@ -115,6 +119,7 @@ public class AvlTreeMapTest
     @Test
     public void testInsertWithReplace()
     {
+        AvlTreeMap<Integer, Integer> tree = createTree();
         // to override the value tree should disable duplicate keys
         tree = new AvlTreeMapImpl<Integer, Integer>( comparator, comparator, false );
         
@@ -129,6 +134,7 @@ public class AvlTreeMapTest
     @Test
     public void testInsert()
     {
+        AvlTreeMap<Integer, Integer> tree = createTree();
         assertNull( tree.insert( 3, 1 ) );
         assertFalse( tree.isEmpty() );
         
@@ -172,6 +178,7 @@ public class AvlTreeMapTest
     @Test
     public void testDuplicateKeyInsert()
     {
+        AvlTreeMap<Integer, Integer> tree = createTree();
         assertNull( tree.insert( 3, 1 ) );
         assertNull( tree.insert( 3, 2 ) ); // duplicate key
         assertNull( tree.insert( 3, 3 ) );
@@ -198,15 +205,16 @@ public class AvlTreeMapTest
     @Test
     public void testRemove()
     {
+        AvlTreeMap<Integer, Integer> tree = createTree();
         tree.insert( 3, 3 );
         tree.insert( 2, 2 );
         tree.insert( 1, 1 );
         
         tree.remove( 2, 2 );
-        assertEquals("1,3", getInorderForm());
+        assertEquals("1,3", getInorderForm( tree ));
         
         tree.remove( 1, 1 );
-        assertEquals("3", getInorderForm());
+        assertEquals("3", getInorderForm( tree ));
         assertTrue( 3 == tree.getRoot().key );
         
         assertNull( tree.remove( 777, 0 ) );// key not present
@@ -220,22 +228,22 @@ public class AvlTreeMapTest
         tree.insert( 21, 21 );
         tree.insert( 26, 26 );
         tree.insert( 43, 43 );
-        assertEquals( "21,26,27,37,38,39,43", getInorderForm() );
+        assertEquals( "21,26,27,37,38,39,43", getInorderForm( tree ) );
 
         tree.remove( 26, 26 ); // remove a non-root non-leaf node in the left sub tree of root
-        assertEquals( "21,27,37,38,39,43", getInorderForm() );
+        assertEquals( "21,27,37,38,39,43", getInorderForm( tree ) );
 
         tree.remove( 43, 43 );
-        assertEquals( "21,27,37,38,39", getInorderForm() );
+        assertEquals( "21,27,37,38,39", getInorderForm( tree ) );
 
         tree.remove( 39, 39 );
-        assertEquals( "21,27,37,38", getInorderForm() );
+        assertEquals( "21,27,37,38", getInorderForm( tree ) );
         
         assertTrue( 37 == tree.getRoot().key ); // check the root value
         
         tree.remove( 38, 38 ); // a double right rotation has to happen after this
         assertTrue( 27 == tree.getRoot().key ); // check the root value after double right rotation
-        assertEquals( "21,27,37", getInorderForm() );
+        assertEquals( "21,27,37", getInorderForm( tree ) );
         
         if( LOG.isDebugEnabled() ) 
         {
@@ -247,9 +255,10 @@ public class AvlTreeMapTest
     @Test
     public void testRemoveWithDuplicateKeys()
     {
+        AvlTreeMap<Integer, Integer> tree = createTree();
         tree.insert( 1, 1 );
         
-        // insert deuplicates
+        // insert duplicates
         tree.insert( 3, 3 );
         tree.insert( 3, 2 );
         tree.insert( 3, 1 );
@@ -257,16 +266,16 @@ public class AvlTreeMapTest
         tree.insert( 2, 3 );
         
         tree.remove( 2, 3 );
-        assertEquals("1,3", getInorderForm());
+        assertEquals("1,3", getInorderForm( tree ));
         assertEquals( 2, tree.getSize() );
         
         tree.remove( 3, 3 );
         // removing a duplicate key,value shouldn't change the size  
-        assertEquals("1,3", getInorderForm());
+        assertEquals("1,3", getInorderForm( tree ));
         assertEquals( 2, tree.getSize() );
         
         tree.remove( 3, 3 );
-        assertEquals("1,3", getInorderForm());
+        assertEquals("1,3", getInorderForm( tree ));
         assertEquals( 2, tree.getSize() );
         
         // add some more
@@ -275,7 +284,7 @@ public class AvlTreeMapTest
         assertEquals( 2, tree.getSize() );
         
         tree.remove( 3, 3 );
-        assertEquals("1,3", getInorderForm());
+        assertEquals("1,3", getInorderForm( tree ));
         assertEquals( 2, tree.getSize() );
         
         tree.remove( 3, 2 );
@@ -294,6 +303,7 @@ public class AvlTreeMapTest
     @Test
     public void testRemoveDuplictesOnRoot()
     {
+        AvlTreeMap<Integer, Integer> tree = createTree();
         assertTrue( tree.isDupsAllowed() );
         tree.insert( 3, 4 );
         tree.insert( 3, 5 );
@@ -321,6 +331,7 @@ public class AvlTreeMapTest
     @Test
     public void testRemoveWithoutDupKeys()
     {
+        AvlTreeMap<Integer, Integer> tree = createTree();
         tree = new AvlTreeMapImpl<Integer, Integer>( comparator, comparator, false );
         assertFalse( tree.isDupsAllowed() );
         
@@ -336,6 +347,7 @@ public class AvlTreeMapTest
     @Test
     public void testRemoveWithKeyOnly()
     {
+        AvlTreeMap<Integer, Integer> tree = createTree();
         assertTrue( tree.isDupsAllowed() );
         tree.insert( 3, 1 );
         tree.insert( 3, 2 );
@@ -364,16 +376,17 @@ public class AvlTreeMapTest
     @Test
     public void testSingleRightRotation()
     {
+        AvlTreeMap<Integer, Integer> tree = createTree();
         // right rotation
         tree.insert( 3, 3 );
         tree.insert( 2, 2 );
         tree.insert( 1, 1 );
 
-        assertEquals( "1,2,3", getInorderForm() );
+        assertEquals( "1,2,3", getInorderForm( tree ) );
     }
 
     
-    private String getInorderForm()
+    private String getInorderForm( AvlTreeMap<Integer, Integer> tree )
     {
       StringBuilder sb = new StringBuilder();
       List<LinkedAvlMapNode<Integer,Integer>> path = new ArrayList<LinkedAvlMapNode<Integer,Integer>>();

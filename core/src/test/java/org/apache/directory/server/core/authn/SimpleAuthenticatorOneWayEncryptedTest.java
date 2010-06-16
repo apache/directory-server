@@ -21,11 +21,14 @@
 package org.apache.directory.server.core.authn;
 
 
-import org.apache.directory.server.core.authn.SimpleAuthenticator;
-import org.apache.directory.shared.ldap.util.StringTools;
-import org.junit.Before;
-import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
+import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -33,16 +36,18 @@ import static org.junit.Assert.assertEquals;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class SimpleAuthenticatorOneWayEncryptedTest
 {
-    private SimpleAuthenticator auth = null;
+    private static SimpleAuthenticator auth = null;
 
 
-    @Before
-    public void setUp() throws Exception
+    @BeforeClass
+    public static void setUp() throws Exception
     {
 
-        this.auth = new SimpleAuthenticator();
+        auth = new SimpleAuthenticator();
     }
 
 

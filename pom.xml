@@ -42,6 +42,7 @@
     <org.apache.directory.ldap.client.api.version>0.2-SNAPSHOT</org.apache.directory.ldap.client.api.version>
     <org.apache.directory.daemon.version>1.1.9-SNAPSHOT</org.apache.directory.daemon.version>
     <org.apache.directory.buildtools.directory-checkstyle.version>0.1-SNAPSHOT</org.apache.directory.buildtools.directory-checkstyle.version>
+    <org.apache.directory.junit.junit-addons.version>0.1-SNAPSHOT</org.apache.directory.junit.junit-addons.version>
     <skin.version>1.0.1</skin.version>
     
     <!-- Set versions for depending jars -->
@@ -553,6 +554,14 @@
         <groupId>commons-pool</groupId>
         <artifactId>commons-pool</artifactId>
         <version>${commons.pool.version}</version>
+      </dependency>
+
+      <!-- Test dependencies -->
+
+      <dependency>
+        <groupId>org.apache.directory.junit</groupId>
+        <artifactId>junit-addons</artifactId>
+        <version>${org.apache.directory.junit.junit-addons.version}</version>
       </dependency>
 
       <!-- Logging dependencies -->

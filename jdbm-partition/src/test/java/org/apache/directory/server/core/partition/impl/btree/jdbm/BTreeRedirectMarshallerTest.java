@@ -20,19 +20,20 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import org.apache.commons.lang.ArrayUtils;
-import org.junit.Test;
-import org.junit.Before;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-
-import java.util.Random;
 import java.io.IOException;
+import java.util.Random;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -40,27 +41,30 @@ import java.io.IOException;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class BTreeRedirectMarshallerTest
 {
-    byte[] bites = new byte[BTreeRedirectMarshaller.SIZE];
     BTreeRedirectMarshaller marshaller = new BTreeRedirectMarshaller();
 
 
-    @Before
-    public void setup()
+    private byte[] createBites()
     {
+        byte[] bites = new byte[BTreeRedirectMarshaller.SIZE];
         bites[0] = 1;
 
         for ( int ii = 8; ii < BTreeRedirectMarshaller.SIZE; ii++ )
         {
             bites[ii] = 0;
         }
+        return bites;
     }
 
 
     @Test
     public void testZero() throws IOException
     {
+        byte[] bites = createBites();
         assertEquals( 0, marshaller.deserialize( bites ).getRecId() );
         assertTrue( ArrayUtils.isEquals( bites, marshaller.serialize( new BTreeRedirect( 0 ) ) ) );
     }
@@ -69,6 +73,7 @@ public class BTreeRedirectMarshallerTest
     @Test
     public void testOne() throws IOException
     {
+        byte[] bites = createBites();
         bites[8] = 1;
         assertEquals( 1, marshaller.deserialize( bites ).getRecId() );
         assertTrue( ArrayUtils.isEquals( bites, marshaller.serialize( new BTreeRedirect( 1 ) ) ) );
@@ -78,6 +83,7 @@ public class BTreeRedirectMarshallerTest
     @Test
     public void testNegativeOne() throws IOException
     {
+        byte[] bites = createBites();
         for ( int ii = 1; ii < BTreeRedirectMarshaller.SIZE; ii++ )
         {
             bites[ii] =  ( byte ) 0xFF;
@@ -91,6 +97,7 @@ public class BTreeRedirectMarshallerTest
     @Test
     public void testLongMinValue() throws IOException
     {
+        byte[] bites = createBites();
         bites[1] = ( byte ) 0x80;
         assertEquals( Long.MIN_VALUE, marshaller.deserialize( bites ).getRecId() );
         assertTrue( ArrayUtils.isEquals( bites, marshaller.serialize( new BTreeRedirect( Long.MIN_VALUE ) ) ) );
@@ -100,6 +107,7 @@ public class BTreeRedirectMarshallerTest
     @Test
     public void testLongMaxValue() throws IOException
     {
+        byte[] bites = createBites();
         bites[1] = ( byte ) 0x7F;
 
         for ( int ii = 2; ii < BTreeRedirectMarshaller.SIZE; ii++ )
@@ -115,6 +123,7 @@ public class BTreeRedirectMarshallerTest
     @Test
     public void testRoundTripTests() throws IOException
     {
+        byte[] bites = createBites();
         Random random = new Random();
         for ( int ii = 0; ii < 100; ii++ )
         {

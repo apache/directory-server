@@ -29,7 +29,10 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -40,21 +43,23 @@ import static org.junit.Assert.assertTrue;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class AesEncryptionTest
 {
-    private byte[] keyBytes =
+    private static final byte[] KEY_BYTES =
         { ( byte ) 0x63, ( byte ) 0x68, ( byte ) 0x69, ( byte ) 0x63, ( byte ) 0x6b, ( byte ) 0x65, ( byte ) 0x6e,
             ( byte ) 0x20, ( byte ) 0x74, ( byte ) 0x65, ( byte ) 0x72, ( byte ) 0x69, ( byte ) 0x79, ( byte ) 0x61,
             ( byte ) 0x6b, ( byte ) 0x69 };
 
-    private SecretKey key = new SecretKeySpec( keyBytes, "AES" );
+    private static final SecretKey KEY = new SecretKeySpec( KEY_BYTES, "AES" );
 
-    private byte[] iv =
+    private static final byte[] IV =
         { ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00,
             ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00,
             ( byte ) 0x00, ( byte ) 0x00, };
 
-    private AlgorithmParameterSpec paramSpec = new IvParameterSpec( iv );
+    private static AlgorithmParameterSpec PARAM_SPEC = new IvParameterSpec( IV );
 
 
     /**
@@ -79,7 +84,7 @@ public class AesEncryptionTest
                 ( byte ) 0xb4, ( byte ) 0xd8, ( byte ) 0xa5, ( byte ) 0x80, ( byte ) 0x36, ( byte ) 0x2d,
                 ( byte ) 0xa7, ( byte ) 0xff, ( byte ) 0x7f, ( byte ) 0x97 };
 
-        byte[] result = aesCipher( key, input );
+        byte[] result = aesCipher( KEY, input );
 
         assertEquals( "Length", input.length, result.length );
         assertTrue( Arrays.equals( output, result ) );
@@ -124,7 +129,7 @@ public class AesEncryptionTest
                 ( byte ) 0xc0, ( byte ) 0x3b, ( byte ) 0xc1, ( byte ) 0x03, ( byte ) 0xe1, ( byte ) 0xa1,
                 ( byte ) 0x94, ( byte ) 0xbb, ( byte ) 0xd8 };
 
-        byte[] result = aesCipher( key, input );
+        byte[] result = aesCipher( KEY, input );
 
         assertEquals( "Length", input.length, result.length );
         assertTrue( Arrays.equals( output, result ) );
@@ -136,7 +141,7 @@ public class AesEncryptionTest
         try
         {
             Cipher ecipher = Cipher.getInstance( "AES/CTS/NoPadding" );
-            ecipher.init( Cipher.ENCRYPT_MODE, key, paramSpec );
+            ecipher.init( Cipher.ENCRYPT_MODE, key, PARAM_SPEC );
             return ecipher.doFinal( input );
         }
         catch ( GeneralSecurityException gse )

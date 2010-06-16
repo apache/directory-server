@@ -25,7 +25,11 @@ import java.util.Arrays;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -36,9 +40,11 @@ import static org.junit.Assert.assertTrue;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class Des3CbcSha1KdEncryptionTest
 {
-    private Des3CbcSha1KdEncryption keyDerivationFunction = new Des3CbcSha1KdEncryption();
+    private static final Des3CbcSha1KdEncryption keyDerivationFunction = new Des3CbcSha1KdEncryption();
 
 
     /**

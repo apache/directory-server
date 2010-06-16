@@ -23,15 +23,17 @@ package org.apache.directory.server.core.avltree;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.fail;
 
 import java.util.Comparator;
 
-import org.junit.Before;
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +43,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class ArrayTreeTest
 {
     private static final Integer MINUS_ONE      = Integer.valueOf( -1 );
@@ -63,14 +67,12 @@ public class ArrayTreeTest
     private static final Integer SEVENTY        = Integer.valueOf( 70 );
     private static final Integer SEVENTY_NINE   = Integer.valueOf( 79 );
     
-    ArrayTree<Integer> tree;
-
     private static final Logger LOG = LoggerFactory.getLogger( ArrayTreeTest.class );
 
 
-    @Before
-    public void createTree()
+    private ArrayTree<Integer> createTree()
     {
+        ArrayTree<Integer> tree;
         tree = new ArrayTree<Integer>( new Comparator<Integer>()
         {
             public int compare( Integer i1, Integer i2 )
@@ -84,12 +86,14 @@ public class ArrayTreeTest
             }
 
         } );
+        return tree;
     }
 
 
     @Test
     public void testEmpty()
     {
+        ArrayTree<Integer> tree = createTree();
         assertTrue( tree.isEmpty() );
         assertNull( tree.getFirst() );
         assertNull( tree.getLast() );
@@ -107,6 +111,7 @@ public class ArrayTreeTest
     @Test
     public void testFirstAndLast()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( 7 );
         assertFalse( tree.isEmpty() );
         assertNotNull( tree.getFirst() );
@@ -133,6 +138,7 @@ public class ArrayTreeTest
     @Test
     public void testSingleRightRotation()
     {
+        ArrayTree<Integer> tree = createTree();
         // right rotation
         tree.insert( 3 );
         tree.insert( 2 );
@@ -145,6 +151,7 @@ public class ArrayTreeTest
     @Test
     public void testSingleLeftRotation()
     {
+        ArrayTree<Integer> tree = createTree();
         // left rotation
         tree.insert( 1 );
         tree.insert( 2 );
@@ -157,6 +164,7 @@ public class ArrayTreeTest
     @Test
     public void testDoubleLeftRotation() // left-right totation
     {
+        ArrayTree<Integer> tree = createTree();
         // double left rotation
         tree.insert( 1 );
         tree.insert( 3 );
@@ -169,6 +177,7 @@ public class ArrayTreeTest
     @Test
     public void testDoubleRightRotation() // right-left totation
     {
+        ArrayTree<Integer> tree = createTree();
         // double left rotation
         tree.insert( 3 );
         tree.insert( 1 );
@@ -180,6 +189,7 @@ public class ArrayTreeTest
     @Test
     public void testLinks()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( 37 );
         tree.insert( 1 );
         tree.insert( 2 );
@@ -196,13 +206,14 @@ public class ArrayTreeTest
     @Test
     public void testRemove()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( 3 );
         tree.insert( 2 );
         tree.insert( 1 );
 
-        LOG.debug( getLinkedText() );
+        LOG.debug( getLinkedText( tree ) );
         tree.remove( 2 );
-        LOG.debug( getLinkedText() );
+        LOG.debug( getLinkedText( tree ) );
         assertEquals( "1, 3", tree.toString() );
 
         tree.remove( 1 );
@@ -245,32 +256,34 @@ public class ArrayTreeTest
     @Test
     public void testLinkedNodes()
     {
+        ArrayTree<Integer> tree = createTree();
         for ( int i = 0; i < 3; i++ )
         {
             tree.insert( i );
         }
 
-        assertEquals( "[0]-->[1]-->[2]-->NULL", getLinkedText() );
+        assertEquals( "[0]-->[1]-->[2]-->NULL", getLinkedText( tree ) );
 
         tree.remove( 1 );
-        assertEquals( "[0]-->[2]-->NULL", getLinkedText() );
+        assertEquals( "[0]-->[2]-->NULL", getLinkedText( tree ) );
 
         tree.insert( 4 );
         tree.insert( 3 );
 
-        assertEquals( "[0]-->[2]-->[3]-->[4]-->NULL", getLinkedText() );
+        assertEquals( "[0]-->[2]-->[3]-->[4]-->NULL", getLinkedText( tree ) );
 
         tree.remove( 0 );
-        assertEquals( "[2]-->[3]-->[4]-->NULL", getLinkedText() );
+        assertEquals( "[2]-->[3]-->[4]-->NULL", getLinkedText( tree ) );
 
         tree.remove( 3 );
-        assertEquals( "[2]-->[4]-->NULL", getLinkedText() );
+        assertEquals( "[2]-->[4]-->NULL", getLinkedText( tree ) );
     }
 
 
     @Test
     public void testFind()
     {
+        ArrayTree<Integer> tree = createTree();
         assertNull( tree.find( 3 ) );
 
         tree.insert( 1 );
@@ -288,6 +301,7 @@ public class ArrayTreeTest
     @Test
     public void testFindMaxMin()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( 72 );
         tree.insert( 79 );
 
@@ -303,6 +317,7 @@ public class ArrayTreeTest
     @Test
     public void testGetKeys()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( 72 );
         tree.insert( 79 );
         tree.insert( 1 );
@@ -318,6 +333,7 @@ public class ArrayTreeTest
     @Test
     public void testTreeRoationAtLeftChildAfterDeletingRoot()
     {
+        ArrayTree<Integer> tree = createTree();
         int[] keys =
             { 86, 110, 122, 2, 134, 26, 14, 182 }; // order is important to produce the expected tree
         int[] expectedKeys =
@@ -337,7 +353,7 @@ public class ArrayTreeTest
     }
 
 
-    private String getLinkedText()
+    private String getLinkedText( ArrayTree<Integer> tree )
     {
         Integer first = tree.getFirst();
         StringBuilder sb = new StringBuilder();
@@ -357,6 +373,7 @@ public class ArrayTreeTest
     @Test
     public void testRemoveOneNode()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( 1 );
         assertEquals( 1, tree.size() );
 
@@ -368,6 +385,7 @@ public class ArrayTreeTest
     @Test
     public void testRemoveOneNodeWithRight()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( 1 );
         tree.insert( 2 );
         assertEquals( 2, tree.size() );
@@ -385,6 +403,7 @@ public class ArrayTreeTest
     @Test
     public void testInsertNullValue()
     {
+        ArrayTree<Integer> tree = createTree();
         assertEquals( 0, tree.size() );
         assertNull( tree.insert( null ) );
         assertEquals( 0, tree.size() );
@@ -394,6 +413,7 @@ public class ArrayTreeTest
     @Test
     public void testInsertInEmptyTree()
     {
+        ArrayTree<Integer> tree = createTree();
         assertEquals( 0, tree.size() );
         assertNull( tree.insert( 0 ) );
         assertEquals( 1, tree.size() );
@@ -406,6 +426,7 @@ public class ArrayTreeTest
     @Test
     public void testInsertInOnElementTreeAtTheBeginning()
     {
+        ArrayTree<Integer> tree = createTree();
         // Initialize the array
         assertNull( tree.insert( 5 ) );
         assertEquals( 1, tree.size() );
@@ -422,6 +443,7 @@ public class ArrayTreeTest
     @Test
     public void testInsertInOnElementTreeAtTheEnd()
     {
+        ArrayTree<Integer> tree = createTree();
         // Initialize the array
         assertNull( tree.insert( 5 ) );
         assertEquals( 1, tree.size() );
@@ -438,6 +460,7 @@ public class ArrayTreeTest
     @Test
     public void testInsertInOnElementTreeExistingElement()
     {
+        ArrayTree<Integer> tree = createTree();
         // Initialize the array
         assertNull( tree.insert( 5 ) );
         assertEquals( 1, tree.size() );
@@ -454,6 +477,7 @@ public class ArrayTreeTest
     @Test
     public void testInsertInEvenTreeAtTheBeginning()
     {
+        ArrayTree<Integer> tree = createTree();
         // Initialize the array
         assertNull( tree.insert( ZERO ) );
         assertNull( tree.insert( TWO ) );
@@ -475,6 +499,7 @@ public class ArrayTreeTest
     @Test
     public void testInsertInEvenTreeAtTheEnd()
     {
+        ArrayTree<Integer> tree = createTree();
         // Initialize the array
         assertNull( tree.insert( ZERO ) );
         assertNull( tree.insert( TWO ) );
@@ -496,6 +521,7 @@ public class ArrayTreeTest
     @Test
     public void testInsertInEvenTreeInTheMiddle()
     {
+        ArrayTree<Integer> tree = createTree();
         // Initialize the array
         assertNull( tree.insert( ZERO ) );
         assertNull( tree.insert( TWO ) );
@@ -534,6 +560,7 @@ public class ArrayTreeTest
     @Test
     public void testInsertInEvenTreeExistingEelemnt()
     {
+        ArrayTree<Integer> tree = createTree();
         // Initialize the array
         assertNull( tree.insert( ZERO ) );
         assertNull( tree.insert( TWO ) );
@@ -572,6 +599,7 @@ public class ArrayTreeTest
     @Test
     public void testInsertInFullTree()
     {
+        ArrayTree<Integer> tree = createTree();
         StringBuilder sb = new StringBuilder();
         boolean isFirst = true;
         
@@ -619,7 +647,8 @@ public class ArrayTreeTest
     @Test
     public void testRemoveEmptyTree()
     {
-        assertNull( tree.remove( null ) );
+       ArrayTree<Integer> tree = createTree();
+       assertNull( tree.remove( null ) );
 
         assertEquals( 0, tree.size() );
 
@@ -632,6 +661,7 @@ public class ArrayTreeTest
     @Test
     public void testRemoveFromOnElementTree()
     {
+        ArrayTree<Integer> tree = createTree();
         // Initialize the array
         assertNull( tree.insert( 5 ) );
         assertEquals( 1, tree.size() );
@@ -648,6 +678,7 @@ public class ArrayTreeTest
     @Test
     public void testRemovefromOnElementTreeNotExistingElement()
     {
+        ArrayTree<Integer> tree = createTree();
         // Initialize the array
         assertNull( tree.insert( 5 ) );
         assertEquals( 1, tree.size() );
@@ -663,6 +694,7 @@ public class ArrayTreeTest
     @Test
     public void testRemoveFromFullTreeFromTheBeginning()
     {
+        ArrayTree<Integer> tree = createTree();
         StringBuilder sb = new StringBuilder();
         boolean isFirst = true;
         
@@ -710,6 +742,7 @@ public class ArrayTreeTest
     @Test
     public void testRemoveFromFullTreeFromTheEnd()
     {
+        ArrayTree<Integer> tree = createTree();
         StringBuilder sb = new StringBuilder();
         boolean isFirst = true;
         
@@ -760,6 +793,7 @@ public class ArrayTreeTest
     @Test
     public void testIsEmptyEmptyTree()
     {
+        ArrayTree<Integer> tree = createTree();
         assertTrue( tree.isEmpty() );
         
         tree.insert( ONE );
@@ -778,6 +812,7 @@ public class ArrayTreeTest
     @Test
     public void testSizeEmptyTree()
     {
+        ArrayTree<Integer> tree = createTree();
         assertEquals( 0, tree.size() );
         
         tree.insert( ONE );
@@ -796,6 +831,7 @@ public class ArrayTreeTest
     @Test
     public void testFindEmptyTree()
     {
+        ArrayTree<Integer> tree = createTree();
         assertNull( tree.find( ONE ) );
     }
 
@@ -803,6 +839,7 @@ public class ArrayTreeTest
     @Test
     public void testFindNullFromEmptyTree()
     {
+        ArrayTree<Integer> tree = createTree();
         assertNull( tree.find( null ) );
     }
 
@@ -810,6 +847,7 @@ public class ArrayTreeTest
     @Test
     public void testFindExistingElement()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( ZERO );
         tree.insert( TWO );
         tree.insert( FOUR );
@@ -827,6 +865,7 @@ public class ArrayTreeTest
     @Test
     public void testFindNonExistingElement()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( ZERO );
         tree.insert( TWO );
         tree.insert( FOUR );
@@ -848,6 +887,7 @@ public class ArrayTreeTest
     @Test
     public void testGetFirstEmptyTree()
     {
+        ArrayTree<Integer> tree = createTree();
         assertNull( tree.getFirst() );
     }
 
@@ -855,6 +895,7 @@ public class ArrayTreeTest
     @Test
     public void testGetFirst()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( FIVE );
         assertEquals( FIVE, tree.getFirst() );
         
@@ -878,6 +919,7 @@ public class ArrayTreeTest
     @Test
     public void testGetLastEmptyTree()
     {
+        ArrayTree<Integer> tree = createTree();
         assertNull( tree.getLast() );
     }
 
@@ -885,6 +927,7 @@ public class ArrayTreeTest
     @Test
     public void testGetLast()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( FIVE );
         assertEquals( FIVE, tree.getLast() );
         
@@ -908,6 +951,7 @@ public class ArrayTreeTest
     @Test
     public void testFindGreaterEmptyTree()
     {
+        ArrayTree<Integer> tree = createTree();
         assertNull( tree.findGreater( ONE ) );
     }
 
@@ -915,6 +959,7 @@ public class ArrayTreeTest
     @Test
     public void testFindGreaterNullFromEmptyTree()
     {
+        ArrayTree<Integer> tree = createTree();
         assertNull( tree.findGreater( null ) );
     }
 
@@ -922,6 +967,7 @@ public class ArrayTreeTest
     @Test
     public void testFindGreaterFromOneElementTree()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( TWO );
         
         assertNull( tree.findGreater( null ) );
@@ -934,6 +980,7 @@ public class ArrayTreeTest
     @Test
     public void testFindGreaterFromTwoElementsTree()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( TWO );
         tree.insert( FOUR );
         
@@ -949,6 +996,7 @@ public class ArrayTreeTest
     @Test
     public void testFindGreater()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( ZERO );
         tree.insert( TWO );
         tree.insert( FOUR );
@@ -972,6 +1020,7 @@ public class ArrayTreeTest
     @Test
     public void testFindGreaterOrEqualEmptyTree()
     {
+        ArrayTree<Integer> tree = createTree();
         assertNull( tree.findGreaterOrEqual( ONE ) );
     }
 
@@ -979,6 +1028,7 @@ public class ArrayTreeTest
     @Test
     public void testFindGreaterOrEqualNullFromEmptyTree()
     {
+        ArrayTree<Integer> tree = createTree();
         assertNull( tree.findGreaterOrEqual( null ) );
     }
     
@@ -988,6 +1038,7 @@ public class ArrayTreeTest
     @Test
     public void testFindGreaterOrEqualFromOneElementTree()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( TWO );
         
         assertNull( tree.findGreaterOrEqual( null ) );
@@ -1000,6 +1051,7 @@ public class ArrayTreeTest
     @Test
     public void testFindGreaterOrEqualFromTwoElementsTree()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( TWO );
         tree.insert( FOUR );
         
@@ -1015,6 +1067,7 @@ public class ArrayTreeTest
     @Test
     public void testFindGreaterOrEqual()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( ZERO );
         tree.insert( TWO );
         tree.insert( FOUR );
@@ -1040,6 +1093,7 @@ public class ArrayTreeTest
     @Test
     public void testFindLessEmptyTree()
     {
+        ArrayTree<Integer> tree = createTree();
         assertNull( tree.findLess( ONE ) );
     }
 
@@ -1047,6 +1101,7 @@ public class ArrayTreeTest
     @Test
     public void testFindLessNullFromEmptyTree()
     {
+        ArrayTree<Integer> tree = createTree();
         assertNull( tree.findLess( null ) );
     }
 
@@ -1054,6 +1109,7 @@ public class ArrayTreeTest
     @Test
     public void testFindLessFromOneElementTree()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( TWO );
         
         assertNull( tree.findLess( null ) );
@@ -1066,6 +1122,7 @@ public class ArrayTreeTest
     @Test
     public void testFindLessFromTwoElementsTree()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( TWO );
         tree.insert( FOUR );
         
@@ -1081,6 +1138,7 @@ public class ArrayTreeTest
     @Test
     public void testFindLess()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( ZERO );
         tree.insert( TWO );
         tree.insert( FOUR );
@@ -1105,6 +1163,7 @@ public class ArrayTreeTest
     @Test
     public void testFindLessOrEqualEmptyTree()
     {
+        ArrayTree<Integer> tree = createTree();
         assertNull( tree.findLessOrEqual( ONE ) );
     }
 
@@ -1112,6 +1171,7 @@ public class ArrayTreeTest
     @Test
     public void testFindLessOrEqualNullFromEmptyTree()
     {
+        ArrayTree<Integer> tree = createTree();
         assertNull( tree.findLessOrEqual( null ) );
     }
 
@@ -1119,6 +1179,7 @@ public class ArrayTreeTest
     @Test
     public void testFindLessOrEqualFromOneElementTree()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( TWO );
         
         assertNull( tree.findLessOrEqual( null ) );
@@ -1131,6 +1192,7 @@ public class ArrayTreeTest
     @Test
     public void testFindLessOrEqualFromTwoElementsTree()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( TWO );
         tree.insert( FOUR );
         
@@ -1146,6 +1208,7 @@ public class ArrayTreeTest
     @Test
     public void testFindLessOrEqual()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( ZERO );
         tree.insert( TWO );
         tree.insert( FOUR );
@@ -1172,6 +1235,7 @@ public class ArrayTreeTest
     @Test
     public void testGetEmptyTree()
     {
+        ArrayTree<Integer> tree = createTree();
         try
         {
             assertNull( tree.get( 0 ) );
@@ -1187,6 +1251,7 @@ public class ArrayTreeTest
     @Test
     public void testGetEmptyTreeAIOOBException()
     {
+        ArrayTree<Integer> tree = createTree();
         try
         {
             tree.get( -1 );
@@ -1215,6 +1280,7 @@ public class ArrayTreeTest
     @Test
     public void testGetAfterPositionEmptyTree()
     {
+        ArrayTree<Integer> tree = createTree();
         assertEquals( -1, tree.getAfterPosition( ZERO ) );
     }
 
@@ -1222,6 +1288,7 @@ public class ArrayTreeTest
     @Test
     public void testGetAfterPositionOneElementTree()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( TWO );
         
         assertEquals( -1, tree.getAfterPosition( null ) );
@@ -1234,6 +1301,7 @@ public class ArrayTreeTest
     @Test
     public void testGetAfterPositionTwoElementsTree()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( TWO );
         tree.insert( FOUR );
         
@@ -1248,6 +1316,7 @@ public class ArrayTreeTest
     @Test
     public void testGetAfterPositionNElementsTree()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( TWO );
         tree.insert( FOUR );
         tree.insert( SIX );
@@ -1271,6 +1340,7 @@ public class ArrayTreeTest
     @Test
     public void testGetBeforePositionEmptyTree()
     {
+        ArrayTree<Integer> tree = createTree();
         assertEquals( -1, tree.getBeforePosition( ZERO ) );
     }
 
@@ -1278,6 +1348,7 @@ public class ArrayTreeTest
     @Test
     public void testGetBeforePositionOneElementTree()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( TWO );
         
         assertEquals( -1, tree.getBeforePosition( null ) );
@@ -1290,6 +1361,7 @@ public class ArrayTreeTest
     @Test
     public void testGetBeforePositionTwoElementsTree()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( TWO );
         tree.insert( FOUR );
         
@@ -1305,6 +1377,7 @@ public class ArrayTreeTest
     @Test
     public void testGetBeforePositionNElementsTree()
     {
+        ArrayTree<Integer> tree = createTree();
         tree.insert( TWO );
         tree.insert( FOUR );
         tree.insert( SIX );

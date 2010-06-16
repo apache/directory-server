@@ -22,7 +22,11 @@ package org.apache.directory.server.changepw.service;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
@@ -31,13 +35,15 @@ import static org.junit.Assert.assertFalse;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class CheckPasswordPolicyTest
 {
-    private int passwordLength = 6;
-    private int categoryCount = 3;
-    private int tokenSize = 3;
+    private static final int passwordLength = 6;
+    private static final int categoryCount = 3;
+    private static final int tokenSize = 3;
 
-    private CheckPasswordPolicy policy = new CheckPasswordPolicy();
+    private static final CheckPasswordPolicy policy = new CheckPasswordPolicy();
 
 
     /**

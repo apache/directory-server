@@ -28,6 +28,8 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.core.authz.support.HighestPrecedenceFilter;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
@@ -35,6 +37,7 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -43,6 +46,8 @@ import org.junit.Test;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  *
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class HighestPrecedenceFilterTest
 {
     private static final Collection<ProtectedItem> PI_EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ProtectedItem>() );

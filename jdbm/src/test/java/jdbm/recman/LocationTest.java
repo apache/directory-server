@@ -23,9 +23,12 @@ package jdbm.recman;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import org.junit.Before;
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -33,29 +36,29 @@ import org.junit.Test;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class LocationTest
 {
-    Location clonedServerEntryA;
-    Location clonedServerEntryACopy;
-    Location clonedServerEntryB;
-    Location clonedServerEntryC;
-    Location clonedServerEntryA1;
-    Location clonedServerEntryACopy1;
-    Location clonedServerEntryB1;
-    Location clonedServerEntryC1;
-    Location clonedServerEntryD1;
+    private static Location clonedServerEntryA;
+    private static Location clonedServerEntryACopy;
+    private static Location clonedServerEntryB;
+    private static Location clonedServerEntryA1;
+    private static Location clonedServerEntryACopy1;
+    private static Location clonedServerEntryB1;
+    private static Location clonedServerEntryC1;
+    private static Location clonedServerEntryD1;
 
 
     /**
      * Initialize name instances
      */
-    @Before
-    public void initNames() throws Exception
+    @BeforeClass
+    public static void initNames() throws Exception
     {
         clonedServerEntryA = new Location( 1L );
         clonedServerEntryACopy = new Location( 1L );
         clonedServerEntryB = new Location( 1L );
-        clonedServerEntryC = new Location( 2L );
         clonedServerEntryA1 = new Location( 1L, ( short ) 1 );
         clonedServerEntryACopy1 = new Location( 1L, ( short ) 1 );
         clonedServerEntryB1 = new Location( 1L, ( short ) 1 );

@@ -23,8 +23,11 @@ package org.apache.directory.server.core.factory;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.core.DirectoryService;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -32,6 +35,8 @@ import org.junit.Test;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class DirectoryServiceFactoryTest
 {
     @Test

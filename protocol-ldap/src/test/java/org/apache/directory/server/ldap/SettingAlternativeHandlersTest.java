@@ -20,8 +20,11 @@
 package org.apache.directory.server.ldap;
 
 
+import static org.junit.Assert.assertEquals;
+
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.AbandonHandler;
 import org.apache.directory.server.ldap.handlers.AddHandler;
 import org.apache.directory.server.ldap.handlers.BindHandler;
@@ -42,27 +45,18 @@ import org.apache.directory.shared.ldap.message.internal.InternalModifyRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalSearchRequest;
 import org.apache.directory.shared.ldap.message.internal.InternalUnbindRequest;
 import org.apache.mina.core.session.IoSession;
-import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
+import org.junit.runner.RunWith;
 
 /**
  * This test is simply used to test that handlers can be set properly.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class SettingAlternativeHandlersTest
 {
-    LdapServer ldapServer;
-
-
-    @Before
-    public void setUp() throws Exception
-    {
-        ldapServer = new LdapServer();
-    }
-
-
     /**
      * Tests to make sure all the default handlers are kicking in properly with
      * the right request type.
@@ -73,6 +67,7 @@ public class SettingAlternativeHandlersTest
     @Test
     public void testDefaultOperation() 
     {
+        LdapServer ldapServer = new LdapServer();
         assertEquals( ldapServer.getName(), LdapServer.SERVICE_NAME );
     }
 
@@ -86,7 +81,8 @@ public class SettingAlternativeHandlersTest
      */
     @Test
     public void testAlternativeConfiguration()
-    { 
+    {
+        LdapServer ldapServer = new LdapServer();
         ldapServer.setAbandonHandler( new BogusAbandonHandler() );
         ldapServer.setAddHandler( new BogusAddHandler() );
         ldapServer.setBindHandler( new BogusBindHandler() );

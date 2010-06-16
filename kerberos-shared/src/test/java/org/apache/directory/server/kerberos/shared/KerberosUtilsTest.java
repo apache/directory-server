@@ -19,24 +19,29 @@
  */
 package org.apache.directory.server.kerberos.shared;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.List;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.kerberos.shared.KerberosUtils;
-import org.junit.Before;
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
+import org.junit.runner.RunWith;
 
 /**
  * Test the KerberosUtils class
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class KerberosUtilsTest
 {
-    @Before
-    public void setUp()
+    @BeforeClass
+    public static void setUp()
     {
         // First setup a default realm
         System.setProperty( "java.security.krb5.realm", "APACHE.ORG" );

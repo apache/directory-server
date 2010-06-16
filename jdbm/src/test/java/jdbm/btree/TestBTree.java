@@ -47,30 +47,33 @@
 package jdbm.btree;
 
 
-import jdbm.RecordManager;
-import jdbm.RecordManagerFactory;
-import jdbm.helper.ByteArrayComparator;
-import jdbm.helper.StringComparator;
-import jdbm.helper.TupleBrowser;
-import jdbm.helper.Tuple;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.Iterator;
 
-import org.junit.After;
-import org.junit.Before;
+import jdbm.RecordManager;
+import jdbm.RecordManagerFactory;
+import jdbm.helper.ByteArrayComparator;
+import jdbm.helper.StringComparator;
+import jdbm.helper.Tuple;
+import jdbm.helper.TupleBrowser;
+
+import org.apache.directory.junit.tools.Concurrent;
+import org.apache.directory.junit.tools.ConcurrentJunitRunner;
+import org.junit.AfterClass;
 import org.junit.Test;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -78,6 +81,8 @@ import static org.junit.Assert.assertNull;
  *
  *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
  */
+@RunWith(ConcurrentJunitRunner.class)
+@Concurrent()
 public class TestBTree
 {
     static final boolean DEBUG = false;
@@ -92,9 +97,10 @@ public class TestBTree
     // for how long should the threads run.
     static final int THREAD_RUNTIME = 10 * 1000;
 
-    public final static String testFileName = "test";
+    public static final List<String> createdFiles = new ArrayList<String>();
+    
 
-    public static void deleteFile( String filename )
+    private static void deleteFile( String filename )
     {
         File file = new File( filename );
 
@@ -116,26 +122,16 @@ public class TestBTree
     }
 
     
-    public static void deleteTestFile()
+    @AfterClass
+    public static void tearDown()
     {
         System.gc();
-        deleteFile( testFileName);
-        deleteFile( testFileName + ".db" );
-        deleteFile( testFileName + ".lg" );
-    }
-
-    
-    @Before
-    public void setUp()
-    {
-        deleteTestFile();
-    }
-
-
-    @After
-    public void tearDown()
-    {
-        deleteTestFile();
+        for(String createdFile : createdFiles)
+        {
+            deleteFile( createdFile );
+            deleteFile( createdFile + ".db" );
+            deleteFile( createdFile + ".lg" );
+        }
     }
 
 
@@ -155,7 +151,8 @@ public class TestBTree
         byte[] value1 = "value1".getBytes();
         byte[] value2 = "value2".getBytes();
 
-        recman = RecordManagerFactory.createRecordManager( "test" );
+        recman = RecordManagerFactory.createRecordManager( "testBasics" );
+        createdFiles.add( "testBasics" );
         tree = new BTree<byte[], byte[]>( recman, new ByteArrayComparator() );
         
         tree.insert( test1, value1, false );
@@ -196,7 +193,8 @@ public class TestBTree
         byte[] value1 = "value1".getBytes();
         byte[] value2 = "value2".getBytes();
 
-        recman = RecordManagerFactory.createRecordManager( "test" );
+        recman = RecordManagerFactory.createRecordManager( "testBasics2" );
+        createdFiles.add( "testBasics2" );
         tree = new BTree<byte[], byte[]>( recman, new ByteArrayComparator() );
 
         tree.insert( test1, value1, false );
@@ -228,7 +226,8 @@ public class TestBTree
         byte[] value1 = "value1".getBytes();
         byte[] value2 = "value2".getBytes();
 
-        recman = RecordManagerFactory.createRecordManager( "test" );
+        recman = RecordManagerFactory.createRecordManager( "testClose" );
+        createdFiles.add( "testClose" );
         tree = new BTree<byte[], byte[]>( recman, new ByteArrayComparator() );
 
         tree.insert( test1, value1, false );
@@ -302,7 +301,8 @@ public class TestBTree
         RecordManager recman;
         BTree<String, Object> tree;
 
-        recman = RecordManagerFactory.createRecordManager( "test" );
+        recman = RecordManagerFactory.createRecordManager( "testInsert" );
+        createdFiles.add( "testInsert" );
         tree = new BTree<String, Object>( recman, new StringComparator() );
 
         // insert different objects and retrieve them
@@ -341,7 +341,8 @@ public class TestBTree
     {
         BTree<String, String> tree;
 
-        RecordManager recordManager = RecordManagerFactory.createRecordManager( "test" );
+        RecordManager recordManager = RecordManagerFactory.createRecordManager( "testInsertMany" );
+        createdFiles.add( "testInsertMany" );
         tree = new BTree<String, String>( recordManager, new StringComparator() );
         tree.setPageSize( 4 );
 
@@ -369,7 +370,8 @@ public class TestBTree
         RecordManager recman;
         BTree<String, Object> tree;
 
-        recman = RecordManagerFactory.createRecordManager( "test" );
+        recman = RecordManagerFactory.createRecordManager( "testRemove" );
+        createdFiles.add( "testRemove" );
         tree = new BTree<String, Object>( recman, new StringComparator() );
 
         tree.insert( "test1", "value1", false );
@@ -421,7 +423,8 @@ public class TestBTree
         RecordManager recman;
         BTree<String, String> tree;
 
-        recman = RecordManagerFactory.createRecordManager( "test" );
+        recman = RecordManagerFactory.createRecordManager( "testFind" );
+        createdFiles.add( "testFind" );
         tree = new BTree<String, String>( recman, new StringComparator() );
 
         tree.insert( "test1", "value1", false );
@@ -450,7 +453,8 @@ public class TestBTree
         RecordManager recman;
         BTree<String, Object> tree;
 
-        recman = RecordManagerFactory.createRecordManager( "test" );
+        recman = RecordManagerFactory.createRecordManager( "testLargeDataAmount" );
+        createdFiles.add( "testLargeDataAmount" );
 
         // recman = new jdbm.recman.BaseRecordManager( "test" );
         tree = new BTree<String, Object>( recman, new StringComparator() );
@@ -492,7 +496,8 @@ public class TestBTree
         RecordManager recman;
         BTree<String, Integer> tree;
 
-        recman = RecordManagerFactory.createRecordManager( "test" );
+        recman = RecordManagerFactory.createRecordManager( "testMultithreadAccess" );
+        createdFiles.add( "testMultithreadAccess" );
         tree = new BTree<String, Integer>( recman, new StringComparator() );
         TestThread<String, Integer>[] threadPool = (TestThread<String, Integer>[])new TestThread[THREAD_NUMBER];
         String name;
