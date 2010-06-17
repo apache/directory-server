@@ -48,7 +48,6 @@ import org.apache.directory.shared.ldap.exception.LdapPartialResultException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -345,7 +344,6 @@ public class MoveReferralIT extends AbstractLdapTestUnit
      * being a referral
      */
     @Test
-    @Ignore
     public void testMoveExistingReferralJNDIIgnore() throws Exception
     {
         WWCtx.addToEnvironment( DirContext.REFERRAL, "ignore" );
