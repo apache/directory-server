@@ -19,6 +19,9 @@
  */
 package org.apache.directory.server.core.operations.moveAndRename;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.message.SearchResponse;
 import org.apache.directory.server.core.annotations.ContextEntry;
@@ -31,12 +34,8 @@ import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.name.RDN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotNull;
 
 
 /**
