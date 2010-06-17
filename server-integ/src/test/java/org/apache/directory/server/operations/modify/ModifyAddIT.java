@@ -654,4 +654,30 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
         }
         
     }
-}
+    
+    
+    /**
+     * Add a new ;binary attribute with bytes greater than 0x80
+     * to a person entry.
+     * Test for DIRSERVER-1146
+     *
+     * @throws NamingException
+     */
+    public void testAddNewBinaryAttributeValue0x80() throws Exception
+    {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+
+        // Add a ;binary attribute with high-bytes
+        byte[] newValue = new byte[]{(byte)0x80, (byte)0x81, (byte)0x82, (byte)0x83};
+        Attributes attrs = new BasicAttributes( "userCertificate;binary", newValue );
+        ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
+        
+        // Verify, that attribute value is added
+        attrs = ctx.getAttributes( RDN_TORI_AMOS );
+        Attribute attr = attrs.get( "userCertificate" );
+        assertNotNull( attr );
+        assertTrue( attr.contains( newValue ) );
+        byte[] certificate = (byte[])attr.get();
+        assertTrue( Arrays.equals( newValue, certificate ) );
+        assertEquals( 1, attr.size() );
+    }}
