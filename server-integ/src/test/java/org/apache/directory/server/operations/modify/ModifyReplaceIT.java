@@ -35,6 +35,7 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SchemaViolationException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
@@ -55,7 +56,7 @@ import org.junit.runner.RunWith;
  * no values (deletion) causes an error").
  */
 @RunWith ( FrameworkRunner.class ) 
-@CreateDS( enableChangeLog=false, name="ModifyReplaceIT-class" )
+@CreateDS( enableChangeLog=true, name="ModifyReplaceIT-class" )
 @CreateLdapServer ( 
     transports = 
     {
@@ -244,7 +245,6 @@ public class ModifyReplaceIT extends AbstractLdapTestUnit
         DirContext sysRoot = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
         String rdn = "cn=Kim Wilde";
-        //ldapServer.getDirectoryService().getPartitions();
 
         Attribute attr = new BasicAttribute( "ou", "test" );
         ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
@@ -265,8 +265,6 @@ public class ModifyReplaceIT extends AbstractLdapTestUnit
             assertNotNull( ou );
             assertTrue( ou.contains( "test" ) );
         }
-
-        sysRoot.destroySubcontext( rdn );
     }
     
     
@@ -294,5 +292,30 @@ public class ModifyReplaceIT extends AbstractLdapTestUnit
         assertEquals( "telephonenumber", attr.getID() );
         assertTrue( attr.contains( newValue ) );
         assertEquals( 1, attr.size() );
+    }
+    
+    
+    /**
+     * Create a person entry, replace an attribute not present in the ObjectClasses
+     */
+    @Test
+    public void testReplaceAttributeNotInOC() throws Exception
+    {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        String rdn = "cn=Kate Bush";
+
+        // Replace ou
+        String newValue = "Test";
+        Attributes attrs = new BasicAttributes( "ou", newValue, false );
+        
+        try
+        {
+            ctx.modifyAttributes( rdn, DirContext.REPLACE_ATTRIBUTE, attrs );
+            fail( "Should get a SchemaViolationException" );
+        }
+        catch ( SchemaViolationException sve )
+        {
+            assertTrue( true );
+        }
     }
 }
