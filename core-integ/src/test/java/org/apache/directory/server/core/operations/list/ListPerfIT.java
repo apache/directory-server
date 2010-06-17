@@ -39,7 +39,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith ( FrameworkRunner.class )
-public class ListPerfTest extends AbstractLdapTestUnit
+public class ListPerfIT extends AbstractLdapTestUnit
 {
     /**
      * A List performance test
