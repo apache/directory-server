@@ -71,8 +71,6 @@ public class MultiThreadedTest extends Thread {
             hMap.put("data", "dsfdfd");
 
             // authenticate user
-            int delay = 1;
-
             for (int i = 0; i < 100000; i++) {
                 if ( i % 100 == 0 )
                 {

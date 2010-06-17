@@ -45,7 +45,6 @@ import javax.naming.ldap.InitialLdapContext;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPUrl;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -158,7 +157,6 @@ public class MiscBindIT extends AbstractLdapTestUnit
         ldapServer.setAllowAnonymousAccess( false );
         
         // Use the SUN JNDI provider to hit server port and bind as anonymous
-        InitialDirContext ic = null;
         final Hashtable<String, Object> env = new Hashtable<String, Object>();
 
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() + "/ou=system" );
@@ -167,7 +165,7 @@ public class MiscBindIT extends AbstractLdapTestUnit
 
         try
         {
-            ic = new InitialDirContext( env );
+            new InitialDirContext( env );
             fail();
         }
         catch ( Exception e )
@@ -180,7 +178,7 @@ public class MiscBindIT extends AbstractLdapTestUnit
             // Use the netscape API as JNDI cannot be used to do a search without
             // first binding.
             LDAPUrl url = new LDAPUrl( "localhost", ldapServer.getPort(), "ou=system", new String[]{"vendorName"}, 0, "(ObjectClass=*)" );
-            LDAPSearchResults results = LDAPConnection.search( url );
+            LDAPConnection.search( url );
 
             fail();
         }

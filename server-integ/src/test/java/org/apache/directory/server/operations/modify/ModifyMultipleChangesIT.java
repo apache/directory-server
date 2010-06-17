@@ -80,8 +80,6 @@ public class ModifyMultipleChangesIT  extends AbstractLdapTestUnit
 {
     private static final String BASE = "ou=system";
     private static final String RDN_TORI_AMOS = "cn=Tori Amos";
-    private static final String PERSON_DESCRIPTION = "an American singer-songwriter";
-    private static final String RDN_DEBBIE_HARRY = "cn=Debbie Harry";
 
     /**
      * Creation of required attributes of a person entry.

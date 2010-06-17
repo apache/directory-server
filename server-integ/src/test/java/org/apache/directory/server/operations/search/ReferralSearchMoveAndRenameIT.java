@@ -185,7 +185,7 @@ public class ReferralSearchMoveAndRenameIT extends AbstractLdapTestUnit
         {
             NamingEnumeration<SearchResult> results = ctx.search( "c=us,ou=system", "(cn=alex karasulu)", controls );
             
-            SearchResult result = results.next();
+            results.next();
             fail( "Should fail here throwing a ReferralException" );
         }
         catch ( ReferralException re )

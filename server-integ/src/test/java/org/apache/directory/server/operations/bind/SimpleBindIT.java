@@ -263,12 +263,11 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         env.put( Context.SECURITY_CREDENTIALS, "" );
 
         String[] attrIDs = { "*", "+" };
-        DirContext ctx = null;
         
         // Create the initial context
         try
         {
-            ctx = new InitialDirContext(env);
+            new InitialDirContext(env);
             fail();
         }
         catch ( NamingException ne )
@@ -316,7 +315,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
             // first binding.
             LDAPUrl url = new LDAPUrl( "localhost", ldapServer.getPort(), 
                 "uid=admin,ou=system", attrIDs, 0, "(ObjectClass=*)" );
-            LDAPSearchResults results = LDAPConnection.search( url );
+            LDAPConnection.search( url );
 
             fail();
         }
