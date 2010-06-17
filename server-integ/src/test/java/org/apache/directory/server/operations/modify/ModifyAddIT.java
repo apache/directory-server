@@ -52,7 +52,6 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -619,7 +618,6 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
     /**
      * Add a new binary attribute to a person entry.
      */
-    @Ignore
     @Test
     public void testRetrieveEntryWithBinaryAttributeValue() throws Exception
     {
@@ -645,7 +643,7 @@ public class ModifyAddIT  extends AbstractLdapTestUnit
         {
             SearchResult sr = enm.next();
             attrs = sr.getAttributes();
-            Attribute attr = attrs.get("userCertificate;binary");
+            Attribute attr = attrs.get("userCertificate");
             assertNotNull(attr);
             assertTrue( attr.contains( newValue ) );
             byte[] certificate = (byte[])attr.get();
