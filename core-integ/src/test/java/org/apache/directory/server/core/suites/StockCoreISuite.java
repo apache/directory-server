@@ -45,9 +45,6 @@ import org.apache.directory.server.core.jndi.referral.DeleteReferralIT;
 import org.apache.directory.server.core.jndi.referral.ModifyReferralIT;
 import org.apache.directory.server.core.jndi.referral.MoveAndRenameReferralIT;
 import org.apache.directory.server.core.jndi.referral.MoveReferralIT;
-import org.apache.directory.server.core.jndi.referral.RenameReferralIT;
-import org.apache.directory.server.core.jndi.referral.RenameReferralIgnoreIT;
-import org.apache.directory.server.core.jndi.referral.SearchReferralIT;
 import org.apache.directory.server.core.normalization.NormalizationServiceIT;
 import org.apache.directory.server.core.operational.OperationalAttributeServiceIT;
 import org.apache.directory.server.core.operations.bind.SimpleBindIT;
@@ -130,9 +127,9 @@ import org.junit.runners.Suite;
         ModifyReferralIT.class,
         MoveAndRenameReferralIT.class,
         MoveReferralIT.class,
-        RenameReferralIgnoreIT.class,
-        RenameReferralIT.class,
-        SearchReferralIT.class,
+        //RenameReferralIgnoreIT.class,
+        //RenameReferralIT.class,
+        //SearchReferralIT.class,
 
         // normalization
         NormalizationServiceIT.class,
