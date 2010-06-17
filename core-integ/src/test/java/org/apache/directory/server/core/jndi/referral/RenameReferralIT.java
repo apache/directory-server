@@ -30,7 +30,6 @@ import java.util.Set;
 
 import javax.naming.NameAlreadyBoundException;
 import javax.naming.NameNotFoundException;
-import javax.naming.PartialResultException;
 import javax.naming.ReferralException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
@@ -44,9 +43,6 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.exception.LdapEntryAlreadyExistsException;
-import org.apache.directory.shared.ldap.exception.LdapNoSuchObjectException;
-import org.apache.directory.shared.ldap.exception.LdapPartialResultException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.name.RDN;
