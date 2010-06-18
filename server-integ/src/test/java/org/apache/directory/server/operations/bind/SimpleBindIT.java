@@ -45,12 +45,17 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPUrl;
 
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.message.BindResponse;
+import org.apache.directory.ldap.client.api.message.LdapResult;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -435,5 +440,21 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         {
             ldapServer.getDirectoryService().setAllowAnonymousAccess( oldValue );
         }
+    }
+
+    
+    /**
+     * Tests bind operation on referral entry.
+     */
+    @Test
+    public void testBindWithDoubleQuote() throws Exception
+    {
+        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        
+        BindResponse response = connection.bind( "uid=\"admin\",ou=\"system\"", "secret" );
+        LdapResult ldapResult = response.getLdapResult();
+        assertEquals( ResultCodeEnum.SUCCESS, ldapResult.getResultCode() );
+        assertEquals( 1, response.getMessageId() );
+        assertTrue( connection.isAuthenticated() );
     }
 }
