@@ -34,7 +34,6 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -60,7 +59,6 @@ public class SearchPerfIT extends AbstractLdapTestUnit
      * test a search request perf.
      */
     @Test
-    @Ignore
     public void testSearchRequestPerf() throws Exception
     {
         //ldapServer.getDirectoryService().getInterceptorChain().addFirst( new TimerInterceptor( "Start" ) );

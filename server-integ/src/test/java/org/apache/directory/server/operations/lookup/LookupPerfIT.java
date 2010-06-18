@@ -43,7 +43,6 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.message.control.Control;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -67,7 +66,6 @@ public class LookupPerfIT extends AbstractLdapTestUnit
      * Evaluate the lookup operation performances
      */
     @Test
-    @Ignore
     public void testLookupPerfAPI() throws Exception
     {
         LdapConnection connection = getClientApiConnection( ldapServer );
@@ -120,7 +118,6 @@ public class LookupPerfIT extends AbstractLdapTestUnit
      * Evaluate the lookup operation performances
      */
     @Test
-    @Ignore
     public void testLookupPerfJNDI() throws Exception
     {
         LdapContext ctx = getWiredContext( ldapServer, null );
