@@ -31,7 +31,6 @@ import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.kerberos.shared.messages.value.types.HostAddrType;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -144,7 +143,6 @@ public class HostAddressTest
 
 
     @Test
-    @Ignore
     public void testHashCodeSymmetric() throws Exception
     {
         assertEquals( hostAddressA.hashCode(), hostAddressACopy.hashCode() );
@@ -162,7 +160,6 @@ public class HostAddressTest
 
 
     @Test
-    @Ignore
     public void testHashCodeTransitive() throws Exception
     {
         assertEquals( hostAddressA.hashCode(), hostAddressACopy.hashCode() );

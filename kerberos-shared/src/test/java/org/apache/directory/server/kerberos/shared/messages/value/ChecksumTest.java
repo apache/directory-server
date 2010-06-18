@@ -31,7 +31,6 @@ import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -148,7 +147,6 @@ public class ChecksumTest
 
 
     @Test
-    @Ignore
     public void testHashCodeSymmetric() throws Exception
     {
         assertEquals( checksumA.hashCode(), checksumACopy.hashCode() );
@@ -166,7 +164,6 @@ public class ChecksumTest
 
 
     @Test
-    @Ignore
     public void testHashCodeTransitive() throws Exception
     {
         assertEquals( checksumA.hashCode(), checksumACopy.hashCode() );

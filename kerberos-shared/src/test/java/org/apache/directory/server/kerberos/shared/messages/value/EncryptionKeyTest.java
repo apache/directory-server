@@ -34,7 +34,6 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionT
 import org.apache.directory.server.kerberos.shared.io.encoder.EncryptionKeyEncoder;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -232,7 +231,6 @@ public class EncryptionKeyTest
 
 
     @Test
-    @Ignore
     public void testHashCodeSymmetric() throws Exception
     {
         assertEquals( encryptionA.hashCode(), encryptionACopy.hashCode() );
@@ -250,7 +248,6 @@ public class EncryptionKeyTest
 
 
     @Test
-    @Ignore
     public void testHashCodeTransitive() throws Exception
     {
         assertEquals( encryptionA.hashCode(), encryptionACopy.hashCode() );
