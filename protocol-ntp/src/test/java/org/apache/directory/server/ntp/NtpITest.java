@@ -33,7 +33,6 @@ import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -74,7 +73,6 @@ public class NtpITest
      * @throws Exception if there are errors
      */
     @Test
-    @Ignore
     public void testNtp() throws Exception
     {
         InetAddress host = InetAddress.getByName( null );
@@ -85,7 +83,7 @@ public class NtpITest
         long currentTime = System.currentTimeMillis();
         TimeInfo timeInfo = ntp.getTime( host, port );
         long returnTime = timeInfo.getReturnTime();
-        assertTrue( currentTime - returnTime < 1000 );
+        assertTrue( Math.abs( currentTime - returnTime ) < 1000 );
 
         timeInfo.computeDetails();
 
