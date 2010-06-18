@@ -42,6 +42,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.codec.search.controls.subentries.SubentriesControl;
@@ -59,7 +60,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith ( FrameworkRunner.class )
-@Ignore
+@CreateDS( name="SubentryServiceIT-class" )
 public class SubentryServiceIT extends AbstractLdapTestUnit
 {
 
@@ -107,7 +108,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     }
 
 
-    public void addAdministrativeRole( String role ) throws Exception
+    private void addAdministrativeRole( String role ) throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         Attribute attribute = new BasicAttribute( "administrativeRole" );
@@ -118,7 +119,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     }
 
 
-    public Map<String, Attributes> getAllEntries() throws Exception
+    private Map<String, Attributes> getAllEntries() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
@@ -531,6 +532,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
 
     @Test
+    @Ignore
     public void testSubentryModifyRdn() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -591,7 +593,6 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
 
 
     @Test
-    @Ignore ( "Ignored until DIRSERVER-1223 is fixed" )
     public void testEntryModifyRdn() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -758,7 +759,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
             .get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
 
         // --------------------------------------------------------------------
-        // Now destry one of the marked/unmarked and rename to deleted entry
+        // Now destroy one of the marked/unmarked and rename to deleted entry
         // --------------------------------------------------------------------
 
         sysRoot.destroySubcontext( "cn=unmarked" );
@@ -912,7 +913,6 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
     
 
     @Test
-    @Ignore ( "Ignored until DIRSERVER-1223 is fixed" )
     public void testBaseScopeSearchSubentryVisibilityWithoutTheControl() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
