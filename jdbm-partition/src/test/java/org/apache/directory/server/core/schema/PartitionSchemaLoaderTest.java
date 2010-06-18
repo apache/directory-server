@@ -23,23 +23,19 @@ package org.apache.directory.server.core.schema;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.util.Map;
-import java.util.Set;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
+import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -57,7 +53,6 @@ public class PartitionSchemaLoaderTest
 {
     private static SchemaManager schemaManager;
     private static DirectoryService directoryService;
-    private static JdbmPartition schemaPartition;
 
 
     @BeforeClass public static void setUp() throws Exception
@@ -96,153 +91,126 @@ public class PartitionSchemaLoaderTest
         {
             fail( "Schema load failed : " + LdapExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
-
-        // --------------------------------------------------------------------
-        // TODO add code here to start up the LDIF schema partition
-        // --------------------------------------------------------------------
-
-        throw new NotImplementedException();
+        
+        directoryService.setSchemaManager( schemaManager );
     }
     
     
-    @Test public void testGetSchemas() throws Exception
+    @Test 
+    public void testGetSchemas() throws Exception
     {
-        PartitionSchemaLoader loader = new PartitionSchemaLoader( schemaPartition, schemaManager );
-        Map<String,Schema> schemas = loader.getSchemas();
+        SchemaLoader loader = directoryService.getSchemaManager().getLoader();
         
-        Schema schema = schemas.get( "mozilla" );
+        Schema schema = loader.getSchema( "mozilla" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "mozilla" );
         //assertTrue( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = schemas.get( "core" );
+        schema = loader.getSchema( "core" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "core" );
         assertFalse( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = schemas.get( "apachedns" );
+        schema = loader.getSchema( "apachedns" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "apachedns" );
         //assertTrue( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = schemas.get( "autofs" );
+        schema = loader.getSchema( "autofs" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "autofs" );
         //assertTrue( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = schemas.get( "apache" );
+        schema = loader.getSchema( "apache" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "apache" );
         assertFalse( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
 
-        schema = schemas.get( "cosine" );
+        schema = loader.getSchema( "cosine" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "cosine" );
         assertFalse( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = schemas.get( "krb5kdc" );
+        schema = loader.getSchema( "krb5kdc" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "krb5kdc" );
         //assertTrue( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = schemas.get( "samba" );
+        schema = loader.getSchema( "samba" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "samba" );
         //assertTrue( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = schemas.get( "collective" );
+        schema = loader.getSchema( "collective" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "collective" );
         assertFalse( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = schemas.get( "java" );
+        schema = loader.getSchema( "java" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "java" );
         assertFalse( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = schemas.get( "dhcp" );
+        schema = loader.getSchema( "dhcp" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "dhcp" );
         //assertTrue( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = schemas.get( "corba" );
+        schema = loader.getSchema( "corba" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "corba" );
         //assertTrue( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = schemas.get( "nis" );
+        schema = loader.getSchema( "nis" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "nis" );
         //assertTrue( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = schemas.get( "inetorgperson" );
+        schema = loader.getSchema( "inetorgperson" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "inetorgperson" );
         assertFalse( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = schemas.get( "system" );
+        schema = loader.getSchema( "system" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "system" );
         assertFalse( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = schemas.get( "apachemeta" );
+        schema = loader.getSchema( "apachemeta" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "apachemeta" );
         assertFalse( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
-    }
-    
-    
-    @Test public void testGetSchemaNames() throws Exception
-    {
-        PartitionSchemaLoader loader = new PartitionSchemaLoader( schemaPartition, schemaManager );
-        Set<String> schemaNames = loader.getSchemaNames();
-        assertTrue( schemaNames.contains( "mozilla" ) );
-        assertTrue( schemaNames.contains( "core" ) );
-        assertTrue( schemaNames.contains( "apachedns" ) );
-        assertTrue( schemaNames.contains( "autofs" ) );
-        assertTrue( schemaNames.contains( "apache" ) );
-        assertTrue( schemaNames.contains( "cosine" ) );
-        assertTrue( schemaNames.contains( "krb5kdc" ) );
-        assertTrue( schemaNames.contains( "samba" ) );
-        assertTrue( schemaNames.contains( "collective" ) );
-        assertTrue( schemaNames.contains( "java" ) );
-        assertTrue( schemaNames.contains( "dhcp" ) );
-        assertTrue( schemaNames.contains( "corba" ) );
-        assertTrue( schemaNames.contains( "nis" ) );
-        assertTrue( schemaNames.contains( "inetorgperson" ) );
-        assertTrue( schemaNames.contains( "system" ) );
-        assertTrue( schemaNames.contains( "apachemeta" ) );
     }
 }
