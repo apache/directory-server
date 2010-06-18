@@ -90,7 +90,6 @@ import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescriptionS
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.DateUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -1860,7 +1859,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
      * @throws NamingException on error
      */
     @Test
-    @Ignore ( "Don't know why but this is causing intermittant failures in assertions" )
+    // @TODO as we can't modify a schema element, the end of this test has been commented
     public void testTimestampAndModifierUpdates() throws Exception, InterruptedException
     {
         TimeZone tz = TimeZone.getTimeZone( "GMT" );
@@ -1879,7 +1878,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         assertNotNull( modifiersNameAttr );
         DN expectedDN = new DN( "uid=admin,ou=system" );
         expectedDN.normalize( service.getSchemaManager().getNormalizerMapping() );
-        assertEquals( expectedDN.getNormName(), modifiersNameAttr.get() );
+        assertEquals( expectedDN.getName(), modifiersNameAttr.get() );
         assertNotNull( modifyTimestampAttr );
 
         Calendar cal = Calendar.getInstance( tz );
@@ -1917,7 +1916,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         assertNotNull( modifiersNameAttrAfter );
         expectedDN = new DN( "uid=admin,ou=system" );
         expectedDN.normalize( service.getSchemaManager().getNormalizerMapping() );
-        assertEquals( expectedDN.getNormName(), modifiersNameAttrAfter.get() );
+        assertEquals( expectedDN.getName(), modifiersNameAttrAfter.get() );
         assertNotNull( modifiersTimestampAttrAfter );
         
         cal = Calendar.getInstance( tz );
@@ -1949,7 +1948,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         
         // now let's add another attribute type definition to the schema but 
         // with this newly created user and check that the modifiers name is his
-
+        /*
         substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10001 NAME ( 'bogus2' 'bogusName2' ) " +
             "DESC 'bogus description' SUP name SINGLE-VALUE X-SCHEMA 'nis' )";
         mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE, 
@@ -1978,6 +1977,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         modifyTimestampAfter = DateUtils.getDate( ( String ) modifiersTimestampAttrAfter.get() );
         assertTrue( modifyTimestampAfter.getTime() <= cal.getTime().getTime() );
         assertTrue( modifyTimestampAfter.getTime() >= modifyTimestamp.getTime() );
+        */
     }
 
 
