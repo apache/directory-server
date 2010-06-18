@@ -115,9 +115,9 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * Depending in the existence of this attribute in the previous entry, we will
      * have to update the entry or not.
      */
-    public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade ) throws LdapException
+    public boolean modify( ModifyOperationContext modifyContext, Entry modifiedEntry, boolean cascade ) throws LdapException
     {
-        Entry entry = modifyContext.getEntry();
+        Entry entry = modifiedEntry;
         List<Modification> mods = modifyContext.getModItems(); 
         boolean hasModification = SCHEMA_UNCHANGED;
         
@@ -134,11 +134,11 @@ public class SchemaSynchronizer implements RegistrySynchronizer
             ModificationOperation modification = disabledModification.getOperation();
             EntryAttribute attribute = disabledModification.getAttribute();
             
-            hasModification = modifyDisable( modifyContext, modification, attribute, disabledInEntry );
+            hasModification = modifyDisable( modifyContext, modifiedEntry, modification, attribute, disabledInEntry );
         }
         else if ( disabledInEntry != null )
         {
-            hasModification = modifyDisable( modifyContext, ModificationOperation.REMOVE_ATTRIBUTE, null, disabledInEntry );
+            hasModification = modifyDisable( modifyContext, modifiedEntry, ModificationOperation.REMOVE_ATTRIBUTE, null, disabledInEntry );
         }
             
         
@@ -391,7 +391,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * +-------+-------+-------------------+--------------------+--------------------+
      * </pre>
      */
-    private boolean modifyDisable( ModifyOperationContext modifyContext, ModificationOperation modOp, 
+    private boolean modifyDisable( ModifyOperationContext modifyContext, Entry modifiedEntry, ModificationOperation modOp, 
         EntryAttribute disabledInMods, EntryAttribute disabledInEntry ) throws LdapException
     {
         DN name = modifyContext.getDn();

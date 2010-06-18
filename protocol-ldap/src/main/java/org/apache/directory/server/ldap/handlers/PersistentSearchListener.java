@@ -166,7 +166,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
     
         InternalSearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
         respEntry.setObjectName( modifyContext.getDn() );
-        respEntry.setEntry( modifyContext.getAlteredEntry() );
+        respEntry.setEntry( modifyContext.getModifiedEntry() );
         setECResponseControl( respEntry, modifyContext, ChangeType.MODIFY );
         session.getIoSession().write( respEntry );
     }

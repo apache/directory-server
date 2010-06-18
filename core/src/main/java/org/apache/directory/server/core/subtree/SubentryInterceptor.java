@@ -1209,7 +1209,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( !objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
             {
-                Entry newEntry = modifyContext.getAlteredEntry(); 
+                Entry newEntry = modifyContext.getModifiedEntry(); 
 
                 List<Modification> subentriesOpAttrMods = getModsOnEntryModification( dn, entry, newEntry );
 

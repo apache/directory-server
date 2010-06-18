@@ -273,9 +273,9 @@ public class RegistrySynchronizerAdaptor
      * @param doCascadeModify Not used
      * @throws Exception If the modification failed
      */
-    public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean doCascadeModify ) throws LdapException
+    public boolean modify( ModifyOperationContext modifyContext, Entry modifiedEntry, boolean doCascadeModify ) throws LdapException
     {
-        Entry entry = modifyContext.getEntry();
+        Entry entry = modifiedEntry;
         EntryAttribute oc = entry.get( objectClassAT );
         
         for ( Value<?> value:oc )
@@ -285,14 +285,14 @@ public class RegistrySynchronizerAdaptor
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
                 RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
-                boolean hasModification = synchronizer.modify( modifyContext, targetEntry, doCascadeModify );
+                boolean hasModification = synchronizer.modify( modifyContext, modifiedEntry, doCascadeModify );
                 return hasModification;
             }
         }
 
         if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
-            boolean hasModification = schemaSynchronizer.modify( modifyContext, targetEntry, doCascadeModify );
+            boolean hasModification = schemaSynchronizer.modify( modifyContext, modifiedEntry, doCascadeModify );
             return hasModification;
         }
 
