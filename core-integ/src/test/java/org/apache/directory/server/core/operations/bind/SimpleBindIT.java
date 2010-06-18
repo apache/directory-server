@@ -429,4 +429,47 @@ public class SimpleBindIT extends AbstractLdapTestUnit
             assertTrue( true );
         }
     }
+
+
+    /**
+     * try to connect using a known user/password and read an entry.
+     * 
+     * @throws Exception on error
+     */
+    @Test
+    public void testSimpleBindWithDoubleQuote()
+    {
+        // We will bind using JNDI
+        // Set up the environment for creating the initial context
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
+        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
+        env.put( Context.PROVIDER_URL, "ou=system" );
+
+        // Authenticate as admin and password "secret"
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=\"admin\",ou=\"system\"" );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
+
+        DirContext ctx = null;
+
+        // Create the initial context
+        try
+        {
+            ctx = new InitialDirContext( env );
+        }
+        catch ( NamingException ne )
+        {
+            fail();
+        }
+
+        try
+        {
+            ctx.close();
+        }
+        catch ( NamingException ne )
+        {
+            fail();
+        }
+    }
 }
