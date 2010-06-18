@@ -1861,4 +1861,27 @@ public class SearchIT extends AbstractLdapTestUnit
        }
    }
 
+
+   @Test
+   public void testSearchFilterBadAttributeType() throws Exception
+   {
+       SearchControls controls = new SearchControls();
+       controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+       controls.setDerefLinkFlag( false );
+       sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
+               AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
+       HashMap<String, Attributes> map = new HashMap<String, Attributes>();
+
+       NamingEnumeration<SearchResult> list = sysRoot.search( "", "(|(badAttr={0})(ou={1}))", new Object[]
+           { "testing00", "testing01" }, controls );
+       
+       while ( list.hasMore() )
+       {
+           SearchResult result = list.next();
+           map.put( result.getName(), result.getAttributes() );
+       }
+
+       assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+       assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
+   }
 }
