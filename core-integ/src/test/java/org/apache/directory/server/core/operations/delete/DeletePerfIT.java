@@ -68,7 +68,6 @@ public class DeletePerfIT extends AbstractLdapTestUnit
      * Test an add operation performance
      */
     @Test
-    //@Ignore
     public void testDeleteOne() throws Exception
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );
