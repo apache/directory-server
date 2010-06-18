@@ -42,7 +42,6 @@ import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -53,7 +52,7 @@ import org.junit.Test;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@Ignore ( "Ignore this test until we get the LDIF partition in place." )
+//@Ignore ( "Ignore this test until we get the LDIF partition in place." )
 public class PartitionSchemaLoaderTest
 {
     private static SchemaManager schemaManager;
