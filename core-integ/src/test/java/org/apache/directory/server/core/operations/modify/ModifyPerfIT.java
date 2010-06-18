@@ -61,7 +61,6 @@ public class ModifyPerfIT extends AbstractLdapTestUnit
      * Test an modify operation performance
      */
     @Test
-    //@Ignore
     public void testModifyPerf() throws Exception
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( service );

@@ -63,9 +63,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
     Logger LOG = LoggerFactory.getLogger( AliasSearchIT.class );
 
 
-    @Ignore
-    @Test
-    public void dump() throws Exception
+    private void dump() throws Exception
     {
         List<String> results1 = search( "dc=example,dc=com", SearchScope.SUBTREE, "(objectClass=*)",
             AliasDerefMode.NEVER_DEREF_ALIASES );
