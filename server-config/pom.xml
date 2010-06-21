@@ -26,7 +26,7 @@
   </parent>
 
   <artifactId>apacheds-config</artifactId>
-  <name>ApacheDS Default Config</name>
+  <name>ApacheDS Configuration</name>
 
   <dependencies>
     <dependency>
