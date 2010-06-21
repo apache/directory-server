@@ -25,7 +25,7 @@
     <version>1.5.8-SNAPSHOT</version>
   </parent>
 
-  <artifactId>apacheds-default-config</artifactId>
+  <artifactId>apacheds-config</artifactId>
   <name>ApacheDS Default Config</name>
 
   <dependencies>
