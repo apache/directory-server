@@ -39,8 +39,8 @@ import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.name.DN;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -74,10 +74,10 @@ import org.junit.runner.RunWith;
 })
 public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
 {
-    private static LdapConnection connection;
+    private LdapConnection connection;
 
-    @BeforeClass
-    public static void setup() throws Exception
+    @Before
+    public void setup() throws Exception
     {
         connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
         DN bindDn = new DN( "uid=admin,ou=system" );
@@ -88,8 +88,8 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
     /**
      * Close the LdapConnection
      */
-    @AfterClass
-    public static void shutdown()
+    @After
+    public void shutdown()
     {
         try
         {

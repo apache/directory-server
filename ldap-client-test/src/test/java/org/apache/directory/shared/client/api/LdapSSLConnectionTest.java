@@ -48,7 +48,7 @@ import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandle
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.name.DN;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -80,11 +80,11 @@ import org.junit.runner.RunWith;
     })
 public class LdapSSLConnectionTest extends AbstractLdapTestUnit
 {
-    private static LdapConnectionConfig config;
+    private LdapConnectionConfig config;
     
     
-    @BeforeClass
-    public static void setup()
+    @Before
+    public void setup()
     {
         X509TrustManager X509 = new X509TrustManager()
         {
