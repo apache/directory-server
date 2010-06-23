@@ -96,7 +96,6 @@ import org.slf4j.LoggerFactory;
  * and instantiate the necessary objects like DirectoryService, Interceptors etc.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
  */
 public class ConfigPartitionReader
 {
@@ -167,12 +166,12 @@ public class ConfigPartitionReader
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffix(),
             AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         if ( !cursor.next() )
         {
-            LOG.warn( "No LDAP server was configured under the DN {}", configPartition.getSuffixDn() );
+            LOG.warn( "No LDAP server was configured under the DN {}", configPartition.getSuffix() );
             return null;
         }
 
@@ -270,12 +269,12 @@ public class ConfigPartitionReader
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffix(),
             AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         if ( !cursor.next() )
         {
-            LOG.warn( "No kerberos server was configured under the DN {}", configPartition.getSuffixDn() );
+            LOG.warn( "No kerberos server was configured under the DN {}", configPartition.getSuffix() );
             return null;
         }
 
@@ -417,12 +416,12 @@ public class ConfigPartitionReader
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffix(),
             AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         if ( !cursor.next() )
         {
-            LOG.warn( "No DNS server was configured under the DN {}", configPartition.getSuffixDn() );
+            LOG.warn( "No DNS server was configured under the DN {}", configPartition.getSuffix() );
             return null;
         }
 
@@ -457,12 +456,12 @@ public class ConfigPartitionReader
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffix(),
             AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         if ( !cursor.next() )
         {
-            LOG.warn( "No DHCP server was configured under the DN {}", configPartition.getSuffixDn() );
+            LOG.warn( "No DHCP server was configured under the DN {}", configPartition.getSuffix() );
             return null;
         }
 
@@ -492,12 +491,12 @@ public class ConfigPartitionReader
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffix(),
             AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         if ( !cursor.next() )
         {
-            LOG.warn( "No NTP server was configured under the DN {}", configPartition.getSuffixDn() );
+            LOG.warn( "No NTP server was configured under the DN {}", configPartition.getSuffix() );
             return null;
         }
 
@@ -531,12 +530,12 @@ public class ConfigPartitionReader
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffix(),
             AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         if ( !cursor.next() )
         {
-            LOG.warn( "No ChangePassword server was configured under the DN {}", configPartition.getSuffixDn() );
+            LOG.warn( "No ChangePassword server was configured under the DN {}", configPartition.getSuffix() );
             return null;
         }
         
@@ -635,12 +634,12 @@ public class ConfigPartitionReader
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffix(),
             AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         if ( !cursor.next() )
         {
-            LOG.warn( "No HTTP server was configured under the DN {}", configPartition.getSuffixDn() );
+            LOG.warn( "No HTTP server was configured under the DN {}", configPartition.getSuffix() );
             return null;
         }
 
@@ -700,14 +699,14 @@ public class ConfigPartitionReader
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffix(),
             AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         if ( !cursor.next() )
         {
             // the DirectoryService is mandatory so throwing exception
             throw new Exception( "No directoryService instance was configured under the DN "
-                + configPartition.getSuffixDn() );
+                + configPartition.getSuffix() );
         }
 
         ForwardIndexEntry<Long, Entry, Long> forwardEntry = ( ForwardIndexEntry<Long, Entry, Long> ) cursor
@@ -834,7 +833,7 @@ public class ConfigPartitionReader
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffixDn(),
+        IndexCursor<Long, Entry, Long> cursor = se.cursor( configPartition.getSuffix(),
             AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
 
         List<SyncreplConfiguration> syncReplConfigLst = new ArrayList<SyncreplConfiguration>();
@@ -1061,7 +1060,9 @@ public class ConfigPartitionReader
         partition.setId( getString( ConfigSchemaConstants.ADS_PARTITION_ID, partitionEntry ) );
         partition.setPartitionDir( new File( workDir, partition.getId() ) );
 
-        partition.setSuffix( getString( ConfigSchemaConstants.ADS_PARTITION_SUFFIX, partitionEntry ) );
+        DN systemDn = new DN( getString( ConfigSchemaConstants.ADS_PARTITION_SUFFIX, partitionEntry ) );
+        systemDn.normalize( schemaManager.getNormalizerMapping() );
+        partition.setSuffix( systemDn );
 
         EntryAttribute cacheAttr = partitionEntry.get( ConfigSchemaConstants.ADS_PARTITION_CACHE_SIZE );
 
