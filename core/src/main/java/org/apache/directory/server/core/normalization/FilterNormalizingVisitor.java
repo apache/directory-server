@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -167,7 +168,15 @@ public class FilterNormalizingVisitor implements FilterVisitor
      */
     private ExprNode visitPresenceNode( PresenceNode node ) throws LdapException
     {
-        node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
+        try
+        {
+            node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
+        }
+        catch ( LdapNoSuchAttributeException lnsae )
+        {
+            return null;
+        }
+
         return node;
     }
 
@@ -185,9 +194,20 @@ public class FilterNormalizingVisitor implements FilterVisitor
      */
     private ExprNode visitSimpleNode( SimpleNode node ) throws LdapException
     {
+        
         // still need this check here in case the top level is a leaf node
         // with an undefined attributeType for its attribute
         if ( !ncn.isDefined( node.getAttribute() ) )
+        {
+            return null;
+        }
+        
+        // Check that the AttributeType is valid
+        try
+        {
+            node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
+        }
+        catch ( LdapNoSuchAttributeException lnsae )
         {
             return null;
         }
@@ -199,7 +219,6 @@ public class FilterNormalizingVisitor implements FilterVisitor
             return null;
         }
 
-        node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
         node.setValue( normalized );
 
         return node;
@@ -307,7 +326,15 @@ public class FilterNormalizingVisitor implements FilterVisitor
      */
     private ExprNode visitExtensibleNode( ExtensibleNode node ) throws LdapException
     {
-        node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
+        // Check that the AttributeType is valid
+        try
+        {
+            node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
+        }
+        catch ( LdapNoSuchAttributeException lnsae )
+        {
+            return null;
+        }
 
         return node;
     }
