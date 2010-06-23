@@ -23,21 +23,26 @@ package org.apache.directory.server.core.schema;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
-import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.util.LdapExceptionUtils;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -48,11 +53,12 @@ import org.junit.Test;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-//@Ignore ( "Ignore this test until we get the LDIF partition in place." )
+@Ignore ( "Ignore this test until we get the LDIF partition in place." )
 public class PartitionSchemaLoaderTest
 {
     private static SchemaManager schemaManager;
     private static DirectoryService directoryService;
+    private static JdbmPartition schemaPartition;
 
 
     @BeforeClass public static void setUp() throws Exception
@@ -91,126 +97,153 @@ public class PartitionSchemaLoaderTest
         {
             fail( "Schema load failed : " + LdapExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
-        
-        directoryService.setSchemaManager( schemaManager );
+
+        // --------------------------------------------------------------------
+        // TODO add code here to start up the LDIF schema partition
+        // --------------------------------------------------------------------
+
+        throw new NotImplementedException();
     }
     
     
-    @Test 
-    public void testGetSchemas() throws Exception
+    @Test public void testGetSchemas() throws Exception
     {
-        SchemaLoader loader = directoryService.getSchemaManager().getLoader();
+        PartitionSchemaLoader loader = new PartitionSchemaLoader( schemaPartition, schemaManager );
+        Map<String,Schema> schemas = loader.getSchemas();
         
-        Schema schema = loader.getSchema( "mozilla" );
+        Schema schema = schemas.get( "mozilla" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "mozilla" );
         //assertTrue( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = loader.getSchema( "core" );
+        schema = schemas.get( "core" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "core" );
         assertFalse( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = loader.getSchema( "apachedns" );
+        schema = schemas.get( "apachedns" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "apachedns" );
         //assertTrue( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = loader.getSchema( "autofs" );
+        schema = schemas.get( "autofs" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "autofs" );
         //assertTrue( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = loader.getSchema( "apache" );
+        schema = schemas.get( "apache" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "apache" );
         assertFalse( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
 
-        schema = loader.getSchema( "cosine" );
+        schema = schemas.get( "cosine" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "cosine" );
         assertFalse( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = loader.getSchema( "krb5kdc" );
+        schema = schemas.get( "krb5kdc" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "krb5kdc" );
         //assertTrue( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = loader.getSchema( "samba" );
+        schema = schemas.get( "samba" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "samba" );
         //assertTrue( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = loader.getSchema( "collective" );
+        schema = schemas.get( "collective" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "collective" );
         assertFalse( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = loader.getSchema( "java" );
+        schema = schemas.get( "java" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "java" );
         assertFalse( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = loader.getSchema( "dhcp" );
+        schema = schemas.get( "dhcp" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "dhcp" );
         //assertTrue( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = loader.getSchema( "corba" );
+        schema = schemas.get( "corba" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "corba" );
         //assertTrue( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = loader.getSchema( "nis" );
+        schema = schemas.get( "nis" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "nis" );
         //assertTrue( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = loader.getSchema( "inetorgperson" );
+        schema = schemas.get( "inetorgperson" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "inetorgperson" );
         assertFalse( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = loader.getSchema( "system" );
+        schema = schemas.get( "system" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "system" );
         assertFalse( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
-        schema = loader.getSchema( "apachemeta" );
+        schema = schemas.get( "apachemeta" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "apachemeta" );
         assertFalse( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
+    }
+    
+    
+    @Test public void testGetSchemaNames() throws Exception
+    {
+        PartitionSchemaLoader loader = new PartitionSchemaLoader( schemaPartition, schemaManager );
+        Set<String> schemaNames = loader.getSchemaNames();
+        assertTrue( schemaNames.contains( "mozilla" ) );
+        assertTrue( schemaNames.contains( "core" ) );
+        assertTrue( schemaNames.contains( "apachedns" ) );
+        assertTrue( schemaNames.contains( "autofs" ) );
+        assertTrue( schemaNames.contains( "apache" ) );
+        assertTrue( schemaNames.contains( "cosine" ) );
+        assertTrue( schemaNames.contains( "krb5kdc" ) );
+        assertTrue( schemaNames.contains( "samba" ) );
+        assertTrue( schemaNames.contains( "collective" ) );
+        assertTrue( schemaNames.contains( "java" ) );
+        assertTrue( schemaNames.contains( "dhcp" ) );
+        assertTrue( schemaNames.contains( "corba" ) );
+        assertTrue( schemaNames.contains( "nis" ) );
+        assertTrue( schemaNames.contains( "inetorgperson" ) );
+        assertTrue( schemaNames.contains( "system" ) );
+        assertTrue( schemaNames.contains( "apachemeta" ) );
     }
 }

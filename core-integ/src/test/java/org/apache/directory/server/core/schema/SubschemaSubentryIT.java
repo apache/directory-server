@@ -90,7 +90,6 @@ import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescriptionS
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.DateUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -1860,7 +1859,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
      * @throws NamingException on error
      */
     @Test
-    @Ignore // @TODO as we can't modify a schema element, the end of this test has been commented
+    // @TODO as we can't modify a schema element, the end of this test has been commented
     public void testTimestampAndModifierUpdates() throws Exception, InterruptedException
     {
         TimeZone tz = TimeZone.getTimeZone( "GMT" );
@@ -1868,6 +1867,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         Attributes subentry = this.getSubschemaSubentryAttributes();
         
         // check first that everything that is required is present
+        
         Attribute creatorsNameAttr = subentry.get( "creatorsName" );
         Attribute createTimestampAttr = subentry.get( "createTimestamp" );
         assertNotNull( creatorsNameAttr );
@@ -1901,6 +1901,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         getRootContext( service ).modifyAttributes( DN.toName( dn ), mods );
 
         // now check the modification timestamp and the modifiers name
+
         subentry = this.getSubschemaSubentryAttributes();
         
         // check first that everything that is required is present
@@ -1922,12 +1923,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         Date modifyTimestampAfter = DateUtils.getDate( ( String ) modifiersTimestampAttrAfter.get() );
         assertTrue( modifyTimestampAfter.getTime() <= cal.getTime().getTime() );
 
-        //if ( modifyTimestampAfter.getTime() < modifyTimestamp.getTime() )
-        { 
-            System.out.println( "now   : " + modifyTimestampAttr.get() + ", " + modifyTimestamp.getTime() );
-            System.out.println( "after : " +  modifiersTimestampAttrAfter.get() + ", " + modifyTimestampAfter.getTime() );
-        }
-        
+
         assertTrue( modifyTimestampAfter.getTime() >= modifyTimestamp.getTime() );
 
         // now let's test the modifiersName update with another user besides

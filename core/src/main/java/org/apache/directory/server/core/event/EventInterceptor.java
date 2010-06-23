@@ -198,7 +198,7 @@ public class EventInterceptor extends BaseInterceptor
 
         // Get the modified entry
         Entry alteredEntry = modifyContext.lookup( modifyContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
-        modifyContext.setModifiedEntry( ( ClonedServerEntry ) alteredEntry );
+        modifyContext.setAlteredEntry( ( ClonedServerEntry ) alteredEntry );
 
         for ( final RegistrationEntry registration : selecting )
         {

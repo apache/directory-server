@@ -313,7 +313,7 @@ public class LdifPartition extends BTreePartition<Long>
 
         // Get the modified entry and store it in the context for post usage
         ClonedServerEntry modifiedEntry = lookup( id );
-        modifyContext.setModifiedEntry( modifiedEntry );
+        modifyContext.setAlteredEntry( modifiedEntry );
 
         // just overwrite the existing file
         DN dn = modifyContext.getDn();

@@ -44,8 +44,8 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.DN;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -79,10 +79,10 @@ import org.junit.runner.RunWith;
 })
 public class ClientSearchRequestTest extends AbstractLdapTestUnit
 {
-    private  LdapAsyncConnection connection;
+    private static LdapAsyncConnection connection;
 
-    @Before
-    public void setup() throws Exception
+    @BeforeClass
+    public static void setup() throws Exception
     {
         connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
         DN bindDn = new DN( "uid=admin,ou=system" );
@@ -93,8 +93,8 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     /**
      * Close the LdapConnection
      */
-    @After
-    public void shutdown()
+    @AfterClass
+    public static void shutdown()
     {
         try
         {

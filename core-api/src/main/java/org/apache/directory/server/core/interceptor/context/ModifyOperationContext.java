@@ -50,6 +50,9 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     /** The modification items */
     private List<Modification> modItems;
 
+    /** The entry after being renamed and altered for rdn attributes */
+    private Entry alteredEntry;
+
 
     /**
      * Creates a new instance of ModifyOperationContext.
@@ -133,6 +136,30 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     public String getName()
     {
         return MessageTypeEnum.MODIFY_REQUEST.name();
+    }
+
+
+    /**
+     * Returns the entry after it has been renamed and potentially changed for 
+     * Rdn alterations.
+     *
+     * @return the new renamed entry
+     */
+    public Entry getAlteredEntry()
+    {
+        return alteredEntry;
+    }
+
+
+    /**
+     * Set the modified entry once the operation has been proceced
+     * on the backend.
+     *
+     * @param alteredEntry The modified entry
+     */
+    public void setAlteredEntry( Entry alteredEntry )
+    {
+        this.alteredEntry = alteredEntry;
     }
 
 

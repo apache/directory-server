@@ -212,7 +212,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     
     public void entryModified( ModifyOperationContext modifyContext )
     {
-        Entry alteredEntry = modifyContext.getModifiedEntry();
+        Entry alteredEntry = modifyContext.getAlteredEntry();
 
         LOG.debug( "sending modified entry {}", alteredEntry.getDn() );
 
@@ -239,7 +239,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             }
             else
             {
-                clientMsgLog.log( EventType.MODIFY, modifyContext.getModifiedEntry() );
+                clientMsgLog.log( EventType.MODIFY, modifyContext.getAlteredEntry() );
             }
         }
         catch ( Exception e )
