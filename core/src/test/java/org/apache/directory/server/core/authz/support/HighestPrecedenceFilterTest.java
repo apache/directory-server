@@ -20,17 +20,17 @@
 package org.apache.directory.server.core.authz.support;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
-import org.apache.directory.server.core.authz.support.HighestPrecedenceFilter;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
@@ -99,7 +99,8 @@ public class HighestPrecedenceFilterTest
 
         for ( ACITuple tuple:tuples )
         {
-            assertEquals( MAX_PRECEDENCE, tuple.getPrecedence() );
+            assertNotNull( tuple.getPrecedence() );
+            assertEquals( MAX_PRECEDENCE, tuple.getPrecedence().intValue() );
         }
     }
 }

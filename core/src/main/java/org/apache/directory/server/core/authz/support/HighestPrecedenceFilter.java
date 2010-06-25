@@ -69,7 +69,7 @@ public class HighestPrecedenceFilter implements ACITupleFilter
         // Find the maximum precedence for all tuples.
         for ( ACITuple tuple:tuples )
         {
-            if ( tuple.getPrecedence() > maxPrecedence )
+            if ( ( tuple.getPrecedence() != null ) && (tuple.getPrecedence() > maxPrecedence ) )
             {
                 maxPrecedence = tuple.getPrecedence();
             }
@@ -80,7 +80,7 @@ public class HighestPrecedenceFilter implements ACITupleFilter
         {
             ACITuple tuple = i.next();
             
-            if ( tuple.getPrecedence() != maxPrecedence )
+            if ( ( tuple.getPrecedence() != null ) && ( tuple.getPrecedence() != maxPrecedence ) )
             {
                 i.remove();
             }
