@@ -143,7 +143,7 @@ public class FrameworkSuite extends Suite
         {
             // print out information which partition factory we use
             PartitionFactory partitionFactory = DefaultDirectoryServiceFactory.DEFAULT.getPartitionFactory();
-            System.out.println( "Using partition factory " + partitionFactory.getClass().getSimpleName() );
+            LOG.debug( "Using partition factory {}", partitionFactory.getClass().getSimpleName() );
 
             // Create and initialize the Suite DS
             startDS( getDescription() );

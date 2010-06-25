@@ -230,7 +230,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             {
                 // print out information which partition factory we use
                 PartitionFactory partitionFactory = DefaultDirectoryServiceFactory.DEFAULT.getPartitionFactory();
-                System.out.println( "Using partition factory " + partitionFactory.getClass().getSimpleName() );
+                LOG.debug( "Using partition factory {}", partitionFactory.getClass().getSimpleName() );
             }
 
             // Now run the class
