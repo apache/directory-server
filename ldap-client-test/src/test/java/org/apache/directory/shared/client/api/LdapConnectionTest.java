@@ -47,7 +47,9 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,18 +74,21 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     private static LdapConnection connection;
     
     
-    @BeforeClass
-    public static void bindConnection() throws Exception
+    @Before
+    public void bindConnection() throws Exception
     {
         connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
         connection.bind( ADMIN_DN, "secret" );
     }
     
     
-    @AfterClass
-    public static void unbindConnection() throws Exception
+    @After
+    public void unbindConnection() throws Exception
     {
-        connection.close();
+        if ( connection != null )
+        {
+            connection.close();
+        }
     }
     
     
