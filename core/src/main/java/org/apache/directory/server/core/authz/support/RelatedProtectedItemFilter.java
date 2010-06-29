@@ -23,8 +23,6 @@ package org.apache.directory.server.core.authz.support;
 import java.util.Collection;
 import java.util.Iterator;
 
-import javax.naming.directory.Attribute;
-
 import org.apache.directory.server.core.event.Evaluator;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.subtree.RefinementEvaluator;
@@ -34,6 +32,10 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.AllAttributeValuesItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.AttributeTypeItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.AttributeValueItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.SelfValueItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -142,14 +144,14 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
 
                 return true;
             }
-            else if ( item instanceof ProtectedItem.AllAttributeValues )
+            else if ( item instanceof AllAttributeValuesItem )
             {
                 if ( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
                 {
                     continue;
                 }
 
-                ProtectedItem.AllAttributeValues aav = ( ProtectedItem.AllAttributeValues ) item;
+                AllAttributeValuesItem aav = ( AllAttributeValuesItem ) item;
 
                 for ( Iterator<String> j = aav.iterator(); j.hasNext(); )
                 {
@@ -159,38 +161,53 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                     }
                 }
             }
-            else if ( item instanceof ProtectedItem.AttributeType )
+            else if ( item instanceof AttributeTypeItem )
             {
                 if ( scope != OperationScope.ATTRIBUTE_TYPE )
                 {
                     continue;
                 }
 
-                ProtectedItem.AttributeType at = ( ProtectedItem.AttributeType ) item;
+                AttributeTypeItem at = ( AttributeTypeItem ) item;
                 
                 for ( Iterator<String> j = at.iterator(); j.hasNext(); )
                 {
-                    if ( oid.equals( schemaManager.getAttributeTypeRegistry().getOidByName( j.next() ) ) )
+                    String attrName = j.next();
+                    
+                    if ( oid.equals( schemaManager.getAttributeTypeRegistry().getOidByName( attrName ) ) )
                     {
                         return true;
                     }
                 }
             }
-            else if ( item instanceof ProtectedItem.AttributeValue )
+            else if ( item instanceof AttributeValueItem )
             {
                 if ( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
                 {
                     continue;
                 }
 
-                ProtectedItem.AttributeValue av = ( ProtectedItem.AttributeValue ) item;
-                for ( Iterator<Attribute> j = av.iterator(); j.hasNext(); )
+                AttributeValueItem av = ( AttributeValueItem ) item;
+                
+                for ( Iterator<EntryAttribute> j = av.iterator(); j.hasNext(); )
                 {
-                    Attribute attr = j.next();
-                    String attrOid = schemaManager.getAttributeTypeRegistry().getOidByName( attr.getID() );
-                    AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( attrOid );
+                    EntryAttribute attr = j.next();
                     
-                    if ( oid.equals( attrOid ) && AttributeUtils.containsValue( attr, attrValue, attrType ) )
+                    AttributeType attributeType =  attr.getAttributeType();
+                    String attrOid = null;
+                    
+                    if ( attributeType != null )
+                    {
+                        attrOid = attr.getAttributeType().getOid();
+                    }
+                    else
+                    {
+                        attributeType = schemaManager.getAttributeTypeRegistry().lookup( attr.getId() );
+                        attrOid = attributeType.getOid();
+                        attr.setAttributeType( attributeType );
+                    }
+                    
+                    if ( oid.equals( attrOid ) && attr.contains( attrValue ) )
                     {
                         return true;
                     }
@@ -252,14 +269,14 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                     }
                 }
             }
-            else if ( item instanceof ProtectedItem.SelfValue )
+            else if ( item instanceof SelfValueItem )
             {
                 if ( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE && scope != OperationScope.ATTRIBUTE_TYPE )
                 {
                     continue;
                 }
 
-                ProtectedItem.SelfValue sv = ( ProtectedItem.SelfValue ) item;
+                SelfValueItem sv = ( SelfValueItem ) item;
                 for ( Iterator<String> j = sv.iterator(); j.hasNext(); )
                 {
                     String svItem = j.next();

@@ -76,16 +76,16 @@ public class RefinementEvaluatorTest
     {
         JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
 
-        SchemaManager sm = new DefaultSchemaManager( loader );
+        SchemaManager schemaManager = new DefaultSchemaManager( loader );
 
-        boolean loaded = sm.loadAllEnabled();
+        boolean loaded = schemaManager.loadAllEnabled();
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + LdapExceptionUtils.printErrors( sm.getErrors() ) );
+            fail( "Schema load failed : " + LdapExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
 
-        registries = sm.getRegistries();
+        registries = schemaManager.getRegistries();
 
         OidRegistry registry = registries.getGlobalOidRegistry();
         RefinementLeafEvaluator leafEvaluator = new RefinementLeafEvaluator( registry );

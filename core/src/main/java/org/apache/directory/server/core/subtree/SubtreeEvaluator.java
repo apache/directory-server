@@ -155,11 +155,11 @@ public class SubtreeEvaluator
          * are equal so for chopAfter exclusions we must check for equality
          * as well and reject if the relative names are equal.
          */
-        Iterator list = subtree.getChopBeforeExclusions().iterator();
+        Iterator<DN> list = subtree.getChopBeforeExclusions().iterator();
         
         while ( list.hasNext() )
         {
-            DN chopBefore = ( DN ) list.next();
+            DN chopBefore = list.next();
             
             if ( NamespaceTools.isDescendant( chopBefore, baseRelativeRdn ) )
             {

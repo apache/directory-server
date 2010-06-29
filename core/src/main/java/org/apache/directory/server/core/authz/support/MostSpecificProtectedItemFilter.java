@@ -27,6 +27,10 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.AllAttributeValuesItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.AttributeTypeItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.AttributeValueItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.SelfValueItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -81,8 +85,8 @@ public class MostSpecificProtectedItemFilter implements ACITupleFilter
         {
             for ( ProtectedItem item:tuple.getProtectedItems() )
             {
-                if ( item instanceof ProtectedItem.AttributeType || item instanceof ProtectedItem.AllAttributeValues
-                    || item instanceof ProtectedItem.SelfValue || item instanceof ProtectedItem.AttributeValue )
+                if ( item instanceof AttributeTypeItem || item instanceof AllAttributeValuesItem
+                    || item instanceof SelfValueItem || item instanceof AttributeValueItem )
                 {
                     filteredTuples.add( tuple );
                     break;

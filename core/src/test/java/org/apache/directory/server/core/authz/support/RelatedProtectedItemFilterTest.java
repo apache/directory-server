@@ -29,11 +29,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.naming.directory.Attribute;
-
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.event.ExpressionEvaluator;
 import org.apache.directory.server.core.subtree.RefinementEvaluator;
 import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
@@ -43,12 +40,16 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.AllAttributeValuesItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.AttributeTypeItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.AttributeValueItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.SelfValueItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.DefaultEntryAttribute;
-import org.apache.directory.shared.ldap.entry.StringValue;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
@@ -122,18 +123,6 @@ public class RelatedProtectedItemFilterTest
     }
 
     
-    private Set<Attribute> convert( Collection<EntryAttribute> attributes )
-    {
-        Set<Attribute> jndiAttributes = new HashSet<Attribute>();
-        
-        for ( EntryAttribute attribute:attributes )
-        {
-            jndiAttributes.add( ServerEntryUtils.toBasicAttribute( attribute ) );
-        }
-        
-        return jndiAttributes;
-    }
-
     @Test 
     public void testZeroTuple() throws Exception
     {
@@ -189,13 +178,13 @@ public class RelatedProtectedItemFilterTest
     {
         Set<String> attrTypes = new HashSet<String>();
         attrTypes.add( "cn" );
-        Collection<ACITuple> tuples = getTuples( new ProtectedItem.AllAttributeValues( attrTypes ) );
+        Collection<ACITuple> tuples = getTuples( new AllAttributeValuesItem( attrTypes ) );
 
         // Test wrong scope
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
             "cn", null, null, null, null ).size() );
 
-        tuples = getTuples( new ProtectedItem.AllAttributeValues( attrTypes ) );
+        tuples = getTuples( new AllAttributeValuesItem( attrTypes ) );
 
         assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME, null,
             null, null, "cn", null, null, null, null ).size() );
@@ -210,13 +199,13 @@ public class RelatedProtectedItemFilterTest
     {
         Set<String> attrTypes = new HashSet<String>();
         attrTypes.add( "cn" );
-        Collection<ACITuple> tuples = getTuples( new ProtectedItem.AttributeType( attrTypes ) );
+        Collection<ACITuple> tuples = getTuples( new AttributeTypeItem( attrTypes ) );
 
         // Test wrong scope
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
             "cn", null, null, null, null ).size() );
 
-        tuples = getTuples( new ProtectedItem.AttributeType( attrTypes ) );
+        tuples = getTuples( new AttributeTypeItem( attrTypes ) );
 
         assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
             null, null, "cn", null, null, null, null ).size() );
@@ -231,16 +220,16 @@ public class RelatedProtectedItemFilterTest
     {
         Set<EntryAttribute> attributes = new HashSet<EntryAttribute>();
         attributes.add( new DefaultEntryAttribute( "cn", CN_AT, "valueA" ) );
-        Collection<ACITuple> tuples = getTuples( new ProtectedItem.AttributeValue( convert( attributes ) ) );
+        Collection<ACITuple> tuples = getTuples( new AttributeValueItem( attributes ) );
 
         // Test wrong scope
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
             "cn", null, null, null, null ).size() );
-        tuples = getTuples( new ProtectedItem.AttributeValue( convert( attributes )  ) );
+        tuples = getTuples( new AttributeValueItem( attributes ) );
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
             null, null, "cn", null, null, null, null ).size() );
 
-        tuples = getTuples( new ProtectedItem.AttributeValue( convert( attributes )  ) );
+        tuples = getTuples( new AttributeValueItem( attributes ) );
 
         assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
             null, null, null, "cn", new StringValue( "valueA" ), null, null, null ).size() );
@@ -248,7 +237,7 @@ public class RelatedProtectedItemFilterTest
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
             null, null, null, "cn", new StringValue( "valueB" ), null, null, null ).size() );
 
-        tuples = getTuples( new ProtectedItem.AttributeValue( convert( attributes )  ) );
+        tuples = getTuples( new AttributeValueItem( attributes ) );
 
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
             null, null, null, "sn", new StringValue( "valueA" ), null, null, null ).size() );
@@ -345,7 +334,7 @@ public class RelatedProtectedItemFilterTest
     {
         Set<String> attrTypes = new HashSet<String>();
         attrTypes.add( "cn" );
-        Collection<ACITuple> tuples = getTuples( new ProtectedItem.SelfValue( attrTypes ) );
+        Collection<ACITuple> tuples = getTuples( new SelfValueItem( attrTypes ) );
 
         Entry entry = new DefaultEntry( schemaManager, USER_NAME );
         entry.put( "cn", USER_NAME.getNormName() );
@@ -354,7 +343,7 @@ public class RelatedProtectedItemFilterTest
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
             "cn", null, entry, null, null ).size() );
 
-        tuples = getTuples( new ProtectedItem.SelfValue( attrTypes ) );
+        tuples = getTuples( new SelfValueItem( attrTypes ) );
 
         assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
             null, null, null, "cn", null, entry, null, null ).size() );
@@ -363,7 +352,7 @@ public class RelatedProtectedItemFilterTest
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
             null, null, null, "cn", null, entry, null, null ).size() );
 
-        tuples = getTuples( new ProtectedItem.SelfValue( attrTypes ) );
+        tuples = getTuples( new SelfValueItem( attrTypes ) );
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
             null, null, null, "sn", null, entry, null, null ).size() );
     }

@@ -20,6 +20,9 @@
 package org.apache.directory.server.core.authz.support;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,20 +30,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.directory.Attribute;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-
 import org.apache.directory.junit.tools.Concurrent;
 import org.apache.directory.junit.tools.ConcurrentJunitRunner;
-import org.apache.directory.server.core.authz.support.MostSpecificProtectedItemFilter;
-import org.apache.directory.server.core.authz.support.OperationScope;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
+import org.apache.directory.shared.ldap.aci.protectedItem.AllAttributeValuesItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.AttributeTypeItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.AttributeValueItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.SelfValueItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,8 +58,8 @@ public class MostSpecificProtectedItemFilterTest
 {
     private static final Set<String> EMPTY_STRING_COLLECTION = Collections.unmodifiableSet( new HashSet<String>() );
 
-    private static final Set<Attribute> EMPTY_ATTRIBUTE_COLLECTION = Collections
-        .unmodifiableSet( new HashSet<Attribute>() );
+    private static final Set<EntryAttribute> EMPTY_ATTRIBUTE_COLLECTION = Collections
+        .unmodifiableSet( new HashSet<EntryAttribute>() );
 
     private static final Collection<UserClass> EMPTY_USER_CLASS_COLLECTION = Collections
         .unmodifiableCollection( new ArrayList<UserClass>() );
@@ -88,10 +89,10 @@ public class MostSpecificProtectedItemFilterTest
         Collection<ProtectedItem> allUserAttributeTypes = new ArrayList<ProtectedItem>();
         Collection<ProtectedItem> allUserAttributeTypesAndValues = new ArrayList<ProtectedItem>();
 
-        attributeType.add( new ProtectedItem.AttributeType( EMPTY_STRING_COLLECTION ) );
-        allAttributeValues.add( new ProtectedItem.AllAttributeValues( EMPTY_STRING_COLLECTION ) );
-        selfValue.add( new ProtectedItem.SelfValue( EMPTY_STRING_COLLECTION ) );
-        attributeValue.add( new ProtectedItem.AttributeValue( EMPTY_ATTRIBUTE_COLLECTION ) );
+        attributeType.add( new AttributeTypeItem( EMPTY_STRING_COLLECTION ) );
+        allAttributeValues.add( new AllAttributeValuesItem( EMPTY_STRING_COLLECTION ) );
+        selfValue.add( new SelfValueItem( EMPTY_STRING_COLLECTION ) );
+        attributeValue.add( new AttributeValueItem( EMPTY_ATTRIBUTE_COLLECTION ) );
         rangeOfValues.add( new ProtectedItem.RangeOfValues( new PresenceNode( "objectClass" ) ) );
         allUserAttributeTypes.add( ProtectedItem.ALL_USER_ATTRIBUTE_TYPES );
         allUserAttributeTypesAndValues.add( ProtectedItem.ALL_USER_ATTRIBUTE_TYPES_AND_VALUES );
