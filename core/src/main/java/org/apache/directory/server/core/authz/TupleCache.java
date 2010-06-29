@@ -96,7 +96,7 @@ public class TupleCache
         SchemaManager schemaManager = session.getDirectoryService().getSchemaManager();
         this.nexus = session.getDirectoryService().getPartitionNexus();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
-        aciParser = new ACIItemParser( ncn, schemaManager.getNormalizerMapping() );
+        aciParser = new ACIItemParser( ncn, schemaManager );
         prescriptiveAciAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.PRESCRIPTIVE_ACI_AT );
         initialize( session );
     }
