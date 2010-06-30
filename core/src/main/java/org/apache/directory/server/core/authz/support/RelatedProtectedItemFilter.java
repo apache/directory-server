@@ -35,6 +35,7 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.AllAttributeValuesItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.AttributeTypeItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.AttributeValueItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.ClassesItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.SelfValueItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -214,10 +215,11 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                     }
                 }
             }
-            else if ( item instanceof ProtectedItem.Classes )
+            else if ( item instanceof ClassesItem )
             {
-                ProtectedItem.Classes c = ( ProtectedItem.Classes ) item;
-                if ( refinementEvaluator.evaluate( c.getClasses(), entry.get( SchemaConstants.OBJECT_CLASS_AT ) ) )
+                ClassesItem refinement = (ClassesItem ) item;
+                
+                if ( refinementEvaluator.evaluate( refinement.getClasses(), entry.get( SchemaConstants.OBJECT_CLASS_AT ) ) )
                 {
                     return true;
                 }
