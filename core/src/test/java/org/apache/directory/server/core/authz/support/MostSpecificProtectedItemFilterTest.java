@@ -43,6 +43,7 @@ import org.apache.directory.shared.ldap.aci.protectedItem.SelfValueItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -56,7 +57,7 @@ import org.junit.runner.RunWith;
 @Concurrent()
 public class MostSpecificProtectedItemFilterTest
 {
-    private static final Set<String> EMPTY_STRING_COLLECTION = Collections.unmodifiableSet( new HashSet<String>() );
+    private static final Set<AttributeType> EMPTY_STRING_COLLECTION = Collections.unmodifiableSet( new HashSet<AttributeType>() );
 
     private static final Set<EntryAttribute> EMPTY_ATTRIBUTE_COLLECTION = Collections
         .unmodifiableSet( new HashSet<EntryAttribute>() );

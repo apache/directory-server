@@ -176,8 +176,8 @@ public class RelatedProtectedItemFilterTest
     @Test 
     public void testAllAttributeValues() throws Exception
     {
-        Set<String> attrTypes = new HashSet<String>();
-        attrTypes.add( "cn" );
+        Set<AttributeType> attrTypes = new HashSet<AttributeType>();
+        attrTypes.add( CN_AT );
         Collection<ACITuple> tuples = getTuples( new AllAttributeValuesItem( attrTypes ) );
 
         // Test wrong scope
@@ -197,8 +197,8 @@ public class RelatedProtectedItemFilterTest
     @Test 
     public void testAttributeType() throws Exception
     {
-        Set<String> attrTypes = new HashSet<String>();
-        attrTypes.add( "cn" );
+        Set<AttributeType> attrTypes = new HashSet<AttributeType>();
+        attrTypes.add( CN_AT );
         Collection<ACITuple> tuples = getTuples( new AttributeTypeItem( attrTypes ) );
 
         // Test wrong scope
@@ -332,8 +332,8 @@ public class RelatedProtectedItemFilterTest
     @Test 
     public void testSelfValue() throws Exception
     {
-        Set<String> attrTypes = new HashSet<String>();
-        attrTypes.add( "cn" );
+        Set<AttributeType> attrTypes = new HashSet<AttributeType>();
+        attrTypes.add( CN_AT );
         Collection<ACITuple> tuples = getTuples( new SelfValueItem( attrTypes ) );
 
         Entry entry = new DefaultEntry( schemaManager, USER_NAME );

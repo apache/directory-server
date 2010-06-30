@@ -46,7 +46,6 @@ import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
 /**
@@ -153,9 +152,11 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
 
                 AllAttributeValuesItem aav = ( AllAttributeValuesItem ) item;
 
-                for ( Iterator<String> j = aav.iterator(); j.hasNext(); )
+                for ( Iterator<AttributeType> iterator = aav.iterator(); iterator.hasNext(); )
                 {
-                    if ( oid.equals( schemaManager.getAttributeTypeRegistry().getOidByName( j.next() ) ) )
+                    AttributeType attributeType = iterator.next();
+                    
+                    if ( oid.equals( attributeType.getOid() ) )
                     {
                         return true;
                     }
@@ -170,11 +171,11 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
 
                 AttributeTypeItem at = ( AttributeTypeItem ) item;
                 
-                for ( Iterator<String> j = at.iterator(); j.hasNext(); )
+                for ( Iterator<AttributeType> iterator = at.iterator(); iterator.hasNext(); )
                 {
-                    String attrName = j.next();
+                    AttributeType attributeType = iterator.next();
                     
-                    if ( oid.equals( schemaManager.getAttributeTypeRegistry().getOidByName( attrName ) ) )
+                    if ( oid.equals( attributeType.getOid() ) )
                     {
                         return true;
                     }
@@ -277,11 +278,12 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 }
 
                 SelfValueItem sv = ( SelfValueItem ) item;
-                for ( Iterator<String> j = sv.iterator(); j.hasNext(); )
+                
+                for ( Iterator<AttributeType> iterator = sv.iterator(); iterator.hasNext(); )
                 {
-                    String svItem = j.next();
+                    AttributeType attributeType = iterator.next();
                     
-                    if ( oid.equals( schemaManager.getAttributeTypeRegistry().getOidByName( svItem ) ) )
+                    if ( oid.equals( attributeType.getOid() ) )
                     {
                         EntryAttribute attr = entry.get( oid );
                         
