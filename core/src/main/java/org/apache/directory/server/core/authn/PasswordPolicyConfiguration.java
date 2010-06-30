@@ -18,7 +18,7 @@
  *
  */
 
-package org.apache.directory.server.core.kerberos;
+package org.apache.directory.server.core.authn;
 
 
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
