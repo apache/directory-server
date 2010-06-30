@@ -39,6 +39,7 @@ import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.aci.protectedItem.AllAttributeValuesItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.AttributeTypeItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.AttributeValueItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.RangeOfValuesItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.SelfValueItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -94,7 +95,7 @@ public class MostSpecificProtectedItemFilterTest
         allAttributeValues.add( new AllAttributeValuesItem( EMPTY_STRING_COLLECTION ) );
         selfValue.add( new SelfValueItem( EMPTY_STRING_COLLECTION ) );
         attributeValue.add( new AttributeValueItem( EMPTY_ATTRIBUTE_COLLECTION ) );
-        rangeOfValues.add( new ProtectedItem.RangeOfValues( new PresenceNode( "objectClass" ) ) );
+        rangeOfValues.add( new RangeOfValuesItem( new PresenceNode( "objectClass" ) ) );
         allUserAttributeTypes.add( ProtectedItem.ALL_USER_ATTRIBUTE_TYPES );
         allUserAttributeTypesAndValues.add( ProtectedItem.ALL_USER_ATTRIBUTE_TYPES_AND_VALUES );
 
