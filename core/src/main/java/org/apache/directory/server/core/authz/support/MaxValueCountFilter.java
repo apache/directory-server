@@ -28,6 +28,7 @@ import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.MaxValueCountElem;
+import org.apache.directory.shared.ldap.aci.protectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -85,9 +86,9 @@ public class MaxValueCountFilter implements ACITupleFilter
             {
                 ProtectedItem item = j.next();
                 
-                if ( item instanceof ProtectedItem.MaxValueCount )
+                if ( item instanceof MaxValueCountItem )
                 {
-                    ProtectedItem.MaxValueCount mvc = ( ProtectedItem.MaxValueCount ) item;
+                    MaxValueCountItem mvc = ( MaxValueCountItem ) item;
                     
                     if ( isRemovable( mvc, attrId, entryView ) )
                     {
@@ -102,7 +103,7 @@ public class MaxValueCountFilter implements ACITupleFilter
     }
 
 
-    private boolean isRemovable( ProtectedItem.MaxValueCount mvc, String attrId, Entry entryView ) throws LdapException
+    private boolean isRemovable( MaxValueCountItem mvc, String attrId, Entry entryView ) throws LdapException
     {
         for ( Iterator<MaxValueCountElem> k = mvc.iterator(); k.hasNext(); )
         {

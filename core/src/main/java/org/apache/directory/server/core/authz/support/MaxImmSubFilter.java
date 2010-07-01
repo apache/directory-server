@@ -41,6 +41,7 @@ import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.MaxImmSubItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -120,14 +121,15 @@ public class MaxImmSubFilter implements ACITupleFilter
 
             for ( ProtectedItem item : tuple.getProtectedItems() )
             {
-                if ( item instanceof ProtectedItem.MaxImmSub )
+                if ( item instanceof MaxImmSubItem )
                 {
                     if ( immSubCount < 0 )
                     {
                         immSubCount = getImmSubCount( opContext, entryName );
                     }
 
-                    ProtectedItem.MaxImmSub mis = ( ProtectedItem.MaxImmSub ) item;
+                    MaxImmSubItem mis = ( MaxImmSubItem ) item;
+                    
                     if ( immSubCount >= mis.getValue() )
                     {
                         i.remove();

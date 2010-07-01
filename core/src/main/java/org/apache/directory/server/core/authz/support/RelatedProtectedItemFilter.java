@@ -34,9 +34,12 @@ import org.apache.directory.shared.ldap.aci.protectedItem.AllAttributeValuesItem
 import org.apache.directory.shared.ldap.aci.protectedItem.AttributeTypeItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.AttributeValueItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.ClassesItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.MaxImmSubItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.MaxValueCountElem;
+import org.apache.directory.shared.ldap.aci.protectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.RangeOfValuesItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByElem;
+import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.SelfValueItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -225,18 +228,19 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                     return true;
                 }
             }
-            else if ( item instanceof ProtectedItem.MaxImmSub )
+            else if ( item instanceof MaxImmSubItem )
             {
                 return true;
             }
-            else if ( item instanceof ProtectedItem.MaxValueCount )
+            else if ( item instanceof MaxValueCountItem )
             {
                 if ( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
                 {
                     continue;
                 }
 
-                ProtectedItem.MaxValueCount mvc = ( ProtectedItem.MaxValueCount ) item;
+                MaxValueCountItem mvc = ( MaxValueCountItem ) item;
+                
                 for ( Iterator<MaxValueCountElem> j = mvc.iterator(); j.hasNext(); )
                 {
                     MaxValueCountElem mvcItem = j.next();
@@ -256,14 +260,15 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                     return true;
                 }
             }
-            else if ( item instanceof ProtectedItem.RestrictedBy )
+            else if ( item instanceof RestrictedByItem )
             {
                 if ( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
                 {
                     continue;
                 }
 
-                ProtectedItem.RestrictedBy rb = ( ProtectedItem.RestrictedBy ) item;
+                RestrictedByItem rb = ( RestrictedByItem ) item;
+                
                 for ( Iterator<RestrictedByElem> j = rb.iterator(); j.hasNext(); )
                 {
                     RestrictedByElem rbItem = j.next();

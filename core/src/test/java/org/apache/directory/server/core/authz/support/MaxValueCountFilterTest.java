@@ -36,6 +36,7 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.aci.protectedItem.MaxValueCountElem;
+import org.apache.directory.shared.ldap.aci.protectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -72,7 +73,7 @@ public class MaxValueCountFilterTest
     {
         Set<MaxValueCountElem> mvcItems = new HashSet<MaxValueCountElem>();
         mvcItems.add( new MaxValueCountElem( "cn", 2 ) );
-        PROTECTED_ITEMS.add( new ProtectedItem.MaxValueCount( mvcItems ) );
+        PROTECTED_ITEMS.add( new MaxValueCountItem( mvcItems ) );
     }
 
 

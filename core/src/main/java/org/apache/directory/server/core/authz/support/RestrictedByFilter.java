@@ -28,6 +28,7 @@ import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByElem;
+import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -39,7 +40,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 /**
  * An {@link ACITupleFilter} that discards all tuples that doesn't satisfy
- * {@link org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedBy} constraint if available. (18.8.3.3, X.501)
+ * {@link org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem} constraint if available. (18.8.3.3, X.501)
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -95,9 +96,9 @@ public class RestrictedByFilter implements ACITupleFilter
     {
         for ( ProtectedItem item : tuple.getProtectedItems() )
         {
-            if ( item instanceof ProtectedItem.RestrictedBy )
+            if ( item instanceof RestrictedByItem )
             {
-                ProtectedItem.RestrictedBy rb = ( ProtectedItem.RestrictedBy ) item;
+                RestrictedByItem rb = ( RestrictedByItem ) item;
             
                 for ( Iterator<RestrictedByElem> k = rb.iterator(); k.hasNext(); )
                 {

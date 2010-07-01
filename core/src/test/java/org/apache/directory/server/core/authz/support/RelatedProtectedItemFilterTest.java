@@ -41,8 +41,11 @@ import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.aci.protectedItem.AllAttributeValuesItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.AttributeTypeItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.AttributeValueItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.MaxImmSubItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.MaxValueCountElem;
+import org.apache.directory.shared.ldap.aci.protectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByElem;
+import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.SelfValueItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
@@ -253,7 +256,7 @@ public class RelatedProtectedItemFilterTest
     @Test 
     public void testMaxImmSub() throws Exception
     {
-        Collection<ACITuple> tuples = getTuples( new ProtectedItem.MaxImmSub( 2 ) );
+        Collection<ACITuple> tuples = getTuples( new MaxImmSubItem( 2 ) );
 
         // Should always retain tuples.
         assertEquals( 1, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
@@ -266,16 +269,16 @@ public class RelatedProtectedItemFilterTest
     {
         Set<MaxValueCountElem> mvcItems = new HashSet<MaxValueCountElem>();
         mvcItems.add( new MaxValueCountElem( "cn", 3 ) );
-        Collection<ACITuple> tuples = getTuples( new ProtectedItem.MaxValueCount( mvcItems ) );
+        Collection<ACITuple> tuples = getTuples( new MaxValueCountItem( mvcItems ) );
 
         // Test wrong scope
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
             "cn", null, null, null, null ).size() );
-        tuples = getTuples( new ProtectedItem.MaxValueCount( mvcItems ) );
+        tuples = getTuples( new MaxValueCountItem( mvcItems ) );
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
             null, null, "cn", null, null, null, null ).size() );
 
-        tuples = getTuples( new ProtectedItem.MaxValueCount( mvcItems ) );
+        tuples = getTuples( new MaxValueCountItem( mvcItems ) );
 
         assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
             null, null, null, "cn", null, null, null, null ).size() );
@@ -310,16 +313,16 @@ public class RelatedProtectedItemFilterTest
     {
         Set<RestrictedByElem> rbItems = new HashSet<RestrictedByElem>();
         rbItems.add( new RestrictedByElem( "cn", "sn" ) );
-        Collection<ACITuple> tuples = getTuples( new ProtectedItem.RestrictedBy( rbItems ) );
+        Collection<ACITuple> tuples = getTuples( new RestrictedByItem( rbItems ) );
 
         // Test wrong scope
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
             "cn", null, null, null, null ).size() );
-        tuples = getTuples( new ProtectedItem.RestrictedBy( rbItems ) );
+        tuples = getTuples( new RestrictedByItem( rbItems ) );
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
             null, null, "cn", null, null, null, null ).size() );
 
-        tuples = getTuples( new ProtectedItem.RestrictedBy( rbItems ) );
+        tuples = getTuples( new RestrictedByItem( rbItems ) );
 
         assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
             null, null, null, "cn", null, null, null, null ).size() );

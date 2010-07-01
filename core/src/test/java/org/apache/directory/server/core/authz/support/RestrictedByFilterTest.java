@@ -35,7 +35,9 @@ import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
+import org.apache.directory.shared.ldap.aci.protectedItem.MaxImmSubItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByElem;
+import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -71,7 +73,7 @@ public class RestrictedByFilterTest
     {
         Set<RestrictedByElem> mvcItems = new HashSet<RestrictedByElem>();
         mvcItems.add( new RestrictedByElem( "sn", "cn" ) );
-        PROTECTED_ITEMS.add( new ProtectedItem.RestrictedBy( mvcItems ) );
+        PROTECTED_ITEMS.add( new RestrictedByItem( mvcItems ) );
     }
 
 
@@ -94,7 +96,7 @@ public class RestrictedByFilterTest
         }
 
         DN entryName = new DN( "ou=test, ou=system" );
-        PROTECTED_ITEMS.add( new ProtectedItem.MaxImmSub( 2 ) );
+        PROTECTED_ITEMS.add( new MaxImmSubItem( 2 ) );
         ENTRY = new DefaultEntry( schemaManager, entryName );
 
         ENTRY.put( "cn", "1", "2" );
