@@ -43,6 +43,7 @@ import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.loader.ldif.JarLdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
@@ -69,16 +70,14 @@ public class RestrictedByFilterTest
     private static final Collection<ProtectedItem> PROTECTED_ITEMS = new ArrayList<ProtectedItem>();
     private static Entry ENTRY;
 
-    static
-    {
-        Set<RestrictedByElem> mvcItems = new HashSet<RestrictedByElem>();
-        mvcItems.add( new RestrictedByElem( "sn", "cn" ) );
-        PROTECTED_ITEMS.add( new RestrictedByItem( mvcItems ) );
-    }
-
-
     /** A reference to the schemaManager */
     private static SchemaManager schemaManager;
+    
+    /** The CN attribute Type */
+    private static AttributeType CN_AT;
+
+    /** The SN attribute Type */
+    private static AttributeType SN_AT;
 
     
     @BeforeClass 
@@ -100,6 +99,12 @@ public class RestrictedByFilterTest
         ENTRY = new DefaultEntry( schemaManager, entryName );
 
         ENTRY.put( "cn", "1", "2" );
+        CN_AT = schemaManager.lookupAttributeTypeRegistry( "cn" );
+        SN_AT = schemaManager.lookupAttributeTypeRegistry( "sn" );
+
+        Set<RestrictedByElem> mvcItems = new HashSet<RestrictedByElem>();
+        mvcItems.add( new RestrictedByElem( SN_AT, CN_AT ) );
+        PROTECTED_ITEMS.add( new RestrictedByItem( mvcItems ) );
     }
 
 
@@ -140,7 +145,7 @@ public class RestrictedByFilterTest
         tuples = Collections.unmodifiableCollection( tuples );
 
         assertEquals( tuples, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
-            null, null, null, "testAttr", null, ENTRY, null, null ) );
+            null, null, null, SN_AT, null, ENTRY, null, null ) );
     }
 
 
@@ -152,12 +157,12 @@ public class RestrictedByFilterTest
         tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, MO_EMPTY_SET, true, 0 ) );
 
         assertEquals( 1, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
-            null, null, "sn", new StringValue( "1" ), ENTRY, null, null ).size() );
+            null, null, SN_AT, new StringValue( "1" ), ENTRY, null, null ).size() );
 
         assertEquals( 1, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
-            null, null, "sn", new StringValue( "2" ), ENTRY, null, null ).size() );
+            null, null, SN_AT, new StringValue( "2" ), ENTRY, null, null ).size() );
 
         assertEquals( 0, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
-            null, null, "sn", new StringValue( "3" ), ENTRY, null, null ).size() );
+            null, null, SN_AT, new StringValue( "3" ), ENTRY, null, null ).size() );
     }
 }

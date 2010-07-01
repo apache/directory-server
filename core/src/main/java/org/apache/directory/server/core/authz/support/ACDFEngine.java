@@ -48,6 +48,7 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 
@@ -115,7 +116,7 @@ public class ACDFEngine
      * @param userGroupNames the collection of the group DNs the user who is trying to access the resource belongs
      * @param username the DN of the user who is trying to access the resource
      * @param entryName the DN of the entry the user is trying to access
-     * @param attrId the attribute type of the attribute the user is trying to access.
+     * @param attributeType the attribute type of the attribute the user is trying to access.
      *               <tt>null</tt> if the user is not accessing a specific attribute type.
      * @param attrValue the attribute value of the attribute the user is trying to access.
      *                  <tt>null</tt> if the user is not accessing a specific attribute value.
@@ -131,7 +132,7 @@ public class ACDFEngine
         DN username,
         AuthenticationLevel authenticationLevel, 
         DN entryName, 
-        String attrId, 
+        AttributeType attributeType, 
         Value<?> attrValue, 
         Collection<MicroOperation> microOperations, 
         Collection<ACITuple> aciTuples, 
@@ -139,7 +140,7 @@ public class ACDFEngine
         Entry entryView ) throws LdapException
     {
         if ( !hasPermission( schemaManager, opContext, userGroupNames, username, authenticationLevel, entryName, 
-            attrId, attrValue, microOperations, aciTuples, entry, entryView ) )
+            attributeType, attrValue, microOperations, aciTuples, entry, entryView ) )
         {
             throw new LdapNoPermissionException();
         }
@@ -189,7 +190,7 @@ public class ACDFEngine
         DN userName,
         AuthenticationLevel authenticationLevel, 
         DN entryName, 
-        String attrId, 
+        AttributeType attributeType, 
         Value<?> attrValue, 
         Collection<MicroOperation> microOperations, 
         Collection<ACITuple> aciTuples, 
@@ -206,7 +207,7 @@ public class ACDFEngine
         // Determine the scope of the requested operation.
         OperationScope scope;
         
-        if ( attrId == null )
+        if ( attributeType == null )
         {
             scope = OperationScope.ENTRY;
         }
@@ -235,7 +236,7 @@ public class ACDFEngine
                 userEntry,
                 authenticationLevel, 
                 entryName, 
-                attrId, 
+                attributeType, 
                 attrValue, 
                 entry, 
                 microOperations, 

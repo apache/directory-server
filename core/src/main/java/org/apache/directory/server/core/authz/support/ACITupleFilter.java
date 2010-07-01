@@ -30,6 +30,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -54,7 +55,7 @@ public interface ACITupleFilter
      * @param userEntry the {@link Entry} of the current user entry in the DIT
      * @param authenticationLevel the level of authentication of the current user
      * @param entryName the {@link DN} of the entry the current user accesses
-     * @param attrId the attribute ID the current user accesses
+     * @param attributeType the attribute the current user accesses
      * @param attrValue the value of the attribute the current user accesses
      * @param entry the {@link Entry} of the entry the current user accesses
      * @param microOperations the set of {@link MicroOperation}s the current user will perform
@@ -72,7 +73,7 @@ public interface ACITupleFilter
             Entry userEntry,
             AuthenticationLevel authenticationLevel, 
             DN entryName, 
-            String attrId,
+            AttributeType attributeType,
             Value<?> attrValue, 
             Entry entry, 
             Collection<MicroOperation> microOperations,

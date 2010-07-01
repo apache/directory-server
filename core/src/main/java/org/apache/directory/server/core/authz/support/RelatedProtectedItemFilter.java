@@ -85,7 +85,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
             Entry userEntry,
             AuthenticationLevel authenticationLevel, 
             DN entryName, 
-            String attrId,
+            AttributeType attributeType,
             Value<?> attrValue, 
             Entry entry, 
             Collection<MicroOperation> microOperations,
@@ -101,7 +101,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
         {
             ACITuple tuple = i.next();
             
-            if ( !isRelated( tuple, scope, userName, entryName, attrId, attrValue, entry ) )
+            if ( !isRelated( tuple, scope, userName, entryName, attributeType, attrValue, entry ) )
             {
                 i.remove();
             }
@@ -111,14 +111,14 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
     }
 
 
-    private boolean isRelated( ACITuple tuple, OperationScope scope, DN userName, DN entryName, String attrId,
+    private boolean isRelated( ACITuple tuple, OperationScope scope, DN userName, DN entryName, AttributeType attributeType,
                                Value<?> attrValue, Entry entry ) throws LdapException, InternalError
     {
         String oid = null;
         
-        if ( attrId != null )
+        if ( attributeType != null )
         {
-            oid = schemaManager.getAttributeTypeRegistry().getOidByName( attrId );
+            oid = attributeType.getOid();
         }
         
         for ( ProtectedItem item : tuple.getProtectedItems() )
@@ -159,9 +159,9 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
 
                 for ( Iterator<AttributeType> iterator = aav.iterator(); iterator.hasNext(); )
                 {
-                    AttributeType attributeType = iterator.next();
+                    AttributeType attr = iterator.next();
                     
-                    if ( oid.equals( attributeType.getOid() ) )
+                    if ( oid.equals( attr.getOid() ) )
                     {
                         return true;
                     }
@@ -178,9 +178,9 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 
                 for ( Iterator<AttributeType> iterator = at.iterator(); iterator.hasNext(); )
                 {
-                    AttributeType attributeType = iterator.next();
+                    AttributeType attr = iterator.next();
                     
-                    if ( oid.equals( attributeType.getOid() ) )
+                    if ( oid.equals( attr.getOid() ) )
                     {
                         return true;
                     }
@@ -197,23 +197,23 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 
                 for ( Iterator<EntryAttribute> j = av.iterator(); j.hasNext(); )
                 {
-                    EntryAttribute attr = j.next();
+                    EntryAttribute entryAttribute = j.next();
                     
-                    AttributeType attributeType =  attr.getAttributeType();
+                    AttributeType attr =  entryAttribute.getAttributeType();
                     String attrOid = null;
                     
-                    if ( attributeType != null )
+                    if ( attr != null )
                     {
-                        attrOid = attr.getAttributeType().getOid();
+                        attrOid = entryAttribute.getAttributeType().getOid();
                     }
                     else
                     {
-                        attributeType = schemaManager.getAttributeTypeRegistry().lookup( attr.getId() );
-                        attrOid = attributeType.getOid();
-                        attr.setAttributeType( attributeType );
+                        attr = schemaManager.getAttributeTypeRegistry().lookup( entryAttribute.getId() );
+                        attrOid = attr.getOid();
+                        entryAttribute.setAttributeType( attr );
                     }
                     
-                    if ( oid.equals( attrOid ) && attr.contains( attrValue ) )
+                    if ( oid.equals( attrOid ) && entryAttribute.contains( attrValue ) )
                     {
                         return true;
                     }
@@ -245,7 +245,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 {
                     MaxValueCountElem mvcItem = j.next();
                     
-                    if ( oid.equals( schemaManager.getAttributeTypeRegistry().getOidByName( mvcItem.getAttributeType() ) ) )
+                    if ( oid.equals( mvcItem.getAttributeType().getOid() ) )
                     {
                         return true;
                     }
@@ -272,7 +272,8 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 for ( Iterator<RestrictedByElem> j = rb.iterator(); j.hasNext(); )
                 {
                     RestrictedByElem rbItem = j.next();
-                    if ( oid.equals( schemaManager.getAttributeTypeRegistry().getOidByName( rbItem.getAttributeType() ) ) )
+                    
+                    if ( oid.equals( rbItem.getAttributeType().getOid() ) )
                     {
                         return true;
                     }
@@ -289,15 +290,15 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 
                 for ( Iterator<AttributeType> iterator = sv.iterator(); iterator.hasNext(); )
                 {
-                    AttributeType attributeType = iterator.next();
+                    AttributeType attr = iterator.next();
                     
-                    if ( oid.equals( attributeType.getOid() ) )
+                    if ( oid.equals( attr.getOid() ) )
                     {
-                        EntryAttribute attr = entry.get( oid );
+                        EntryAttribute entryAttribute = entry.get( oid );
                         
-                        if ( ( attr != null ) && 
-                             ( ( attr.contains( userName.getNormName() ) || 
-                               ( attr.contains( userName.getName() ) ) ) ) )
+                        if ( ( entryAttribute != null ) && 
+                             ( ( entryAttribute.contains( userName.getNormName() ) || 
+                               ( entryAttribute.contains( userName.getName() ) ) ) ) )
                         {
                             return true;
                         }

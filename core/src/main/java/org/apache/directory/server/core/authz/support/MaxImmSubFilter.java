@@ -53,6 +53,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -87,7 +88,7 @@ public class MaxImmSubFilter implements ACITupleFilter
             Entry userEntry, 
             AuthenticationLevel authenticationLevel,
             DN entryName, 
-            String attrId, 
+            AttributeType attributeType, 
             Value<?> attrValue, 
             Entry entry, 
             Collection<MicroOperation> microOperations,

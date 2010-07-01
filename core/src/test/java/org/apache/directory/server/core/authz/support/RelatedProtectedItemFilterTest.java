@@ -93,6 +93,12 @@ public class RelatedProtectedItemFilterTest
     
     /** The CN attribute Type */
     private static AttributeType CN_AT;
+    
+    /** The OU attribute Type */
+    private static AttributeType OU_AT;
+    
+    /** The SN attribute Type */
+    private static AttributeType SN_AT;
 
     
     @BeforeClass 
@@ -123,6 +129,8 @@ public class RelatedProtectedItemFilterTest
         USER_NAMES.add( USER_NAME );
         GROUP_NAMES.add( GROUP_NAME );
         CN_AT = schemaManager.lookupAttributeTypeRegistry( "cn" );
+        OU_AT = schemaManager.lookupAttributeTypeRegistry( "ou" );
+        SN_AT = schemaManager.lookupAttributeTypeRegistry( "sn" );
     }
 
     
@@ -140,7 +148,7 @@ public class RelatedProtectedItemFilterTest
         Collection<ACITuple> tuples = getTuples( ProtectedItem.ENTRY );
 
         assertEquals( 1, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, null, null,
-            AuthenticationLevel.NONE, null, "ou", null, null, null, null ).size() );
+            AuthenticationLevel.NONE, null, OU_AT, null, null, null, null ).size() );
     }
 
 
@@ -151,12 +159,12 @@ public class RelatedProtectedItemFilterTest
 
         // Test wrong scope
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
-            "cn", null, null, null, null ).size() );
+            CN_AT, null, null, null, null ).size() );
 
         tuples = getTuples( ProtectedItem.ALL_USER_ATTRIBUTE_TYPES );
 
         assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
-            null, null, "cn", null, null, null, null ).size() );
+            null, null, CN_AT, null, null, null, null ).size() );
     }
 
 
@@ -167,12 +175,12 @@ public class RelatedProtectedItemFilterTest
 
         // Test wrong scope
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
-            "cn", null, null, null, null ).size() );
+            CN_AT, null, null, null, null ).size() );
 
         tuples = getTuples( ProtectedItem.ALL_USER_ATTRIBUTE_TYPES_AND_VALUES );
 
         assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
-            null, null, "cn", null, null, null, null ).size() );
+            null, null, CN_AT, null, null, null, null ).size() );
     }
 
 
@@ -185,15 +193,15 @@ public class RelatedProtectedItemFilterTest
 
         // Test wrong scope
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
-            "cn", null, null, null, null ).size() );
+            CN_AT, null, null, null, null ).size() );
 
         tuples = getTuples( new AllAttributeValuesItem( attrTypes ) );
 
         assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME, null,
-            null, null, "cn", null, null, null, null ).size() );
+            null, null, CN_AT, null, null, null, null ).size() );
 
         assertEquals( 0, filterB.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME, null,
-            null, null, "sn", null, null, null, null ).size() );
+            null, null, SN_AT, null, null, null, null ).size() );
     }
 
 
@@ -206,15 +214,15 @@ public class RelatedProtectedItemFilterTest
 
         // Test wrong scope
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
-            "cn", null, null, null, null ).size() );
+            CN_AT, null, null, null, null ).size() );
 
         tuples = getTuples( new AttributeTypeItem( attrTypes ) );
 
         assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
-            null, null, "cn", null, null, null, null ).size() );
+            null, null, CN_AT, null, null, null, null ).size() );
 
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
-            null, null, "sn", null, null, null, null ).size() );
+            null, null, SN_AT, null, null, null, null ).size() );
     }
 
 
@@ -227,23 +235,23 @@ public class RelatedProtectedItemFilterTest
 
         // Test wrong scope
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
-            "cn", null, null, null, null ).size() );
+            CN_AT, null, null, null, null ).size() );
         tuples = getTuples( new AttributeValueItem( attributes ) );
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
-            null, null, "cn", null, null, null, null ).size() );
+            null, null, CN_AT, null, null, null, null ).size() );
 
         tuples = getTuples( new AttributeValueItem( attributes ) );
 
         assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, null, "cn", new StringValue( "valueA" ), null, null, null ).size() );
+            null, null, null, CN_AT, new StringValue( "valueA" ), null, null, null ).size() );
 
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, null, "cn", new StringValue( "valueB" ), null, null, null ).size() );
+            null, null, null, CN_AT, new StringValue( "valueB" ), null, null, null ).size() );
 
         tuples = getTuples( new AttributeValueItem( attributes ) );
 
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, null, "sn", new StringValue( "valueA" ), null, null, null ).size() );
+            null, null, null, SN_AT, new StringValue( "valueA" ), null, null, null ).size() );
     }
 
 
@@ -260,7 +268,7 @@ public class RelatedProtectedItemFilterTest
 
         // Should always retain tuples.
         assertEquals( 1, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
-            "cn", null, null, null, null ).size() );
+            CN_AT, null, null, null, null ).size() );
     }
 
 
@@ -268,23 +276,23 @@ public class RelatedProtectedItemFilterTest
     public void testMaxValueCount() throws Exception
     {
         Set<MaxValueCountElem> mvcItems = new HashSet<MaxValueCountElem>();
-        mvcItems.add( new MaxValueCountElem( "cn", 3 ) );
+        mvcItems.add( new MaxValueCountElem( CN_AT, 3 ) );
         Collection<ACITuple> tuples = getTuples( new MaxValueCountItem( mvcItems ) );
 
         // Test wrong scope
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
-            "cn", null, null, null, null ).size() );
+            CN_AT, null, null, null, null ).size() );
         tuples = getTuples( new MaxValueCountItem( mvcItems ) );
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
-            null, null, "cn", null, null, null, null ).size() );
+            null, null, CN_AT, null, null, null, null ).size() );
 
         tuples = getTuples( new MaxValueCountItem( mvcItems ) );
 
         assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, null, "cn", null, null, null, null ).size() );
+            null, null, null, CN_AT, null, null, null, null ).size() );
 
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, null, "sn", null, null, null, null ).size() );
+            null, null, null, SN_AT, null, null, null, null ).size() );
     }
 
 
@@ -312,23 +320,23 @@ public class RelatedProtectedItemFilterTest
     public void testRestrictedBy() throws Exception
     {
         Set<RestrictedByElem> rbItems = new HashSet<RestrictedByElem>();
-        rbItems.add( new RestrictedByElem( "cn", "sn" ) );
+        rbItems.add( new RestrictedByElem( CN_AT, SN_AT ) );
         Collection<ACITuple> tuples = getTuples( new RestrictedByItem( rbItems ) );
 
         // Test wrong scope
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
-            "cn", null, null, null, null ).size() );
+            CN_AT, null, null, null, null ).size() );
         tuples = getTuples( new RestrictedByItem( rbItems ) );
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
-            null, null, "cn", null, null, null, null ).size() );
+            null, null, CN_AT, null, null, null, null ).size() );
 
         tuples = getTuples( new RestrictedByItem( rbItems ) );
 
         assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, null, "cn", null, null, null, null ).size() );
+            null, null, null, CN_AT, null, null, null, null ).size() );
 
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, null, "sn", null, null, null, null ).size() );
+            null, null, null, SN_AT, null, null, null, null ).size() );
     }
 
 
@@ -344,20 +352,20 @@ public class RelatedProtectedItemFilterTest
 
         // Test wrong scope
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
-            "cn", null, entry, null, null ).size() );
+            CN_AT, null, entry, null, null ).size() );
 
         tuples = getTuples( new SelfValueItem( attrTypes ) );
 
         assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, null, "cn", null, entry, null, null ).size() );
+            null, null, null, CN_AT, null, entry, null, null ).size() );
 
         entry.removeAttributes( "cn" );
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, null, "cn", null, entry, null, null ).size() );
+            null, null, null, CN_AT, null, entry, null, null ).size() );
 
         tuples = getTuples( new SelfValueItem( attrTypes ) );
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, null, "sn", null, entry, null, null ).size() );
+            null, null, null, SN_AT, null, entry, null, null ).size() );
     }
 
 

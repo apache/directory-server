@@ -32,6 +32,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -59,7 +60,7 @@ public class MostSpecificUserClassFilter implements ACITupleFilter
             Entry userEntry, 
             AuthenticationLevel authenticationLevel,
             DN entryName, 
-            String attrId, 
+            AttributeType attributeType, 
             Value<?> attrValue, 
             Entry entry, 
             Collection<MicroOperation> microOperations,

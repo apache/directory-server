@@ -471,7 +471,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             for ( Value<?> value : attribute )
             {
                 engine.checkPermission( schemaManager, addContext, userGroups, principalDn, principal
-                    .getAuthenticationLevel(), name, attribute.getUpId(), value, ADD_PERMS, tuples, serverEntry, null );
+                    .getAuthenticationLevel(), name, attribute.getAttributeType(), value, ADD_PERMS, tuples, serverEntry, null );
             }
         }
 
@@ -598,7 +598,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                     {
                         // ... we also need to check if adding the attribute is permitted
                         engine.checkPermission( schemaManager, modifyContext, userGroups, principalDn, principal
-                            .getAuthenticationLevel(), dn, attr.getId(), null, perms, tuples, entry, null );
+                            .getAuthenticationLevel(), dn, attr.getAttributeType(), null, perms, tuples, entry, null );
                     }
 
                     break;
@@ -614,7 +614,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                         {
                             // ... we also need to check if removing the attribute at all is permitted
                             engine.checkPermission( schemaManager, modifyContext, userGroups, principalDn, principal
-                                .getAuthenticationLevel(), dn, attr.getId(), null, perms, tuples, entry, null );
+                                .getAuthenticationLevel(), dn, attr.getAttributeType(), null, perms, tuples, entry, null );
                         }
                     }
 
@@ -643,7 +643,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             for ( Value<?> value : attr )
             {
                 engine.checkPermission( schemaManager, modifyContext, userGroups, principalDn, principal
-                    .getAuthenticationLevel(), dn, attr.getId(), value, perms, tuples, entry, entryView );
+                    .getAuthenticationLevel(), dn, attr.getAttributeType(), value, perms, tuples, entry, entryView );
             }
         }
 
@@ -743,7 +743,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             for ( Value<?> value : attribute )
             {
                 engine.checkPermission( schemaManager, lookupContext, userGroups, userName, principal
-                    .getAuthenticationLevel(), lookupContext.getDn(), attribute.getUpId(), value, READ_PERMS, tuples,
+                    .getAuthenticationLevel(), lookupContext.getDn(), attribute.getAttributeType(), value, READ_PERMS, tuples,
                     entry, null );
             }
         }
@@ -1053,8 +1053,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         engine.checkPermission( schemaManager, compareContext, userGroups, principalDn, principal.getAuthenticationLevel(),
             dn, null, null, READ_PERMS, tuples, entry, null );
+        
+        AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
         engine.checkPermission( schemaManager, compareContext, userGroups, principalDn, principal.getAuthenticationLevel(),
-            dn, oid, value, COMPARE_PERMS, tuples, entry, null );
+            dn, attributeType, value, COMPARE_PERMS, tuples, entry, null );
 
         return next.compare( compareContext );
     }
@@ -1100,11 +1102,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         for ( AttributeType attributeType : clonedEntry.getAttributeTypes() )
         {
             // if attribute type scope access is not allowed then remove the attribute and continue
-            String id = attributeType.getName();
             EntryAttribute attr = clonedEntry.get( attributeType );
 
             if ( !engine.hasPermission( schemaManager, opContext, userGroups, userDn, principal
-                .getAuthenticationLevel(), normName, id, null, SEARCH_ATTRVAL_PERMS, tuples, clonedEntry, null ) )
+                .getAuthenticationLevel(), normName, attributeType, null, SEARCH_ATTRVAL_PERMS, tuples, clonedEntry, null ) )
             {
                 attributeToRemove.add( attributeType );
 
@@ -1117,7 +1118,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             for ( Value<?> value : attr )
             {
                 if ( !engine.hasPermission( schemaManager, opContext, userGroups, userDn, principal
-                    .getAuthenticationLevel(), normName, attr.getUpId(), value, SEARCH_ATTRVAL_PERMS, tuples,
+                    .getAuthenticationLevel(), normName, attr.getAttributeType(), value, SEARCH_ATTRVAL_PERMS, tuples,
                     clonedEntry, null ) )
                 {
                     valueToRemove.add( value );

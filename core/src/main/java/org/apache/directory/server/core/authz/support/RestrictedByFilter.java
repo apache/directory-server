@@ -35,6 +35,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -56,7 +57,7 @@ public class RestrictedByFilter implements ACITupleFilter
             Entry userEntry, 
             AuthenticationLevel authenticationLevel,
             DN entryName, 
-            String attrId, 
+            AttributeType attributeType, 
             Value<?> attrValue, 
             Entry entry, 
             Collection<MicroOperation> microOperations,
@@ -82,7 +83,7 @@ public class RestrictedByFilter implements ACITupleFilter
                 continue;
             }
 
-            if ( isRemovable( tuple, attrId, attrValue, entry ) )
+            if ( isRemovable( tuple, attributeType, attrValue, entry ) )
             {
                 ii.remove();
             }
@@ -92,7 +93,7 @@ public class RestrictedByFilter implements ACITupleFilter
     }
 
 
-    public boolean isRemovable( ACITuple tuple, String attrId, Value<?> attrValue, Entry entry ) throws LdapException
+    public boolean isRemovable( ACITuple tuple, AttributeType attributeType, Value<?> attrValue, Entry entry ) throws LdapException
     {
         for ( ProtectedItem item : tuple.getProtectedItems() )
         {
@@ -105,7 +106,7 @@ public class RestrictedByFilter implements ACITupleFilter
                     RestrictedByElem rbItem = k.next();
                 
                     // TODO Fix DIRSEVER-832 
-                    if ( attrId.equalsIgnoreCase( rbItem.getAttributeType() ) )
+                    if ( attributeType.equals( rbItem.getAttributeType() ) )
                     {
                         EntryAttribute attr = entry.get( rbItem.getValuesIn() );
                         

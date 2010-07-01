@@ -35,6 +35,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
@@ -56,7 +57,7 @@ public class MaxValueCountFilter implements ACITupleFilter
             Entry userEntry, 
             AuthenticationLevel authenticationLevel,
             DN entryName, 
-            String attrId, 
+            AttributeType attributeType, 
             Value<?> attrValue, 
             Entry entry, 
             Collection<MicroOperation> microOperations,
@@ -90,7 +91,7 @@ public class MaxValueCountFilter implements ACITupleFilter
                 {
                     MaxValueCountItem mvc = ( MaxValueCountItem ) item;
                     
-                    if ( isRemovable( mvc, attrId, entryView ) )
+                    if ( isRemovable( mvc, attributeType, entryView ) )
                     {
                         i.remove();
                         break;
@@ -103,14 +104,15 @@ public class MaxValueCountFilter implements ACITupleFilter
     }
 
 
-    private boolean isRemovable( MaxValueCountItem mvc, String attrId, Entry entryView ) throws LdapException
+    private boolean isRemovable( MaxValueCountItem mvc, AttributeType attributeType, Entry entryView ) throws LdapException
     {
         for ( Iterator<MaxValueCountElem> k = mvc.iterator(); k.hasNext(); )
         {
             MaxValueCountElem mvcItem = k.next();
-            if ( attrId.equalsIgnoreCase( mvcItem.getAttributeType() ) )
+            
+            if ( attributeType.equals( mvcItem.getAttributeType() ) )
             {
-                EntryAttribute attr = entryView.get( attrId );
+                EntryAttribute attr = entryView.get( attributeType );
                 int attrCount = attr == null ? 0 : attr.size();
                 
                 if ( attrCount > mvcItem.getMaxCount() )

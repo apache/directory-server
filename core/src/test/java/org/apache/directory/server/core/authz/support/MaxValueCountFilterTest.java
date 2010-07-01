@@ -41,6 +41,7 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.DN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.loader.ldif.JarLdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
@@ -69,13 +70,8 @@ public class MaxValueCountFilterTest
     private static Entry ENTRY;
     private static Entry FULL_ENTRY;
 
-    static
-    {
-        Set<MaxValueCountElem> mvcItems = new HashSet<MaxValueCountElem>();
-        mvcItems.add( new MaxValueCountElem( "cn", 2 ) );
-        PROTECTED_ITEMS.add( new MaxValueCountItem( mvcItems ) );
-    }
-
+    /** The CN attribute Type */
+    private static AttributeType CN_AT;
 
     /** A reference to the schemaManager */
     private static SchemaManager schemaManager;
@@ -100,6 +96,13 @@ public class MaxValueCountFilterTest
         
         ENTRY.put( "cn", "1" );
         FULL_ENTRY.put( "cn", "1", "2", "3" );
+
+        Set<MaxValueCountElem> mvcItems = new HashSet<MaxValueCountElem>();
+        AttributeType cn = schemaManager.lookupAttributeTypeRegistry( "cn" );
+        mvcItems.add( new MaxValueCountElem( cn, 2 ) );
+        PROTECTED_ITEMS.add( new MaxValueCountItem( mvcItems ) );
+        
+        CN_AT = schemaManager.lookupAttributeTypeRegistry( "cn" );
     }
     
     
@@ -142,9 +145,9 @@ public class MaxValueCountFilterTest
         tuples = Collections.unmodifiableCollection( tuples );
 
         assertEquals( tuples, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
-            null, null, null, "cn", null, ENTRY, null, null ) );
+            null, null, null, CN_AT, null, ENTRY, null, null ) );
         assertEquals( tuples, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
-            null, null, null, "cn", null, FULL_ENTRY, null, null ) );
+            null, null, null, CN_AT, null, FULL_ENTRY, null, null ) );
     }
 
 
@@ -165,9 +168,9 @@ public class MaxValueCountFilterTest
             0 ) );
 
         assertEquals( 1, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
-            null, null, "cn", null, ENTRY, null, ENTRY ).size() );
+            null, null, CN_AT, null, ENTRY, null, ENTRY ).size() );
 
         assertEquals( 0, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
-            null, null, "cn", null, FULL_ENTRY, null, FULL_ENTRY ).size() );
+            null, null, CN_AT, null, FULL_ENTRY, null, FULL_ENTRY ).size() );
     }
 }
