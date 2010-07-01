@@ -38,11 +38,11 @@ import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
-import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
-import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.AllAttributeValuesItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.AttributeTypeItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.AttributeValueItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.MaxValueCountElem;
+import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByElem;
 import org.apache.directory.shared.ldap.aci.protectedItem.SelfValueItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
@@ -264,8 +264,8 @@ public class RelatedProtectedItemFilterTest
     @Test 
     public void testMaxValueCount() throws Exception
     {
-        Set<MaxValueCountItem> mvcItems = new HashSet<MaxValueCountItem>();
-        mvcItems.add( new MaxValueCountItem( "cn", 3 ) );
+        Set<MaxValueCountElem> mvcItems = new HashSet<MaxValueCountElem>();
+        mvcItems.add( new MaxValueCountElem( "cn", 3 ) );
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.MaxValueCount( mvcItems ) );
 
         // Test wrong scope
@@ -308,8 +308,8 @@ public class RelatedProtectedItemFilterTest
     @Test 
     public void testRestrictedBy() throws Exception
     {
-        Set<RestrictedByItem> rbItems = new HashSet<RestrictedByItem>();
-        rbItems.add( new RestrictedByItem( "cn", "sn" ) );
+        Set<RestrictedByElem> rbItems = new HashSet<RestrictedByElem>();
+        rbItems.add( new RestrictedByElem( "cn", "sn" ) );
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.RestrictedBy( rbItems ) );
 
         // Test wrong scope

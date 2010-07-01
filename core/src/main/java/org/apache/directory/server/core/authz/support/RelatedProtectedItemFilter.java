@@ -30,13 +30,13 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
-import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
-import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.AllAttributeValuesItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.AttributeTypeItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.AttributeValueItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.ClassesItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.MaxValueCountElem;
 import org.apache.directory.shared.ldap.aci.protectedItem.RangeOfValuesItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByElem;
 import org.apache.directory.shared.ldap.aci.protectedItem.SelfValueItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -237,9 +237,9 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 }
 
                 ProtectedItem.MaxValueCount mvc = ( ProtectedItem.MaxValueCount ) item;
-                for ( Iterator<MaxValueCountItem> j = mvc.iterator(); j.hasNext(); )
+                for ( Iterator<MaxValueCountElem> j = mvc.iterator(); j.hasNext(); )
                 {
-                    MaxValueCountItem mvcItem = j.next();
+                    MaxValueCountElem mvcItem = j.next();
                     
                     if ( oid.equals( schemaManager.getAttributeTypeRegistry().getOidByName( mvcItem.getAttributeType() ) ) )
                     {
@@ -264,9 +264,9 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 }
 
                 ProtectedItem.RestrictedBy rb = ( ProtectedItem.RestrictedBy ) item;
-                for ( Iterator<RestrictedByItem> j = rb.iterator(); j.hasNext(); )
+                for ( Iterator<RestrictedByElem> j = rb.iterator(); j.hasNext(); )
                 {
-                    RestrictedByItem rbItem = j.next();
+                    RestrictedByElem rbItem = j.next();
                     if ( oid.equals( schemaManager.getAttributeTypeRegistry().getOidByName( rbItem.getAttributeType() ) ) )
                     {
                         return true;

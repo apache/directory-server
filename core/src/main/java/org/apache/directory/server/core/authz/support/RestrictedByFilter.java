@@ -27,7 +27,7 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
-import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByElem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -99,9 +99,9 @@ public class RestrictedByFilter implements ACITupleFilter
             {
                 ProtectedItem.RestrictedBy rb = ( ProtectedItem.RestrictedBy ) item;
             
-                for ( Iterator<RestrictedByItem> k = rb.iterator(); k.hasNext(); )
+                for ( Iterator<RestrictedByElem> k = rb.iterator(); k.hasNext(); )
                 {
-                    RestrictedByItem rbItem = k.next();
+                    RestrictedByElem rbItem = k.next();
                 
                     // TODO Fix DIRSEVER-832 
                     if ( attrId.equalsIgnoreCase( rbItem.getAttributeType() ) )

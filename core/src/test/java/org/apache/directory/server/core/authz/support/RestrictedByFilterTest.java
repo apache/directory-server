@@ -35,11 +35,11 @@ import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
-import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
+import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByElem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.name.DN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.loader.ldif.JarLdifSchemaLoader;
@@ -69,8 +69,8 @@ public class RestrictedByFilterTest
 
     static
     {
-        Set<RestrictedByItem> mvcItems = new HashSet<RestrictedByItem>();
-        mvcItems.add( new RestrictedByItem( "sn", "cn" ) );
+        Set<RestrictedByElem> mvcItems = new HashSet<RestrictedByElem>();
+        mvcItems.add( new RestrictedByElem( "sn", "cn" ) );
         PROTECTED_ITEMS.add( new ProtectedItem.RestrictedBy( mvcItems ) );
     }
 
