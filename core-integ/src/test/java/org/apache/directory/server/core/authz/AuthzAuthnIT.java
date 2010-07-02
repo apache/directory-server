@@ -124,11 +124,22 @@ public class AuthzAuthnIT extends AbstractLdapTestUnit
         createAccessControlSubentry(
             "grantBrowseForTheWholeNamingContext",
             "{ maximum 0 }", // !!!!! Replace this with "{ minimum 1 }" for practicing !
-            "{ " + "identificationTag \"browseACI\", "
-            + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
-            + "userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " + "userPermissions { { "
-            + "protectedItems { entry }, "
-            + "grantsAndDenials { grantBrowse } } } } }" );
+            "{ " + 
+            "  identificationTag \"browseACI\", " +
+            "  precedence 14, " + 
+            "  authenticationLevel none, " + 
+            "  itemOrUserFirst userFirst: " +
+            "  { " +
+            "    userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " + 
+            "    userPermissions " +
+            "    { " +
+            "      { " +
+            "        protectedItems { entry }, " +
+            "        grantsAndDenials { grantBrowse } " +
+            "      } " +
+            "    } " +
+            "  } " +
+            "}" );
         
         DN userName = new DN( "uid=billyd,ou=users,ou=system" ); 
         
